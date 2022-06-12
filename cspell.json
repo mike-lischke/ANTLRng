@@ -1,0 +1,30 @@
+{
+    "version": "0.2",
+    "words": [
+        "antlr",
+        "Cloneable",
+        "Declarators",
+        "instanceof",
+        "misformatted",
+        "signum",
+        "subfolders",
+        "whitespaces"
+    ],
+    "ignoreWords": [
+        "COLONCOLON",
+        "Harwell",
+        "LBRACK",
+        "LPAREN",
+        "RBRACK",
+        "RPAREN",
+        "Xexact",
+        "a4tstool",
+        "arraycopy",
+        "javax",
+        "stringbuilder",
+        "stringtemplate"
+    ],
+    "ignorePaths": [
+        ".eslintrc.json"
+    ]
+}

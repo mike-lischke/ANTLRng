@@ -1,0 +1,32 @@
+{
+    "name": "a4tstool",
+    "version": "0.1.0",
+    "description": "ANTLR4 Typescript Port",
+    "keywords": [
+        "Java",
+        "Typescript",
+        "ANTLR4"
+    ],
+    "type": "commonjs",
+    "author": "Mike Lischke",
+    "license": "MIT",
+    "dependencies": {
+        "hash-sum": "2.0.0"
+    },
+    "devDependencies": {
+        "@types/hash-sum": "1.0.0",
+        "@typescript-eslint/eslint-plugin": "5.27.1",
+        "@typescript-eslint/eslint-plugin-tslint": "5.27.1",
+        "@typescript-eslint/parser": "5.27.1",
+        "eslint": "8.17.0",
+        "eslint-plugin-import": "2.26.0",
+        "eslint-plugin-jsdoc": "39.3.2",
+        "eslint-plugin-prefer-arrow": "1.2.3",
+        "typescript": "4.7.3"
+    },
+    "scripts": {
+        "build": "tsc . --watch",
+        "lint": "eslint \"./runtime/**/*.ts\"",
+        "lint:fix": "eslint \"./runtime/**/*.ts\" --fix"
+    }
+}

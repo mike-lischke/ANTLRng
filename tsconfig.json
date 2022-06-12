@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "CommonJS",
+        "outDir": "output",
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "Node",
+    },
+    "include": [
+        "runtime/**/*.ts",
+        "lib/**/*.ts",
+        "lib/Decorators.ts"
+    ]
+}
