@@ -5,10 +5,10 @@
  */
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -155,7 +155,7 @@ if (text === undefined) {
 
 
 	public  InsertBeforeOp = (($outer) => {
-return class InsertBeforeOp extends RewriteOperation {
+return class InsertBeforeOp extends this.RewriteOperation {
 		public constructor(index: number, text: object) {
 			super(index,text);
 		}
@@ -176,7 +176,7 @@ return class InsertBeforeOp extends RewriteOperation {
 	 *  of "insert after" is "insert before index+1".
 	 */
     public  InsertAfterOp = (($outer) => {
-return class InsertAfterOp extends InsertBeforeOp {
+return class InsertAfterOp extends this.InsertBeforeOp {
         public constructor(index: number, text: object) {
             super(index+1, text); // insert after is insert before index+1
         }
@@ -188,7 +188,7 @@ return class InsertAfterOp extends InsertBeforeOp {
 	 *  instructions.
 	 */
 	public  ReplaceOp = (($outer) => {
-return class ReplaceOp extends RewriteOperation {
+return class ReplaceOp extends this.RewriteOperation {
 		protected lastIndex:  number;
 		public constructor(from: number, to: number, text: object) {
 			super(from,text);
@@ -219,7 +219,7 @@ return class ReplaceOp extends RewriteOperation {
 	 *  I'm calling these things "programs."
 	 *  Maps String (name) &rarr; rewrite (List)
 	 */
-	protected readonly  programs?:  Map<string, java.util.List<RewriteOperation>>;
+	protected readonly  programs?:  Map<string, java.util.List<this.RewriteOperation>>;
 
 	/** Map String (program name) &rarr; Integer index */
 	protected readonly  lastRewriteTokenIndexes?:  Map<string, java.lang.Integer>;
@@ -252,7 +252,7 @@ const instructionIndex = instructionIndexOrProgramName as number;
 	}
  else  {
 let programName = instructionIndexOrProgramName as string;
-		let  is: java.util.List<RewriteOperation> = this.programs.get(programName);
+		let  is: java.util.List<this.RewriteOperation> = this.programs.get(programName);
 		if ( is!==undefined ) {
 			this.programs.set(programName, is.subList(TokenStreamRewriter.MIN_TOKEN_INDEX,instructionIndex));
 		}
@@ -307,8 +307,8 @@ const t = textOrTOrIndex as Token;
 let programName = tOrIndexOrProgramName as string;
 let index = textOrTOrIndex as number;
 		// to insert after, just insert before next index (even if past end)
-        let  op: RewriteOperation = new  this.InsertAfterOp(index, text);
-        let  rewrites: java.util.List<RewriteOperation> = this.getProgram(programName);
+        let  op: this.RewriteOperation = new  this.InsertAfterOp(index, text);
+        let  rewrites: java.util.List<this.RewriteOperation> = this.getProgram(programName);
         op.instructionIndex = rewrites.size();
         rewrites.add(op);
 	}
@@ -344,8 +344,8 @@ const t = textOrTOrIndex as Token;
  else  {
 let programName = tOrIndexOrProgramName as string;
 let index = textOrTOrIndex as number;
-		let  op: RewriteOperation = new  this.InsertBeforeOp(index,text);
-		let  rewrites: java.util.List<RewriteOperation> = this.getProgram(programName);
+		let  op: this.RewriteOperation = new  this.InsertBeforeOp(index,text);
+		let  rewrites: java.util.List<this.RewriteOperation> = this.getProgram(programName);
 		op.instructionIndex = rewrites.size();
 		rewrites.add(op);
 	}
@@ -396,8 +396,8 @@ const to = textOrTo as number;
 		if ( from > to || from<0 || to<0 || to >= this.tokens.size() ) {
 			throw new  java.lang.IllegalArgumentException("replace: range invalid: "+from+".."+to+"(size="+this.tokens.size()+")");
 		}
-		let  op: RewriteOperation = new  this.ReplaceOp(from, to, text);
-		let  rewrites: java.util.List<RewriteOperation> = this.getProgram(programName);
+		let  op: this.RewriteOperation = new  this.ReplaceOp(from, to, text);
+		let  rewrites: java.util.List<this.RewriteOperation> = this.getProgram(programName);
 		op.instructionIndex = rewrites.size();
 		rewrites.add(op);
 	}
@@ -484,16 +484,16 @@ if (programName === undefined) {
 		this.lastRewriteTokenIndexes.set(programName, i);
 	}
 
-	protected getProgram = (name: string): java.util.List<RewriteOperation> => {
-		let  is: java.util.List<RewriteOperation> = this.programs.get(name);
+	protected getProgram = (name: string): java.util.List<this.RewriteOperation> => {
+		let  is: java.util.List<this.RewriteOperation> = this.programs.get(name);
 		if ( is===undefined ) {
 			is = this.initializeProgram(name);
 		}
 		return is;
 	}
 
-	private initializeProgram = (name: string): java.util.List<RewriteOperation> => {
-		let  is: java.util.List<RewriteOperation> = new  java.util.ArrayList<RewriteOperation>(TokenStreamRewriter.PROGRAM_INIT_SIZE);
+	private initializeProgram = (name: string): java.util.List<this.RewriteOperation> => {
+		let  is: java.util.List<this.RewriteOperation> = new  java.util.ArrayList<RewriteOperation>(TokenStreamRewriter.PROGRAM_INIT_SIZE);
 		this.programs.set(name, is);
 		return is;
 	}
@@ -539,7 +539,7 @@ const interval = programNameOrInterval as Interval;
 	}
  else  {
 let programName = programNameOrInterval as string;
-		let  rewrites: java.util.List<RewriteOperation> = this.programs.get(programName);
+		let  rewrites: java.util.List<this.RewriteOperation> = this.programs.get(programName);
 		let  start: number = interval.a;
 		let  stop: number = interval.b;
 
@@ -559,12 +559,12 @@ let programName = programNameOrInterval as string;
 		let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
 
 		// First, optimize instruction stream
-		let  indexToOp: Map<java.lang.Integer, RewriteOperation> = this.reduceToSingleOperationPerIndex(rewrites);
+		let  indexToOp: Map<java.lang.Integer, this.RewriteOperation> = this.reduceToSingleOperationPerIndex(rewrites);
 
 		// Walk buffer, executing instructions and emitting tokens
 		let  i: number = start;
 		while ( i <= stop && i < this.tokens.size() ) {
-			let  op: RewriteOperation = indexToOp.get(i);
+			let  op: this.RewriteOperation = indexToOp.get(i);
 			indexToOp.delete(i); // remove so any left have index size-1
 			let  t: Token = this.tokens.get(i);
 			if ( op===undefined ) {
@@ -648,12 +648,12 @@ let programName = programNameOrInterval as string;
 	 *
 	 *  Return a map from token index to operation.
 	 */
-	protected reduceToSingleOperationPerIndex = (rewrites: java.util.List<RewriteOperation>): Map<java.lang.Integer, RewriteOperation> => {
+	protected reduceToSingleOperationPerIndex = (rewrites: java.util.List<this.RewriteOperation>): Map<java.lang.Integer, this.RewriteOperation> => {
 //		System.out.println("rewrites="+rewrites);
 
 		// WALK REPLACES
 		for (let  i: number = 0; i < rewrites.size(); i++) {
-			let  op: RewriteOperation = rewrites.get(i);
+			let  op: this.RewriteOperation = rewrites.get(i);
 			if ( op===undefined ) {
  continue;
 }
@@ -662,9 +662,9 @@ let programName = programNameOrInterval as string;
  continue;
 }
 
-			let  rop: ReplaceOp = rewrites.get(i) as ReplaceOp;
+			let  rop: this.ReplaceOp = rewrites.get(i) as ReplaceOp;
 			// Wipe prior inserts within range
-			let  inserts: java.util.List< InsertBeforeOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.InsertBeforeOp), i);
+			let  inserts: java.util.List< this.InsertBeforeOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.InsertBeforeOp), i);
 			for (let iop of inserts) {
 				if ( iop.index === rop.index ) {
 					// E.g., insert before 2, delete 2..2; update replace
@@ -680,7 +680,7 @@ let programName = programNameOrInterval as string;
 
 			}
 			// Drop any prior replaces contained within
-			let  prevReplaces: java.util.List< ReplaceOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.ReplaceOp), i);
+			let  prevReplaces: java.util.List< this.ReplaceOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.ReplaceOp), i);
 			for (let prevRop of prevReplaces) {
 				if ( prevRop.index>=rop.index && prevRop.lastIndex <= rop.lastIndex ) {
 					// delete replace as it's a no-op.
@@ -709,7 +709,7 @@ let programName = programNameOrInterval as string;
 
 		// WALK INSERTS
 		for (let  i: number = 0; i < rewrites.size(); i++) {
-			let  op: RewriteOperation = rewrites.get(i);
+			let  op: this.RewriteOperation = rewrites.get(i);
 			if ( op===undefined ) {
  continue;
 }
@@ -718,9 +718,9 @@ let programName = programNameOrInterval as string;
  continue;
 }
 
-			let  iop: InsertBeforeOp = rewrites.get(i) as InsertBeforeOp;
+			let  iop: this.InsertBeforeOp = rewrites.get(i) as InsertBeforeOp;
 			// combine current insert with prior if any at same index
-			let  prevInserts: java.util.List< InsertBeforeOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.InsertBeforeOp), i);
+			let  prevInserts: java.util.List< this.InsertBeforeOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.InsertBeforeOp), i);
 			for (let prevIop of prevInserts) {
 				if ( prevIop.index===iop.index ) {
 					if ( new java.lang.Class(this.InsertAfterOp).isInstance(prevIop) ) {
@@ -739,7 +739,7 @@ let programName = programNameOrInterval as string;
 				}
 			}
 			// look for replaces where iop.index is in range; error
-			let  prevReplaces: java.util.List< ReplaceOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.ReplaceOp), i);
+			let  prevReplaces: java.util.List< this.ReplaceOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.ReplaceOp), i);
 			for (let rop of prevReplaces) {
 				if ( iop.index === rop.index ) {
 					rop.text = this.catOpText(iop.text,rop.text);
@@ -752,9 +752,9 @@ let programName = programNameOrInterval as string;
 			}
 		}
 		// System.out.println("rewrites after="+rewrites);
-		let  m: Map<java.lang.Integer, RewriteOperation> = new  java.util.HashMap<java.lang.Integer, RewriteOperation>();
+		let  m: Map<java.lang.Integer, this.RewriteOperation> = new  java.util.HashMap<java.lang.Integer, RewriteOperation>();
 		for (let  i: number = 0; i < rewrites.size(); i++) {
-			let  op: RewriteOperation = rewrites.get(i);
+			let  op: this.RewriteOperation = rewrites.get(i);
 			if ( op===undefined ) {
  continue;
 }
@@ -783,10 +783,10 @@ let programName = programNameOrInterval as string;
 	}
 
 	/** Get all operations before an index of a particular kind */
-	protected getKindOfOps =  <T extends RewriteOperation>(rewrites: java.util.List< RewriteOperation>, kind: java.lang.Class<T>, before: number): java.util.List< T> => {
+	protected getKindOfOps =  <T extends this.RewriteOperation>(rewrites: java.util.List< this.RewriteOperation>, kind: java.lang.Class<T>, before: number): java.util.List< T> => {
 		let  ops: java.util.List<T> = new  java.util.ArrayList<T>();
 		for (let  i: number=0; i<before && i<rewrites.size(); i++) {
-			let  op: RewriteOperation = rewrites.get(i);
+			let  op: this.RewriteOperation = rewrites.get(i);
 			if ( op===undefined ) {
  continue;
 }
@@ -801,13 +801,13 @@ let programName = programNameOrInterval as string;
 
 namespace TokenStreamRewriter {
 
-export type RewriteOperation = InstanceType<TokenStreamRewriter["RewriteOperation"]>;
+export type RewriteOperation = InstanceType<TokenStreamRewriter.RewriteOperation>;
 
-export type InsertBeforeOp = InstanceType<TokenStreamRewriter["InsertBeforeOp"]>;
+export type InsertBeforeOp = InstanceType<TokenStreamRewriter.InsertBeforeOp>;
 
-export type InsertAfterOp = InstanceType<TokenStreamRewriter["InsertAfterOp"]>;
+export type InsertAfterOp = InstanceType<TokenStreamRewriter.InsertAfterOp>;
 
-export type ReplaceOp = InstanceType<TokenStreamRewriter["ReplaceOp"]>;
+export type ReplaceOp = InstanceType<TokenStreamRewriter.ReplaceOp>;
 }
 
 

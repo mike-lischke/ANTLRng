@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -43,9 +43,9 @@ export  class ATNConfigSet implements Set<ATNConfig> {
 	 * the number of objects associated with ATNConfigs. The other solution is to
 	 * use a hash table that lets us specify the equals/hashcode operation.
 	 */
-	public static ConfigHashSet = class ConfigHashSet extends AbstractConfigHashSet {
+	public static ConfigHashSet = class ConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
 		public constructor() {
-			super(ConfigEqualityComparator.INSTANCE);
+			super(ATNConfigSet.ConfigEqualityComparator.INSTANCE);
 		}
 	};
 
@@ -92,7 +92,7 @@ export  class ATNConfigSet implements Set<ATNConfig> {
 	 * All configs but hashed by (s, i, _, pi) not including context. Wiped out
 	 * when we go readonly as this set becomes a DFA state.
 	 */
-	public configLookup?:  AbstractConfigHashSet;
+	public configLookup?:  ATNConfigSet.AbstractConfigHashSet;
 
 	/** Track the elements as they are added to the set; supports get(i) */
 	public readonly  configs?:  java.util.ArrayList<ATNConfig> = new  java.util.ArrayList<ATNConfig>(7);
@@ -129,7 +129,7 @@ const $this = (fullCtxOrOld?: boolean | ATNConfigSet): void => {
 if (fullCtxOrOld === undefined) { $this(true); }
  else if (typeof fullCtxOrOld === "boolean") {
 const fullCtx = fullCtxOrOld as boolean;
-		this.configLookup = new  this.ConfigHashSet();
+		this.configLookup = new  ATNConfigSet.ConfigHashSet();
 		this.fullCtx = fullCtx;
 	}
  else  {
@@ -455,11 +455,11 @@ $this(comparator, initialCapacity, initialBucketCapacity);
 
 namespace ATNConfigSet {
 
-export type ConfigHashSet = InstanceType<typeof ATNConfigSet["ConfigHashSet"]>;
+export type ConfigHashSet = InstanceType<typeof ATNConfigSet.ConfigHashSet>;
 
-export type ConfigEqualityComparator = InstanceType<typeof ATNConfigSet["ConfigEqualityComparator"]>;
+export type ConfigEqualityComparator = InstanceType<typeof ATNConfigSet.ConfigEqualityComparator>;
 
-export type AbstractConfigHashSet = InstanceType<typeof ATNConfigSet["AbstractConfigHashSet"]>;
+export type AbstractConfigHashSet = InstanceType<typeof ATNConfigSet.AbstractConfigHashSet>;
 }
 
 

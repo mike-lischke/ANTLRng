@@ -2,6 +2,7 @@
     "version": "0.2",
     "words": [
         "antlr",
+        "Appendable",
         "Cloneable",
         "Declarators",
         "instanceof",

@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -273,7 +273,7 @@ let bufferSize = decodingErrorActionOrBufferSize as number;
 let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 		try {
 			let  utf8BytesIn: ByteBuffer = ByteBuffer.allocate(bufferSize);
-			let  utf16CodeUnitsOut: CharBuffer = CharBuffer.allocate(bufferSize);
+			let  utf16CodeUnitsOut: java.nio.CharBuffer = java.nio.CharBuffer.allocate(bufferSize);
 			if (inputSize === -1) {
 				inputSize = bufferSize;
 			} else { if (inputSize > java.lang.Integer.MAX_VALUE) {
@@ -349,7 +349,7 @@ if (sourceName === undefined) {
  else  {
 		try {
 			let  codePointBufferBuilder: CodePointBuffer.Builder = CodePointBuffer.builder(CharStreams.DEFAULT_BUFFER_SIZE);
-			let  charBuffer: CharBuffer = CharBuffer.allocate(CharStreams.DEFAULT_BUFFER_SIZE);
+			let  charBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(CharStreams.DEFAULT_BUFFER_SIZE);
 			while ((r.read(charBuffer)) !== -1) {
 				charBuffer.flip();
 				codePointBufferBuilder.append(charBuffer);
@@ -390,7 +390,7 @@ if (sourceName === undefined) {
 		let  codePointBufferBuilder: CodePointBuffer.Builder = CodePointBuffer.builder(s.length);
 		// TODO: CharBuffer.wrap(String) rightfully returns a read-only buffer
 		// which doesn't expose its array, so we make a copy.
-		let  cb: CharBuffer = CharBuffer.allocate(s.length);
+		let  cb: java.nio.CharBuffer = java.nio.CharBuffer.allocate(s.length);
 		cb.put(s);
 		cb.flip();
 		codePointBufferBuilder.append(cb);

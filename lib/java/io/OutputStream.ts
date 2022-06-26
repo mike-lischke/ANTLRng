@@ -5,11 +5,12 @@
  * See LICENSE file for more info.
  */
 
-export abstract class OutputStream /* implements Closable, Flushable, AutoClosable */ {
-    // Closes this output stream and releases any system resources associated with this stream.
-    public abstract close(): void;
+import { AutoCloseable } from "./AutoCloseable";
+import { Closable } from "./Closable";
+import { Flushable } from "./Flushable";
 
-    // Flushes this output stream and forces any buffered output bytes to be written out.
+export abstract class OutputStream implements Closable, Flushable, AutoCloseable {
+    public abstract close(): void;
     public abstract flush(): void;
 
     // Writes b.length bytes from the specified byte array to this output stream.

@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -105,7 +105,7 @@ export  class LexerATNSimulator extends ATNSimulator {
 
 	/** Used during DFA/ATN exec to record the most recent accept configuration info */
 
-	protected readonly  prevAccept?:  SimState = new  this.SimState();
+	protected readonly  prevAccept?:  LexerATNSimulator.SimState = new  LexerATNSimulator.SimState();
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
 public constructor(atn: ATN, decisionToDFA: DFA[],
@@ -337,7 +337,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 		return this.addDFAEdge(s, t, reach);
 	}
 
-	protected failOrAccept = (prevAccept: SimState, input: CharStream,
+	protected failOrAccept = (prevAccept: LexerATNSimulator.SimState, input: CharStream,
 							   reach: ATNConfigSet, t: number): number =>
 	{
 		if (prevAccept.dfaState !== undefined) {
@@ -649,7 +649,7 @@ default:
 		}
 	}
 
-	protected captureSimState = (settings: SimState,
+	protected captureSimState = (settings: LexerATNSimulator.SimState,
 								   input: CharStream,
 								   dfaState: DFAState): void =>
 	{
@@ -817,7 +817,7 @@ let p = fromOrP as DFAState;
 
 namespace LexerATNSimulator {
 
-type SimState = InstanceType<typeof LexerATNSimulator["SimState"]>;
+type SimState = InstanceType<typeof LexerATNSimulator.SimState>;
 }
 
 

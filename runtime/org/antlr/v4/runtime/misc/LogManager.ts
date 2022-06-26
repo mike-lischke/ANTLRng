@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -48,7 +48,7 @@ export  class LogManager {
 	};
 
 
-	protected records?:  java.util.List<Record>;
+	protected records?:  java.util.List<LogManager.Record>;
 
     public log(msg: string): void;
 
@@ -59,11 +59,11 @@ export  class LogManager {
 if (msg === undefined) { this.log(undefined, msg); }
  else  {
 let component = msgOrComponent as string;
-		let  r: Record = new  this.Record();
+		let  r: LogManager.Record = new  LogManager.Record();
 		r.component = component;
 		r.msg = msg;
 		if ( this.records===undefined ) {
-			this.records = new  java.util.ArrayList<Record>();
+			this.records = new  java.util.ArrayList<LogManager.Record>();
 		}
 		this.records.add(r);
 	}
@@ -125,7 +125,7 @@ if (filename === undefined) {
 
 namespace LogManager {
 
-type Record = InstanceType<typeof LogManager["Record"]>;
+type Record = InstanceType<typeof LogManager.Record>;
 }
 
 

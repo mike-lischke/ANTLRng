@@ -7,6 +7,8 @@
 
 import { ArrayList, List } from ".";
 
+export type ComparableValueType = number | bigint | string;
+
 export class Arrays {
     public static sort<T>(list: T[]): void {
         list.sort((a, b) => {
@@ -80,6 +82,32 @@ export class Arrays {
         result.splice(0, 0, ...original);
 
         return result;
+    }
+
+    public static binarySearch<T extends ComparableValueType>(list: T[], value: T,): number;
+    public static binarySearch<T extends ComparableValueType>(list: T[], start: number, end: number,
+        value: T): number;
+    public static binarySearch<T extends ComparableValueType>(list: T[], startOrValue: number | T, end?: number,
+        value?: T): number {
+        let start = 0;
+        let stop = list.length;
+        if (end !== undefined) {
+            start = startOrValue as number;
+            stop = end;
+        }
+
+        while (start < stop) {
+            const mid = (stop + start) >> 1;
+            if (value > list[mid]) {
+                start = mid + 1;
+            } else if (value < list[mid]) {
+                stop = mid;
+            } else {
+                return mid;
+            }
+        }
+
+        return -start - 1;
     }
 }
 

@@ -5,10 +5,10 @@
  */
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -79,7 +79,7 @@ return  class TraceListener extends  ParseTreeListener {
 
 
 	public static TrimToSizeListener = class TrimToSizeListener extends  ParseTreeListener {
-		public static readonly  INSTANCE?:  TrimToSizeListener = new  this.TrimToSizeListener();
+		public static readonly  INSTANCE?:  Parser.TrimToSizeListener = new  Parser.TrimToSizeListener();
 
 		public enterEveryRule = (ctx: ParserRuleContext): void => { }
 
@@ -148,7 +148,7 @@ return  class TraceListener extends  ParseTreeListener {
 	 * implemented as a parser listener so this field is not directly used by
 	 * other parser methods.
 	 */
-	private _tracer?:  TraceListener;
+	private _tracer?:  this.TraceListener;
 
 	/**
 	 * The list of {@link ParseTreeListener} listeners registered to receive
@@ -309,10 +309,10 @@ this.setInputStream(input);
  return;
 }
 
-			this.addParseListener(TrimToSizeListener.INSTANCE);
+			this.addParseListener(Parser.TrimToSizeListener.INSTANCE);
 		}
 		else {
-			this.removeParseListener(TrimToSizeListener.INSTANCE);
+			this.removeParseListener(Parser.TrimToSizeListener.INSTANCE);
 		}
 	}
 
@@ -321,7 +321,7 @@ this.setInputStream(input);
 	 * using the default {@link Parser.TrimToSizeListener} during the parse process.
 	 */
 	public getTrimParseTree = (): boolean => {
-		return this.getParseListeners().contains(TrimToSizeListener.INSTANCE);
+		return this.getParseListeners().contains(Parser.TrimToSizeListener.INSTANCE);
 	}
 
 
@@ -1058,9 +1058,9 @@ public constructor() {
 
 namespace Parser {
 
-export type TraceListener = InstanceType<Parser["TraceListener"]>;
+export type TraceListener = InstanceType<Parser.TraceListener>;
 
-export type TrimToSizeListener = InstanceType<typeof Parser["TrimToSizeListener"]>;
+export type TrimToSizeListener = InstanceType<typeof Parser.TrimToSizeListener>;
 }
 
 

@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -90,21 +90,21 @@ if (name === undefined) {
 		// method calls to ByteBuffer.get(offset).
 		switch (codePointBuffer.getType()) {
 			case BYTE:
-				return new  this.CodePoint8BitCharStream(
+				return new  CodePointCharStream.CodePoint8BitCharStream(
 						codePointBuffer.position(),
 						codePointBuffer.remaining(),
 						name,
 						codePointBuffer.byteArray(),
 						codePointBuffer.arrayOffset());
 			case CHAR:
-				return new  this.CodePoint16BitCharStream(
+				return new  CodePointCharStream.CodePoint16BitCharStream(
 						codePointBuffer.position(),
 						codePointBuffer.remaining(),
 						name,
 						codePointBuffer.charArray(),
 						codePointBuffer.arrayOffset());
 			case INT:
-				return new  this.CodePoint32BitCharStream(
+				return new  CodePointCharStream.CodePoint32BitCharStream(
 						codePointBuffer.position(),
 						codePointBuffer.remaining(),
 						name,
@@ -327,11 +327,11 @@ default:
 
 namespace CodePointCharStream {
 
-type CodePoint8BitCharStream = InstanceType<typeof CodePointCharStream["CodePoint8BitCharStream"]>;
+type CodePoint8BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint8BitCharStream>;
 
-type CodePoint16BitCharStream = InstanceType<typeof CodePointCharStream["CodePoint16BitCharStream"]>;
+type CodePoint16BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint16BitCharStream>;
 
-type CodePoint32BitCharStream = InstanceType<typeof CodePointCharStream["CodePoint32BitCharStream"]>;
+type CodePoint32BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint32BitCharStream>;
 }
 
 

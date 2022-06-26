@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -93,7 +93,7 @@ export  class DFAState {
 	 *  <p>This list is computed by {@link ParserATNSimulator#predicateDFAState}.</p>
 	 */
 
-	public predicates?:  PredPrediction[];
+	public predicates?:  DFAState.PredPrediction[];
 
 	/** Map a predicate to a predicted alternative. */
 	public static PredPrediction = class PredPrediction {
@@ -198,7 +198,7 @@ let configs = stateNumberOrConfigs as ATNConfigSet; this.configs = configs; }
 
 namespace DFAState {
 
-export type PredPrediction = InstanceType<typeof DFAState["PredPrediction"]>;
+export type PredPrediction = InstanceType<typeof DFAState.PredPrediction>;
 }
 
 

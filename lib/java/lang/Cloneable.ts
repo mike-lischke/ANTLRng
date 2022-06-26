@@ -8,7 +8,7 @@
 import _ from "lodash";
 
 export class Cloneable {
-    public clone(): unknown {
+    public clone(): this {
         return _.cloneDeep(this);
     }
 }

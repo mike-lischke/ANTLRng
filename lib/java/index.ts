@@ -6,5 +6,6 @@
  */
 
 export * from "./io/io";
+export * from "./nio/nio";
 export * from "./util/util";
 export * from "./lang/lang";

@@ -19,8 +19,10 @@
         "project": "tsconfig.json",
         "sourceType": "module",
         "implicitStrict": true,
-        "ecmaFeatures": {},
-        "ecmaVersion": 8
+        "ecmaFeatures": {
+            "modules": true
+        },
+        "ecmaVersion": 2022
     },
     "plugins": [
         "@typescript-eslint",

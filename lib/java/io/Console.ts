@@ -5,8 +5,6 @@
  * See LICENSE file for more info.
  */
 
-/* eslint-disable @typescript-eslint/no-namespace */
-
 export class Console {
 
 }

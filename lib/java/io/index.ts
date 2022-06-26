@@ -16,6 +16,7 @@ export * from "./FileNotFoundException";
 export * from "./OutputStream";
 export * from "./FileOutputStream";
 export * from "./BufferedOutputStream";
+export * from "./Reader";
 
 // Have to create these here, to avoid circular imports.
 export const stdErrorDescriptor = FileDescriptorImpl.fromStream(process.stderr);

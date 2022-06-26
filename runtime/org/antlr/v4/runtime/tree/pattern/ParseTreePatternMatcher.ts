@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -252,12 +252,12 @@ if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
 			throw Lexer.recover.re;
 		}
 		catch ([object Object]e: unknown) {
-			throw new  this.CannotInvokeStartRule(BailErrorStrategy.recover.e);
+			throw new  ParseTreePatternMatcher.CannotInvokeStartRule(BailErrorStrategy.recover.e);
 		}
 
 		// Make sure tree pattern compilation checks for a complete parse
 		if ( tokens.LA(1)!==Token.EOF ) {
-			throw new  this.StartRuleDoesNotConsumeFullPattern();
+			throw new  ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern();
 		}
 
 		return new  ParseTreePattern(this, pattern, patternRuleIndex, tree);
@@ -558,9 +558,9 @@ if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
 
 namespace ParseTreePatternMatcher {
 
-export type CannotInvokeStartRule = InstanceType<typeof ParseTreePatternMatcher["CannotInvokeStartRule"]>;
+export type CannotInvokeStartRule = InstanceType<typeof ParseTreePatternMatcher.CannotInvokeStartRule>;
 
-export type StartRuleDoesNotConsumeFullPattern = InstanceType<typeof ParseTreePatternMatcher["StartRuleDoesNotConsumeFullPattern"]>;
+export type StartRuleDoesNotConsumeFullPattern = InstanceType<typeof ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern>;
 }
 
 

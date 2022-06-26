@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -28,12 +28,12 @@ import { java } from "../../../../../lib/java/java";
  * do not share an interface, so we have to write one manually.
  */
 export  class CodePointBuffer {
-	private readonly  type?:  Type;
+	private readonly  type?:  this.Type;
 	private readonly  byteBuffer?:  ByteBuffer;
-	private readonly  charBuffer?:  CharBuffer;
+	private readonly  charBuffer?:  java.nio.CharBuffer;
 	private readonly  intBuffer?:  IntBuffer;
 
-	private constructor(type: Type, byteBuffer: ByteBuffer, charBuffer: CharBuffer, intBuffer: IntBuffer) {
+	private constructor(type: this.Type, byteBuffer: ByteBuffer, charBuffer: java.nio.CharBuffer, intBuffer: IntBuffer) {
 		this.type = type;
 		this.byteBuffer = byteBuffer;
 		this.charBuffer = charBuffer;
@@ -44,7 +44,7 @@ export  class CodePointBuffer {
 		return new  CodePointBuffer(this.Type.BYTE, byteBuffer, undefined, undefined);
 	}
 
-	public static withChars = (charBuffer: CharBuffer): CodePointBuffer => {
+	public static withChars = (charBuffer: java.nio.CharBuffer): CodePointBuffer => {
 		return new  CodePointBuffer(this.Type.CHAR, undefined, charBuffer, undefined);
 	}
 
@@ -122,7 +122,7 @@ default:
 		throw new  java.lang.UnsupportedOperationException("Not reached");
 	}
 
-	public  getType = ():Type => {
+	public  getType = ():this.Type => {
 		return this.type;
 	}
 
@@ -156,14 +156,14 @@ default:
 		return this.intBuffer.array();
 	}
 
-	public static builder = (initialBufferSize: number): Builder => {
-		return new  this.Builder(initialBufferSize);
+	public static builder = (initialBufferSize: number): CodePointBuffer.Builder => {
+		return new  CodePointBuffer.Builder(initialBufferSize);
 	}
 
 	public static Builder = class Builder {
-		private type?:  Type;
+		private type?:  $outer.Type;
 		private byteBuffer?:  ByteBuffer;
-		private charBuffer?:  CharBuffer;
+		private charBuffer?:  java.nio.CharBuffer;
 		private intBuffer?:  IntBuffer;
 		private prevHighSurrogate:  number;
 
@@ -175,7 +175,7 @@ default:
 			this.prevHighSurrogate = -1;
 		}
 
-		public  getType = ():Type => {
+		public  getType = ():$outer.Type => {
 			return this.type;
 		}
 
@@ -183,7 +183,7 @@ default:
 			return this.byteBuffer;
 		}
 
-		public  getCharBuffer = ():CharBuffer => {
+		public  getCharBuffer = ():java.nio.CharBuffer => {
 			return this.charBuffer;
 		}
 
@@ -228,7 +228,7 @@ default:
 				case CHAR:
 					if (this.charBuffer.remaining() < remainingNeeded) {
 						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.charBuffer.capacity() + remainingNeeded);
-						let  newBuffer: CharBuffer = CharBuffer.allocate(newCapacity);
+						let  newBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(newCapacity);
 						this.charBuffer.flip();
 						newBuffer.put(this.charBuffer);
 						this.charBuffer = newBuffer;
@@ -249,7 +249,7 @@ default:
 			}
 		}
 
-		public append = (utf16In: CharBuffer): void => {
+		public append = (utf16In: java.nio.CharBuffer): void => {
 			this.ensureRemaining(utf16In.remaining());
 			if (utf16In.hasArray()) {
 				this.appendArray(utf16In);
@@ -259,7 +259,7 @@ default:
 			}
 		}
 
-		private appendArray = (utf16In: CharBuffer): void => {
+		private appendArray = (utf16In: java.nio.CharBuffer): void => {
 			/* assert utf16In.hasArray(); */ 
 
 			switch (this.type) {
@@ -278,7 +278,7 @@ default:
 			}
 		}
 
-		private appendArrayByte = (utf16In: CharBuffer): void => {
+		private appendArrayByte = (utf16In: java.nio.CharBuffer): void => {
 			/* assert prevHighSurrogate == -1; */ 
 
 			let  in: number[] = utf16In.array();
@@ -313,7 +313,7 @@ default:
 			this.byteBuffer.position(outOffset - this.byteBuffer.arrayOffset());
 		}
 
-		private appendArrayChar = (utf16In: CharBuffer): void => {
+		private appendArrayChar = (utf16In: java.nio.CharBuffer): void => {
 			/* assert prevHighSurrogate == -1; */ 
 
 			let  in: number[] = utf16In.array();
@@ -342,7 +342,7 @@ default:
 			this.charBuffer.position(outOffset - this.charBuffer.arrayOffset());
 		}
 
-		private appendArrayInt = (utf16In: CharBuffer): void => {
+		private appendArrayInt = (utf16In: java.nio.CharBuffer): void => {
 			let  in: number[] = utf16In.array();
 			let  inOffset: number = utf16In.arrayOffset() + utf16In.position();
 			let  inLimit: number = utf16In.arrayOffset() + utf16In.limit();
@@ -393,7 +393,7 @@ default:
 		private byteToCharBuffer = (toAppend: number): void => {
 			this.byteBuffer.flip();
 			// CharBuffers hold twice as much per unit as ByteBuffers, so start with half the capacity.
-			let  newBuffer: CharBuffer = CharBuffer.allocate(Math.max(this.byteBuffer.remaining() + toAppend, this.byteBuffer.capacity() / 2));
+			let  newBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(Math.max(this.byteBuffer.remaining() + toAppend, this.byteBuffer.capacity() / 2));
 			while (this.byteBuffer.hasRemaining()) {
 				newBuffer.put(Number( (this.byteBuffer.get() & 0xFF)));
 			}
@@ -436,7 +436,7 @@ export
 			CHAR,
 			INT
 	}
-export type Builder = InstanceType<typeof CodePointBuffer["Builder"]>;
+export type Builder = InstanceType<typeof CodePointBuffer.Builder>;
 }
 
 

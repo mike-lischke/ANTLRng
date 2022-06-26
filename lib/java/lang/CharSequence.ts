@@ -13,7 +13,7 @@ export interface CharSequence {
     charAt(index: number): CodePoint;
 
     // Returns the length of this character sequence.
-    get length(): number;
+    length(): number;
 
     // Returns a new CharSequence that is a subsequence of this sequence.
     subSequence(start: number, end: number): CharSequence;

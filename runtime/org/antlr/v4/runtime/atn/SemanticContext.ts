@@ -6,10 +6,10 @@
 
 
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
@@ -37,7 +37,7 @@ export  class SemanticContext {
 	 * The default {@link SemanticContext}, which is semantically equivalent to
 	 * a predicate of the form {@code {true}?}.
 	 */
-    public static readonly  NONE?:  SemanticContext = new  this.Predicate();
+    public static readonly  NONE?:  SemanticContext = new  SemanticContext.Predicate();
 
 	/**
 	 * For context independent predicates, we evaluate them without a local
@@ -116,7 +116,7 @@ this.ruleIndex = ruleIndex;
 		}
 
 		public equals = (obj: object): boolean => {
-			if ( !(obj instanceof this.Predicate) ) {
+			if ( !(obj instanceof SemanticContext.Predicate) ) {
  return false;
 }
 
@@ -124,7 +124,7 @@ this.ruleIndex = ruleIndex;
  return true;
 }
 
-			let  p: Predicate = obj as Predicate;
+			let  p: SemanticContext.Predicate = obj as SemanticContext.Predicate;
 			return this.ruleIndex === p.ruleIndex &&
 				   this.predIndex === p.predIndex &&
 				   this.isCtxDependent === p.isCtxDependent;
@@ -136,7 +136,7 @@ this.ruleIndex = ruleIndex;
     };
 
 
-	public static PrecedencePredicate = class PrecedencePredicate extends SemanticContext implements Comparable<PrecedencePredicate> {
+	public static PrecedencePredicate = class PrecedencePredicate extends SemanticContext implements java.lang.Comparable<SemanticContext.PrecedencePredicate> {
 		public readonly  precedence:  number;
 
 		protected constructor();
@@ -168,7 +168,7 @@ this.precedence = precedence;
 			}
 		}
 
-		public compareTo = (o: PrecedencePredicate): number => {
+		public compareTo = (o: SemanticContext.PrecedencePredicate): number => {
 			return this.precedence - o.precedence;
 		}
 
@@ -179,7 +179,7 @@ this.precedence = precedence;
 		}
 
 		public equals = (obj: object): boolean => {
-			if (!(obj instanceof this.PrecedencePredicate)) {
+			if (!(obj instanceof SemanticContext.PrecedencePredicate)) {
 				return false;
 			}
 
@@ -187,7 +187,7 @@ this.precedence = precedence;
 				return true;
 			}
 
-			let  other: PrecedencePredicate = obj as PrecedencePredicate;
+			let  other: SemanticContext.PrecedencePredicate = obj as SemanticContext.PrecedencePredicate;
 			return this.precedence === other.precedence;
 		}
 
@@ -221,7 +221,7 @@ this.precedence = precedence;
 	 * A semantic context which is true whenever none of the contained contexts
 	 * is false.
 	 */
-    public static AND = class AND extends Operator {
+    public static AND = class AND extends SemanticContext.Operator {
 		public readonly  opnds?:  SemanticContext[];
 
 		public constructor(a: SemanticContext, b: SemanticContext) {
@@ -241,10 +241,10 @@ this.precedence = precedence;
 }
 
 
-			let  precedencePredicates: java.util.List<PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
+			let  precedencePredicates: java.util.List<SemanticContext.PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
 			if (!precedencePredicates.isEmpty()) {
 				// interested in the transition with the lowest precedence
-				let  reduced: PrecedencePredicate = java.util.Collections.min(precedencePredicates);
+				let  reduced: SemanticContext.PrecedencePredicate = java.util.Collections.min(precedencePredicates);
 				operands.add(reduced);
 			}
 
@@ -334,7 +334,7 @@ this.precedence = precedence;
 	 * A semantic context which is true whenever at least one of the contained
 	 * contexts is true.
 	 */
-    public static OR = class OR extends Operator {
+    public static OR = class OR extends SemanticContext.Operator {
 		public readonly  opnds?:  SemanticContext[];
 
 		public constructor(a: SemanticContext, b: SemanticContext) {
@@ -354,10 +354,10 @@ this.precedence = precedence;
 }
 
 
-			let  precedencePredicates: java.util.List<PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
+			let  precedencePredicates: java.util.List<SemanticContext.PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
 			if (!precedencePredicates.isEmpty()) {
 				// interested in the transition with the highest precedence
-				let  reduced: PrecedencePredicate = java.util.Collections.max(precedencePredicates);
+				let  reduced: SemanticContext.PrecedencePredicate = java.util.Collections.max(precedencePredicates);
 				operands.add(reduced);
 			}
 
@@ -452,7 +452,7 @@ this.precedence = precedence;
  return a;
 }
 
-		let  result: AND = new  this.AND(a, b);
+		let  result: SemanticContext.AND = new  SemanticContext.AND(a, b);
 		if (result.opnds.length === 1) {
 			return result.opnds[0];
 		}
@@ -477,7 +477,7 @@ this.precedence = precedence;
  return SemanticContext.NONE;
 }
 
-		let  result: OR = new  this.OR(a, b);
+		let  result: SemanticContext.OR = new  SemanticContext.OR(a, b);
 		if (result.opnds.length === 1) {
 			return result.opnds[0];
 		}
@@ -485,16 +485,16 @@ this.precedence = precedence;
 		return result;
 	}
 
-	private static filterPrecedencePredicates = (collection: java.util.Collection< SemanticContext>): java.util.List<PrecedencePredicate> => {
-		let  result: java.util.ArrayList<PrecedencePredicate> = undefined;
+	private static filterPrecedencePredicates = (collection: java.util.Collection< SemanticContext>): java.util.List<SemanticContext.PrecedencePredicate> => {
+		let  result: java.util.ArrayList<SemanticContext.PrecedencePredicate> = undefined;
 		for (let  iterator: Iterator< SemanticContext> = collection.iterator(); iterator.hasNext(); ) {
 			let  context: SemanticContext = iterator.next();
-			if (context instanceof this.PrecedencePredicate) {
+			if (context instanceof SemanticContext.PrecedencePredicate) {
 				if (result === undefined) {
-					result = new  java.util.ArrayList<PrecedencePredicate>();
+					result = new  java.util.ArrayList<SemanticContext.PrecedencePredicate>();
 				}
 
-				result.add(context as PrecedencePredicate);
+				result.add(context as SemanticContext.PrecedencePredicate);
 				iterator.remove();
 			}
 		}
@@ -509,15 +509,15 @@ this.precedence = precedence;
 
 namespace SemanticContext {
 
-export type Predicate = InstanceType<typeof SemanticContext["Predicate"]>;
+export type Predicate = InstanceType<typeof SemanticContext.Predicate>;
 
-export type PrecedencePredicate = InstanceType<typeof SemanticContext["PrecedencePredicate"]>;
+export type PrecedencePredicate = InstanceType<typeof SemanticContext.PrecedencePredicate>;
 
-export type Operator = InstanceType<typeof SemanticContext["Operator"]>;
+export type Operator = InstanceType<typeof SemanticContext.Operator>;
 
-export type AND = InstanceType<typeof SemanticContext["AND"]>;
+export type AND = InstanceType<typeof SemanticContext.AND>;
 
-export type OR = InstanceType<typeof SemanticContext["OR"]>;
+export type OR = InstanceType<typeof SemanticContext.OR>;
 }
 
 

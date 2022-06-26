@@ -254,10 +254,10 @@ export class Integer {
 
     static {
         // Defer initializing the TYPE field, to ensure the Class class is loaded before using it.
-        setImmediate(() => {
+        setTimeout(() => {
             Integer.TYPE = new Class(Integer);
             Object.freeze(Integer);
-        });
+        }, 0);
     }
 
 }
