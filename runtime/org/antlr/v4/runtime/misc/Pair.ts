@@ -22,38 +22,39 @@ import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 
 
-export  class Pair<A,B> extends  {
-	public readonly  a?:  A;
-	public readonly  b?:  B;
+export class Pair<A, B> extends {
+    public readonly a?: A;
+    public readonly b?: B;
 
-	public constructor(a: A, b: B) {
-		this.a = a;
-		this.b = b;
-	}
+    public constructor(a: A, b: B) {
+        this.a = a;
+        this.b = b;
+    }
 
 	public equals = (obj: object): boolean => {
-		if (obj === this) {
-			return true;
-		}
-		else { if (!(obj instanceof Pair<unknown, unknown>)) {
-			return false;
-		}
-}
+        if (obj === this) {
+            return true;
+        }
+        else {
+            if (!(obj instanceof Pair<unknown, unknown>)) {
+                return false;
+            }
+        }
 
 
-		let  other: Pair<unknown, unknown> = obj as Pair<unknown, unknown>;
-		return ObjectEqualityComparator.INSTANCE.equals(this.a, other.a)
-			&& ObjectEqualityComparator.INSTANCE.equals(this.b, other.b);
-	}
+        let other: Pair<unknown, unknown> = obj as Pair<unknown, unknown>;
+        return ObjectEqualityComparator.INSTANCE.equals(this.a, other.a)
+            && ObjectEqualityComparator.INSTANCE.equals(this.b, other.b);
+    }
 
 	public hashCode = (): number => {
-		let  hash: number = MurmurHash.initialize();
-		hash = MurmurHash.update(hash, this.a);
-		hash = MurmurHash.update(hash, this.b);
-		return MurmurHash.finish(hash, 2);
-	}
+        let hash: number = MurmurHash.initialize();
+        hash = MurmurHash.update(hash, this.a);
+        hash = MurmurHash.update(hash, this.b);
+        return MurmurHash.finish(hash, 2);
+    }
 
 	public toString = (): string => {
-		return string.format("(%s, %s)", this.a, this.b);
-	}
+        return string.format("(%s, %s)", this.a, this.b);
+    }
 }

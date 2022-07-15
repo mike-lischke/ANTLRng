@@ -242,7 +242,7 @@ this.precedence = precedence;
 
 
 			let  precedencePredicates: java.util.List<SemanticContext.PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
-			if (!precedencePredicates.isEmpty()) {
+			if (!(precedencePredicates.isEmpty())) {
 				// interested in the transition with the lowest precedence
 				let  reduced: SemanticContext.PrecedencePredicate = java.util.Collections.min(precedencePredicates);
 				operands.add(reduced);
@@ -281,7 +281,7 @@ this.precedence = precedence;
 		 */
 		public eval = (parser: Recognizer<unknown,unknown>, parserCallStack: RuleContext): boolean => {
 			for (let opnd of this.opnds) {
-				if ( !opnd.eval(parser, parserCallStack) ) {
+				if ( !(opnd.eval(parser, parserCallStack)) ) {
  return false;
 }
 
@@ -355,7 +355,7 @@ this.precedence = precedence;
 
 
 			let  precedencePredicates: java.util.List<SemanticContext.PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
-			if (!precedencePredicates.isEmpty()) {
+			if (!(precedencePredicates.isEmpty())) {
 				// interested in the transition with the highest precedence
 				let  reduced: SemanticContext.PrecedencePredicate = java.util.Collections.max(precedencePredicates);
 				operands.add(reduced);

@@ -145,7 +145,7 @@ $this(exactOnly);
 		}
 
 		let  ruleName: string = ruleNames[ruleIndex];
-		if (ruleName === undefined || ruleName.isEmpty()) {
+		if (ruleName === undefined || ruleName.length === 0) {
 			return String(decision);
 		}
 

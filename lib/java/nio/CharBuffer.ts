@@ -12,32 +12,58 @@ import {
     Appendable, CharSequence, CodePoint, Comparable, IllegalArgumentException, IndexOutOfBoundsException, Readable,
 } from "../lang";
 import { BufferUnderflowException } from "./BufferUnderflowException";
-import hash_sum from "hash-sum";
 import { ByteOrder } from "./ByteOrder";
 import { NotImplementedError } from "../../NotImplementedError";
+import { MurmurHash } from "../../../runtime";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharSequence, Comparable<CharBuffer>,
+export class CharBuffer extends Buffer<Uint32Array> implements Appendable, CharSequence, Comparable<CharBuffer>,
     Readable {
-    private buffer: CodePoint[];
+    private buffer: Uint32Array;
 
     private readOnly = false;
     private readonly byteOrder: ByteOrder;
 
     private constructor(capacity: number);
-    private constructor(array: CodePoint[], offset?: number, length?: number);
-    private constructor(capacityOrArray: number | CodePoint[], offset?: number, length?: number) {
+    private constructor(buffer: Uint32Array, offset?: number, length?: number);
+    private constructor(csq: CharSequence, offset?: number, length?: number);
+    private constructor(s: string, offset?: number, length?: number);
+    private constructor(capacityOrBufferOrCsqOrS: number | Uint32Array | string | CharSequence, offset?: number,
+        length?: number) {
         super();
         this.byteOrder = ByteOrder.byteOrder;
 
-        if (typeof capacityOrArray === "number") {
-            this.buffer = new Array(capacityOrArray).fill(0);
-            this.currentCapacity = capacityOrArray;
-            this.currentLimit = capacityOrArray;
+        const start = offset ?? 0;
+
+        if (typeof capacityOrBufferOrCsqOrS === "number") {
+            this.buffer = new Uint32Array(capacityOrBufferOrCsqOrS).fill(0);
+            this.currentCapacity = capacityOrBufferOrCsqOrS;
+            this.currentLimit = capacityOrBufferOrCsqOrS;
+        } else if (typeof capacityOrBufferOrCsqOrS === "string") {
+            const codePoints: number[] = [];
+            for (const value of capacityOrBufferOrCsqOrS) { // To correctly iterate UTF-16 surrogate pairs.
+                codePoints.push(value.codePointAt(0));
+            }
+
+            const end = start + (length ?? capacityOrBufferOrCsqOrS.length);
+
+            this.buffer = Uint32Array.from(codePoints.slice(offset, end));
+            this.currentCapacity = capacityOrBufferOrCsqOrS.length;
+            this.currentLimit = end;
+            this.currentPosition = offset;
+        } else if (capacityOrBufferOrCsqOrS instanceof Uint32Array) {
+            const end = start + (length ?? capacityOrBufferOrCsqOrS.length);
+
+            this.buffer = capacityOrBufferOrCsqOrS;
+            this.currentCapacity = capacityOrBufferOrCsqOrS.length;
+            this.currentLimit = end;
+            this.currentPosition = offset;
         } else {
-            this.buffer = capacityOrArray;
-            this.currentCapacity = capacityOrArray.length;
-            this.currentLimit = offset + length;
+            const end = start + (length ?? capacityOrBufferOrCsqOrS.length());
+
+            this.buffer = capacityOrBufferOrCsqOrS.array();
+            this.currentCapacity = this.buffer.length;
+            this.currentLimit = end;
             this.currentPosition = offset;
         }
     }
@@ -54,38 +80,32 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
     }
 
     /** Wraps a char array into a buffer. */
-    public static wrap(array: CodePoint[]): CharBuffer;
+    public static wrap(s: string): CharBuffer;
     /** Wraps a char array into a buffer. */
-    public static wrap(array: CodePoint[], offset: number, length: number): CharBuffer;
+    public static wrap(s: string, offset: number, length: number): CharBuffer;
     /** Wraps a character sequence into a buffer. */
     public static wrap(csq: CharSequence): CharBuffer;
     /** Wraps a character sequence into a buffer. */
-
     public static wrap(csq: CharSequence, start: number, end: number): CharBuffer;
-    public static wrap(arrayOrCsq: CodePoint[] | CharSequence, offsetOrStart?: number,
+    public static wrap(sOrCsq: string | CharSequence, offsetOrStart?: number,
         lengthOrEnd?: number): CharBuffer {
-        if (Array.isArray(arrayOrCsq)) {
-            if (offsetOrStart < 0 || offsetOrStart > arrayOrCsq.length || lengthOrEnd < 0
-                || lengthOrEnd > arrayOrCsq.length - offsetOrStart) {
+        if (typeof sOrCsq === "string") {
+            if (offsetOrStart < 0 || offsetOrStart > sOrCsq.length || lengthOrEnd < 0
+                || lengthOrEnd > sOrCsq.length - offsetOrStart) {
                 throw new IndexOutOfBoundsException();
             }
 
-            return new CharBuffer(arrayOrCsq, offsetOrStart, lengthOrEnd);
+            return new CharBuffer(sOrCsq, offsetOrStart, lengthOrEnd);
         } else {
-            if (offsetOrStart < 0 || offsetOrStart > arrayOrCsq.length() || lengthOrEnd < offsetOrStart
-                || lengthOrEnd > arrayOrCsq.length()) {
+            if (offsetOrStart < 0 || offsetOrStart > sOrCsq.length() || lengthOrEnd < offsetOrStart
+                || lengthOrEnd > sOrCsq.length()) {
                 throw new IndexOutOfBoundsException();
             }
 
-            const array: CodePoint[] = [];
-            for (let i = 0; i < arrayOrCsq.length(); ++i) {
-                array.push(arrayOrCsq.charAt(i));
-            }
-
-            const buffer = new CharBuffer(array, offsetOrStart, lengthOrEnd);
+            const buffer = new CharBuffer(sOrCsq, offsetOrStart, lengthOrEnd);
             buffer.readOnly = true;
             buffer.currentPosition = offsetOrStart ?? 0;
-            buffer.currentLimit = lengthOrEnd ?? arrayOrCsq.length();
+            buffer.currentLimit = lengthOrEnd ?? sOrCsq.length();
 
             return buffer;
         }
@@ -119,16 +139,16 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
                 throw new BufferOverflowException();
             }
 
-            for (let i = start; i < end; ++i) {
-                this.buffer[this.currentPosition++] = cOrCsq.charAt(i);
-            }
+            const data = cOrCsq.array().subarray(start, end);
+            this.buffer.set(data, this.currentPosition);
+            this.currentPosition += data.length;
         }
 
         return this;
     }
 
     /** @returns the char array that backs this buffer (optional operation). */
-    public array(): CodePoint[] {
+    public array(): Uint32Array {
         return this.buffer;
     }
 
@@ -269,7 +289,11 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
 
     /** @returns the current hash code of this buffer. */
     public hashCode(): number {
-        return parseInt(hash_sum(this.buffer.slice(this.currentPosition, this.currentLimit)), 16);
+        let hash = MurmurHash.initialize();
+        hash = MurmurHash.update(hash, this.buffer.subarray(this.currentPosition, this.currentLimit));
+        hash = MurmurHash.finish(hash, this.currentLimit - this.currentPosition);
+
+        return hash;
     }
 
     /**
@@ -293,13 +317,13 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
 
     /** Writes data to this buffer */
     public put(c: CodePoint): this;
-    public put(src: CodePoint[]): this;
-    public put(src: CodePoint[], offset: number, length: number): this;
+    public put(src: Uint32Array): this;
+    public put(src: Uint32Array, offset: number, length: number): this;
     public put(src: CharBuffer): this;
     public put(index: number, c: CodePoint): this;
     public put(src: string): this;
     public put(src: string, start: number, end: number): this;
-    public put(cOrSrcOrIndex: CodePoint | CodePoint[] | CharBuffer | number | string,
+    public put(cOrSrcOrIndex: CodePoint | Uint32Array | CharBuffer | number | string,
         offsetOrCOrStart?: number | CodePoint, lengthOrEnd?: number): this {
 
         if (this.readOnly) {
@@ -319,22 +343,20 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
                 throw new IndexOutOfBoundsException();
             }
             this.buffer[cOrSrcOrIndex] = offsetOrCOrStart;
-        } else if (Array.isArray(cOrSrcOrIndex)) {
+        } else if (cOrSrcOrIndex instanceof Uint32Array) {
             // A code point sequence.
             const offset = offsetOrCOrStart ?? 0;
             const length = lengthOrEnd ?? cOrSrcOrIndex.length;
 
-            if (offset < 0 || offset > cOrSrcOrIndex.length) {
+            if (offset < 0 || offset + length > cOrSrcOrIndex.length) {
                 throw new IndexOutOfBoundsException();
             }
 
-            if (this.currentPosition + offset > this.currentLimit) {
+            if (length > this.remaining()) {
                 throw new BufferOverflowException();
             }
 
-            this.buffer.splice(this.currentPosition, length,
-                ...cOrSrcOrIndex.slice(offset, offset + length));
-
+            this.buffer.set(cOrSrcOrIndex.subarray(offset, offset + length), this.currentPosition);
             this.currentPosition += length;
         } else if (cOrSrcOrIndex instanceof CharBuffer) {
             const length = cOrSrcOrIndex.remaining();
@@ -346,8 +368,8 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
                 throw new IllegalArgumentException();
             }
 
-            this.buffer.splice(this.currentPosition, length,
-                ...cOrSrcOrIndex.buffer.slice(cOrSrcOrIndex.currentPosition, cOrSrcOrIndex.currentLimit));
+            this.buffer.set(cOrSrcOrIndex.buffer.slice(cOrSrcOrIndex.currentPosition, cOrSrcOrIndex.currentLimit),
+                this.currentPosition);
 
             this.currentPosition += length;
         } else {
@@ -385,8 +407,8 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
 
         const length = Math.min(this.remaining(), target.remaining());
         const result = length === target.remaining() ? -1 : length;
-        target.buffer.splice(target.currentPosition, length,
-            ...this.buffer.slice(this.currentPosition, this.currentPosition + length));
+        target.buffer.set(this.buffer.slice(this.currentPosition, this.currentPosition + length),
+            target.currentPosition);
         target.currentPosition += length;
 
         return result;
@@ -419,7 +441,7 @@ export class CharBuffer extends Buffer<CodePoint[]> implements Appendable, CharS
 
     /** @returns a string containing the characters in this buffer. */
     public toString(): string {
-        return this.buffer.toString();
+        return this.buffer.subarray(this.currentPosition, this.currentLimit).toString();
     }
 
 }

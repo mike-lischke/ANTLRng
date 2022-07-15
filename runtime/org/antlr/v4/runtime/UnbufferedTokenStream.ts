@@ -81,15 +81,19 @@ export  class UnbufferedTokenStream<T extends Token> extends  TokenStream {
 	 */
 	protected currentTokenIndex:  number = 0;
 
-	public constructor(tokenSource: TokenSource);
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor(tokenSource: TokenSource);
 
 	public constructor(tokenSource: TokenSource, bufferSize: number);
+/* @ts-expect-error, because of the super() call in the closure. */
 public constructor(tokenSource: TokenSource, bufferSize?: number) {
 const $this = (tokenSource: TokenSource, bufferSize?: number): void => {
 if (bufferSize === undefined) {
 		$this(tokenSource, 256);
 	}
  else  {
+
+/* @ts-expect-error, because of the super() call in the closure. */
 		super();
 this.tokenSource = tokenSource;
 		this.tokens = new   Array<Token>(bufferSize);
@@ -101,7 +105,7 @@ this.tokenSource = tokenSource;
 $this(tokenSource, bufferSize);
 
 }
-
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	public get = (i: number): Token => { // get absolute index
 		let  bufferStartIndex: number = this.getBufferStartIndex();

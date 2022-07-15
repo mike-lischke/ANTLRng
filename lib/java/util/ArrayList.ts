@@ -5,8 +5,6 @@
  * See LICENSE file for more info.
  */
 
-/* eslint-disable @typescript-eslint/no-namespace */
-
 import hash_sum from "hash-sum";
 
 import { List } from "./List";

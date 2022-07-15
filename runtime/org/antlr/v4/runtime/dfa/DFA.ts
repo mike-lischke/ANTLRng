@@ -195,7 +195,7 @@ $this(atnStartState, decision);
 
 	public toString(tokenNamesOrVocabulary?: string[] | Vocabulary):  string {
 if (tokenNamesOrVocabulary === undefined) { return this.toString(VocabularyImpl.EMPTY_VOCABULARY); }
- else if (typeof tokenNamesOrVocabulary === "string[]") {
+ else if (Array.isArray(tokenNamesOrVocabulary)) {
 const tokenNames = tokenNamesOrVocabulary as string[];
 		if ( this.s0===undefined ) {
  return "";

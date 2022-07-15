@@ -15,8 +15,6 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../../../lib/java/java";
-
 /**
  * A generic set of integers.
  *
@@ -30,7 +28,7 @@ export abstract class IntSet {
      *
      * @exception IllegalStateException if the current set is read-only
      */
-    public abstract add: (el: number) => void;
+    public abstract add(el: number): void;
 
     /**
      * Modify the current {@link IntSet} object to contain all elements that are
@@ -39,11 +37,12 @@ export abstract class IntSet {
      * @param set The set to add to the current set. A {@code null} argument is
      * treated as though it were an empty set.
      *
-     * @returns `this` (to support chained calls)
+     * @returns This (to support chained calls)
      *
      * @exception IllegalStateException if the current set is read-only
      */
-    public abstract addAll: (set: IntSet) => this;
+
+    public abstract addAll(set: IntSet): IntSet;
 
     /**
      * Return a new {@link IntSet} object containing all elements that are
@@ -51,12 +50,12 @@ export abstract class IntSet {
      *
      * @param a The set to intersect with the current set. A {@code null}
      * argument is treated as though it were an empty set.
-     *
-     * @returns A new {@link IntSet} instance containing the intersection of the
-     * current set and `a`. The value {@code null} may be returned in
+     * @return A new {@link IntSet} instance containing the intersection of the
+     * current set and {@code a}. The value {@code null} may be returned in
      * place of an empty result set.
      */
-    public abstract and: (a: IntSet) => this;
+
+    public abstract and(a: IntSet): IntSet;
 
     /**
      * Return a new {@link IntSet} object containing all elements that are
@@ -71,12 +70,12 @@ export abstract class IntSet {
      *
      * @param elements The set to compare with the current set. A {@code null}
      * argument is treated as though it were an empty set.
-     *
-     * @returns A new {@link IntSet} instance containing the elements present in
+     * @return A new {@link IntSet} instance containing the elements present in
      * {@code elements} but not present in the current set. The value
      * {@code null} may be returned in place of an empty result set.
      */
-    public abstract complement: (elements: IntSet) => this;
+
+    public abstract complement(elements: IntSet): IntSet;
 
     /**
      * Return a new {@link IntSet} object containing all elements that are
@@ -88,12 +87,12 @@ export abstract class IntSet {
      *
      * @param a The set to union with the current set. A {@code null} argument
      * is treated as though it were an empty set.
-     *
-     * @returns A new {@link IntSet} instance containing the union of the current
+     * @return A new {@link IntSet} instance containing the union of the current
      * set and {@code a}. The value {@code null} may be returned in place of an
      * empty result set.
      */
-    public abstract or: (a: IntSet) => this;
+
+    public abstract or(a: IntSet): IntSet;
 
     /**
      * Return a new {@link IntSet} object containing all elements that are
@@ -108,41 +107,41 @@ export abstract class IntSet {
      *
      * @param a The set to compare with the current set. A {@code null}
      * argument is treated as though it were an empty set.
-     *
-     * @returns A new {@link IntSet} instance containing the elements present in
+     * @return A new {@link IntSet} instance containing the elements present in
      * {@code elements} but not present in the current set. The value
      * {@code null} may be returned in place of an empty result set.
      */
-    public abstract subtract: (a: IntSet) => this;
+
+    public abstract subtract(a: IntSet): IntSet;
 
     /**
      * Return the total number of elements represented by the current set.
      *
-     * @returns the total number of elements represented by the current set,
+     * @return the total number of elements represented by the current set,
      * regardless of the manner in which the elements are stored.
      */
-    public abstract size: () => number;
+    public abstract size(): number;
 
     /**
      * Returns {@code true} if this set contains no elements.
      *
-     *
-     * @returns `true` if the current set contains no elements; otherwise `false`.
+     * @return True if the current set contains no elements; otherwise, {@code false}.
      */
-    public abstract isNil: () => boolean;
+    public abstract isNil(): boolean;
 
     /**
      * {@inheritDoc}
      */
-    public abstract equals: (obj: object) => boolean;
+    public abstract equals(obj: unknown): boolean;
 
     /**
      * Returns {@code true} if the set contains the specified element.
      *
      * @param el The element to check for.
-     * @returns `true` if the set contains `el`; otherwise `false`.
+     *
+     * @returns True if the set contains {@code el}; otherwise {@code false}.
      */
-    public abstract contains: (el: number) => boolean;
+    public abstract contains(el: number): boolean;
 
     /**
      * Removes the specified value from the current set. If the current set does
@@ -152,21 +151,20 @@ export abstract class IntSet {
      *
      * @exception IllegalStateException if the current set is read-only
      */
-    public abstract remove: (el: number) => void;
+    public abstract remove(el: number): void;
 
     /**
      * Return a list containing the elements represented by the current set. The
      * list is returned in ascending numerical order.
      *
-     *
-     * @returns A list containing all element present in the current set, sorted
+     * @return A list containing all element present in the current set, sorted
      * in ascending numerical order.
      */
 
-    public abstract toList: () => java.util.List<java.lang.Integer>;
+    public abstract toList(): number[];
 
     /**
      * {@inheritDoc}
      */
-    public abstract toString: () => string;
+    public abstract toString(): string;
 }

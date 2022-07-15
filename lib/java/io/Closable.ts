@@ -6,7 +6,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export interface Closable {
+export interface Closeable {
     /** Closes this stream and releases any system resources associated with it. */
     close(): void;
 }

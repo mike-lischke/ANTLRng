@@ -955,7 +955,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 		 * chooses an alternative matching the longest overall sequence when
 		 * multiple alternatives are viable.
 		 */
-		if (skippedStopStates !== undefined && (!fullCtx || !PredictionMode.hasConfigInRuleStopState(reach))) {
+		if (skippedStopStates !== undefined && (!fullCtx || !(PredictionMode.hasConfigInRuleStopState(reach)))) {
 			/* assert !skippedStopStates.isEmpty(); */ 
 			for (let c of skippedStopStates) {
 				reach.add(c, this.mergeCache);
@@ -1225,7 +1225,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 				continue;
 			}
 
-			if (!config.isPrecedenceFilterSuppressed()) {
+			if (!(config.isPrecedenceFilterSuppressed())) {
 				/* In the future, this elimination step could be updated to also
 				 * filter the prediction context for alternatives predicting alt>1
 				 * (basically a graph subtraction algorithm).
@@ -1494,7 +1494,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 	 *  includes pairs with null predicates.
 	 */
 	protected evalSemanticContext(predPredictionsOrPred: DFAState.PredPrediction[] | SemanticContext, outerContextOrParserCallStack: ParserRuleContext, completeOrAlt: boolean | number, fullCtx?: boolean):  BitSet |  boolean {
-if (predPredictionsOrPred instanceof DFAState.PredPrediction[] &&  && typeof completeOrAlt === "boolean" && fullCtx === undefined)
+if (predPredictionsOrPred instanceof DFAState.PredPrediction[] && typeof completeOrAlt === "boolean" && fullCtx === undefined)
 	{
 const predPredictions = predPredictionsOrPred as DFAState.PredPrediction[];
 const complete = completeOrAlt as boolean;
@@ -1575,7 +1575,7 @@ let alt = completeOrAlt as number;
 		if ( config.state instanceof RuleStopState ) {
 			// We hit rule end. If we have context info, use it
 			// run thru all possible stack tops in ctx
-			if ( !config.context.isEmpty() ) {
+			if ( !(config.context.isEmpty()) ) {
 				for (let  i: number = 0; i < config.context.size(); i++) {
 					if ( config.context.getReturnState(i)===PredictionContext.EMPTY_RETURN_STATE ) {
 						if (fullCtx) {
@@ -1644,7 +1644,7 @@ let alt = completeOrAlt as number;
 	{
 		let  p: ATNState = config.state;
 		// optimization
-		if ( !p.onlyHasEpsilonTransitions() ) {
+		if ( !(p.onlyHasEpsilonTransitions()) ) {
             configs.add(config, this.mergeCache);
 			// make sure to not return here, because EOF transitions can act as
 			// both epsilon transitions and non-epsilon transitions.
@@ -1681,7 +1681,7 @@ let alt = completeOrAlt as number;
 
 					c.reachesIntoOuterContext++;
 
-					if (!closureBusy.add(c)) {
+					if (!(closureBusy.add(c))) {
 						// avoid infinite recursion for right-recursive rules
 						continue;
 					}
@@ -1695,7 +1695,7 @@ let alt = completeOrAlt as number;
 
 				}
 				else {
-					if (!t.isEpsilon() && !closureBusy.add(c)) {
+					if (!(t.isEpsilon()) && !(closureBusy.add(c))) {
 						// avoid infinite recursion for EOF* and EOF+
 						continue;
 					}
@@ -1842,7 +1842,7 @@ let alt = completeOrAlt as number;
 			let  returnState: ATNState = this.atn.states.get(returnStateNumber);
 			// all states must have single outgoing epsilon edge
 			if ( returnState.getNumberOfTransitions()!==1 ||
-				 !returnState.transition(0).isEpsilon() )
+				 !(returnState.transition(0).isEpsilon()) )
 			{
 				return false;
 			}
@@ -2125,7 +2125,7 @@ let alt = completeOrAlt as number;
 
 		let  vocabulary: Vocabulary = this.parser !== undefined ? this.parser.getVocabulary() : VocabularyImpl.EMPTY_VOCABULARY;
 		let  displayName: string = vocabulary.getDisplayName(t);
-		if (displayName.equals(java.lang.Integer.toString(t))) {
+		if (displayName === java.lang.Integer.toString(t)) {
 			return displayName;
 		}
 
@@ -2270,7 +2270,7 @@ let alt = completeOrAlt as number;
 
 
 			D.stateNumber = dfa.states.size();
-			if (!D.configs.isReadonly()) {
+			if (!(D.configs.isReadonly())) {
 				D.configs.optimizeConfigs(this);
 				D.configs.setReadonly(true);
 			}
@@ -2348,7 +2348,7 @@ let alt = completeOrAlt as number;
 		try {
 			return java.lang.System.getenv(envName);
 		}
-		catch(SecurityExceptione: unknown) {
+		catch(e: unknown) {
 			// use the default value
 		}
 		return undefined;

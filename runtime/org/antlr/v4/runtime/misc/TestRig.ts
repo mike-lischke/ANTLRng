@@ -36,11 +36,11 @@ export  class TestRig {
 				let  mainMethod: Method = testRigClass.getMethod("main", new java.lang.Class(string[]));
 				mainMethod.invoke(undefined, args as object);
 			}
-			catch ([object Object]nsme: unknown) {
+			catch (nsme: unknown) {
 				java.lang.System.err.println("Problems calling org.antlr.v4.gui.TestRig.main(args)");
 			}
 		}
-		catch (ClassNotFoundExceptioncnfe: unknown) {
+		catch (cnfe: unknown) {
 			java.lang.System.err.println("Use of TestRig now requires the use of the tool jar, antlr-4.X-complete.jar");
 			java.lang.System.err.println("Maven users need group ID org.antlr and artifact ID antlr4");
 		}

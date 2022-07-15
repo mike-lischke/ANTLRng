@@ -3,12 +3,14 @@
     "words": [
         "antlr",
         "Appendable",
+        "Charsets",
         "Cloneable",
         "Declarators",
         "instanceof",
         "misformatted",
         "signum",
         "subfolders",
+        "Unmappable",
         "whitespaces"
     ],
     "ignoreWords": [
@@ -22,6 +24,7 @@
         "a4tstool",
         "arraycopy",
         "javax",
+        "linkplain",
         "stringbuilder",
         "stringtemplate"
     ],

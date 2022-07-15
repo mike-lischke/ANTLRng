@@ -6,10 +6,10 @@
  */
 
 import { AutoCloseable } from "./AutoCloseable";
-import { Closable } from "./Closable";
+import { Closeable } from "./Closable";
 import { Flushable } from "./Flushable";
 
-export abstract class OutputStream implements Closable, Flushable, AutoCloseable {
+export abstract class OutputStream implements Closeable, Flushable, AutoCloseable {
     public abstract close(): void;
     public abstract flush(): void;
 

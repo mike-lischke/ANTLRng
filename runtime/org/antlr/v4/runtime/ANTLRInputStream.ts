@@ -47,79 +47,86 @@ export  class ANTLRInputStream extends  CharStream {
 	/** What is name or source of this char stream? */
 	public name?:  string;
 
-    public constructor();
+    /* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor();
 
 	/** Copy data in string to a local char array */
 	public constructor(input: string);
 
-    public constructor(r: Reader);
+    public constructor(r: java.io.Reader);
 
-	public constructor(input: InputStream);
+	public constructor(input: java.io.InputStream);
 
 	/** This is the preferred constructor for strings as no data is copied */
 	public constructor(data: number[], numberOfActualCharsInArray: number);
 
-    public constructor(r: Reader, initialSize: number);
+    public constructor(r: java.io.Reader, initialSize: number);
 
-	public constructor(input: InputStream, initialSize: number);
+	public constructor(input: java.io.InputStream, initialSize: number);
 
-    public constructor(r: Reader, initialSize: number, readChunkSize: number);
+    public constructor(r: java.io.Reader, initialSize: number, readChunkSize: number);
 
-	public constructor(input: InputStream, initialSize: number, readChunkSize: number);
-public constructor(inputOrROrData?: string | Reader | InputStream | number[], numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number) {
-const $this = (inputOrROrData?: string | Reader | InputStream | number[], numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number): void => {
-if (inputOrROrData === undefined) { super();
+	public constructor(input: java.io.InputStream, initialSize: number, readChunkSize: number);
+/* @ts-expect-error, because of the super() call in the closure. */
+public constructor(inputOrROrData?: string | java.io.Reader | java.io.InputStream | number[], numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number) {
+const $this = (inputOrROrData?: string | java.io.Reader | java.io.InputStream | number[], numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number): void => {
+if (inputOrROrData === undefined) {
+
+/* @ts-expect-error, because of the super() call in the closure. */ super();
 }
  else if (typeof inputOrROrData === "string" && numberOfActualCharsInArrayOrInitialSize === undefined) {
 const input = inputOrROrData as string;
+/* @ts-expect-error, because of the super() call in the closure. */
 		super();
 this.data = input.toCharArray();
 		this.n = input.length;
 	}
- else if (inputOrROrData instanceof Reader && numberOfActualCharsInArrayOrInitialSize === undefined) {
-const r = inputOrROrData as Reader;
+ else if (inputOrROrData instanceof java.io.Reader && numberOfActualCharsInArrayOrInitialSize === undefined) {
+const r = inputOrROrData as java.io.Reader;
         $this(r, ANTLRInputStream.INITIAL_BUFFER_SIZE, ANTLRInputStream.READ_BUFFER_SIZE);
     }
- else if (inputOrROrData instanceof InputStream && numberOfActualCharsInArrayOrInitialSize === undefined) {
-const input = inputOrROrData as InputStream;
-		$this(new  InputStreamReader(input), ANTLRInputStream.INITIAL_BUFFER_SIZE);
+ else if (inputOrROrData instanceof java.io.InputStream && numberOfActualCharsInArrayOrInitialSize === undefined) {
+const input = inputOrROrData as java.io.InputStream;
+		$this(new  java.io.InputStreamReader(input), ANTLRInputStream.INITIAL_BUFFER_SIZE);
 	}
- else if (typeof inputOrROrData === "number[]" && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
+ else if (Array.isArray(inputOrROrData) && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
 const data = inputOrROrData as number[];
 const numberOfActualCharsInArray = numberOfActualCharsInArrayOrInitialSize as number;
+/* @ts-expect-error, because of the super() call in the closure. */
 		super();
 this.data = data;
 		this.n = numberOfActualCharsInArray;
 	}
- else if (inputOrROrData instanceof Reader && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
-const r = inputOrROrData as Reader;
+ else if (inputOrROrData instanceof java.io.Reader && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
+const r = inputOrROrData as java.io.Reader;
 const initialSize = numberOfActualCharsInArrayOrInitialSize as number;
         $this(r, initialSize, ANTLRInputStream.READ_BUFFER_SIZE);
     }
- else if (inputOrROrData instanceof InputStream && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
-const input = inputOrROrData as InputStream;
+ else if (inputOrROrData instanceof java.io.InputStream && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
+const input = inputOrROrData as java.io.InputStream;
 const initialSize = numberOfActualCharsInArrayOrInitialSize as number;
-		$this(new  InputStreamReader(input), initialSize);
+		$this(new  java.io.InputStreamReader(input), initialSize);
 	}
- else if (inputOrROrData instanceof Reader && typeof numberOfActualCharsInArrayOrInitialSize === "number" && typeof readChunkSize === "number") {
-const r = inputOrROrData as Reader;
+ else if (inputOrROrData instanceof java.io.Reader && typeof numberOfActualCharsInArrayOrInitialSize === "number" && typeof readChunkSize === "number") {
+const r = inputOrROrData as java.io.Reader;
 const initialSize = numberOfActualCharsInArrayOrInitialSize as number;
+/* @ts-expect-error, because of the super() call in the closure. */
         super();
 this.load(r, initialSize, readChunkSize);
     }
  else  {
-let input = inputOrROrData as InputStream;
+let input = inputOrROrData as java.io.InputStream;
 let initialSize = numberOfActualCharsInArrayOrInitialSize as number;
-		$this(new  InputStreamReader(input), initialSize, readChunkSize);
+		$this(new  java.io.InputStreamReader(input), initialSize, readChunkSize);
 	}
 };
 
 $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 
 }
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-
-	public load = (r: Reader, size: number, readChunkSize: number): void =>
+	public load = (r: java.io.Reader, size: number, readChunkSize: number): void =>
 	{
 		if ( r===undefined ) {
 			return;
@@ -255,7 +262,7 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 	}
 
 	public getSourceName = (): string => {
-		if (this.name === undefined || this.name.isEmpty()) {
+		if (this.name === undefined || this.name.length === 0) {
 			return IntStream.UNKNOWN_SOURCE_NAME;
 		}
 

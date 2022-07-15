@@ -613,7 +613,7 @@ export  class DefaultErrorStrategy extends  ANTLRErrorStrategy {
 		let  currentSymbol: Token = recognizer.getCurrentToken();
 		let  expecting: IntervalSet = this.getExpectedTokens(recognizer);
 		let  expectedTokenType: number = Token.INVALID_TYPE;
-		if ( !expecting.isNil() ) {
+		if ( !(expecting.isNil()) ) {
 			expectedTokenType = expecting.getMinElement(); // get any element
 		}
 		let  tokenText: string;
@@ -796,7 +796,7 @@ export  class DefaultErrorStrategy extends  ANTLRErrorStrategy {
 	protected consumeUntil = (recognizer: Parser, set: IntervalSet): void => {
 //		System.err.println("consumeUntil("+set.toString(recognizer.getTokenNames())+")");
 		let  ttype: number = recognizer.getInputStream().LA(1);
-		while (ttype !== Token.EOF && !set.contains(ttype) ) {
+		while (ttype !== Token.EOF && !(set.contains(ttype)) ) {
             //System.out.println("consume during recover LA(1)="+getTokenNames()[input.LA(1)]);
 //			recognizer.getInputStream().consume();
             recognizer.consume();

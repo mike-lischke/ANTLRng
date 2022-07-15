@@ -120,7 +120,7 @@ public constructor(grammarFileName: string, tokenNames: java.util.Collection<str
 /* @ts-expect-error, because of the super() call in the closure. */
 public constructor(grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream) {
 const $this = (grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream): void => {
-if (tokenNamesOrVocabulary instanceof java.util.Collection &&  &&  && ) {
+if (tokenNamesOrVocabulary instanceof java.util.Collection) {
 const tokenNames = tokenNamesOrVocabulary as java.util.Collection<string>;
 		$this(grammarFileName, VocabularyImpl.fromTokenNames(tokenNames.toArray(new   Array<string>(0))), ruleNames, atn, input);
 	}
@@ -222,7 +222,7 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 				try {
 					this.visitState(p);
 				}
-				catch ([object Object]e: unknown) {
+				catch (e: unknown) {
 					this.setState(this.atn.ruleToStopState[p.ruleIndex].stateNumber);
 					this.getContext().exception = ANTLRErrorListener.syntaxError.e;
 					this.getErrorHandler().reportError(this, ANTLRErrorListener.syntaxError.e);
@@ -277,7 +277,7 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 			case Transition.RANGE:
 			case Transition.SET:
 			case Transition.NOT_SET:
-				if (!transition.matches(this._input.LA(1), Token.MIN_USER_TOKEN_TYPE, 65535)) {
+				if (!(transition.matches(this._input.LA(1), Token.MIN_USER_TOKEN_TYPE, 65535))) {
 					this.recoverInline();
 				}
 				this.matchWildcard();
@@ -436,7 +436,7 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 				let  ime: InputMismatchException = e as InputMismatchException;
 				let  tok: Token = e.getOffendingToken();
 				let  expectedTokenType: number = Token.INVALID_TYPE;
-				if ( !ime.getExpectedTokens().isNil() ) {
+				if ( !(ime.getExpectedTokens().isNil()) ) {
 					expectedTokenType = ime.getExpectedTokens().getMinElement(); // get any element
 				}
 				let  errToken: Token =

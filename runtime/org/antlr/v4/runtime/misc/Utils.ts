@@ -31,7 +31,7 @@ export  class Utils {
 
     // Seriously: why isn't this built in to java? ugh!
     public static join <T>(iterOrArray: Iterator<T> | T[], separator: string):  string {
-if (iterOrArray instanceof Iterator && ) {
+if (iterOrArray instanceof Iterator) {
 const iter = iterOrArray as Iterator<T>;
         let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
         while ( iter.hasNext() ) {
@@ -159,13 +159,13 @@ if (encoding === undefined) {
  else  {
 		let  f: java.io.File = new  java.io.File(fileName);
 		let  size: number = Number(f.length());
-		let  isr: InputStreamReader;
+		let  isr: java.io.InputStreamReader;
 		let  fis: FileInputStream = new  FileInputStream(fileName);
 		if ( encoding!==undefined ) {
-			isr = new  InputStreamReader(fis, encoding);
+			isr = new  java.io.InputStreamReader(fis, encoding);
 		}
 		else {
-			isr = new  InputStreamReader(fis);
+			isr = new  java.io.InputStreamReader(fis);
 		}
 		let  data: number[] = undefined;
 		try {

@@ -16,6 +16,7 @@
 
 
 
+import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { Lexer } from "./Lexer";
 import { RecognitionException } from "./RecognitionException";
@@ -62,6 +63,6 @@ export  class LexerNoViableAltException extends RecognitionException {
 			symbol = Utils.escapeWhitespace(symbol, false);
 		}
 
-		return string.format(Locale.getDefault(), "%s('%s')", new java.lang.Class(LexerNoViableAltException).getSimpleName(), symbol);
+		return string.format(java.util.Locale.getDefault(), "%s('%s')", new java.lang.Class(LexerNoViableAltException).getSimpleName(), symbol);
 	}
 }

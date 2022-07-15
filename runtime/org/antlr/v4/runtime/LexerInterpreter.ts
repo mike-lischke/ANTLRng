@@ -55,13 +55,13 @@ public constructor(grammarFileName: string, tokenNames: java.util.Collection<str
 /* @ts-expect-error, because of the super() call in the closure. */
 public constructor(grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, modeNamesOrChannelNames: java.util.Collection<string>, atnOrModeNames: ATN | java.util.Collection<string>, inputOrAtn: CharStream | ATN, input?: CharStream) {
 const $this = (grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, modeNamesOrChannelNames: java.util.Collection<string>, atnOrModeNames: ATN | java.util.Collection<string>, inputOrAtn: CharStream | ATN, input?: CharStream): void => {
-if (tokenNamesOrVocabulary instanceof java.util.Collection &&  &&  && atnOrModeNames instanceof ATN && inputOrAtn instanceof CharStream && input === undefined) {
+if (tokenNamesOrVocabulary instanceof java.util.Collection && atnOrModeNames instanceof ATN && inputOrAtn instanceof CharStream && input === undefined) {
 const tokenNames = tokenNamesOrVocabulary as java.util.Collection<string>;
 const atn = atnOrModeNames as ATN;
 const input = inputOrAtn as CharStream;
 		$this(grammarFileName, VocabularyImpl.fromTokenNames(tokenNames.toArray(new   Array<string>(0))), ruleNames, new  java.util.ArrayList<string>(), modeNames, atn, input);
 	}
- else if (tokenNamesOrVocabulary instanceof Vocabulary &&  &&  && atnOrModeNames instanceof ATN && inputOrAtn instanceof CharStream && input === undefined) {
+ else if (tokenNamesOrVocabulary instanceof Vocabulary && atnOrModeNames instanceof ATN && inputOrAtn instanceof CharStream && input === undefined) {
 const vocabulary = tokenNamesOrVocabulary as Vocabulary;
 const atn = atnOrModeNames as ATN;
 const input = inputOrAtn as CharStream;

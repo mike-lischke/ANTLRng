@@ -185,7 +185,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 		let  startState: ATNState = this.atn.modeToStartState.get(this.mode);
 
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(Locale.getDefault(), "matchATN mode %d start: %s\n", this.mode, startState);
+			java.lang.System.out.format(java.util.Locale.getDefault(), "matchATN mode %d start: %s\n", this.mode, startState);
 		}
 
 		let  old_mode: number = this.mode;
@@ -202,7 +202,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 		let  predict: number = this.execATN(input, next);
 
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(Locale.getDefault(), "DFA after matchATN: %s\n", this.decisionToDFA[old_mode].toLexerString());
+			java.lang.System.out.format(java.util.Locale.getDefault(), "DFA after matchATN: %s\n", this.decisionToDFA[old_mode].toLexerString());
 		}
 
 		return predict;
@@ -211,7 +211,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 	protected execATN = (input: CharStream, ds0: DFAState): number => {
 		//System.out.println("enter exec index "+input.index()+" from "+ds0.configs);
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(Locale.getDefault(), "start state closure=%s\n", ds0.configs);
+			java.lang.System.out.format(java.util.Locale.getDefault(), "start state closure=%s\n", ds0.configs);
 		}
 
 		if (ds0.isAcceptState) {
@@ -225,7 +225,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 
 		while ( true ) { // while more work
 			if ( LexerATNSimulator.debug ) {
-				java.lang.System.out.format(Locale.getDefault(), "execATN loop starting closure: %s\n", s.configs);
+				java.lang.System.out.format(java.util.Locale.getDefault(), "execATN loop starting closure: %s\n", s.configs);
 			}
 
 			// As we move src->trg, src->trg, we keep track of the previous trg to
@@ -371,7 +371,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 			}
 
 			if ( LexerATNSimulator.debug ) {
-				java.lang.System.out.format(Locale.getDefault(), "testing %s at %s\n", this.getTokenName(t), c.toString(this.recog, true));
+				java.lang.System.out.format(java.util.Locale.getDefault(), "testing %s at %s\n", this.getTokenName(t), c.toString(this.recog, true));
 			}
 
 			let  n: number = c.state.getNumberOfTransitions();
@@ -400,7 +400,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 						  startIndex: number, index: number, line: number, charPos: number): void =>
 	{
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(Locale.getDefault(), "ACTION %s\n", lexerActionExecutor);
+			java.lang.System.out.format(java.util.Locale.getDefault(), "ACTION %s\n", lexerActionExecutor);
 		}
 
 		// seek to after last char in token
@@ -454,10 +454,10 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 		if ( config.state instanceof RuleStopState ) {
 			if ( LexerATNSimulator.debug ) {
 				if ( this.recog!==undefined ) {
-					java.lang.System.out.format(Locale.getDefault(), "closure at %s rule stop %s\n", this.recog.getRuleNames()[config.state.ruleIndex], config);
+					java.lang.System.out.format(java.util.Locale.getDefault(), "closure at %s rule stop %s\n", this.recog.getRuleNames()[config.state.ruleIndex], config);
 				}
 				else {
-					java.lang.System.out.format(Locale.getDefault(), "closure at rule stop %s\n", config);
+					java.lang.System.out.format(java.util.Locale.getDefault(), "closure at rule stop %s\n", config);
 				}
 			}
 
@@ -472,7 +472,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 				}
 			}
 
-			if ( config.context!==undefined && !config.context.isEmpty() ) {
+			if ( config.context!==undefined && !(config.context.isEmpty()) ) {
 				for (let  i: number = 0; i < config.context.size(); i++) {
 					if (config.context.getReturnState(i) !== PredictionContext.EMPTY_RETURN_STATE) {
 						let  newContext: PredictionContext = config.context.getParent(i); // "pop" return state
@@ -487,8 +487,8 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 		}
 
 		// optimization
-		if ( !config.state.onlyHasEpsilonTransitions() ) {
-			if (!currentAltReachedAcceptState || !config.hasPassedThroughNonGreedyDecision()) {
+		if ( !(config.state.onlyHasEpsilonTransitions()) ) {
+			if (!currentAltReachedAcceptState || !(config.hasPassedThroughNonGreedyDecision())) {
 				configs.add(config);
 			}
 		}

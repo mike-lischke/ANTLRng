@@ -102,19 +102,19 @@ export  class XPath {
 		try {
 			in = new  ANTLRInputStream(new  StringReader(path));
 		}
-		catch ([object Object]ioe: unknown) {
+		catch (ioe: unknown) {
 			throw new  java.lang.IllegalArgumentException("Could not read path: "+path, ioe);
 		}
-		let  lexer: XPathLexer = new  class extends XPathLexer) {
+		let  lexer: XPathLexer = new  class extends XPathLexer {
 			public recover = (e: LexerNoViableAltException): void => { throw e;	}
-		}(in;
+		}(in);
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(new  XPathLexerErrorListener());
 		let  tokenStream: CommonTokenStream = new  CommonTokenStream(lexer);
 		try {
 			tokenStream.fill();
 		}
-		catch ([object Object]e: unknown) {
+		catch (e: unknown) {
 			let  pos: number = lexer.getCharPositionInLine();
 			let  msg: string = "Invalid tokens or characters at index "+pos+" in path '"+path+"'";
 			throw new  java.lang.IllegalArgumentException(msg, XPathLexerErrorListener.syntaxError.e);

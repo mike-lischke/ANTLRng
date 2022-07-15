@@ -62,7 +62,8 @@ export  class VocabularyImpl extends  Vocabulary {
 	 * @see #getLiteralName(int)
 	 * @see #getSymbolicName(int)
 	 */
-	public constructor(literalNames: string[], symbolicNames: string[]);
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor(literalNames: string[], symbolicNames: string[]);
 
 	/**
 	 * Constructs a new instance of {@link VocabularyImpl} from the specified
@@ -82,12 +83,15 @@ export  class VocabularyImpl extends  Vocabulary {
 	 * @see #getDisplayName(int)
 	 */
 	public constructor(literalNames: string[], symbolicNames: string[], displayNames: string[]);
+/* @ts-expect-error, because of the super() call in the closure. */
 public constructor(literalNames: string[], symbolicNames: string[], displayNames?: string[]) {
 const $this = (literalNames: string[], symbolicNames: string[], displayNames?: string[]): void => {
 if (displayNames === undefined) {
 		$this(literalNames, symbolicNames, undefined);
 	}
  else  {
+
+/* @ts-expect-error, because of the super() call in the closure. */
 		super();
 this.literalNames = literalNames !== undefined ? literalNames : VocabularyImpl.EMPTY_NAMES;
 		this.symbolicNames = symbolicNames !== undefined ? symbolicNames : VocabularyImpl.EMPTY_NAMES;
@@ -102,7 +106,7 @@ this.literalNames = literalNames !== undefined ? literalNames : VocabularyImpl.E
 $this(literalNames, symbolicNames, displayNames);
 
 }
-
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	/**
 	 * Returns a {@link VocabularyImpl} instance from the specified set of token
@@ -131,7 +135,7 @@ $this(literalNames, symbolicNames, displayNames);
 				continue;
 			}
 
-			if (!tokenName.isEmpty()) {
+			if (!(tokenName.length === 0)) {
 				let  firstChar: number = tokenName.charAt(0);
 				if (firstChar === '\'') {
 					symbolicNames[i] = undefined;

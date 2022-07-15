@@ -32,7 +32,7 @@ export class PrintStream extends FilterOutputStream {
 
     private encoding: BufferEncoding;
 
-    // Creates a new print stream, without automatic line flushing, with the specified file and charset.
+    /** Creates a new print stream, without automatic line flushing, with the specified file and charset. */
     public constructor(file: File, csn?: string);
     public constructor(out: OutputStream, autoFlush?: boolean, encoding?: string);
     // eslint-disable-next-line @typescript-eslint/unified-signatures
@@ -40,6 +40,7 @@ export class PrintStream extends FilterOutputStream {
     public constructor(fileOrOutOrFileName: File | OutputStream | string, csnOrAutoFlush?: string | boolean,
         encoding?: string) {
         if (fileOrOutOrFileName instanceof File) {
+            /* @ts-expect-error, because of the super() call in the closure. */
             super(new FileOutputStream(fileOrOutOrFileName));
         } else if (fileOrOutOrFileName instanceof OutputStream) {
             super(fileOrOutOrFileName);
@@ -75,7 +76,7 @@ export class PrintStream extends FilterOutputStream {
             text = String.fromCodePoint(cOrSOrCsq);
         } else {
             start = start ?? 0;
-            end = end ?? cOrSOrCsq.length;
+            end = end ?? cOrSOrCsq.length();
             text = cOrSOrCsq.subSequence(start, end).toString();
         }
 

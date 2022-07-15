@@ -35,7 +35,6 @@ import { ParserRuleContext } from "../../ParserRuleContext";
 import { RecognitionException } from "../../RecognitionException";
 import { Token } from "../../Token";
 import { MultiMap } from "../../misc/MultiMap";
-import { ParseCancellationException } from "../../misc/ParseCancellationException";
 import { ParseTree } from "../ParseTree";
 import { RuleNode } from "../RuleNode";
 import { TerminalNode } from "../TerminalNode";
@@ -151,11 +150,11 @@ export  class ParseTreePatternMatcher {
 	 * @exception IllegalArgumentException if {@code stop} is {@code null} or empty.
 	 */
 	public setDelimiters = (start: string, stop: string, escapeLeft: string): void => {
-		if (start === undefined || start.isEmpty()) {
+		if (start === undefined || start.length === 0) {
 			throw new  java.lang.IllegalArgumentException("start cannot be null or empty");
 		}
 
-		if (stop === undefined || stop.isEmpty()) {
+		if (stop === undefined || stop.length === 0) {
 			throw new  java.lang.IllegalArgumentException("stop cannot be null or empty");
 		}
 
@@ -245,13 +244,13 @@ if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
 			tree = parserInterp.parse(patternRuleIndex);
 //			System.out.println("pattern tree = "+tree.toStringTree(parserInterp));
 		}
-		catch ([object Object]e: unknown) {
+		catch (e: unknown) {
 			throw BailErrorStrategy.recover.e.getCause() as RecognitionException;
 		}
-		catch ([object Object]re: unknown) {
+		catch (re: unknown) {
 			throw Lexer.recover.re;
 		}
-		catch ([object Object]e: unknown) {
+		catch (e: unknown) {
 			throw new  ParseTreePatternMatcher.CannotInvokeStartRule(BailErrorStrategy.recover.e);
 		}
 

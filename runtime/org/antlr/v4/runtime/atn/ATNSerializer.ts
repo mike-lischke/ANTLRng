@@ -171,7 +171,7 @@ export  class ATNSerializer {
 					break;
 
 				default:
-					let  message: string = string.format(Locale.getDefault(), "The specified lexer action type %s is not valid.", action.getActionType());
+					let  message: string = string.format(java.util.Locale.getDefault(), "The specified lexer action type %s is not valid.", action.getActionType());
 					throw new  java.lang.IllegalArgumentException(message);
 				}
 			}

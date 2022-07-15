@@ -180,7 +180,7 @@ let index = eOrIndex as number;
 			this.epsilonOnlyTransitions = e.isEpsilon();
 		}
 		else { if (this.epsilonOnlyTransitions !== e.isEpsilon()) {
-			java.lang.System.err.format(Locale.getDefault(), "ATN state %d has both epsilon and non-epsilon transitions.\n", this.stateNumber);
+			java.lang.System.err.format(java.util.Locale.getDefault(), "ATN state %d has both epsilon and non-epsilon transitions.\n", this.stateNumber);
 			this.epsilonOnlyTransitions = false;
 		}
 }

@@ -16,7 +16,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { StandardCharsets,Charset,java } from "../../../../../lib/java/java";
 import { BufferedTokenStream } from "./BufferedTokenStream";
 import { CharStream } from "./CharStream";
 import { CodePointBuffer } from "./CodePointBuffer";
@@ -24,6 +24,7 @@ import { CodePointCharStream } from "./CodePointCharStream";
 import { IntStream } from "./IntStream";
 
 
+import { AutoCloser } from "../../../../../lib/AutoCloser";
 
 
 /** This class represents the primary interface for creating {@link CharStream}s
@@ -99,15 +100,21 @@ if (charset === undefined) {
 	}
  else  {
 		let  size: bigint = Files.size(path);
-		try (ReadableByteChannel channel = Files.newByteChannel(path)) {
-			return CharStreams.fromChannel(
+			const closeables = new AutoCloser();
+try {
+			 const channel: ReadableByteChannel  = Files.newByteChannel(path)
+	closeables.add(channel);
+return CharStreams.fromChannel(
 				BufferedTokenStream.nextTokenOnChannel.channel,
 				charset,
 				CharStreams.DEFAULT_BUFFER_SIZE,
 				CodingErrorAction.REPLACE,
 				path.toString(),
 				size);
-		}
+		} finally {
+  closeables.close();
+}
+
 	}
 
 }
@@ -156,7 +163,7 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: InputStream): CharStream;
+	public static fromStream(is: java.io.InputStream): CharStream;
 
 	/**
 	 * Creates a {@link CharStream} given an opened {@link InputStream} and the
@@ -165,9 +172,9 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: InputStream, charset: Charset): CharStream;
+	public static fromStream(is: java.io.InputStream, charset: Charset): CharStream;
 
-	public static fromStream(is: InputStream, charset: Charset, inputSize: bigint): CharStream;
+	public static fromStream(is: java.io.InputStream, charset: Charset, inputSize: bigint): CharStream;
 
 
 
@@ -178,7 +185,7 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: InputStream, charset?: Charset, inputSize?: bigint):  CharStream {
+	public static fromStream(is: java.io.InputStream, charset?: Charset, inputSize?: bigint):  CharStream {
 if (charset === undefined) {
 		return CharStreams.fromStream(is, StandardCharsets.UTF_8);
 	}
@@ -186,15 +193,21 @@ if (charset === undefined) {
 		return CharStreams.fromStream(is, charset, -1);
 	}
  else  {
-		try (ReadableByteChannel channel = Channels.newChannel(is)) {
-			return CharStreams.fromChannel(
+			const closeables = new AutoCloser();
+try {
+			 const channel: ReadableByteChannel  = Channels.newChannel(is)
+	closeables.add(channel);
+return CharStreams.fromChannel(
 				BufferedTokenStream.nextTokenOnChannel.channel,
 				charset,
 				CharStreams.DEFAULT_BUFFER_SIZE,
 				CodingErrorAction.REPLACE,
 				IntStream.UNKNOWN_SOURCE_NAME,
 				inputSize);
-		}
+		} finally {
+  closeables.close();
+}
+
 	}
 
 }
@@ -272,7 +285,7 @@ let charset = charsetOrBufferSize as Charset;
 let bufferSize = decodingErrorActionOrBufferSize as number;
 let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 		try {
-			let  utf8BytesIn: ByteBuffer = ByteBuffer.allocate(bufferSize);
+			let  utf8BytesIn: java.nio.ByteBuffer = java.nio.ByteBuffer.allocate(bufferSize);
 			let  utf16CodeUnitsOut: java.nio.CharBuffer = java.nio.CharBuffer.allocate(bufferSize);
 			if (inputSize === -1) {
 				inputSize = bufferSize;
@@ -329,20 +342,20 @@ let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 	 * Creates a {@link CharStream} given a {@link Reader}. Closes
 	 * the reader before returning.
 	 */
-	public static fromReader(r: Reader): CodePointCharStream;
+	public static fromReader(r: java.io.Reader): CodePointCharStream;
 
 	/**
 	 * Creates a {@link CharStream} given a {@link Reader} and its
 	 * source name. Closes the reader before returning.
 	 */
-	public static fromReader(r: Reader, sourceName: string): CodePointCharStream;
+	public static fromReader(r: java.io.Reader, sourceName: string): CodePointCharStream;
 
 
 	/**
 	 * Creates a {@link CharStream} given a {@link Reader}. Closes
 	 * the reader before returning.
 	 */
-	public static fromReader(r: Reader, sourceName?: string):  CodePointCharStream {
+	public static fromReader(r: java.io.Reader, sourceName?: string):  CodePointCharStream {
 if (sourceName === undefined) {
 		return CharStreams.fromReader(r, IntStream.UNKNOWN_SOURCE_NAME);
 	}

@@ -5,24 +5,26 @@
  * See LICENSE file for more info.
  */
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { NotImplementedError } from "../../NotImplementedError";
 import { CodePoint, IllegalArgumentException } from "../lang";
 import { Readable } from "../lang/Readable";
 import { CharBuffer } from "../nio/CharBuffer";
 import { ReadOnlyBufferException } from "../nio/ReadOnlyBufferException";
 import { AutoCloseable } from "./AutoCloseable";
-import { Closable } from "./Closable";
+import { Closeable } from "./Closable";
 import { IOException } from "./IOException";
 
-export abstract class Reader implements Closable, AutoCloseable, Readable {
+export abstract class Reader implements Closeable, AutoCloseable, Readable {
     // Maximum skip-buffer size.
     private static readonly maxSkipBufferSize = 8192;
 
     // Skip buffer, null until allocated.
-    private skipBuffer: CodePoint[];
+    private skipBuffer?: Uint32Array;
 
     // Marks the present position in the stream.
-    public mark(_readAheadLimit: number): void {
+    public mark(readAheadLimit: number): void {
         throw new IOException("mark() not supported");
     }
 
@@ -31,16 +33,16 @@ export abstract class Reader implements Closable, AutoCloseable, Readable {
         return false;
     }
 
-    public read(target?: CodePoint[] | CharBuffer): CodePoint;
-    public /* abstract */ read(target: CodePoint[], offset: number, length: number): number;
-    public read(target?: CodePoint[] | CharBuffer, offset?: number, length?: number): number {
+    public read(target?: Uint32Array | CharBuffer): CodePoint;
+    public /* abstract */ read(target: Uint32Array, offset: number, length: number): number;
+    public read(target?: Uint32Array | CharBuffer, offset?: number, length?: number): number {
         if (target === undefined) {
             // Reads a single character.
-            const temp = [0];
+            const temp = new Uint32Array(1);
             this.read(temp, 0, 1);
 
             return temp[0];
-        } else if (Array.isArray(target)) {
+        } else if (target instanceof Uint32Array) {
             // Reads characters into an array.
             if (offset !== undefined || length !== undefined) {
                 // Simulate the abstract method.
@@ -66,7 +68,7 @@ export abstract class Reader implements Closable, AutoCloseable, Readable {
                 }
             } else {
                 const len = target.remaining();
-                const buffer = new Array<CodePoint>(len);
+                const buffer = new Uint32Array(len);
                 readCount = this.read(buffer, 0, len);
                 if (readCount > 0) {
                     target.put(buffer, 0, readCount);
@@ -96,9 +98,9 @@ export abstract class Reader implements Closable, AutoCloseable, Readable {
 
         const nn = Math.min(n, Reader.maxSkipBufferSize);
 
-        // Note: the Java code wraps the following code in a synchronized block, which we apparently not need.
-        if ((this.skipBuffer === undefined) || (this.skipBuffer.length < nn)) {
-            this.skipBuffer = new Array(nn);
+        // Note: the Java implementation wraps the following code in a synchronized block, which we not need.
+        if ((!this.skipBuffer) || (this.skipBuffer.length < nn)) {
+            this.skipBuffer = new Uint32Array(nn);
         }
 
         let r = n;

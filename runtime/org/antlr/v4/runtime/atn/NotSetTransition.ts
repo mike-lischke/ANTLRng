@@ -36,7 +36,7 @@ export  class NotSetTransition extends SetTransition {
 	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
 		return symbol >= minVocabSymbol
 			&& symbol <= maxVocabSymbol
-			&& !super.matches(symbol, minVocabSymbol, maxVocabSymbol);
+			&& !(super.matches(symbol, minVocabSymbol, maxVocabSymbol));
 	}
 
 	public toString = (): string => {

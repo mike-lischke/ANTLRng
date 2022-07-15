@@ -111,7 +111,7 @@ if () {
 		let  p: number = 0;
 		let  version: number = data[p++];
 		if (version !== ATNDeserializer.SERIALIZED_VERSION) {
-			let  reason: string = string.format(Locale.getDefault(), "Could not deserialize ATN with version %d (expected %d).", version, ATNDeserializer.SERIALIZED_VERSION);
+			let  reason: string = string.format(java.util.Locale.getDefault(), "Could not deserialize ATN with version %d (expected %d).", version, ATNDeserializer.SERIALIZED_VERSION);
 			throw new  java.lang.UnsupportedOperationException(new  InvalidClassException(new java.lang.Class(ATN).getName(), reason));
 		}
 
@@ -635,7 +635,7 @@ default:
 			case ATNState.PLUS_LOOP_BACK : s = new  PlusLoopbackState(); break;
 			case ATNState.LOOP_END : s = new  LoopEndState(); break;
 			default :
-				let  message: string = string.format(Locale.getDefault(), "The specified state type %d is not valid.", type);
+				let  message: string = string.format(java.util.Locale.getDefault(), "The specified state type %d is not valid.", type);
 				throw new  java.lang.IllegalArgumentException(message);
 		}
 
@@ -670,7 +670,7 @@ default:
 			return new  LexerTypeAction(data1);
 
 		default:
-			throw new  java.lang.IllegalArgumentException(string.format(Locale.getDefault(), "The specified lexer action type %s is not valid.", type));
+			throw new  java.lang.IllegalArgumentException(string.format(java.util.Locale.getDefault(), "The specified lexer action type %s is not valid.", type));
 		}
 	}
 

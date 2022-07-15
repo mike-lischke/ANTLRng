@@ -40,7 +40,7 @@ export  class DFASerializer {
 	public constructor(dfa: DFA, vocabulary: Vocabulary);
 public constructor(dfa: DFA, tokenNamesOrVocabulary: string[] | Vocabulary) {
 const $this = (dfa: DFA, tokenNamesOrVocabulary: string[] | Vocabulary): void => {
-if (typeof tokenNamesOrVocabulary === "string[]") {
+if (Array.isArray(tokenNamesOrVocabulary)) {
 const tokenNames = tokenNamesOrVocabulary as string[];
 		$this(dfa, VocabularyImpl.fromTokenNames(tokenNames));
 	}

@@ -138,7 +138,7 @@ let context = contextOrLexerActionExecutor as PredictionContext;
 			return false;
 		}
 
-		if (!ObjectEqualityComparator.INSTANCE.equals(this.lexerActionExecutor, lexerOther.lexerActionExecutor)) {
+		if (!(ObjectEqualityComparator.INSTANCE.equals(this.lexerActionExecutor, lexerOther.lexerActionExecutor))) {
 			return false;
 		}
 

@@ -16,7 +16,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java,StandardCharsets } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { CodePointBuffer } from "./CodePointBuffer";
 import { IntStream } from "./IntStream";
@@ -149,7 +149,7 @@ default:
 	}
 
 	public readonly  getSourceName = (): string => {
-		if (this.name === undefined || this.name.isEmpty()) {
+		if (this.name === undefined || this.name.length === 0) {
 			return IntStream.UNKNOWN_SOURCE_NAME;
 		}
 

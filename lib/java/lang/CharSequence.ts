@@ -9,15 +9,18 @@ import { CodePoint } from ".";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface CharSequence {
-    // Returns the char value at the specified index.
+    /** Returns the char value at the specified index. */
     charAt(index: number): CodePoint;
 
-    // Returns the length of this character sequence.
+    /** Returns the length of this character sequence. */
     length(): number;
 
-    // Returns a new CharSequence that is a subsequence of this sequence.
+    /** Returns a new CharSequence that is a subsequence of this sequence. */
     subSequence(start: number, end: number): CharSequence;
 
-    // Returns a string containing the characters in this sequence in the same order as this sequence.
+    /** Returns a string containing the characters in this sequence in the same order as this sequence. */
     toString(): string;
+
+    /** This API is not part of the Java CharSequence interface, but in CharBuffer. */
+    array(): Uint32Array;
 }

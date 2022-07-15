@@ -15,6 +15,7 @@
 
 
 
+import { java } from "../../../../../lib/java/java";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { ATNState } from "./atn/ATNState";
@@ -97,6 +98,6 @@ $this(recognizer, predicate, message);
 			return message;
 		}
 
-		return string.format(Locale.getDefault(), "failed predicate: {%s}?", predicate);
+		return string.format(java.util.Locale.getDefault(), "failed predicate: {%s}?", predicate);
 	}
 }

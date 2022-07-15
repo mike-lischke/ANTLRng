@@ -317,11 +317,15 @@ export class StringBuilder implements CharSequence {
         return this.text;
     }
 
+    public array(): Uint32Array {
+        return this.data.subarray(0, this.currentLength);
+    }
+
     // Attempts to reduce storage used for the character sequence.
     public trimToSize(): void {
         if (this.currentLength < this.data.length) {
             const newData = new Uint32Array(this.currentLength);
-            newData.set(this.data.subarray(0, this.currentLength + 1), 0); // End value is not inclusive.
+            newData.set(this.data.subarray(0, this.currentLength), 0);
 
             this.data = newData;
         }

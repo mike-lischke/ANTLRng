@@ -75,7 +75,8 @@ export  class ListTokenSource extends  TokenSource {
 	 * {@link TokenSource}.
 	 * @exception NullPointerException if {@code tokens} is {@code null}
 	 */
-	public constructor(tokens: java.util.List< Token>);
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor(tokens: java.util.List< Token>);
 
 	/**
 	 * Constructs a new {@link ListTokenSource} instance from the specified
@@ -91,12 +92,15 @@ export  class ListTokenSource extends  TokenSource {
 	 * @exception NullPointerException if {@code tokens} is {@code null}
 	 */
 	public constructor(tokens: java.util.List< Token>, sourceName: string);
+/* @ts-expect-error, because of the super() call in the closure. */
 public constructor(tokens: java.util.List< Token>, sourceName?: string) {
 const $this = (tokens: java.util.List< Token>, sourceName?: string): void => {
 if (sourceName === undefined) {
 		$this(tokens, undefined);
 	}
  else  {
+
+/* @ts-expect-error, because of the super() call in the closure. */
 		super();
 if (tokens === undefined) {
 			throw new  java.lang.NullPointerException("tokens cannot be null");
@@ -110,7 +114,7 @@ if (tokens === undefined) {
 $this(tokens, sourceName);
 
 }
-
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	/**
 	 * {@inheritDoc}

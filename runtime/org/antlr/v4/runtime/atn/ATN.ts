@@ -152,7 +152,7 @@ if (ctx === undefined) {
 	}
 
     public getDecisionState = (decision: number): DecisionState => {
-        if ( !this.decisionToState.isEmpty() ) {
+        if ( !(this.decisionToState.isEmpty()) ) {
             return this.decisionToState.get(decision);
         }
         return undefined;
@@ -204,7 +204,7 @@ if (ctx === undefined) {
 		let  ctx: RuleContext = context;
 		let  s: ATNState = this.states.get(stateNumber);
 		let  following: IntervalSet = this.nextTokens(s);
-		if (!following.contains(Token.EPSILON)) {
+		if (!(following.contains(Token.EPSILON))) {
 			return following;
 		}
 

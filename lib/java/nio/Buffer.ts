@@ -5,6 +5,8 @@
  * See LICENSE file for more info.
  */
 
+import { MurmurHash } from "../../../runtime";
+
 import { IllegalArgumentException } from "../lang";
 import { InvalidMarkException } from "./InvalidMarkException";
 
@@ -119,6 +121,18 @@ export abstract class Buffer<T> {
         this.currentMark = -1;
 
         return this;
+    }
+
+    /** Returns the current hash code of this buffer. */
+    public hashCode(): number {
+        let hash = MurmurHash.initialize();
+        hash = MurmurHash.update(hash, this.currentCapacity);
+        hash = MurmurHash.update(hash, this.currentPosition);
+        hash = MurmurHash.update(hash, this.currentLimit);
+        hash = MurmurHash.update(hash, this.currentMark);
+        hash = MurmurHash.finish(hash, 4);
+
+        return hash;
     }
 
     /** Returns the array that backs this buffer (optional operation). */

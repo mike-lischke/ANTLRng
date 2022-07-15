@@ -7,40 +7,46 @@
 
 /** cspell: ignore mkdirs */
 
+/* eslint-disable @typescript-eslint/unified-signatures */
+
 import path from "path";
 import fs from "fs";
 
-export class File {
+import { Comparable } from "../lang";
+
+export class File implements Comparable<File> {
     public static readonly separator = path.sep;
     public static readonly separatorChar = path.sep;
     public static readonly pathSeparator = path.sep;
 
     private path: string;
 
+    public constructor(parent: File, child: string);
     public constructor(pathName: string);
     public constructor(parent: string | undefined, child: string);
-    // eslint-disable-next-line @typescript-eslint/unified-signatures
-    public constructor(parent: File, child: string);
-    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public constructor(uri: URL);
-    public constructor(pathNameOrParentOrUrl?: string | File | URL, child?: string) {
-        if (!pathNameOrParentOrUrl) {
-            this.path = path.resolve(child);
-        } else if (typeof pathNameOrParentOrUrl === "string") {
-            this.path = path.resolve(pathNameOrParentOrUrl, child);
-        } else if (pathNameOrParentOrUrl instanceof File) {
-            this.path = path.resolve(pathNameOrParentOrUrl.path, child);
+    public constructor(parentOrPathNameOrUri?: File | string | URL, child?: string) {
+        if (!parentOrPathNameOrUri) {
+            this.path = path.normalize(child);
+        } else if (typeof parentOrPathNameOrUri === "string") {
+            this.path = path.resolve(path.normalize(parentOrPathNameOrUri), path.normalize(child));
+        } else if (parentOrPathNameOrUri instanceof File) {
+            this.path = path.resolve(path.normalize(parentOrPathNameOrUri.path), path.normalize(child));
         } else {
-            this.path = pathNameOrParentOrUrl.pathname;
+            this.path = parentOrPathNameOrUri.pathname;
         }
     }
 
     public isAbsolute(): boolean {
-        return true;
+        return path.isAbsolute(this.path);
+    }
+
+    public getPath(): string {
+        return this.path;
     }
 
     public getAbsolutePath(): string {
-        return this.path;
+        return path.resolve(this.path);
     }
 
     public getParentFile(): File {
@@ -51,6 +57,10 @@ export class File {
         fs.mkdirSync(this.path, { recursive: true });
 
         return true;
+    }
+
+    public compareTo(other: File): number {
+        return this.path.localeCompare(other.path);
     }
 }
 

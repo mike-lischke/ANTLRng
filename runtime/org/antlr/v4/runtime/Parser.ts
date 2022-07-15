@@ -613,7 +613,7 @@ let offendingToken = msgOrOffendingToken as Token;
 		if (o.getType() !== Recognizer.EOF) {
 			this.getInputStream().consume();
 		}
-		let  hasListener: boolean = this._parseListeners !== undefined && !this._parseListeners.isEmpty();
+		let  hasListener: boolean = this._parseListeners !== undefined && !(this._parseListeners.isEmpty());
 		if (this._buildParseTrees || hasListener) {
 			if ( this._errHandler.inErrorRecoveryMode(this) ) {
 				let  node: ErrorNode = this._ctx.addErrorNode(this.createErrorNode(this._ctx,o));
@@ -853,7 +853,7 @@ let state = ruleIndexOrState as number;
             return true;
         }
 //        System.out.println("following "+s+"="+following);
-        if ( !following.contains(Token.EPSILON) ) {
+        if ( !(following.contains(Token.EPSILON)) ) {
  return false;
 }
 
@@ -972,7 +972,7 @@ if (p === undefined) {
 			let  seenOne: boolean = false;
 			for (let  d: number = 0; d < this._interp.decisionToDFA.length; d++) {
 				let  dfa: DFA = this._interp.decisionToDFA[d];
-				if ( !dfa.states.isEmpty() ) {
+				if ( !(dfa.states.isEmpty()) ) {
 					if ( seenOne ) {
  java.lang.System.out.println();
 }

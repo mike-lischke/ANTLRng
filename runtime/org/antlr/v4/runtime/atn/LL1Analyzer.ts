@@ -190,7 +190,7 @@ let stopState = ctxOrStopState as ATNState;
 	{
 //		System.out.println("_LOOK("+s.stateNumber+", ctx="+ctx);
         let  c: ATNConfig = new  ATNConfig(s, 0, ctx);
-        if ( !lookBusy.add(c) ) {
+        if ( !(lookBusy.add(c)) ) {
  return;
 }
 

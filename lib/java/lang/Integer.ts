@@ -190,6 +190,10 @@ export class Integer {
         return new Integer(i);
     }
 
+    public static parseInt(s: string, radix = 10): number {
+        return parseInt(s, radix);
+    }
+
     // Returns the value of this Integer as a byte.
     public byteValue(): number {
         return this.value & 0xFF;
@@ -232,10 +236,6 @@ export class Integer {
     // Returns the value of this Integer as a long.
     public longValue(): number {
         return this.value;
-    }
-
-    public parseInt(s: string, radix = 10): number {
-        return parseInt(s, radix);
     }
 
     // Returns the value of this Integer as a short.

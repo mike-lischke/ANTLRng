@@ -5,7 +5,9 @@
  * See LICENSE file for more info.
  */
 
-import { CodePoint, IllegalArgumentException, IndexOutOfBoundsException, StringBuilder, System } from "../lang";
+/* eslint-disable @typescript-eslint/naming-convention */
+
+import { CodePoint, IllegalArgumentException, IndexOutOfBoundsException, StringBuilder } from "../lang";
 import { CharBuffer } from "../nio";
 import { IOException } from "./IOException";
 import { Reader } from "./Reader";
@@ -17,7 +19,7 @@ export class BufferedReader extends Reader {
     private static readonly defaultCharBufferSize = 8192;
     private static readonly defaultExpectedLineLength = 80;
 
-    private cb: CodePoint[];
+    private cb: Uint32Array;
     private nChars: CodePoint;
     private nextChar: CodePoint;
 
@@ -37,7 +39,7 @@ export class BufferedReader extends Reader {
             throw new IllegalArgumentException("Buffer size <= 0");
         }
 
-        this.cb = new Array(size ?? BufferedReader.defaultCharBufferSize);
+        this.cb = new Uint32Array(size ?? BufferedReader.defaultCharBufferSize);
         this.nextChar = this.nChars = 0;
     }
 
@@ -73,9 +75,9 @@ export class BufferedReader extends Reader {
         return true;
     }
 
-    public read(target?: CodePoint[] | CharBuffer): CodePoint;
-    public read(target: CodePoint[], offset: number, length: number): number;
-    public read(target: CodePoint[], offset?: number, length?: number): number {
+    public read(target?: Uint32Array | CharBuffer): CodePoint;
+    public read(target: Uint32Array, offset: number, length: number): number;
+    public read(target: Uint32Array, offset?: number, length?: number): number {
         this.ensureOpen();
 
         if (target === undefined) {
@@ -86,6 +88,7 @@ export class BufferedReader extends Reader {
                         return -1;
                     }
                 }
+
                 if (this.skipLF) {
                     this.skipLF = false;
                     if (this.cb[this.nextChar] === 0x13) {
@@ -143,12 +146,15 @@ export class BufferedReader extends Reader {
         }
 
         while (true) {
-            if (this.nextChar >= this.nChars) { this.fill(); }
+            if (this.nextChar >= this.nChars) {
+                this.fill();
+            }
+
             if (this.nextChar >= this.nChars) { /* EOF */
                 if (s != null && s.length() > 0) {
                     return s.toString();
                 } else {
-                    return null;
+                    return "";
                 }
             }
 
@@ -160,6 +166,7 @@ export class BufferedReader extends Reader {
             if (omitLF && (this.cb[this.nextChar] === 0x13)) {
                 this.nextChar++;
             }
+
             this.skipLF = false;
             omitLF = false;
 
@@ -310,13 +317,13 @@ export class BufferedReader extends Reader {
             } else {
                 if (this.readAheadLimit <= this.cb.length) {
                     /* Shuffle in the current buffer */
-                    System.arraycopy(this.cb, this.markedChar, this.cb, 0, delta);
+                    this.cb.copyWithin(0, this.markedChar, this.markedChar + delta);
                     this.markedChar = 0;
                     dst = delta;
                 } else {
                     /* Reallocate buffer to accommodate read-ahead limit */
-                    const ncb = new Array(this.readAheadLimit);
-                    System.arraycopy(this.cb, this.markedChar, ncb, 0, delta);
+                    const ncb = new Uint32Array(this.readAheadLimit);
+                    ncb.set(this.cb.subarray(this.markedChar, this.markedChar + delta), 0);
                     this.cb = ncb;
                     this.markedChar = 0;
                     dst = delta;
@@ -346,7 +353,7 @@ export class BufferedReader extends Reader {
      *
      * @returns tbd
      */
-    private read1(target: CodePoint[], offset: number, length: number): number {
+    private read1(target: Uint32Array, offset: number, length: number): number {
         if (this.nextChar >= this.nChars) {
             /* If the requested length is at least as large as the buffer, and
                if there is no mark/reset activity, and if line feeds are not
@@ -378,7 +385,7 @@ export class BufferedReader extends Reader {
         }
 
         const n = Math.min(length, this.nChars - this.nextChar);
-        System.arraycopy(this.cb, this.nextChar, target, offset, n);
+        target.set(this.cb.subarray(this.nextChar, this.nextChar + n), offset);
         this.nextChar += n;
 
         return n;

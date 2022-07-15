@@ -58,16 +58,6 @@ export  class CommonTokenFactory extends  TokenFactory<CommonToken> {
 	protected readonly  copyText:  boolean;
 
 	/**
-	 * Constructs a {@link CommonTokenFactory} with {@link #copyText} set to
-	 * {@code false}.
-	 *
-	 * <p>
-	 * The {@link #DEFAULT} instance should be used instead of calling this
-	 * directly.</p>
-	 */
-	public constructor();
-
-	/**
 	 * Constructs a {@link CommonTokenFactory} with the specified value for
 	 * {@link #copyText}.
 	 *
@@ -77,18 +67,32 @@ export  class CommonTokenFactory extends  TokenFactory<CommonToken> {
 	 *
 	 * @param copyText The value for {@link #copyText}.
 	 */
-	public constructor(copyText: boolean);
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+
+
+	/**
+	 * Constructs a {@link CommonTokenFactory} with {@link #copyText} set to
+	 * {@code false}.
+	 *
+	 * <p>
+	 * The {@link #DEFAULT} instance should be used instead of calling this
+	 * directly.</p>
+	 */
+	public constructor();public constructor(copyText: boolean);
+/* @ts-expect-error, because of the super() call in the closure. */
 public constructor(copyText?: boolean) {
 const $this = (copyText?: boolean): void => {
 if (copyText === undefined) { $this(false); }
- else  { super();
+ else  {
+
+/* @ts-expect-error, because of the super() call in the closure. */ super();
 this.copyText = copyText; }
 };
 
 $this(copyText);
 
 }
-
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	public create(type: number, text: string): CommonToken;
 

@@ -16,7 +16,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java,StandardCharsets,Charset } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
@@ -85,59 +85,62 @@ export  class UnbufferedCharStream extends  CharStream {
 	 */
     protected currentCharIndex:  number = 0;
 
-    protected input?:  Reader;
+    protected input?:  java.io.Reader;
 
 	/** The name or source of this char stream. */
 	public name?:  string;
 
 	/** Useful for subclasses that pull char from other than this.input. */
-	public constructor();
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor();
 
 	/** Useful for subclasses that pull char from other than this.input. */
 	public constructor(bufferSize: number);
 
-	public constructor(input: InputStream);
+	public constructor(input: java.io.InputStream);
 
-	public constructor(input: Reader);
+	public constructor(input: java.io.Reader);
 
-	public constructor(input: InputStream, bufferSize: number);
+	public constructor(input: java.io.InputStream, bufferSize: number);
 
-	public constructor(input: Reader, bufferSize: number);
+	public constructor(input: java.io.Reader, bufferSize: number);
 
-	public constructor(input: InputStream, bufferSize: number, charset: Charset);
-public constructor(bufferSizeOrInput?: number | InputStream | Reader, bufferSize?: number, charset?: Charset) {
-const $this = (bufferSizeOrInput?: number | InputStream | Reader, bufferSize?: number, charset?: Charset): void => {
+	public constructor(input: java.io.InputStream, bufferSize: number, charset: Charset);
+/* @ts-expect-error, because of the super() call in the closure. */
+public constructor(bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: Charset) {
+const $this = (bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: Charset): void => {
 if (bufferSizeOrInput === undefined) {
 		$this(256);
 	}
  else if (typeof bufferSizeOrInput === "number" && bufferSize === undefined) {
 const bufferSize = bufferSizeOrInput as number;
+/* @ts-expect-error, because of the super() call in the closure. */
 		super();
 this.n = 0;
 		this.data = new   Array<number>(bufferSize);
 	}
- else if (bufferSizeOrInput instanceof InputStream && bufferSize === undefined) {
-const input = bufferSizeOrInput as InputStream;
+ else if (bufferSizeOrInput instanceof java.io.InputStream && bufferSize === undefined) {
+const input = bufferSizeOrInput as java.io.InputStream;
 		$this(input, 256);
 	}
- else if (bufferSizeOrInput instanceof Reader && bufferSize === undefined) {
-const input = bufferSizeOrInput as Reader;
+ else if (bufferSizeOrInput instanceof java.io.Reader && bufferSize === undefined) {
+const input = bufferSizeOrInput as java.io.Reader;
 		$this(input, 256);
 	}
- else if (bufferSizeOrInput instanceof InputStream && typeof bufferSize === "number" && charset === undefined) {
-const input = bufferSizeOrInput as InputStream;
+ else if (bufferSizeOrInput instanceof java.io.InputStream && typeof bufferSize === "number" && charset === undefined) {
+const input = bufferSizeOrInput as java.io.InputStream;
 		$this(input, bufferSize, StandardCharsets.UTF_8);
 	}
- else if (bufferSizeOrInput instanceof Reader && typeof bufferSize === "number" && charset === undefined) {
-const input = bufferSizeOrInput as Reader;
+ else if (bufferSizeOrInput instanceof java.io.Reader && typeof bufferSize === "number" && charset === undefined) {
+const input = bufferSizeOrInput as java.io.Reader;
 		$this(bufferSize);
 		this.input = input;
 		this.fill(1); // prime
 	}
  else  {
-let input = bufferSizeOrInput as InputStream;
+let input = bufferSizeOrInput as java.io.InputStream;
 		$this(bufferSize);
-		this.input = new  InputStreamReader(input, charset);
+		this.input = new  java.io.InputStreamReader(input, charset);
 		this.fill(1); // prime
 	}
 };
@@ -145,7 +148,7 @@ let input = bufferSizeOrInput as InputStream;
 $this(bufferSizeOrInput, bufferSize, charset);
 
 }
-
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	public consume = (): void => {
 		if (this.LA(1) === IntStream.EOF) {
@@ -227,7 +230,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 
 				}
 			}
-			catch ([object Object]ioe: unknown) {
+			catch (ioe: unknown) {
 				throw new  java.lang.RuntimeException(ioe);
 			}
 		}
@@ -349,7 +352,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
     }
 
     public getSourceName = (): string => {
-		if (this.name === undefined || this.name.isEmpty()) {
+		if (this.name === undefined || this.name.length === 0) {
 			return IntStream.UNKNOWN_SOURCE_NAME;
 		}
 

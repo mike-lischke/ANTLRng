@@ -167,7 +167,7 @@ this._input = input;
 					try {
 						ttype = this.getInterpreter().match(this._input, this._mode);
 					}
-					catch ([object Object]e: unknown) {
+					catch (e: unknown) {
 						this.notifyListeners(ANTLRErrorListener.syntaxError.e);		// report error
 						this.recover(ANTLRErrorListener.syntaxError.e);
 						ttype = Lexer.SKIP;

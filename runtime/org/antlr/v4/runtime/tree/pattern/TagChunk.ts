@@ -80,7 +80,7 @@ if (tag === undefined) {
 let label = tagOrLabel as string;
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
-if (tag === undefined || tag.isEmpty()) {
+if (tag === undefined || tag.length === 0) {
 			throw new  java.lang.IllegalArgumentException("tag cannot be null or empty");
 		}
 

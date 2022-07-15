@@ -1,6 +1,6 @@
 /* java2ts: keep */
 
-import { IEquatable } from "../../../../../../../lib/types";
+import { IEquatable } from "../../../../../../lib/types";
 
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
@@ -23,7 +23,7 @@ import { IEquatable } from "../../../../../../../lib/types";
  */
 export class MurmurHash {
 
-    private static readonly DEFAULT_SEED: number = 0;
+    private static readonly DEFAULT_SEED = 0;
 
     /**
      * Initialize the hash using the default seed value.
@@ -56,18 +56,8 @@ export class MurmurHash {
      *
      * @returns the updated intermediate hash value
      */
-    public static update(hash: number, value: number): number;
-    /**
-     * Update the intermediate hash value for the next input {@code value}.
-     *
-     * @param hash the intermediate hash value
-     * @param value the value to add to the current hash
-     *
-     * @returns the updated intermediate hash value
-     */
-    public static update(hash: number, value?: string | IEquatable): number;
-    public static update(hash: number, value?: number | string | IEquatable): number {
-        if (typeof hash === "number" && typeof value === "number") {
+    public static update(hash: number, value: number | boolean | string | IEquatable | ArrayLike<number>): number {
+        if (typeof value === "number") {
             const c1 = 0xCC9E2D51;
             const c2 = 0x1B873593;
             const r1 = 15;
@@ -87,14 +77,14 @@ export class MurmurHash {
             return hash;
         } else {
             let newValue = 0;
-            if (value) {
-                if (typeof value === "number") {
-                    newValue = value;
-                } else if (typeof value === "string") {
-                    newValue = this.hashString(value);
-                } else {
-                    newValue = value.hashCode();
-                }
+            if (typeof value === "boolean") {
+                newValue = value ? 1 : 0;
+            } else if (typeof value === "string") {
+                newValue = this.hashString(value, hash);
+            } else if (this.isArrayLike(value)) {
+                newValue = this.hashArray(value, hash);
+            } else {
+                newValue = value.hashCode();
             }
 
             return MurmurHash.update(hash, newValue);
@@ -123,30 +113,6 @@ export class MurmurHash {
     };
 
     /**
-     * Utility function to compute the hash code of an array using the
-     * MurmurHash algorithm.
-     *
-     * @param data the array data
-     * @param seed the seed for the MurmurHash algorithm
-     *
-     * @returns the hash code of the data
-     */
-    public static hashCode = <T extends number | string | IEquatable>(data: T[], seed: number): number => {
-        let hash = this.initialize(seed);
-        for (const value of data) {
-            if (typeof value === "number") {
-                hash = this.update(hash, value);
-            } else {
-                hash = this.update(hash, value);
-            }
-        }
-
-        hash = this.finish(hash, data.length);
-
-        return hash;
-    };
-
-    /**
      * Function to hash a string. Based on the implementation found here:
      * https://stackoverflow.com/a/52171480/1137174
      *
@@ -158,8 +124,8 @@ export class MurmurHash {
     private static hashString(str: string, seed = 0): number {
         let h1 = 0xdeadbeef ^ seed;
         let h2 = 0x41c6ce57 ^ seed;
-        for (let i = 0; i < str.length; i++) {
-            const ch = str.charCodeAt(i);
+        for (const c of str) {
+            const ch = c.charCodeAt(0);
             h1 = Math.imul(h1 ^ ch, 2654435761);
             h2 = Math.imul(h2 ^ ch, 1597334677);
         }
@@ -167,6 +133,35 @@ export class MurmurHash {
         h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
 
         return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+    }
+
+    /**
+     * A variation of the hashString method, but for arrays with numbers (including typed arrays).
+     * This is more effective than running `update` for every entry individually.
+     *
+     * @param array The array to hash.
+     * @param seed An optional seed for the operation.
+     *
+     * @returns The computed hash.
+     */
+    private static hashArray(array: ArrayLike<number>, seed = 0): number {
+        let h1 = 0xdeadbeef ^ seed;
+        let h2 = 0x41c6ce57 ^ seed;
+
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+        for (let i = 0; i < array.length; i++) {
+            const ch = array[i];
+            h1 = Math.imul(h1 ^ ch, 2654435761);
+            h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+    }
+
+    private static isArrayLike(candidate: unknown): candidate is ArrayLike<number> {
+        return (candidate as ArrayLike<number>).length !== undefined;
     }
 
     private constructor() {

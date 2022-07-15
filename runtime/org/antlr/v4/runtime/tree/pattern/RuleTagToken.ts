@@ -75,7 +75,7 @@ if (label === undefined) {
 		$this(ruleName, bypassTokenType, undefined);
 	}
  else  {
-		if (ruleName === undefined || ruleName.isEmpty()) {
+		if (ruleName === undefined || ruleName.length === 0) {
 			throw new  java.lang.IllegalArgumentException("ruleName cannot be null or empty.");
 		}
 

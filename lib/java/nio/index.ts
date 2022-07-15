@@ -7,7 +7,10 @@
 
 export * from "./Buffer";
 export * from "./CharBuffer";
+export * from "./ByteBuffer";
 
 export * from "./InvalidMarkException";
 export * from "./ReadOnlyBufferException";
 export * from "./BufferOverflowException";
+
+export * from "./charset/$charset";

@@ -29,18 +29,18 @@ import { java } from "../../../../../lib/java/java";
  */
 export  class CodePointBuffer {
 	private readonly  type?:  this.Type;
-	private readonly  byteBuffer?:  ByteBuffer;
+	private readonly  byteBuffer?:  java.nio.ByteBuffer;
 	private readonly  charBuffer?:  java.nio.CharBuffer;
 	private readonly  intBuffer?:  IntBuffer;
 
-	private constructor(type: this.Type, byteBuffer: ByteBuffer, charBuffer: java.nio.CharBuffer, intBuffer: IntBuffer) {
+	private constructor(type: this.Type, byteBuffer: java.nio.ByteBuffer, charBuffer: java.nio.CharBuffer, intBuffer: IntBuffer) {
 		this.type = type;
 		this.byteBuffer = byteBuffer;
 		this.charBuffer = charBuffer;
 		this.intBuffer = intBuffer;
 	}
 
-	public static withBytes = (byteBuffer: ByteBuffer): CodePointBuffer => {
+	public static withBytes = (byteBuffer: java.nio.ByteBuffer): CodePointBuffer => {
 		return new  CodePointBuffer(this.Type.BYTE, byteBuffer, undefined, undefined);
 	}
 
@@ -162,14 +162,14 @@ default:
 
 	public static Builder = class Builder {
 		private type?:  $outer.Type;
-		private byteBuffer?:  ByteBuffer;
+		private byteBuffer?:  java.nio.ByteBuffer;
 		private charBuffer?:  java.nio.CharBuffer;
 		private intBuffer?:  IntBuffer;
 		private prevHighSurrogate:  number;
 
 		private constructor(initialBufferSize: number) {
 			this.type = $outer.Type.BYTE;
-			this.byteBuffer = ByteBuffer.allocate(initialBufferSize);
+			this.byteBuffer = java.nio.ByteBuffer.allocate(initialBufferSize);
 			this.charBuffer = undefined;
 			this.intBuffer = undefined;
 			this.prevHighSurrogate = -1;
@@ -179,7 +179,7 @@ default:
 			return this.type;
 		}
 
-		public  getByteBuffer = ():ByteBuffer => {
+		public  getByteBuffer = ():java.nio.ByteBuffer => {
 			return this.byteBuffer;
 		}
 
@@ -219,7 +219,7 @@ default:
 				case BYTE:
 					if (this.byteBuffer.remaining() < remainingNeeded) {
 						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.byteBuffer.capacity() + remainingNeeded);
-						let  newBuffer: ByteBuffer = ByteBuffer.allocate(newCapacity);
+						let  newBuffer: java.nio.ByteBuffer = java.nio.ByteBuffer.allocate(newCapacity);
 						this.byteBuffer.flip();
 						newBuffer.put(this.byteBuffer);
 						this.byteBuffer = newBuffer;
@@ -295,7 +295,7 @@ default:
 				} else {
 					utf16In.position(inOffset - utf16In.arrayOffset());
 					this.byteBuffer.position(outOffset - this.byteBuffer.arrayOffset());
-					if (!java.lang.Character.isHighSurrogate(c)) {
+					if (!(java.lang.Character.isHighSurrogate(c))) {
 						this.byteToCharBuffer(utf16In.remaining());
 						this.appendArrayChar(utf16In);
 						return;
@@ -325,7 +325,7 @@ default:
 
 			while (inOffset < inLimit) {
 				let  c: number = in[inOffset];
-				if (!java.lang.Character.isHighSurrogate(c)) {
+				if (!(java.lang.Character.isHighSurrogate(c))) {
 					outChar[outOffset] = c;
 				} else {
 					utf16In.position(inOffset - utf16In.arrayOffset());

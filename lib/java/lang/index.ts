@@ -37,3 +37,4 @@ export * from "./VirtualMachineError";
 export * from "./OutOfMemoryError";
 
 export * from "./System";
+export * from "./StackTraceElement";

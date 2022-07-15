@@ -161,13 +161,13 @@ export  class RuntimeMetaData {
 
 		if ( generatingToolVersion!==undefined ) {
 			runtimeConflictsWithGeneratingTool =
-				!runtimeVersion.equals(generatingToolVersion) &&
-				!RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(generatingToolVersion));
+				!(runtimeVersion === generatingToolVersion) &&
+				!(RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(generatingToolVersion)));
 		}
 
 		runtimeConflictsWithCompileTimeTool =
-			!runtimeVersion.equals(compileTimeVersion) &&
-			!RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(compileTimeVersion));
+			!(runtimeVersion === compileTimeVersion) &&
+			!(RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(compileTimeVersion)));
 
 		if ( runtimeConflictsWithGeneratingTool ) {
 			java.lang.System.err.printf("ANTLR Tool version %s used for code generation does not match the current runtime version %s%n",
