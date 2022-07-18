@@ -1,9 +1,10 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-
 
 /*
  eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
@@ -14,12 +15,7 @@
 
 /* cspell: disable */
 
-
-
 import { java } from "../../../../../../lib/java/java";
-
-
-
 
 /**
  * This exception is thrown to cancel a parsing operation. This exception does
@@ -29,33 +25,24 @@ import { java } from "../../../../../../lib/java/java";
  *
  * @author Sam Harwell
  */
-export  class ParseCancellationException extends CancellationException {
+export class ParseCancellationException extends java.util.concurrent.CancellationException {
 
-	public constructor();
-
-	public constructor(message: string);
-
-	public constructor(cause: java.lang.Throwable);
-
-	public constructor(message: string, cause: java.lang.Throwable);
-public constructor(messageOrCause?: string | java.lang.Throwable, cause?: java.lang.Throwable) {
-if (messageOrCause === undefined) {
-	}
- else if (typeof messageOrCause === "string" && cause === undefined) {
-const message = messageOrCause as string;
-		super(message);
-	}
- else if (messageOrCause instanceof java.lang.Throwable && cause === undefined) {
-const cause = messageOrCause as java.lang.Throwable;
-		initCause(cause);
-	}
- else  {
-let message = messageOrCause as string;
-		super(message);
-		initCause(cause);
-	}
-
-}
-
-
+    public constructor();
+    public constructor(message: string);
+    public constructor(cause: java.lang.Throwable);
+    public constructor(message: string, cause: java.lang.Throwable);
+    public constructor(messageOrCause?: string | java.lang.Throwable, cause?: java.lang.Throwable) {
+        if (messageOrCause === undefined) {
+            super();
+        } else if (typeof messageOrCause === "string" && cause === undefined) {
+            const message = messageOrCause;
+            super(message);
+        } else if (messageOrCause instanceof java.lang.Throwable && cause === undefined) {
+            const cause = messageOrCause;
+            super(cause);
+        } else {
+            const message = messageOrCause as string;
+            super(message, cause);
+        }
+    }
 }

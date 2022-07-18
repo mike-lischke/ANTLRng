@@ -35,7 +35,7 @@ import { Pair } from "./misc/Pair";
  * as the EOF token for every call to {@link #nextToken} after the end of the
  * list is reached. Otherwise, an EOF token will be created.</p>
  */
-export  class ListTokenSource extends  TokenSource {
+export  class ListTokenSource implements TokenSource {
 	/**
 	 * The wrapped collection of {@link Token} objects to return.
 	 */

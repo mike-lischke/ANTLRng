@@ -33,7 +33,7 @@ import { Interval } from "./misc/Interval";
  * Use this if you need to parse input which potentially contains
  * Unicode values > U+FFFF.
  */
-export  class CodePointCharStream extends  CharStream {
+export  class CodePointCharStream implements CharStream {
 	protected readonly  size:  number;
 	protected readonly  name?:  string;
 

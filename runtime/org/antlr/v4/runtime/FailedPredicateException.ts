@@ -98,6 +98,6 @@ $this(recognizer, predicate, message);
 			return message;
 		}
 
-		return string.format(java.util.Locale.getDefault(), "failed predicate: {%s}?", predicate);
+		return java.lang.StringBuilder.format(java.util.Locale.getDefault(), "failed predicate: {%s}?", predicate);
 	}
 }

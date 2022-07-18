@@ -16,6 +16,8 @@
 /* cspell: disable */
 
 import { java } from "../../../../../../lib/java/java";
+import { IEquatable } from "../../../../../../lib/types";
+
 import { AbstractEqualityComparator } from "./AbstractEqualityComparator";
 import { MurmurHash } from "./MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
@@ -24,7 +26,7 @@ import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
  * A limited map (many unsupported operations) that lets me use
  *  varying hashCode/equals.
  */
-export class FlexibleHashMap<K, V> {
+export class FlexibleHashMap<K extends IEquatable, V> {
     public static readonly INITAL_CAPACITY: number = 16; // must be power of 2
     public static readonly INITAL_BUCKET_CAPACITY: number = 8;
     public static readonly LOAD_FACTOR: number = 0.75;
@@ -71,23 +73,19 @@ export class FlexibleHashMap<K, V> {
     };
 
     protected getBucket = (key: K): number => {
-        const hash: number = this.comparator.hashCode(key);
-        const b: number = hash & (this.buckets.length - 1); // assumes len is power of 2
+        const hash = this.comparator.hashCode(key);
+        const b = hash & (this.buckets.length - 1); // assumes len is power of 2
 
         return b;
     };
 
     public get = (key: K): V => {
-        if (key === undefined) {
-            return undefined;
-        }
-
-        const b: number = this.getBucket(key);
+        const b = this.getBucket(key);
         const bucket = this.buckets[b];
         if (bucket === undefined) {
             return undefined;
         }
-        // no bucket
+
         for (const e of bucket) {
             if (this.comparator.equals(e.key, key)) {
                 return e.value;
@@ -98,10 +96,6 @@ export class FlexibleHashMap<K, V> {
     };
 
     public put = (key: K, value: V): V => {
-        if (key === undefined) {
-            return undefined;
-        }
-
         if (this.n > this.threshold) {
             this.expand();
         }
@@ -121,6 +115,7 @@ export class FlexibleHashMap<K, V> {
                 return prev;
             }
         }
+
         // not there
         bucket.push(new FlexibleHashMap.Entry<K, V>(key, value));
         this.n++;

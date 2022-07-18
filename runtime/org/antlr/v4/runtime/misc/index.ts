@@ -1,6 +1,5 @@
 // java2typescript: auto generated index file. Disable generation by setting the "addIndexFiles" option to false.
 
-
 export * from "./AbstractEqualityComparator";
 export * from "./Array2DHashSet";
 export * from "./DoubleKeyMap";
@@ -15,9 +14,7 @@ export * from "./IntervalSet";
 export * from "./LogManager";
 export * from "./MultiMap";
 export * from "./MurmurHash";
-export * from "./NotNull";
 export * from "./ObjectEqualityComparator";
-export * from "./OrderedHashSet";
 export * from "./Pair";
 export * from "./ParseCancellationException";
 export * from "./Predicate";

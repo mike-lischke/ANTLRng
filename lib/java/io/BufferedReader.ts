@@ -5,7 +5,7 @@
  * See LICENSE file for more info.
  */
 
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention, jsdoc/require-returns */
 
 import { CodePoint, IllegalArgumentException, IndexOutOfBoundsException, StringBuilder } from "../lang";
 import { CharBuffer } from "../nio";
@@ -43,7 +43,7 @@ export class BufferedReader extends Reader {
         this.nextChar = this.nChars = 0;
     }
 
-    // Closes the stream and releases any system resources associated with it.
+    /** Closes the stream and releases any system resources associated with it. */
     public close(): boolean {
         if (this.input === undefined) {
             return;
@@ -55,10 +55,13 @@ export class BufferedReader extends Reader {
             this.input = undefined;
             this.cb = null;
         }
-
     }
 
-    // Marks the present position in the stream.
+    /**
+     * Marks the present position in the stream.
+     *
+     * @param readAheadLimit tbd
+     */
     public mark(readAheadLimit: number): void {
         if (readAheadLimit < 0) {
             throw new IllegalArgumentException("Read-ahead limit < 0");
@@ -70,7 +73,7 @@ export class BufferedReader extends Reader {
         this.markedSkipLF = this.skipLF;
     }
 
-    // Tells whether this stream supports the mark() operation, which it does.
+    /** Tells whether this stream supports the mark() operation, which it does. */
     public markSupported(): boolean {
         return true;
     }
@@ -133,7 +136,12 @@ export class BufferedReader extends Reader {
         }
     }
 
-    // Reads a line of text.
+    /**
+     * Reads a line of text.
+     *
+     * @param ignoreLF tbd
+     * @param term tbd
+     */
     public readLine(ignoreLF = false, term?: boolean[]): string {
         let s: StringBuilder;
         let startChar;
@@ -211,7 +219,7 @@ export class BufferedReader extends Reader {
         }
     }
 
-    // Tells whether this stream is ready to be read.
+    /** Tells whether this stream is ready to be read. */
     public ready(): boolean {
         this.ensureOpen();
 
@@ -239,7 +247,7 @@ export class BufferedReader extends Reader {
         return (this.nextChar < this.nChars) || this.input?.ready();
     }
 
-    // Resets the stream to the most recent mark.
+    /** Resets the stream to the most recent mark. */
     public reset(): void {
         this.ensureOpen();
         if (this.markedChar < 0) {
@@ -252,7 +260,11 @@ export class BufferedReader extends Reader {
         this.skipLF = this.markedSkipLF;
     }
 
-    // Skips characters.
+    /**
+     * Skips characters.
+     *
+     * @param n tbd
+     */
     public skip(n: number): number {
         if (n < 0) {
             throw new IllegalArgumentException("skip value is negative");
@@ -298,9 +310,7 @@ export class BufferedReader extends Reader {
         }
     }
 
-    /**
-     * Fills the input buffer, taking the mark into account if it is valid.
-     */
+    /** Fills the input buffer, taking the mark into account if it is valid. */
     private fill(): void {
         let dst: number;
         if (this.markedChar <= BufferedReader.UNMARKED) {

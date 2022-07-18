@@ -7,10 +7,15 @@
 
 /* eslint-disable @typescript-eslint/unified-signatures */
 
+import { readSync } from "fs";
+import * as fs from "fs/promises";
+
+import { IndexOutOfBoundsException, Throwable } from "../lang";
 import { AutoCloseable } from "./AutoCloseable";
 import { File } from "./File";
 import { FileDescriptor } from "./FileDescriptor";
 import { InputStream } from "./InputStream";
+import { IOException } from "./IOException";
 
 export class FileInputStream extends InputStream implements AutoCloseable {
     private fd: FileDescriptor;
@@ -36,10 +41,12 @@ export class FileInputStream extends InputStream implements AutoCloseable {
 
         if (fileOrFdObjOrName instanceof File) {
             this.path = fileOrFdObjOrName.getPath();
-            this.fd = new FileDescriptor(this.path, "r", 0x444);
+            this.fd = new FileDescriptor();
+            this.open();
         } else if (typeof fileOrFdObjOrName === "string") {
             this.path = fileOrFdObjOrName;
-            this.fd = new FileDescriptor(this.path, "r", 0x444);
+            this.fd = new FileDescriptor();
+            this.open();
         } else {
             this.fd = fileOrFdObjOrName;
         }
@@ -50,13 +57,14 @@ export class FileInputStream extends InputStream implements AutoCloseable {
     /** Reads the next byte of data from the input stream. */
     public read(): number;
     /** Reads some number of bytes from the input stream and stores them into the buffer array b. */
-    public read(b: Buffer): number;
+    public read(b: Uint8Array): number;
     /** Reads up to len bytes of data from the input stream into an array of bytes. */
-    public read(b: Buffer, offset: number, length: number): number;
-    public read(b?: Buffer, offset?: number, length?: number): number {
+    public read(b: Uint8Array, offset: number, length: number): number;
+    public read(b?: Uint8Array, offset?: number, length?: number): number {
         if (!b) {
             const buffer = Buffer.alloc(1);
-            const read = this.fd.readData(buffer);
+            const read = readSync(this.fd.handle.fd, buffer, 0, 1, undefined);
+
             if (read === 0) {
                 return -1;
             }
@@ -64,6 +72,30 @@ export class FileInputStream extends InputStream implements AutoCloseable {
             return buffer.at(0);
         }
 
-        return this.fd.readData(b, offset, length);
+        offset ??= 0;
+        length ??= b.length;
+
+        if (offset < 0 || length < 0 || offset + length > b.length) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        const read = readSync(this.fd.handle.fd, b, offset ?? 0, length ?? b.length, undefined);
+        if (read === 0) {
+            return - 1;
+        }
+
+        return read;
+    }
+
+    public getFD(): FileDescriptor {
+        return this.fd;
+    }
+
+    private open(): void {
+        fs.open(this.path, "r", 0x400).then((handle) => {
+            this.fd.handle = handle;
+        }).catch((reason) => {
+            throw new IOException("Cannot open file", Throwable.fromError(reason));
+        });
     }
 }

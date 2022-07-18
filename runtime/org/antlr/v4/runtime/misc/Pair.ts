@@ -1,9 +1,10 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-
 
 /*
  eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
@@ -14,15 +15,12 @@
 
 /* cspell: disable */
 
+import { java } from "../../../../../../lib/java/java";
+import { IEquatable } from "../../../../../../lib/types";
 
-
-import { MurmurHash } from "./MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
-
-
-
-export class Pair<A, B> extends {
+export class Pair<A extends IEquatable, B extends IEquatable> implements java.io.Serializable {
     public readonly a?: A;
     public readonly b?: B;
 
@@ -31,30 +29,32 @@ export class Pair<A, B> extends {
         this.b = b;
     }
 
-	public equals = (obj: object): boolean => {
+    public equals = (obj: unknown): boolean => {
         if (obj === this) {
             return true;
-        }
-        else {
-            if (!(obj instanceof Pair<unknown, unknown>)) {
+        } else {
+            if (!(obj instanceof Pair<IEquatable, IEquatable>)) {
                 return false;
             }
         }
 
+        const other = obj as Pair<IEquatable, IEquatable>;
 
-        let other: Pair<unknown, unknown> = obj as Pair<unknown, unknown>;
         return ObjectEqualityComparator.INSTANCE.equals(this.a, other.a)
             && ObjectEqualityComparator.INSTANCE.equals(this.b, other.b);
-    }
+    };
 
-	public hashCode = (): number => {
+    /*
+    public hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         hash = MurmurHash.update(hash, this.a);
         hash = MurmurHash.update(hash, this.b);
-        return MurmurHash.finish(hash, 2);
-    }
 
-	public toString = (): string => {
-        return string.format("(%s, %s)", this.a, this.b);
-    }
+        return MurmurHash.finish(hash, 2);
+    };
+    */
+
+    public toString = (): string => {
+        return java.lang.StringBuilder.format("(%s, %s)", this.a, this.b);
+    };
 }

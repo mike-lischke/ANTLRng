@@ -5,24 +5,31 @@
  * See LICENSE file for more info.
  */
 
+// eslint-disable-next-line max-classes-per-file
+import * as fs from "fs/promises";
+
 import { OutputStream } from "./OutputStream";
 import { File } from "./File";
 import { FileDescriptor } from "./FileDescriptor";
-import { FileDescriptorImpl } from "./FileDescriptorImpl";
 import { FileNotFoundException } from "./FileNotFoundException";
 import { IOException } from "./IOException";
-import { Throwable } from "../lang";
+import { IndexOutOfBoundsException, Throwable } from "../lang";
+import { writeSync } from "fs";
 
 export class FileOutputStream extends OutputStream {
 
-    private descriptor: FileDescriptorImpl;
+    private fd: FileDescriptor;
+    private path: string;
+    private closed = true;
 
-    // Creates a file output stream to write to the file represented by the specified File object.
+    /** Creates a file output stream to write to the file represented by the specified File object. */
     public constructor(file: File, append?: boolean);
-    // Creates a file output stream to write to the specified file descriptor, which represents an existing connection
-    // to an actual file in the file system.
+    /**
+     * Creates a file output stream to write to the specified file descriptor, which represents an existing connection
+     * to an actual file in the file system.
+     */
     public constructor(fdObj: FileDescriptor);
-    // Creates a file output stream to write to the file with the specified name.
+    /** Creates a file output stream to write to the file with the specified name. */
     // eslint-disable-next-line @typescript-eslint/unified-signatures
     public constructor(name: string, append?: boolean);
     public constructor(fileOrFdObjOrName: File | FileDescriptor | string, append?: boolean) {
@@ -30,57 +37,77 @@ export class FileOutputStream extends OutputStream {
 
         try {
             if (fileOrFdObjOrName instanceof FileDescriptor) {
-                this.descriptor = fileOrFdObjOrName as FileDescriptorImpl;
+                this.fd = fileOrFdObjOrName;
             } else {
-                const name = fileOrFdObjOrName instanceof File
+                this.path = fileOrFdObjOrName instanceof File
                     ? fileOrFdObjOrName.getAbsolutePath()
                     : fileOrFdObjOrName;
-                if (append) {
-                    this.descriptor = FileDescriptorImpl.fromPath(name, "a", "0400");
-                } else {
-                    this.descriptor = FileDescriptorImpl.fromPath(name, "w", "0200");
-                }
+                this.fd = new FileDescriptor();
+                this.open(append ?? false);
             }
         } catch (error) {
-            throw new FileNotFoundException("Create open or create file", new Throwable(String(error)));
+            throw new FileNotFoundException("Create open or create file", Throwable.fromError(error));
         }
     }
 
-    // Closes this output stream and releases any system resources associated with this stream.
+    /** Closes this output stream and releases any system resources associated with this stream. */
     public close(): void {
-        try {
-            this.flush();
-            this.descriptor.close();
-        } catch (error) {
-            throw new FileNotFoundException("Cannot close file", new Throwable(String(error)));
+        if (this.closed) {
+            return;
         }
+
+        this.closed = true;
+        this.fd.closeAll(new class {
+            public constructor(private fd: FileDescriptor) { }
+
+            public close(): void {
+                this.fd.close();
+            }
+        }(this.fd));
     }
 
-    // Flushes this output stream and forces any buffered output bytes to be written out.
+    /** Flushes this output stream and forces any buffered output bytes to be written out. */
     public flush(): void {
-        this.descriptor.sync();
+        this.fd.sync();
     }
 
-    // Writes b.length bytes from the specified byte array to this output stream.
+    /** Writes b.length bytes from the specified byte array to this output stream. */
     public write(b: Uint8Array): void;
-    // Writes len bytes from the specified byte array starting at offset off to this output stream.
-    public write(b: Uint8Array, off: number, len: number): void;
-    // Writes the specified byte to this output stream.
+    /** Writes len bytes from the specified byte array starting at offset off to this output stream. */
+    public write(b: Uint8Array, offset: number, length: number): void;
+    /** Writes the specified byte to this output stream. */
     // eslint-disable-next-line @typescript-eslint/unified-signatures
     public write(b: number): void;
-    public write(b: Uint8Array | number, off?: number, len?: number): void {
+    public write(b: Uint8Array | number, offset?: number, length?: number): void {
         try {
             if (typeof b === "number") {
-                this.descriptor.write(b);
+                const buffer = new Uint8Array(1);
+                buffer[0] = b;
+                writeSync(this.fd.handle.fd, buffer, 0, 1);
             } else {
-                this.descriptor.write(b, off, len);
+                offset ??= 0;
+                length ??= b.length;
+                if (offset < 0 || length < 0 || offset + length > b.length) {
+                    throw new IndexOutOfBoundsException();
+                }
+
+                writeSync(this.fd.handle.fd, b, offset, length);
             }
         } catch (error) {
-            throw new IOException("Cannot write data to file", new Throwable(String(error)));
+            throw new IOException("Cannot write data to file", Throwable.fromError(error));
         }
     }
 
     public getFD(): FileDescriptor {
-        return this.descriptor;
+        return this.fd;
+    }
+
+    private open(append: boolean): void {
+        fs.open(this.path, append ? "as" : "w", 0x400).then((handle) => {
+            this.fd.handle = handle;
+            this.closed = false;
+        }).catch((reason) => {
+            throw new IOException("Cannot open file", Throwable.fromError(reason));
+        });
     }
 }

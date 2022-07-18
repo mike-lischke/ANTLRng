@@ -35,7 +35,7 @@ import { Interval } from "./misc/Interval";
  *  As of 4.7, the class uses UTF-8 by default, and the buffer holds Unicode
  *  code points in the buffer as ints.
  */
-export  class UnbufferedCharStream extends  CharStream {
+export  class UnbufferedCharStream implements CharStream {
 	/**
 	 * A moving window buffer of the data being scanned. While there's a marker,
 	 * we keep adding to buffer. Otherwise, {@link #consume consume()} resets so

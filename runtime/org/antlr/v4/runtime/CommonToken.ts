@@ -15,6 +15,7 @@
 
 
 
+import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { Recognizer } from "./Recognizer";
 import { Token } from "./Token";
@@ -26,7 +27,7 @@ import { Pair } from "./misc/Pair";
 
 
 
-export  class CommonToken implements WritableToken {
+export  class CommonToken implements WritableToken, java.io.Serializable {
 	/**
 	 * An empty {@link Pair} which is used as the default value of
 	 * {@link #source} for tokens that do not have a source.

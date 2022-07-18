@@ -77,7 +77,7 @@ export class FileReader extends InputStreamReader {
         } else if (fileNameOrFileOrFd instanceof File) {
             super(new FileInputStream(fileNameOrFileOrFd), charset);
         } else {
-            super(new FileInputStream(fileNameOrFileOrFd));
+            super(new FileInputStream(fileNameOrFileOrFd), charset);
         }
     }
 

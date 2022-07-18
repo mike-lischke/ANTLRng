@@ -57,7 +57,7 @@ export  class ATN {
 	public ruleToStopState?:  RuleStopState[];
 
 
-	public readonly  modeNameToStartState?:  Map<string, TokensStartState> =
+	public readonly  modeNameToStartState?:  java.util.Map<string, TokensStartState> =
 		new  java.util.LinkedHashMap<string, TokensStartState>();
 
 	/**

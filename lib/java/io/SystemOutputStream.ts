@@ -7,7 +7,7 @@
 
 import { OutputStream } from "./OutputStream";
 
-// Internal class to provide print stream like access to stdout and stderr.
+/** Internal class to provide print stream like access to stdout and stderr. */
 export class SystemOutputStream extends OutputStream {
 
     public constructor(private forErrors: boolean) {

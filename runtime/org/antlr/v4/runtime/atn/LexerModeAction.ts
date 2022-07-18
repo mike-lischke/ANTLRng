@@ -31,7 +31,7 @@ import { MurmurHash } from "../misc/MurmurHash";
  * @author Sam Harwell
  * @since 4.2
  */
-export  class LexerModeAction extends  LexerAction {
+export  class LexerModeAction implements LexerAction {
 	private readonly  mode:  number;
 
 	/**
@@ -99,6 +99,6 @@ this.mode = mode;
 	}
 
 	public toString = (): string => {
-		return string.format("mode(%d)", this.mode);
+		return java.lang.StringBuilder.format("mode(%d)", this.mode);
 	}
 }

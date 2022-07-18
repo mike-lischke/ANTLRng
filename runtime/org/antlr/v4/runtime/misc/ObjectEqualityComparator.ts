@@ -15,7 +15,7 @@
 
 /* cspell: disable */
 
-import { Equatable } from "antlr4ts/misc/Stubs";
+import { IEquatable } from "../../../../../../lib/types";
 import { AbstractEqualityComparator } from "./AbstractEqualityComparator";
 
 /**
@@ -24,10 +24,10 @@ import { AbstractEqualityComparator } from "./AbstractEqualityComparator";
  *
  * @author Sam Harwell
  */
-export class ObjectEqualityComparator extends AbstractEqualityComparator<Equatable> {
-    public static readonly INSTANCE: ObjectEqualityComparator = new ObjectEqualityComparator();
+export class ObjectEqualityComparator extends AbstractEqualityComparator<IEquatable> {
+    public static readonly INSTANCE = new ObjectEqualityComparator();
 
-    public hashCode = (obj: Equatable): number => {
+    public hashCode = (obj: IEquatable): number => {
         if (obj === undefined) {
             return 0;
         }
@@ -35,7 +35,7 @@ export class ObjectEqualityComparator extends AbstractEqualityComparator<Equatab
         return obj.hashCode();
     };
 
-    public equals = (a: Equatable, b: Equatable): boolean => {
+    public equals = (a: IEquatable, b: IEquatable): boolean => {
         if (a === undefined) {
             return b === undefined;
         }

@@ -41,7 +41,7 @@ import { Pair } from "./misc/Pair";
  * This is the default implementation of {@link ANTLRErrorStrategy} used for
  * error reporting and recovery in ANTLR parsers.
  */
-export  class DefaultErrorStrategy extends  ANTLRErrorStrategy {
+export  class DefaultErrorStrategy implements ANTLRErrorStrategy {
 	/**
 	 * Indicates whether the error strategy is currently "recovering from an
 	 * error". This is used to suppress reporting multiple error messages while

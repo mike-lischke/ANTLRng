@@ -33,7 +33,7 @@ import { DFA } from "./dfa/DFA";
  *
  * @author Sam Harwell
  */
-export  class ProxyErrorListener extends  ANTLRErrorListener {
+export  class ProxyErrorListener implements ANTLRErrorListener {
 	private readonly  delegates?:  java.util.Collection< ANTLRErrorListener>;
 
 	public constructor(delegates: java.util.Collection< ANTLRErrorListener>) {

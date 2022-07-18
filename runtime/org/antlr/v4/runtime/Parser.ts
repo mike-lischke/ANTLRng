@@ -56,7 +56,7 @@ import { ParseTreePatternMatcher } from "./tree/pattern/ParseTreePatternMatcher"
 /** This is all the parsing support code essentially; most of it is error recovery stuff. */
 export  class Parser extends Recognizer<Token, ParserATNSimulator> {
 	public TraceListener = (($outer) => {
-return  class TraceListener extends  ParseTreeListener {
+return  class TraceListener implements ParseTreeListener {
 		public enterEveryRule = (ctx: ParserRuleContext): void => {
 			java.lang.System.out.println("enter   " + $outer.getRuleNames()[ctx.getRuleIndex()] +
 							   ", LT(1)=" + $outer._input.LT(1).getText());
@@ -78,7 +78,7 @@ return  class TraceListener extends  ParseTreeListener {
 })(this);
 
 
-	public static TrimToSizeListener = class TrimToSizeListener extends  ParseTreeListener {
+	public static TrimToSizeListener = class TrimToSizeListener implements ParseTreeListener {
 		public static readonly  INSTANCE?:  Parser.TrimToSizeListener = new  Parser.TrimToSizeListener();
 
 		public enterEveryRule = (ctx: ParserRuleContext): void => { }

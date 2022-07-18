@@ -37,7 +37,7 @@ import { MurmurHash } from "../misc/MurmurHash";
  * @author Sam Harwell
  * @since 4.2
  */
-export  class LexerIndexedCustomAction extends  LexerAction {
+export  class LexerIndexedCustomAction implements LexerAction {
 	private readonly  offset:  number;
 	private readonly  action?:  LexerAction;
 

@@ -7,19 +7,12 @@
 
 /* eslint-disable @typescript-eslint/naming-convention, @typescript-eslint/unified-signatures */
 
-import { NotImplementedError } from "../../NotImplementedError";
-import { Appendable, CharSequence, CodePoint, IndexOutOfBoundsException } from "../lang";
+import { Appendable, CharSequence, CodePoint } from "../lang";
 import { AutoCloseable } from "./AutoCloseable";
 import { Closeable } from "./Closable";
 import { Flushable } from "./Flushable";
 
 export abstract class Writer implements Closeable, Flushable, Appendable, AutoCloseable {
-
-    /**
-     * Size of writeBuffer, must be >= 1
-     */
-    private static readonly WRITE_BUFFER_SIZE = 1024;
-
     /**
      * The object used to synchronize operations on this stream.  For
      * efficiency, a character-stream object may use an object other than
@@ -29,11 +22,6 @@ export abstract class Writer implements Closeable, Flushable, Appendable, AutoCl
      * Note: this is not used in TS to synchronize anything, because there's only a single thread.
      */
     protected lock: unknown;
-
-    /**
-     * Temporary buffer used to hold writes of strings and single characters
-     */
-    private writeBuffer?: Uint32Array;
 
     /**
      * Creates a new character-stream writer whose critical sections will
@@ -59,21 +47,23 @@ export abstract class Writer implements Closeable, Flushable, Appendable, AutoCl
      * @throws  IOException
      *          If an I/O error occurs
      */
-    public write(c: CodePoint): void;
+    public abstract write(c: CodePoint): void;
+
     /**
      * Writes an array of characters.
      *
-     * @param  cbuf
+     * @param  array
      *         Array of characters to be written
      *
      * @throws  IOException
      *          If an I/O error occurs
      */
-    public write(cbuf: Uint32Array): void;
+    public abstract write(array: Uint32Array): void;
+
     /**
      * Writes a portion of an array of characters.
      *
-     * @param  cbuf
+     * @param  array
      *         Array of characters
      *
      * @param  off
@@ -91,7 +81,7 @@ export abstract class Writer implements Closeable, Flushable, Appendable, AutoCl
      * @throws  IOException
      *          If an I/O error occurs
      */
-    public /* abstract */ write(array: Uint32Array, off: number, len: number): void;
+    public abstract write(array: Uint32Array, off: number, len: number): void;
 
     /**
      * Writes a string.
@@ -103,7 +93,8 @@ export abstract class Writer implements Closeable, Flushable, Appendable, AutoCl
      *          If an I/O error occurs
      */
     // eslint-disable-next-line @typescript-eslint/unified-signatures
-    public write(str: string): void;
+    public abstract write(str: string): void;
+
     /**
      * Writes a portion of a string.
      *
@@ -129,56 +120,13 @@ export abstract class Writer implements Closeable, Flushable, Appendable, AutoCl
      * @throws  IOException
      *          If an I/O error occurs
      */
-    public write(str: string, off: number, len: number): void;
-    public write(cOrArrayOrStr: CodePoint | Uint32Array | string, off?: number, len?: number): void {
-        if (typeof cOrArrayOrStr === "number") {
-            // synchronized(lock) {
-            if (!this.writeBuffer) {
-                this.writeBuffer = new Uint32Array(Writer.WRITE_BUFFER_SIZE);
-            }
+    public abstract write(str: string, off: number, len: number): void;
 
-            this.writeBuffer[0] = cOrArrayOrStr;
-            this.write(this.writeBuffer, 0, 1);
-            // }
-        } else {
-            if (off < 0 || len < 0 || off + len > cOrArrayOrStr.length) {
-                throw new IndexOutOfBoundsException();
-            }
+    public abstract append(c: CodePoint): this;
 
-            if (cOrArrayOrStr instanceof Uint32Array) {
-                //const start = off ?? 0;
-                //const length = len ?? cOrcBufOrStr.length;
+    public abstract append(csq: CharSequence): this;
 
-                throw new NotImplementedError("abstract");
-            } else {
-                // synchronized(lock) {
-                const codePoints: number[] = [];
-                for (const value of cOrArrayOrStr.substring(off, off + len)) {
-                    codePoints.push(value.codePointAt(0));
-                }
-
-                const array = Uint32Array.from(codePoints);
-                this.write(array);
-
-                // }
-
-            }
-        }
-    }
-
-    public append(c: CodePoint): this;
-    // eslint-disable-next-line @typescript-eslint/unified-signatures
-    public append(csq: CharSequence): this;
-    public append(csq: CharSequence, start: number, end: number): this;
-    public append(cOrCsq: CodePoint | CharSequence, start?: number, end?: number): this {
-        if (typeof cOrCsq === "number") {
-            this.write(cOrCsq);
-        } else {
-            this.write(cOrCsq.toString(), start, end - start);
-        }
-
-        return this;
-    }
+    public abstract append(csq: CharSequence, start: number, end: number): this;
 
     /**
      * Flushes the stream.  If the stream has saved any characters from the
@@ -207,5 +155,4 @@ export abstract class Writer implements Closeable, Flushable, Appendable, AutoCl
      *          If an I/O error occurs
      */
     public abstract close(): void;
-
 }

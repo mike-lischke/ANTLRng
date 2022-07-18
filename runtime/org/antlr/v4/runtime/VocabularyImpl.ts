@@ -28,7 +28,7 @@ import { Vocabulary } from "./Vocabulary";
  *
  * @author Sam Harwell
  */
-export  class VocabularyImpl extends  Vocabulary {
+export  class VocabularyImpl implements Vocabulary {
 	private static readonly  EMPTY_NAMES?:  string[] = new   Array<string>(0);
 
 	/**

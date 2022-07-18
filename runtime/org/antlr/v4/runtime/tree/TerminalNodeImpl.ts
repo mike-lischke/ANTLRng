@@ -26,7 +26,7 @@ import { Interval } from "../misc/Interval";
 
 
 
-export  class TerminalNodeImpl extends  TerminalNode {
+export  class TerminalNodeImpl implements TerminalNode {
 	public symbol?:  Token;
 	public parent?:  ParseTree;
 

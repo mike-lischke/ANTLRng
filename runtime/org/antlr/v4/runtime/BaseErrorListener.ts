@@ -32,7 +32,7 @@ import { DFA } from "./dfa/DFA";
  *
  * @author Sam Harwell
  */
-export  class BaseErrorListener extends  ANTLRErrorListener {
+export  class BaseErrorListener implements ANTLRErrorListener {
 	public syntaxError = (recognizer: Recognizer<unknown, unknown>,
 							offendingSymbol: object,
 							line: number,

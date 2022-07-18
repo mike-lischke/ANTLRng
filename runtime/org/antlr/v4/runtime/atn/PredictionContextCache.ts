@@ -27,7 +27,7 @@ import { PredictionContext } from "./PredictionContext";
  *  can be used for both lexers and parsers.
  */
 export  class PredictionContextCache {
-	protected readonly  cache?:  Map<PredictionContext, PredictionContext> =
+	protected readonly  cache?:  java.util.Map<PredictionContext, PredictionContext> =
 		new  java.util.HashMap<PredictionContext, PredictionContext>();
 
 	/** Add a context to the cache and return it. If the context already exists,

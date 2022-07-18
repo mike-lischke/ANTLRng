@@ -11,7 +11,6 @@
     "author": "Mike Lischke",
     "license": "MIT",
     "dependencies": {
-        "hash-sum": "2.0.0",
         "printf": "0.6.1"
     },
     "devDependencies": {

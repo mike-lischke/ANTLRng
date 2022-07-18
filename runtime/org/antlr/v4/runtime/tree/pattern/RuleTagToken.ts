@@ -29,7 +29,7 @@ import { TokenSource } from "../../TokenSource";
  * rule; e.g., {@code <expr>}. These tokens are created for {@link TagChunk}
  * chunks where the tag corresponds to a parser rule.
  */
-export  class RuleTagToken extends  Token {
+export  class RuleTagToken implements Token {
 	/**
 	 * This is the backing field for {@link #getRuleName}.
 	 */

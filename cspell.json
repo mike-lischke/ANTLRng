@@ -6,6 +6,7 @@
         "Charsets",
         "Cloneable",
         "Declarators",
+        "Hashable",
         "instanceof",
         "misformatted",
         "signum",

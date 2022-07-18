@@ -314,7 +314,7 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 
 			case Transition.PRECEDENCE:
 				if (!this.precpred(this._ctx, (transition as PrecedencePredicateTransition).precedence)) {
-					throw new  FailedPredicateException(this, string.format("precpred(_ctx, %d)", (transition as PrecedencePredicateTransition).precedence));
+					throw new  FailedPredicateException(this, java.lang.StringBuilder.format("precpred(_ctx, %d)", (transition as PrecedencePredicateTransition).precedence));
 				}
 				break;
 

@@ -1,5 +1,6 @@
 /* java2ts: keep */
 
+import { IllegalArgumentException } from "../../../../../../lib/java/lang";
 import { IEquatable } from "../../../../../../lib/types";
 
 /*
@@ -16,6 +17,8 @@ import { IEquatable } from "../../../../../../lib/types";
 */
 
 /* cspell: disable */
+
+export type HashableType = string | number | boolean | IEquatable | ArrayLike<number>;
 
 /**
  *
@@ -56,40 +59,40 @@ export class MurmurHash {
      *
      * @returns the updated intermediate hash value
      */
-    public static update(hash: number, value: number | boolean | string | IEquatable | ArrayLike<number>): number {
-        if (typeof value === "number") {
-            const c1 = 0xCC9E2D51;
-            const c2 = 0x1B873593;
-            const r1 = 15;
-            const r2 = 13;
-            const m = 5;
-            const n = 0xE6546B64;
-
-            let k: number = value;
-            k = k * c1;
-            k = (k << r1) | (k >>> (32 - r1));
-            k = k * c2;
-
-            hash = hash ^ k;
-            hash = (hash << r2) | (hash >>> (32 - r2));
-            hash = hash * m + n;
-
-            return hash;
-        } else {
-            let newValue = 0;
+    public static update<T extends HashableType>(hash: number, value: T): number {
+        let actualValue = 0;
+        if (typeof value !== "number") {
             if (typeof value === "boolean") {
-                newValue = value ? 1 : 0;
+                actualValue = value ? 1 : 0;
             } else if (typeof value === "string") {
-                newValue = this.hashString(value, hash);
+                actualValue = this.hashString(value, hash);
             } else if (this.isArrayLike(value)) {
-                newValue = this.hashArray(value, hash);
+                actualValue = this.hashArray(value, hash);
+            } else if (this.isEquatable(value)) {
+                actualValue = value.hashCode();
             } else {
-                newValue = value.hashCode();
+                throw new IllegalArgumentException("Cannot generate a hash code for the given value");
             }
-
-            return MurmurHash.update(hash, newValue);
+        } else {
+            actualValue = value;
         }
 
+        const c1 = 0xCC9E2D51;
+        const c2 = 0x1B873593;
+        const r1 = 15;
+        const r2 = 13;
+        const m = 5;
+        const n = 0xE6546B64;
+
+        actualValue = actualValue * c1;
+        actualValue = (actualValue << r1) | (actualValue >>> (32 - r1));
+        actualValue = actualValue * c2;
+
+        hash = hash ^ actualValue;
+        hash = (hash << r2) | (hash >>> (32 - r2));
+        hash = hash * m + n;
+
+        return hash;
     }
 
     /**
@@ -162,6 +165,10 @@ export class MurmurHash {
 
     private static isArrayLike(candidate: unknown): candidate is ArrayLike<number> {
         return (candidate as ArrayLike<number>).length !== undefined;
+    }
+
+    private static isEquatable(candidate: unknown): candidate is IEquatable {
+        return (candidate as IEquatable).hashCode !== undefined;
     }
 
     private constructor() {

@@ -201,7 +201,7 @@ export  class ParseTreeMatch {
 	 * {@inheritDoc}
 	 */
 	public toString = (): string => {
-		return string.format(
+		return java.lang.StringBuilder.format(
 			"Match %s; found %d labels",
 			this.succeeded() ? "succeeded" : "failed",
 			this.getLabels().size());

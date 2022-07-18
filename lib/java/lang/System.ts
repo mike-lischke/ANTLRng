@@ -32,6 +32,10 @@ export class System {
         return outputStream;
     }
 
+    public static lineSeparator(): string {
+        return os.EOL;
+    }
+
     public static getProperty(key: string, def?: string): string | undefined {
         switch (key) {
             case "user.dir": {

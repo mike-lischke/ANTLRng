@@ -33,7 +33,7 @@ import { MurmurHash } from "../misc/MurmurHash";
  * @author Sam Harwell
  * @since 4.2
  */
-export  class LexerPopModeAction extends  LexerAction {
+export  class LexerPopModeAction implements LexerAction {
 	/**
 	 * Provides a singleton instance of this parameterless lexer action.
 	 */

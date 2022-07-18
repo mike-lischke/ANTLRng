@@ -71,7 +71,7 @@ export class Throwable extends Error { // This is the JS Error object, not that 
     }
 
     /** Returns the cause of this throwable or null if the cause is nonexistent or unknown. */
-    public getCause(): Throwable {
+    public getCause(): Throwable | undefined {
         return this.cause as Throwable;
     }
 
@@ -101,8 +101,10 @@ export class Throwable extends Error { // This is the JS Error object, not that 
      *
      * @param cause tbd
      */
-    public initCause(cause: Throwable): Throwable {
-        throw new NotImplementedError();
+    public initCause(cause: Throwable): this {
+        this.cause = cause;
+
+        return this;
     }
 
     /**

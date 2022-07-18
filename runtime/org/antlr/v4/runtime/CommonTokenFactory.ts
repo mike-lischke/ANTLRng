@@ -30,7 +30,7 @@ import { Pair } from "./misc/Pair";
  * This default implementation of {@link TokenFactory} creates
  * {@link CommonToken} objects.
  */
-export  class CommonTokenFactory extends  TokenFactory<CommonToken> {
+export  class CommonTokenFactory implements TokenFactory<CommonToken> {
 	/**
 	 * The default {@link CommonTokenFactory} instance.
 	 *

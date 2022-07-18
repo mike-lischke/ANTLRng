@@ -27,7 +27,7 @@ import { Interval } from "./misc/Interval";
 
 
 
-export  class UnbufferedTokenStream<T extends Token> extends  TokenStream {
+export  class UnbufferedTokenStream<T extends Token> implements TokenStream {
 	protected tokenSource?:  TokenSource;
 
 	/**

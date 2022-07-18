@@ -15,7 +15,6 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
 import { IntStream } from "./IntStream";
 import { ParserRuleContext } from "./ParserRuleContext";
 import { Recognizer } from "./Recognizer";
@@ -63,7 +62,8 @@ if (recognizerOrMessage instanceof Recognizer && inputOrRecognizer instanceof In
 const recognizer = recognizerOrMessage as Recognizer<unknown, unknown>;
 const input = inputOrRecognizer as IntStream;
 const ctx = ctxOrInput as ParserRuleContext;
-		this.recognizer = recognizer;
+		super();
+this.recognizer = recognizer;
 		this.input = input;
 		this.ctx = ctx;
 		if ( recognizer!==undefined ) {

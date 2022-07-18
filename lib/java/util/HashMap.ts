@@ -1,11 +1,32 @@
 /*
  * This file is released under the MIT license.
- * Copyright (c) 2021, Mike Lischke
+ * Copyright (c) 2021, 2022, Mike Lischke
  *
  * See LICENSE file for more info.
  */
 
-export class HashMap<K, V> extends Map<K, V> {
+import { java } from "../java";
+
+import { HashableType, MurmurHash } from "../../../runtime";
+
+export class HashMap<K extends HashableType, V extends HashableType> extends Map<K, V>
+    implements java.util.Map<K, V> {
+
+    public isEmpty(): boolean {
+        return this.size === 0;
+    }
+
+    public putAll(m: java.util.Map<K, V>): void {
+        const set = m.entrySet();
+        set.forEach((value) => {
+            this.set(value[0], value[1]);
+        });
+    }
+
+    public containsKey(key: K): boolean {
+        return this.has(key);
+    }
+
     /**
      * @param value The value to search.
      *
@@ -19,6 +40,44 @@ export class HashMap<K, V> extends Map<K, V> {
         });
 
         return false;
+    }
+
+    public remove(key: K): V | undefined {
+        const value = this.get(key);
+        if (value !== undefined) {
+            this.delete(key);
+        }
+
+        return value;
+    }
+
+    /**
+     * Compares the specified object with this map for equality.
+     *
+     * @param o The value to compare against.
+     *
+     * @returns True if the given value and this instance are equal (same instance or same values).
+     */
+    public equals(o: unknown): boolean {
+        if (!(o instanceof HashMap)) {
+            return false;
+        }
+
+        if (o === this || o.hashCode() === this.hashCode()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public hashCode(): number {
+        let hash = MurmurHash.initialize(7);
+        this.forEach((value, key) => {
+            hash = MurmurHash.update(hash, key);
+            hash = MurmurHash.update(hash, value);
+        });
+
+        return MurmurHash.finish(hash, this.size * 2);
     }
 
     /**
@@ -58,7 +117,9 @@ export class HashMap<K, V> extends Map<K, V> {
      *
      * @returns This map.
      */
-    public put = (key: K, value: V): this => {
-        return this.set(key, value);
-    };
+    public put(key: K, value: V): V {
+        this.set(key, value);
+
+        return value;
+    }
 }

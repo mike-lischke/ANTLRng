@@ -64,9 +64,7 @@ export class LogManager {
     }
 
     public save(): string;
-
     public save(filename: string): void;
-
     public save(filename?: string): string | void {
         if (filename === undefined) {
             const dir = ".";
@@ -75,8 +73,8 @@ export class LogManager {
 
             return defaultFilename;
         } else {
-            const fw = new FileWriter(filename);
-            const bw = new BufferedWriter(fw);
+            const fw = new java.io.FileWriter(filename);
+            const bw = new java.io.BufferedWriter(fw);
             try {
                 bw.write(this.toString());
             } finally {

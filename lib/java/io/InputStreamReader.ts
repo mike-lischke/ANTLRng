@@ -9,6 +9,7 @@
 /* eslint-disable jsdoc/require-returns */
 
 import { StringDecoder } from "string_decoder";
+
 import { CodePoint, IndexOutOfBoundsException } from "../lang";
 import { Charset } from "../nio/charset";
 import { InputStream } from "./InputStream";

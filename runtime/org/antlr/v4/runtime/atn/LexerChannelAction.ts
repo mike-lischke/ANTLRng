@@ -31,7 +31,7 @@ import { MurmurHash } from "../misc/MurmurHash";
  * @author Sam Harwell
  * @since 4.2
  */
-export  class LexerChannelAction extends  LexerAction {
+export  class LexerChannelAction implements LexerAction {
 	private readonly  channel:  number;
 
 	/**
@@ -99,6 +99,6 @@ this.channel = channel;
 	}
 
 	public toString = (): string => {
-		return string.format("channel(%d)", this.channel);
+		return java.lang.StringBuilder.format("channel(%d)", this.channel);
 	}
 }

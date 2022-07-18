@@ -18,5 +18,7 @@ export * from "./HashMap";
 export * from "./HashSet";
 export * from "./Comparator";
 export * from "./Locale";
+export * from "./Map";
 
 export * from "./regex/regex";
+export * from "./concurrent/concurrent";

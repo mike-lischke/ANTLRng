@@ -8,38 +8,40 @@
 /* cSpell: ignore closeables */
 
 import * as fs from "fs/promises";
-import { readSync } from "fs";
 
 import { Throwable } from "../lang";
 import { Closeable } from "./Closable";
 import { IOException } from "./IOException";
 
 export class FileDescriptor {
-    //public static readonly err = new FileDescriptor(2);
-    //public static readonly out = new FileDescriptor(1);
-    //public static readonly in = new FileDescriptor(0);
-
     private parent?: Closeable;
     private otherParents: Closeable[] = [];
     private closed = true;
-    //private append = false;
 
-    private handle: fs.FileHandle;
+    private fileHandle?: fs.FileHandle;
 
-    public constructor(fileName: string, flags: string | number, mode: number) {
-        fs.open(fileName, flags, mode).then((handle) => {
-            this.handle = handle;
-        }).catch((reason) => {
-            throw new IOException("Cannot open file", Throwable.fromError(reason));
-        });
+    public constructor(fd?: fs.FileHandle) {
+        this.fileHandle = fd;
     }
 
-    public sync(): Promise<void> {
-        return this.handle.sync();
+    public sync(): void {
+        void this.fileHandle.sync();
     }
 
     public valid(): boolean {
-        return true;
+        return this.fileHandle !== undefined;
+    }
+
+    public close(): void {
+        void this.fileHandle.close();
+    }
+
+    public get handle(): fs.FileHandle | undefined {
+        return this.fileHandle;
+    }
+
+    public set handle(value: fs.FileHandle | undefined) {
+        this.fileHandle = value;
     }
 
     /**
@@ -83,7 +85,7 @@ export class FileDescriptor {
                             if (!ioe) {
                                 ioe = x;
                             } else {
-                                ioe.addSuppressed(new Throwable(String(x)));
+                                ioe.addSuppressed(Throwable.fromError(x));
                             }
                         }
                     }
@@ -95,7 +97,7 @@ export class FileDescriptor {
                  * If releaser close() throws IOException
                  * add other exceptions as suppressed.
                  */
-                const t = new Throwable(String(ex));
+                const t = Throwable.fromError(ex);
                 if (ioe) {
                     t.addSuppressed(ioe);
                 }
@@ -108,10 +110,6 @@ export class FileDescriptor {
                 }
             }
         }
-    }
-
-    public readData(target: Buffer, offset?: number, length?: number): number {
-        return readSync(this.handle.fd, target, { offset, length });
     }
 
 }

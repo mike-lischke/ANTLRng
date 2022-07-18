@@ -33,7 +33,7 @@ export  class DFA {
 	 *  ({@link Set} only allows you to see if it's there).
      */
 
-	public readonly  states?:  Map<DFAState, DFAState> = new  java.util.HashMap<DFAState, DFAState>();
+	public readonly  states?:  java.util.Map<DFAState, DFAState> = new  java.util.HashMap<DFAState, DFAState>();
 
 	public  s0?:  DFAState;
 

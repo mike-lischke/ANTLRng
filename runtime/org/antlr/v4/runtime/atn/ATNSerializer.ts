@@ -60,7 +60,7 @@ export  class ATNSerializer {
 	private readonly  data?:  IntegerList = new  IntegerList();
 	/** Note that we use a LinkedHashMap as a set to mainintain insertion order while deduplicating
 	    entries with the same key. */
-	private readonly  sets?:  Map<IntervalSet, Boolean> = new  java.util.LinkedHashMap();
+	private readonly  sets?:  java.util.Map<IntervalSet, Boolean> = new  java.util.LinkedHashMap();
 	private readonly  nonGreedyStates?:  IntegerList = new  IntegerList();
 	private readonly  precedenceStates?:  IntegerList = new  IntegerList();
 
@@ -101,7 +101,7 @@ export  class ATNSerializer {
 		this.addPrecedenceStates();
 		this.addRuleStatesAndLexerTokenTypes();
 		this.addModeStartStates();
-		let  setIndices: Map<IntervalSet, java.lang.Integer> = undefined;
+		let  setIndices: java.util.Map<IntervalSet, java.lang.Integer> = undefined;
 		setIndices = this.addSets();
 		this.addEdges(nedges, setIndices);
 		this.addDecisionStartStates();
@@ -171,7 +171,7 @@ export  class ATNSerializer {
 					break;
 
 				default:
-					let  message: string = string.format(java.util.Locale.getDefault(), "The specified lexer action type %s is not valid.", action.getActionType());
+					let  message: string = java.lang.StringBuilder.format(java.util.Locale.getDefault(), "The specified lexer action type %s is not valid.", action.getActionType());
 					throw new  java.lang.IllegalArgumentException(message);
 				}
 			}
@@ -188,10 +188,10 @@ export  class ATNSerializer {
 
 	private addEdges(): number;
 
-	private addEdges(nedges: number, setIndices: Map<IntervalSet, java.lang.Integer>): void;
+	private addEdges(nedges: number, setIndices: java.util.Map<IntervalSet, java.lang.Integer>): void;
 
 
-	private addEdges(nedges?: number, setIndices?: Map<IntervalSet, java.lang.Integer>):  number |  void {
+	private addEdges(nedges?: number, setIndices?: java.util.Map<IntervalSet, java.lang.Integer>):  number |  void {
 if (nedges === undefined) {
 		let  nedges: number = 0;
 		this.data.add(this.atn.states.size());
@@ -328,9 +328,9 @@ default:
 }
 
 
-	private addSets = (): Map<IntervalSet, java.lang.Integer> => {
+	private addSets = (): java.util.Map<IntervalSet, java.lang.Integer> => {
 		ATNSerializer.serializeSets(this.data,	this.sets.keySet());
-		let  setIndices: Map<IntervalSet, java.lang.Integer> = new  java.util.HashMap();
+		let  setIndices: java.util.Map<IntervalSet, java.lang.Integer> = new  java.util.HashMap();
 		let  setIndex: number = 0;
 		for (let s of this.sets.keySet()) {
 			setIndices.set(s, setIndex++);

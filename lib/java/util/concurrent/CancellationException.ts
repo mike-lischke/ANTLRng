@@ -5,10 +5,8 @@
  * See LICENSE file for more info.
  */
 
-import _ from "lodash";
+import { IllegalStateException } from "../../lang";
 
-export class Cloneable<T> {
-    public clone(): T {
-        return _.cloneDeep(this);
-    }
+export class CancellationException extends IllegalStateException {
+
 }

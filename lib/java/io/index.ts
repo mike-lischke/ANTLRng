@@ -5,6 +5,7 @@
  * See LICENSE file for more info.
  */
 
+export * from "./Serializable";
 export * from "./FileDescriptor";
 export * from "./File";
 export * from "./Console";
@@ -14,12 +15,17 @@ export * from "./IOException";
 export * from "./FileNotFoundException";
 export * from "./UnsupportedEncodingException";
 
+export * from "./InputStream";
 export * from "./OutputStream";
-export * from "./FileOutputStream";
 export * from "./BufferedOutputStream";
 export * from "./Reader";
+export * from "./Writer";
 export * from "./InputStreamReader";
-export * from "./FileReader";
+export * from "./OutputStreamWriter";
 export * from "./BufferedReader";
-export * from "./InputStream";
+export * from "./BufferedWriter";
+
+export * from "./FileReader";
+export * from "./FileWriter";
 export * from "./FileInputStream";
+export * from "./FileOutputStream";

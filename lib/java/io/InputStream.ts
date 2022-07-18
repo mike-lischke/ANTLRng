@@ -49,50 +49,6 @@ export abstract class InputStream implements Closeable {
         return false;
     }
 
-    /** Reads the next byte of data from the input stream. */
-    public read(): number;
-    /** Reads some number of bytes from the input stream and stores them into the buffer b. */
-    public read(b: Buffer): number;
-    /** Reads up to len bytes of data from the input stream into an array of bytes. */
-    public read(b: Buffer, off: number, len: number): number;
-    public read(b?: Buffer, off?: number, len?: number): number {
-        if (b === undefined) {
-            // Simulate abstract method.
-            throw new NotImplementedError();
-        }
-
-        if (off < 0 || len < 0 || off + len > b.length) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        if (len === 0) {
-            return 0;
-        }
-
-        let c = this.read();
-        if (c === -1) {
-            return -1;
-        }
-
-        b[off] = c;
-
-        let i = 1;
-        try {
-            for (; i < len; i++) {
-                c = this.read();
-                if (c === -1) {
-                    break;
-                }
-
-                b[off + i] = c;
-            }
-        } catch (ee) {
-            // The Java code just ignores this error, so do we.
-        }
-
-        return i;
-    }
-
     /** Repositions this stream to the position at the time the mark method was last called on this input stream. */
     public reset(): void {
         throw new IOException("mark/reset not supported");
@@ -122,4 +78,14 @@ export abstract class InputStream implements Closeable {
 
         return n - remaining;
     }
+
+    /** Reads the next byte of data from the input stream. */
+    public abstract read(): number;
+
+    /** Reads some number of bytes from the input stream and stores them into the buffer b. */
+    public abstract read(b: Uint8Array): number;
+
+    /** Reads up to len bytes of data from the input stream into an array of bytes. */
+    public abstract read(b: Uint8Array, off: number, len: number): number;
+
 }

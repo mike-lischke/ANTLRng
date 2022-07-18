@@ -5,10 +5,6 @@
  * See LICENSE file for more info.
  */
 
-import _ from "lodash";
+import * as concurrent from "./index";
 
-export class Cloneable<T> {
-    public clone(): T {
-        return _.cloneDeep(this);
-    }
-}
+export { concurrent };

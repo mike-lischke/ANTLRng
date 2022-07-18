@@ -219,10 +219,10 @@ return class ReplaceOp extends this.RewriteOperation {
 	 *  I'm calling these things "programs."
 	 *  Maps String (name) &rarr; rewrite (List)
 	 */
-	protected readonly  programs?:  Map<string, java.util.List<this.RewriteOperation>>;
+	protected readonly  programs?:  java.util.Map<string, java.util.List<this.RewriteOperation>>;
 
 	/** Map String (program name) &rarr; Integer index */
-	protected readonly  lastRewriteTokenIndexes?:  Map<string, java.lang.Integer>;
+	protected readonly  lastRewriteTokenIndexes?:  java.util.Map<string, java.lang.Integer>;
 
 	public constructor(tokens: TokenStream) {
 		this.tokens = tokens;
@@ -559,7 +559,7 @@ let programName = programNameOrInterval as string;
 		let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
 
 		// First, optimize instruction stream
-		let  indexToOp: Map<java.lang.Integer, this.RewriteOperation> = this.reduceToSingleOperationPerIndex(rewrites);
+		let  indexToOp: java.util.Map<java.lang.Integer, this.RewriteOperation> = this.reduceToSingleOperationPerIndex(rewrites);
 
 		// Walk buffer, executing instructions and emitting tokens
 		let  i: number = start;
@@ -648,7 +648,7 @@ let programName = programNameOrInterval as string;
 	 *
 	 *  Return a map from token index to operation.
 	 */
-	protected reduceToSingleOperationPerIndex = (rewrites: java.util.List<this.RewriteOperation>): Map<java.lang.Integer, this.RewriteOperation> => {
+	protected reduceToSingleOperationPerIndex = (rewrites: java.util.List<this.RewriteOperation>): java.util.Map<java.lang.Integer, this.RewriteOperation> => {
 //		System.out.println("rewrites="+rewrites);
 
 		// WALK REPLACES
@@ -752,7 +752,7 @@ let programName = programNameOrInterval as string;
 			}
 		}
 		// System.out.println("rewrites after="+rewrites);
-		let  m: Map<java.lang.Integer, this.RewriteOperation> = new  java.util.HashMap<java.lang.Integer, RewriteOperation>();
+		let  m: java.util.Map<java.lang.Integer, this.RewriteOperation> = new  java.util.HashMap<java.lang.Integer, RewriteOperation>();
 		for (let  i: number = 0; i < rewrites.size(); i++) {
 			let  op: this.RewriteOperation = rewrites.get(i);
 			if ( op===undefined ) {

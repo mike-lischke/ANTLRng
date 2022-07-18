@@ -5,10 +5,9 @@
  * See LICENSE file for more info.
  */
 
-import hash_sum from "hash-sum";
+import { MurmurHash } from "../../../runtime";
 
 import { List } from "./List";
-
 import { ArrayListIterator, Collection, ListIterator } from ".";
 import { IndexOutOfBoundsException } from "../lang";
 
@@ -114,11 +113,13 @@ export class ArrayList<T> extends List<T> {
     }
 
     public hashCode(): number {
-        if (this.start > 0 || this.end < this.buffer.length) {
-            return parseInt(hash_sum(this.buffer.slice(this.start, this.end)), 16);
+        let hash = MurmurHash.initialize(11);
+        for (let i = this.start; i < this.end; ++i) {
+            hash = MurmurHash.update(hash, this.buffer[i]);
         }
+        hash = MurmurHash.finish(hash, this.end - this.start);
 
-        return parseInt(hash_sum(this.buffer), 16);
+        return hash;
     }
 
     public indexOf(element: T): number {

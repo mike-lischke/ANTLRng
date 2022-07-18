@@ -5,17 +5,19 @@
  * See LICENSE file for more info.
  */
 
-import hash_sum from "hash-sum";
+/* eslint-disable jsdoc/require-returns */
 
 import { Collection } from "./Collection";
 import { Cloneable } from "../lang/Cloneable";
+import { IEquatable } from "../../types";
+import { MurmurHash } from "../../../runtime";
 
-export class HashSet<T> extends Cloneable implements Collection<T>, Iterable<T> {
+export class HashSet<T extends IEquatable> extends Cloneable implements Collection<T>, Iterable<T> {
     private set: Set<T>;
 
-    // Constructs a new set containing the elements in the specified collection.
+    /** Constructs a new set containing the elements in the specified collection. */
     public constructor(c?: Collection<T> | Iterator<T>);
-    // Constructor here only for compatibility. Parameters have no effect.
+    /** Constructor here only for compatibility. Parameters have no effect. */
     public constructor(initialCapacity: number, loadFactor?: number);
     public constructor(collectionOrInitialCapacity?: Collection<T> | Iterator<T> | number, _loadFactor?: number) {
         super();
@@ -41,7 +43,11 @@ export class HashSet<T> extends Cloneable implements Collection<T>, Iterable<T> 
         return this.set[Symbol.iterator]();
     }
 
-    // Adds the specified element to this set if it is not already present.
+    /**
+     * Adds the specified element to this set if it is not already present.
+     *
+     * @param e tbd
+     */
     public add(e: T): boolean {
         if (this.set.has(e)) {
             return false;
@@ -65,12 +71,16 @@ export class HashSet<T> extends Cloneable implements Collection<T>, Iterable<T> 
         return changed;
     }
 
-    // Removes all of the elements from this set.
+    /** Removes all of the elements from this set. */
     public clear(): void {
         this.set.clear();
     }
 
-    // Returns true if this set contains the specified element.
+    /**
+     * Returns true if this set contains the specified element.
+     *
+     * @param e tbd
+     */
     public contains(e: T): boolean {
         return this.set.has(e);
     }
@@ -90,7 +100,12 @@ export class HashSet<T> extends Cloneable implements Collection<T>, Iterable<T> 
     }
 
     public hashCode(): number {
-        return parseInt(hash_sum(this.set), 16);
+        let hash = MurmurHash.initialize(13);
+        this.set.forEach((value) => {
+            hash = MurmurHash.update(hash, value.hashCode());
+        });
+
+        return MurmurHash.finish(hash, this.set.size);
     }
 
     public removeAll(c: Collection<T>): boolean {
@@ -119,17 +134,21 @@ export class HashSet<T> extends Cloneable implements Collection<T>, Iterable<T> 
         return result;
     }
 
-    // Returns true if this set contains no elements.
+    /** Returns true if this set contains no elements. */
     public isEmpty(): boolean {
         return this.set.size === 0;
     }
 
-    // Removes the specified element from this set if it is present.
+    /**
+     * Removes the specified element from this set if it is present.
+     *
+     * @param e tbd
+     */
     public remove(e: T): boolean {
         return this.set.delete(e);
     }
 
-    // Returns the number of elements in this set (its cardinality).
+    /** Returns the number of elements in this set (its cardinality). */
     public size(): number {
         return this.set.size;
     }

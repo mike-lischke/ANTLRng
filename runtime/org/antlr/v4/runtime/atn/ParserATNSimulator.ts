@@ -1196,7 +1196,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 	 * calling {@link Parser#getPrecedence}).
 	 */
 	protected applyPrecedenceFilter = (configs: ATNConfigSet): ATNConfigSet => {
-		let  statesFromAlt1: Map<java.lang.Integer, PredictionContext> = new  java.util.HashMap<java.lang.Integer, PredictionContext>();
+		let  statesFromAlt1: java.util.Map<java.lang.Integer, PredictionContext> = new  java.util.HashMap<java.lang.Integer, PredictionContext>();
 		let  configSet: ATNConfigSet = new  ATNConfigSet(configs.fullCtx);
 		for (let config of configs) {
 			// handle alt 1 first

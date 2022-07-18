@@ -5,10 +5,4 @@
  * See LICENSE file for more info.
  */
 
-import _ from "lodash";
-
-export class Cloneable<T> {
-    public clone(): T {
-        return _.cloneDeep(this);
-    }
-}
+export * from "./CancellationException";

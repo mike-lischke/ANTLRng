@@ -5,9 +5,8 @@
  * See LICENSE file for more info.
  */
 
-import hash_sum from "hash-sum";
-
 import { Class } from ".";
+import { MurmurHash } from "../../../runtime";
 import { NotImplementedError } from "../../NotImplementedError";
 import { IllegalArgumentException } from "./IllegalArgumentException";
 
@@ -225,7 +224,11 @@ export class Integer {
 
     // Returns a hash code for this Integer.
     public hashCode(): number {
-        return parseInt(hash_sum(this.value), 16);
+        let hash = MurmurHash.initialize(11);
+        hash = MurmurHash.update(hash, this.value);
+        hash = MurmurHash.finish(hash, 1);
+
+        return hash;
     }
 
     // Returns the value of this Integer as an int.

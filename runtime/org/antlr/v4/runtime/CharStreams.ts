@@ -291,7 +291,7 @@ let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 				inputSize = bufferSize;
 			} else { if (inputSize > java.lang.Integer.MAX_VALUE) {
 				// ByteBuffer et al don't support long sizes
-				throw new  java.io.IOException(string.format("inputSize %d larger than max %d", inputSize, java.lang.Integer.MAX_VALUE));
+				throw new  java.io.IOException(java.lang.StringBuilder.format("inputSize %d larger than max %d", inputSize, java.lang.Integer.MAX_VALUE));
 			}
 }
 

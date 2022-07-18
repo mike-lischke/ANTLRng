@@ -46,7 +46,7 @@ export abstract class Reader implements Closeable, AutoCloseable, Readable {
             // Reads characters into an array.
             if (offset !== undefined || length !== undefined) {
                 // Simulate the abstract method.
-                throw new NotImplementedError();
+                throw new NotImplementedError("abstract");
             }
 
             return this.read(target, 0, target.length);

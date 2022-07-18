@@ -296,11 +296,11 @@ export class IntegerList {
     };
 
     /**
-     * Convert the int list to a char array (aka. string in JS/TS).
+     * Convert the int list to a char array.
      *
-     * @returns The constructed string.
+     * @returns The constructed array.
      */
-    public readonly toCharArray = (): string => {
-        return String.fromCodePoint(...this._data);
+    public readonly toCharArray = (): Uint32Array => {
+        return Uint32Array.from(this._data);
     };
 }

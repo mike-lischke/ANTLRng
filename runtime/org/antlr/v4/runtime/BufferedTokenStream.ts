@@ -41,7 +41,7 @@ import { Interval } from "./misc/Interval";
  * {@link Token#HIDDEN_CHANNEL}, use a filtering token stream such a
  * {@link CommonTokenStream}.</p>
  */
-export  class BufferedTokenStream extends  TokenStream {
+export  class BufferedTokenStream implements TokenStream {
 	/**
 	 * The {@link TokenSource} from which tokens for this stream are fetched.
 	 */

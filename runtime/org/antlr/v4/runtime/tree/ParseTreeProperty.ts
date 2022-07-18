@@ -16,6 +16,7 @@
 
 
 
+import { java } from "../../../../../../lib/java/java";
 import { ParseTree } from "./ParseTree";
 
 
@@ -38,7 +39,7 @@ import { ParseTree } from "./ParseTree";
  * in your event methods.
  */
 export  class ParseTreeProperty<V> {
-	protected annotations?:  Map<ParseTree, V> = new  IdentityHashMap<ParseTree, V>();
+	protected annotations?:  java.util.Map<ParseTree, V> = new  IdentityHashMap<ParseTree, V>();
 
 	public get = (node: ParseTree): V => { return this.annotations.get(node); }
 	public put = (node: ParseTree, value: V): void => { this.annotations.set(node, value); }
