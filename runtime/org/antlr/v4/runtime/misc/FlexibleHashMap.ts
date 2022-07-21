@@ -18,15 +18,15 @@
 import { java } from "../../../../../../lib/java/java";
 import { IEquatable } from "../../../../../../lib/types";
 
-import { AbstractEqualityComparator } from "./AbstractEqualityComparator";
-import { MurmurHash } from "./MurmurHash";
+import { EqualityComparator } from "./EqualityComparator";
+import { HashableType, MurmurHash } from "./MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 /**
  * A limited map (many unsupported operations) that lets me use
  *  varying hashCode/equals.
  */
-export class FlexibleHashMap<K extends IEquatable, V> {
+export class FlexibleHashMap<K extends IEquatable, V extends HashableType> {
     public static readonly INITAL_CAPACITY: number = 16; // must be power of 2
     public static readonly INITAL_BUCKET_CAPACITY: number = 8;
     public static readonly LOAD_FACTOR: number = 0.75;
@@ -42,7 +42,7 @@ export class FlexibleHashMap<K extends IEquatable, V> {
         };
     };
 
-    protected readonly comparator?: AbstractEqualityComparator<K>;
+    protected readonly comparator?: EqualityComparator<K>;
 
     protected buckets?: Array<Array<FlexibleHashMap.Entry<K, V>>>;
 
@@ -55,9 +55,9 @@ export class FlexibleHashMap<K extends IEquatable, V> {
     protected initialBucketCapacity: number = FlexibleHashMap.INITAL_BUCKET_CAPACITY;
 
     public constructor();
-    public constructor(comparator: AbstractEqualityComparator<K>);
-    public constructor(comparator: AbstractEqualityComparator<K>, initialCapacity: number, initialBucketCapacity: number);
-    public constructor(comparator?: AbstractEqualityComparator<K>, _initialCapacity = FlexibleHashMap.INITAL_CAPACITY,
+    public constructor(comparator: EqualityComparator<K>);
+    public constructor(comparator: EqualityComparator<K>, initialCapacity: number, initialBucketCapacity: number);
+    public constructor(comparator?: EqualityComparator<K>, _initialCapacity = FlexibleHashMap.INITAL_CAPACITY,
         initialBucketCapacity = FlexibleHashMap.INITAL_BUCKET_CAPACITY) {
         if (comparator === undefined) {
             comparator = ObjectEqualityComparator.INSTANCE;

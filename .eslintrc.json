@@ -398,7 +398,10 @@
         "import/order": "off",
         "max-classes-per-file": [
             "error",
-            1
+            {
+                "ignoreExpressions": true,
+                "max": 1
+            }
         ],
         "max-len": [
             "error",

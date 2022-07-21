@@ -166,12 +166,15 @@ this._input = input;
 					let  ttype: number;
 					try {
 						ttype = this.getInterpreter().match(this._input, this._mode);
-					}
-					catch (e: unknown) {
-						this.notifyListeners(ANTLRErrorListener.syntaxError.e);		// report error
-						this.recover(ANTLRErrorListener.syntaxError.e);
+					} catch (e) {
+if (e instanceof LexerNoViableAltException) {
+						this.notifyListeners(e);		// report error
+						this.recover(e);
 						ttype = Lexer.SKIP;
-					}
+					} else {
+	throw e;
+	}
+}
 					if ( this._input.LA(1)===IntStream.EOF ) {
 						this._hitEOF = true;
 					}

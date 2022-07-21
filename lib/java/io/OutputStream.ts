@@ -6,7 +6,7 @@
  */
 
 import { AutoCloseable } from "./AutoCloseable";
-import { Closeable } from "./Closable";
+import { Closeable } from "./Closeable";
 import { Flushable } from "./Flushable";
 
 export abstract class OutputStream implements Closeable, Flushable, AutoCloseable {

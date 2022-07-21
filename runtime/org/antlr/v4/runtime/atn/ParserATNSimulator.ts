@@ -2227,7 +2227,7 @@ let alt = completeOrAlt as number;
 			return to;
 		}
 
-		synchronized (from) {
+		/* synchronized (from) */ {
 			if ( from.edges===undefined ) {
 				from.edges = new   Array<DFAState>(this.atn.maxTokenType+1+1);
 			}
@@ -2262,7 +2262,7 @@ let alt = completeOrAlt as number;
 			return D;
 		}
 
-		synchronized (dfa.states) {
+		/* synchronized (dfa.states) */ {
 			let  existing: DFAState = dfa.states.get(D);
 			if ( existing!==undefined ) {
  return existing;
@@ -2347,10 +2347,13 @@ let alt = completeOrAlt as number;
 	public static getSafeEnv = (envName: string): string => {
 		try {
 			return java.lang.System.getenv(envName);
-		}
-		catch(e: unknown) {
+		} catch (e) {
+if (e instanceof SecurityException) {
 			// use the default value
-		}
+		} else {
+	throw e;
+	}
+}
 		return undefined;
 	}
 }

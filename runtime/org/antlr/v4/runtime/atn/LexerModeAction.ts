@@ -16,6 +16,7 @@
 
 
 
+import { java } from "../../../../../../lib/java/java";
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";

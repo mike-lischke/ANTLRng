@@ -1,4 +1,4 @@
-/** java2ts: keep */
+/* java2ts: keep */
 
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.

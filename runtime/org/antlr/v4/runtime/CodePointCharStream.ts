@@ -16,7 +16,7 @@
 
 
 
-import { java,StandardCharsets } from "../../../../../lib/java/java";
+import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { CodePointBuffer } from "./CodePointBuffer";
 import { IntStream } from "./IntStream";
@@ -179,7 +179,7 @@ default:
 			// We know the maximum code point in byteArray is U+00FF,
 			// so we can treat this as if it were ISO-8859-1, aka Latin-1,
 			// which shares the same code points up to 0xFF.
-			return new  string(this.byteArray, startIdx, len, StandardCharsets.ISO_8859_1);
+			return new  string(this.byteArray, startIdx, len, java.nio.charset.StandardCharsets.ISO_8859_1);
 		}
 
 		public LA = (i: number): number => {

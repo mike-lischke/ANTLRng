@@ -16,7 +16,7 @@
 /* cspell: disable */
 
 import { IEquatable } from "../../../../../../lib/types";
-import { AbstractEqualityComparator } from "./AbstractEqualityComparator";
+import { EqualityComparator } from "./EqualityComparator";
 
 /**
  * This default implementation of {@link EqualityComparator} uses object equality
@@ -24,20 +24,32 @@ import { AbstractEqualityComparator } from "./AbstractEqualityComparator";
  *
  * @author Sam Harwell
  */
-export class ObjectEqualityComparator extends AbstractEqualityComparator<IEquatable> {
+export class ObjectEqualityComparator extends EqualityComparator<IEquatable> {
     public static readonly INSTANCE = new ObjectEqualityComparator();
 
-    public hashCode = (obj: IEquatable): number => {
-        if (obj === undefined) {
+    public hashCode = (obj?: IEquatable): number => {
+        if (!obj) {
             return 0;
         }
 
         return obj.hashCode();
     };
 
-    public equals = (a: IEquatable, b: IEquatable): boolean => {
-        if (a === undefined) {
-            return b === undefined;
+    /**
+     * This implementation relies on object equality. If both objects are
+     * `undefined` or `null`, this method returns `true`. Otherwise if only
+     * `a` is `undefined` or `null`, this method returns `false`. Otherwise,
+     * this method returns the result of
+     * `a.`{@link Object#equals equals}`(b)`.
+     *
+     * @param a One object to compare with b.
+     * @param b Another object to compare with a.
+     *
+     * @returns True if both parameters are equal, otherwise false.
+     */
+    public equals = (a?: IEquatable, b?: IEquatable): boolean => {
+        if (!a) {
+            return !b;
         }
 
         return a.equals(b);

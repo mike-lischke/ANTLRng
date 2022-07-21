@@ -15,7 +15,7 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../../../lib/java/java";
+import { java } from "../../../../../../lib/java/java";
 import { ActionTransition } from "./ActionTransition";
 import { ATNState } from "./ATNState";
 import { AtomTransition } from "./AtomTransition";

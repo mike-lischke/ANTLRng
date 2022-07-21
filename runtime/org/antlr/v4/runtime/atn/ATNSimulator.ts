@@ -89,7 +89,7 @@ export  class ATNSimulator {
 }
 
 
-		synchronized (this.sharedContextCache) {
+		/* synchronized (sharedContextCache) */ {
 			let  visited: IdentityHashMap<PredictionContext, PredictionContext> =
 				new  IdentityHashMap<PredictionContext, PredictionContext>();
 			return PredictionContext.getCachedContext(context,

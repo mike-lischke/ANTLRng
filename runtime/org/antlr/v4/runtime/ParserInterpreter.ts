@@ -17,7 +17,6 @@
 
 
 import { java } from "../../../../../lib/java/java";
-import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { CharStream } from "./CharStream";
 import { FailedPredicateException } from "./FailedPredicateException";
 import { InputMismatchException } from "./InputMismatchException";
@@ -221,13 +220,16 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 			default :
 				try {
 					this.visitState(p);
-				}
-				catch (e: unknown) {
+				} catch (e) {
+if (e instanceof RecognitionException) {
 					this.setState(this.atn.ruleToStopState[p.ruleIndex].stateNumber);
-					this.getContext().exception = ANTLRErrorListener.syntaxError.e;
-					this.getErrorHandler().reportError(this, ANTLRErrorListener.syntaxError.e);
-					this.recover(ANTLRErrorListener.syntaxError.e);
-				}
+					this.getContext().exception = e;
+					this.getErrorHandler().reportError(this, e);
+					this.recover(e);
+				} else {
+	throw e;
+	}
+}
 
 				break;
 			}

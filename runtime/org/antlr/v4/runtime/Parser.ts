@@ -463,7 +463,7 @@ this.setInputStream(input);
 			throw new  java.lang.UnsupportedOperationException("The current parser does not support an ATN with bypass alternatives.");
 		}
 
-		synchronized (this) {
+		/* synchronized (this) */ {
 			if ( this.bypassAltsAtnCache!==undefined ) {
 				return this.bypassAltsAtnCache;
 			}
@@ -956,7 +956,7 @@ if (p === undefined) {
 
 	/** For debugging and other purposes. */
 	public getDFAStrings = (): java.util.List<string> => {
-		synchronized (this._interp.decisionToDFA) {
+		/* synchronized (_interp.decisionToDFA) */ {
 			let  s: java.util.List<string> = new  java.util.ArrayList<string>();
 			for (let  d: number = 0; d < this._interp.decisionToDFA.length; d++) {
 				let  dfa: DFA = this._interp.decisionToDFA[d];
@@ -968,7 +968,7 @@ if (p === undefined) {
 
 	/** For debugging and other purposes. */
 	public dumpDFA = (): void => {
-		synchronized (this._interp.decisionToDFA) {
+		/* synchronized (_interp.decisionToDFA) */ {
 			let  seenOne: boolean = false;
 			for (let  d: number = 0; d < this._interp.decisionToDFA.length; d++) {
 				let  dfa: DFA = this._interp.decisionToDFA[d];

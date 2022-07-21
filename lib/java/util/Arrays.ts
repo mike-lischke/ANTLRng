@@ -6,6 +6,7 @@
  */
 
 import { ArrayList, List } from ".";
+import { HashableType } from "../../../runtime";
 
 export type ComparableValueType = number | bigint | string;
 
@@ -24,7 +25,7 @@ export class Arrays {
         });
     }
 
-    public static asList<T>(...list: T[]): List<T> {
+    public static asList<T extends HashableType>(...list: T[]): List<T> {
         return new ArrayList<T>(list);
     }
 
@@ -108,6 +109,10 @@ export class Arrays {
         }
 
         return -start - 1;
+    }
+
+    public static toString<T>(value: T[]): string {
+        return JSON.stringify(value);
     }
 }
 

@@ -14,7 +14,7 @@
 
 import { NotImplementedError } from "../../NotImplementedError";
 import { IndexOutOfBoundsException } from "../lang";
-import { Closeable } from "./Closable";
+import { Closeable } from "./Closeable";
 import { IOException } from "./IOException";
 
 export abstract class InputStream implements Closeable {

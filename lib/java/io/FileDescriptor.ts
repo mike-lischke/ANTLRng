@@ -10,7 +10,7 @@
 import * as fs from "fs/promises";
 
 import { Throwable } from "../lang";
-import { Closeable } from "./Closable";
+import { Closeable } from "./Closeable";
 import { IOException } from "./IOException";
 
 export class FileDescriptor {
@@ -82,10 +82,11 @@ export class FileDescriptor {
                         try {
                             referent.close();
                         } catch (x) {
+                            const t = Throwable.fromError(x);
                             if (!ioe) {
-                                ioe = x;
+                                ioe = t;
                             } else {
-                                ioe.addSuppressed(Throwable.fromError(x));
+                                ioe.addSuppressed(t);
                             }
                         }
                     }

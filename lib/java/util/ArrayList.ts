@@ -5,17 +5,17 @@
  * See LICENSE file for more info.
  */
 
-import { MurmurHash } from "../../../runtime";
+import { HashableType, MurmurHash } from "../../../runtime";
 
 import { List } from "./List";
 import { ArrayListIterator, Collection, ListIterator } from ".";
 import { IndexOutOfBoundsException } from "../lang";
 
-export class ArrayList<T> extends List<T> {
+export class ArrayList<T extends HashableType> extends List<T> {
 
     private buffer: T[];
 
-    public constructor(input?: Collection<T> | T[] | number) {
+    public constructor(input?: Collection<T> | T[] | Set<T> | number) {
         super();
 
         if (input === undefined) {
@@ -24,6 +24,8 @@ export class ArrayList<T> extends List<T> {
             this.buffer = new Array(input);
         } else if (Array.isArray(input)) {
             this.buffer = input;
+        } else if (input instanceof Set<T>) {
+            this.buffer = Array.from(input);
         } else {
             this.buffer = input.toArray();
         }

@@ -13,7 +13,7 @@ import { Readable } from "../lang/Readable";
 import { CharBuffer } from "../nio/CharBuffer";
 import { ReadOnlyBufferException } from "../nio/ReadOnlyBufferException";
 import { AutoCloseable } from "./AutoCloseable";
-import { Closeable } from "./Closable";
+import { Closeable } from "./Closeable";
 import { IOException } from "./IOException";
 
 export abstract class Reader implements Closeable, AutoCloseable, Readable {

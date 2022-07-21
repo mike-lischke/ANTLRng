@@ -16,7 +16,7 @@
 
 
 
-import { StandardCharsets,Charset,java } from "../../../../../lib/java/java";
+import { java } from "../../../../../lib/java/java";
 import { BufferedTokenStream } from "./BufferedTokenStream";
 import { CharStream } from "./CharStream";
 import { CodePointBuffer } from "./CodePointBuffer";
@@ -24,7 +24,7 @@ import { CodePointCharStream } from "./CodePointCharStream";
 import { IntStream } from "./IntStream";
 
 
-import { AutoCloser } from "../../../../../lib/AutoCloser";
+import { closeResources, handleResourceError, throwResourceError } from "../../../../../lib/helpers";
 
 
 /** This class represents the primary interface for creating {@link CharStream}s
@@ -85,7 +85,7 @@ export  class CharStreams {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromPath(path: Path, charset: Charset): CharStream;
+	public static fromPath(path: Path, charset: java.nio.charset.Charset): CharStream;
 
 
 	/**
@@ -94,25 +94,35 @@ export  class CharStreams {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromPath(path: Path, charset?: Charset):  CharStream {
+	public static fromPath(path: Path, charset?: java.nio.charset.Charset):  CharStream {
 if (charset === undefined) {
-		return CharStreams.fromPath(path, StandardCharsets.UTF_8);
+		return CharStreams.fromPath(path, java.nio.charset.StandardCharsets.UTF_8);
 	}
  else  {
 		let  size: bigint = Files.size(path);
-			const closeables = new AutoCloser();
+		 {
+// This holds the final error to throw (if any).
+let error: java.lang.Throwable | undefined;
+
+ const channel: ReadableByteChannel  = Files.newByteChannel(path)
 try {
-			 const channel: ReadableByteChannel  = Files.newByteChannel(path)
-	closeables.add(channel);
-return CharStreams.fromChannel(
+	try  {
+			return CharStreams.fromChannel(
 				BufferedTokenStream.nextTokenOnChannel.channel,
 				charset,
 				CharStreams.DEFAULT_BUFFER_SIZE,
 				CodingErrorAction.REPLACE,
 				path.toString(),
 				size);
-		} finally {
-  closeables.close();
+		}
+	finally {
+	error = closeResources([channel]);
+	}
+} catch(e) {
+	error = handleResourceError(e, error);
+} finally {
+	throwResourceError(error);
+}
 }
 
 	}
@@ -135,7 +145,7 @@ return CharStreams.fromChannel(
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromFileName(fileName: string, charset: Charset): CharStream;
+	public static fromFileName(fileName: string, charset: java.nio.charset.Charset): CharStream;
 
 
 	/**
@@ -144,9 +154,9 @@ return CharStreams.fromChannel(
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromFileName(fileName: string, charset?: Charset):  CharStream {
+	public static fromFileName(fileName: string, charset?: java.nio.charset.Charset):  CharStream {
 if (charset === undefined) {
-		return CharStreams.fromPath(Paths.get(fileName), StandardCharsets.UTF_8);
+		return CharStreams.fromPath(Paths.get(fileName), java.nio.charset.StandardCharsets.UTF_8);
 	}
  else  {
 		return CharStreams.fromPath(Paths.get(fileName), charset);
@@ -172,9 +182,9 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: java.io.InputStream, charset: Charset): CharStream;
+	public static fromStream(is: java.io.InputStream, charset: java.nio.charset.Charset): CharStream;
 
-	public static fromStream(is: java.io.InputStream, charset: Charset, inputSize: bigint): CharStream;
+	public static fromStream(is: java.io.InputStream, charset: java.nio.charset.Charset, inputSize: bigint): CharStream;
 
 
 
@@ -185,27 +195,37 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: java.io.InputStream, charset?: Charset, inputSize?: bigint):  CharStream {
+	public static fromStream(is: java.io.InputStream, charset?: java.nio.charset.Charset, inputSize?: bigint):  CharStream {
 if (charset === undefined) {
-		return CharStreams.fromStream(is, StandardCharsets.UTF_8);
+		return CharStreams.fromStream(is, java.nio.charset.StandardCharsets.UTF_8);
 	}
- else if (charset instanceof Charset && inputSize === undefined) {
+ else if (charset instanceof java.nio.charset.Charset && inputSize === undefined) {
 		return CharStreams.fromStream(is, charset, -1);
 	}
  else  {
-			const closeables = new AutoCloser();
+		 {
+// This holds the final error to throw (if any).
+let error: java.lang.Throwable | undefined;
+
+ const channel: ReadableByteChannel  = Channels.newChannel(is)
 try {
-			 const channel: ReadableByteChannel  = Channels.newChannel(is)
-	closeables.add(channel);
-return CharStreams.fromChannel(
+	try  {
+			return CharStreams.fromChannel(
 				BufferedTokenStream.nextTokenOnChannel.channel,
 				charset,
 				CharStreams.DEFAULT_BUFFER_SIZE,
 				CodingErrorAction.REPLACE,
 				IntStream.UNKNOWN_SOURCE_NAME,
 				inputSize);
-		} finally {
-  closeables.close();
+		}
+	finally {
+	error = closeResources([channel]);
+	}
+} catch(e) {
+	error = handleResourceError(e, error);
+} finally {
+	throwResourceError(error);
+}
 }
 
 	}
@@ -229,7 +249,7 @@ return CharStreams.fromChannel(
 	 * Reads the entire contents of the {@code channel} into
 	 * the result before returning, then closes the {@code channel}.
 	 */
-	public static fromChannel(channel: ReadableByteChannel, charset: Charset): CharStream;
+	public static fromChannel(channel: ReadableByteChannel, charset: java.nio.charset.Charset): CharStream;
 
 	/**
 	 * Creates a {@link CharStream} given an opened {@link ReadableByteChannel}
@@ -246,7 +266,7 @@ return CharStreams.fromChannel(
 
 	public static fromChannel(
 		channel: ReadableByteChannel,
-		charset: Charset,
+		charset: java.nio.charset.Charset,
 		bufferSize: number,
 		decodingErrorAction: CodingErrorAction,
 		sourceName: string,
@@ -260,12 +280,12 @@ return CharStreams.fromChannel(
 	 * Reads the entire contents of the {@code channel} into
 	 * the result before returning, then closes the {@code channel}.
 	 */
-	public static fromChannel(channel: ReadableByteChannel, charsetOrBufferSize?: Charset | number, decodingErrorActionOrBufferSize?: CodingErrorAction | number, sourceNameOrDecodingErrorAction?: string | CodingErrorAction, sourceName?: string, inputSize?: bigint):  CharStream |  CodePointCharStream {
+	public static fromChannel(channel: ReadableByteChannel, charsetOrBufferSize?: java.nio.charset.Charset | number, decodingErrorActionOrBufferSize?: CodingErrorAction | number, sourceNameOrDecodingErrorAction?: string | CodingErrorAction, sourceName?: string, inputSize?: bigint):  CharStream |  CodePointCharStream {
 if (charsetOrBufferSize === undefined) {
-		return CharStreams.fromChannel(channel, StandardCharsets.UTF_8);
+		return CharStreams.fromChannel(channel, java.nio.charset.StandardCharsets.UTF_8);
 	}
- else if (charsetOrBufferSize instanceof Charset && decodingErrorActionOrBufferSize === undefined) {
-const charset = charsetOrBufferSize as Charset;
+ else if (charsetOrBufferSize instanceof java.nio.charset.Charset && decodingErrorActionOrBufferSize === undefined) {
+const charset = charsetOrBufferSize as java.nio.charset.Charset;
 		return CharStreams.fromChannel(
 			channel,
 			CharStreams.DEFAULT_BUFFER_SIZE,
@@ -277,11 +297,11 @@ const charset = charsetOrBufferSize as Charset;
 const bufferSize = charsetOrBufferSize as number;
 const decodingErrorAction = decodingErrorActionOrBufferSize as CodingErrorAction;
 const sourceName = sourceNameOrDecodingErrorAction as string;
-		return CharStreams.fromChannel(channel, StandardCharsets.UTF_8, bufferSize, decodingErrorAction, sourceName, -1);
+		return CharStreams.fromChannel(channel, java.nio.charset.StandardCharsets.UTF_8, bufferSize, decodingErrorAction, sourceName, -1);
 	}
  else 
 	{
-let charset = charsetOrBufferSize as Charset;
+let charset = charsetOrBufferSize as java.nio.charset.Charset;
 let bufferSize = decodingErrorActionOrBufferSize as number;
 let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 		try {

@@ -16,7 +16,7 @@
 import { java } from "../../../../../../lib/java/java";
 import { IEquatable } from "../../../../../../lib/types";
 
-import { AbstractEqualityComparator } from "./AbstractEqualityComparator";
+import { EqualityComparator } from "./EqualityComparator";
 import { MurmurHash } from "./MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
@@ -26,7 +26,7 @@ export class Array2DHashSet<T extends IEquatable> implements java.util.Collectio
     public static readonly INITIAL_BUCKET_CAPACITY: number = 8;
     public static readonly LOAD_FACTOR: number = 0.75;
 
-    protected readonly comparator?: AbstractEqualityComparator<T>;
+    protected readonly comparator?: EqualityComparator<T>;
 
     protected buckets?: T[][];
 
@@ -39,10 +39,10 @@ export class Array2DHashSet<T extends IEquatable> implements java.util.Collectio
     protected initialBucketCapacity: number = Array2DHashSet.INITIAL_BUCKET_CAPACITY;
 
     public constructor();
-    public constructor(comparator: AbstractEqualityComparator<T>);
-    public constructor(comparator: AbstractEqualityComparator<T>, initialCapacity: number, initialBucketCapacity: number);
-    public constructor(comparator?: AbstractEqualityComparator<T>, initialCapacity?: number, initialBucketCapacity?: number) {
-        const $this = (comparator?: AbstractEqualityComparator<T>, initialCapacity?: number, initialBucketCapacity?: number): void => {
+    public constructor(comparator: EqualityComparator<T>);
+    public constructor(comparator: EqualityComparator<T>, initialCapacity: number, initialBucketCapacity: number);
+    public constructor(comparator?: EqualityComparator<T>, initialCapacity?: number, initialBucketCapacity?: number) {
+        const $this = (comparator?: EqualityComparator<T>, initialCapacity?: number, initialBucketCapacity?: number): void => {
             if (initialCapacity === undefined) {
                 $this(comparator, Array2DHashSet.INITIAL_CAPACITY, Array2DHashSet.INITIAL_BUCKET_CAPACITY);
             } else {

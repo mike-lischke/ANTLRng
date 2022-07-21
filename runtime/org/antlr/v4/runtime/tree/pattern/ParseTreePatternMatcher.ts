@@ -35,6 +35,7 @@ import { ParserRuleContext } from "../../ParserRuleContext";
 import { RecognitionException } from "../../RecognitionException";
 import { Token } from "../../Token";
 import { MultiMap } from "../../misc/MultiMap";
+import { ParseCancellationException } from "../../misc/ParseCancellationException";
 import { ParseTree } from "../ParseTree";
 import { RuleNode } from "../RuleNode";
 import { TerminalNode } from "../TerminalNode";
@@ -243,16 +244,26 @@ if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
 			parserInterp.setErrorHandler(new  BailErrorStrategy());
 			tree = parserInterp.parse(patternRuleIndex);
 //			System.out.println("pattern tree = "+tree.toStringTree(parserInterp));
-		}
-		catch (e: unknown) {
-			throw BailErrorStrategy.recover.e.getCause() as RecognitionException;
-		}
-		catch (re: unknown) {
-			throw Lexer.recover.re;
-		}
-		catch (e: unknown) {
-			throw new  ParseTreePatternMatcher.CannotInvokeStartRule(BailErrorStrategy.recover.e);
-		}
+		} catch (eOrRe) {
+if (eOrRe instanceof ParseCancellationException) {
+			const e = eOrRe;
+throw e.getCause() as RecognitionException;
+		} else {
+	throw eOrRe;
+	}
+else if (eOrRe instanceof RecognitionException) {
+			const re = eOrRe;
+throw re;
+		} else {
+	throw eOrRe;
+	}
+else if (eOrRe instanceof java.lang.Exception) {
+			const e = eOrRe;
+throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
+		} else {
+	throw eOrRe;
+	}
+}
 
 		// Make sure tree pattern compilation checks for a complete parse
 		if ( tokens.LA(1)!==Token.EOF ) {

@@ -16,6 +16,7 @@
 
 
 
+import { java } from "../../../../../lib/java/java";
 import { BaseErrorListener } from "./BaseErrorListener";
 import { Parser } from "./Parser";
 import { ATNConfig } from "./atn/ATNConfig";

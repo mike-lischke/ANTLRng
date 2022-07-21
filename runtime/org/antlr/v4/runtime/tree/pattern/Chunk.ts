@@ -1,22 +1,10 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
-
-
 
 /**
  * A chunk is either a token tag, a rule tag, or a span of literal text within a
@@ -29,5 +17,5 @@
  * chunks are converted to {@link RuleTagToken}, {@link TokenTagToken}, or the
  * regular tokens of the text surrounding the tags.</p>
  */
-export  class Chunk {
+export class Chunk {
 }

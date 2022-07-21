@@ -706,7 +706,7 @@ let p = fromOrP as DFAState;
 			java.lang.System.out.println("EDGE "+p+" -> "+q+" upon "+(Number(t)));
 		}
 
-		synchronized (p) {
+		/* synchronized (p) */ {
 			if ( p.edges===undefined ) {
 				//  make room for tokens 1..n and -1 masquerading as index 0
 				p.edges = new   Array<DFAState>(LexerATNSimulator.MAX_DFA_EDGE-LexerATNSimulator.MIN_DFA_EDGE+1);
@@ -746,7 +746,7 @@ let p = fromOrP as DFAState;
 		}
 
 		let  dfa: DFA = this.decisionToDFA[this.mode];
-		synchronized (dfa.states) {
+		/* synchronized (dfa.states) */ {
 			let  existing: DFAState = dfa.states.get(proposed);
 			if ( existing!==undefined ) {
  return existing;

@@ -8,18 +8,18 @@
 /* eslint-disable jsdoc/require-returns */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { NotImplementedError } from "../../NotImplementedError";
 import { StackTraceElement } from "./StackTraceElement";
 
 export class Throwable extends Error { // This is the JS Error object, not that of the Java polyfills!
     private elements: StackTraceElement[] = [];
+    private suppressed: Throwable[] = [];
 
     public constructor(message?: string, cause?: Throwable);
     // This constructor is protected in Java, but in TS we cannot mix different modifiers in overloading.
     public constructor(message: string, cause: Throwable, enableSuppression: boolean, writableStackTrace: boolean);
     public constructor(cause: Throwable);
     public constructor(messageOrCause?: string | Throwable, cause?: Throwable, _enableSuppression?: boolean,
-        private writableStackTrace?: boolean) {
+        _writableStackTrace?: boolean) {
 
         let message;
         let options: ErrorOptions;
@@ -33,6 +33,8 @@ export class Throwable extends Error { // This is the JS Error object, not that 
         }
 
         super(message, options);
+
+        this.fillInStackTrace();
     }
 
     /**
@@ -43,11 +45,14 @@ export class Throwable extends Error { // This is the JS Error object, not that 
      * @returns A Throwable instance which wraps the given error.
      */
     public static fromError(error: unknown): Throwable {
+        if (error instanceof Throwable) {
+            return error;
+        }
+
         if (error instanceof Error) {
             let cause;
             if (error.cause) {
                 cause = Throwable.fromError(error.cause);
-                cause.parseStackTrace(error);
             }
 
             return new Throwable(error.message, cause);
@@ -62,12 +67,22 @@ export class Throwable extends Error { // This is the JS Error object, not that 
      * @param exception tbd
      */
     public addSuppressed(exception: Throwable): void {
-        throw new NotImplementedError();
+        this.suppressed.push(exception);
     }
 
     /** Fills in the execution stack trace. */
     public fillInStackTrace(): Throwable {
-        throw new NotImplementedError();
+        if (!this.stack) {
+            this.elements = [];
+        }
+
+        const lines = this.stack.split("\n").slice(1);
+
+        this.elements = lines.map((line) => {
+            return new StackTraceElement(line);
+        });
+
+        return this;
     }
 
     /** Returns the cause of this throwable or null if the cause is nonexistent or unknown. */
@@ -90,10 +105,12 @@ export class Throwable extends Error { // This is the JS Error object, not that 
         return this.elements;
     }
 
-    /** Returns an array containing all of the exceptions that were suppressed, typically by the try-with-resources */
-    /** statement, in order to deliver this exception. */
+    /**
+     * Returns an array containing all of the exceptions that were suppressed, typically by the try-with-resources
+     * statement, in order to deliver this exception.
+     */
     public getSuppressed(): Throwable[] {
-        throw new NotImplementedError();
+        return this.suppressed;
     }
 
     /**
@@ -113,7 +130,7 @@ export class Throwable extends Error { // This is the JS Error object, not that 
      * @param s tbd
      */
     public printStackTrace(s?: unknown): void {
-        console.log(this.stack);
+        console.error(this.stack);
     }
 
     /**
@@ -136,15 +153,4 @@ export class Throwable extends Error { // This is the JS Error object, not that 
         return this.name + ": " + message;
     }
 
-    private parseStackTrace(error: Error): void {
-        if (!error.stack) {
-            this.elements = [];
-        }
-
-        const lines = error.stack.split("\n").slice(1);
-
-        this.elements = lines.map((line) => {
-            return new StackTraceElement(line);
-        });
-    }
 }

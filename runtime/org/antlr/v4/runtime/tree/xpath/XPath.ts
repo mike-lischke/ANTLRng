@@ -101,10 +101,13 @@ export  class XPath {
 		let  in: ANTLRInputStream;
 		try {
 			in = new  ANTLRInputStream(new  StringReader(path));
-		}
-		catch (ioe: unknown) {
+		} catch (ioe) {
+if (ioe instanceof java.io.IOException) {
 			throw new  java.lang.IllegalArgumentException("Could not read path: "+path, ioe);
-		}
+		} else {
+	throw ioe;
+	}
+}
 		let  lexer: XPathLexer = new  class extends XPathLexer {
 			public recover = (e: LexerNoViableAltException): void => { throw e;	}
 		}(in);
@@ -113,12 +116,15 @@ export  class XPath {
 		let  tokenStream: CommonTokenStream = new  CommonTokenStream(lexer);
 		try {
 			tokenStream.fill();
-		}
-		catch (e: unknown) {
+		} catch (e) {
+if (e instanceof LexerNoViableAltException) {
 			let  pos: number = lexer.getCharPositionInLine();
 			let  msg: string = "Invalid tokens or characters at index "+pos+" in path '"+path+"'";
-			throw new  java.lang.IllegalArgumentException(msg, XPathLexerErrorListener.syntaxError.e);
-		}
+			throw new  java.lang.IllegalArgumentException(msg, e);
+		} else {
+	throw e;
+	}
+}
 
 		let  tokens: java.util.List<Token> = tokenStream.getTokens();
 //		System.out.println("path="+path+"=>"+tokens);

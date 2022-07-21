@@ -6,6 +6,9 @@
  */
 
 export * from "./Serializable";
+export * from "./Closeable";
+export * from "./AutoCloseable";
+
 export * from "./FileDescriptor";
 export * from "./File";
 export * from "./Console";

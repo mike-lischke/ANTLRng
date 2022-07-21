@@ -16,7 +16,7 @@
 
 
 
-import { java,StandardCharsets,Charset } from "../../../../../lib/java/java";
+import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
@@ -105,10 +105,10 @@ public constructor();
 
 	public constructor(input: java.io.Reader, bufferSize: number);
 
-	public constructor(input: java.io.InputStream, bufferSize: number, charset: Charset);
+	public constructor(input: java.io.InputStream, bufferSize: number, charset: java.nio.charset.Charset);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: Charset) {
-const $this = (bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: Charset): void => {
+public constructor(bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: java.nio.charset.Charset) {
+const $this = (bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: java.nio.charset.Charset): void => {
 if (bufferSizeOrInput === undefined) {
 		$this(256);
 	}
@@ -129,7 +129,7 @@ const input = bufferSizeOrInput as java.io.Reader;
 	}
  else if (bufferSizeOrInput instanceof java.io.InputStream && typeof bufferSize === "number" && charset === undefined) {
 const input = bufferSizeOrInput as java.io.InputStream;
-		$this(input, bufferSize, StandardCharsets.UTF_8);
+		$this(input, bufferSize, java.nio.charset.StandardCharsets.UTF_8);
 	}
  else if (bufferSizeOrInput instanceof java.io.Reader && typeof bufferSize === "number" && charset === undefined) {
 const input = bufferSizeOrInput as java.io.Reader;
@@ -229,10 +229,13 @@ $this(bufferSizeOrInput, bufferSize, charset);
 }
 
 				}
-			}
-			catch (ioe: unknown) {
+			} catch (ioe) {
+if (ioe instanceof java.io.IOException) {
 				throw new  java.lang.RuntimeException(ioe);
-			}
+			} else {
+	throw ioe;
+	}
+}
 		}
 
 		return n;

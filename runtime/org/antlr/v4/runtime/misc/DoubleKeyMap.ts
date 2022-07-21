@@ -16,20 +16,21 @@
 /* cspell: disable */
 
 import { java } from "../../../../../../lib/java/java";
+import { HashableType } from "./MurmurHash";
 
 /**
  * Sometimes we need to map a key to a value but key is two pieces of data.
  *  This nested hash table saves creating a single key each time we access
  *  map; avoids mem creation.
  */
-export class DoubleKeyMap<Key1, Key2, Value> {
-    public data = new java.util.LinkedHashMap<Key1, Map<Key2, Value>>();
+export class DoubleKeyMap<Key1, Key2, Value extends HashableType> {
+    public data = new java.util.HashMap<Key1, Map<Key2, Value>>();
 
     public put = (k1: Key1, k2: Key2, v: Value): Value => {
         let data2: Map<Key2, Value> = this.data.get(k1);
         let prev: Value;
         if (data2 === undefined) {
-            data2 = new java.util.LinkedHashMap<Key2, Value>();
+            data2 = new java.util.HashMap<Key2, Value>();
             this.data.set(k1, data2);
         } else {
             prev = data2.get(k2);

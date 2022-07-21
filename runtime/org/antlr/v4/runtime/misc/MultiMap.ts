@@ -6,21 +6,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
 import { java } from "../../../../../../lib/java/java";
-import { IEquatable } from "../../../../../../lib/types";
-import { Pair } from "./Pair";
+import { HashableType } from "./MurmurHash";
 
-export class MultiMap<K extends IEquatable, V extends IEquatable>
-    extends java.util.LinkedHashMap<K, java.util.List<V>> {
+export class MultiMap<K, V extends HashableType> extends java.util.HashMap<K, java.util.List<V>> {
 
     public map = (key: K, value: V): void => {
         let elementsForKey: java.util.List<V> = this.get(key);
@@ -31,11 +20,11 @@ export class MultiMap<K extends IEquatable, V extends IEquatable>
         elementsForKey.add(value);
     };
 
-    public getPairs = (): java.util.List<Pair<K, V>> => {
-        const pairs = new java.util.ArrayList<Pair<K, V>>();
+    public getPairs = (): Array<[K, V]> => {
+        const pairs: Array<[K, V]> = [];
         for (const key of this.keySet()) {
             for (const value of this.get(key)) {
-                pairs.add(new Pair<K, V>(key, value));
+                pairs.push([key, value]);
             }
         }
 

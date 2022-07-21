@@ -7,10 +7,9 @@
 
 import { java } from "../java";
 
-import { HashableType, MurmurHash } from "../../../runtime";
+import { NotImplementedError } from "../../NotImplementedError";
 
-export class HashMap<K extends HashableType, V extends HashableType> extends Map<K, V>
-    implements java.util.Map<K, V> {
+export class HashMap<K, V> extends Map<K, V> implements java.util.Map<K, V> {
 
     public isEmpty(): boolean {
         return this.size === 0;
@@ -71,13 +70,7 @@ export class HashMap<K extends HashableType, V extends HashableType> extends Map
     }
 
     public hashCode(): number {
-        let hash = MurmurHash.initialize(7);
-        this.forEach((value, key) => {
-            hash = MurmurHash.update(hash, key);
-            hash = MurmurHash.update(hash, value);
-        });
-
-        return MurmurHash.finish(hash, this.size * 2);
+        throw new NotImplementedError();
     }
 
     /**
