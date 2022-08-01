@@ -54,7 +54,7 @@ import { ParseTreePatternMatcher } from "./tree/pattern/ParseTreePatternMatcher"
 
 
 /** This is all the parsing support code essentially; most of it is error recovery stuff. */
-export  class Parser extends Recognizer<Token, ParserATNSimulator> {
+export abstract  class Parser extends Recognizer<Token, ParserATNSimulator> {
 	public TraceListener = (($outer) => {
 return  class TraceListener implements ParseTreeListener {
 		public enterEveryRule = (ctx: ParserRuleContext): void => {

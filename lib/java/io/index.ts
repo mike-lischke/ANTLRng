@@ -2,7 +2,7 @@
  * This file is released under the MIT license.
  * Copyright (c) 2022, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
 export * from "./Serializable";
@@ -17,6 +17,8 @@ export * from "./PrintStream";
 export * from "./IOException";
 export * from "./FileNotFoundException";
 export * from "./UnsupportedEncodingException";
+export * from "./ObjectStreamException";
+export * from "./InvalidClassException";
 
 export * from "./InputStream";
 export * from "./OutputStream";

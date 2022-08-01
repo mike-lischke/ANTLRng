@@ -39,7 +39,7 @@ import { Pair } from "./misc/Pair";
  *  uses simplified match() and error recovery mechanisms in the interest
  *  of speed.
  */
-export  class Lexer extends Recognizer<java.lang.Integer, LexerATNSimulator>
+export abstract  class Lexer extends Recognizer<java.lang.Integer, LexerATNSimulator>
 	implements TokenSource
 {
 	public static readonly  DEFAULT_MODE:  number = 0;
@@ -451,20 +451,28 @@ const s = sOrC as string;
 	}
  else  {
 let c = sOrC as number;
-		let  s: string = String(Number(c));
+		let  s: string = String(c as CodePoint);
 		switch ( c ) {
-			case Token.EOF :
+			case Token.EOF :{
 				s = "<EOF>";
 				break;
-			case '\n' :
+}
+
+			case '\n' :{
 				s = "\\n";
 				break;
-			case '\t' :
+}
+
+			case '\t' :{
 				s = "\\t";
 				break;
-			case '\r' :
+}
+
+			case '\r' :{
 				s = "\\r";
 				break;
+}
+
 
 default:
 

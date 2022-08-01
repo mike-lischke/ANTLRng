@@ -36,7 +36,7 @@ export  class ANTLRInputStream implements CharStream {
    	public static readonly  INITIAL_BUFFER_SIZE:  number = 1024;
 
 	/** The data being scanned */
-	protected data:  number[];
+	protected data:  Uint16Array;
 
 	/** How many characters are actually in the buffer */
 	protected n:  number;
@@ -58,7 +58,7 @@ public constructor();
 	public constructor(input: java.io.InputStream);
 
 	/** This is the preferred constructor for strings as no data is copied */
-	public constructor(data: number[], numberOfActualCharsInArray: number);
+	public constructor(data: Uint16Array, numberOfActualCharsInArray: number);
 
     public constructor(r: java.io.Reader, initialSize: number);
 
@@ -68,8 +68,8 @@ public constructor();
 
 	public constructor(input: java.io.InputStream, initialSize: number, readChunkSize: number);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(inputOrROrData?: string | java.io.Reader | java.io.InputStream | number[], numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number) {
-const $this = (inputOrROrData?: string | java.io.Reader | java.io.InputStream | number[], numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number): void => {
+public constructor(inputOrROrData?: string | java.io.Reader | java.io.InputStream | Uint16Array, numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number) {
+const $this = (inputOrROrData?: string | java.io.Reader | java.io.InputStream | Uint16Array, numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number): void => {
 if (inputOrROrData === undefined) {
 
 /* @ts-expect-error, because of the super() call in the closure. */ super();
@@ -89,8 +89,8 @@ const r = inputOrROrData as java.io.Reader;
 const input = inputOrROrData as java.io.InputStream;
 		$this(new  java.io.InputStreamReader(input), ANTLRInputStream.INITIAL_BUFFER_SIZE);
 	}
- else if (Array.isArray(inputOrROrData) && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
-const data = inputOrROrData as number[];
+ else if (inputOrROrData instanceof Uint16Array && typeof numberOfActualCharsInArrayOrInitialSize === "number" && readChunkSize === undefined) {
+const data = inputOrROrData as Uint16Array;
 const numberOfActualCharsInArray = numberOfActualCharsInArrayOrInitialSize as number;
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();

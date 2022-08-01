@@ -99,7 +99,7 @@ if (charset === undefined) {
 		return CharStreams.fromPath(path, java.nio.charset.StandardCharsets.UTF_8);
 	}
  else  {
-		let  size: bigint = Files.size(path);
+		let  size: number = Files.size(path);
 		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
@@ -184,7 +184,7 @@ if (charset === undefined) {
 	 */
 	public static fromStream(is: java.io.InputStream, charset: java.nio.charset.Charset): CharStream;
 
-	public static fromStream(is: java.io.InputStream, charset: java.nio.charset.Charset, inputSize: bigint): CharStream;
+	public static fromStream(is: java.io.InputStream, charset: java.nio.charset.Charset, inputSize: number): CharStream;
 
 
 
@@ -195,7 +195,7 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: java.io.InputStream, charset?: java.nio.charset.Charset, inputSize?: bigint):  CharStream {
+	public static fromStream(is: java.io.InputStream, charset?: java.nio.charset.Charset, inputSize?: number):  CharStream {
 if (charset === undefined) {
 		return CharStreams.fromStream(is, java.nio.charset.StandardCharsets.UTF_8);
 	}
@@ -270,7 +270,7 @@ try {
 		bufferSize: number,
 		decodingErrorAction: CodingErrorAction,
 		sourceName: string,
-		inputSize: bigint): CodePointCharStream;
+		inputSize: number): CodePointCharStream;
 
 
 	/**
@@ -280,7 +280,7 @@ try {
 	 * Reads the entire contents of the {@code channel} into
 	 * the result before returning, then closes the {@code channel}.
 	 */
-	public static fromChannel(channel: ReadableByteChannel, charsetOrBufferSize?: java.nio.charset.Charset | number, decodingErrorActionOrBufferSize?: CodingErrorAction | number, sourceNameOrDecodingErrorAction?: string | CodingErrorAction, sourceName?: string, inputSize?: bigint):  CharStream |  CodePointCharStream {
+	public static fromChannel(channel: ReadableByteChannel, charsetOrBufferSize?: java.nio.charset.Charset | number, decodingErrorActionOrBufferSize?: CodingErrorAction | number, sourceNameOrDecodingErrorAction?: string | CodingErrorAction, sourceName?: string, inputSize?: number):  CharStream |  CodePointCharStream {
 if (charsetOrBufferSize === undefined) {
 		return CharStreams.fromChannel(channel, java.nio.charset.StandardCharsets.UTF_8);
 	}
@@ -311,7 +311,7 @@ let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 				inputSize = bufferSize;
 			} else { if (inputSize > java.lang.Integer.MAX_VALUE) {
 				// ByteBuffer et al don't support long sizes
-				throw new  java.io.IOException(java.lang.StringBuilder.format("inputSize %d larger than max %d", inputSize, java.lang.Integer.MAX_VALUE));
+				throw new  java.io.IOException(util.format("inputSize %d larger than max %d", inputSize, java.lang.Integer.MAX_VALUE));
 			}
 }
 

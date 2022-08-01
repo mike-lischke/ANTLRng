@@ -2,7 +2,7 @@
  * This file is released under the MIT license.
  * Copyright (c) 2022, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
 /* eslint-disable jsdoc/require-returns-check, @typescript-eslint/no-unused-vars */

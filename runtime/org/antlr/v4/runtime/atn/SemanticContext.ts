@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -19,9 +21,11 @@ import { java } from "../../../../../../lib/java/java";
 
 import { Recognizer } from "../Recognizer";
 import { RuleContext } from "../RuleContext";
-import { MurmurHash } from "../misc/MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { Utils } from "../misc/Utils";
 import { ATNSimulator } from "./ATNSimulator";
+import { IEquatable } from "../../../../../../lib/types";
+import { Array2DHashSet, ObjectEqualityComparator } from "../misc";
 
 /**
  * A tree structure used to record the semantic context in which
@@ -31,7 +35,9 @@ import { ATNSimulator } from "./ATNSimulator";
  *  <p>I have scoped the {@link AND}, {@link OR}, and {@link Predicate} subclasses of
  *  {@link SemanticContext} within the scope of this outer class.</p>
  */
-export abstract class SemanticContext {
+export abstract class SemanticContext implements IEquatable {
+    private static noneInstance: SemanticContext;
+
     /**
      * For context independent predicates, we evaluate them without a local
      * context (i.e., null context). That way, we can evaluate them without
@@ -46,6 +52,9 @@ export abstract class SemanticContext {
      * dependent predicate evaluation.</p>
      */
     public abstract eval: (parser: Recognizer<unknown, ATNSimulator>, parserCallStack: RuleContext) => boolean;
+
+    public abstract equals(other: unknown): boolean;
+    public abstract hashCode(): number;
 
     /**
      * Evaluate the precedence predicates for the context and reduce the result.
@@ -73,8 +82,16 @@ export abstract class SemanticContext {
     /**
      * The default {@link SemanticContext}, which is semantically equivalent to
      * a predicate of the form {@code {true}?}.
+     *
+     * @returns The NONE context.
      */
-    public static readonly NONE = new SemanticContext.Predicate();
+    public static get NONE(): SemanticContext {
+        if (SemanticContext.noneInstance === undefined) {
+            SemanticContext.noneInstance = new SemanticContext.Predicate();
+        }
+
+        return SemanticContext.noneInstance;
+    }
 
     public static and = (a: SemanticContext, b: SemanticContext): SemanticContext => {
         if (a === undefined || a === SemanticContext.NONE) {
@@ -114,40 +131,20 @@ export abstract class SemanticContext {
         return result;
     };
 
-    private static filterPrecedencePredicates = (collection: java.util.Collection<SemanticContext>): java.util.List<SemanticContext.PrecedencePredicate> => {
-        let result: java.util.ArrayList<SemanticContext.PrecedencePredicate>;
+    public static filterPrecedencePredicates =
+        (collection: SemanticContext[]): SemanticContext.PrecedencePredicate[] => {
+            const result: SemanticContext.PrecedencePredicate[] = [];
 
-        collection.remove();
-        for (const context of collection) {
-            if (context instanceof SemanticContext.PrecedencePredicate) {
-                if (result === undefined) {
-                    result = new java.util.ArrayList<SemanticContext.PrecedencePredicate>();
+            for (let i = collection.length - 1; i >= 0; --i) {
+                const context = collection[i];
+                if (context instanceof SemanticContext.PrecedencePredicate) {
+                    result.unshift(context);
+                    collection.splice(i, 1);
                 }
-
-                result.add(context);
-                iterator.remove();
             }
 
-        }
-
-        for (let iterator: Iterator<SemanticContext> = collection.iterator(); iterator.hasNext();) {
-            const context: SemanticContext = iterator.next();
-            if (context instanceof SemanticContext.PrecedencePredicate) {
-                if (result === undefined) {
-                    result = new java.util.ArrayList<SemanticContext.PrecedencePredicate>();
-                }
-
-                result.add(context);
-                iterator.remove();
-            }
-        }
-
-        if (result === undefined) {
-            return java.util.Collections.emptyList();
-        }
-
-        return result;
-    };
+            return result;
+        };
 }
 
 export namespace SemanticContext {
@@ -208,8 +205,7 @@ export namespace SemanticContext {
         };
     }
 
-    export class PrecedencePredicate extends SemanticContext
-        implements java.lang.Comparable<SemanticContext.PrecedencePredicate> {
+    export class PrecedencePredicate extends SemanticContext implements java.lang.Comparable<PrecedencePredicate> {
         public readonly precedence: number;
 
         public constructor();
@@ -269,8 +265,6 @@ export namespace SemanticContext {
     /**
      * This is the base class for semantic context "operators", which operate on
      * a collection of semantic context "operands".
-     *
-     * @since 4.3
      */
     export abstract class Operator extends SemanticContext {
         /**
@@ -287,40 +281,42 @@ export namespace SemanticContext {
      * A semantic context which is true whenever none of the contained contexts
      * is false.
      */
-    export class AND extends SemanticContext.Operator {
+    export class AND extends Operator {
+        /** This random 30-bit prime represents the value of `AND.class.hashCode()`. */
+        private static fixedHashCode = 40363613;
+
         public readonly opnds?: SemanticContext[];
 
         public constructor(a: SemanticContext, b: SemanticContext) {
             super();
 
-            const operands: Set<SemanticContext> = new HashSet<SemanticContext>();
+            const operands = new Array2DHashSet<SemanticContext>(ObjectEqualityComparator.INSTANCE);
             if (a instanceof AND) {
-                operands.addAll(java.util.Arrays.asList((a).opnds));
+                operands.addAll(a.opnds);
             } else {
                 operands.add(a);
             }
 
             if (b instanceof AND) {
-                operands.addAll(java.util.Arrays.asList((b).opnds));
+                operands.addAll(b.opnds);
             } else {
                 operands.add(b);
             }
 
-            const precedencePredicates: java.util.List<SemanticContext.PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
-            if (!(precedencePredicates.isEmpty())) {
+            this.opnds = operands.toArray();
+            const precedencePredicates = SemanticContext.filterPrecedencePredicates(this.opnds);
+            if (precedencePredicates.length > 0) {
                 // interested in the transition with the lowest precedence
-                const reduced: SemanticContext.PrecedencePredicate = java.util.Collections.min(precedencePredicates);
+                const reduced = java.util.Collections.min(precedencePredicates);
                 operands.add(reduced);
             }
-
-            this.opnds = operands.toArray(new Array<SemanticContext>(0));
         }
 
         public getOperands = (): java.util.Collection<SemanticContext> => {
-            return java.util.Arrays.asList(this.opnds);
+            return java.util.Arrays.asList(...this.opnds);
         };
 
-        public equals = (obj: object): boolean => {
+        public equals = (obj: unknown): boolean => {
             if (this === obj) {
                 return true;
             }
@@ -329,13 +325,14 @@ export namespace SemanticContext {
                 return false;
             }
 
-            const other: AND = obj;
-
-            return java.util.Arrays.equals(this.opnds, other.opnds);
+            return java.util.Arrays.equals(this.opnds, obj.opnds);
         };
 
         public hashCode = (): number => {
-            return MurmurHash.hashCode(this.opnds, new java.lang.Class(AND).hashCode());
+            let hash = MurmurHash.initialize(19);
+            hash = MurmurHash.update(AND.fixedHashCode, this.opnds);
+
+            return MurmurHash.finish(hash, 2);
         };
 
         /**
@@ -345,8 +342,10 @@ export namespace SemanticContext {
          * The evaluation of predicates by this context is short-circuiting, but
          * unordered.</p>
          *
-         * @param parser
-         * @param parserCallStack
+         * @param parser tbd
+         * @param parserCallStack tbd
+         *
+         * @returns tbd
          */
         public eval = (parser: Recognizer<unknown, ATNSimulator>, parserCallStack: RuleContext): boolean => {
             for (const opnd of this.opnds) {
@@ -363,8 +362,8 @@ export namespace SemanticContext {
             let differs = false;
             const operands: java.util.List<SemanticContext> = new java.util.ArrayList<SemanticContext>();
             for (const context of this.opnds) {
-                const evaluated: SemanticContext = context.evalPrecedence(parser, parserCallStack);
-                differs |= (evaluated !== context);
+                const evaluated = context.evalPrecedence(parser, parserCallStack);
+                differs ||= (evaluated !== context);
                 if (evaluated === undefined) {
                     // The AND context is false if any element is false
                     return undefined;
@@ -395,7 +394,7 @@ export namespace SemanticContext {
         };
 
         public toString = (): string => {
-            return Utils.join(java.util.Arrays.asList(this.opnds).iterator(), "&&");
+            return this.opnds.join("&&");
         };
     }
 
@@ -404,36 +403,40 @@ export namespace SemanticContext {
      * contexts is true.
      */
     export class OR extends SemanticContext.Operator {
+        /**
+         * This random 30-bit prime represents the value of `OR.class.hashCode()`.
+         */
+        private static readonly fixedHashCode = 486279973;
+
         public readonly opnds?: SemanticContext[];
 
         public constructor(a: SemanticContext, b: SemanticContext) {
             super();
 
-            const operands: Set<SemanticContext> = new HashSet<SemanticContext>();
+            const operands = new Array2DHashSet<SemanticContext>();
             if (a instanceof OR) {
-                operands.addAll(java.util.Arrays.asList((a).opnds));
+                operands.addAll(a.opnds);
             } else {
                 operands.add(a);
             }
 
             if (b instanceof OR) {
-                operands.addAll(java.util.Arrays.asList((b).opnds));
+                operands.addAll(b.opnds);
             } else {
                 operands.add(b);
             }
 
-            const precedencePredicates: java.util.List<SemanticContext.PrecedencePredicate> = SemanticContext.filterPrecedencePredicates(operands);
-            if (!(precedencePredicates.isEmpty())) {
+            this.opnds = operands.toArray();
+            const precedencePredicates = SemanticContext.filterPrecedencePredicates(this.opnds);
+            if (precedencePredicates.length > 0) {
                 // interested in the transition with the highest precedence
                 const reduced: SemanticContext.PrecedencePredicate = java.util.Collections.max(precedencePredicates);
                 operands.add(reduced);
             }
-
-            this.opnds = operands.toArray(new Array<SemanticContext>(0));
         }
 
         public getOperands = (): java.util.Collection<SemanticContext> => {
-            return java.util.Arrays.asList(this.opnds);
+            return java.util.Arrays.asList(...this.opnds);
         };
 
         public equals = (obj: object): boolean => {
@@ -451,18 +454,20 @@ export namespace SemanticContext {
         };
 
         public hashCode = (): number => {
-            return MurmurHash.hashCode(this.opnds, new java.lang.Class(OR).hashCode());
+            let hash = MurmurHash.initialize(19);
+            hash = MurmurHash.update(OR.fixedHashCode, this.opnds);
+
+            return MurmurHash.finish(hash, 2);
         };
 
         /**
-         * {@inheritDoc}
-         *
-         * <p>
          * The evaluation of predicates by this context is short-circuiting, but
-         * unordered.</p>
+         * unordered.
          *
-         * @param parser
-         * @param parserCallStack
+         * @param parser tbd
+         * @param parserCallStack tbd
+         *
+         * @returns tbd
          */
         public eval = (parser: Recognizer<unknown, ATNSimulator>, parserCallStack: RuleContext): boolean => {
             for (const opnd of this.opnds) {
@@ -479,8 +484,8 @@ export namespace SemanticContext {
             let differs = false;
             const operands: java.util.List<SemanticContext> = new java.util.ArrayList<SemanticContext>();
             for (const context of this.opnds) {
-                const evaluated: SemanticContext = context.evalPrecedence(parser, parserCallStack);
-                differs |= (evaluated !== context);
+                const evaluated = context.evalPrecedence(parser, parserCallStack);
+                differs ||= (evaluated !== context);
                 if (evaluated === SemanticContext.NONE) {
                     // The OR context is true if any element is true
                     return SemanticContext.NONE;
@@ -511,7 +516,7 @@ export namespace SemanticContext {
         };
 
         public toString = (): string => {
-            return Utils.join(java.util.Arrays.asList(this.opnds).iterator(), "||");
+            return this.opnds.join("||");
         };
     }
 }

@@ -26,7 +26,7 @@ import { SingletonPredictionContext } from "./SingletonPredictionContext";
 import { Recognizer } from "../Recognizer";
 import { RuleContext } from "../RuleContext";
 import { DoubleKeyMap } from "../misc/DoubleKeyMap";
-import { MurmurHash } from "../misc/MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { ParserRuleContext } from "../ParserRuleContext";
 import { ATNSimulator } from "./ATNSimulator";
 

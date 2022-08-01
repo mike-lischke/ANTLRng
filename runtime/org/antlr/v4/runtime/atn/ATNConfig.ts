@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -11,14 +13,13 @@
  no-underscore-dangle, max-len
 */
 
-/* cspell: disable */
-
 import { java } from "../../../../../../lib/java/java";
 import { ATNState } from "./ATNState";
 import { PredictionContext } from "./PredictionContext";
 import { SemanticContext } from "./SemanticContext";
 import { Recognizer } from "../Recognizer";
-import { MurmurHash } from "../misc/MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
+import { ATNSimulator } from "./ATNSimulator";
 
 /**
  * A tuple: (ATN state, predicted alt, syntactic, semantic context).
@@ -34,7 +35,7 @@ export class ATNConfig {
      * {@link #isPrecedenceFilterSuppressed} property as a bit within the
      * existing {@link #reachesIntoOuterContext} field.
      */
-    private static readonly SUPPRESS_PRECEDENCE_FILTER: number = 0x40000000;
+    private static readonly SUPPRESS_PRECEDENCE_FILTER = 0x40000000;
 
     /** The ATN state associated with this configuration */
     public readonly state?: ATNState;
@@ -164,7 +165,6 @@ export class ATNConfig {
         };
 
         $this(oldOrCOrState, stateOrSemanticContextOrAlt, contextOrSemanticContext, semanticContext);
-
     }
 
     /**
@@ -247,18 +247,12 @@ export class ATNConfig {
     };
 
     public toString(): string;
-
-    public toString(recog: Recognizer<unknown, unknown>, showAlt: boolean): string;
-
-    public toString(recog?: Recognizer<unknown, unknown>, showAlt?: boolean): string {
-        if (recog === undefined) {
+    public toString(recognizer: Recognizer<unknown, ATNSimulator>, showAlt: boolean): string;
+    public toString(recognizer?: Recognizer<unknown, ATNSimulator>, showAlt?: boolean): string {
+        if (recognizer === undefined) {
             return this.toString(undefined, true);
         } else {
-            const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
-            //		if ( state.ruleIndex>=0 ) {
-            //			if ( recog!=null ) buf.append(recog.getRuleNames()[state.ruleIndex]+":");
-            //			else buf.append(state.ruleIndex+":");
-            //		}
+            const buf = new java.lang.StringBuilder();
             buf.append("(");
             buf.append(this.state);
             if (showAlt) {

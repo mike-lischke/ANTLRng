@@ -33,7 +33,7 @@ import { Interval } from "./misc/Interval";
  * Use this if you need to parse input which potentially contains
  * Unicode values > U+FFFF.
  */
-export  class CodePointCharStream implements CharStream {
+export abstract  class CodePointCharStream implements CharStream {
 	protected readonly  size:  number;
 	protected readonly  name?:  string;
 
@@ -89,27 +89,33 @@ if (name === undefined) {
 		// char[], or int[]), so we can avoid lots of virtual
 		// method calls to ByteBuffer.get(offset).
 		switch (codePointBuffer.getType()) {
-			case BYTE:
+			case CodePointBuffer.Type.BYTE:{
 				return new  CodePointCharStream.CodePoint8BitCharStream(
 						codePointBuffer.position(),
 						codePointBuffer.remaining(),
 						name,
 						codePointBuffer.byteArray(),
 						codePointBuffer.arrayOffset());
-			case CHAR:
+}
+
+			case CodePointBuffer.Type.CHAR:{
 				return new  CodePointCharStream.CodePoint16BitCharStream(
 						codePointBuffer.position(),
 						codePointBuffer.remaining(),
 						name,
 						codePointBuffer.charArray(),
 						codePointBuffer.arrayOffset());
-			case INT:
+}
+
+			case CodePointBuffer.Type.INT:{
 				return new  CodePointCharStream.CodePoint32BitCharStream(
 						codePointBuffer.position(),
 						codePointBuffer.remaining(),
 						name,
 						codePointBuffer.intArray(),
 						codePointBuffer.arrayOffset());
+}
+
 
 default:
 
@@ -162,9 +168,9 @@ default:
 
 	// 8-bit storage for code points <= U+00FF.
 	private static readonly  CodePoint8BitCharStream = class CodePoint8BitCharStream extends CodePointCharStream {
-		private readonly  byteArray:  number[];
+		private readonly  byteArray:  Int8Array;
 
-		private constructor(position: number, remaining: number, name: string, byteArray: number[], arrayOffset: number) {
+		private constructor(position: number, remaining: number, name: string, byteArray: Int8Array, arrayOffset: number) {
 			super(position, remaining, name);
 			// TODO
 			/* assert arrayOffset == 0; */ 
@@ -185,21 +191,27 @@ default:
 		public LA = (i: number): number => {
 			let  offset: number;
 			switch (java.lang.Integer.signum(i)) {
-				case -1:
+				case -1:{
 					offset = this.position + i;
 					if (offset < 0) {
 						return IntStream.EOF;
 					}
 					return this.byteArray[offset] & 0xFF;
-				case 0:
+}
+
+				case 0:{
 					// Undefined
 					return 0;
-				case 1:
+}
+
+				case 1:{
 					offset = this.position + i - 1;
 					if (offset >= this.size) {
 						return IntStream.EOF;
 					}
 					return this.byteArray[offset] & 0xFF;
+}
+
 
 default:
 
@@ -216,9 +228,9 @@ default:
 
 	// 16-bit internal storage for code points between U+0100 and U+FFFF.
 	private static readonly  CodePoint16BitCharStream = class CodePoint16BitCharStream extends CodePointCharStream {
-		private readonly  charArray:  number[];
+		private readonly  charArray:  Uint16Array;
 
-		private constructor(position: number, remaining: number, name: string, charArray: number[], arrayOffset: number) {
+		private constructor(position: number, remaining: number, name: string, charArray: Uint16Array, arrayOffset: number) {
 			super(position, remaining, name);
 			this.charArray = charArray;
 			// TODO
@@ -242,21 +254,27 @@ default:
 		public LA = (i: number): number => {
 			let  offset: number;
 			switch (java.lang.Integer.signum(i)) {
-				case -1:
+				case -1:{
 					offset = this.position + i;
 					if (offset < 0) {
 						return IntStream.EOF;
 					}
 					return this.charArray[offset] & 0xFFFF;
-				case 0:
+}
+
+				case 0:{
 					// Undefined
 					return 0;
-				case 1:
+}
+
+				case 1:{
 					offset = this.position + i - 1;
 					if (offset >= this.size) {
 						return IntStream.EOF;
 					}
 					return this.charArray[offset] & 0xFFFF;
+}
+
 
 default:
 
@@ -273,9 +291,9 @@ default:
 
 	// 32-bit internal storage for code points between U+10000 and U+10FFFF.
 	private static readonly  CodePoint32BitCharStream = class CodePoint32BitCharStream extends CodePointCharStream {
-		private readonly  intArray:  number[];
+		private readonly  intArray:  Int32Array;
 
-		private constructor(position: number, remaining: number, name: string, intArray: number[], arrayOffset: number) {
+		private constructor(position: number, remaining: number, name: string, intArray: Int32Array, arrayOffset: number) {
 			super(position, remaining, name);
 			this.intArray = intArray;
 			// TODO
@@ -295,21 +313,27 @@ default:
 		public LA = (i: number): number => {
 			let  offset: number;
 			switch (java.lang.Integer.signum(i)) {
-				case -1:
+				case -1:{
 					offset = this.position + i;
 					if (offset < 0) {
 						return IntStream.EOF;
 					}
 					return this.intArray[offset];
-				case 0:
+}
+
+				case 0:{
 					// Undefined
 					return 0;
-				case 1:
+}
+
+				case 1:{
 					offset = this.position + i - 1;
 					if (offset >= this.size) {
 						return IntStream.EOF;
 					}
 					return this.intArray[offset];
+}
+
 
 default:
 

@@ -7,7 +7,7 @@
  */
 
 import { java } from "../../../../../../lib/java/java";
-import { HashableType } from "./MurmurHash";
+import { HashableType } from "../../../../../../lib/MurmurHash";
 
 export class MultiMap<K, V extends HashableType> extends java.util.HashMap<K, java.util.List<V>> {
 

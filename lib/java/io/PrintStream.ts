@@ -2,10 +2,11 @@
  * This file is released under the MIT license.
  * Copyright (c) 2022, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
-import printf from "printf";
+import * as util from "util";
+
 import { NotImplementedError } from "../../NotImplementedError";
 import { CodePoint, IllegalArgumentException, System } from "../lang";
 import { CharSequence } from "../lang/CharSequence";
@@ -110,7 +111,7 @@ export class PrintStream extends FilterOutputStream {
     // Writes a formatted string to this output stream using the specified format string and arguments.
     // public format(l: string, format: string, ...args: unknown[]): PrintStream; no support for locales for now.
     public format(format: string, ...args: unknown[]): PrintStream {
-        const text = printf(format, args);
+        const text = util.format(format, args);
         this.append(text);
 
         return this;

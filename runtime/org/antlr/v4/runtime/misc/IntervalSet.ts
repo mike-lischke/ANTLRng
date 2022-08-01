@@ -22,7 +22,7 @@ import { java } from "../../../../../../lib/java/java";
 import { IntegerList } from "./IntegerList";
 import { Interval } from "./Interval";
 import { IntSet } from "./IntSet";
-import { MurmurHash } from "./MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { Lexer } from "../Lexer";
 import { Token } from "../Token";
 import { Vocabulary } from "../Vocabulary";

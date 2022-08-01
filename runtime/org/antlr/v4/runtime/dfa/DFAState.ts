@@ -21,7 +21,7 @@ import { java } from "../../../../../../lib/java/java";
 import { ATNConfigSet } from "../atn/ATNConfigSet";
 import { LexerActionExecutor } from "../atn/LexerActionExecutor";
 import { SemanticContext } from "../atn/SemanticContext";
-import { MurmurHash } from "../misc/MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * A DFA state represents a set of possible ATN configurations.

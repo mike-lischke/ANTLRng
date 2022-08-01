@@ -35,7 +35,7 @@ import { Utils } from "./misc/Utils";
 
 
 
-export  class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
+export abstract  class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	public static readonly  EOF:  number=-1;
 
 	private static readonly  tokenTypeMapCache?:  java.util.Map<Vocabulary, java.util.Map<string, java.lang.Integer>> =

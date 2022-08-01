@@ -199,7 +199,7 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 		while ( true ) {
 			let  p: ATNState = this.getATNState();
 			switch ( p.getStateType() ) {
-			case ATNState.RULE_STOP :
+			case ATNState.RULE_STOP :{
 				// pop; return from rule
 				if ( this._ctx.isEmpty() ) {
 					if (startRuleStartState.isLeftRecursiveRule) {
@@ -216,8 +216,10 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 
 				this.visitRuleStopState(p);
 				break;
+}
 
-			default :
+
+			default :{
 				try {
 					this.visitState(p);
 				} catch (e) {
@@ -232,6 +234,8 @@ if (e instanceof RecognitionException) {
 }
 
 				break;
+}
+
 			}
 		}
 	}
@@ -255,7 +259,7 @@ if (e instanceof RecognitionException) {
 
 		let  transition: Transition = p.transition(predictedAlt - 1);
 		switch (transition.getSerializationType()) {
-			case Transition.EPSILON:
+			case Transition.EPSILON:{
 				if ( p.getStateType()===ATNState.STAR_LOOP_ENTRY &&
 					 (p as StarLoopEntryState).isPrecedenceDecision &&
 					 !(transition.target instanceof LoopEndState))
@@ -271,25 +275,33 @@ if (e instanceof RecognitionException) {
 											this._ctx.getRuleIndex());
 				}
 				break;
+}
 
-			case Transition.ATOM:
+
+			case Transition.ATOM:{
 				this.match((transition as AtomTransition).label);
 				break;
+}
+
 
 			case Transition.RANGE:
 			case Transition.SET:
-			case Transition.NOT_SET:
+			case Transition.NOT_SET:{
 				if (!(transition.matches(this._input.LA(1), Token.MIN_USER_TOKEN_TYPE, 65535))) {
 					this.recoverInline();
 				}
 				this.matchWildcard();
 				break;
+}
 
-			case Transition.WILDCARD:
+
+			case Transition.WILDCARD:{
 				this.matchWildcard();
 				break;
+}
 
-			case Transition.RULE:
+
+			case Transition.RULE:{
 				let  ruleStartState: RuleStartState = transition.target as RuleStartState;
 				let  ruleIndex: number = ruleStartState.ruleIndex;
 				let  newctx: InterpreterRuleContext = this.createInterpreterRuleContext(this._ctx, p.stateNumber, ruleIndex);
@@ -300,28 +312,38 @@ if (e instanceof RecognitionException) {
 					this.enterRule(newctx, transition.target.stateNumber, ruleIndex);
 				}
 				break;
+}
 
-			case Transition.PREDICATE:
+
+			case Transition.PREDICATE:{
 				let  predicateTransition: PredicateTransition = transition as PredicateTransition;
 				if (!this.sempred(this._ctx, predicateTransition.ruleIndex, predicateTransition.predIndex)) {
 					throw new  FailedPredicateException(this);
 				}
 
 				break;
+}
 
-			case Transition.ACTION:
+
+			case Transition.ACTION:{
 				let  actionTransition: ActionTransition = transition as ActionTransition;
 				this.action(this._ctx, actionTransition.ruleIndex, actionTransition.actionIndex);
 				break;
+}
 
-			case Transition.PRECEDENCE:
+
+			case Transition.PRECEDENCE:{
 				if (!this.precpred(this._ctx, (transition as PrecedencePredicateTransition).precedence)) {
-					throw new  FailedPredicateException(this, java.lang.StringBuilder.format("precpred(_ctx, %d)", (transition as PrecedencePredicateTransition).precedence));
+					throw new  FailedPredicateException(this, util.format("precpred(_ctx, %d)", (transition as PrecedencePredicateTransition).precedence));
 				}
 				break;
+}
 
-			default:
+
+			default:{
 				throw new  java.lang.UnsupportedOperationException("Unrecognized ATN transition type.");
+}
+
 		}
 
 		this.setState(transition.target.stateNumber);

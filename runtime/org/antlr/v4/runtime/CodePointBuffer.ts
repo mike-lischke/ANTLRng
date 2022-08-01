@@ -60,12 +60,18 @@ export  class CodePointBuffer {
 	public position(newPosition?: number):  number |  void {
 if (newPosition === undefined) {
 		switch (this.type) {
-			case BYTE:
+			case BYTE:{
 				return this.byteBuffer.position();
-			case CHAR:
+}
+
+			case CHAR:{
 				return this.charBuffer.position();
-			case INT:
+}
+
+			case INT:{
 				return this.intBuffer.position();
+}
+
 
 default:
 
@@ -74,15 +80,21 @@ default:
 	}
  else  {
 		switch (this.type) {
-			case BYTE:
+			case BYTE:{
 				this.byteBuffer.position(newPosition);
 				break;
-			case CHAR:
+}
+
+			case CHAR:{
 				this.charBuffer.position(newPosition);
 				break;
-			case INT:
+}
+
+			case INT:{
 				this.intBuffer.position(newPosition);
 				break;
+}
+
 
 default:
 
@@ -94,12 +106,18 @@ default:
 
 	public remaining = (): number => {
 		switch (this.type) {
-			case BYTE:
+			case BYTE:{
 				return this.byteBuffer.remaining();
-			case CHAR:
+}
+
+			case CHAR:{
 				return this.charBuffer.remaining();
-			case INT:
+}
+
+			case INT:{
 				return this.intBuffer.remaining();
+}
+
 
 default:
 
@@ -109,12 +127,18 @@ default:
 
 	public get = (offset: number): number => {
 		switch (this.type) {
-			case BYTE:
+			case BYTE:{
 				return this.byteBuffer.get(offset);
-			case CHAR:
+}
+
+			case CHAR:{
 				return this.charBuffer.get(offset);
-			case INT:
+}
+
+			case INT:{
 				return this.intBuffer.get(offset);
+}
+
 
 default:
 
@@ -128,12 +152,18 @@ default:
 
 	public  arrayOffset = ():number => {
 		switch (this.type) {
-			case BYTE:
+			case BYTE:{
 				return this.byteBuffer.arrayOffset();
-			case CHAR:
+}
+
+			case CHAR:{
 				return this.charBuffer.arrayOffset();
-			case INT:
+}
+
+			case INT:{
 				return this.intBuffer.arrayOffset();
+}
+
 
 default:
 
@@ -141,17 +171,17 @@ default:
 		throw new  java.lang.UnsupportedOperationException("Not reached");
 	}
 
-	public  byteArray = ():number[] => {
+	public  byteArray = ():Int8Array => {
 		/* assert type == Type.BYTE; */ 
 		return this.byteBuffer.array();
 	}
 
-	public  charArray = ():number[] => {
+	public  charArray = ():Uint16Array => {
 		/* assert type == Type.CHAR; */ 
 		return this.charBuffer.array();
 	}
 
-	public  intArray = ():number[] => {
+	public  intArray = ():Int32Array => {
 		/* assert type == Type.INT; */ 
 		return this.intBuffer.array();
 	}
@@ -193,15 +223,21 @@ default:
 
 		public build = (): CodePointBuffer => {
 			switch (this.type) {
-				case BYTE:
+				case BYTE:{
 					this.byteBuffer.flip();
 					break;
-				case CHAR:
+}
+
+				case CHAR:{
 					this.charBuffer.flip();
 					break;
-				case INT:
+}
+
+				case INT:{
 					this.intBuffer.flip();
 					break;
+}
+
 
 default:
 
@@ -216,7 +252,7 @@ default:
 
 		public ensureRemaining = (remainingNeeded: number): void => {
 			switch (this.type) {
-				case BYTE:
+				case BYTE:{
 					if (this.byteBuffer.remaining() < remainingNeeded) {
 						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.byteBuffer.capacity() + remainingNeeded);
 						let  newBuffer: java.nio.ByteBuffer = java.nio.ByteBuffer.allocate(newCapacity);
@@ -225,7 +261,9 @@ default:
 						this.byteBuffer = newBuffer;
 					}
 					break;
-				case CHAR:
+}
+
+				case CHAR:{
 					if (this.charBuffer.remaining() < remainingNeeded) {
 						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.charBuffer.capacity() + remainingNeeded);
 						let  newBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(newCapacity);
@@ -234,7 +272,9 @@ default:
 						this.charBuffer = newBuffer;
 					}
 					break;
-				case INT:
+}
+
+				case INT:{
 					if (this.intBuffer.remaining() < remainingNeeded) {
 						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.intBuffer.capacity() + remainingNeeded);
 						let  newBuffer: IntBuffer = IntBuffer.allocate(newCapacity);
@@ -243,6 +283,8 @@ default:
 						this.intBuffer = newBuffer;
 					}
 					break;
+}
+
 
 default:
 
@@ -263,15 +305,21 @@ default:
 			/* assert utf16In.hasArray(); */ 
 
 			switch (this.type) {
-				case BYTE:
+				case BYTE:{
 					this.appendArrayByte(utf16In);
 					break;
-				case CHAR:
+}
+
+				case CHAR:{
 					this.appendArrayChar(utf16In);
 					break;
-				case INT:
+}
+
+				case INT:{
 					this.appendArrayInt(utf16In);
 					break;
+}
+
 
 default:
 
@@ -281,15 +329,15 @@ default:
 		private appendArrayByte = (utf16In: java.nio.CharBuffer): void => {
 			/* assert prevHighSurrogate == -1; */ 
 
-			let  in: number[] = utf16In.array();
+			let  in: Uint16Array = utf16In.array();
 			let  inOffset: number = utf16In.arrayOffset() + utf16In.position();
 			let  inLimit: number = utf16In.arrayOffset() + utf16In.limit();
 
-			let  outByte: number[] = this.byteBuffer.array();
+			let  outByte: Int8Array = this.byteBuffer.array();
 			let  outOffset: number = this.byteBuffer.arrayOffset() + this.byteBuffer.position();
 
 			while (inOffset < inLimit) {
-				let  c: number = in[inOffset];
+				let  c: CodePoint = in[inOffset];
 				if (c <= 0xFF) {
 					outByte[outOffset] = Number((c & 0xFF));
 				} else {
@@ -316,15 +364,15 @@ default:
 		private appendArrayChar = (utf16In: java.nio.CharBuffer): void => {
 			/* assert prevHighSurrogate == -1; */ 
 
-			let  in: number[] = utf16In.array();
+			let  in: Uint16Array = utf16In.array();
 			let  inOffset: number = utf16In.arrayOffset() + utf16In.position();
 			let  inLimit: number = utf16In.arrayOffset() + utf16In.limit();
 
-			let  outChar: number[] = this.charBuffer.array();
+			let  outChar: Uint16Array = this.charBuffer.array();
 			let  outOffset: number = this.charBuffer.arrayOffset() + this.charBuffer.position();
 
 			while (inOffset < inLimit) {
-				let  c: number = in[inOffset];
+				let  c: CodePoint = in[inOffset];
 				if (!(java.lang.Character.isHighSurrogate(c))) {
 					outChar[outOffset] = c;
 				} else {
@@ -343,19 +391,19 @@ default:
 		}
 
 		private appendArrayInt = (utf16In: java.nio.CharBuffer): void => {
-			let  in: number[] = utf16In.array();
+			let  in: Uint16Array = utf16In.array();
 			let  inOffset: number = utf16In.arrayOffset() + utf16In.position();
 			let  inLimit: number = utf16In.arrayOffset() + utf16In.limit();
 
-			let  outInt: number[] = this.intBuffer.array();
+			let  outInt: Int32Array = this.intBuffer.array();
 			let  outOffset: number = this.intBuffer.arrayOffset() + this.intBuffer.position();
 
 			while (inOffset < inLimit) {
-				let  c: number = in[inOffset];
+				let  c: CodePoint = in[inOffset];
 				inOffset++;
 				if (this.prevHighSurrogate !== -1) {
 					if (java.lang.Character.isLowSurrogate(c)) {
-						outInt[outOffset] = java.lang.Character.toCodePoint(Number( this.prevHighSurrogate), c);
+						outInt[outOffset] = java.lang.Character.toCodePoint( this.prevHighSurrogate as CodePoint, c);
 						outOffset++;
 						this.prevHighSurrogate = -1;
 					} else {
@@ -395,7 +443,7 @@ default:
 			// CharBuffers hold twice as much per unit as ByteBuffers, so start with half the capacity.
 			let  newBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(Math.max(this.byteBuffer.remaining() + toAppend, this.byteBuffer.capacity() / 2));
 			while (this.byteBuffer.hasRemaining()) {
-				newBuffer.put(Number( (this.byteBuffer.get() & 0xFF)));
+				newBuffer.put( (this.byteBuffer.get() & 0xFF) as CodePoint);
 			}
 			this.type = $outer.Type.CHAR;
 			this.byteBuffer = undefined;
@@ -430,7 +478,7 @@ default:
 }
 
 namespace CodePointBuffer {
-export 
+
 	 enum Type {
 			BYTE,
 			CHAR,

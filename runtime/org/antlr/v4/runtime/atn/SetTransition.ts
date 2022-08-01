@@ -38,7 +38,7 @@ export class SetTransition extends Transition {
         return Transition.SET;
     };
 
-    public label = (): IntervalSet => { return this.set; };
+    public atomLabel = (): IntervalSet => { return this.set; };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {

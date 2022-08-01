@@ -94,7 +94,7 @@ public static readonly
 		let  t: CommonToken = undefined;
 		while ( t===undefined ) {
 			switch ( Lexer._input.LA(1) ) {
-				case '/':
+				case '/':{
 					this.consume();
 					if ( Lexer._input.LA(1)==='/' ) {
 						this.consume();
@@ -104,21 +104,31 @@ public static readonly
 						t = new  CommonToken(XPathLexer.ROOT, "/");
 					}
 					break;
-				case '*':
+}
+
+				case '*':{
 					this.consume();
 					t = new  CommonToken(XPathLexer.WILDCARD, "*");
 					break;
-				case '!':
+}
+
+				case '!':{
 					this.consume();
 					t = new  CommonToken(XPathLexer.BANG, "!");
 					break;
-				case '\'':
+}
+
+				case '\'':{
 					let  s: string = this.matchString();
 					t = new  CommonToken(XPathLexer.STRING, s);
 					break;
-				case CharStream.EOF :
+}
+
+				case CharStream.EOF :{
 					return new  CommonToken(Token.EOF, "<EOF>");
-				default:
+}
+
+				default:{
 					if ( this.isNameStartChar(Lexer._input.LA(1)) ) {
 						let  id: string = this.matchID();
 						if ( java.lang.Character.isUpperCase(id.charAt(0)) ) {
@@ -133,6 +143,8 @@ public static readonly
 						throw new  LexerNoViableAltException(this, Lexer._input, Lexer._tokenStartCharIndex, undefined);
 					}
 					break;
+}
+
 			}
 		}
 		t.setStartIndex(Lexer._tokenStartCharIndex);

@@ -2,7 +2,7 @@
  * This file is released under the MIT license.
  * Copyright (c) 2021, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
 /* eslint-disable max-classes-per-file, @typescript-eslint/no-namespace, no-redeclare,

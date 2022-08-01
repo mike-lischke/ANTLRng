@@ -104,7 +104,7 @@ $this(exactOnly);
 		let  decision: string = this.getDecisionDescription(recognizer, dfa);
 		let  conflictingAlts: BitSet = this.getConflictingAlts(ambigAlts, configs);
 		let  text: string = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
-		let  message: string = java.lang.StringBuilder.format(format, decision, conflictingAlts, text);
+		let  message: string = util.format(format, decision, conflictingAlts, text);
 		recognizer.notifyErrorListeners(message);
 	}
 
@@ -118,7 +118,7 @@ $this(exactOnly);
 		let  format: string = "reportAttemptingFullContext d=%s, input='%s'";
 		let  decision: string = this.getDecisionDescription(recognizer, dfa);
 		let  text: string = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
-		let  message: string = java.lang.StringBuilder.format(format, decision, text);
+		let  message: string = util.format(format, decision, text);
 		recognizer.notifyErrorListeners(message);
 	}
 
@@ -132,7 +132,7 @@ $this(exactOnly);
 		let  format: string = "reportContextSensitivity d=%s, input='%s'";
 		let  decision: string = this.getDecisionDescription(recognizer, dfa);
 		let  text: string = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
-		let  message: string = java.lang.StringBuilder.format(format, decision, text);
+		let  message: string = util.format(format, decision, text);
 		recognizer.notifyErrorListeners(message);
 	}
 
@@ -150,7 +150,7 @@ $this(exactOnly);
 			return String(decision);
 		}
 
-		return java.lang.StringBuilder.format("%d (%s)", decision, ruleName);
+		return util.format("%d (%s)", decision, ruleName);
 	}
 
 	/**

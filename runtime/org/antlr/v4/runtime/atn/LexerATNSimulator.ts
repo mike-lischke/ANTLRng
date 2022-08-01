@@ -516,17 +516,21 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 	{
 		let  c: LexerATNConfig = undefined;
 		switch (t.getSerializationType()) {
-			case Transition.RULE:
+			case Transition.RULE:{
 				let  ruleTransition: RuleTransition = t as RuleTransition;
 				let  newContext: PredictionContext =
 					SingletonPredictionContext.create(config.context, ruleTransition.followState.stateNumber);
 				c = new  LexerATNConfig(config, t.target, newContext);
 				break;
+}
 
-			case Transition.PRECEDENCE:
+
+			case Transition.PRECEDENCE:{
 				throw new  java.lang.UnsupportedOperationException("Precedence predicates are not supported in lexers.");
+}
 
-			case Transition.PREDICATE:
+
+			case Transition.PREDICATE:{
 				/*  Track traversing semantic predicates. If we traverse,
 				 we cannot add a DFA state for this "reach" computation
 				 because the DFA would not test the predicate again in the
@@ -554,8 +558,10 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 					c = new  LexerATNConfig(config, t.target);
 				}
 				break;
+}
 
-			case Transition.ACTION:
+
+			case Transition.ACTION:{
 				if (config.context === undefined || config.context.hasEmptyPath()) {
 					// execute actions anywhere in the start rule for a token.
 					//
@@ -578,14 +584,18 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 					c = new  LexerATNConfig(config, t.target);
 					break;
 				}
+}
 
-			case Transition.EPSILON:
+
+			case Transition.EPSILON:{
 				c = new  LexerATNConfig(config, t.target);
 				break;
+}
+
 
 			case Transition.ATOM:
 			case Transition.RANGE:
-			case Transition.SET:
+			case Transition.SET:{
 				if (treatEofAsEpsilon) {
 					if (t.matches(CharStream.EOF, Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE)) {
 						c = new  LexerATNConfig(config, t.target);
@@ -594,6 +604,8 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 				}
 
 				break;
+}
+
 
 default:
 
@@ -703,7 +715,7 @@ let p = fromOrP as DFAState;
 		}
 
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.println("EDGE "+p+" -> "+q+" upon "+(Number(t)));
+			java.lang.System.out.println("EDGE "+p+" -> "+q+" upon "+(t as CodePoint));
 		}
 
 		/* synchronized (p) */ {
@@ -811,7 +823,7 @@ let p = fromOrP as DFAState;
 }
 
 		//if ( atn.g!=null ) return atn.g.getTokenDisplayName(t);
-		return "'"+Number(t)+"'";
+		return "'"+t as CodePoint+"'";
 	}
 }
 

@@ -19,7 +19,7 @@ import { java } from "../../../../../../lib/java/java";
 import { IEquatable } from "../../../../../../lib/types";
 
 import { EqualityComparator } from "./EqualityComparator";
-import { HashableType, MurmurHash } from "./MurmurHash";
+import { HashableType, MurmurHash } from "../../../../../../lib/MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 /**

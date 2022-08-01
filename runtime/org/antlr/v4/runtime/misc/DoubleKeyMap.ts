@@ -16,7 +16,7 @@
 /* cspell: disable */
 
 import { java } from "../../../../../../lib/java/java";
-import { HashableType } from "./MurmurHash";
+import { HashableType } from "../../../../../../lib/MurmurHash";
 
 /**
  * Sometimes we need to map a key to a value but key is two pieces of data.

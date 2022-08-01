@@ -576,17 +576,23 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 				input.seek(startIndex);
 				let  alts: BitSet = this.evalSemanticContext(D.predicates, outerContext, true);
 				switch (alts.cardinality()) {
-				case 0:
+				case 0:{
 					throw this.noViableAlt(input, outerContext, D.configs, startIndex);
+}
 
-				case 1:
+
+				case 1:{
 					return alts.nextSetBit(0);
+}
 
-				default:
+
+				default:{
 					// report ambiguity after predicate evaluation to make sure the correct
 					// set of ambig alts is reported.
 					this.reportAmbiguity(dfa, D, startIndex, stopIndex, false, alts, D.configs);
 					return alts.nextSetBit(0);
+}
+
 				}
 			}
 
@@ -1897,27 +1903,37 @@ let alt = completeOrAlt as number;
 									  treatEofAsEpsilon: boolean): ATNConfig =>
 	{
 		switch (t.getSerializationType()) {
-		case Transition.RULE:
+		case Transition.RULE:{
 			return this.ruleTransition(config, t as RuleTransition);
+}
 
-		case Transition.PRECEDENCE:
+
+		case Transition.PRECEDENCE:{
 			return this.precedenceTransition(config, t as PrecedencePredicateTransition, collectPredicates, inContext, fullCtx);
+}
 
-		case Transition.PREDICATE:
+
+		case Transition.PREDICATE:{
 			return this.predTransition(config, t as PredicateTransition,
 								  collectPredicates,
 								  inContext,
 								  fullCtx);
+}
 
-		case Transition.ACTION:
+
+		case Transition.ACTION:{
 			return this.actionTransition(config, t as ActionTransition);
+}
 
-		case Transition.EPSILON:
+
+		case Transition.EPSILON:{
 			return new  ATNConfig(config, t.target);
+}
+
 
 		case Transition.ATOM:
 		case Transition.RANGE:
-		case Transition.SET:
+		case Transition.SET:{
 			// EOF transitions act like epsilon transitions after the first EOF
 			// transition is traversed
 			if (treatEofAsEpsilon) {
@@ -1927,9 +1943,13 @@ let alt = completeOrAlt as number;
 			}
 
 			return undefined;
+}
 
-		default:
+
+		default:{
 			return undefined;
+}
+
 		}
 	}
 

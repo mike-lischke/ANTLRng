@@ -2,10 +2,10 @@
  * This file is released under the MIT license.
  * Copyright (c) 2021, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
-// A partial implementation of Java's Class type.
+/** A partial implementation of Java's Class type. */
 export class Class<T> extends Object {
 
     public constructor(private ctor: abstract new (...args: unknown[]) => T) {

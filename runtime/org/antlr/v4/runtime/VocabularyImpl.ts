@@ -136,7 +136,7 @@ $this(literalNames, symbolicNames, displayNames);
 			}
 
 			if (!(tokenName.length === 0)) {
-				let  firstChar: number = tokenName.charAt(0);
+				let  firstChar: CodePoint = tokenName.charAt(0);
 				if (firstChar === '\'') {
 					symbolicNames[i] = undefined;
 					continue;

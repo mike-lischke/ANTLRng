@@ -17,7 +17,7 @@ import { java } from "../../../../../../lib/java/java";
 import { IEquatable } from "../../../../../../lib/types";
 
 import { EqualityComparator } from "./EqualityComparator";
-import { MurmurHash } from "./MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 /** {@link Set} implementation with closed hashing (open addressing). */
@@ -383,14 +383,13 @@ export class Array2DHashSet<T extends IEquatable> implements java.util.Collectio
         return true;
     };
 
-    public addAll = (c: java.util.Collection<T>): boolean => {
+    public addAll = (c: java.util.Collection<T> | T[]): boolean => {
         let changed = false;
         for (const o of c) {
-            const existing: T = this.getOrAdd(o);
+            const existing = this.getOrAdd(o);
             if (existing !== o) {
                 changed = true;
             }
-
         }
 
         return changed;

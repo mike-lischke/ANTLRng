@@ -137,7 +137,7 @@ loop:
 			let  next: Token = undefined;
 			switch ( el.getType() ) {
 				case XPathLexer.ROOT :
-				case XPathLexer.ANYWHERE :
+				case XPathLexer.ANYWHERE :{
 					let  anywhere: boolean = el.getType() === XPathLexer.ANYWHERE;
 					i++;
 					next = tokens.get(i);
@@ -151,19 +151,27 @@ loop:
 					elements.add(pathElement);
 					i++;
 					break;
+}
+
 
 				case XPathLexer.TOKEN_REF :
 				case XPathLexer.RULE_REF :
-				case XPathLexer.WILDCARD :
+				case XPathLexer.WILDCARD :{
 					elements.add( this.getXPathElement(el, false) );
 					i++;
 					break;
+}
 
-				case Token.EOF :
+
+				case Token.EOF :{
 					break loop;
+}
 
-				default :
+
+				default :{
 					throw new  java.lang.IllegalArgumentException("Unknowth path element "+el);
+}
+
 			}
 		}
 		return elements.toArray(new   Array<XPathElement>(0));
@@ -182,12 +190,14 @@ loop:
 		let  ttype: number = this.parser.getTokenType(word);
 		let  ruleIndex: number = this.parser.getRuleIndex(word);
 		switch ( wordToken.getType() ) {
-			case XPathLexer.WILDCARD :
+			case XPathLexer.WILDCARD :{
 				return anywhere ?
 					new  XPathWildcardAnywhereElement() :
 					new  XPathWildcardElement();
+}
+
 			case XPathLexer.TOKEN_REF :
-			case XPathLexer.STRING :
+			case XPathLexer.STRING :{
 				if ( ttype===Token.INVALID_TYPE ) {
 					throw new  java.lang.IllegalArgumentException(word+
 													   " at index "+
@@ -197,7 +207,9 @@ loop:
 				return anywhere ?
 					new  XPathTokenAnywhereElement(word, ttype) :
 					new  XPathTokenElement(word, ttype);
-			default :
+}
+
+			default :{
 				if ( ruleIndex===-1 ) {
 					throw new  java.lang.IllegalArgumentException(word+
 													   " at index "+
@@ -207,6 +219,8 @@ loop:
 				return anywhere ?
 					new  XPathRuleAnywhereElement(word, ruleIndex) :
 					new  XPathRuleElement(word, ruleIndex);
+}
+
 		}
 	}
 

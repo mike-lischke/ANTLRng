@@ -160,7 +160,7 @@ try {
 
 			line = br.readLine();
 			let  elements: string[] = line.substring(1,line.length-1).split(",");
-	  		let  serializedATN: number[] = new   Array<number>(elements.length);
+	  		let  serializedATN: Int32Array = new   Array<number>(elements.length);
 
 			for (let  i: number = 0; i < elements.length; ++i) { // ignore [...] on ends
 				serializedATN[i] = java.lang.Integer.parseInt(elements[i].trim());

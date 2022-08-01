@@ -18,7 +18,7 @@ import { LexerAction } from "./LexerAction";
 import { LexerIndexedCustomAction } from "./LexerIndexedCustomAction";
 import { CharStream } from "../CharStream";
 import { Lexer } from "../Lexer";
-import { MurmurHash } from "../misc/MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * Represents an executor for a sequence of lexer actions which traversed during

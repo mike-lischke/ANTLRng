@@ -5,5 +5,7 @@
  * See LICENSE-MIT.txt file for more info.
  */
 
-export * from "./Pattern";
-export * from "./Matcher";
+import { IOException } from "./IOException";
+
+export class ObjectStreamException extends IOException {
+}

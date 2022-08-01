@@ -4,7 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /*
  eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
@@ -14,15 +13,10 @@
 
 /* cspell: disable */
 
-
-
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
-import { MurmurHash } from "../misc/MurmurHash";
-
-
-
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * This implementation of {@link LexerAction} is used for tracking input offsets
@@ -37,99 +31,103 @@ import { MurmurHash } from "../misc/MurmurHash";
  * @author Sam Harwell
  * @since 4.2
  */
-export  class LexerIndexedCustomAction implements LexerAction {
-	private readonly  offset:  number;
-	private readonly  action?:  LexerAction;
+export class LexerIndexedCustomAction implements LexerAction {
+    private readonly offset: number;
+    private readonly action?: LexerAction;
 
-	/**
-	 * Constructs a new indexed custom action by associating a character offset
-	 * with a {@link LexerAction}.
-	 *
-	 * <p>Note: This class is only required for lexer actions for which
-	 * {@link LexerAction#isPositionDependent} returns {@code true}.</p>
-	 *
-	 * @param offset The offset into the input {@link CharStream}, relative to
-	 * the token start index, at which the specified lexer action should be
-	 * executed.
-	 * @param action The lexer action to execute at a particular offset in the
-	 * input {@link CharStream}.
-	 */
-	public constructor(offset: number, action: LexerAction) {
-		super();
-this.offset = offset;
-		this.action = action;
-	}
+    /**
+     * Constructs a new indexed custom action by associating a character offset
+     * with a {@link LexerAction}.
+     *
+     * <p>Note: This class is only required for lexer actions for which
+     * {@link LexerAction#isPositionDependent} returns {@code true}.</p>
+     *
+     * @param offset The offset into the input {@link CharStream}, relative to
+     * the token start index, at which the specified lexer action should be
+     * executed.
+     * @param action The lexer action to execute at a particular offset in the
+     * input {@link CharStream}.
+     */
+    public constructor(offset: number, action: LexerAction) {
+        super();
+        this.offset = offset;
+        this.action = action;
+    }
 
-	/**
-	 * Gets the location in the input {@link CharStream} at which the lexer
-	 * action should be executed. The value is interpreted as an offset relative
-	 * to the token start index.
-	 *
-	 * @return The location in the input {@link CharStream} at which the lexer
-	 * action should be executed.
-	 */
-	public getOffset = (): number => {
-		return this.offset;
-	}
+    /**
+     * Gets the location in the input {@link CharStream} at which the lexer
+     * action should be executed. The value is interpreted as an offset relative
+     * to the token start index.
+     *
+     * @return The location in the input {@link CharStream} at which the lexer
+     * action should be executed.
+     */
+    public getOffset = (): number => {
+        return this.offset;
+    };
 
-	/**
-	 * Gets the lexer action to execute.
-	 *
-	 * @return A {@link LexerAction} object which executes the lexer action.
-	 */
-	public getAction = (): LexerAction => {
-		return this.action;
-	}
+    /**
+     * Gets the lexer action to execute.
+     *
+     * @return A {@link LexerAction} object which executes the lexer action.
+     */
+    public getAction = (): LexerAction => {
+        return this.action;
+    };
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return This method returns the result of calling {@link #getActionType}
-	 * on the {@link LexerAction} returned by {@link #getAction}.
-	 */
-	public getActionType = (): LexerActionType => {
-		return this.action.getActionType();
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return This method returns the result of calling {@link #getActionType}
+     * on the {@link LexerAction} returned by {@link #getAction}.
+     */
+    public getActionType = (): LexerActionType => {
+        return this.action.getActionType();
+    };
 
-	/**
-	 * {@inheritDoc}
-	 * @return This method returns {@code true}.
-	 */
-	public isPositionDependent = (): boolean => {
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return This method returns {@code true}.
+     */
+    public isPositionDependent = (): boolean => {
+        return true;
+    };
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>This method calls {@link #execute} on the result of {@link #getAction}
-	 * using the provided {@code lexer}.</p>
-	 */
-	public execute = (lexer: Lexer): void => {
-		// assume the input stream position was properly set by the calling code
-		this.action.execute(lexer);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This method calls {@link #execute} on the result of {@link #getAction}
+     * using the provided {@code lexer}.</p>
+     *
+     * @param lexer
+     */
+    public execute = (lexer: Lexer): void => {
+        // assume the input stream position was properly set by the calling code
+        this.action.execute(lexer);
+    };
 
-	public hashCode = (): number => {
-		let  hash: number = MurmurHash.initialize();
-		hash = MurmurHash.update(hash, this.offset);
-		hash = MurmurHash.update(hash, this.action);
-		return MurmurHash.finish(hash, 2);
-	}
+    public hashCode = (): number => {
+        let hash: number = MurmurHash.initialize();
+        hash = MurmurHash.update(hash, this.offset);
+        hash = MurmurHash.update(hash, this.action);
 
-	public equals = (obj: object): boolean => {
-		if (obj === this) {
-			return true;
-		}
-		else { if (!(obj instanceof LexerIndexedCustomAction)) {
-			return false;
-		}
-}
+        return MurmurHash.finish(hash, 2);
+    };
 
+    public equals = (obj: object): boolean => {
+        if (obj === this) {
+            return true;
+        } else {
+            if (!(obj instanceof LexerIndexedCustomAction)) {
+                return false;
+            }
+        }
 
-		let  other: LexerIndexedCustomAction = obj as LexerIndexedCustomAction;
-		return this.offset === other.offset
-			&& this.action.equals(other.action);
-	}
+        const other: LexerIndexedCustomAction = obj;
+
+        return this.offset === other.offset
+            && this.action.equals(other.action);
+    };
 
 }

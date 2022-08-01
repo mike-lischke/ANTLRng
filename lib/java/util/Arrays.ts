@@ -2,11 +2,11 @@
  * This file is released under the MIT license.
  * Copyright (c) 2021, 2022, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
 import { ArrayList, List } from ".";
-import { HashableType } from "../../../runtime";
+import { HashableArray, MurmurHash } from "../../MurmurHash";
 
 export type ComparableValueType = number | bigint | string;
 
@@ -25,7 +25,7 @@ export class Arrays {
         });
     }
 
-    public static asList<T extends HashableType>(...list: T[]): List<T> {
+    public static asList<T>(...list: T[]): List<T> {
         return new ArrayList<T>(list);
     }
 
@@ -40,22 +40,51 @@ export class Arrays {
      *
      * @returns True if both arrays are equal, false otherwise.
      */
-    public static equals<T>(a?: T[], a2?: T[]): boolean {
-        if (!a && !a2) {
-            return true;
+    public static equals(a?: HashableArray, a2?: HashableArray): boolean {
+        if (a === a2) {
+            return true; // Same object or both null/undefined.
+        }
+
+        if (!a || !a2) {
+            return false;
         }
 
         if (a.length !== a2.length) {
             return false;
         }
 
-        a.forEach((element, index) => {
-            if (element !== a2[index]) {
-                return false;
-            }
-        });
+        const hash1 = this.hashCode(a);
+        const hash2 = this.hashCode(a2);
 
-        return true;
+        return hash1 === hash2;
+    }
+
+    /**
+     * Returns true if the two specified arrays are deeply equal to one another. Unlike the `equals()` method, this
+     * method is appropriate for use with nested arrays of arbitrary depth.
+     *
+     * @param a The array to compare against another array.
+     * @param a2 The other array to compare to.
+     *
+     * @returns True if both arrays are equal, false otherwise.
+     */
+    public static deepEquals(a?: HashableArray, a2?: HashableArray): boolean {
+        if (a === a2) {
+            return true; // Same object or both null/undefined.
+        }
+
+        if (!a || !a2) {
+            return false;
+        }
+
+        if (a.length !== a2.length) {
+            return false;
+        }
+
+        const hash1 = this.deepHashCode(a);
+        const hash2 = this.deepHashCode(a2);
+
+        return hash1 === hash2;
     }
 
     /**
@@ -79,7 +108,7 @@ export class Arrays {
         }
 
         let result = new Array<T>(newLength - original.length);
-        result = result.fill(null);
+        result = result.fill(undefined);
         result.splice(0, 0, ...original);
 
         return result;
@@ -109,6 +138,20 @@ export class Arrays {
         }
 
         return -start - 1;
+    }
+
+    public static hashCode(a: HashableArray): number {
+        let hash = MurmurHash.initialize(17);
+        hash = MurmurHash.updateFromArray(hash, a, false);
+
+        return MurmurHash.finish(hash, 1);
+    }
+
+    public static deepHashCode(a: HashableArray): number {
+        let hash = MurmurHash.initialize(17);
+        hash = MurmurHash.updateFromArray(hash, a, true);
+
+        return MurmurHash.finish(hash, 1);
     }
 
     public static toString<T>(value: T[]): string {

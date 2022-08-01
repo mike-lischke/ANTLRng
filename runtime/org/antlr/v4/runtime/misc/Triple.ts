@@ -17,7 +17,7 @@
 
 import { java } from "../../../../../../lib/java/java";
 import { IEquatable } from "../../../../../../lib/types";
-import { MurmurHash } from "./MurmurHash";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 export class Triple<A extends IEquatable, B extends IEquatable, C extends IEquatable> {

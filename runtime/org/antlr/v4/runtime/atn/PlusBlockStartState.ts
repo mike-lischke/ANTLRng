@@ -14,7 +14,9 @@
 
 /* cspell: disable */
 
+import { ATNState } from "./ATNState";
 import { BlockStartState } from "./BlockStartState";
+import { DecisionState } from "./DecisionState";
 import { PlusLoopbackState } from "./PlusLoopbackState";
 
 

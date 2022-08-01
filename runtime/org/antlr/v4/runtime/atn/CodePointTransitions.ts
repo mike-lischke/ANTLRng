@@ -31,7 +31,7 @@ import { Transition } from "./Transition";
  * transition for a Unicode code point > U+FFFF. Now that we can serialize
  * 32-bit int/chars in the ATN serialization, this is no longer necessary.
  */
-export  class CodePointTransitions {
+export abstract  class CodePointTransitions {
 	/** Return new {@link AtomTransition} */
 	public static createWithCodePoint = (target: ATNState, codePoint: number): Transition => {
 		return CodePointTransitions.createWithCodePointRange(target, codePoint, codePoint);

@@ -2,14 +2,30 @@
  * This file is released under the MIT license.
  * Copyright (c) 2021, 2022, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
 import { java } from "../java";
+import { Collection } from "./Collection";
 
 import { NotImplementedError } from "../../NotImplementedError";
+import { HashSet } from "./HashSet";
 
-export class HashMap<K, V> extends Map<K, V> implements java.util.Map<K, V> {
+/** A type to store a key-value pair in a hash set. Since we only need the key for  */
+interface IKeyvaluePair<K, V> { key: K; value?: V }
+
+/**
+ * This implementation was taken from the ANTLR4 Array2DHashSet implementation and adjusted to fulfill the
+ * more general Java HashSet implementation.
+ */
+export class HashMap<K, V> implements java.lang.Cloneable<HashMap<K, V>>, java.io.Serializable, Collection<K>,
+    Iterable<K>, java.util.Map<K, V> {
+
+    private backingStore = new class extends HashSet<IKeyvaluePair<K, V>> {
+        protected equalValues<T2 extends IKeyvaluePair<K, V>>(a?: T2, b?: T2): boolean {
+            return super.equalValues(a.key, b.key);
+        }
+    }();
 
     public isEmpty(): boolean {
         return this.size === 0;

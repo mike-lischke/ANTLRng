@@ -287,16 +287,18 @@ export  class DefaultErrorStrategy implements ANTLRErrorStrategy {
 		case ATNState.BLOCK_START:
 		case ATNState.STAR_BLOCK_START:
 		case ATNState.PLUS_BLOCK_START:
-		case ATNState.STAR_LOOP_ENTRY:
+		case ATNState.STAR_LOOP_ENTRY:{
 			// report error and recover if possible
 			if ( this.singleTokenDeletion(recognizer)!==undefined ) {
 				return;
 			}
 
 			throw new  InputMismatchException(recognizer);
+}
+
 
 		case ATNState.PLUS_LOOP_BACK:
-		case ATNState.STAR_LOOP_BACK:
+		case ATNState.STAR_LOOP_BACK:{
 //			System.err.println("at loop back: "+s.getClass().getSimpleName());
 			this.reportUnwantedToken(recognizer);
 			let  expecting: IntervalSet = recognizer.getExpectedTokens();
@@ -304,10 +306,14 @@ export  class DefaultErrorStrategy implements ANTLRErrorStrategy {
 				expecting.or(this.getErrorRecoverySet(recognizer));
 			this.consumeUntil(recognizer, whatFollowsLoopIterationOrRule);
 			break;
+}
 
-		default:
+
+		default:{
 			// do nothing if we can't identify the exact kind of ATN state
 			break;
+}
+
 		}
 	}
 

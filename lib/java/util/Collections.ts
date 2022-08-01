@@ -1,11 +1,13 @@
 /*
  * This file is released under the MIT license.
- * Copyright (c) 2021, Mike Lischke
+ * Copyright (c) 2021, 2022, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
 
-import { ArrayList, Comparator, List } from ".";
+import { ArrayList, Comparator, List, Collection } from ".";
+import { HashableType } from "../../../runtime";
+import { Comparable } from "../lang";
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
@@ -30,16 +32,50 @@ export abstract class Collections {
         }
     }
 
-    public static emptyList<T>(): List<T> {
+    public static emptyList<T extends HashableType>(): List<T> {
         return new ArrayList<T>();
     }
 
-    public static sort<T>(list: List<T>, c: Comparator<T>): List<T> {
+    public static sort<T extends HashableType>(list: List<T>, c: Comparator<T>): List<T> {
         const array = new ArrayList<T>(list).toArray();
         array.sort((a, b) => {
             return c.compare(a, b);
         });
 
         return new ArrayList<T>(array);
+    }
+
+    public static max<T extends Comparable<T>>(coll: Collection<T> | T[]): T | undefined {
+        let result: T | undefined;
+        for (const current of coll) {
+            if (result === undefined) {
+                result = current;
+                continue;
+            }
+
+            const comparison = result.compareTo(current);
+            if (comparison < 0) {
+                result = current;
+            }
+        }
+
+        return result;
+    }
+
+    public static min<T extends Comparable<T>>(coll: Collection<T> | T[]): T | undefined {
+        let result: T | undefined;
+        for (const current of coll) {
+            if (result === undefined) {
+                result = current;
+                continue;
+            }
+
+            const comparison = result.compareTo(current);
+            if (comparison > 0) {
+                result = current;
+            }
+        }
+
+        return result;
     }
 }

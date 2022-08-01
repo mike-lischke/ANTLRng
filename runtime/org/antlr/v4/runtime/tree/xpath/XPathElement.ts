@@ -22,7 +22,7 @@ import { ParseTree } from "../ParseTree";
 
 
 
-export  class XPathElement {
+export abstract  class XPathElement {
 	protected nodeName?:  string;
 	protected invert:  boolean;
 

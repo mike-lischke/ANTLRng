@@ -4,7 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /*
  eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
@@ -14,16 +13,11 @@
 
 /* cspell: disable */
 
-
-
 import { java } from "../../../../../../lib/java/java";
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
-import { MurmurHash } from "../misc/MurmurHash";
-
-
-
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * Implements the {@code channel} lexer action by calling
@@ -32,74 +26,79 @@ import { MurmurHash } from "../misc/MurmurHash";
  * @author Sam Harwell
  * @since 4.2
  */
-export  class LexerChannelAction implements LexerAction {
-	private readonly  channel:  number;
+export class LexerChannelAction implements LexerAction {
+    private readonly channel: number;
 
-	/**
-	 * Constructs a new {@code channel} action with the specified channel value.
-	 * @param channel The channel value to pass to {@link Lexer#setChannel}.
-	 */
-	public constructor(channel: number) {
-		super();
-this.channel = channel;
-	}
+    /**
+     * Constructs a new {@code channel} action with the specified channel value.
+     *
+     * @param channel The channel value to pass to {@link Lexer#setChannel}.
+     */
+    public constructor(channel: number) {
+        super();
+        this.channel = channel;
+    }
 
-	/**
-	 * Gets the channel to use for the {@link Token} created by the lexer.
-	 *
-	 * @return The channel to use for the {@link Token} created by the lexer.
-	 */
-	public getChannel = (): number => {
-		return this.channel;
-	}
+    /**
+     * Gets the channel to use for the {@link Token} created by the lexer.
+     *
+     * @return The channel to use for the {@link Token} created by the lexer.
+     */
+    public getChannel = (): number => {
+        return this.channel;
+    };
 
-	/**
-	 * {@inheritDoc}
-	 * @return This method returns {@link LexerActionType#CHANNEL}.
-	 */
-	public getActionType = (): LexerActionType => {
-		return LexerActionType.CHANNEL;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return This method returns {@link LexerActionType#CHANNEL}.
+     */
+    public getActionType = (): LexerActionType => {
+        return LexerActionType.CHANNEL;
+    };
 
-	/**
-	 * {@inheritDoc}
-	 * @return This method returns {@code false}.
-	 */
-	public isPositionDependent = (): boolean => {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return This method returns {@code false}.
+     */
+    public isPositionDependent = (): boolean => {
+        return false;
+    };
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>This action is implemented by calling {@link Lexer#setChannel} with the
-	 * value provided by {@link #getChannel}.</p>
-	 */
-	public execute = (lexer: Lexer): void => {
-		lexer.setChannel(this.channel);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This action is implemented by calling {@link Lexer#setChannel} with the
+     * value provided by {@link #getChannel}.</p>
+     *
+     * @param lexer
+     */
+    public execute = (lexer: Lexer): void => {
+        lexer.setChannel(this.channel);
+    };
 
-	public hashCode = (): number => {
-		let  hash: number = MurmurHash.initialize();
-		hash = MurmurHash.update(hash, this.getActionType().ordinal());
-		hash = MurmurHash.update(hash, this.channel);
-		return MurmurHash.finish(hash, 2);
-	}
+    public hashCode = (): number => {
+        let hash: number = MurmurHash.initialize();
+        hash = MurmurHash.update(hash, this.getActionType().ordinal());
+        hash = MurmurHash.update(hash, this.channel);
 
-	public equals = (obj: object): boolean => {
-		if (obj === this) {
-			return true;
-		}
-		else { if (!(obj instanceof LexerChannelAction)) {
-			return false;
-		}
-}
+        return MurmurHash.finish(hash, 2);
+    };
 
+    public equals = (obj: object): boolean => {
+        if (obj === this) {
+            return true;
+        } else {
+            if (!(obj instanceof LexerChannelAction)) {
+                return false;
+            }
+        }
 
-		return this.channel === (obj as LexerChannelAction).channel;
-	}
+        return this.channel === (obj).channel;
+    };
 
-	public toString = (): string => {
-		return java.lang.StringBuilder.format("channel(%d)", this.channel);
-	}
+    public toString = (): string => {
+        return util.format("channel(%d)", this.channel);
+    };
 }

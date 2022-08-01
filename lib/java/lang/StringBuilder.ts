@@ -2,10 +2,8 @@
  * This file is released under the MIT license.
  * Copyright (c) 2021, Mike Lischke
  *
- * See LICENSE file for more info.
+ * See LICENSE-MIT.txt file for more info.
  */
-
-import printf from "printf";
 
 import { CodePoint, StringBuffer } from ".";
 import { CharSequence } from "./CharSequence";
@@ -38,18 +36,6 @@ export class StringBuilder implements CharSequence {
 
     public get buffer(): ArrayBuffer {
         return this.data.buffer;
-    }
-
-    /**
-     * A fill-in for Java's `String.format` function.
-     *
-     * @param format A string with a format specification (see also printf).
-     * @param args A number of arguments used for formatting the string.
-     *
-     * @returns A formatted string.
-     */
-    public static format(format: string, ...args: unknown[]): string {
-        return printf(format, args);
     }
 
     public clear(): this {

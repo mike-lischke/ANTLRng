@@ -1,4 +1,4 @@
-/** java2ts: keep */
+/* java2ts: keep */
 
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
@@ -6,27 +6,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
+/* eslint-disable @typescript-eslint/naming-convention */
 
 import { java } from "../../../../../../lib/java/java";
-import { ActionTransition } from "./ActionTransition";
 import { ATNState } from "./ATNState";
-import { AtomTransition } from "./AtomTransition";
-import { EpsilonTransition } from "./EpsilonTransition";
-import { NotSetTransition } from "./NotSetTransition";
-import { PrecedencePredicateTransition } from "./PrecedencePredicateTransition";
-import { PredicateTransition } from "./PredicateTransition";
-import { RangeTransition } from "./RangeTransition";
-import { RuleTransition } from "./RuleTransition";
-import { SetTransition } from "./SetTransition";
-import { WildcardTransition } from "./WildcardTransition";
 import { IntervalSet } from "../misc/IntervalSet";
 
 /**
@@ -69,26 +52,7 @@ export abstract class Transition {
         "PRECEDENCE",
     ];
 
-    public static readonly serializationTypes =
-        java.util.Collections.unmodifiableMap(new class extends Map<string, number> {
-            public constructor() {
-                super();
-
-                this.set(EpsilonTransition.name, Transition.EPSILON);
-                this.set(RangeTransition.name, Transition.RANGE);
-                this.set(RuleTransition.name, Transition.RULE);
-                this.set(PredicateTransition.name, Transition.PREDICATE);
-                this.set(AtomTransition.name, Transition.ATOM);
-                this.set(ActionTransition.name, Transition.ACTION);
-                this.set(SetTransition.name, Transition.SET);
-                this.set(NotSetTransition.name, Transition.NOT_SET);
-                this.set(WildcardTransition.name, Transition.WILDCARD);
-                this.set(PrecedencePredicateTransition.name, Transition.PRECEDENCE);
-            }
-        }());
-
     /** The target of this transition. */
-
     public target?: ATNState;
 
     protected constructor(target?: ATNState) {
@@ -98,8 +62,6 @@ export abstract class Transition {
 
         this.target = target;
     }
-
-    public abstract getSerializationType(): number;
 
     /**
      * Determines if the transition is an "epsilon" transition.
@@ -117,6 +79,8 @@ export abstract class Transition {
     public label(): IntervalSet | undefined {
         return undefined;
     }
+
+    public abstract getSerializationType(): number;
 
     public abstract matches(symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean;
 }

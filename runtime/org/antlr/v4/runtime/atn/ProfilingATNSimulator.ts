@@ -78,9 +78,9 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 			this._sllStopIndex = -1;
 			this._llStopIndex = -1;
 			this.currentDecision = decision;
-			let  start: bigint = java.lang.System.nanoTime(); // expensive but useful info
+			let  start: number = java.lang.System.nanoTime(); // expensive but useful info
 			let  alt: number = super.adaptivePredict(input, decision, outerContext);
-			let  stop: bigint = java.lang.System.nanoTime();
+			let  stop: number = java.lang.System.nanoTime();
 			this.decisions[decision].timeInPrediction += (stop-start);
 			this.decisions[decision].invocations++;
 

@@ -41,7 +41,7 @@ export  class UnbufferedCharStream implements CharStream {
 	 * we keep adding to buffer. Otherwise, {@link #consume consume()} resets so
 	 * we start filling at index 0 again.
 	 */
-	protected data:  number[];
+	protected data:  Int32Array;
 
 	/**
 	 * The number of characters currently in {@link #data data}.
@@ -199,7 +199,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 					this.add(c);
 				}
 				else {
-					let  ch: number = Number( c);
+					let  ch: CodePoint =  c as CodePoint;
 					if (java.lang.Character.isLowSurrogate(ch)) {
 						throw new  java.lang.RuntimeException("Invalid UTF-16 (low surrogate with no preceding high surrogate)");
 					}
@@ -212,7 +212,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 							throw new  java.lang.RuntimeException("Invalid UTF-16 (dangling high surrogate at end of file)");
 						}
 						else {
-							let  lowSurrogateChar: number = Number( lowSurrogate);
+							let  lowSurrogateChar: CodePoint =  lowSurrogate as CodePoint;
 							if (java.lang.Character.isLowSurrogate(lowSurrogateChar)) {
 								this.add(java.lang.Character.toCodePoint(ch, lowSurrogateChar));
 							}

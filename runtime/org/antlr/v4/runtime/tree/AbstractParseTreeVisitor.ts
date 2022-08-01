@@ -23,7 +23,7 @@ import { TerminalNode } from "./TerminalNode";
 
 
 
-export  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T> {
+export abstract  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T> {
 	/**
 	 * {@inheritDoc}
 	 *

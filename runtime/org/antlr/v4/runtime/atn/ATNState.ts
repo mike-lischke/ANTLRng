@@ -1,28 +1,17 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
+/* eslint-disable @typescript-eslint/naming-convention */
 
 import { java } from "../../../../../../lib/java/java";
 import { ATN } from "./ATN";
 import { Transition } from "./Transition";
 import { IntervalSet } from "../misc/IntervalSet";
-
-
-
 
 /**
  * The following images show the relation of states and
@@ -84,148 +73,144 @@ import { IntervalSet } from "../misc/IntervalSet";
  *
  * <embed src="images/OptionalNonGreedy.svg" type="image/svg+xml"/>
  */
-export  class ATNState {
-	public static readonly  INITIAL_NUM_TRANSITIONS:  number = 4;
+export abstract class ATNState {
+    // constants for serialization
+    public static readonly INVALID_TYPE: number = 0;
+    public static readonly BASIC: number = 1;
+    public static readonly RULE_START: number = 2;
+    public static readonly BLOCK_START: number = 3;
+    public static readonly PLUS_BLOCK_START: number = 4;
+    public static readonly STAR_BLOCK_START: number = 5;
+    public static readonly TOKEN_START: number = 6;
+    public static readonly RULE_STOP: number = 7;
+    public static readonly BLOCK_END: number = 8;
+    public static readonly STAR_LOOP_BACK: number = 9;
+    public static readonly STAR_LOOP_ENTRY: number = 10;
+    public static readonly PLUS_LOOP_BACK: number = 11;
+    public static readonly LOOP_END: number = 12;
 
-	// constants for serialization
-	public static readonly  INVALID_TYPE:  number = 0;
-	public static readonly  BASIC:  number = 1;
-	public static readonly  RULE_START:  number = 2;
-	public static readonly  BLOCK_START:  number = 3;
-	public static readonly  PLUS_BLOCK_START:  number = 4;
-	public static readonly  STAR_BLOCK_START:  number = 5;
-	public static readonly  TOKEN_START:  number = 6;
-	public static readonly  RULE_STOP:  number = 7;
-	public static readonly  BLOCK_END:  number = 8;
-	public static readonly  STAR_LOOP_BACK:  number = 9;
-	public static readonly  STAR_LOOP_ENTRY:  number = 10;
-	public static readonly  PLUS_LOOP_BACK:  number = 11;
-	public static readonly  LOOP_END:  number = 12;
+    public static readonly serializationNames = [
+        "INVALID",
+        "BASIC",
+        "RULE_START",
+        "BLOCK_START",
+        "PLUS_BLOCK_START",
+        "STAR_BLOCK_START",
+        "TOKEN_START",
+        "RULE_STOP",
+        "BLOCK_END",
+        "STAR_LOOP_BACK",
+        "STAR_LOOP_ENTRY",
+        "PLUS_LOOP_BACK",
+        "LOOP_END",
+    ];
 
-	public static readonly  serializationNames?:  java.util.List<string> =
-		java.util.Collections.unmodifiableList(java.util.Arrays.asList(
-			"INVALID",
-			"BASIC",
-			"RULE_START",
-			"BLOCK_START",
-			"PLUS_BLOCK_START",
-			"STAR_BLOCK_START",
-			"TOKEN_START",
-			"RULE_STOP",
-			"BLOCK_END",
-			"STAR_LOOP_BACK",
-			"STAR_LOOP_ENTRY",
-			"PLUS_LOOP_BACK",
-			"LOOP_END"
-		));
-
-	public static readonly  INVALID_STATE_NUMBER:  number = -1;
+    public static readonly INVALID_STATE_NUMBER: number = -1;
 
     /** Which ATN are we in? */
-   	public atn?:  ATN = undefined;
+    public atn?: ATN = undefined;
 
-	public stateNumber:  number = ATNState.INVALID_STATE_NUMBER;
+    public stateNumber: number = ATNState.INVALID_STATE_NUMBER;
 
-	public ruleIndex:  number; // at runtime, we don't have Rule objects
+    public ruleIndex: number; // at runtime, we don't have Rule objects
 
-	public epsilonOnlyTransitions:  boolean = false;
+    public epsilonOnlyTransitions = false;
 
-	/** Track the transitions emanating from this ATN state. */
-	protected readonly  transitions?:  java.util.List<Transition> =
-		new  java.util.ArrayList<Transition>(ATNState.INITIAL_NUM_TRANSITIONS);
+    /** Used to cache lookahead during parsing, not used during construction */
+    public nextTokenWithinRule?: IntervalSet;
 
-	/** Used to cache lookahead during parsing, not used during construction */
-    public nextTokenWithinRule?:  IntervalSet;
+    /** Track the transitions emanating from this ATN state. */
+    protected readonly transitions: Transition[] = [];
 
-	public hashCode = (): number => { return this.stateNumber; }
+    public abstract getStateType: () => number;
 
-	public equals = (o: object): boolean => {
-		// are these states same object?
-		if ( o instanceof ATNState ) {
- return this.stateNumber===(o as ATNState).stateNumber;
-}
+    public hashCode = (): number => {
+        return this.stateNumber;
+    };
 
-		return false;
-	}
+    public equals = (o: object): boolean => {
+        // are these states same object?
+        if (o instanceof ATNState) {
+            return this.stateNumber === (o).stateNumber;
+        }
 
-	public isNonGreedyExitState = (): boolean => {
-		return false;
-	}
+        return false;
+    };
 
-	public toString = (): string => {
-		return String(this.stateNumber);
-	}
+    public isNonGreedyExitState = (): boolean => {
+        return false;
+    };
 
-	public getTransitions = (): Transition[] => {
-		return this.transitions.toArray(new   Array<Transition>(0));
-	}
+    public toString = (): string => {
+        return String(this.stateNumber);
+    };
 
-	public getNumberOfTransitions = (): number => {
-		return this.transitions.size();
-	}
+    public getTransitions = (): Transition[] => {
+        return this.transitions;
+    };
 
-	public addTransition(e: Transition): void;
+    public getNumberOfTransitions = (): number => {
+        return this.transitions.length;
+    };
 
-	public addTransition(index: number, e: Transition): void;
+    public addTransition(e: Transition): void;
+    public addTransition(index: number, e: Transition): void;
+    public addTransition(eOrIndex: Transition | number, e?: Transition): void {
+        if (eOrIndex instanceof Transition && e === undefined) {
+            const e = eOrIndex;
+            this.addTransition(this.transitions.length, e);
+        } else {
+            const index = eOrIndex as number;
+            if (this.transitions.length === 0) {
+                this.epsilonOnlyTransitions = e.isEpsilon();
+            } else {
+                if (this.epsilonOnlyTransitions !== e.isEpsilon()) {
+                    java.lang.System.err.format("ATN state %d has both epsilon and non-epsilon transitions.\n",
+                        this.stateNumber);
+                    this.epsilonOnlyTransitions = false;
+                }
+            }
 
+            let alreadyPresent = false;
+            for (const t of this.transitions) {
+                if (t.target.stateNumber === e.target.stateNumber) {
+                    if (t.label() !== undefined && e.label() !== undefined && t.label().equals(e.label())) {
+                        alreadyPresent = true;
+                        break;
+                    } else {
+                        if (t.isEpsilon() && e.isEpsilon()) {
+                            alreadyPresent = true;
+                            break;
+                        }
+                    }
 
-	public addTransition(eOrIndex: Transition | number, e?: Transition):  void {
-if (eOrIndex instanceof Transition && e === undefined) {
-const e = eOrIndex as Transition;
-		this.addTransition(this.transitions.size(), e);
-	}
- else  {
-let index = eOrIndex as number;
-		if (this.transitions.isEmpty()) {
-			this.epsilonOnlyTransitions = e.isEpsilon();
-		}
-		else { if (this.epsilonOnlyTransitions !== e.isEpsilon()) {
-			java.lang.System.err.format(java.util.Locale.getDefault(), "ATN state %d has both epsilon and non-epsilon transitions.\n", this.stateNumber);
-			this.epsilonOnlyTransitions = false;
-		}
-}
+                }
+            }
 
+            if (!alreadyPresent) {
+                this.transitions.splice(index, 0, e);
+            }
+        }
 
-		let  alreadyPresent: boolean = false;
-		for (let t of this.transitions) {
-			if ( t.target.stateNumber === e.target.stateNumber ) {
-				if ( t.label()!==undefined && e.label()!==undefined && t.label().equals(e.label()) ) {
-//					System.err.println("Repeated transition upon "+e.label()+" from "+stateNumber+"->"+t.target.stateNumber);
-					alreadyPresent = true;
-					break;
-				}
-				else { if ( t.isEpsilon() && e.isEpsilon() ) {
-//					System.err.println("Repeated epsilon transition from "+stateNumber+"->"+t.target.stateNumber);
-					alreadyPresent = true;
-					break;
-				}
-}
+    }
 
-			}
-		}
-		if ( !alreadyPresent ) {
-			this.transitions.add(index, e);
-		}
-	}
+    public transition = (i: number): Transition => {
+        return this.transitions[i];
+    };
 
-}
+    public setTransition = (i: number, e: Transition): void => {
+        this.transitions[i] = e;
+    };
 
+    public removeTransition = (index: number): Transition => {
+        return this.transitions.splice(index, 1)[0];
+    };
 
-	public transition = (i: number): Transition => { return this.transitions.get(i); }
+    public readonly onlyHasEpsilonTransitions = (): boolean => {
+        return this.epsilonOnlyTransitions;
+    };
 
-	public setTransition = (i: number, e: Transition): void => {
-		this.transitions.set(i, e);
-	}
-
-	public removeTransition = (index: number): Transition => {
-		return this.transitions.remove(index);
-	}
-
-	public abstract getStateType: () => number;
-
-	public readonly  onlyHasEpsilonTransitions = (): boolean => {
-		return this.epsilonOnlyTransitions;
-	}
-
-	public setRuleIndex = (ruleIndex: number): void => { this.ruleIndex = ruleIndex; }
+    public setRuleIndex = (ruleIndex: number): void => {
+        this.ruleIndex = ruleIndex;
+    };
 }
