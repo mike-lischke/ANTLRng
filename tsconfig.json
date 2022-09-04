@@ -12,6 +12,7 @@
     "include": [
         "runtime/**/*.ts",
         "lib/**/*.ts",
-        "lib/Decorators.ts"
+        "lib/Decorators.ts",
+        "test"
     ]
 }

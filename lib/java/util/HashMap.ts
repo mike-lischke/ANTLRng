@@ -1,134 +1,176 @@
 /*
- * This file is released under the MIT license.
- * Copyright (c) 2021, 2022, Mike Lischke
- *
- * See LICENSE-MIT.txt file for more info.
+ * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD 3-clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 
 import { java } from "../java";
-import { Collection } from "./Collection";
 
-import { NotImplementedError } from "../../NotImplementedError";
 import { HashSet } from "./HashSet";
-
-/** A type to store a key-value pair in a hash set. Since we only need the key for  */
-interface IKeyvaluePair<K, V> { key: K; value?: V }
+import { NotImplementedError } from "../../NotImplementedError";
+import { HashMapEntry } from "./HashMapEntry";
+import { HashMapEqualityComparator } from "./HashMapEqualityComparator";
 
 /**
- * This implementation was taken from the ANTLR4 Array2DHashSet implementation and adjusted to fulfill the
- * more general Java HashSet implementation.
+ * This implementation was taken from the ANTLR4 Array2DHashMap implementation and adjusted to fulfill the
+ * more general Java HashMap implementation.
  */
-export class HashMap<K, V> implements java.lang.Cloneable<HashMap<K, V>>, java.io.Serializable, Collection<K>,
-    Iterable<K>, java.util.Map<K, V> {
+export class HashMap<K, V> implements java.lang.Cloneable<HashMap<K, V>>, java.io.Serializable,
+    Iterable<java.util.Map.Entry<K, V>>, java.util.Map<K, V> {
 
-    private backingStore = new class extends HashSet<IKeyvaluePair<K, V>> {
-        protected equalValues<T2 extends IKeyvaluePair<K, V>>(a?: T2, b?: T2): boolean {
-            return super.equalValues(a.key, b.key);
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    private HashSetBackingStore = class extends HashSet<HashMapEntry<K, V>> {
+        public constructor(initialCapacity?: number, loadFactor?: number) {
+            super(initialCapacity, loadFactor);
+
+            this.comparator = HashMapEqualityComparator.instance;
         }
-    }();
+    };
 
-    public isEmpty(): boolean {
-        return this.size === 0;
+    private backingStore: HashSet<HashMapEntry<K, V>>;
+
+    public constructor(initialCapacity?: number, loadFactor?: number);
+    public constructor(map: java.util.Map<K, V>);
+    public constructor(initialCapacityOrMap?: number | java.util.Map<K, V>, loadFactor?: number) {
+        if (typeof initialCapacityOrMap === "number") {
+            this.backingStore = new this.HashSetBackingStore(initialCapacityOrMap, loadFactor);
+        } else {
+            this.backingStore = new this.HashSetBackingStore();
+            if (initialCapacityOrMap) {
+                this.putAll(initialCapacityOrMap);
+            }
+        }
     }
 
-    public putAll(m: java.util.Map<K, V>): void {
-        const set = m.entrySet();
-        set.forEach((value) => {
-            this.set(value[0], value[1]);
-        });
+    public *[Symbol.iterator](): IterableIterator<java.util.Map.Entry<K, V>> {
+        yield* this.backingStore.toArray();
+    }
+
+    public clear(): void {
+        this.backingStore.clear();
+    }
+
+    public clone(): HashMap<K, V> {
+        return new HashMap<K, V>(this);
     }
 
     public containsKey(key: K): boolean {
-        return this.has(key);
+        const entry = new HashMapEntry<K, V>(key, null);
+
+        return this.backingStore.contains(entry);
     }
 
-    /**
-     * @param value The value to search.
-     *
-     * @returns true if this map maps at least one keys to the specified value.
-     */
-    public containsValue(value: V): boolean {
-        this.forEach((candidate: V) => {
-            if (candidate === value) {
-                return true;
-            }
-        });
-
-        return false;
-    }
-
-    public remove(key: K): V | undefined {
-        const value = this.get(key);
-        if (value !== undefined) {
-            this.delete(key);
-        }
-
-        return value;
-    }
-
-    /**
-     * Compares the specified object with this map for equality.
-     *
-     * @param o The value to compare against.
-     *
-     * @returns True if the given value and this instance are equal (same instance or same values).
-     */
-    public equals(o: unknown): boolean {
-        if (!(o instanceof HashMap)) {
-            return false;
-        }
-
-        if (o === this || o.hashCode() === this.hashCode()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public hashCode(): number {
+    public containsValue(_value: V): boolean {
         throw new NotImplementedError();
     }
 
     /**
-     * @returns a set view of the mappings contained in this map.
+     * @deprecated Use the iterator instead.
      */
-    public entrySet(): Set<[K, V]> {
-        const result = new Set<[K, V]>();
-        for (const tuple of this) {
-            result.add(tuple);
+    public entrySet(): java.util.Set<java.util.Map.Entry<K, V>> {
+        throw new NotImplementedError();
+    }
+
+    public get(key: K): V | undefined {
+        const entry = new HashMapEntry<K, V>(key, null);
+
+        const bucket = this.backingStore.get(entry);
+        if (!bucket) {
+            return undefined;
+        }
+
+        return bucket.getValue();
+    }
+
+    public isEmpty(): boolean {
+        return this.backingStore.isEmpty();
+    }
+
+    /**
+     * @deprecated Use the iterator instead.
+     */
+    public keySet(): java.util.Set<K> {
+        throw new NotImplementedError();
+    }
+
+    public put(key: K, value: V): V | undefined {
+        const entry = new HashMapEntry(key, value);
+        const element = this.backingStore.get(entry);
+        let result: V | undefined;
+        if (!element) {
+            this.backingStore.add(entry);
+        } else {
+            result = element.setValue(value);
         }
 
         return result;
     }
 
-    /**
-     * @param key The key for which to return a value.
-     * @param defaultValue A value to return, if the key cannot be found.
-     * @returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping
-     *          for the key.
-     */
-    public getOrDefault(key: K, defaultValue: V): V {
-        return this.get(key) ?? defaultValue;
+    public putAll(map: java.util.Map<K, V>): void {
+        if (map instanceof HashMap) {
+            this.backingStore.addAll(map.backingStore);
+        } else {
+            const entries = map.entrySet();
+            for (const entry of entries) {
+                this.backingStore.add(entry as HashMapEntry<K, V>);
+            }
+        }
     }
 
     /**
-     * @returns a Set view of the keys contained in this map.
+     * This variation of the put method does not replace the value, if a key already exists.
+     *
+     * @param key The key to look up.
+     * @param value The value to store under the given key.
+     *
+     * @returns undefined, if the given key is not in the map, otherwise just the given value.
      */
-    public keySet(): Set<K> {
-        return new Set(this.keys());
+    public putIfAbsent(key: K, value: V): V | undefined {
+        const entry = new HashMapEntry(key, value);
+        const element = this.backingStore.get(entry);
+        let result: V | undefined;
+        if (!element) {
+            this.backingStore.add(entry);
+        } else {
+            result = value;
+        }
+
+        return result;
+    }
+
+    public remove(key: K): V | undefined {
+        const entry = new HashMapEntry<K, V>(key, null);
+
+        const result = this.backingStore.get(entry);
+        if (result) {
+            this.backingStore.remove(result);
+
+            return result.getValue();
+        }
+
+        return undefined;
+    }
+
+    public size(): number {
+        return this.backingStore.size();
+    }
+
+    public hashCode(): number {
+        return this.backingStore.hashCode();
+    }
+
+    public equals(o: unknown): boolean {
+        if (!(o instanceof HashMap)) {
+            return false;
+        }
+
+        return this.backingStore.equals(o.backingStore);
     }
 
     /**
-     * Alias to .set()
-     *
-     * @param key The key for which to set a new value.
-     * @param value The new value to set.
-     *
-     * @returns This map.
+     * @deprecated Use the iterator instead.
      */
-    public put(key: K, value: V): V {
-        this.set(key, value);
-
-        return value;
+    public values(): java.util.Collection<V> {
+        throw new NotImplementedError();
     }
 }

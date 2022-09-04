@@ -42,7 +42,7 @@ export class MurmurHash {
      *
      * @returns the updated intermediate hash value
      */
-    public static update(hash: number, value: HashableType): number {
+    public static update(hash: number, value: unknown): number {
         let actualValue = 0;
         if (typeof value !== "number") {
             if (value != null) {
@@ -50,7 +50,7 @@ export class MurmurHash {
                     actualValue = value ? 1237 : 4321;
                 } else if (typeof value === "string") {
                     actualValue = this.hashString(hash, value);
-                } else {
+                } else if (this.isEquatable(value)) {
                     actualValue = value.hashCode();
                 }
             }
@@ -67,11 +67,11 @@ export class MurmurHash {
 
         actualValue = Math.imul(actualValue, c1);
         actualValue = (actualValue << r1) | (actualValue >>> (32 - r1));
-        actualValue = actualValue * c2;
+        actualValue = Math.imul(actualValue, c2);
 
         hash = hash ^ actualValue;
         hash = (hash << r2) | (hash >>> (32 - r2));
-        hash = hash * m + n;
+        hash = Math.imul(hash, m) + n;
 
         return hash;
     }
@@ -174,25 +174,25 @@ export class MurmurHash {
             h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
         }
 
-        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+        return Math.imul(4294967296, (2097151 & h2)) + (h1 >>> 0);
     }
 
     /**
      * Apply the final computation steps to the intermediate value {@code hash}
      * to form the final result of the MurmurHash 3 hash function.
      *
-     * @param hash the intermediate hash value
-     * @param numberOfWords the number of integer values added to the hash
+     * @param hash The intermediate hash value.
+     * @param entryCount The number of values added to the hash.
      *
      * @returns the final hash result
      */
-    public static finish = (hash: number, numberOfWords: number): number => {
-        hash = hash ^ (numberOfWords * 4);
-        hash = hash ^ (hash >>> 16);
-        hash = hash * 0x85EBCA6B;
-        hash = hash ^ (hash >>> 13);
-        hash = hash * 0xC2B2AE35;
-        hash = hash ^ (hash >>> 16);
+    public static finish = (hash: number, entryCount: number): number => {
+        hash ^= entryCount * 4;
+        hash ^= hash >>> 16;
+        hash = Math.imul(hash, 0x85EBCA6B);
+        hash ^= hash >>> 13;
+        hash = Math.imul(hash, 0xC2B2AE35);
+        hash ^= hash >>> 16;
 
         return hash;
     };
@@ -204,7 +204,7 @@ export class MurmurHash {
      *
      * @returns The computed hash.
      */
-    public static valueHash = (value: HashableType): number => {
+    public static valueHash = (value: unknown): number => {
         if (this.isEquatable(value)) {
             return value.hashCode();
         }
@@ -232,7 +232,7 @@ export class MurmurHash {
         h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
         h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
 
-        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+        return Math.imul(4294967296, (2097151 & h2)) + (h1 >>> 0);
     }
 
     private static isEquatable(candidate: unknown): candidate is IEquatable {

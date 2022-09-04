@@ -1,8 +1,7 @@
 /*
- * This file is released under the MIT license.
- * Copyright (c) 2022, Mike Lischke
- *
- * See LICENSE-MIT.txt file for more info.
+ * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD 3-clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 
 /* eslint-disable jsdoc/require-returns */
@@ -10,20 +9,21 @@
 import { java } from "../java";
 
 import { Collection } from "./Collection";
+import { DefaultJavaEqualityComparator } from "../../DefaultJavaEqualityComparator";
+import { MurmurHash } from "../../MurmurHash";
 import { JavaEqualityComparator } from "../../JavaEqualityComparator";
-import { HashableType, MurmurHash } from "../../MurmurHash";
 
 /**
  * This implementation was taken from the ANTLR4 Array2DHashSet implementation and adjusted to fulfill the
  * more general Java HashSet implementation (supporting null as valid value).
  */
-export class HashSet<T extends HashableType> implements java.lang.Cloneable<HashSet<T>>, java.io.Serializable,
+export class HashSet<T> implements java.lang.Cloneable<HashSet<T>>, java.io.Serializable,
     Collection<T>, Iterable<T>, java.util.Set<T> {
 
-    public static readonly initialCapacity = 15; // Prime number.
+    public static readonly initialCapacity = 16; // Must be a power of 2.
     public static readonly defaultLoadFactor = 0.75;
 
-    protected comparator = JavaEqualityComparator.instance;
+    protected comparator: JavaEqualityComparator<T> = DefaultJavaEqualityComparator.instance;
 
     // How many elements in set.
     private n = 0;
@@ -48,10 +48,8 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
                 loadFactor = HashSet.defaultLoadFactor;
             }
 
-            // Make the initial capacity a (Mersenne) prime number.
-            const temp = Math.ceil(Math.log2(cOrInitialCapacity));
-            initialCapacity = Math.pow(2, temp) - 1;
-
+            // Make the initial capacity a power of 2.
+            initialCapacity = Math.pow(2, Math.ceil(Math.log2(cOrInitialCapacity)));
             this.buckets = new Array<T[]>(initialCapacity).fill(undefined);
         } else {
             initialCapacity = cOrInitialCapacity.size();
@@ -86,7 +84,7 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
         return this.getOrAddImpl(o);
     }
 
-    public get(o: T): T {
+    public get(o: T): T | undefined {
         if (o === undefined) {
             return o;
         }
@@ -111,23 +109,15 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
         return undefined;
     }
 
+    /**
+     * @returns the hash code value for this set. The hash code of a set is defined to be the sum of the hash codes
+     *          of the elements in the set, where the hash code of a null element is defined to be zero.
+     */
     public hashCode(): number {
-        let hash: number = MurmurHash.initialize();
-        for (const bucket of this.buckets) {
-            if (bucket === undefined) {
-                continue;
-            }
-
-            for (const o of bucket) {
-                if (o === undefined) {
-                    break;
-                }
-
-                hash = MurmurHash.update(hash, this.comparator.hashCode(o));
-            }
+        let hash = 0;
+        for (const e of this) {
+            hash += MurmurHash.valueHash(e);
         }
-
-        hash = MurmurHash.finish(hash, this.size());
 
         return hash;
     }
@@ -228,7 +218,7 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
         for (let i = 0; i < bucket.length; i++) {
             const e = bucket[i];
             if (e === undefined) {
-                // empty slot; not there
+                // Empty slot - not there.
                 return false;
             }
 
@@ -236,7 +226,7 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
                 // Shift all elements to the right down one.
                 java.lang.System.arraycopy(bucket, i + 1, bucket, i, bucket.length - i - 1);
                 bucket[bucket.length - 1] = undefined;
-                this.n--;
+                --this.n;
 
                 return true;
             }
@@ -280,7 +270,7 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
         let changed = false;
         for (const o of c) {
             const existing = this.getOrAdd(o);
-            if (existing !== o) {
+            if (existing === o) {
                 changed = true;
             }
         }
@@ -340,9 +330,8 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
     }
 
     public clear(): void {
-        this.buckets = new Array<T[]>(HashSet.initialCapacity).fill(undefined);
+        this.buckets.fill(undefined);
         this.n = 0;
-        this.threshold = Number(Math.floor(HashSet.initialCapacity * this.loadFactor));
     }
 
     /** @returns a shallow copy of this HashSet instance: the elements themselves are not cloned. */
@@ -391,7 +380,7 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
         if (bucket === undefined) {
             // New bucket.
             this.buckets[b] = [o];
-            this.n++;
+            ++this.n;
 
             return o;
         }
@@ -405,21 +394,19 @@ export class HashSet<T extends HashableType> implements java.lang.Cloneable<Hash
 
         // Full bucket, expand and add to end.
         bucket.push(o);
-        this.n++;
+        ++this.n;
 
         return o;
     }
 
     protected getBucketIndex(o: T): number {
-        return this.comparator.hashCode(o) & this.buckets.length;
+        return this.comparator.hashCode(o) & (this.buckets.length - 1);
     }
 
     protected expand(): void {
         const old = this.buckets;
 
-        // Mersenne prime -> power of 2 -> double it -> new Mersenne prime.
-        const newCapacity = ((this.buckets.length + 1) * 2) - 1;
-
+        const newCapacity = 2 * this.buckets.length;
         this.buckets = new Array<T[]>(newCapacity).fill(undefined);
         this.threshold = newCapacity * this.loadFactor;
 

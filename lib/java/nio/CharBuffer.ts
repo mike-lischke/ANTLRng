@@ -14,7 +14,7 @@ import {
 import { BufferUnderflowException } from "./BufferUnderflowException";
 import { ByteOrder } from "./ByteOrder";
 import { NotImplementedError } from "../../NotImplementedError";
-import { MurmurHash } from "../../../runtime";
+import { MurmurHash } from "../../MurmurHash";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export class CharBuffer extends Buffer<Uint32Array> implements Appendable, CharSequence, Comparable<CharBuffer>,

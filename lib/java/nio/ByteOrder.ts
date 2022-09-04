@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import { endianness } from "os";
-import { MurmurHash } from "../../../runtime";
+import { MurmurHash } from "../../MurmurHash";
 
 export class ByteOrder {
     public static readonly BIG_ENDIAN = new ByteOrder(true);

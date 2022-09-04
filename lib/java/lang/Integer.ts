@@ -6,7 +6,7 @@
  */
 
 import { Class } from ".";
-import { MurmurHash } from "../../../runtime";
+import { MurmurHash } from "../../MurmurHash";
 import { NotImplementedError } from "../../NotImplementedError";
 import { IllegalArgumentException } from "./IllegalArgumentException";
 

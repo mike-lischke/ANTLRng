@@ -5,13 +5,12 @@
  * See LICENSE-MIT.txt file for more info.
  */
 
-import { HashableType, MurmurHash } from "../../../runtime";
-
 import { List } from "./List";
 import { ArrayListIterator, Collection, ListIterator } from ".";
 import { IndexOutOfBoundsException } from "../lang";
+import { MurmurHash } from "../../MurmurHash";
 
-export class ArrayList<T extends HashableType> extends List<T> {
+export class ArrayList<T> extends List<T> {
 
     private buffer: T[];
 

@@ -1,56 +1,34 @@
-/*
- * This file is released under the MIT license.
- * Copyright (c) 2022, Mike Lischke
- *
- * See LICENSE-MIT.txt file for more info.
+/*!
+ * Copyright 2016 The ANTLR Project. All rights reserved.
+ * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
  */
-
-import { java } from "./java/java";
-
-import { HashableArray, HashableType, MurmurHash } from "./MurmurHash";
-import { IEquatable } from "./types";
 
 /**
- * A class implementing Java's comparison semantics, which are based on object equality, that is, equality based on
- * hash codes generated for an object. Simple types are compared directly (value/reference comparison), with
- * NaN !== NaN and null !== undefined.
+ * This interface provides an abstract concept of object equality independent of
+ * {@link Object#equals} (object equality) and the `==` operator
+ * (reference equality). It can be used to provide algorithm-specific unordered
+ * comparisons without requiring changes to the object itself.
+ *
+ * @author Sam Harwell
  */
-export class JavaEqualityComparator {
-    public static readonly instance = new JavaEqualityComparator();
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface JavaEqualityComparator<T> {
 
-    public hashCode = (obj?: HashableType): number => {
-        // This method uses `hashCode()` of the given object if that actually supports this.
-        return MurmurHash.valueHash(obj);
-    };
+    /**
+     * This method returns a hash code for the specified object.
+     *
+     * @param obj The object.
+     * @returns The hash code for `obj`.
+     */
+    hashCode(obj: T): number;
 
-    public equals = (a?: HashableType, b?: HashableType): boolean => {
-        if (a === b) {
-            return true;
-        }
-
-        // Note: this is not strict equality (null is equal to undefined).
-        if (a == null || b == null) {
-            return false;
-        }
-
-        if (this.isEquatable(a)) {
-            return a.equals(b);
-        }
-
-        if (Array.isArray(a) || Array.isArray(b)) {
-            if (!Array.isArray(a) || !Array.isArray(b)) {
-                return false;
-            }
-
-            // Assuming here arrays were given which can be hashed.
-            return java.util.Arrays.equals(a as HashableArray, b as HashableArray);
-        }
-
-        return false;
-    };
-
-    private isEquatable(candidate: unknown): candidate is IEquatable {
-        return (candidate as IEquatable).equals !== undefined;
-    }
+    /**
+     * This method tests if two objects are equal.
+     *
+     * @param a The first object to compare.
+     * @param b The second object to compare.
+     * @returns `true` if `a` equals `b`, otherwise `false`.
+     */
+    equals(a: T, b: T): boolean;
 
 }

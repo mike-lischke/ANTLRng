@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/unified-signatures */
 /* eslint-disable jsdoc/require-returns */
 
-import { MurmurHash } from "../../../runtime";
+import { MurmurHash } from "../../MurmurHash";
 
 import { Buffer, BufferOverflowException, ReadOnlyBufferException } from ".";
 import { Comparable, IllegalArgumentException, IndexOutOfBoundsException } from "../lang";

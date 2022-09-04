@@ -18,7 +18,7 @@ import { CharBuffer } from "../CharBuffer";
  * provided by the Node.js Buffer API, which supports all Java standard charsets, except UTF-16LE.
  */
 export class Charset implements Comparable<Charset> {
-    public static readonly defaultCharset = new Charset("utf-8");
+    public static readonly defaultCharset: Charset;
 
     // Supported encoding names + their aliases.
     private static readonly supportedEncodings = new Map<string, Set<string>>([
@@ -365,5 +365,10 @@ export class Charset implements Comparable<Charset> {
      *          If this charset does not support encoding
      */
     //public abstract newEncoder(): CharsetEncoder;
+
+    static {
+        // @ts-expect-error
+        Charset.defaultCharset = new Charset("utf-8");
+    }
 
 }

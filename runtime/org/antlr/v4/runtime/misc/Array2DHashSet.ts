@@ -18,7 +18,6 @@ import { IEquatable } from "../../../../../../lib/types";
 
 import { EqualityComparator } from "./EqualityComparator";
 import { MurmurHash } from "../../../../../../lib/MurmurHash";
-import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 /** {@link Set} implementation with closed hashing (open addressing). */
 export class Array2DHashSet<T extends IEquatable> implements java.util.Collection<T> {

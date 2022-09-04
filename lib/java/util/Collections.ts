@@ -6,7 +6,7 @@
  */
 
 import { ArrayList, Comparator, List, Collection } from ".";
-import { HashableType } from "../../../runtime";
+import { HashableType } from "../../MurmurHash";
 import { Comparable } from "../lang";
 
 /* eslint-disable @typescript-eslint/naming-convention */

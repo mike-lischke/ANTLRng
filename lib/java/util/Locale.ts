@@ -10,8 +10,12 @@ import { Cloneable } from "../lang";
 
 /** This class has no meaningful implementation and exist only to satisfy call signatures. */
 @final
-export class Locale extends Cloneable {
+export class Locale implements Cloneable<Locale> {
     public static getDefault(): Locale {
         return new Locale();
+    }
+
+    public clone(): Locale {
+        return this;
     }
 }

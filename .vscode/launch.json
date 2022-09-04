@@ -22,6 +22,23 @@
             "console": "integratedTerminal",
             "preLaunchTask": "tsc: watch",
             "trace": false
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run selected Jest test",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "t",
+            ],
+            "args": [
+                "--",
+                "-i",
+                "${file}",
+                "-t",
+                "--no-coverage"
+            ],
+            "console": "integratedTerminal",
+        },
     ]
 }

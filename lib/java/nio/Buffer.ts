@@ -5,8 +5,7 @@
  * See LICENSE-MIT.txt file for more info.
  */
 
-import { MurmurHash } from "../../../runtime";
-
+import { MurmurHash } from "../../MurmurHash";
 import { IllegalArgumentException } from "../lang";
 import { InvalidMarkException } from "./InvalidMarkException";
 
