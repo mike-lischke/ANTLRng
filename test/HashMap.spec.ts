@@ -6,7 +6,6 @@
  */
 
 import { java } from "../lib/java/java";
-import { HashMap, HashSet } from "../lib/java/util";
 import { HashMapEntry } from "../lib/java/util/HashMapEntry";
 
 // A test class which is not a HashMap but implements the Map interface.
@@ -15,7 +14,7 @@ class Test<K, V> implements java.util.Map<K, V> {
     public containsKey(_key: K): boolean { return true; }
     public containsValue(_value: V): boolean { return true; }
     public entrySet(): java.util.Set<java.util.Map.Entry<K, V>> {
-        const set = new HashSet<HashMapEntry<K, V>>();
+        const set = new java.util.HashSet<HashMapEntry<K, V>>();
         set.add(new HashMapEntry<K, V>(null, null));
 
         return set;
@@ -34,7 +33,7 @@ class Test<K, V> implements java.util.Map<K, V> {
 
 describe("HashMap Tests", () => {
     it("Basic Map Operations", () => {
-        const m = new HashMap<string, number>();
+        const m = new java.util.HashMap<string, number>();
 
         expect(m.size()).toBe(0);
         expect(m.isEmpty()).toBeTruthy();
@@ -64,7 +63,7 @@ describe("HashMap Tests", () => {
     });
 
     it("Hash Code and Equality", () => {
-        const m = new HashMap<string, string>(200);
+        const m = new java.util.HashMap<string, string>(200);
         expect(m.size()).toBe(0);
         m.put("", null);
         expect(m.get("")).toBeNull();
@@ -80,7 +79,7 @@ describe("HashMap Tests", () => {
         m.put("Accentuate the positive", "");
         expect(m.hashCode()).toBe(3806309279);
 
-        const m2 = new HashMap(m);
+        const m2 = new java.util.HashMap(m);
         expect(m2.hashCode()).toBe(3806309279);
         expect(m.equals(m2)).toBeTruthy();
 
@@ -94,7 +93,7 @@ describe("HashMap Tests", () => {
     });
 
     it("Load Test", () => {
-        const m = new HashMap<number, number>(20000);
+        const m = new java.util.HashMap<number, number>(20000);
         for (let i = 0; i < 100000; ++i) {
             m.put(i, 2 * i);
         }
@@ -108,7 +107,7 @@ describe("HashMap Tests", () => {
     });
 
     it("Iteration and Search", () => {
-        const m = new HashMap<number, number>();
+        const m = new java.util.HashMap<number, number>();
         m.put(10000, 1);
         m.put(10, 1);
         m.put(100000, 1);
@@ -130,7 +129,7 @@ describe("HashMap Tests", () => {
     });
 
     it("Sub lists", () => {
-        const m = new HashMap<string, unknown>();
+        const m = new java.util.HashMap<string, unknown>();
         m.put("lorem", 1);
         m.put("ipsum", null);
         m.put("dolor", true);
