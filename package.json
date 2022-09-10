@@ -26,8 +26,29 @@
     },
     "scripts": {
         "build": "tsc . --watch",
-        "test": "jest",
+        "test": "jest **/*.spec.ts --no-coverage",
+        "test-coverage": "jest **/*.spec.ts --coverage",
         "lint": "eslint \"./runtime/**/*.ts\"",
         "lint:fix": "eslint \"./runtime/**/*.ts\" --fix"
+    },
+    "jest": {
+        "collectCoverageFrom": [
+            "lib/**/*.ts"
+        ],
+        "coverageReporters": [
+            "json",
+            "text",
+            "clover",
+            "html"
+        ],
+        "coverageThreshold": {
+            "global": {
+                "statements": 20,
+                "branch": 5,
+                "functions": 10,
+                "lines": 20
+            }
+        },
+        "preset": "ts-jest"
     }
 }

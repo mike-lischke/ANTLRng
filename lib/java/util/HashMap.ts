@@ -7,7 +7,6 @@
 import { java } from "../java";
 
 import { HashSet } from "./HashSet";
-import { NotImplementedError } from "../../NotImplementedError";
 import { HashMapEntry } from "./HashMapEntry";
 import { HashMapEqualityComparator } from "./HashMapEqualityComparator";
 
@@ -60,20 +59,23 @@ export class HashMap<K, V> implements java.lang.Cloneable<HashMap<K, V>>, java.i
         return this.backingStore.contains(entry);
     }
 
-    public containsValue(_value: V): boolean {
-        throw new NotImplementedError();
+    public containsValue(value: V): boolean {
+        const comparator = new HashMapEqualityComparator<K, V>();
+        for (const e of this) {
+            if (comparator.equalsValue(e as HashMapEntry<K, V>, value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    /**
-     * @deprecated Use the iterator instead.
-     */
     public entrySet(): java.util.Set<java.util.Map.Entry<K, V>> {
-        throw new NotImplementedError();
+        return this.backingStore;
     }
 
     public get(key: K): V | undefined {
         const entry = new HashMapEntry<K, V>(key, null);
-
         const bucket = this.backingStore.get(entry);
         if (!bucket) {
             return undefined;
@@ -86,11 +88,13 @@ export class HashMap<K, V> implements java.lang.Cloneable<HashMap<K, V>>, java.i
         return this.backingStore.isEmpty();
     }
 
-    /**
-     * @deprecated Use the iterator instead.
-     */
     public keySet(): java.util.Set<K> {
-        throw new NotImplementedError();
+        const result = new java.util.HashSet<K>();
+        for (const e of this) {
+            result.add(e.getKey());
+        }
+
+        return result;
     }
 
     public put(key: K, value: V): V | undefined {
@@ -112,30 +116,9 @@ export class HashMap<K, V> implements java.lang.Cloneable<HashMap<K, V>>, java.i
         } else {
             const entries = map.entrySet();
             for (const entry of entries) {
-                this.backingStore.add(entry as HashMapEntry<K, V>);
+                this.backingStore.add(new HashMapEntry<K, V>(entry.getKey(), entry.getValue()));
             }
         }
-    }
-
-    /**
-     * This variation of the put method does not replace the value, if a key already exists.
-     *
-     * @param key The key to look up.
-     * @param value The value to store under the given key.
-     *
-     * @returns undefined, if the given key is not in the map, otherwise just the given value.
-     */
-    public putIfAbsent(key: K, value: V): V | undefined {
-        const entry = new HashMapEntry(key, value);
-        const element = this.backingStore.get(entry);
-        let result: V | undefined;
-        if (!element) {
-            this.backingStore.add(entry);
-        } else {
-            result = value;
-        }
-
-        return result;
     }
 
     public remove(key: K): V | undefined {
@@ -167,10 +150,12 @@ export class HashMap<K, V> implements java.lang.Cloneable<HashMap<K, V>>, java.i
         return this.backingStore.equals(o.backingStore);
     }
 
-    /**
-     * @deprecated Use the iterator instead.
-     */
     public values(): java.util.Collection<V> {
-        throw new NotImplementedError();
+        const result = new java.util.HashSet<V>();
+        for (const e of this) {
+            result.add(e.getValue());
+        }
+
+        return result;
     }
 }

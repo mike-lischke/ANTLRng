@@ -1,5 +1,3 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -174,7 +172,7 @@ export class MurmurHash {
             h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
         }
 
-        return Math.imul(4294967296, (2097151 & h2)) + (h1 >>> 0);
+        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
     }
 
     /**
@@ -205,6 +203,10 @@ export class MurmurHash {
      * @returns The computed hash.
      */
     public static valueHash = (value: unknown): number => {
+        if (value == null) {
+            return MurmurHash.finish(MurmurHash.update(MurmurHash.defaultSeed, 0), 1);
+        }
+
         if (this.isEquatable(value)) {
             return value.hashCode();
         }
