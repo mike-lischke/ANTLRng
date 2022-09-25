@@ -11,44 +11,23 @@
     "author": "Mike Lischke",
     "license": "MIT",
     "devDependencies": {
-        "@types/jest": "^29.0.0",
-        "@types/node": "18.0.0",
-        "@typescript-eslint/eslint-plugin": "5.27.1",
-        "@typescript-eslint/eslint-plugin-tslint": "5.27.1",
-        "@typescript-eslint/parser": "5.27.1",
-        "eslint": "8.17.0",
-        "eslint-plugin-import": "2.26.0",
-        "eslint-plugin-jsdoc": "39.3.2",
-        "eslint-plugin-prefer-arrow": "1.2.3",
-        "jest": "28.0.2",
-        "ts-jest": "^28.0.8",
-        "typescript": "4.7.3"
+        "@types/jest": "^29.0.3",
+        "@types/node": "^18.7.18",
+        "@typescript-eslint/eslint-plugin": "^5.37.0",
+        "@typescript-eslint/eslint-plugin-tslint": "5.37.0",
+        "@typescript-eslint/parser": "^5.37.0",
+        "eslint": "^8.23.1",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-jsdoc": "^39.3.6",
+        "eslint-plugin-prefer-arrow": "^1.2.3",
+        "jest": "^29.0.3",
+        "ts-jest": "^29.0.1",
+        "typescript": "^4.8.3"
     },
     "scripts": {
         "build": "tsc . --watch",
-        "test": "jest **/*.spec.ts --no-coverage",
-        "test-coverage": "jest **/*.spec.ts --coverage",
         "lint": "eslint \"./runtime/**/*.ts\"",
-        "lint:fix": "eslint \"./runtime/**/*.ts\" --fix"
-    },
-    "jest": {
-        "collectCoverageFrom": [
-            "lib/**/*.ts"
-        ],
-        "coverageReporters": [
-            "json",
-            "text",
-            "clover",
-            "html"
-        ],
-        "coverageThreshold": {
-            "global": {
-                "statements": 20,
-                "branch": 5,
-                "functions": 10,
-                "lines": 20
-            }
-        },
-        "preset": "ts-jest"
+        "lint:fix": "eslint \"./runtime/**/*.ts\" --fix",
+        "test": "tsc"
     }
 }

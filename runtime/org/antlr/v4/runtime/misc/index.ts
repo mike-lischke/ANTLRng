@@ -12,7 +12,6 @@ export * from "./Interval";
 export * from "./IntervalSet";
 export * from "./LogManager";
 export * from "./MultiMap";
-export * from "./ObjectEqualityComparator";
 export * from "./ParseCancellationException";
 export * from "./Predicate";
 export * from "./Triple";
