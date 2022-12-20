@@ -14,10 +14,11 @@
 
 /* cspell: disable */
 
+
 import { TerminalNode } from "./TerminalNode";
 
 
 
 
-export abstract class ErrorNode extends TerminalNode {
+export  interface ErrorNode extends TerminalNode {
 }

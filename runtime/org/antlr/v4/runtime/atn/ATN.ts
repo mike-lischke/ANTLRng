@@ -6,15 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
 import { java } from "../../../../../../lib/java/java";
 import { ATNState } from "./ATNState";
 import { ATNType } from "./ATNType";
@@ -29,35 +20,37 @@ import { RuleContext } from "../RuleContext";
 import { Token } from "../Token";
 import { IntervalSet } from "../misc/IntervalSet";
 
-/** */
-export class ATN {
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+
+export class ATN extends JavaObject {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly INVALID_ALT_NUMBER: number = 0;
 
-    public readonly states?: java.util.List<ATNState> = new java.util.ArrayList<ATNState>();
+    public readonly states = new java.util.ArrayList<ATNState | null>();
 
     /**
      * Each subrule/rule is a decision point and we must track them so we
      *  can go back later and build DFA predictors for them.  This includes
      *  all the rules, subrules, optional blocks, ()+, ()* etc...
      */
-    public readonly decisionToState?: java.util.List<DecisionState> = new java.util.ArrayList<DecisionState>();
+    public readonly decisionToState = new java.util.ArrayList<DecisionState>();
 
     /**
      * Maps from rule index to starting state number.
      */
-    public ruleToStartState?: RuleStartState[];
+    public ruleToStartState!: RuleStartState[];
 
     /**
      * Maps from rule index to stop state number.
      */
-    public ruleToStopState?: RuleStopState[];
+    public ruleToStopState!: RuleStopState[];
 
-    public readonly modeNameToStartState = new Map<string, TokensStartState>();
+    public readonly modeNameToStartState = new java.util.LinkedHashMap<java.lang.String, TokensStartState>();
 
     /**
      * The type of the ATN.
      */
-    public readonly grammarType?: ATNType;
+    public readonly grammarType: ATNType;
 
     /**
      * The maximum value for any symbol recognized by a transition in the ATN.
@@ -71,7 +64,7 @@ export class ATN {
      * {@link ATNDeserializationOptions#isGenerateRuleBypassTransitions}
      * deserialization option was specified; otherwise, this is {@code null}.
      */
-    public ruleToTokenType: number[];
+    public ruleToTokenType!: Int32Array;
 
     /**
      * For lexer ATNs, this is an array of {@link LexerAction} objects which may
@@ -87,25 +80,16 @@ export class ATN {
      * @param grammarType tbd
      * @param maxTokenType tbd
      */
-    public constructor(grammarType: ATNType, maxTokenType: number) {
+    public constructor(grammarType: ATNType | null, maxTokenType: number) {
+        super();
+
+        if (grammarType === null) {
+            throw new java.lang.NullPointerException();
+        }
+
         this.grammarType = grammarType;
         this.maxTokenType = maxTokenType;
     }
-
-    /**
-     * Compute the set of valid tokens that can occur starting in {@code s} and
-     * staying in same rule. {@link Token#EPSILON} is in set if we reach end of
-     * rule.
-     */
-    public nextTokens(s: ATNState): IntervalSet;
-
-    /**
-     * Compute the set of valid tokens that can occur starting in state {@code s}.
-     *  If {@code ctx} is null, the set of tokens will not include what can follow
-     *  the rule surrounding {@code s}. In other words, the set will be
-     *  restricted to tokens reachable staying within {@code s}'s rule.
-     */
-    public nextTokens(s: ATNState, ctx: RuleContext): IntervalSet;
 
     /**
      * Compute the set of valid tokens that can occur starting in state {@code s}.
@@ -118,27 +102,26 @@ export class ATN {
      *
      * @returns tbd
      */
-    public nextTokens(s: ATNState, ctx?: RuleContext): IntervalSet {
+    public nextTokens(s: ATNState, ctx?: RuleContext | null): IntervalSet {
         if (ctx === undefined) {
-            if (s.nextTokenWithinRule !== undefined) {
+            if (s.nextTokenWithinRule !== null) {
                 return s.nextTokenWithinRule;
             }
 
-            s.nextTokenWithinRule = this.nextTokens(s, undefined);
-            s.nextTokenWithinRule.setReadonly(true);
+            s.nextTokenWithinRule = this.nextTokens(s, null);
+            s.nextTokenWithinRule?.setReadonly(true);
 
             return s.nextTokenWithinRule;
         } else {
-            const anal: LL1Analyzer = new LL1Analyzer(this);
-            const next: IntervalSet = anal.LOOK(s, ctx);
+            const anal = new LL1Analyzer(this);
+            const next = anal.LOOK(s, ctx);
 
             return next;
         }
-
     }
 
-    public addState = (state: ATNState): void => {
-        if (state !== undefined) {
+    public addState = (state: ATNState | null): void => {
+        if (state !== null) {
             state.atn = this;
             state.stateNumber = this.states.size();
         }
@@ -147,7 +130,7 @@ export class ATN {
     };
 
     public removeState = (state: ATNState): void => {
-        this.states.set(state.stateNumber, undefined); // just free mem, don't shift states in list
+        this.states.set(state.stateNumber, null); // just free mem, don't shift states in list
     };
 
     public defineDecisionState = (s: DecisionState): number => {
@@ -157,12 +140,12 @@ export class ATN {
         return s.decision;
     };
 
-    public getDecisionState = (decision: number): DecisionState => {
+    public getDecisionState = (decision: number): DecisionState | null => {
         if (!(this.decisionToState.isEmpty())) {
             return this.decisionToState.get(decision);
         }
 
-        return undefined;
+        return null;
     };
 
     public getNumberOfDecisions = (): number => {
@@ -204,31 +187,41 @@ export class ATN {
      * @throws IllegalArgumentException if the ATN does not contain a state with
      * number {@code stateNumber}
      */
-    public getExpectedTokens = (stateNumber: number, context: RuleContext): IntervalSet => {
+    public getExpectedTokens = (stateNumber: number, context: RuleContext | null): IntervalSet | null => {
         if (stateNumber < 0 || stateNumber >= this.states.size()) {
             throw new java.lang.IllegalArgumentException("Invalid state number.");
         }
 
-        let ctx: RuleContext = context;
-        const s: ATNState = this.states.get(stateNumber);
-        let following: IntervalSet = this.nextTokens(s);
-        if (!(following.contains(Token.EPSILON))) {
+        let ctx: RuleContext | null = context;
+        const s = this.states.get(stateNumber);
+        if (s === null) {
+            return IntervalSet.of(-1);
+        }
+
+        let following = this.nextTokens(s);
+        if (!following || !(following.contains(Token.EPSILON))) {
             return following;
         }
 
-        const expected: IntervalSet = new IntervalSet();
+        const expected = new IntervalSet();
         expected.addAll(following);
         expected.remove(Token.EPSILON);
-        while (ctx !== undefined && ctx.invokingState >= 0 && following.contains(Token.EPSILON)) {
-            const invokingState: ATNState = this.states.get(ctx.invokingState);
-            const rt: RuleTransition = invokingState.transition(0) as RuleTransition;
-            following = this.nextTokens(rt.followState);
-            expected.addAll(following);
-            expected.remove(Token.EPSILON);
-            ctx = ctx.parent;
+        while (ctx !== null && ctx.invokingState >= 0 && following.contains(Token.EPSILON)) {
+            const invokingState = this.states.get(ctx.invokingState);
+            if (invokingState) {
+                const rt = invokingState.transition(0) as RuleTransition;
+                following = this.nextTokens(rt.followState);
+                if (!following) {
+                    break;
+                }
+
+                expected.addAll(following);
+                expected.remove(Token.EPSILON);
+                ctx = ctx.parent ?? null;
+            }
         }
 
-        if (following.contains(Token.EPSILON)) {
+        if (following?.contains(Token.EPSILON)) {
             expected.add(Token.EOF);
         }
 

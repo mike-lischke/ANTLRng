@@ -16,12 +16,14 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /** Do not buffer up the entire char stream. It does keep a small buffer
@@ -35,7 +37,7 @@ import { Interval } from "./misc/Interval";
  *  As of 4.7, the class uses UTF-8 by default, and the buffer holds Unicode
  *  code points in the buffer as ints.
  */
-export  class UnbufferedCharStream implements CharStream {
+export  class UnbufferedCharStream extends JavaObject implements CharStream {
 	/**
 	 * A moving window buffer of the data being scanned. While there's a marker,
 	 * we keep adding to buffer. Otherwise, {@link #consume consume()} resets so
@@ -85,10 +87,10 @@ export  class UnbufferedCharStream implements CharStream {
 	 */
     protected currentCharIndex:  number = 0;
 
-    protected input?:  java.io.Reader;
+    protected input:  java.io.Reader | null;
 
 	/** The name or source of this char stream. */
-	public name?:  string;
+	public name:  java.lang.String | null;
 
 	/** Useful for subclasses that pull char from other than this.input. */
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
@@ -97,18 +99,18 @@ public constructor();
 	/** Useful for subclasses that pull char from other than this.input. */
 	public constructor(bufferSize: number);
 
-	public constructor(input: java.io.InputStream);
+	public constructor(input: java.io.InputStream| null);
 
-	public constructor(input: java.io.Reader);
+	public constructor(input: java.io.Reader| null);
 
-	public constructor(input: java.io.InputStream, bufferSize: number);
+	public constructor(input: java.io.InputStream| null, bufferSize: number);
 
-	public constructor(input: java.io.Reader, bufferSize: number);
+	public constructor(input: java.io.Reader| null, bufferSize: number);
 
-	public constructor(input: java.io.InputStream, bufferSize: number, charset: java.nio.charset.Charset);
+	public constructor(input: java.io.InputStream| null, bufferSize: number, charset: java.nio.charset.Charset| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: java.nio.charset.Charset) {
-const $this = (bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader, bufferSize?: number, charset?: java.nio.charset.Charset): void => {
+public constructor(bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader | null, bufferSize?: number, charset?: java.nio.charset.Charset | null) {
+const $this = (bufferSizeOrInput?: number | java.io.InputStream | java.io.Reader | null, bufferSize?: number, charset?: java.nio.charset.Charset | null): void => {
 if (bufferSizeOrInput === undefined) {
 		$this(256);
 	}
@@ -150,7 +152,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public consume = (): void => {
+	public consume = ():  void => {
 		if (this.LA(1) === IntStream.EOF) {
 			throw new  java.lang.IllegalStateException("cannot consume EOF");
 		}
@@ -175,7 +177,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 	 * the char index 'need' elements ahead. If we need 1 element,
 	 * {@code (p+1-1)==p} must be less than {@code data.length}.
 	 */
-	protected sync = (want: number): void => {
+	protected sync = (want: number):  void => {
 		let  need: number = (this.p+want-1) - this.n + 1; // how many more elements we need?
 		if ( need > 0 ) {
 			this.fill(need);
@@ -187,7 +189,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 	 * actually added to the buffer. If the return value is less than {@code n},
 	 * then EOF was reached before {@code n} characters could be added.
 	 */
-	protected fill = (n: number): number => {
+	protected fill = (n: number):  number => {
 		for (let  i: number=0; i<n; i++) {
 			if (this.n > 0 && this.data[this.n - 1] === IntStream.EOF) {
 				return i;
@@ -245,18 +247,18 @@ if (ioe instanceof java.io.IOException) {
 	 * Override to provide different source of characters than
 	 * {@link #input input}.
 	 */
-	protected nextChar = (): number => {
+	protected nextChar = ():  number => {
 		return this.input.read();
 	}
 
-	protected add = (c: number): void => {
+	protected add = (c: number):  void => {
 		if ( this.n>=this.data.length ) {
 			this.data = java.util.Arrays.copyOf(this.data, this.data.length * 2);
         }
         this.data[this.n++] = c;
     }
 
-    public LA = (i: number): number => {
+    public LA = (i: number):  number => {
 		if ( i===-1 ) {
  return this.lastChar;
 }
@@ -281,7 +283,7 @@ if (ioe instanceof java.io.IOException) {
 	 * protection against misuse where {@code seek()} is called on a mark or
 	 * {@code release()} is called in the wrong order.</p>
 	 */
-    public mark = (): number => {
+    public mark = ():  number => {
 		if (this.numMarkers === 0) {
 			this.lastCharBufferStart = this.lastChar;
 		}
@@ -294,7 +296,7 @@ if (ioe instanceof java.io.IOException) {
 	/** Decrement number of markers, resetting buffer if we hit 0.
 	 * @param marker
 	 */
-    public release = (marker: number): void => {
+    public release = (marker: number):  void => {
 		let  expectedMark: number = -this.numMarkers;
 		if ( marker!==expectedMark ) {
 			throw new  java.lang.IllegalStateException("release() called with an invalid marker.");
@@ -311,14 +313,14 @@ if (ioe instanceof java.io.IOException) {
 		}
     }
 
-    public index = (): number => {
+    public index = ():  number => {
 		return this.currentCharIndex;
     }
 
 	/** Seek to absolute character index, which might not be in the current
 	 *  sliding window.  Move {@code p} to {@code index-bufferStartIndex}.
 	 */
-    public seek = (index: number): void => {
+    public seek = (index: number):  void => {
 		if (index === this.currentCharIndex) {
 			return;
 		}
@@ -350,19 +352,19 @@ if (ioe instanceof java.io.IOException) {
 		}
     }
 
-    public size = (): number => {
+    public size = ():  number => {
         throw new  java.lang.UnsupportedOperationException("Unbuffered stream cannot know its size");
     }
 
-    public getSourceName = (): string => {
-		if (this.name === undefined || this.name.length === 0) {
+    public getSourceName = ():  java.lang.String | null => {
+		if (this.name === null || this.name.isEmpty()) {
 			return IntStream.UNKNOWN_SOURCE_NAME;
 		}
 
 		return this.name;
 	}
 
-	public getText = (interval: Interval): string => {
+	public getText = (interval: Interval| null):  java.lang.String | null => {
 		if (interval.a < 0 || interval.b < interval.a - 1) {
 			throw new  java.lang.IllegalArgumentException("invalid interval");
 		}
@@ -380,10 +382,10 @@ if (ioe instanceof java.io.IOException) {
 		}
 		// convert from absolute to local index
 		let  i: number = interval.a - bufferStartIndex;
-		return new  string(this.data, i, interval.length());
+		return new  java.lang.String(this.data, i, interval.length());
 	}
 
-	protected readonly  getBufferStartIndex = (): number => {
+	protected readonly  getBufferStartIndex = ():  number => {
 		return this.currentCharIndex - this.p;
 	}
 }

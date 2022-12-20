@@ -15,6 +15,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { ANTLRInputStream } from "./ANTLRInputStream";
 import { CommonToken } from "./CommonToken";
@@ -23,6 +24,7 @@ import { TokenStream } from "./TokenStream";
 import { Interval } from "./misc/Interval";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -101,30 +103,32 @@ import { Interval } from "./misc/Interval";
  * If you don't use named rewrite streams, a "default" stream is used as the
  * first example shows.</p>
  */
-export  class TokenStreamRewriter {
-	public static readonly  DEFAULT_PROGRAM_NAME?:  string = "default";
+export  class TokenStreamRewriter extends JavaObject {
+	public static readonly  DEFAULT_PROGRAM_NAME:  java.lang.String | null = "default";
 	public static readonly  PROGRAM_INIT_SIZE:  number = 100;
 	public static readonly  MIN_TOKEN_INDEX:  number = 0;
 
 	// Define the rewrite operation hierarchy
 
 	public RewriteOperation = (($outer) => {
-return  class RewriteOperation {
+return  class RewriteOperation extends JavaObject {
 		/** What index into rewrites List are we? */
 		protected instructionIndex:  number;
 		/** Token buffer index. */
 		protected index:  number;
-		protected text?:  object;
+		protected text:  java.lang.Object | null;
 
-		public constructor(index: number);
+		protected constructor(index: number);
 
-		public constructor(index: number, text: object);
-public constructor(index: number, text?: object) {
+		protected constructor(index: number, text: java.lang.Object| null);
+protected constructor(index: number, text?: java.lang.Object | null) {
 if (text === undefined) {
-			this.index = index;
+			super();
+this.index = index;
 		}
  else  {
-			this.index = index;
+			super();
+this.index = index;
 			this.text = text;
 		}
 
@@ -133,34 +137,28 @@ if (text === undefined) {
 		/** Execute the rewrite operation by possibly adding to the buffer.
 		 *  Return the index of the next token to operate on.
 		 */
-		public execute = (buf: java.lang.StringBuilder): number => {
-			return this.index;
+		public execute = (buf: java.lang.StringBuilder| null):  number => {
+			return $outer.index;
 		}
 
-		public toString = (): string => {
-			let  opName: string = this.getClass().getName();
+		public toString = ():  java.lang.String | null => {
+			let  opName: java.lang.String = getClass().getName();
 			let  $index: number = opName.indexOf('$');
-			opName = opName.substring($index+1, opName.length);
-			return "<"+opName+"@"+$outer.tokens.get(this.index)+
-					":\""+this.text+"\">";
+			opName = opName.substring($index+1, opName.length());
+			return "<"+opName+"@"+$outer.tokens.get($outer.index)+
+					":\""+$outer.text+"\">";
 		}
-
-	private getClass(): java.lang.Class<RewriteOperation> {
-    // java2ts: auto generated
-    return new java.lang.Class(RewriteOperation);
-}
-
 	}
 })(this);
 
 
 	public  InsertBeforeOp = (($outer) => {
-return class InsertBeforeOp extends this.RewriteOperation {
-		public constructor(index: number, text: object) {
+return class InsertBeforeOp extends RewriteOperation {
+		public constructor(index: number, text: java.lang.Object| null) {
 			super(index,text);
 		}
 
-		public execute = (buf: java.lang.StringBuilder): number => {
+		public execute = (buf: java.lang.StringBuilder| null):  number => {
 			buf.append(CommonToken.text);
 			if ( $outer.tokens.get(ANTLRInputStream.index).getType()!==Token.EOF ) {
 				buf.append($outer.tokens.get(ANTLRInputStream.index).getText());
@@ -176,8 +174,8 @@ return class InsertBeforeOp extends this.RewriteOperation {
 	 *  of "insert after" is "insert before index+1".
 	 */
     public  InsertAfterOp = (($outer) => {
-return class InsertAfterOp extends this.InsertBeforeOp {
-        public constructor(index: number, text: object) {
+return class InsertAfterOp extends InsertBeforeOp {
+        public constructor(index: number, text: java.lang.Object| null) {
             super(index+1, text); // insert after is insert before index+1
         }
     }
@@ -188,86 +186,87 @@ return class InsertAfterOp extends this.InsertBeforeOp {
 	 *  instructions.
 	 */
 	public  ReplaceOp = (($outer) => {
-return class ReplaceOp extends this.RewriteOperation {
+return class ReplaceOp extends RewriteOperation {
 		protected lastIndex:  number;
-		public constructor(from: number, to: number, text: object) {
+		public constructor(from: number, to: number, text: java.lang.Object| null) {
 			super(from,text);
-			this.lastIndex = to;
+			$outer.lastIndex = to;
 		}
-		public execute = (buf: java.lang.StringBuilder): number => {
-			if ( CommonToken.text!==undefined ) {
+		public execute = (buf: java.lang.StringBuilder| null):  number => {
+			if ( CommonToken.text!==null ) {
 				buf.append(CommonToken.text);
 			}
-			return this.lastIndex+1;
+			return $outer.lastIndex+1;
 		}
-		public toString = (): string => {
-			if ( CommonToken.text===undefined ) {
+		public toString = ():  java.lang.String | null => {
+			if ( CommonToken.text===null ) {
 				return "<DeleteOp@"+$outer.tokens.get(ANTLRInputStream.index)+
-						".."+$outer.tokens.get(this.lastIndex)+">";
+						".."+$outer.tokens.get($outer.lastIndex)+">";
 			}
 			return "<ReplaceOp@"+$outer.tokens.get(ANTLRInputStream.index)+
-					".."+$outer.tokens.get(this.lastIndex)+":\""+CommonToken.text+"\">";
+					".."+$outer.tokens.get($outer.lastIndex)+":\""+CommonToken.text+"\">";
 		}
 	}
 })(this);
 
 
 	/** Our source stream */
-	protected readonly  tokens?:  TokenStream;
+	protected readonly  tokens:  TokenStream | null;
 
 	/** You may have multiple, named streams of rewrite operations.
 	 *  I'm calling these things "programs."
 	 *  Maps String (name) &rarr; rewrite (List)
 	 */
-	protected readonly  programs?:  java.util.Map<string, java.util.List<this.RewriteOperation>>;
+	protected readonly  programs:  java.util.Map<java.lang.String, java.util.List<RewriteOperation>> | null;
 
 	/** Map String (program name) &rarr; Integer index */
-	protected readonly  lastRewriteTokenIndexes?:  java.util.Map<string, java.lang.Integer>;
+	protected readonly  lastRewriteTokenIndexes:  java.util.Map<java.lang.String, java.lang.Integer> | null;
 
-	public constructor(tokens: TokenStream) {
-		this.tokens = tokens;
-		this.programs = new  java.util.HashMap<string, java.util.List<RewriteOperation>>();
-		this.programs.set(TokenStreamRewriter.DEFAULT_PROGRAM_NAME,
+	public constructor(tokens: TokenStream| null) {
+		super();
+this.tokens = tokens;
+		this.programs = new  java.util.HashMap<java.lang.String, java.util.List<RewriteOperation>>();
+		this.programs.put(TokenStreamRewriter.DEFAULT_PROGRAM_NAME,
 					 new  java.util.ArrayList<RewriteOperation>(TokenStreamRewriter.PROGRAM_INIT_SIZE));
-		this.lastRewriteTokenIndexes = new  java.util.HashMap<string, java.lang.Integer>();
+		this.lastRewriteTokenIndexes = new  java.util.HashMap<java.lang.String, java.lang.Integer>();
 	}
 
-	public readonly  getTokenStream = (): TokenStream => {
+	public readonly  getTokenStream = ():  TokenStream | null => {
 		return this.tokens;
 	}
 
-	public rollback(instructionIndex: number): void;
+	public rollback(instructionIndex: number):  void;
 
 	/** Rollback the instruction stream for a program so that
 	 *  the indicated instruction (via instructionIndex) is no
 	 *  longer in the stream. UNTESTED!
 	 */
-	public rollback(programName: string, instructionIndex: number): void;
+	public rollback(programName: java.lang.String| null, instructionIndex: number):  void;
 
 
-	public rollback(instructionIndexOrProgramName: number | string, instructionIndex?: number):  void {
+	public rollback(instructionIndexOrProgramName: number | java.lang.String | null, instructionIndex?: number):  void {
 if (typeof instructionIndexOrProgramName === "number" && instructionIndex === undefined) {
 const instructionIndex = instructionIndexOrProgramName as number;
 		this.rollback(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, instructionIndex);
 	}
  else  {
-let programName = instructionIndexOrProgramName as string;
-		let  is: java.util.List<this.RewriteOperation> = this.programs.get(programName);
-		if ( is!==undefined ) {
-			this.programs.set(programName, is.subList(TokenStreamRewriter.MIN_TOKEN_INDEX,instructionIndex));
+let programName = instructionIndexOrProgramName as java.lang.String;
+		let  is: java.util.List<RewriteOperation> = this.programs.get(programName);
+		if ( is!==null ) {
+			this.programs.put(programName, is.subList(TokenStreamRewriter.MIN_TOKEN_INDEX,instructionIndex));
 		}
 	}
 
 }
 
 
-	public deleteProgram(): void;
+	public deleteProgram():  void;
 
 	/** Reset the program so that no instructions exist */
-	public deleteProgram(programName: string): void;
+	public deleteProgram(programName: java.lang.String| null):  void;
 
 
-	public deleteProgram(programName?: string):  void {
+	public deleteProgram(programName?: java.lang.String | null):  void {
 if (programName === undefined) {
 		this.deleteProgram(TokenStreamRewriter.DEFAULT_PROGRAM_NAME);
 	}
@@ -278,37 +277,37 @@ if (programName === undefined) {
 }
 
 
-	public insertAfter(t: Token, text: object): void;
+	public insertAfter(t: Token| null, text: java.lang.Object| null):  void;
 
-	public insertAfter(index: number, text: object): void;
+	public insertAfter(index: number, text: java.lang.Object| null):  void;
 
-	public insertAfter(programName: string, t: Token, text: object): void;
+	public insertAfter(programName: java.lang.String| null, t: Token| null, text: java.lang.Object| null):  void;
 
-	public insertAfter(programName: string, index: number, text: object): void;
+	public insertAfter(programName: java.lang.String| null, index: number, text: java.lang.Object| null):  void;
 
 
-	public insertAfter(tOrIndexOrProgramName: Token | number | string, textOrTOrIndex: object | Token | number, text?: object):  void {
-if (tOrIndexOrProgramName instanceof Token && typeof textOrTOrIndex === "object" && text === undefined) {
+	public insertAfter(tOrIndexOrProgramName: Token | number | java.lang.String | null, textOrTOrIndex: java.lang.Object | Token | number | null, text?: java.lang.Object | null):  void {
+if (tOrIndexOrProgramName instanceof Token && textOrTOrIndex instanceof java.lang.Object && text === undefined) {
 const t = tOrIndexOrProgramName as Token;
-const text = textOrTOrIndex as object;
+const text = textOrTOrIndex as java.lang.Object;
 		this.insertAfter(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, t, text);
 	}
- else if (typeof tOrIndexOrProgramName === "number" && typeof textOrTOrIndex === "object" && text === undefined) {
+ else if (typeof tOrIndexOrProgramName === "number" && textOrTOrIndex instanceof java.lang.Object && text === undefined) {
 const index = tOrIndexOrProgramName as number;
-const text = textOrTOrIndex as object;
+const text = textOrTOrIndex as java.lang.Object;
 		this.insertAfter(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, index, text);
 	}
- else if (typeof tOrIndexOrProgramName === "string" && textOrTOrIndex instanceof Token && typeof text === "object") {
-const programName = tOrIndexOrProgramName as string;
+ else if (tOrIndexOrProgramName instanceof java.lang.String && textOrTOrIndex instanceof Token && text instanceof java.lang.Object) {
+const programName = tOrIndexOrProgramName as java.lang.String;
 const t = textOrTOrIndex as Token;
 		this.insertAfter(programName,t.getTokenIndex(), text);
 	}
  else  {
-let programName = tOrIndexOrProgramName as string;
+let programName = tOrIndexOrProgramName as java.lang.String;
 let index = textOrTOrIndex as number;
 		// to insert after, just insert before next index (even if past end)
-        let  op: this.RewriteOperation = new  this.InsertAfterOp(index, text);
-        let  rewrites: java.util.List<this.RewriteOperation> = this.getProgram(programName);
+        let  op: RewriteOperation = new  InsertAfterOp(index, text);
+        let  rewrites: java.util.List<RewriteOperation> = this.getProgram(programName);
         op.instructionIndex = rewrites.size();
         rewrites.add(op);
 	}
@@ -316,36 +315,36 @@ let index = textOrTOrIndex as number;
 }
 
 
-	public insertBefore(t: Token, text: object): void;
+	public insertBefore(t: Token| null, text: java.lang.Object| null):  void;
 
-	public insertBefore(index: number, text: object): void;
+	public insertBefore(index: number, text: java.lang.Object| null):  void;
 
-	public insertBefore(programName: string, t: Token, text: object): void;
+	public insertBefore(programName: java.lang.String| null, t: Token| null, text: java.lang.Object| null):  void;
 
-	public insertBefore(programName: string, index: number, text: object): void;
+	public insertBefore(programName: java.lang.String| null, index: number, text: java.lang.Object| null):  void;
 
 
-	public insertBefore(tOrIndexOrProgramName: Token | number | string, textOrTOrIndex: object | Token | number, text?: object):  void {
-if (tOrIndexOrProgramName instanceof Token && typeof textOrTOrIndex === "object" && text === undefined) {
+	public insertBefore(tOrIndexOrProgramName: Token | number | java.lang.String | null, textOrTOrIndex: java.lang.Object | Token | number | null, text?: java.lang.Object | null):  void {
+if (tOrIndexOrProgramName instanceof Token && textOrTOrIndex instanceof java.lang.Object && text === undefined) {
 const t = tOrIndexOrProgramName as Token;
-const text = textOrTOrIndex as object;
+const text = textOrTOrIndex as java.lang.Object;
 		this.insertBefore(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, t, text);
 	}
- else if (typeof tOrIndexOrProgramName === "number" && typeof textOrTOrIndex === "object" && text === undefined) {
+ else if (typeof tOrIndexOrProgramName === "number" && textOrTOrIndex instanceof java.lang.Object && text === undefined) {
 const index = tOrIndexOrProgramName as number;
-const text = textOrTOrIndex as object;
+const text = textOrTOrIndex as java.lang.Object;
 		this.insertBefore(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, index, text);
 	}
- else if (typeof tOrIndexOrProgramName === "string" && textOrTOrIndex instanceof Token && typeof text === "object") {
-const programName = tOrIndexOrProgramName as string;
+ else if (tOrIndexOrProgramName instanceof java.lang.String && textOrTOrIndex instanceof Token && text instanceof java.lang.Object) {
+const programName = tOrIndexOrProgramName as java.lang.String;
 const t = textOrTOrIndex as Token;
 		this.insertBefore(programName, t.getTokenIndex(), text);
 	}
  else  {
-let programName = tOrIndexOrProgramName as string;
+let programName = tOrIndexOrProgramName as java.lang.String;
 let index = textOrTOrIndex as number;
-		let  op: this.RewriteOperation = new  this.InsertBeforeOp(index,text);
-		let  rewrites: java.util.List<this.RewriteOperation> = this.getProgram(programName);
+		let  op: RewriteOperation = new  InsertBeforeOp(index,text);
+		let  rewrites: java.util.List<RewriteOperation> = this.getProgram(programName);
 		op.instructionIndex = rewrites.size();
 		rewrites.add(op);
 	}
@@ -353,56 +352,56 @@ let index = textOrTOrIndex as number;
 }
 
 
-	public replace(index: number, text: object): void;
+	public replace(index: number, text: java.lang.Object| null):  void;
 
-	public replace(indexT: Token, text: object): void;
+	public replace(indexT: Token| null, text: java.lang.Object| null):  void;
 
-	public replace(from: number, to: number, text: object): void;
+	public replace(from: number, to: number, text: java.lang.Object| null):  void;
 
-	public replace(from: Token, to: Token, text: object): void;
+	public replace(from: Token| null, to: Token| null, text: java.lang.Object| null):  void;
 
-	public replace(programName: string, from: number, to: number, text: object): void;
+	public replace(programName: java.lang.String| null, from: number, to: number, text: java.lang.Object| null):  void;
 
-	public replace(programName: string, from: Token, to: Token, text: object): void;
+	public replace(programName: java.lang.String| null, from: Token| null, to: Token| null, text: java.lang.Object| null):  void;
 
 
-	public replace(indexOrIndexTOrFromOrProgramName: number | Token | string, textOrToOrFrom: object | number | Token, textOrTo?: object | number | Token, text?: object):  void {
-if (typeof indexOrIndexTOrFromOrProgramName === "number" && typeof textOrToOrFrom === "object" && textOrTo === undefined) {
+	public replace(indexOrIndexTOrFromOrProgramName: number | Token | java.lang.String | null, textOrToOrFrom: java.lang.Object | number | Token | null, textOrTo?: java.lang.Object | number | Token | null, text?: java.lang.Object | null):  void {
+if (typeof indexOrIndexTOrFromOrProgramName === "number" && textOrToOrFrom instanceof java.lang.Object && textOrTo === undefined) {
 const index = indexOrIndexTOrFromOrProgramName as number;
-const text = textOrToOrFrom as object;
+const text = textOrToOrFrom as java.lang.Object;
 		this.replace(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, index, index, text);
 	}
- else if (indexOrIndexTOrFromOrProgramName instanceof Token && typeof textOrToOrFrom === "object" && textOrTo === undefined) {
+ else if (indexOrIndexTOrFromOrProgramName instanceof Token && textOrToOrFrom instanceof java.lang.Object && textOrTo === undefined) {
 const indexT = indexOrIndexTOrFromOrProgramName as Token;
-const text = textOrToOrFrom as object;
+const text = textOrToOrFrom as java.lang.Object;
 		this.replace(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, indexT, indexT, text);
 	}
- else if (typeof indexOrIndexTOrFromOrProgramName === "number" && typeof textOrToOrFrom === "number" && typeof textOrTo === "object" && text === undefined) {
+ else if (typeof indexOrIndexTOrFromOrProgramName === "number" && typeof textOrToOrFrom === "number" && textOrTo instanceof java.lang.Object && text === undefined) {
 const from = indexOrIndexTOrFromOrProgramName as number;
 const to = textOrToOrFrom as number;
-const text = textOrTo as object;
+const text = textOrTo as java.lang.Object;
 		this.replace(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, from, to, text);
 	}
- else if (indexOrIndexTOrFromOrProgramName instanceof Token && textOrToOrFrom instanceof Token && typeof textOrTo === "object" && text === undefined) {
+ else if (indexOrIndexTOrFromOrProgramName instanceof Token && textOrToOrFrom instanceof Token && textOrTo instanceof java.lang.Object && text === undefined) {
 const from = indexOrIndexTOrFromOrProgramName as Token;
 const to = textOrToOrFrom as Token;
-const text = textOrTo as object;
+const text = textOrTo as java.lang.Object;
 		this.replace(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, from, to, text);
 	}
- else if (typeof indexOrIndexTOrFromOrProgramName === "string" && typeof textOrToOrFrom === "number" && typeof textOrTo === "number" && typeof text === "object") {
-const programName = indexOrIndexTOrFromOrProgramName as string;
+ else if (indexOrIndexTOrFromOrProgramName instanceof java.lang.String && typeof textOrToOrFrom === "number" && typeof textOrTo === "number" && text instanceof java.lang.Object) {
+const programName = indexOrIndexTOrFromOrProgramName as java.lang.String;
 const from = textOrToOrFrom as number;
 const to = textOrTo as number;
 		if ( from > to || from<0 || to<0 || to >= this.tokens.size() ) {
 			throw new  java.lang.IllegalArgumentException("replace: range invalid: "+from+".."+to+"(size="+this.tokens.size()+")");
 		}
-		let  op: this.RewriteOperation = new  this.ReplaceOp(from, to, text);
-		let  rewrites: java.util.List<this.RewriteOperation> = this.getProgram(programName);
+		let  op: RewriteOperation = new  ReplaceOp(from, to, text);
+		let  rewrites: java.util.List<RewriteOperation> = this.getProgram(programName);
 		op.instructionIndex = rewrites.size();
 		rewrites.add(op);
 	}
  else  {
-let programName = indexOrIndexTOrFromOrProgramName as string;
+let programName = indexOrIndexTOrFromOrProgramName as java.lang.String;
 let from = textOrToOrFrom as Token;
 let to = textOrTo as Token;
 		this.replace(programName,
@@ -414,20 +413,20 @@ let to = textOrTo as Token;
 }
 
 
-	public delete(index: number): void;
+	public delete(index: number):  void;
 
-	public delete(indexT: Token): void;
+	public delete(indexT: Token| null):  void;
 
-	public delete(from: number, to: number): void;
+	public delete(from: number, to: number):  void;
 
-	public delete(from: Token, to: Token): void;
+	public delete(from: Token| null, to: Token| null):  void;
 
-	public delete(programName: string, from: number, to: number): void;
+	public delete(programName: java.lang.String| null, from: number, to: number):  void;
 
-	public delete(programName: string, from: Token, to: Token): void;
+	public delete(programName: java.lang.String| null, from: Token| null, to: Token| null):  void;
 
 
-	public delete(indexOrIndexTOrFromOrProgramName: number | Token | string, toOrFrom?: number | Token, to?: number | Token):  void {
+	public delete(indexOrIndexTOrFromOrProgramName: number | Token | java.lang.String | null, toOrFrom?: number | Token | null, to?: number | Token | null):  void {
 if (typeof indexOrIndexTOrFromOrProgramName === "number" && toOrFrom === undefined) {
 const index = indexOrIndexTOrFromOrProgramName as number;
 		this.delete(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, index, index);
@@ -446,32 +445,32 @@ const from = indexOrIndexTOrFromOrProgramName as Token;
 const to = toOrFrom as Token;
 		this.delete(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, from, to);
 	}
- else if (typeof indexOrIndexTOrFromOrProgramName === "string" && typeof toOrFrom === "number" && typeof to === "number") {
-const programName = indexOrIndexTOrFromOrProgramName as string;
+ else if (indexOrIndexTOrFromOrProgramName instanceof java.lang.String && typeof toOrFrom === "number" && typeof to === "number") {
+const programName = indexOrIndexTOrFromOrProgramName as java.lang.String;
 const from = toOrFrom as number;
-		this.replace(programName,from,to,undefined);
+		this.replace(programName,from,to,null);
 	}
  else  {
-let programName = indexOrIndexTOrFromOrProgramName as string;
+let programName = indexOrIndexTOrFromOrProgramName as java.lang.String;
 let from = toOrFrom as Token;
-		this.replace(programName,from,to,undefined);
+		this.replace(programName,from,to,null);
 	}
 
 }
 
 
-	public getLastRewriteTokenIndex(): number;
+	public getLastRewriteTokenIndex():  number;
 
-	protected getLastRewriteTokenIndex(programName: string): number;
+	protected getLastRewriteTokenIndex(programName: java.lang.String| null):  number;
 
 
-	public getLastRewriteTokenIndex(programName?: string):  number {
+	public getLastRewriteTokenIndex(programName?: java.lang.String | null):  number {
 if (programName === undefined) {
 		return this.getLastRewriteTokenIndex(TokenStreamRewriter.DEFAULT_PROGRAM_NAME);
 	}
  else  {
 		let  I: java.lang.Integer = this.lastRewriteTokenIndexes.get(programName);
-		if ( I===undefined ) {
+		if ( I===null ) {
 			return -1;
 		}
 		return I;
@@ -480,33 +479,33 @@ if (programName === undefined) {
 }
 
 
-	protected setLastRewriteTokenIndex = (programName: string, i: number): void => {
-		this.lastRewriteTokenIndexes.set(programName, i);
+	protected setLastRewriteTokenIndex = (programName: java.lang.String| null, i: number):  void => {
+		this.lastRewriteTokenIndexes.put(programName, i);
 	}
 
-	protected getProgram = (name: string): java.util.List<this.RewriteOperation> => {
-		let  is: java.util.List<this.RewriteOperation> = this.programs.get(name);
-		if ( is===undefined ) {
+	protected getProgram = (name: java.lang.String| null):  java.util.List<RewriteOperation> | null => {
+		let  is: java.util.List<RewriteOperation> = this.programs.get(name);
+		if ( is===null ) {
 			is = this.initializeProgram(name);
 		}
 		return is;
 	}
 
-	private initializeProgram = (name: string): java.util.List<this.RewriteOperation> => {
-		let  is: java.util.List<this.RewriteOperation> = new  java.util.ArrayList<RewriteOperation>(TokenStreamRewriter.PROGRAM_INIT_SIZE);
-		this.programs.set(name, is);
+	private initializeProgram = (name: java.lang.String| null):  java.util.List<RewriteOperation> | null => {
+		let  is: java.util.List<RewriteOperation> = new  java.util.ArrayList<RewriteOperation>(TokenStreamRewriter.PROGRAM_INIT_SIZE);
+		this.programs.put(name, is);
 		return is;
 	}
 
 	/** Return the text from the original tokens altered per the
 	 *  instructions given to this rewriter.
  	 */
-	public getText(): string;
+	public getText():  java.lang.String | null;
 
 	/** Return the text from the original tokens altered per the
 	 *  instructions given to this rewriter in programName.
  	 */
-	public getText(programName: string): string;
+	public getText(programName: java.lang.String| null):  java.lang.String | null;
 
 	/** Return the text associated with the tokens in the interval from the
 	 *  original token stream but with the alterations given to this rewriter.
@@ -517,20 +516,20 @@ if (programName === undefined) {
 	 *  insertBefore on the first token, you would get that insertion.
 	 *  The same is true if you do an insertAfter the stop token.
  	 */
-	public getText(interval: Interval): string;
+	public getText(interval: Interval| null):  java.lang.String | null;
 
-	public getText(programName: string, interval: Interval): string;
+	public getText(programName: java.lang.String| null, interval: Interval| null):  java.lang.String | null;
 
 
 	/** Return the text from the original tokens altered per the
 	 *  instructions given to this rewriter.
  	 */
-	public getText(programNameOrInterval?: string | Interval, interval?: Interval):  string {
+	public getText(programNameOrInterval?: java.lang.String | Interval | null, interval?: Interval | null):  java.lang.String | null {
 if (programNameOrInterval === undefined) {
 		return this.getText(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, Interval.of(0,this.tokens.size()-1));
 	}
- else if (typeof programNameOrInterval === "string" && interval === undefined) {
-const programName = programNameOrInterval as string;
+ else if (programNameOrInterval instanceof java.lang.String && interval === undefined) {
+const programName = programNameOrInterval as java.lang.String;
 		return this.getText(programName, Interval.of(0,this.tokens.size()-1));
 	}
  else if (programNameOrInterval instanceof Interval && interval === undefined) {
@@ -538,8 +537,8 @@ const interval = programNameOrInterval as Interval;
 		return this.getText(TokenStreamRewriter.DEFAULT_PROGRAM_NAME, interval);
 	}
  else  {
-let programName = programNameOrInterval as string;
-		let  rewrites: java.util.List<this.RewriteOperation> = this.programs.get(programName);
+let programName = programNameOrInterval as java.lang.String;
+		let  rewrites: java.util.List<RewriteOperation> = this.programs.get(programName);
 		let  start: number = interval.a;
 		let  stop: number = interval.b;
 
@@ -553,21 +552,21 @@ let programName = programNameOrInterval as string;
 }
 
 
-		if ( rewrites===undefined || rewrites.isEmpty() ) {
+		if ( rewrites===null || rewrites.isEmpty() ) {
 			return this.tokens.getText(interval); // no instructions to execute
 		}
 		let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
 
 		// First, optimize instruction stream
-		let  indexToOp: java.util.Map<java.lang.Integer, this.RewriteOperation> = this.reduceToSingleOperationPerIndex(rewrites);
+		let  indexToOp: java.util.Map<java.lang.Integer, RewriteOperation> = this.reduceToSingleOperationPerIndex(rewrites);
 
 		// Walk buffer, executing instructions and emitting tokens
 		let  i: number = start;
 		while ( i <= stop && i < this.tokens.size() ) {
-			let  op: this.RewriteOperation = indexToOp.get(i);
-			indexToOp.delete(i); // remove so any left have index size-1
+			let  op: RewriteOperation = indexToOp.get(i);
+			indexToOp.remove(i); // remove so any left have index size-1
 			let  t: Token = this.tokens.get(i);
-			if ( op===undefined ) {
+			if ( op===null ) {
 				// no operation at that index, just dump token
 				if ( t.getType()!==Token.EOF ) {
  buf.append(t.getText());
@@ -648,43 +647,43 @@ let programName = programNameOrInterval as string;
 	 *
 	 *  Return a map from token index to operation.
 	 */
-	protected reduceToSingleOperationPerIndex = (rewrites: java.util.List<this.RewriteOperation>): java.util.Map<java.lang.Integer, this.RewriteOperation> => {
+	protected reduceToSingleOperationPerIndex = (rewrites: java.util.List<RewriteOperation>| null):  java.util.Map<java.lang.Integer, RewriteOperation> | null => {
 //		System.out.println("rewrites="+rewrites);
 
 		// WALK REPLACES
 		for (let  i: number = 0; i < rewrites.size(); i++) {
-			let  op: this.RewriteOperation = rewrites.get(i);
-			if ( op===undefined ) {
+			let  op: RewriteOperation = rewrites.get(i);
+			if ( op===null ) {
  continue;
 }
 
-			if ( !(op instanceof this.ReplaceOp) ) {
+			if ( !(op instanceof ReplaceOp) ) {
  continue;
 }
 
-			let  rop: this.ReplaceOp = rewrites.get(i) as ReplaceOp;
+			let  rop: ReplaceOp = rewrites.get(i) as ReplaceOp;
 			// Wipe prior inserts within range
-			let  inserts: java.util.List< this.InsertBeforeOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.InsertBeforeOp), i);
+			let  inserts: java.util.List< InsertBeforeOp> = this.getKindOfOps(rewrites, InsertBeforeOp.class, i);
 			for (let iop of inserts) {
 				if ( iop.index === rop.index ) {
 					// E.g., insert before 2, delete 2..2; update replace
 					// text to include insert before, kill insert
-					rewrites.set(iop.instructionIndex, undefined);
-					rop.text = iop.text.toString() + (rop.text!==undefined?rop.text.toString():"");
+					rewrites.set(iop.instructionIndex, null);
+					rop.text = iop.text.toString() + (rop.text!==null?rop.text.toString():"");
 				}
 				else { if ( iop.index > rop.index && iop.index <= rop.lastIndex ) {
 					// delete insert as it's a no-op.
-					rewrites.set(iop.instructionIndex, undefined);
+					rewrites.set(iop.instructionIndex, null);
 				}
 }
 
 			}
 			// Drop any prior replaces contained within
-			let  prevReplaces: java.util.List< this.ReplaceOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.ReplaceOp), i);
+			let  prevReplaces: java.util.List< ReplaceOp> = this.getKindOfOps(rewrites, ReplaceOp.class, i);
 			for (let prevRop of prevReplaces) {
 				if ( prevRop.index>=rop.index && prevRop.lastIndex <= rop.lastIndex ) {
 					// delete replace as it's a no-op.
-					rewrites.set(prevRop.instructionIndex, undefined);
+					rewrites.set(prevRop.instructionIndex, null);
 					continue;
 				}
 				// throw exception unless disjoint or identical
@@ -692,9 +691,9 @@ let programName = programNameOrInterval as string;
 					prevRop.lastIndex<rop.index || prevRop.index > rop.lastIndex;
 				// Delete special case of replace (text==null):
 				// D.i-j.u D.x-y.v	| boundaries overlap	combine to max(min)..max(right)
-				if ( prevRop.text===undefined && rop.text===undefined && !disjoint ) {
+				if ( prevRop.text===null && rop.text===null && !disjoint ) {
 					//System.out.println("overlapping deletes: "+prevRop+", "+rop);
-					rewrites.set(prevRop.instructionIndex, undefined); // kill first delete
+					rewrites.set(prevRop.instructionIndex, null); // kill first delete
 					rop.index = Math.min(prevRop.index, rop.index);
 					rop.lastIndex = Math.max(prevRop.lastIndex, rop.lastIndex);
 					java.lang.System.out.println("new rop "+rop);
@@ -709,41 +708,41 @@ let programName = programNameOrInterval as string;
 
 		// WALK INSERTS
 		for (let  i: number = 0; i < rewrites.size(); i++) {
-			let  op: this.RewriteOperation = rewrites.get(i);
-			if ( op===undefined ) {
+			let  op: RewriteOperation = rewrites.get(i);
+			if ( op===null ) {
  continue;
 }
 
-			if ( !(op instanceof this.InsertBeforeOp) ) {
+			if ( !(op instanceof InsertBeforeOp) ) {
  continue;
 }
 
-			let  iop: this.InsertBeforeOp = rewrites.get(i) as InsertBeforeOp;
+			let  iop: InsertBeforeOp = rewrites.get(i) as InsertBeforeOp;
 			// combine current insert with prior if any at same index
-			let  prevInserts: java.util.List< this.InsertBeforeOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.InsertBeforeOp), i);
+			let  prevInserts: java.util.List< InsertBeforeOp> = this.getKindOfOps(rewrites, InsertBeforeOp.class, i);
 			for (let prevIop of prevInserts) {
 				if ( prevIop.index===iop.index ) {
-					if ( new java.lang.Class(this.InsertAfterOp).isInstance(prevIop) ) {
+					if ( InsertAfterOp.class.isInstance(prevIop) ) {
 						iop.text = this.catOpText(prevIop.text, iop.text);
-						rewrites.set(prevIop.instructionIndex, undefined);
+						rewrites.set(prevIop.instructionIndex, null);
 					}
-					else { if ( new java.lang.Class(this.InsertBeforeOp).isInstance(prevIop) ) { // combine objects
+					else { if ( InsertBeforeOp.class.isInstance(prevIop) ) { // combine objects
 						// convert to strings...we're in process of toString'ing
 						// whole token buffer so no lazy eval issue with any templates
 						iop.text = this.catOpText(iop.text, prevIop.text);
 						// delete redundant prior insert
-						rewrites.set(prevIop.instructionIndex, undefined);
+						rewrites.set(prevIop.instructionIndex, null);
 					}
 }
 
 				}
 			}
 			// look for replaces where iop.index is in range; error
-			let  prevReplaces: java.util.List< this.ReplaceOp> = this.getKindOfOps(rewrites, new java.lang.Class(this.ReplaceOp), i);
+			let  prevReplaces: java.util.List< ReplaceOp> = this.getKindOfOps(rewrites, ReplaceOp.class, i);
 			for (let rop of prevReplaces) {
 				if ( iop.index === rop.index ) {
 					rop.text = this.catOpText(iop.text,rop.text);
-					rewrites.set(i, undefined);	// delete current insert
+					rewrites.set(i, null);	// delete current insert
 					continue;
 				}
 				if ( iop.index >= rop.index && iop.index <= rop.lastIndex ) {
@@ -752,30 +751,30 @@ let programName = programNameOrInterval as string;
 			}
 		}
 		// System.out.println("rewrites after="+rewrites);
-		let  m: java.util.Map<java.lang.Integer, this.RewriteOperation> = new  java.util.HashMap<java.lang.Integer, RewriteOperation>();
+		let  m: java.util.Map<java.lang.Integer, RewriteOperation> = new  java.util.HashMap<java.lang.Integer, RewriteOperation>();
 		for (let  i: number = 0; i < rewrites.size(); i++) {
-			let  op: this.RewriteOperation = rewrites.get(i);
-			if ( op===undefined ) {
+			let  op: RewriteOperation = rewrites.get(i);
+			if ( op===null ) {
  continue;
 }
  // ignore deleted ops
-			if ( m.get(op.index)!==undefined ) {
+			if ( m.get(op.index)!==null ) {
 				throw new  java.lang.Error("should only be one op per index");
 			}
-			m.set(op.index, op);
+			m.put(op.index, op);
 		}
 		//System.out.println("index to op: "+m);
 		return m;
 	}
 
-	protected catOpText = (a: object, b: object): string => {
-		let  x: string = "";
-		let  y: string = "";
-		if ( a!==undefined ) {
+	protected catOpText = (a: java.lang.Object| null, b: java.lang.Object| null):  java.lang.String | null => {
+		let  x: java.lang.String = "";
+		let  y: java.lang.String = "";
+		if ( a!==null ) {
  x = a.toString();
 }
 
-		if ( b!==undefined ) {
+		if ( b!==null ) {
  y = b.toString();
 }
 
@@ -783,11 +782,11 @@ let programName = programNameOrInterval as string;
 	}
 
 	/** Get all operations before an index of a particular kind */
-	protected getKindOfOps =  <T extends this.RewriteOperation>(rewrites: java.util.List< this.RewriteOperation>, kind: java.lang.Class<T>, before: number): java.util.List< T> => {
+	protected getKindOfOps =  <T extends RewriteOperation>(rewrites: java.util.List< RewriteOperation>| null, kind: java.lang.Class<T>| null, before: number):  java.util.List< T> | null => {
 		let  ops: java.util.List<T> = new  java.util.ArrayList<T>();
 		for (let  i: number=0; i<before && i<rewrites.size(); i++) {
-			let  op: this.RewriteOperation = rewrites.get(i);
-			if ( op===undefined ) {
+			let  op: RewriteOperation = rewrites.get(i);
+			if ( op===null ) {
  continue;
 }
  // ignore deleted
@@ -799,15 +798,11 @@ let programName = programNameOrInterval as string;
 	}
 }
 
-namespace TokenStreamRewriter {
-
-export type RewriteOperation = InstanceType<TokenStreamRewriter.RewriteOperation>;
-
-export type InsertBeforeOp = InstanceType<TokenStreamRewriter.InsertBeforeOp>;
-
-export type InsertAfterOp = InstanceType<TokenStreamRewriter.InsertAfterOp>;
-
-export type ReplaceOp = InstanceType<TokenStreamRewriter.ReplaceOp>;
+export namespace TokenStreamRewriter {
+	export type RewriteOperation = InstanceType<TokenStreamRewriter.RewriteOperation>;
+	export type InsertBeforeOp = InstanceType<TokenStreamRewriter.InsertBeforeOp>;
+	export type InsertAfterOp = InstanceType<TokenStreamRewriter.InsertAfterOp>;
+	export type ReplaceOp = InstanceType<TokenStreamRewriter.ReplaceOp>;
 }
 
 

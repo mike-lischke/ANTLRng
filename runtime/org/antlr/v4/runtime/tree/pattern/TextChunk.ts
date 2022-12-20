@@ -14,7 +14,7 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../../../lib/java/java";
+
 import { Chunk } from "./Chunk";
 
 
@@ -29,7 +29,7 @@ export class TextChunk extends Chunk {
 	 * This is the backing field for {@link #getText}.
 	 */
 
-	private readonly  text?:  string;
+	private readonly  text:  java.lang.String | null;
 
 	/**
 	 * Constructs a new instance of {@link TextChunk} with the specified text.
@@ -37,9 +37,9 @@ export class TextChunk extends Chunk {
 	 * @param text The text of this chunk.
 	 * @exception IllegalArgumentException if {@code text} is {@code null}.
 	 */
-	public constructor(text: string) {
+	public constructor(text: java.lang.String| null) {
 		super();
-if (text === undefined) {
+if (text === null) {
 			throw new  java.lang.IllegalArgumentException("text cannot be null");
 		}
 
@@ -49,20 +49,19 @@ if (text === undefined) {
 	/**
 	 * Gets the raw text of this chunk.
 	 *
-	 * @return The text of the chunk.
+	  @returns The text of the chunk.
 	 */
 
-	public readonly  getText = (): string => {
+	public readonly  getText = ():  java.lang.String | null => {
 		return this.text;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link TextChunk} returns the result of
 	 * {@link #getText()} in single quotes.</p>
 	 */
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return "'"+this.text+"'";
 	}
 }

@@ -15,6 +15,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { Recognizer } from "./Recognizer";
@@ -25,15 +26,16 @@ import { Interval } from "./misc/Interval";
 import { Pair } from "./misc/Pair";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
-export  class CommonToken implements WritableToken, java.io.Serializable {
+export  class CommonToken extends JavaObject implements WritableToken, java.io.Serializable {
 	/**
 	 * An empty {@link Pair} which is used as the default value of
 	 * {@link #source} for tokens that do not have a source.
 	 */
-	protected static readonly  EMPTY_SOURCE?:  Pair<TokenSource, CharStream> =
-		new  Pair<TokenSource, CharStream>(undefined, undefined);
+	protected static readonly  EMPTY_SOURCE:  Pair<TokenSource, CharStream> | null =
+		new  Pair<TokenSource, CharStream>(null, null);
 
 	/**
 	 * This is the backing field for {@link #getType} and {@link #setType}.
@@ -68,7 +70,7 @@ export  class CommonToken implements WritableToken, java.io.Serializable {
 	 * {@link Pair} containing these values.</p>
 	 */
 
-	protected source?:  Pair<TokenSource, CharStream>;
+	protected source:  Pair<TokenSource, CharStream> | null;
 
 	/**
 	 * This is the backing field for {@link #getText} when the token text is
@@ -76,7 +78,7 @@ export  class CommonToken implements WritableToken, java.io.Serializable {
 	 *
 	 * @see #getText()
 	 */
-	protected text?:  string;
+	protected text:  java.lang.String | null;
 
 	/**
 	 * This is the backing field for {@link #getTokenIndex} and
@@ -116,7 +118,7 @@ export  class CommonToken implements WritableToken, java.io.Serializable {
 	 *
 	 * @param oldToken The token to copy.
 	 */
-	public constructor(oldToken: Token);
+	public constructor(oldToken: Token| null);
 
 	/**
 	 * Constructs a new {@link CommonToken} with the specified token type and
@@ -125,10 +127,10 @@ export  class CommonToken implements WritableToken, java.io.Serializable {
 	 * @param type The token type.
 	 * @param text The text of the token.
 	 */
-	public constructor(type: number, text: string);
+	public constructor(type: number, text: java.lang.String| null);
 
-	public constructor(source: Pair<TokenSource, CharStream>, type: number, channel: number, start: number, stop: number);
-public constructor(typeOrOldTokenOrSource: number | Token | Pair<TokenSource, CharStream>, textOrType?: string | number, channel?: number, start?: number, stop?: number) {
+	public constructor(source: Pair<TokenSource, CharStream>| null, type: number, channel: number, start: number, stop: number);
+public constructor(typeOrOldTokenOrSource: number | Token | Pair<TokenSource, CharStream> | null, textOrType?: java.lang.String | number | null, channel?: number, start?: number, stop?: number) {
 if (typeof typeOrOldTokenOrSource === "number" && textOrType === undefined) {
 const type = typeOrOldTokenOrSource as number;
 		super();
@@ -155,9 +157,9 @@ this.type = oldToken.getType();
 			this.source = new  Pair<TokenSource, CharStream>(oldToken.getTokenSource(), oldToken.getInputStream());
 		}
 	}
- else if (typeof typeOrOldTokenOrSource === "number" && typeof textOrType === "string" && channel === undefined) {
+ else if (typeof typeOrOldTokenOrSource === "number" && textOrType instanceof java.lang.String && channel === undefined) {
 const type = typeOrOldTokenOrSource as number;
-const text = textOrType as string;
+const text = textOrType as java.lang.String;
 		super();
 this.type = type;
 		this.channel = Token.DEFAULT_CHANNEL;
@@ -173,7 +175,7 @@ this.source = source;
 		this.channel = channel;
 		this.start = start;
 		this.stop = stop;
-		if (source.a !== undefined) {
+		if (source.a !== null) {
 			this.line = source.a.getLine();
 			this.charPositionInLine = source.a.getCharPositionInLine();
 		}
@@ -182,22 +184,22 @@ this.source = source;
 }
 
 
-	public getType = (): number => {
+	public getType = ():  number => {
 		return this.type;
 	}
 
-	public setLine = (line: number): void => {
+	public setLine = (line: number):  void => {
 		this.line = line;
 	}
 
-	public getText = (): string => {
-		if ( this.text!==undefined ) {
+	public getText = ():  java.lang.String | null => {
+		if ( this.text!==null ) {
 			return this.text;
 		}
 
 		let  input: CharStream = this.getInputStream();
-		if ( input===undefined ) {
- return undefined;
+		if ( input===null ) {
+ return null;
 }
 
 		let  n: number = input.size();
@@ -218,82 +220,82 @@ this.source = source;
 	 * should be obtained from the input along with the start and stop indexes
 	 * of the token.
 	 */
-	public setText = (text: string): void => {
+	public setText = (text: java.lang.String| null):  void => {
 		this.text = text;
 	}
 
-	public getLine = (): number => {
+	public getLine = ():  number => {
 		return this.line;
 	}
 
-	public getCharPositionInLine = (): number => {
+	public getCharPositionInLine = ():  number => {
 		return this.charPositionInLine;
 	}
 
-	public setCharPositionInLine = (charPositionInLine: number): void => {
+	public setCharPositionInLine = (charPositionInLine: number):  void => {
 		this.charPositionInLine = charPositionInLine;
 	}
 
-	public getChannel = (): number => {
+	public getChannel = ():  number => {
 		return this.channel;
 	}
 
-	public setChannel = (channel: number): void => {
+	public setChannel = (channel: number):  void => {
 		this.channel = channel;
 	}
 
-	public setType = (type: number): void => {
+	public setType = (type: number):  void => {
 		this.type = type;
 	}
 
-	public getStartIndex = (): number => {
+	public getStartIndex = ():  number => {
 		return this.start;
 	}
 
-	public setStartIndex = (start: number): void => {
+	public setStartIndex = (start: number):  void => {
 		this.start = start;
 	}
 
-	public getStopIndex = (): number => {
+	public getStopIndex = ():  number => {
 		return this.stop;
 	}
 
-	public setStopIndex = (stop: number): void => {
+	public setStopIndex = (stop: number):  void => {
 		this.stop = stop;
 	}
 
-	public getTokenIndex = (): number => {
+	public getTokenIndex = ():  number => {
 		return this.index;
 	}
 
-	public setTokenIndex = (index: number): void => {
+	public setTokenIndex = (index: number):  void => {
 		this.index = index;
 	}
 
-	public getTokenSource = (): TokenSource => {
+	public getTokenSource = ():  TokenSource | null => {
 		return this.source.a;
 	}
 
-	public getInputStream = (): CharStream => {
+	public getInputStream = ():  CharStream | null => {
 		return this.source.b;
 	}
 
-	public toString(): string;
+	public toString():  java.lang.String | null;
 
-	public toString(r: Recognizer<unknown, unknown>): string;
+	public toString(r: Recognizer<unknown, unknown>| null):  java.lang.String | null;
 
 
-	public toString(r?: Recognizer<unknown, unknown>):  string {
+	public toString(r?: Recognizer<unknown, unknown> | null):  java.lang.String | null {
 if (r === undefined) {
-		return this.toString(undefined);
+		return this.toString(null);
 	}
  else  {
-		let  channelStr: string = "";
+		let  channelStr: java.lang.String = "";
 		if ( this.channel>0 ) {
 			channelStr=",channel="+this.channel;
 		}
-		let  txt: string = this.getText();
-		if ( txt!==undefined ) {
+		let  txt: java.lang.String = this.getText();
+		if ( txt!==null ) {
 			txt = txt.replace("\n","\\n");
 			txt = txt.replace("\r","\\r");
 			txt = txt.replace("\t","\\t");
@@ -301,8 +303,8 @@ if (r === undefined) {
 		else {
 			txt = "<no text>";
 		}
-		let  typeString: string = String(this.type);
-		if ( r!==undefined ) {
+		let  typeString: java.lang.String = java.lang.String.valueOf(this.type);
+		if ( r!==null ) {
 			typeString = r.getVocabulary().getDisplayName(this.type);
 		}
 		return "[@"+this.getTokenIndex()+","+this.start+":"+this.stop+"='"+txt+"',<"+typeString+">"+channelStr+","+this.line+":"+this.getCharPositionInLine()+"]";

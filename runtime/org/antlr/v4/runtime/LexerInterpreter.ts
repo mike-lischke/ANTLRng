@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { Lexer } from "./Lexer";
@@ -31,46 +32,46 @@ import { DFA } from "./dfa/DFA";
 
 
 export  class LexerInterpreter extends Lexer {
-	protected readonly  grammarFileName?:  string;
-	protected readonly  atn?:  ATN;
+	protected readonly  grammarFileName:  java.lang.String | null;
+	protected readonly  atn:  ATN | null;
 
-	protected readonly  tokenNames?:  string[];
-	protected readonly  ruleNames?:  string[];
-	protected readonly  channelNames?:  string[];
-	protected readonly  modeNames?:  string[];
+	protected readonly  tokenNames:  java.lang.String[] | null;
+	protected readonly  ruleNames:  java.lang.String[] | null;
+	protected readonly  channelNames:  java.lang.String[] | null;
+	protected readonly  modeNames:  java.lang.String[] | null;
 
 
-	private readonly  vocabulary?:  Vocabulary;
+	private readonly  vocabulary:  Vocabulary | null;
 
-	protected readonly  _decisionToDFA?:  DFA[];
-	protected readonly  _sharedContextCache?:  PredictionContextCache =
+	protected readonly  _decisionToDFA:  DFA[] | null;
+	protected readonly  _sharedContextCache:  PredictionContextCache | null =
 		new  PredictionContextCache();
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(grammarFileName: string, tokenNames: java.util.Collection<string>, ruleNames: java.util.Collection<string>, modeNames: java.util.Collection<string>, atn: ATN, input: CharStream);
+public constructor(grammarFileName: java.lang.String| null, tokenNames: java.util.Collection<java.lang.String>| null, ruleNames: java.util.Collection<java.lang.String>| null, modeNames: java.util.Collection<java.lang.String>| null, atn: ATN| null, input: CharStream| null);
 
-	public constructor(grammarFileName: string, vocabulary: Vocabulary, ruleNames: java.util.Collection<string>, modeNames: java.util.Collection<string>, atn: ATN, input: CharStream);
+	public constructor(grammarFileName: java.lang.String| null, vocabulary: Vocabulary| null, ruleNames: java.util.Collection<java.lang.String>| null, modeNames: java.util.Collection<java.lang.String>| null, atn: ATN| null, input: CharStream| null);
 
-	public constructor(grammarFileName: string, vocabulary: Vocabulary, ruleNames: java.util.Collection<string>, channelNames: java.util.Collection<string>, modeNames: java.util.Collection<string>, atn: ATN, input: CharStream);
+	public constructor(grammarFileName: java.lang.String| null, vocabulary: Vocabulary| null, ruleNames: java.util.Collection<java.lang.String>| null, channelNames: java.util.Collection<java.lang.String>| null, modeNames: java.util.Collection<java.lang.String>| null, atn: ATN| null, input: CharStream| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, modeNamesOrChannelNames: java.util.Collection<string>, atnOrModeNames: ATN | java.util.Collection<string>, inputOrAtn: CharStream | ATN, input?: CharStream) {
-const $this = (grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, modeNamesOrChannelNames: java.util.Collection<string>, atnOrModeNames: ATN | java.util.Collection<string>, inputOrAtn: CharStream | ATN, input?: CharStream): void => {
+public constructor(grammarFileName: java.lang.String | null, tokenNamesOrVocabulary: java.util.Collection<java.lang.String> | Vocabulary | null, ruleNames: java.util.Collection<java.lang.String> | null, modeNamesOrChannelNames: java.util.Collection<java.lang.String> | null, atnOrModeNames: ATN | java.util.Collection<java.lang.String> | null, inputOrAtn: CharStream | ATN | null, input?: CharStream | null) {
+const $this = (grammarFileName: java.lang.String | null, tokenNamesOrVocabulary: java.util.Collection<java.lang.String> | Vocabulary | null, ruleNames: java.util.Collection<java.lang.String> | null, modeNamesOrChannelNames: java.util.Collection<java.lang.String> | null, atnOrModeNames: ATN | java.util.Collection<java.lang.String> | null, inputOrAtn: CharStream | ATN | null, input?: CharStream | null): void => {
 if (tokenNamesOrVocabulary instanceof java.util.Collection && atnOrModeNames instanceof ATN && inputOrAtn instanceof CharStream && input === undefined) {
-const tokenNames = tokenNamesOrVocabulary as java.util.Collection<string>;
+const tokenNames = tokenNamesOrVocabulary as java.util.Collection<java.lang.String>;
 const atn = atnOrModeNames as ATN;
 const input = inputOrAtn as CharStream;
-		$this(grammarFileName, VocabularyImpl.fromTokenNames(tokenNames.toArray(new   Array<string>(0))), ruleNames, new  java.util.ArrayList<string>(), modeNames, atn, input);
+		$this(grammarFileName, VocabularyImpl.fromTokenNames(tokenNames.toArray(new   Array<java.lang.String>(0))), ruleNames, new  java.util.ArrayList<java.lang.String>(), modeNames, atn, input);
 	}
  else if (tokenNamesOrVocabulary instanceof Vocabulary && atnOrModeNames instanceof ATN && inputOrAtn instanceof CharStream && input === undefined) {
 const vocabulary = tokenNamesOrVocabulary as Vocabulary;
 const atn = atnOrModeNames as ATN;
 const input = inputOrAtn as CharStream;
-		$this(grammarFileName, vocabulary, ruleNames, new  java.util.ArrayList<string>(), modeNames, atn, input);
+		$this(grammarFileName, vocabulary, ruleNames, new  java.util.ArrayList<java.lang.String>(), modeNames, atn, input);
 	}
  else  {
 let vocabulary = tokenNamesOrVocabulary as Vocabulary;
-let channelNames = modeNamesOrChannelNames as java.util.Collection<string>;
-let modeNames = atnOrModeNames as java.util.Collection<string>;
+let channelNames = modeNamesOrChannelNames as java.util.Collection<java.lang.String>;
+let modeNames = atnOrModeNames as java.util.Collection<java.lang.String>;
 let atn = inputOrAtn as ATN;
 /* @ts-expect-error, because of the super() call in the closure. */
 		super(input);
@@ -81,14 +82,14 @@ let atn = inputOrAtn as ATN;
 
 		this.grammarFileName = grammarFileName;
 		this.atn = atn;
-		this.tokenNames = new   Array<string>(atn.maxTokenType);
+		this.tokenNames = new   Array<java.lang.String>(atn.maxTokenType);
 		for (let  i: number = 0; i < this.tokenNames.length; i++) {
 			this.tokenNames[i] = vocabulary.getDisplayName(i);
 		}
 
-		this.ruleNames = ruleNames.toArray(new   Array<string>(0));
-		this.channelNames = channelNames.toArray(new   Array<string>(0));
-		this.modeNames = modeNames.toArray(new   Array<string>(0));
+		this.ruleNames = ruleNames.toArray(new   Array<java.lang.String>(0));
+		this.channelNames = channelNames.toArray(new   Array<java.lang.String>(0));
+		this.modeNames = modeNames.toArray(new   Array<java.lang.String>(0));
 		this.vocabulary = vocabulary;
 
 		this._decisionToDFA = new   Array<DFA>(atn.getNumberOfDecisions());
@@ -104,32 +105,32 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, modeNamesOrChannelName
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public getATN = (): ATN => {
+	public getATN = ():  ATN | null => {
 		return this.atn;
 	}
 
-	public getGrammarFileName = (): string => {
+	public getGrammarFileName = ():  java.lang.String | null => {
 		return this.grammarFileName;
 	}
 
-	public getTokenNames = (): string[] => {
+	public getTokenNames = ():  java.lang.String[] | null => {
 		return this.tokenNames;
 	}
 
-	public getRuleNames = (): string[] => {
+	public getRuleNames = ():  java.lang.String[] | null => {
 		return this.ruleNames;
 	}
 
-	public getChannelNames = (): string[] => {
+	public getChannelNames = ():  java.lang.String[] | null => {
 		return this.channelNames;
 	}
 
-	public getModeNames = (): string[] => {
+	public getModeNames = ():  java.lang.String[] | null => {
 		return this.modeNames;
 	}
 
-	public getVocabulary = (): Vocabulary => {
-		if (this.vocabulary !== undefined) {
+	public getVocabulary = ():  Vocabulary | null => {
+		if (this.vocabulary !== null) {
 			return this.vocabulary;
 		}
 

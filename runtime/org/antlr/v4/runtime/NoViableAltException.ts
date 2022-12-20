@@ -15,6 +15,7 @@
 
 
 
+
 import { Parser } from "./Parser";
 import { ParserRuleContext } from "./ParserRuleContext";
 import { RecognitionException } from "./RecognitionException";
@@ -33,7 +34,7 @@ import { ATNConfigSet } from "./atn/ATNConfigSet";
 export  class NoViableAltException extends RecognitionException {
 	/** Which configurations did we try at input.index() that couldn't match input.LT(1)? */
 
-	private readonly  deadEndConfigs?:  ATNConfigSet;
+	private readonly  deadEndConfigs:  ATNConfigSet | null;
 
 	/** The token object at the start index; the input stream might
 	 * 	not be buffering tokens so get a reference to it. (At the
@@ -41,26 +42,26 @@ export  class NoViableAltException extends RecognitionException {
 	 *  buffer all of the tokens but later we might not have access to those.)
 	 */
 
-	private readonly  startToken?:  Token;
+	private readonly  startToken:  Token | null;
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(recognizer: Parser);
+public constructor(recognizer: Parser| null);
 
-	public constructor(recognizer: Parser,
-								input: TokenStream,
-								startToken: Token,
-								offendingToken: Token,
-								deadEndConfigs: ATNConfigSet,
-								ctx: ParserRuleContext);
+	public constructor(recognizer: Parser| null,
+								input: TokenStream| null,
+								startToken: Token| null,
+								offendingToken: Token| null,
+								deadEndConfigs: ATNConfigSet| null,
+								ctx: ParserRuleContext| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(recognizer: Parser, input?: TokenStream, startToken?: Token, offendingToken?: Token, deadEndConfigs?: ATNConfigSet, ctx?: ParserRuleContext) {
-const $this = (recognizer: Parser, input?: TokenStream, startToken?: Token, offendingToken?: Token, deadEndConfigs?: ATNConfigSet, ctx?: ParserRuleContext): void => {
+public constructor(recognizer: Parser | null, input?: TokenStream | null, startToken?: Token | null, offendingToken?: Token | null, deadEndConfigs?: ATNConfigSet | null, ctx?: ParserRuleContext | null) {
+const $this = (recognizer: Parser | null, input?: TokenStream | null, startToken?: Token | null, offendingToken?: Token | null, deadEndConfigs?: ATNConfigSet | null, ctx?: ParserRuleContext | null): void => {
 if (input === undefined) { // LL(1) error
 		$this(recognizer,
 			 recognizer.getInputStream(),
 			 recognizer.getCurrentToken(),
 			 recognizer.getCurrentToken(),
-			 undefined,
+			 null,
 			 recognizer._ctx);
 	}
  else 
@@ -80,12 +81,12 @@ $this(recognizer, input, startToken, offendingToken, deadEndConfigs, ctx);
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 
-	public getStartToken = (): Token => {
+	public getStartToken = ():  Token | null => {
 		return this.startToken;
 	}
 
 
-	public getDeadEndConfigs = (): ATNConfigSet => {
+	public getDeadEndConfigs = ():  ATNConfigSet | null => {
 		return this.deadEndConfigs;
 	}
 

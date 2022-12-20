@@ -16,37 +16,34 @@
 
 
 
+
 import { java } from "../../../../../../../lib/java/java";
 import { ParseTree } from "../ParseTree";
 
 
+import { JavaObject } from "../../../../../../../lib/java/lang/Object";
 
 
-export abstract  class XPathElement {
-	protected nodeName?:  string;
+export abstract  class XPathElement extends JavaObject {
+	protected nodeName:  java.lang.String | null;
 	protected invert:  boolean;
 
 	/** Construct element like {@code /ID} or {@code ID} or {@code /*} etc...
 	 *  op is null if just node
 	 */
-	public constructor(nodeName: string) {
-		this.nodeName = nodeName;
+	public constructor(nodeName: java.lang.String| null) {
+		super();
+this.nodeName = nodeName;
 	}
 
 	/**
 	 * Given tree rooted at {@code t} return all nodes matched by this path
 	 * element.
 	 */
-	public abstract evaluate: (t: ParseTree) => java.util.Collection<ParseTree>;
+	public abstract evaluate: (t: ParseTree| null) =>  java.util.Collection<ParseTree> | null;
 
-	public toString = (): string => {
-		let  inv: string = this.invert ? "!" : "";
-		return this.getClass().getSimpleName()+"["+inv+this.nodeName+"]";
+	public toString = ():  java.lang.String | null => {
+		let  inv: java.lang.String = this.invert ? "!" : "";
+		return getClass().getSimpleName()+"["+inv+this.nodeName+"]";
 	}
-
-	private getClass(): java.lang.Class<XPathElement> {
-    // java2ts: auto generated
-    return new java.lang.Class(XPathElement);
-}
-
 }

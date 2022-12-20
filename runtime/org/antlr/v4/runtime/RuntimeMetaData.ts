@@ -14,9 +14,10 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../lib/java/java";
 
 
+
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -46,9 +47,9 @@ import { java } from "../../../../../lib/java/java";
  * in your main() startup code.
  * </p>
  *
- * @since 4.3
+ *
  */
-export  class RuntimeMetaData {
+export  class RuntimeMetaData extends JavaObject {
 	/**
 	 * A compile-time constant containing the current version of the ANTLR 4
 	 * runtime library.
@@ -80,7 +81,7 @@ export  class RuntimeMetaData {
 	 * omitted.</li>
 	 * </ul>
 	 */
-	public static readonly  VERSION?:  string = "4.10";
+	public static readonly  VERSION:  java.lang.String | null = "4.11.2-SNAPSHOT";
 
 	/**
 	 * Gets the currently executing version of the ANTLR 4 runtime library.
@@ -89,10 +90,10 @@ export  class RuntimeMetaData {
 	 * This method provides runtime access to the {@link #VERSION} field, as
 	 * opposed to directly referencing the field as a compile-time constant.</p>
 	 *
-	 * @return The currently executing version of the ANTLR 4 library
+	  @returns The currently executing version of the ANTLR 4 library
 	 */
 
-	public static getRuntimeVersion = (): string => {
+	public static getRuntimeVersion = ():  java.lang.String | null => {
 		return RuntimeMetaData.VERSION;
 	}
 
@@ -154,20 +155,20 @@ export  class RuntimeMetaData {
 	 * compiled against. This should always be passed using a direct reference
 	 * to {@link #VERSION}.
 	 */
-	public static checkVersion = (generatingToolVersion: string, compileTimeVersion: string): void => {
-		let  runtimeVersion: string = RuntimeMetaData.VERSION;
+	public static checkVersion = (generatingToolVersion: java.lang.String| null, compileTimeVersion: java.lang.String| null):  void => {
+		let  runtimeVersion: java.lang.String = RuntimeMetaData.VERSION;
 		let  runtimeConflictsWithGeneratingTool: boolean = false;
 		let  runtimeConflictsWithCompileTimeTool: boolean = false;
 
-		if ( generatingToolVersion!==undefined ) {
+		if ( generatingToolVersion!==null ) {
 			runtimeConflictsWithGeneratingTool =
-				!(runtimeVersion === generatingToolVersion) &&
-				!(RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(generatingToolVersion)));
+				!runtimeVersion.equals(generatingToolVersion) &&
+				!RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(generatingToolVersion));
 		}
 
 		runtimeConflictsWithCompileTimeTool =
-			!(runtimeVersion === compileTimeVersion) &&
-			!(RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(compileTimeVersion)));
+			!runtimeVersion.equals(compileTimeVersion) &&
+			!RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(compileTimeVersion));
 
 		if ( runtimeConflictsWithGeneratingTool ) {
 			java.lang.System.err.printf("ANTLR Tool version %s used for code generation does not match the current runtime version %s%n",
@@ -185,14 +186,14 @@ export  class RuntimeMetaData {
 	 * E.g., from x.y.z return x.y.
 	 *
 	 * @param version The complete version string.
-	 * @return A string of the form <em>major</em>.<em>minor</em> containing
+	  @returns A string of the form <em>major</em>.<em>minor</em> containing
 	 * only the major and minor components of the version string.
 	 */
-	public static getMajorMinorVersion = (version: string): string => {
+	public static getMajorMinorVersion = (version: java.lang.String| null):  java.lang.String | null => {
 		let  firstDot: number = version.indexOf('.');
 		let  secondDot: number = firstDot >= 0 ? version.indexOf('.', firstDot + 1) : -1;
 		let  firstDash: number = version.indexOf('-');
-		let  referenceLength: number = version.length;
+		let  referenceLength: number = version.length();
 		if (secondDot >= 0) {
 			referenceLength = Math.min(referenceLength, secondDot);
 		}

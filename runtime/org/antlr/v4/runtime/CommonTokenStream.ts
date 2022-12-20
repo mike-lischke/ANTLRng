@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { BufferedTokenStream } from "./BufferedTokenStream";
 import { Token } from "./Token";
 import { TokenSource } from "./TokenSource";
@@ -62,7 +63,7 @@ export  class CommonTokenStream extends BufferedTokenStream {
 	 * @param tokenSource The token source.
 	 */
     /* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(tokenSource: TokenSource);
+public constructor(tokenSource: TokenSource| null);
 
 	/**
 	 * Constructs a new {@link CommonTokenStream} using the specified token
@@ -74,10 +75,10 @@ public constructor(tokenSource: TokenSource);
 	 * @param tokenSource The token source.
 	 * @param channel The channel to use for filtering tokens.
 	 */
-    public constructor(tokenSource: TokenSource, channel: number);
+    public constructor(tokenSource: TokenSource| null, channel: number);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(tokenSource: TokenSource, channel?: number) {
-const $this = (tokenSource: TokenSource, channel?: number): void => {
+public constructor(tokenSource: TokenSource | null, channel?: number) {
+const $this = (tokenSource: TokenSource | null, channel?: number): void => {
 if (channel === undefined) {
 
 /* @ts-expect-error, because of the super() call in the closure. */
@@ -94,13 +95,13 @@ $this(tokenSource, channel);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	protected adjustSeekIndex = (i: number): number => {
+	protected adjustSeekIndex = (i: number):  number => {
 		return this.nextTokenOnChannel(i, this.channel);
 	}
 
-    protected LB = (k: number): Token => {
+    protected LB = (k: number):  Token | null => {
         if ( k===0 || (this.p-k)<0 ) {
- return undefined;
+ return null;
 }
 
 
@@ -113,17 +114,17 @@ $this(tokenSource, channel);
             n++;
         }
         if ( i<0 ) {
- return undefined;
+ return null;
 }
 
         return this.tokens.get(i);
     }
 
-    public LT = (k: number): Token => {
+    public LT = (k: number):  Token | null => {
         //System.out.println("enter LT("+k+")");
         this.lazyInit();
         if ( k === 0 ) {
- return undefined;
+ return null;
 }
 
         if ( k < 0 ) {
@@ -145,7 +146,7 @@ $this(tokenSource, channel);
     }
 
 	/** Count EOF just once. */
-	public getNumberOfOnChannelTokens = (): number => {
+	public getNumberOfOnChannelTokens = ():  number => {
 		let  n: number = 0;
 		this.fill();
 		for (let  i: number = 0; i < this.tokens.size(); i++) {

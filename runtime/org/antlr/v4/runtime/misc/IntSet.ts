@@ -1,17 +1,12 @@
 /* java2ts: keep */
 
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
- * Use of this file is governed by the BSD 3-clause license that
- * can be found in the LICENSE.txt file in the project root.
- */
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
+* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+* Use of this file is governed by the BSD 3-clause license that
+* can be found in the LICENSE.txt file in the project root.
 */
+
+import { java } from "../../../../../../lib/java/java";
 
 /* cspell: disable */
 
@@ -26,7 +21,7 @@ export abstract class IntSet {
      *
      * @param el the value to add
      *
-     * @exception IllegalStateException if the current set is read-only
+     * @throws IllegalStateException if the current set is read-only
      */
     public abstract add(el: number): void;
 
@@ -39,7 +34,7 @@ export abstract class IntSet {
      *
      * @returns This (to support chained calls)
      *
-     * @exception IllegalStateException if the current set is read-only
+     * @throws IllegalStateException if the current set is read-only
      */
 
     public abstract addAll(set: IntSet): IntSet;
@@ -50,7 +45,7 @@ export abstract class IntSet {
      *
      * @param a The set to intersect with the current set. A {@code null}
      * argument is treated as though it were an empty set.
-     * @return A new {@link IntSet} instance containing the intersection of the
+     * @returns A new {@link IntSet} instance containing the intersection of the
      * current set and {@code a}. The value {@code null} may be returned in
      * place of an empty result set.
      */
@@ -70,7 +65,7 @@ export abstract class IntSet {
      *
      * @param elements The set to compare with the current set. A {@code null}
      * argument is treated as though it were an empty set.
-     * @return A new {@link IntSet} instance containing the elements present in
+     * @returns A new {@link IntSet} instance containing the elements present in
      * {@code elements} but not present in the current set. The value
      * {@code null} may be returned in place of an empty result set.
      */
@@ -87,7 +82,7 @@ export abstract class IntSet {
      *
      * @param a The set to union with the current set. A {@code null} argument
      * is treated as though it were an empty set.
-     * @return A new {@link IntSet} instance containing the union of the current
+     * @returns A new {@link IntSet} instance containing the union of the current
      * set and {@code a}. The value {@code null} may be returned in place of an
      * empty result set.
      */
@@ -107,7 +102,7 @@ export abstract class IntSet {
      *
      * @param a The set to compare with the current set. A {@code null}
      * argument is treated as though it were an empty set.
-     * @return A new {@link IntSet} instance containing the elements present in
+     * @returns A new {@link IntSet} instance containing the elements present in
      * {@code elements} but not present in the current set. The value
      * {@code null} may be returned in place of an empty result set.
      */
@@ -117,7 +112,7 @@ export abstract class IntSet {
     /**
      * Return the total number of elements represented by the current set.
      *
-     * @return the total number of elements represented by the current set,
+     * @returns the total number of elements represented by the current set,
      * regardless of the manner in which the elements are stored.
      */
     public abstract size(): number;
@@ -125,7 +120,7 @@ export abstract class IntSet {
     /**
      * Returns {@code true} if this set contains no elements.
      *
-     * @return True if the current set contains no elements; otherwise, {@code false}.
+     * @returns True if the current set contains no elements; otherwise, {@code false}.
      */
     public abstract isNil(): boolean;
 
@@ -149,7 +144,7 @@ export abstract class IntSet {
      *
      * @param el the value to remove
      *
-     * @exception IllegalStateException if the current set is read-only
+     * @throws IllegalStateException if the current set is read-only
      */
     public abstract remove(el: number): void;
 
@@ -157,14 +152,11 @@ export abstract class IntSet {
      * Return a list containing the elements represented by the current set. The
      * list is returned in ascending numerical order.
      *
-     * @return A list containing all element present in the current set, sorted
+     * @returns A list containing all element present in the current set, sorted
      * in ascending numerical order.
      */
 
     public abstract toList(): number[];
 
-    /**
-     * {@inheritDoc}
-     */
-    public abstract toString(): string;
+    public abstract toString(): java.lang.String;
 }

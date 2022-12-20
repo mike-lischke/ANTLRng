@@ -13,6 +13,7 @@
 
 /* cspell: disable */
 
+
 import { Parser } from "./Parser";
 import { ParserRuleContext } from "./ParserRuleContext";
 import { RecognitionException } from "./RecognitionException";
@@ -24,10 +25,10 @@ import { RecognitionException } from "./RecognitionException";
  *  when the current input does not match the expected token.
  */
 export  class InputMismatchException extends RecognitionException {
-	public constructor(recognizer: Parser);
+	public constructor(recognizer: Parser| null);
 
-	public constructor(recognizer: Parser, state: number, ctx: ParserRuleContext);
-public constructor(recognizer: Parser, state?: number, ctx?: ParserRuleContext) {
+	public constructor(recognizer: Parser| null, state: number, ctx: ParserRuleContext| null);
+public constructor(recognizer: Parser | null, state?: number, ctx?: ParserRuleContext | null) {
 if (state === undefined) {
 		super(recognizer, recognizer.getInputStream(), recognizer._ctx);
 		this.setOffendingToken(recognizer.getCurrentToken());

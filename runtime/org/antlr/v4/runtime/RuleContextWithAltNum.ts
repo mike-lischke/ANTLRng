@@ -16,6 +16,7 @@
 
 
 
+
 import { ParserRuleContext } from "./ParserRuleContext";
 import { ATN } from "./atn/ATN";
 
@@ -36,8 +37,8 @@ export  class RuleContextWithAltNum extends ParserRuleContext {
 	public altNum:  number;
 	public constructor();
 
-	public constructor(parent: ParserRuleContext, invokingStateNumber: number);
-public constructor(parent?: ParserRuleContext, invokingStateNumber?: number) {
+	public constructor(parent: ParserRuleContext| null, invokingStateNumber: number);
+public constructor(parent?: ParserRuleContext | null, invokingStateNumber?: number) {
 if (parent === undefined) { super();
 this.altNum = ATN.INVALID_ALT_NUMBER; }
  else  {
@@ -46,6 +47,6 @@ this.altNum = ATN.INVALID_ALT_NUMBER; }
 
 }
 
-	public getAltNumber = (): number => { return this.altNum; }
-	public setAltNumber = (altNum: number): void => { this.altNum = altNum; }
+	public getAltNumber = ():  number => { return this.altNum; }
+	public setAltNumber = (altNum: number):  void => { this.altNum = altNum; }
 }

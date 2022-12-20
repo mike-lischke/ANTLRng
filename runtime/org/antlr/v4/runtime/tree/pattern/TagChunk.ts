@@ -14,7 +14,7 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../../../lib/java/java";
+
 import { Chunk } from "./Chunk";
 
 
@@ -38,11 +38,11 @@ export class TagChunk extends Chunk {
 	/**
 	 * This is the backing field for {@link #getTag}.
 	 */
-	private readonly  tag?:  string;
+	private readonly  tag:  java.lang.String | null;
 	/**
 	 * This is the backing field for {@link #getLabel}.
 	 */
-	private readonly  label?:  string;
+	private readonly  label:  java.lang.String | null;
 
 	/**
 	 * Construct a new instance of {@link TagChunk} using the specified tag and
@@ -55,7 +55,7 @@ export class TagChunk extends Chunk {
 	 * empty.
 	 */
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(tag: string);
+public constructor(tag: java.lang.String| null);
 
 	/**
 	 * Construct a new instance of {@link TagChunk} using the specified label
@@ -69,18 +69,18 @@ public constructor(tag: string);
 	 * @exception IllegalArgumentException if {@code tag} is {@code null} or
 	 * empty.
 	 */
-	public constructor(label: string, tag: string);
+	public constructor(label: java.lang.String| null, tag: java.lang.String| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(tagOrLabel: string, tag?: string) {
-const $this = (tagOrLabel: string, tag?: string): void => {
+public constructor(tagOrLabel: java.lang.String | null, tag?: java.lang.String | null) {
+const $this = (tagOrLabel: java.lang.String | null, tag?: java.lang.String | null): void => {
 if (tag === undefined) {
-		$this(undefined, tag);
+		$this(null, tag);
 	}
  else  {
-let label = tagOrLabel as string;
+let label = tagOrLabel as java.lang.String;
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
-if (tag === undefined || tag.length === 0) {
+if (tag === null || tag.isEmpty()) {
 			throw new  java.lang.IllegalArgumentException("tag cannot be null or empty");
 		}
 
@@ -97,21 +97,21 @@ $this(tagOrLabel, tag);
 	/**
 	 * Get the tag for this chunk.
 	 *
-	 * @return The tag for the chunk.
+	  @returns The tag for the chunk.
 	 */
 
-	public readonly  getTag = (): string => {
+	public readonly  getTag = ():  java.lang.String | null => {
 		return this.tag;
 	}
 
 	/**
 	 * Get the label, if any, assigned to this chunk.
 	 *
-	 * @return The label assigned to this chunk, or {@code null} if no label is
+	  @returns The label assigned to this chunk, or {@code null} if no label is
 	 * assigned to the chunk.
 	 */
 
-	public readonly  getLabel = (): string => {
+	public readonly  getLabel = ():  java.lang.String | null => {
 		return this.label;
 	}
 
@@ -120,8 +120,8 @@ $this(tagOrLabel, tag);
 	 * are returned in the form {@code label:tag}, and unlabeled tags are
 	 * returned as just the tag name.
 	 */
-	public toString = (): string => {
-		if (this.label !== undefined) {
+	public toString = ():  java.lang.String | null => {
+		if (this.label !== null) {
 			return this.label + ":" + this.tag;
 		}
 

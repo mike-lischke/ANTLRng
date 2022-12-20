@@ -16,6 +16,7 @@
 
 
 
+
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeListener } from "./ParseTreeListener";
@@ -34,7 +35,7 @@ import { IntegerStack } from "../misc/IntegerStack";
  */
 export  class IterativeParseTreeWalker extends ParseTreeWalker {
 
-	public walk = (listener: ParseTreeListener, t: ParseTree): void => {
+	public walk = (listener: ParseTreeListener| null, t: ParseTree| null):  void => {
 
 		 let  nodeStack: Deque<ParseTree> = new  ArrayDeque<ParseTree>();
 		 let  indexStack: IntegerStack = new  IntegerStack();
@@ -42,7 +43,7 @@ export  class IterativeParseTreeWalker extends ParseTreeWalker {
 		let  currentNode: ParseTree = t;
 		let  currentIndex: number = 0;
 
-		while (currentNode !== undefined) {
+		while (currentNode !== null) {
 
 			// pre-order visit
 			if (currentNode instanceof ErrorNode) {
@@ -77,14 +78,14 @@ export  class IterativeParseTreeWalker extends ParseTreeWalker {
 
 				// No parent, so no siblings
 				if (nodeStack.isEmpty()) {
-					currentNode = undefined;
+					currentNode = null;
 					currentIndex = 0;
 					break;
 				}
 
 				// Move to next sibling if possible
 				currentNode = nodeStack.peek().getChild(++currentIndex);
-				if (currentNode !== undefined) {
+				if (currentNode !== null) {
 					break;
 				}
 
@@ -92,7 +93,7 @@ export  class IterativeParseTreeWalker extends ParseTreeWalker {
 				currentNode = nodeStack.pop();
 				currentIndex = indexStack.pop();
 
-			} while (currentNode !== undefined);
+			} while (currentNode !== null);
 		}
 	}
 }

@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../../../lib/java/java";
 import { ParseTreeMatch } from "./ParseTreeMatch";
 import { ParseTreePatternMatcher } from "./ParseTreePatternMatcher";
@@ -23,13 +24,14 @@ import { ParseTree } from "../ParseTree";
 import { XPath } from "../xpath/XPath";
 
 
+import { JavaObject } from "../../../../../../../lib/java/lang/Object";
 
 
 /**
  * A pattern like {@code <ID> = <expr>;} converted to a {@link ParseTree} by
  * {@link ParseTreePatternMatcher#compile(String, int)}.
  */
-export  class ParseTreePattern {
+export  class ParseTreePattern extends JavaObject {
 	/**
 	 * This is the backing field for {@link #getPatternRuleIndex()}.
 	 */
@@ -39,19 +41,19 @@ export  class ParseTreePattern {
 	 * This is the backing field for {@link #getPattern()}.
 	 */
 
-	private readonly  pattern?:  string;
+	private readonly  pattern:  java.lang.String | null;
 
 	/**
 	 * This is the backing field for {@link #getPatternTree()}.
 	 */
 
-	private readonly  patternTree?:  ParseTree;
+	private readonly  patternTree:  ParseTree | null;
 
 	/**
 	 * This is the backing field for {@link #getMatcher()}.
 	 */
 
-	private readonly  matcher?:  ParseTreePatternMatcher;
+	private readonly  matcher:  ParseTreePatternMatcher | null;
 
 	/**
 	 * Construct a new instance of the {@link ParseTreePattern} class.
@@ -63,10 +65,11 @@ export  class ParseTreePattern {
 	 * tree pattern.
 	 * @param patternTree The tree pattern in {@link ParseTree} form.
 	 */
-	public constructor(matcher: ParseTreePatternMatcher,
-							pattern: string, patternRuleIndex: number, patternTree: ParseTree)
+	public constructor(matcher: ParseTreePatternMatcher| null,
+							pattern: java.lang.String| null, patternRuleIndex: number, patternTree: ParseTree| null)
 	{
-		this.matcher = matcher;
+		super();
+this.matcher = matcher;
 		this.patternRuleIndex = patternRuleIndex;
 		this.pattern = pattern;
 		this.patternTree = patternTree;
@@ -76,12 +79,12 @@ export  class ParseTreePattern {
 	 * Match a specific parse tree against this tree pattern.
 	 *
 	 * @param tree The parse tree to match against this tree pattern.
-	 * @return A {@link ParseTreeMatch} object describing the result of the
+	  @returns A {@link ParseTreeMatch} object describing the result of the
 	 * match operation. The {@link ParseTreeMatch#succeeded()} method can be
 	 * used to determine whether or not the match was successful.
 	 */
 
-	public match = (tree: ParseTree): ParseTreeMatch => {
+	public match = (tree: ParseTree| null):  ParseTreeMatch | null => {
 		return this.matcher.match(tree, this);
 	}
 
@@ -89,10 +92,10 @@ export  class ParseTreePattern {
 	 * Determine whether or not a parse tree matches this tree pattern.
 	 *
 	 * @param tree The parse tree to match against this tree pattern.
-	 * @return {@code true} if {@code tree} is a match for the current tree
+	  @returns {@code true} if {@code tree} is a match for the current tree
 	 * pattern; otherwise, {@code false}.
 	 */
-	public matches = (tree: ParseTree): boolean => {
+	public matches = (tree: ParseTree| null):  boolean => {
 		return this.matcher.match(tree, this).succeeded();
 	}
 
@@ -103,12 +106,12 @@ export  class ParseTreePattern {
 	 * @param tree The {@link ParseTree} to match against this pattern.
 	 * @param xpath An expression matching the nodes
 	 *
-	 * @return A collection of {@link ParseTreeMatch} objects describing the
+	  @returns A collection of {@link ParseTreeMatch} objects describing the
 	 * successful matches. Unsuccessful matches are omitted from the result,
 	 * regardless of the reason for the failure.
 	 */
 
-	public findAll = (tree: ParseTree, xpath: string): java.util.List<ParseTreeMatch> => {
+	public findAll = (tree: ParseTree| null, xpath: java.lang.String| null):  java.util.List<ParseTreeMatch> | null => {
 		let  subtrees: java.util.Collection<ParseTree> = XPath.findAll(tree, xpath, this.matcher.getParser());
 		let  matches: java.util.List<ParseTreeMatch> = new  java.util.ArrayList<ParseTreeMatch>();
 		for (let t of subtrees) {
@@ -123,21 +126,21 @@ export  class ParseTreePattern {
 	/**
 	 * Get the {@link ParseTreePatternMatcher} which created this tree pattern.
 	 *
-	 * @return The {@link ParseTreePatternMatcher} which created this tree
+	  @returns The {@link ParseTreePatternMatcher} which created this tree
 	 * pattern.
 	 */
 
-	public getMatcher = (): ParseTreePatternMatcher => {
+	public getMatcher = ():  ParseTreePatternMatcher | null => {
 		return this.matcher;
 	}
 
 	/**
 	 * Get the tree pattern in concrete syntax form.
 	 *
-	 * @return The tree pattern in concrete syntax form.
+	  @returns The tree pattern in concrete syntax form.
 	 */
 
-	public getPattern = (): string => {
+	public getPattern = ():  java.lang.String | null => {
 		return this.pattern;
 	}
 
@@ -145,10 +148,10 @@ export  class ParseTreePattern {
 	 * Get the parser rule which serves as the outermost rule for the tree
 	 * pattern.
 	 *
-	 * @return The parser rule which serves as the outermost rule for the tree
+	  @returns The parser rule which serves as the outermost rule for the tree
 	 * pattern.
 	 */
-	public getPatternRuleIndex = (): number => {
+	public getPatternRuleIndex = ():  number => {
 		return this.patternRuleIndex;
 	}
 
@@ -157,10 +160,10 @@ export  class ParseTreePattern {
 	 * the pattern are present in the parse tree as terminal nodes with a symbol
 	 * of type {@link RuleTagToken} or {@link TokenTagToken}.
 	 *
-	 * @return The tree pattern as a {@link ParseTree}.
+	  @returns The tree pattern as a {@link ParseTree}.
 	 */
 
-	public getPatternTree = (): ParseTree => {
+	public getPatternTree = ():  ParseTree | null => {
 		return this.patternTree;
 	}
 }

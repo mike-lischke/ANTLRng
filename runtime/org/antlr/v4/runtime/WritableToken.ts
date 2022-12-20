@@ -14,21 +14,23 @@
 
 /* cspell: disable */
 
+
+import { java } from "../../../../../lib/java/java";
 import { Token } from "./Token";
 
 
 
 
-export abstract class WritableToken extends Token {
-	public abstract setText: (text: string) =>  void;
+export  interface WritableToken extends Token {
+	 setText: (text: java.lang.String| null) => void;
 
-	public abstract setType: (ttype: number) =>  void;
+	 setType: (ttype: number) => void;
 
-	public abstract setLine: (line: number) =>  void;
+	 setLine: (line: number) => void;
 
-	public abstract setCharPositionInLine: (pos: number) =>  void;
+	 setCharPositionInLine: (pos: number) => void;
 
-	public abstract setChannel: (channel: number) =>  void;
+	 setChannel: (channel: number) => void;
 
-	public abstract setTokenIndex: (index: number) =>  void;
+	 setTokenIndex: (index: number) => void;
 }

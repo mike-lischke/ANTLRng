@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../../../lib/java/java";
 import { XPath } from "./XPath";
 import { XPathElement } from "./XPathElement";
@@ -30,7 +31,7 @@ export  class XPathWildcardAnywhereElement extends XPathElement {
 		super(XPath.WILDCARD);
 	}
 
-	public evaluate = (t: ParseTree): java.util.Collection<ParseTree> => {
+	public evaluate = (t: ParseTree| null):  java.util.Collection<ParseTree> | null => {
 		if ( this.invert ) {
  return new  java.util.ArrayList<ParseTree>();
 }

@@ -14,6 +14,8 @@
 /* cspell: disable */
 
 
+import { java } from "../../../../../lib/java/java";
+
 
 
 
@@ -24,13 +26,13 @@
  * @see Recognizer#getVocabulary()
  * @author Sam Harwell
  */
-export abstract class Vocabulary {
+export  interface Vocabulary {
 	/**
 	 * Returns the highest token type value. It can be used to iterate from
 	 * zero to that number, inclusively, thus querying all stored entries.
-	 * @return the highest token type value
+	  @returns the highest token type value
 	 */
-	public  abstract getMaxTokenType: () => number;
+	 getMaxTokenType: () => number;
 
 	/**
 	 * Gets the string literal associated with a token type. The string returned
@@ -65,10 +67,10 @@ export abstract class Vocabulary {
 	 *
 	 * @param tokenType The token type.
 	 *
-	 * @return The string literal associated with the specified token type, or
+	  @returns The string literal associated with the specified token type, or
 	 * {@code null} if no string literal is associated with the type.
 	 */
-	public  abstract getLiteralName: (tokenType: number) => string;
+	 getLiteralName: (tokenType: number) => java.lang.String;
 
 	/**
 	 * Gets the symbolic name associated with a token type. The string returned
@@ -110,10 +112,10 @@ export abstract class Vocabulary {
 	 *
 	 * @param tokenType The token type.
 	 *
-	 * @return The symbolic name associated with the specified token type, or
+	  @returns The symbolic name associated with the specified token type, or
 	 * {@code null} if no symbolic name is associated with the type.
 	 */
-	public  abstract getSymbolicName: (tokenType: number) => string;
+	 getSymbolicName: (tokenType: number) => java.lang.String;
 
 	/**
 	 * Gets the display name of a token type.
@@ -132,8 +134,8 @@ export abstract class Vocabulary {
 	 *
 	 * @param tokenType The token type.
 	 *
-	 * @return The display name of the token type, for use in error reporting or
+	  @returns The display name of the token type, for use in error reporting or
 	 * other user-visible messages which reference specific token types.
 	 */
-	public  abstract getDisplayName: (tokenType: number) => string;
+	 getDisplayName: (tokenType: number) => java.lang.String;
 }

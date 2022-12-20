@@ -16,6 +16,8 @@
 
 
 
+
+import { java } from "../../../../../lib/java/java";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { Recognizer } from "./Recognizer";
@@ -26,7 +28,7 @@ import { DFA } from "./dfa/DFA";
 
 
 /** How to emit recognition errors. */
-export abstract class ANTLRErrorListener {
+export  interface ANTLRErrorListener {
 	/**
 	 * Upon syntax error, notify any interested parties. This is not how to
 	 * recover from errors or compute error messages. {@link ANTLRErrorStrategy}
@@ -60,12 +62,12 @@ export abstract class ANTLRErrorListener {
 	 *        the parser was able to recover in line without exiting the
 	 *        surrounding rule.
 	 */
-	public abstract syntaxError: (recognizer: Recognizer<unknown, unknown>,
-							offendingSymbol: object,
+	 syntaxError: (recognizer: Recognizer<unknown, unknown>| null,
+							offendingSymbol: java.lang.Object| null,
 							line: number,
 							charPositionInLine: number,
-							msg: string,
-							e: RecognitionException) =>  void;
+							msg: java.lang.String| null,
+							e: RecognitionException| null) => void;
 
 	/**
 	 * This method is called by the parser when a full-context prediction
@@ -107,13 +109,13 @@ export abstract class ANTLRErrorListener {
 	 * @param configs the ATN configuration set where the ambiguity was
 	 * identified
 	 */
-	public  abstract reportAmbiguity: (recognizer: Parser,
-						 dfa: DFA,
+	 reportAmbiguity: (recognizer: Parser| null,
+						 dfa: DFA| null,
 						 startIndex: number,
 						 stopIndex: number,
 						 exact: boolean,
-						 ambigAlts: BitSet,
-						 configs: ATNConfigSet) => void;
+						 ambigAlts: java.util.BitSet| null,
+						 configs: ATNConfigSet| null) => void;
 
 	/**
 	 * This method is called when an SLL conflict occurs and the parser is about
@@ -138,12 +140,12 @@ export abstract class ANTLRErrorListener {
 	 * @param configs the ATN configuration set where the SLL conflict was
 	 * detected
 	 */
-	public  abstract reportAttemptingFullContext: (recognizer: Parser,
-									 dfa: DFA,
+	 reportAttemptingFullContext: (recognizer: Parser| null,
+									 dfa: DFA| null,
 									 startIndex: number,
 									 stopIndex: number,
-									 conflictingAlts: BitSet,
-									 configs: ATNConfigSet) => void;
+									 conflictingAlts: java.util.BitSet| null,
+									 configs: ATNConfigSet| null) => void;
 
 	/**
 	 * This method is called by the parser when a full-context prediction has a
@@ -183,10 +185,10 @@ export abstract class ANTLRErrorListener {
 	 * @param configs the ATN configuration set where the unambiguous prediction
 	 * was determined
 	 */
-	public  abstract reportContextSensitivity: (recognizer: Parser,
-								  dfa: DFA,
+	 reportContextSensitivity: (recognizer: Parser| null,
+								  dfa: DFA| null,
 								  startIndex: number,
 								  stopIndex: number,
 								  prediction: number,
-								  configs: ATNConfigSet) => void;
+								  configs: ATNConfigSet| null) => void;
 }

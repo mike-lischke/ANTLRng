@@ -13,7 +13,7 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../lib/java/java";
+
 import { BaseErrorListener } from "./BaseErrorListener";
 import { RecognitionException } from "./RecognitionException";
 import { Recognizer } from "./Recognizer";
@@ -29,10 +29,9 @@ export  class ConsoleErrorListener extends BaseErrorListener {
 	/**
 	 * Provides a default instance of {@link ConsoleErrorListener}.
 	 */
-	public static readonly  INSTANCE?:  ConsoleErrorListener = new  ConsoleErrorListener();
+	public static readonly  INSTANCE:  ConsoleErrorListener | null = new  ConsoleErrorListener();
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>
 	 * This implementation prints messages to {@link System#err} containing the
@@ -43,12 +42,12 @@ export  class ConsoleErrorListener extends BaseErrorListener {
 	 * line <em>line</em>:<em>charPositionInLine</em> <em>msg</em>
 	 * </pre>
 	 */
-	public syntaxError = (recognizer: Recognizer<unknown, unknown>,
-							offendingSymbol: object,
+	public syntaxError = (recognizer: Recognizer<unknown, unknown>| null,
+							offendingSymbol: java.lang.Object| null,
 							line: number,
 							charPositionInLine: number,
-							msg: string,
-							e: RecognitionException): void =>
+							msg: java.lang.String| null,
+							e: RecognitionException| null):  void =>
 	{
 		java.lang.System.err.println("line " + line + ":" + charPositionInLine + " " + msg);
 	}

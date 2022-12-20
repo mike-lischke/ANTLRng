@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { BufferedTokenStream } from "./BufferedTokenStream";
 import { CharStream } from "./CharStream";
@@ -24,6 +25,7 @@ import { CodePointCharStream } from "./CodePointCharStream";
 import { IntStream } from "./IntStream";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 import { closeResources, handleResourceError, throwResourceError } from "../../../../../lib/helpers";
 
 
@@ -65,7 +67,7 @@ import { closeResources, handleResourceError, throwResourceError } from "../../.
  *
  *  @since 4.7
  */
-export  class CharStreams {
+export  class CharStreams extends JavaObject {
 	private static readonly  DEFAULT_BUFFER_SIZE:  number = 4096;
 
 	// Utility class; do not construct.
@@ -77,7 +79,7 @@ export  class CharStreams {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromPath(path: Path): CharStream;
+	public static fromPath(path: Path| null):  CharStream | null;
 
 	/**
 	 * Creates a {@link CharStream} given a path to a file on disk and the
@@ -85,7 +87,7 @@ export  class CharStreams {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromPath(path: Path, charset: java.nio.charset.Charset): CharStream;
+	public static fromPath(path: Path| null, charset: java.nio.charset.Charset| null):  CharStream | null;
 
 
 	/**
@@ -94,12 +96,12 @@ export  class CharStreams {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromPath(path: Path, charset?: java.nio.charset.Charset):  CharStream {
+	public static fromPath(path: Path | null, charset?: java.nio.charset.Charset | null):  CharStream | null {
 if (charset === undefined) {
 		return CharStreams.fromPath(path, java.nio.charset.StandardCharsets.UTF_8);
 	}
  else  {
-		let  size: number = Files.size(path);
+		let  size: bigint = Files.size(path);
 		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
@@ -136,7 +138,7 @@ try {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromFileName(fileName: string): CharStream;
+	public static fromFileName(fileName: java.lang.String| null):  CharStream | null;
 
 	/**
 	 * Creates a {@link CharStream} given a string containing a
@@ -145,7 +147,7 @@ try {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromFileName(fileName: string, charset: java.nio.charset.Charset): CharStream;
+	public static fromFileName(fileName: java.lang.String| null, charset: java.nio.charset.Charset| null):  CharStream | null;
 
 
 	/**
@@ -154,7 +156,7 @@ try {
 	 *
 	 * Reads the entire contents of the file into the result before returning.
 	 */
-	public static fromFileName(fileName: string, charset?: java.nio.charset.Charset):  CharStream {
+	public static fromFileName(fileName: java.lang.String | null, charset?: java.nio.charset.Charset | null):  CharStream | null {
 if (charset === undefined) {
 		return CharStreams.fromPath(Paths.get(fileName), java.nio.charset.StandardCharsets.UTF_8);
 	}
@@ -173,7 +175,7 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: java.io.InputStream): CharStream;
+	public static fromStream(is: java.io.InputStream| null):  CharStream | null;
 
 	/**
 	 * Creates a {@link CharStream} given an opened {@link InputStream} and the
@@ -182,9 +184,9 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: java.io.InputStream, charset: java.nio.charset.Charset): CharStream;
+	public static fromStream(is: java.io.InputStream| null, charset: java.nio.charset.Charset| null):  CharStream | null;
 
-	public static fromStream(is: java.io.InputStream, charset: java.nio.charset.Charset, inputSize: number): CharStream;
+	public static fromStream(is: java.io.InputStream| null, charset: java.nio.charset.Charset| null, inputSize: bigint):  CharStream | null;
 
 
 
@@ -195,7 +197,7 @@ if (charset === undefined) {
 	 * Reads the entire contents of the {@code InputStream} into
 	 * the result before returning, then closes the {@code InputStream}.
 	 */
-	public static fromStream(is: java.io.InputStream, charset?: java.nio.charset.Charset, inputSize?: number):  CharStream {
+	public static fromStream(is: java.io.InputStream | null, charset?: java.nio.charset.Charset | null, inputSize?: bigint):  CharStream | null {
 if (charset === undefined) {
 		return CharStreams.fromStream(is, java.nio.charset.StandardCharsets.UTF_8);
 	}
@@ -240,7 +242,7 @@ try {
 	 * Reads the entire contents of the {@code channel} into
 	 * the result before returning, then closes the {@code channel}.
 	 */
-	public static fromChannel(channel: ReadableByteChannel): CharStream;
+	public static fromChannel(channel: ReadableByteChannel| null):  CharStream | null;
 
 	/**
 	 * Creates a {@link CharStream} given an opened {@link ReadableByteChannel} and the
@@ -249,7 +251,7 @@ try {
 	 * Reads the entire contents of the {@code channel} into
 	 * the result before returning, then closes the {@code channel}.
 	 */
-	public static fromChannel(channel: ReadableByteChannel, charset: java.nio.charset.Charset): CharStream;
+	public static fromChannel(channel: ReadableByteChannel| null, charset: java.nio.charset.Charset| null):  CharStream | null;
 
 	/**
 	 * Creates a {@link CharStream} given an opened {@link ReadableByteChannel}
@@ -259,18 +261,18 @@ try {
 	 * the result before returning, then closes the {@code channel}.
 	 */
 	public static fromChannel(
-		channel: ReadableByteChannel,
+		channel: ReadableByteChannel| null,
 		bufferSize: number,
-		decodingErrorAction: CodingErrorAction,
-		sourceName: string): CodePointCharStream;
+		decodingErrorAction: CodingErrorAction| null,
+		sourceName: java.lang.String| null):  CodePointCharStream | null;
 
 	public static fromChannel(
-		channel: ReadableByteChannel,
-		charset: java.nio.charset.Charset,
+		channel: ReadableByteChannel| null,
+		charset: java.nio.charset.Charset| null,
 		bufferSize: number,
-		decodingErrorAction: CodingErrorAction,
-		sourceName: string,
-		inputSize: number): CodePointCharStream;
+		decodingErrorAction: CodingErrorAction| null,
+		sourceName: java.lang.String| null,
+		inputSize: bigint):  CodePointCharStream | null;
 
 
 	/**
@@ -280,7 +282,7 @@ try {
 	 * Reads the entire contents of the {@code channel} into
 	 * the result before returning, then closes the {@code channel}.
 	 */
-	public static fromChannel(channel: ReadableByteChannel, charsetOrBufferSize?: java.nio.charset.Charset | number, decodingErrorActionOrBufferSize?: CodingErrorAction | number, sourceNameOrDecodingErrorAction?: string | CodingErrorAction, sourceName?: string, inputSize?: number):  CharStream |  CodePointCharStream {
+	public static fromChannel(channel: ReadableByteChannel | null, charsetOrBufferSize?: java.nio.charset.Charset | number | null, decodingErrorActionOrBufferSize?: CodingErrorAction | number | null, sourceNameOrDecodingErrorAction?: java.lang.String | CodingErrorAction | null, sourceName?: java.lang.String | null, inputSize?: bigint):  CharStream | null |  CodePointCharStream | null {
 if (charsetOrBufferSize === undefined) {
 		return CharStreams.fromChannel(channel, java.nio.charset.StandardCharsets.UTF_8);
 	}
@@ -292,11 +294,11 @@ const charset = charsetOrBufferSize as java.nio.charset.Charset;
 			CodingErrorAction.REPLACE,
 			IntStream.UNKNOWN_SOURCE_NAME);
 	}
- else if (typeof charsetOrBufferSize === "number" && decodingErrorActionOrBufferSize instanceof CodingErrorAction && typeof sourceNameOrDecodingErrorAction === "string" && sourceName === undefined)
+ else if (typeof charsetOrBufferSize === "number" && decodingErrorActionOrBufferSize instanceof CodingErrorAction && sourceNameOrDecodingErrorAction instanceof java.lang.String && sourceName === undefined)
 	{
 const bufferSize = charsetOrBufferSize as number;
 const decodingErrorAction = decodingErrorActionOrBufferSize as CodingErrorAction;
-const sourceName = sourceNameOrDecodingErrorAction as string;
+const sourceName = sourceNameOrDecodingErrorAction as java.lang.String;
 		return CharStreams.fromChannel(channel, java.nio.charset.StandardCharsets.UTF_8, bufferSize, decodingErrorAction, sourceName, -1);
 	}
  else 
@@ -311,7 +313,7 @@ let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 				inputSize = bufferSize;
 			} else { if (inputSize > java.lang.Integer.MAX_VALUE) {
 				// ByteBuffer et al don't support long sizes
-				throw new  java.io.IOException(util.format("inputSize %d larger than max %d", inputSize, java.lang.Integer.MAX_VALUE));
+				throw new  java.io.IOException(java.lang.String.format("inputSize %d larger than max %d", inputSize, java.lang.Integer.MAX_VALUE));
 			}
 }
 
@@ -362,20 +364,20 @@ let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 	 * Creates a {@link CharStream} given a {@link Reader}. Closes
 	 * the reader before returning.
 	 */
-	public static fromReader(r: java.io.Reader): CodePointCharStream;
+	public static fromReader(r: java.io.Reader| null):  CodePointCharStream | null;
 
 	/**
 	 * Creates a {@link CharStream} given a {@link Reader} and its
 	 * source name. Closes the reader before returning.
 	 */
-	public static fromReader(r: java.io.Reader, sourceName: string): CodePointCharStream;
+	public static fromReader(r: java.io.Reader| null, sourceName: java.lang.String| null):  CodePointCharStream | null;
 
 
 	/**
 	 * Creates a {@link CharStream} given a {@link Reader}. Closes
 	 * the reader before returning.
 	 */
-	public static fromReader(r: java.io.Reader, sourceName?: string):  CodePointCharStream {
+	public static fromReader(r: java.io.Reader | null, sourceName?: java.lang.String | null):  CodePointCharStream | null {
 if (sourceName === undefined) {
 		return CharStreams.fromReader(r, IntStream.UNKNOWN_SOURCE_NAME);
 	}
@@ -401,29 +403,29 @@ if (sourceName === undefined) {
 	/**
 	 * Creates a {@link CharStream} given a {@link String}.
 	 */
-	public static fromString(s: string): CodePointCharStream;
+	public static fromString(s: java.lang.String| null):  CodePointCharStream | null;
 
 	/**
 	 * Creates a {@link CharStream} given a {@link String} and the {@code sourceName}
 	 * from which it came.
 	 */
-	public static fromString(s: string, sourceName: string): CodePointCharStream;
+	public static fromString(s: java.lang.String| null, sourceName: java.lang.String| null):  CodePointCharStream | null;
 
 
 	/**
 	 * Creates a {@link CharStream} given a {@link String}.
 	 */
-	public static fromString(s: string, sourceName?: string):  CodePointCharStream {
+	public static fromString(s: java.lang.String | null, sourceName?: java.lang.String | null):  CodePointCharStream | null {
 if (sourceName === undefined) {
 		return CharStreams.fromString(s, IntStream.UNKNOWN_SOURCE_NAME);
 	}
  else  {
 		// Initial guess assumes no code points > U+FFFF: one code
 		// point for each code unit in the string
-		let  codePointBufferBuilder: CodePointBuffer.Builder = CodePointBuffer.builder(s.length);
+		let  codePointBufferBuilder: CodePointBuffer.Builder = CodePointBuffer.builder(s.length());
 		// TODO: CharBuffer.wrap(String) rightfully returns a read-only buffer
 		// which doesn't expose its array, so we make a copy.
-		let  cb: java.nio.CharBuffer = java.nio.CharBuffer.allocate(s.length);
+		let  cb: java.nio.CharBuffer = java.nio.CharBuffer.allocate(s.length());
 		cb.put(s);
 		cb.flip();
 		codePointBufferBuilder.append(cb);

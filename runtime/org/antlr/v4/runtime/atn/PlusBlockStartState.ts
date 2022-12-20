@@ -14,9 +14,8 @@
 
 /* cspell: disable */
 
-import { ATNState } from "./ATNState";
+
 import { BlockStartState } from "./BlockStartState";
-import { DecisionState } from "./DecisionState";
 import { PlusLoopbackState } from "./PlusLoopbackState";
 
 
@@ -28,9 +27,9 @@ import { PlusLoopbackState } from "./PlusLoopbackState";
  *  real decision-making note for {@code A+}.
  */
 export  class PlusBlockStartState extends BlockStartState {
-	public loopBackState?:  PlusLoopbackState;
+	public loopBackState:  PlusLoopbackState | null;
 
-	public getStateType = (): number => {
+	public getStateType = ():  number => {
 		return ATNState.PLUS_BLOCK_START;
 	}
 }

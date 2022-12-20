@@ -533,7 +533,6 @@
                     "private-instance-field",
                     "public-abstract-field",
                     "protected-abstract-field",
-                    "private-abstract-field",
                     "public-field",
                     "protected-field",
                     "private-field",
@@ -558,8 +557,7 @@
                     "protected-instance-method",
                     "private-instance-method",
                     "public-abstract-method",
-                    "protected-abstract-method",
-                    "private-abstract-method"
+                    "protected-abstract-method"
                 ]
             }
         ],
@@ -657,6 +655,8 @@
                 ]
             }
         ],
+        "@typescript-eslint/restrict-template-expressions": "off",
+        "@typescript-eslint/restrict-plus-operands": "off",
         "jsdoc/check-alignment": "error",
         "jsdoc/check-indentation": "off",
         "jsdoc/newline-after-description": "error",

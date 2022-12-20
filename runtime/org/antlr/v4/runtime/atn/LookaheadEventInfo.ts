@@ -16,6 +16,7 @@
 
 
 
+
 import { ATNConfigSet } from "./ATNConfigSet";
 import { DecisionEventInfo } from "./DecisionEventInfo";
 import { TokenStream } from "../TokenStream";
@@ -27,7 +28,7 @@ import { TokenStream } from "../TokenStream";
  * This class represents profiling event information for tracking the lookahead
  * depth required in order to make a prediction.
  *
- * @since 4.3
+ *
  */
 export  class LookaheadEventInfo extends DecisionEventInfo {
 	/** The alternative chosen by adaptivePredict(), not necessarily
@@ -53,9 +54,9 @@ export  class LookaheadEventInfo extends DecisionEventInfo {
 	 * an SLL prediction
 	 */
 	public constructor(decision: number,
-							  configs: ATNConfigSet,
+							  configs: ATNConfigSet| null,
 							  predictedAlt: number,
-							  input: TokenStream, startIndex: number, stopIndex: number,
+							  input: TokenStream| null, startIndex: number, stopIndex: number,
 							  fullCtx: boolean)
 	{
 		super(decision, configs, input, startIndex, stopIndex, fullCtx);

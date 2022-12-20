@@ -13,6 +13,7 @@
 
 /* cspell: disable */
 
+
 import { ParserRuleContext } from "./ParserRuleContext";
 import { RuleContext } from "./RuleContext";
 
@@ -45,10 +46,10 @@ export  class InterpreterRuleContext extends ParserRuleContext {
 	 * @param invokingStateNumber The invoking state number.
 	 * @param ruleIndex The rule index for the current context.
 	 */
-	public constructor(parent: ParserRuleContext,
+	public constructor(parent: ParserRuleContext| null,
 								  invokingStateNumber: number,
 								  ruleIndex: number);
-public constructor(parent?: ParserRuleContext, invokingStateNumber?: number, ruleIndex?: number) {
+public constructor(parent?: ParserRuleContext | null, invokingStateNumber?: number, ruleIndex?: number) {
 if (parent === undefined) { super();
 }
  else 
@@ -60,7 +61,7 @@ if (parent === undefined) { super();
 }
 
 
-	public getRuleIndex = (): number => {
+	public getRuleIndex = ():  number => {
 		return this.ruleIndex;
 	}
 }

@@ -1,3 +1,4 @@
 {
     "jest.rootPath": ".",
+    "jest.autoRun": "off",
 }

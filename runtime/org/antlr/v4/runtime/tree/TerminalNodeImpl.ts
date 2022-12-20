@@ -16,6 +16,7 @@
 
 
 
+
 import { ParseTree } from "./ParseTree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
 import { Parser } from "../Parser";
@@ -24,29 +25,30 @@ import { Token } from "../Token";
 import { Interval } from "../misc/Interval";
 
 
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
-export  class TerminalNodeImpl implements TerminalNode {
-	public symbol?:  Token;
-	public parent?:  ParseTree;
+export  class TerminalNodeImpl extends JavaObject implements TerminalNode {
+	public symbol:  Token | null;
+	public parent:  ParseTree | null;
 
-	public constructor(symbol: Token) {	super();
+	public constructor(symbol: Token| null) {	super();
 this.symbol = symbol;	}
 
-	public getChild = (i: number): ParseTree => {return undefined;}
+	public getChild = (i: number):  ParseTree | null => {return null;}
 
-	public getSymbol = (): Token => {return this.symbol;}
+	public getSymbol = ():  Token | null => {return this.symbol;}
 
-	public getParent = (): ParseTree => { return this.parent; }
+	public getParent = ():  ParseTree | null => { return this.parent; }
 
-	public setParent = (parent: RuleContext): void => {
+	public setParent = (parent: RuleContext| null):  void => {
 		this.parent = parent;
 	}
 
-	public getPayload = (): Token => { return this.symbol; }
+	public getPayload = ():  Token | null => { return this.symbol; }
 
-	public getSourceInterval = (): Interval => {
-		if ( this.symbol ===undefined ) {
+	public getSourceInterval = ():  Interval | null => {
+		if ( this.symbol ===null ) {
  return Interval.INVALID;
 }
 
@@ -55,20 +57,20 @@ this.symbol = symbol;	}
 		return new  Interval(tokenIndex, tokenIndex);
 	}
 
-	public getChildCount = (): number => { return 0; }
+	public getChildCount = ():  number => { return 0; }
 
-	public accept =  <T>(visitor: ParseTreeVisitor< T>): T => {
+	public accept =  <T>(visitor: ParseTreeVisitor< T>| null):  T | null => {
 		return visitor.visitTerminal(this);
 	}
 
-	public getText = (): string => { return this.symbol.getText(); }
+	public getText = ():  java.lang.String | null => { return this.symbol.getText(); }
 
-	public toStringTree(): string;
+	public toStringTree():  java.lang.String | null;
 
-	public toStringTree(parser: Parser): string;
+	public toStringTree(parser: Parser| null):  java.lang.String | null;
 
 
-	public toStringTree(parser?: Parser):  string {
+	public toStringTree(parser?: Parser | null):  java.lang.String | null {
 if (parser === undefined) {
 		return this.toString();
 	}
@@ -79,7 +81,7 @@ if (parser === undefined) {
 }
 
 
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 			if ( this.symbol.getType() === Token.EOF ) {
  return "<EOF>";
 }

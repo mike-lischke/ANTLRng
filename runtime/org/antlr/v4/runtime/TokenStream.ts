@@ -16,6 +16,8 @@
 
 
 
+
+import { java } from "../../../../../lib/java/java";
 import { IntStream } from "./IntStream";
 import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
@@ -28,7 +30,7 @@ import { Interval } from "./misc/Interval";
 /**
  * An {@link IntStream} whose symbols are {@link Token} instances.
  */
-export abstract class TokenStream extends IntStream {
+export  interface TokenStream extends IntStream {
 	/**
 	 * Get the {@link Token} instance associated with the value returned by
 	 * {@link #LA LA(k)}. This method has the same pre- and post-conditions as
@@ -38,7 +40,7 @@ export abstract class TokenStream extends IntStream {
 	 *
 	 * @see IntStream#LA
 	 */
-	public abstract LT: (k: number) =>  Token;
+	 LT: (k: number) => Token;
 
 	/**
 	 * Gets the {@link Token} at the specified {@code index} in the stream. When
@@ -58,13 +60,28 @@ export abstract class TokenStream extends IntStream {
 	 * @throws UnsupportedOperationException if the stream does not support
 	 * retrieving the token at the specified index
 	 */
-	public abstract get: (index: number) =>  Token;
+	 get: (index: number) => Token;
 
 	/**
 	 * Gets the underlying {@link TokenSource} which provides tokens for this
 	 * stream.
 	 */
-	public abstract getTokenSource: () =>  TokenSource;
+	 getTokenSource: () => TokenSource;
+
+	/**
+	 * Return the text of all tokens in the stream. This method behaves like the
+	 * following code, including potential exceptions from the calls to
+	 * {@link IntStream#size} and {@link #getText(Interval)}, but may be
+	 * optimized by the specific implementation.
+	 *
+	 * <pre>
+	 * TokenStream stream = ...;
+	 * String text = stream.getText(new Interval(0, stream.size()));
+	 * </pre>
+	 *
+	  @returns The text of all tokens in the stream.
+	 */
+	 getText: () => java.lang.String;
 
 	/**
 	 * Return the text of all tokens within the specified {@code interval}. This
@@ -82,27 +99,12 @@ export abstract class TokenStream extends IntStream {
 	 *
 	 * @param interval The interval of tokens within this stream to get text
 	 * for.
-	 * @return The text of all tokens within the specified interval in this
+	  @returns The text of all tokens within the specified interval in this
 	 * stream.
 	 *
 	 * @throws NullPointerException if {@code interval} is {@code null}
 	 */
-	public abstract getText: (interval: Interval) =>  string;
-
-	/**
-	 * Return the text of all tokens in the stream. This method behaves like the
-	 * following code, including potential exceptions from the calls to
-	 * {@link IntStream#size} and {@link #getText(Interval)}, but may be
-	 * optimized by the specific implementation.
-	 *
-	 * <pre>
-	 * TokenStream stream = ...;
-	 * String text = stream.getText(new Interval(0, stream.size()));
-	 * </pre>
-	 *
-	 * @return The text of all tokens in the stream.
-	 */
-	public abstract getText: () =>  string;
+	 getText: (interval: Interval| null) => java.lang.String;
 
 	/**
 	 * Return the text of all tokens in the source interval of the specified
@@ -120,9 +122,9 @@ export abstract class TokenStream extends IntStream {
 	 *
 	 * @param ctx The context providing the source interval of tokens to get
 	 * text for.
-	 * @return The text of all tokens within the source interval of {@code ctx}.
+	  @returns The text of all tokens within the source interval of {@code ctx}.
 	 */
-	public abstract getText: (ctx: RuleContext) =>  string;
+	 getText: (ctx: RuleContext| null) => java.lang.String;
 
 	/**
 	 * Return the text of all tokens in this stream between {@code start} and
@@ -147,11 +149,42 @@ export abstract class TokenStream extends IntStream {
 	 *
 	 * @param start The first token in the interval to get text for.
 	 * @param stop The last token in the interval to get text for (inclusive).
-	 * @return The text of all tokens lying between the specified {@code start}
+	  @returns The text of all tokens lying between the specified {@code start}
 	 * and {@code stop} tokens.
 	 *
 	 * @throws UnsupportedOperationException if this stream does not support
 	 * this method for the specified tokens
 	 */
-	public abstract getText: (start: Token, stop: Token) =>  string;
+	 getText: (start: Token| null, stop: Token| null) => java.lang.String;
+
+
+	/**
+	 * Return the text of all tokens within the specified {@code interval}. This
+	 * method behaves like the following code (including potential exceptions
+	 * for violating preconditions of {@link #get}, but may be optimized by the
+	 * specific implementation.
+	 *
+	 * <pre>
+	 * TokenStream stream = ...;
+	 * String text = "";
+	 * for (int i = interval.a; i &lt;= interval.b; i++) {
+	 *   text += stream.get(i).getText();
+	 * }
+	 * </pre>
+	 *
+	 * @param interval The interval of tokens within this stream to get text
+	 * for.
+	  @returns The text of all tokens within the specified interval in this
+	 * stream.
+	 *
+	 * @throws NullPointerException if {@code interval} is {@code null}
+	 */
+	 getText(intervalOrCtxOrStart?: Interval | RuleContext | Token | null, stop?: Token | null): java.lang.String {
+if (intervalOrCtxOrStart === undefined);
+ else if (intervalOrCtxOrStart instanceof Interval && stop === undefined);
+ else if (intervalOrCtxOrStart instanceof RuleContext && stop === undefined);
+ else ;
+
+}
+
 }

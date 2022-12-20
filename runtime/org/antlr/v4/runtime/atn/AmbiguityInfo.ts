@@ -6,19 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
+import { java } from "../../../../../../lib/java/java";
 
 import { ATNConfigSet } from "./ATNConfigSet";
 import { DecisionEventInfo } from "./DecisionEventInfo";
 import { TokenStream } from "../TokenStream";
-import { BitSet } from "../support";
 
 /**
  * This class represents profiling event information for an ambiguity.
@@ -47,10 +39,11 @@ import { BitSet } from "../support";
  * @see ParserATNSimulator#reportAmbiguity
  * @see ANTLRErrorListener#reportAmbiguity
  *
+ *
  */
 export class AmbiguityInfo extends DecisionEventInfo {
     /** The set of alternative numbers for this decision event that lead to a valid parse. */
-    public ambigAlts?: BitSet;
+    public ambigAlts: java.util.BitSet | null;
 
     /**
      * Constructs a new instance of the {@link AmbiguityInfo} class with the
@@ -70,9 +63,9 @@ export class AmbiguityInfo extends DecisionEventInfo {
      * during SLL prediction
      */
     public constructor(decision: number,
-        configs: ATNConfigSet,
-        ambigAlts: BitSet,
-        input: TokenStream, startIndex: number, stopIndex: number,
+        configs: ATNConfigSet | null,
+        ambigAlts: java.util.BitSet | null,
+        input: TokenStream | null, startIndex: number, stopIndex: number,
         fullCtx: boolean) {
         super(decision, configs, input, startIndex, stopIndex, fullCtx);
         this.ambigAlts = ambigAlts;

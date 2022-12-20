@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+
 /*
  eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
@@ -13,58 +14,63 @@
 
 /* cspell: disable */
 
+
 import { ATNState } from "./ATNState";
 import { Transition } from "./Transition";
 
-export class EpsilonTransition extends Transition {
 
-    private readonly outermostPrecedenceReturn: number;
 
-    /* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-    public constructor(target: ATNState);
 
-    public constructor(target: ATNState, outermostPrecedenceReturn: number);
-    /* @ts-expect-error, because of the super() call in the closure. */
-    public constructor(target: ATNState, outermostPrecedenceReturn?: number) {
-        const $this = (target: ATNState, outermostPrecedenceReturn?: number): void => {
-            if (outermostPrecedenceReturn === undefined) {
-                $this(target, -1);
-            } else {
+export  class EpsilonTransition extends Transition {
 
-                /* @ts-expect-error, because of the super() call in the closure. */
-                super(target);
-                this.outermostPrecedenceReturn = outermostPrecedenceReturn;
-            }
-        };
+	private readonly  outermostPrecedenceReturn:  number;
 
-        $this(target, outermostPrecedenceReturn);
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor(target: ATNState| null);
 
-    }
-    /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
+	public constructor(target: ATNState| null, outermostPrecedenceReturn: number);
+/* @ts-expect-error, because of the super() call in the closure. */
+public constructor(target: ATNState | null, outermostPrecedenceReturn?: number) {
+const $this = (target: ATNState | null, outermostPrecedenceReturn?: number): void => {
+if (outermostPrecedenceReturn === undefined) {
+		$this(target, -1);
+	}
+ else  {
 
-    /**
-     * @return the rule index of a precedence rule for which this transition is
-     * returning from, where the precedence value is 0; otherwise, -1.
-     *
-     * @see ATNConfig#isPrecedenceFilterSuppressed()
-     * @see ParserATNSimulator#applyPrecedenceFilter(ATNConfigSet)
-     * @since 4.4.1
-     */
-    public outermostPrecedenceReturn = (): number => {
-        return this.outermostPrecedenceReturn;
-    };
+/* @ts-expect-error, because of the super() call in the closure. */
+		super(target);
+		this.outermostPrecedenceReturn = outermostPrecedenceReturn;
+	}
+};
 
-    public getSerializationType = (): number => {
-        return Transition.EPSILON;
-    };
+$this(target, outermostPrecedenceReturn);
 
-    public isEpsilon = (): boolean => { return true; };
+}
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-    public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
-        return false;
-    };
+	/**
+	  @returns the rule index of a precedence rule for which this transition is
+	 * returning from, where the precedence value is 0; otherwise, -1.
+	 *
+	 * @see ATNConfig#isPrecedenceFilterSuppressed()
+	 * @see ParserATNSimulator#applyPrecedenceFilter(ATNConfigSet)
+	 *
+	 */
+	public outermostPrecedenceReturn = ():  number => {
+		return this.outermostPrecedenceReturn;
+	}
 
-    public toString = (): string => {
-        return "epsilon";
-    };
+	public getSerializationType = ():  number => {
+		return Transition.EPSILON;
+	}
+
+	public isEpsilon = ():  boolean => { return true; }
+
+	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number):  boolean => {
+		return false;
+	}
+
+	public toString = ():  java.lang.String | null => {
+		return "epsilon";
+	}
 }

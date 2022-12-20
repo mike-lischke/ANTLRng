@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { DecisionState } from "./DecisionState";
 
 
@@ -24,7 +25,7 @@ import { DecisionState } from "./DecisionState";
  */
 export  class PlusLoopbackState extends DecisionState {
 
-	public getStateType = (): number => {
+	public getStateType = ():  number => {
 		return ATNState.PLUS_LOOP_BACK;
 	}
 }

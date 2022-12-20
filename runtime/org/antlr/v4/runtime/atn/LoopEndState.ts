@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { ATNState } from "./ATNState";
 
 
@@ -21,9 +22,9 @@ import { ATNState } from "./ATNState";
 
 /** Mark the end of a * or + loop. */
 export  class LoopEndState extends ATNState {
-	public loopBackState?:  ATNState;
+	public loopBackState:  ATNState | null;
 
-	public getStateType = (): number => {
+	public getStateType = ():  number => {
 		return ATNState.LOOP_END;
 	}
 }

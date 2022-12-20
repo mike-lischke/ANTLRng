@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../../../lib/java/java";
 import { XPathElement } from "./XPathElement";
 import { ParseTree } from "../ParseTree";
@@ -28,12 +29,12 @@ import { Trees } from "../Trees";
 
 export  class XPathTokenElement extends XPathElement {
 	protected tokenType:  number;
-	public constructor(tokenName: string, tokenType: number) {
+	public constructor(tokenName: java.lang.String| null, tokenType: number) {
 		super(tokenName);
 		this.tokenType = tokenType;
 	}
 
-	public evaluate = (t: ParseTree): java.util.Collection<ParseTree> => {
+	public evaluate = (t: ParseTree| null):  java.util.Collection<ParseTree> | null => {
 		// return all children of t that match nodeName
 		let  nodes: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
 		for (let c of Trees.getChildren(t)) {

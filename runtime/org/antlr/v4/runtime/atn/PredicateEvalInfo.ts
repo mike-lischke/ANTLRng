@@ -16,6 +16,7 @@
 
 
 
+
 import { ATNConfigSet } from "./ATNConfigSet";
 import { DecisionEventInfo } from "./DecisionEventInfo";
 import { SemanticContext } from "./SemanticContext";
@@ -30,13 +31,13 @@ import { TokenStream } from "../TokenStream";
  *
  * @see ParserATNSimulator#evalSemanticContext
  *
- * @since 4.3
+ *
  */
 export  class PredicateEvalInfo extends DecisionEventInfo {
 	/**
 	 * The semantic context which was evaluated.
 	 */
-	public readonly  semctx?:  SemanticContext;
+	public readonly  semctx:  SemanticContext | null;
 	/**
 	 * The alternative number for the decision which is guarded by the semantic
 	 * context {@link #semctx}. Note that other ATN
@@ -72,8 +73,8 @@ export  class PredicateEvalInfo extends DecisionEventInfo {
 	 * @see SemanticContext#eval(Recognizer, RuleContext)
 	 */
 	public constructor(decision: number,
-							 input: TokenStream, startIndex: number, stopIndex: number,
-							 semctx: SemanticContext,
+							 input: TokenStream| null, startIndex: number, stopIndex: number,
+							 semctx: SemanticContext| null,
 							 evalResult: boolean,
 							 predictedAlt: number,
 							 fullCtx: boolean)

@@ -16,6 +16,7 @@
 
 
 
+
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
 
@@ -28,15 +29,15 @@ import { Lexer } from "../Lexer";
  * and ANTLR 4's new lexer command syntax.
  *
  * @author Sam Harwell
- * @since 4.2
+ *
  */
-export abstract class LexerAction {
+export  interface LexerAction {
 	/**
 	 * Gets the serialization type of the lexer action.
 	 *
-	 * @return The serialization type of the lexer action.
+	  @returns The serialization type of the lexer action.
 	 */
-	public  abstract getActionType: () => LexerActionType;
+	 getActionType: () => LexerActionType;
 
 	/**
 	 * Gets whether the lexer action is position-dependent. Position-dependent
@@ -48,11 +49,11 @@ export abstract class LexerAction {
 	 * Actions like this are position-independent, and may be stored more
 	 * efficiently as part of the {@link LexerATNConfig#lexerActionExecutor}.</p>
 	 *
-	 * @return {@code true} if the lexer action semantics can be affected by the
+	  @returns {@code true} if the lexer action semantics can be affected by the
 	 * position of the input {@link CharStream} at the time it is executed;
 	 * otherwise, {@code false}.
 	 */
-	public  abstract isPositionDependent: () => boolean;
+	 isPositionDependent: () => boolean;
 
 	/**
 	 * Execute the lexer action in the context of the specified {@link Lexer}.
@@ -62,5 +63,5 @@ export abstract class LexerAction {
 	 *
 	 * @param lexer The lexer instance.
 	 */
-	public  abstract execute: (lexer: Lexer) => void;
+	 execute: (lexer: Lexer| null) => void;
 }

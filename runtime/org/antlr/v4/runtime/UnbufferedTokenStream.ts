@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
@@ -25,17 +26,18 @@ import { WritableToken } from "./WritableToken";
 import { Interval } from "./misc/Interval";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
-export  class UnbufferedTokenStream<T extends Token> implements TokenStream {
-	protected tokenSource?:  TokenSource;
+export  class UnbufferedTokenStream<T extends Token> extends JavaObject implements TokenStream {
+	protected tokenSource:  TokenSource | null;
 
 	/**
 	 * A moving window buffer of the data being scanned. While there's a marker,
 	 * we keep adding to buffer. Otherwise, {@link #consume consume()} resets so
 	 * we start filling at index 0 again.
 	 */
-	protected tokens?:  Token[];
+	protected tokens:  Token[] | null;
 
 	/**
 	 * The number of tokens currently in {@link #tokens tokens}.
@@ -63,13 +65,13 @@ export  class UnbufferedTokenStream<T extends Token> implements TokenStream {
 	/**
 	 * This is the {@code LT(-1)} token for the current position.
 	 */
-	protected lastToken?:  Token;
+	protected lastToken:  Token | null;
 
 	/**
 	 * When {@code numMarkers > 0}, this is the {@code LT(-1)} token for the
 	 * first token in {@link #tokens}. Otherwise, this is {@code null}.
 	 */
-	protected lastTokenBufferStart?:  Token;
+	protected lastTokenBufferStart:  Token | null;
 
 	/**
 	 * Absolute token index. It's the index of the token about to be read via
@@ -82,12 +84,12 @@ export  class UnbufferedTokenStream<T extends Token> implements TokenStream {
 	protected currentTokenIndex:  number = 0;
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(tokenSource: TokenSource);
+public constructor(tokenSource: TokenSource| null);
 
-	public constructor(tokenSource: TokenSource, bufferSize: number);
+	public constructor(tokenSource: TokenSource| null, bufferSize: number);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(tokenSource: TokenSource, bufferSize?: number) {
-const $this = (tokenSource: TokenSource, bufferSize?: number): void => {
+public constructor(tokenSource: TokenSource | null, bufferSize?: number) {
+const $this = (tokenSource: TokenSource | null, bufferSize?: number): void => {
 if (bufferSize === undefined) {
 		$this(tokenSource, 256);
 	}
@@ -107,7 +109,7 @@ $this(tokenSource, bufferSize);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public get = (i: number): Token => { // get absolute index
+	public get = (i: number):  Token | null => { // get absolute index
 		let  bufferStartIndex: number = this.getBufferStartIndex();
 		if (i < bufferStartIndex || i >= bufferStartIndex + this.n) {
 			throw new  java.lang.IndexOutOfBoundsException("get("+i+") outside buffer: "+
@@ -116,7 +118,7 @@ $this(tokenSource, bufferSize);
 		return this.tokens[i - bufferStartIndex];
 	}
 
-	public LT = (i: number): Token => {
+	public LT = (i: number):  Token | null => {
 		if ( i===-1 ) {
 			return this.lastToken;
 		}
@@ -135,29 +137,29 @@ $this(tokenSource, bufferSize);
 		return this.tokens[index];
 	}
 
-	public LA = (i: number): number => {
+	public LA = (i: number):  number => {
 		return this.LT(i).getType();
 	}
 
-	public getTokenSource = (): TokenSource => {
+	public getTokenSource = ():  TokenSource | null => {
 		return this.tokenSource;
 	}
 
 
-	public getText(): string;
+	public getText():  java.lang.String | null;
 
 
-	public getText(ctx: RuleContext): string;
+	public getText(ctx: RuleContext| null):  java.lang.String | null;
 
 
-	public getText(interval: Interval): string;
+	public getText(interval: Interval| null):  java.lang.String | null;
 
 
-	public getText(start: Token, stop: Token): string;
+	public getText(start: Token| null, stop: Token| null):  java.lang.String | null;
 
 
 
-	public getText(ctxOrIntervalOrStart?: RuleContext | Interval | Token, stop?: Token):  string {
+	public getText(ctxOrIntervalOrStart?: RuleContext | Interval | Token | null, stop?: Token | null):  java.lang.String | null {
 if (ctxOrIntervalOrStart === undefined) {
 		return "";
 	}
@@ -196,7 +198,7 @@ let start = ctxOrIntervalOrStart as Token;
 }
 
 
-	public consume = (): void => {
+	public consume = ():  void => {
 		if (this.LA(1) === Token.EOF) {
 			throw new  java.lang.IllegalStateException("cannot consume EOF");
 		}
@@ -220,7 +222,7 @@ let start = ctxOrIntervalOrStart as Token;
 	 *  {@code p} index is {@code tokens.length-1}.  {@code p+need-1} is the tokens index 'need' elements
 	 *  ahead.  If we need 1 element, {@code (p+1-1)==p} must be less than {@code tokens.length}.
 	 */
-	protected sync = (want: number): void => {
+	protected sync = (want: number):  void => {
 		let  need: number = (this.p+want-1) - this.n + 1; // how many more elements we need?
 		if ( need > 0 ) {
 			this.fill(need);
@@ -232,7 +234,7 @@ let start = ctxOrIntervalOrStart as Token;
 	 * actually added to the buffer. If the return value is less than {@code n},
 	 * then EOF was reached before {@code n} tokens could be added.
 	 */
-	protected fill = (n: number): number => {
+	protected fill = (n: number):  number => {
 		for (let  i: number=0; i<n; i++) {
 			if (this.n > 0 && this.tokens[this.n-1].getType() === Token.EOF) {
 				return i;
@@ -245,7 +247,7 @@ let start = ctxOrIntervalOrStart as Token;
 		return n;
 	}
 
-	protected add = (t: Token): void => {
+	protected add = (t: Token| null):  void => {
 		if ( this.n>=this.tokens.length ) {
 			this.tokens = java.util.Arrays.copyOf(this.tokens, this.tokens.length * 2);
 		}
@@ -264,7 +266,7 @@ let start = ctxOrIntervalOrStart as Token;
 	 * protection against misuse where {@code seek()} is called on a mark or
 	 * {@code release()} is called in the wrong order.</p>
 	 */
-	public mark = (): number => {
+	public mark = ():  number => {
 		if (this.numMarkers === 0) {
 			this.lastTokenBufferStart = this.lastToken;
 		}
@@ -274,7 +276,7 @@ let start = ctxOrIntervalOrStart as Token;
 		return mark;
 	}
 
-	public release = (marker: number): void => {
+	public release = (marker: number):  void => {
 		let  expectedMark: number = -this.numMarkers;
 		if ( marker!==expectedMark ) {
 			throw new  java.lang.IllegalStateException("release() called with an invalid marker.");
@@ -294,11 +296,11 @@ let start = ctxOrIntervalOrStart as Token;
 		}
 	}
 
-	public index = (): number => {
+	public index = ():  number => {
 		return this.currentTokenIndex;
 	}
 
-	public seek = (index: number): void => { // seek to absolute index
+	public seek = (index: number):  void => { // seek to absolute index
 		if (index === this.currentTokenIndex) {
 			return;
 		}
@@ -330,15 +332,15 @@ let start = ctxOrIntervalOrStart as Token;
 		}
 	}
 
-	public size = (): number => {
+	public size = ():  number => {
 		throw new  java.lang.UnsupportedOperationException("Unbuffered stream cannot know its size");
 	}
 
-	public getSourceName = (): string => {
+	public getSourceName = ():  java.lang.String | null => {
 		return this.tokenSource.getSourceName();
 	}
 
-	protected readonly  getBufferStartIndex = (): number => {
+	protected readonly  getBufferStartIndex = ():  number => {
 		return this.currentTokenIndex - this.p;
 	}
 }

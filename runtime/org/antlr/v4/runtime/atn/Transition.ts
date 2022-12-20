@@ -25,7 +25,7 @@ import { IntervalSet } from "../misc/IntervalSet";
  *  the states. We'll use the term Edge for the DFA to distinguish them from
  *  ATN transitions.</p>
  */
-export abstract class Transition {
+export abstract class Transition extends java.lang.Object {
     // constants for serialization
     public static readonly EPSILON: number = 1;
     public static readonly RANGE: number = 2;
@@ -53,9 +53,11 @@ export abstract class Transition {
     ];
 
     /** The target of this transition. */
-    public target?: ATNState;
+    public target: ATNState;
 
-    protected constructor(target?: ATNState) {
+    protected constructor(target: ATNState) {
+        super();
+
         if (!target) {
             throw new java.lang.NullPointerException("target cannot be null.");
         }
@@ -76,8 +78,8 @@ export abstract class Transition {
         return false;
     }
 
-    public label(): IntervalSet | undefined {
-        return undefined;
+    public labelValue(): IntervalSet | null {
+        return null;
     }
 
     public abstract getSerializationType(): number;

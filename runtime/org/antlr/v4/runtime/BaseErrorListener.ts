@@ -15,6 +15,8 @@
 
 
 
+
+import { java } from "../../../../../lib/java/java";
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
@@ -23,6 +25,7 @@ import { ATNConfigSet } from "./atn/ATNConfigSet";
 import { DFA } from "./dfa/DFA";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -32,41 +35,41 @@ import { DFA } from "./dfa/DFA";
  *
  * @author Sam Harwell
  */
-export  class BaseErrorListener implements ANTLRErrorListener {
-	public syntaxError = (recognizer: Recognizer<unknown, unknown>,
-							offendingSymbol: object,
+export  class BaseErrorListener extends JavaObject implements ANTLRErrorListener {
+	public syntaxError = (recognizer: Recognizer<unknown, unknown>| null,
+							offendingSymbol: java.lang.Object| null,
 							line: number,
 							charPositionInLine: number,
-							msg: string,
-							e: RecognitionException): void =>
+							msg: java.lang.String| null,
+							e: RecognitionException| null):  void =>
 	{
 	}
 
-	public reportAmbiguity = (recognizer: Parser,
-								dfa: DFA,
+	public reportAmbiguity = (recognizer: Parser| null,
+								dfa: DFA| null,
 								startIndex: number,
 								stopIndex: number,
 								exact: boolean,
-								ambigAlts: BitSet,
-								configs: ATNConfigSet): void =>
+								ambigAlts: java.util.BitSet| null,
+								configs: ATNConfigSet| null):  void =>
 	{
 	}
 
-	public reportAttemptingFullContext = (recognizer: Parser,
-											dfa: DFA,
+	public reportAttemptingFullContext = (recognizer: Parser| null,
+											dfa: DFA| null,
 											startIndex: number,
 											stopIndex: number,
-											conflictingAlts: BitSet,
-											configs: ATNConfigSet): void =>
+											conflictingAlts: java.util.BitSet| null,
+											configs: ATNConfigSet| null):  void =>
 	{
 	}
 
-	public reportContextSensitivity = (recognizer: Parser,
-										 dfa: DFA,
+	public reportContextSensitivity = (recognizer: Parser| null,
+										 dfa: DFA| null,
 										 startIndex: number,
 										 stopIndex: number,
 										 prediction: number,
-										 configs: ATNConfigSet): void =>
+										 configs: ATNConfigSet| null):  void =>
 	{
 	}
 }

@@ -16,6 +16,7 @@
 
 
 
+
 import { ATNConfigSet } from "./ATNConfigSet";
 import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
 
@@ -33,7 +34,7 @@ export  class OrderedATNConfigSet extends ATNConfigSet {
 this.configLookup = new  OrderedATNConfigSet.LexerConfigHashSet();
 	}
 
-	public static LexerConfigHashSet = class LexerConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
+	public static LexerConfigHashSet =  class LexerConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
 		public constructor() {
 			super(ObjectEqualityComparator.INSTANCE);
 		}
@@ -41,9 +42,8 @@ this.configLookup = new  OrderedATNConfigSet.LexerConfigHashSet();
 
 }
 
-namespace OrderedATNConfigSet {
-
-export type LexerConfigHashSet = InstanceType<typeof OrderedATNConfigSet.LexerConfigHashSet>;
+export namespace OrderedATNConfigSet {
+	export type LexerConfigHashSet = InstanceType<typeof OrderedATNConfigSet.LexerConfigHashSet>;
 }
 
 

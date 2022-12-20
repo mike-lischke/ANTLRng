@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../../../lib/java/java";
 import { XPathElement } from "./XPathElement";
 import { XPathLexer } from "./XPathLexer";
@@ -35,6 +36,7 @@ import { Token } from "../../Token";
 import { ParseTree } from "../ParseTree";
 
 
+import { JavaObject } from "../../../../../../../lib/java/lang/Object";
 
 
 /**
@@ -80,16 +82,17 @@ import { ParseTree } from "../ParseTree";
  * <p>
  * Whitespace is not allowed.</p>
  */
-export  class XPath {
-	public static readonly  WILDCARD?:  string = "*"; // word not operator/separator
-	public static readonly  NOT?:  string = "!"; 	   // word for invert operator
+export  class XPath extends JavaObject {
+	public static readonly  WILDCARD:  java.lang.String | null = "*"; // word not operator/separator
+	public static readonly  NOT:  java.lang.String | null = "!"; 	   // word for invert operator
 
-	protected path?:  string;
-	protected elements?:  XPathElement[];
-	protected parser?:  Parser;
+	protected path:  java.lang.String | null;
+	protected elements:  XPathElement[] | null;
+	protected parser:  Parser | null;
 
-	public constructor(parser: Parser, path: string) {
-		this.parser = parser;
+	public constructor(parser: Parser| null, path: java.lang.String| null) {
+		super();
+this.parser = parser;
 		this.path = path;
 		this.elements = this.split(path);
 //		System.out.println(Arrays.toString(elements));
@@ -97,7 +100,7 @@ export  class XPath {
 
 	// TODO: check for invalid token/rule names, bad syntax
 
-	public split = (path: string): XPathElement[] => {
+	public split = (path: java.lang.String| null):  XPathElement[] | null => {
 		let  in: ANTLRInputStream;
 		try {
 			in = new  ANTLRInputStream(new  StringReader(path));
@@ -109,7 +112,7 @@ if (ioe instanceof java.io.IOException) {
 	}
 }
 		let  lexer: XPathLexer = new  class extends XPathLexer {
-			public recover = (e: LexerNoViableAltException): void => { throw e;	}
+			public recover = (e: LexerNoViableAltException| null):  void => { throw e;	}
 		}(in);
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(new  XPathLexerErrorListener());
@@ -119,7 +122,7 @@ if (ioe instanceof java.io.IOException) {
 		} catch (e) {
 if (e instanceof LexerNoViableAltException) {
 			let  pos: number = lexer.getCharPositionInLine();
-			let  msg: string = "Invalid tokens or characters at index "+pos+" in path '"+path+"'";
+			let  msg: java.lang.String = "Invalid tokens or characters at index "+pos+" in path '"+path+"'";
 			throw new  java.lang.IllegalArgumentException(msg, e);
 		} else {
 	throw e;
@@ -134,7 +137,7 @@ if (e instanceof LexerNoViableAltException) {
 loop:
 		while ( i<n ) {
 			let  el: Token = tokens.get(i);
-			let  next: Token = undefined;
+			let  next: Token = null;
 			switch ( el.getType() ) {
 				case XPathLexer.ROOT :
 				case XPathLexer.ANYWHERE :{
@@ -182,11 +185,11 @@ loop:
 	 * element. {@code anywhere} is {@code true} if {@code //} precedes the
 	 * word.
 	 */
-	protected getXPathElement = (wordToken: Token, anywhere: boolean): XPathElement => {
+	protected getXPathElement = (wordToken: Token| null, anywhere: boolean):  XPathElement | null => {
 		if ( wordToken.getType()===Token.EOF ) {
 			throw new  java.lang.IllegalArgumentException("Missing path element at end of path");
 		}
-		let  word: string = wordToken.getText();
+		let  word: java.lang.String = wordToken.getText();
 		let  ttype: number = this.parser.getTokenType(word);
 		let  ruleIndex: number = this.parser.getRuleIndex(word);
 		switch ( wordToken.getType() ) {
@@ -225,7 +228,7 @@ loop:
 	}
 
 
-	public static findAll = (tree: ParseTree, xpath: string, parser: Parser): java.util.Collection<ParseTree> => {
+	public static findAll = (tree: ParseTree| null, xpath: java.lang.String| null, parser: Parser| null):  java.util.Collection<ParseTree> | null => {
 		let  p: XPath = new  XPath(parser, xpath);
 		return p.evaluate(tree);
 	}
@@ -235,7 +238,7 @@ loop:
 	 * path. The root {@code /} is relative to the node passed to
 	 * {@link #evaluate}.
 	 */
-	public evaluate = (/* final */  t: ParseTree): java.util.Collection<ParseTree> => {
+	public evaluate = (/* final */  t: ParseTree| null):  java.util.Collection<ParseTree> | null => {
 		let  dummyRoot: ParserRuleContext = new  ParserRuleContext();
 		dummyRoot.children = java.util.Collections.singletonList(t); // don't set t's parent.
 

@@ -19,5 +19,5 @@ import { ATNState } from "./ATNState";
 
 export abstract class DecisionState extends ATNState {
     public decision = -1;
-    public nonGreedy: boolean;
+    public nonGreedy = false;
 }

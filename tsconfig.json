@@ -1,18 +1,26 @@
 {
     "compilerOptions": {
         "target": "ES2022",
-        "module": "CommonJS",
-        "outDir": "output",
+        "module": "ESNext",
+        "outDir": "./output",
         "sourceMap": true,
         "esModuleInterop": true,
+        "isolatedModules": true,
         "experimentalDecorators": true,
         "moduleResolution": "Node",
+        "strict": true,
         "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
     },
     "include": [
         "runtime/**/*.ts",
         "lib/**/*.ts",
         "lib/Decorators.ts",
         "test"
-    ]
+    ],
+    "exclude": [
+        "node_modules/**/*.*",
+        "output/**/*.*"
+    ],
 }

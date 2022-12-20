@@ -16,6 +16,8 @@
 
 
 
+
+import { java } from "../../../../../lib/java/java";
 import { ANTLRErrorStrategy } from "./ANTLRErrorStrategy";
 import { DefaultErrorStrategy } from "./DefaultErrorStrategy";
 import { InputMismatchException } from "./InputMismatchException";
@@ -62,8 +64,8 @@ export  class BailErrorStrategy extends DefaultErrorStrategy {
      *  rule function catches.  Use {@link Exception#getCause()} to get the
 	 *  original {@link RecognitionException}.
      */
-    public recover = (recognizer: Parser, e: RecognitionException): void => {
-		for (let  context: ParserRuleContext = recognizer.getContext(); context !== undefined; context = context.getParent()) {
+    public recover = (recognizer: Parser| null, e: RecognitionException| null):  void => {
+		for (let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
 			context.exception = e;
 		}
 
@@ -73,10 +75,10 @@ export  class BailErrorStrategy extends DefaultErrorStrategy {
     /** Make sure we don't attempt to recover inline; if the parser
      *  successfully recovers, it won't throw an exception.
      */
-    public recoverInline = (recognizer: Parser): Token =>
+    public recoverInline = (recognizer: Parser| null):  Token | null =>
     {
 		let  e: InputMismatchException = new  InputMismatchException(recognizer);
-		for (let  context: ParserRuleContext = recognizer.getContext(); context !== undefined; context = context.getParent()) {
+		for (let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
 			context.exception = e;
 		}
 
@@ -84,5 +86,5 @@ export  class BailErrorStrategy extends DefaultErrorStrategy {
     }
 
     /** Make sure we don't attempt to recover from problems in subrules. */
-    public sync = (recognizer: Parser): void => { }
+    public sync = (recognizer: Parser| null):  void => { }
 }

@@ -15,6 +15,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { Parser } from "./Parser";
@@ -24,6 +25,7 @@ import { ATNConfigSet } from "./atn/ATNConfigSet";
 import { DFA } from "./dfa/DFA";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -33,61 +35,61 @@ import { DFA } from "./dfa/DFA";
  *
  * @author Sam Harwell
  */
-export  class ProxyErrorListener implements ANTLRErrorListener {
-	private readonly  delegates?:  java.util.Collection< ANTLRErrorListener>;
+export  class ProxyErrorListener extends JavaObject implements ANTLRErrorListener {
+	private readonly  delegates:  java.util.Collection< ANTLRErrorListener> | null;
 
-	public constructor(delegates: java.util.Collection< ANTLRErrorListener>) {
+	public constructor(delegates: java.util.Collection< ANTLRErrorListener>| null) {
 		super();
-if (delegates === undefined) {
+if (delegates === null) {
 			throw new  java.lang.NullPointerException("delegates");
 		}
 
 		this.delegates = delegates;
 	}
 
-	public syntaxError = (recognizer: Recognizer<unknown, unknown>,
-							offendingSymbol: object,
+	public syntaxError = (recognizer: Recognizer<unknown, unknown>| null,
+							offendingSymbol: java.lang.Object| null,
 							line: number,
 							charPositionInLine: number,
-							msg: string,
-							e: RecognitionException): void =>
+							msg: java.lang.String| null,
+							e: RecognitionException| null):  void =>
 	{
 		for (let listener of this.delegates) {
 			listener.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
 		}
 	}
 
-	public reportAmbiguity = (recognizer: Parser,
-								dfa: DFA,
+	public reportAmbiguity = (recognizer: Parser| null,
+								dfa: DFA| null,
 								startIndex: number,
 								stopIndex: number,
 								exact: boolean,
-								ambigAlts: BitSet,
-								configs: ATNConfigSet): void =>
+								ambigAlts: java.util.BitSet| null,
+								configs: ATNConfigSet| null):  void =>
 	{
 		for (let listener of this.delegates) {
 			listener.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs);
 		}
 	}
 
-	public reportAttemptingFullContext = (recognizer: Parser,
-											dfa: DFA,
+	public reportAttemptingFullContext = (recognizer: Parser| null,
+											dfa: DFA| null,
 											startIndex: number,
 											stopIndex: number,
-											conflictingAlts: BitSet,
-											configs: ATNConfigSet): void =>
+											conflictingAlts: java.util.BitSet| null,
+											configs: ATNConfigSet| null):  void =>
 	{
 		for (let listener of this.delegates) {
 			listener.reportAttemptingFullContext(recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs);
 		}
 	}
 
-	public reportContextSensitivity = (recognizer: Parser,
-										 dfa: DFA,
+	public reportContextSensitivity = (recognizer: Parser| null,
+										 dfa: DFA| null,
 										 startIndex: number,
 										 stopIndex: number,
 										 prediction: number,
-										 configs: ATNConfigSet): void =>
+										 configs: ATNConfigSet| null):  void =>
 	{
 		for (let listener of this.delegates) {
 			listener.reportContextSensitivity(recognizer, dfa, startIndex, stopIndex, prediction, configs);

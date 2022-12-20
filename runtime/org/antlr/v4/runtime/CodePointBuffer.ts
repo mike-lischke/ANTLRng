@@ -16,9 +16,11 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -27,34 +29,35 @@ import { java } from "../../../../../lib/java/java";
  * Because Java lacks generics on primitive types, these three types
  * do not share an interface, so we have to write one manually.
  */
-export  class CodePointBuffer {
-	private readonly  type?:  this.Type;
-	private readonly  byteBuffer?:  java.nio.ByteBuffer;
-	private readonly  charBuffer?:  java.nio.CharBuffer;
-	private readonly  intBuffer?:  IntBuffer;
+export  class CodePointBuffer extends JavaObject {
+	private readonly  type:  this.Type | null;
+	private readonly  byteBuffer:  java.nio.ByteBuffer | null;
+	private readonly  charBuffer:  java.nio.CharBuffer | null;
+	private readonly  intBuffer:  IntBuffer | null;
 
-	private constructor(type: this.Type, byteBuffer: java.nio.ByteBuffer, charBuffer: java.nio.CharBuffer, intBuffer: IntBuffer) {
-		this.type = type;
+	private constructor(type: this.Type| null, byteBuffer: java.nio.ByteBuffer| null, charBuffer: java.nio.CharBuffer| null, intBuffer: IntBuffer| null) {
+		super();
+this.type = type;
 		this.byteBuffer = byteBuffer;
 		this.charBuffer = charBuffer;
 		this.intBuffer = intBuffer;
 	}
 
-	public static withBytes = (byteBuffer: java.nio.ByteBuffer): CodePointBuffer => {
-		return new  CodePointBuffer(this.Type.BYTE, byteBuffer, undefined, undefined);
+	public static withBytes = (byteBuffer: java.nio.ByteBuffer| null):  CodePointBuffer | null => {
+		return new  CodePointBuffer(this.Type.BYTE, byteBuffer, null, null);
 	}
 
-	public static withChars = (charBuffer: java.nio.CharBuffer): CodePointBuffer => {
-		return new  CodePointBuffer(this.Type.CHAR, undefined, charBuffer, undefined);
+	public static withChars = (charBuffer: java.nio.CharBuffer| null):  CodePointBuffer | null => {
+		return new  CodePointBuffer(this.Type.CHAR, null, charBuffer, null);
 	}
 
-	public static withInts = (intBuffer: IntBuffer): CodePointBuffer => {
-		return new  CodePointBuffer(this.Type.INT, undefined, undefined, intBuffer);
+	public static withInts = (intBuffer: IntBuffer| null):  CodePointBuffer | null => {
+		return new  CodePointBuffer(this.Type.INT, null, null, intBuffer);
 	}
 
-	public position(): number;
+	public position():  number;
 
-	public position(newPosition: number): void;
+	public position(newPosition: number):  void;
 
 
 	public position(newPosition?: number):  number |  void {
@@ -104,7 +107,7 @@ default:
 }
 
 
-	public remaining = (): number => {
+	public remaining = ():  number => {
 		switch (this.type) {
 			case BYTE:{
 				return this.byteBuffer.remaining();
@@ -125,7 +128,7 @@ default:
 		throw new  java.lang.UnsupportedOperationException("Not reached");
 	}
 
-	public get = (offset: number): number => {
+	public get = (offset: number):  number => {
 		switch (this.type) {
 			case BYTE:{
 				return this.byteBuffer.get(offset);
@@ -146,11 +149,11 @@ default:
 		throw new  java.lang.UnsupportedOperationException("Not reached");
 	}
 
-	public  getType = ():this.Type => {
+	public  getType = (): this.Type | null => {
 		return this.type;
 	}
 
-	public  arrayOffset = ():number => {
+	public  arrayOffset = (): number => {
 		switch (this.type) {
 			case BYTE:{
 				return this.byteBuffer.arrayOffset();
@@ -171,70 +174,71 @@ default:
 		throw new  java.lang.UnsupportedOperationException("Not reached");
 	}
 
-	public  byteArray = ():Int8Array => {
+	public  byteArray = (): Int8Array => {
 		/* assert type == Type.BYTE; */ 
 		return this.byteBuffer.array();
 	}
 
-	public  charArray = ():Uint16Array => {
+	public  charArray = (): Uint16Array => {
 		/* assert type == Type.CHAR; */ 
 		return this.charBuffer.array();
 	}
 
-	public  intArray = ():Int32Array => {
+	public  intArray = (): Int32Array => {
 		/* assert type == Type.INT; */ 
 		return this.intBuffer.array();
 	}
 
-	public static builder = (initialBufferSize: number): CodePointBuffer.Builder => {
+	public static builder = (initialBufferSize: number):  CodePointBuffer.Builder | null => {
 		return new  CodePointBuffer.Builder(initialBufferSize);
 	}
 
-	public static Builder = class Builder {
-		private type?:  $outer.Type;
-		private byteBuffer?:  java.nio.ByteBuffer;
-		private charBuffer?:  java.nio.CharBuffer;
-		private intBuffer?:  IntBuffer;
+	public static Builder =  class Builder extends JavaObject {
+		private type:  $outer.Type | null;
+		private byteBuffer:  java.nio.ByteBuffer | null;
+		private charBuffer:  java.nio.CharBuffer | null;
+		private intBuffer:  IntBuffer | null;
 		private prevHighSurrogate:  number;
 
 		private constructor(initialBufferSize: number) {
-			this.type = $outer.Type.BYTE;
-			this.byteBuffer = java.nio.ByteBuffer.allocate(initialBufferSize);
-			this.charBuffer = undefined;
-			this.intBuffer = undefined;
-			this.prevHighSurrogate = -1;
+			super();
+$outer.type = $outer.Type.BYTE;
+			$outer.byteBuffer = java.nio.ByteBuffer.allocate(initialBufferSize);
+			$outer.charBuffer = null;
+			$outer.intBuffer = null;
+			$outer.prevHighSurrogate = -1;
 		}
 
-		public  getType = ():$outer.Type => {
-			return this.type;
+		public  getType = (): $outer.Type | null => {
+			return $outer.type;
 		}
 
-		public  getByteBuffer = ():java.nio.ByteBuffer => {
-			return this.byteBuffer;
+		public  getByteBuffer = (): java.nio.ByteBuffer | null => {
+			return $outer.byteBuffer;
 		}
 
-		public  getCharBuffer = ():java.nio.CharBuffer => {
-			return this.charBuffer;
+		public  getCharBuffer = (): java.nio.CharBuffer | null => {
+			return $outer.charBuffer;
 		}
 
-		public  getIntBuffer = ():IntBuffer => {
-			return this.intBuffer;
+		public  getIntBuffer = (): IntBuffer | null => {
+			return $outer.intBuffer;
 		}
 
-		public build = (): CodePointBuffer => {
-			switch (this.type) {
+		public build = ():  CodePointBuffer | null => {
+			switch ($outer.type) {
 				case BYTE:{
-					this.byteBuffer.flip();
+					$outer.byteBuffer.flip();
 					break;
 }
 
 				case CHAR:{
-					this.charBuffer.flip();
+					$outer.charBuffer.flip();
 					break;
 }
 
 				case INT:{
-					this.intBuffer.flip();
+					$outer.intBuffer.flip();
 					break;
 }
 
@@ -242,45 +246,45 @@ default:
 default:
 
 			}
-			return new  CodePointBuffer(this.type, this.byteBuffer, this.charBuffer, this.intBuffer);
+			return new  CodePointBuffer($outer.type, $outer.byteBuffer, $outer.charBuffer, $outer.intBuffer);
 		}
 
-		private static roundUpToNextPowerOfTwo = (i: number): number => {
+		private static roundUpToNextPowerOfTwo = (i: number):  number => {
 			let  nextPowerOfTwo: number = 32 - java.lang.Integer.numberOfLeadingZeros(i - 1);
 			return Number( Math.pow(2, nextPowerOfTwo));
 		}
 
-		public ensureRemaining = (remainingNeeded: number): void => {
-			switch (this.type) {
+		public ensureRemaining = (remainingNeeded: number):  void => {
+			switch ($outer.type) {
 				case BYTE:{
-					if (this.byteBuffer.remaining() < remainingNeeded) {
-						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.byteBuffer.capacity() + remainingNeeded);
+					if ($outer.byteBuffer.remaining() < remainingNeeded) {
+						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo($outer.byteBuffer.capacity() + remainingNeeded);
 						let  newBuffer: java.nio.ByteBuffer = java.nio.ByteBuffer.allocate(newCapacity);
-						this.byteBuffer.flip();
-						newBuffer.put(this.byteBuffer);
-						this.byteBuffer = newBuffer;
+						$outer.byteBuffer.flip();
+						newBuffer.put($outer.byteBuffer);
+						$outer.byteBuffer = newBuffer;
 					}
 					break;
 }
 
 				case CHAR:{
-					if (this.charBuffer.remaining() < remainingNeeded) {
-						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.charBuffer.capacity() + remainingNeeded);
+					if ($outer.charBuffer.remaining() < remainingNeeded) {
+						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo($outer.charBuffer.capacity() + remainingNeeded);
 						let  newBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(newCapacity);
-						this.charBuffer.flip();
-						newBuffer.put(this.charBuffer);
-						this.charBuffer = newBuffer;
+						$outer.charBuffer.flip();
+						newBuffer.put($outer.charBuffer);
+						$outer.charBuffer = newBuffer;
 					}
 					break;
 }
 
 				case INT:{
-					if (this.intBuffer.remaining() < remainingNeeded) {
-						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo(this.intBuffer.capacity() + remainingNeeded);
+					if ($outer.intBuffer.remaining() < remainingNeeded) {
+						let  newCapacity: number = Builder.roundUpToNextPowerOfTwo($outer.intBuffer.capacity() + remainingNeeded);
 						let  newBuffer: IntBuffer = IntBuffer.allocate(newCapacity);
-						this.intBuffer.flip();
-						newBuffer.put(this.intBuffer);
-						this.intBuffer = newBuffer;
+						$outer.intBuffer.flip();
+						newBuffer.put($outer.intBuffer);
+						$outer.intBuffer = newBuffer;
 					}
 					break;
 }
@@ -291,32 +295,32 @@ default:
 			}
 		}
 
-		public append = (utf16In: java.nio.CharBuffer): void => {
-			this.ensureRemaining(utf16In.remaining());
+		public append = (utf16In: java.nio.CharBuffer| null):  void => {
+			$outer.ensureRemaining(utf16In.remaining());
 			if (utf16In.hasArray()) {
-				this.appendArray(utf16In);
+				$outer.appendArray(utf16In);
 			} else {
 				// TODO
 				throw new  java.lang.UnsupportedOperationException("TODO");
 			}
 		}
 
-		private appendArray = (utf16In: java.nio.CharBuffer): void => {
+		private appendArray = (utf16In: java.nio.CharBuffer| null):  void => {
 			/* assert utf16In.hasArray(); */ 
 
-			switch (this.type) {
+			switch ($outer.type) {
 				case BYTE:{
-					this.appendArrayByte(utf16In);
+					$outer.appendArrayByte(utf16In);
 					break;
 }
 
 				case CHAR:{
-					this.appendArrayChar(utf16In);
+					$outer.appendArrayChar(utf16In);
 					break;
 }
 
 				case INT:{
-					this.appendArrayInt(utf16In);
+					$outer.appendArrayInt(utf16In);
 					break;
 }
 
@@ -326,15 +330,15 @@ default:
 			}
 		}
 
-		private appendArrayByte = (utf16In: java.nio.CharBuffer): void => {
+		private appendArrayByte = (utf16In: java.nio.CharBuffer| null):  void => {
 			/* assert prevHighSurrogate == -1; */ 
 
 			let  in: Uint16Array = utf16In.array();
 			let  inOffset: number = utf16In.arrayOffset() + utf16In.position();
 			let  inLimit: number = utf16In.arrayOffset() + utf16In.limit();
 
-			let  outByte: Int8Array = this.byteBuffer.array();
-			let  outOffset: number = this.byteBuffer.arrayOffset() + this.byteBuffer.position();
+			let  outByte: Int8Array = $outer.byteBuffer.array();
+			let  outOffset: number = $outer.byteBuffer.arrayOffset() + $outer.byteBuffer.position();
 
 			while (inOffset < inLimit) {
 				let  c: CodePoint = in[inOffset];
@@ -342,14 +346,14 @@ default:
 					outByte[outOffset] = Number((c & 0xFF));
 				} else {
 					utf16In.position(inOffset - utf16In.arrayOffset());
-					this.byteBuffer.position(outOffset - this.byteBuffer.arrayOffset());
-					if (!(java.lang.Character.isHighSurrogate(c))) {
-						this.byteToCharBuffer(utf16In.remaining());
-						this.appendArrayChar(utf16In);
+					$outer.byteBuffer.position(outOffset - $outer.byteBuffer.arrayOffset());
+					if (!java.lang.Character.isHighSurrogate(c)) {
+						$outer.byteToCharBuffer(utf16In.remaining());
+						$outer.appendArrayChar(utf16In);
 						return;
 					} else {
-						this.byteToIntBuffer(utf16In.remaining());
-						this.appendArrayInt(utf16In);
+						$outer.byteToIntBuffer(utf16In.remaining());
+						$outer.appendArrayInt(utf16In);
 						return;
 					}
 				}
@@ -358,28 +362,28 @@ default:
 			}
 
 			utf16In.position(inOffset - utf16In.arrayOffset());
-			this.byteBuffer.position(outOffset - this.byteBuffer.arrayOffset());
+			$outer.byteBuffer.position(outOffset - $outer.byteBuffer.arrayOffset());
 		}
 
-		private appendArrayChar = (utf16In: java.nio.CharBuffer): void => {
+		private appendArrayChar = (utf16In: java.nio.CharBuffer| null):  void => {
 			/* assert prevHighSurrogate == -1; */ 
 
 			let  in: Uint16Array = utf16In.array();
 			let  inOffset: number = utf16In.arrayOffset() + utf16In.position();
 			let  inLimit: number = utf16In.arrayOffset() + utf16In.limit();
 
-			let  outChar: Uint16Array = this.charBuffer.array();
-			let  outOffset: number = this.charBuffer.arrayOffset() + this.charBuffer.position();
+			let  outChar: Uint16Array = $outer.charBuffer.array();
+			let  outOffset: number = $outer.charBuffer.arrayOffset() + $outer.charBuffer.position();
 
 			while (inOffset < inLimit) {
 				let  c: CodePoint = in[inOffset];
-				if (!(java.lang.Character.isHighSurrogate(c))) {
+				if (!java.lang.Character.isHighSurrogate(c)) {
 					outChar[outOffset] = c;
 				} else {
 					utf16In.position(inOffset - utf16In.arrayOffset());
-					this.charBuffer.position(outOffset - this.charBuffer.arrayOffset());
-					this.charToIntBuffer(utf16In.remaining());
-					this.appendArrayInt(utf16In);
+					$outer.charBuffer.position(outOffset - $outer.charBuffer.arrayOffset());
+					$outer.charToIntBuffer(utf16In.remaining());
+					$outer.appendArrayInt(utf16In);
 					return;
 				}
 				inOffset++;
@@ -387,39 +391,39 @@ default:
 			}
 
 			utf16In.position(inOffset - utf16In.arrayOffset());
-			this.charBuffer.position(outOffset - this.charBuffer.arrayOffset());
+			$outer.charBuffer.position(outOffset - $outer.charBuffer.arrayOffset());
 		}
 
-		private appendArrayInt = (utf16In: java.nio.CharBuffer): void => {
+		private appendArrayInt = (utf16In: java.nio.CharBuffer| null):  void => {
 			let  in: Uint16Array = utf16In.array();
 			let  inOffset: number = utf16In.arrayOffset() + utf16In.position();
 			let  inLimit: number = utf16In.arrayOffset() + utf16In.limit();
 
-			let  outInt: Int32Array = this.intBuffer.array();
-			let  outOffset: number = this.intBuffer.arrayOffset() + this.intBuffer.position();
+			let  outInt: Int32Array = $outer.intBuffer.array();
+			let  outOffset: number = $outer.intBuffer.arrayOffset() + $outer.intBuffer.position();
 
 			while (inOffset < inLimit) {
 				let  c: CodePoint = in[inOffset];
 				inOffset++;
-				if (this.prevHighSurrogate !== -1) {
+				if ($outer.prevHighSurrogate !== -1) {
 					if (java.lang.Character.isLowSurrogate(c)) {
-						outInt[outOffset] = java.lang.Character.toCodePoint( this.prevHighSurrogate as CodePoint, c);
+						outInt[outOffset] = java.lang.Character.toCodePoint( $outer.prevHighSurrogate as CodePoint, c);
 						outOffset++;
-						this.prevHighSurrogate = -1;
+						$outer.prevHighSurrogate = -1;
 					} else {
 						// Dangling high surrogate
-						outInt[outOffset] = this.prevHighSurrogate;
+						outInt[outOffset] = $outer.prevHighSurrogate;
 						outOffset++;
 						if (java.lang.Character.isHighSurrogate(c)) {
-							this.prevHighSurrogate = c & 0xFFFF;
+							$outer.prevHighSurrogate = c & 0xFFFF;
 						} else {
 							outInt[outOffset] = c & 0xFFFF;
 							outOffset++;
-							this.prevHighSurrogate = -1;
+							$outer.prevHighSurrogate = -1;
 						}
 					}
 				} else { if (java.lang.Character.isHighSurrogate(c)) {
-					this.prevHighSurrogate = c & 0xFFFF;
+					$outer.prevHighSurrogate = c & 0xFFFF;
 				} else {
 					outInt[outOffset] = c & 0xFFFF;
 					outOffset++;
@@ -428,63 +432,62 @@ default:
 
 			}
 
-			if (this.prevHighSurrogate !== -1) {
+			if ($outer.prevHighSurrogate !== -1) {
 				// Dangling high surrogate
-				outInt[outOffset] = this.prevHighSurrogate & 0xFFFF;
+				outInt[outOffset] = $outer.prevHighSurrogate & 0xFFFF;
 				outOffset++;
 			}
 
 			utf16In.position(inOffset - utf16In.arrayOffset());
-			this.intBuffer.position(outOffset - this.intBuffer.arrayOffset());
+			$outer.intBuffer.position(outOffset - $outer.intBuffer.arrayOffset());
 		}
 
-		private byteToCharBuffer = (toAppend: number): void => {
-			this.byteBuffer.flip();
+		private byteToCharBuffer = (toAppend: number):  void => {
+			$outer.byteBuffer.flip();
 			// CharBuffers hold twice as much per unit as ByteBuffers, so start with half the capacity.
-			let  newBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(Math.max(this.byteBuffer.remaining() + toAppend, this.byteBuffer.capacity() / 2));
-			while (this.byteBuffer.hasRemaining()) {
-				newBuffer.put( (this.byteBuffer.get() & 0xFF) as CodePoint);
+			let  newBuffer: java.nio.CharBuffer = java.nio.CharBuffer.allocate(Math.max($outer.byteBuffer.remaining() + toAppend, $outer.byteBuffer.capacity() / 2));
+			while ($outer.byteBuffer.hasRemaining()) {
+				newBuffer.put( ($outer.byteBuffer.get() & 0xFF) as CodePoint);
 			}
-			this.type = $outer.Type.CHAR;
-			this.byteBuffer = undefined;
-			this.charBuffer = newBuffer;
+			$outer.type = $outer.Type.CHAR;
+			$outer.byteBuffer = null;
+			$outer.charBuffer = newBuffer;
 		}
 
-		private byteToIntBuffer = (toAppend: number): void => {
-			this.byteBuffer.flip();
+		private byteToIntBuffer = (toAppend: number):  void => {
+			$outer.byteBuffer.flip();
 			// IntBuffers hold four times as much per unit as ByteBuffers, so start with one quarter the capacity.
-			let  newBuffer: IntBuffer = IntBuffer.allocate(Math.max(this.byteBuffer.remaining() + toAppend, this.byteBuffer.capacity() / 4));
-			while (this.byteBuffer.hasRemaining()) {
-				newBuffer.put(this.byteBuffer.get() & 0xFF);
+			let  newBuffer: IntBuffer = IntBuffer.allocate(Math.max($outer.byteBuffer.remaining() + toAppend, $outer.byteBuffer.capacity() / 4));
+			while ($outer.byteBuffer.hasRemaining()) {
+				newBuffer.put($outer.byteBuffer.get() & 0xFF);
 			}
-			this.type = $outer.Type.INT;
-			this.byteBuffer = undefined;
-			this.intBuffer = newBuffer;
+			$outer.type = $outer.Type.INT;
+			$outer.byteBuffer = null;
+			$outer.intBuffer = newBuffer;
 		}
 
-		private charToIntBuffer = (toAppend: number): void => {
-			this.charBuffer.flip();
+		private charToIntBuffer = (toAppend: number):  void => {
+			$outer.charBuffer.flip();
 			// IntBuffers hold two times as much per unit as ByteBuffers, so start with one half the capacity.
-			let  newBuffer: IntBuffer = IntBuffer.allocate(Math.max(this.charBuffer.remaining() + toAppend, this.charBuffer.capacity() / 2));
-			while (this.charBuffer.hasRemaining()) {
-				newBuffer.put(this.charBuffer.get() & 0xFFFF);
+			let  newBuffer: IntBuffer = IntBuffer.allocate(Math.max($outer.charBuffer.remaining() + toAppend, $outer.charBuffer.capacity() / 2));
+			while ($outer.charBuffer.hasRemaining()) {
+				newBuffer.put($outer.charBuffer.get() & 0xFFFF);
 			}
-			this.type = $outer.Type.INT;
-			this.charBuffer = undefined;
-			this.intBuffer = newBuffer;
+			$outer.type = $outer.Type.INT;
+			$outer.charBuffer = null;
+			$outer.intBuffer = newBuffer;
 		}
 	};
 
 }
 
-namespace CodePointBuffer {
+export namespace CodePointBuffer {
 
 	 enum Type {
 			BYTE,
 			CHAR,
 			INT
-	}
-export type Builder = InstanceType<typeof CodePointBuffer.Builder>;
+	}	export type Builder = InstanceType<typeof CodePointBuffer.Builder>;
 }
 
 

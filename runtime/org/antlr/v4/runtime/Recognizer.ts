@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { ConsoleErrorListener } from "./ConsoleErrorListener";
@@ -33,27 +34,28 @@ import { ParseInfo } from "./atn/ParseInfo";
 import { Utils } from "./misc/Utils";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
-export abstract  class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
+export abstract  class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> extends JavaObject {
 	public static readonly  EOF:  number=-1;
 
-	private static readonly  tokenTypeMapCache?:  java.util.Map<Vocabulary, java.util.Map<string, java.lang.Integer>> =
-		new  WeakHashMap<Vocabulary, java.util.Map<string, java.lang.Integer>>();
-	private static readonly  ruleIndexMapCache?:  java.util.Map<string[], java.util.Map<string, java.lang.Integer>> =
-		new  WeakHashMap<string[], java.util.Map<string, java.lang.Integer>>();
+	private static readonly  tokenTypeMapCache:  java.util.Map<Vocabulary, java.util.Map<java.lang.String, java.lang.Integer>> | null =
+		new  WeakHashMap<Vocabulary, java.util.Map<java.lang.String, java.lang.Integer>>();
+	private static readonly  ruleIndexMapCache:  java.util.Map<java.lang.String[], java.util.Map<java.lang.String, java.lang.Integer>> | null =
+		new  WeakHashMap<java.lang.String[], java.util.Map<java.lang.String, java.lang.Integer>>();
 
 
-	private _listeners?:  java.util.List<ANTLRErrorListener> =
+	private _listeners:  java.util.List<ANTLRErrorListener> | null =
 		new  class extends CopyOnWriteArrayList<ANTLRErrorListener> {
 public constructor() {
 	super();
-
-			add(ConsoleErrorListener.INSTANCE);
+"
+			java.util.Set.add(ConsoleErrorListener.INSTANCE);
 		
 }}();
 
-	protected _interp?:  ATNInterpreter;
+	protected _interp:  ATNInterpreter | null;
 
 	private _stateNumber:  number = -1;
 
@@ -63,17 +65,17 @@ public constructor() {
 	 *
 	 * @deprecated Use {@link #getVocabulary()} instead.
 	 */
-	public abstract getTokenNames: () => string[];
+	public abstract getTokenNames: () =>  java.lang.String[] | null;
 
-	public abstract getRuleNames: () => string[];
+	public abstract getRuleNames: () =>  java.lang.String[] | null;
 
 	/**
 	 * Get the vocabulary used by the recognizer.
 	 *
-	 * @return A {@link Vocabulary} instance providing information about the
+	  @returns A {@link Vocabulary} instance providing information about the
 	 * vocabulary used by the grammar.
 	 */
-	public getVocabulary = (): Vocabulary => {
+	public getVocabulary = ():  Vocabulary | null => {
 		return VocabularyImpl.fromTokenNames(this.getTokenNames());
 	}
 
@@ -82,27 +84,27 @@ public constructor() {
 	 *
 	 * <p>Used for XPath and tree pattern compilation.</p>
 	 */
-	public getTokenTypeMap = (): java.util.Map<string, java.lang.Integer> => {
+	public getTokenTypeMap = ():  java.util.Map<java.lang.String, java.lang.Integer> | null => {
 		let  vocabulary: Vocabulary = this.getVocabulary();
 		/* synchronized (tokenTypeMapCache) */ {
-			let  result: java.util.Map<string, java.lang.Integer> = Recognizer.tokenTypeMapCache.get(vocabulary);
-			if (result === undefined) {
-				result = new  java.util.HashMap<string, java.lang.Integer>();
+			let  result: java.util.Map<java.lang.String, java.lang.Integer> = Recognizer.tokenTypeMapCache.get(vocabulary);
+			if (result === null) {
+				result = new  java.util.HashMap<java.lang.String, java.lang.Integer>();
 				for (let  i: number = 0; i <= this.getATN().maxTokenType; i++) {
-					let  literalName: string = vocabulary.getLiteralName(i);
-					if (literalName !== undefined) {
-						result.set(literalName, i);
+					let  literalName: java.lang.String = vocabulary.getLiteralName(i);
+					if (literalName !== null) {
+						result.put(literalName, i);
 					}
 
-					let  symbolicName: string = vocabulary.getSymbolicName(i);
-					if (symbolicName !== undefined) {
-						result.set(symbolicName, i);
+					let  symbolicName: java.lang.String = vocabulary.getSymbolicName(i);
+					if (symbolicName !== null) {
+						result.put(symbolicName, i);
 					}
 				}
 
-				result.set("EOF", Token.EOF);
+				result.put("EOF", Token.EOF);
 				result = java.util.Collections.unmodifiableMap(result);
-				Recognizer.tokenTypeMapCache.set(vocabulary, result);
+				Recognizer.tokenTypeMapCache.put(vocabulary, result);
 			}
 
 			return result;
@@ -114,26 +116,26 @@ public constructor() {
 	 *
 	 * <p>Used for XPath and tree pattern compilation.</p>
 	 */
-	public getRuleIndexMap = (): java.util.Map<string, java.lang.Integer> => {
-		let  ruleNames: string[] = this.getRuleNames();
-		if (ruleNames === undefined) {
+	public getRuleIndexMap = ():  java.util.Map<java.lang.String, java.lang.Integer> | null => {
+		let  ruleNames: java.lang.String[] = this.getRuleNames();
+		if (ruleNames === null) {
 			throw new  java.lang.UnsupportedOperationException("The current recognizer does not provide a list of rule names.");
 		}
 
 		/* synchronized (ruleIndexMapCache) */ {
-			let  result: java.util.Map<string, java.lang.Integer> = Recognizer.ruleIndexMapCache.get(ruleNames);
-			if (result === undefined) {
+			let  result: java.util.Map<java.lang.String, java.lang.Integer> = Recognizer.ruleIndexMapCache.get(ruleNames);
+			if (result === null) {
 				result = java.util.Collections.unmodifiableMap(Utils.toMap(ruleNames));
-				Recognizer.ruleIndexMapCache.set(ruleNames, result);
+				Recognizer.ruleIndexMapCache.put(ruleNames, result);
 			}
 
 			return result;
 		}
 	}
 
-	public getTokenType = (tokenName: string): number => {
+	public getTokenType = (tokenName: java.lang.String| null):  number => {
 		let  ttype: java.lang.Integer = this.getTokenTypeMap().get(tokenName);
-		if ( ttype!==undefined ) {
+		if ( ttype!==null ) {
  return ttype;
 }
 
@@ -147,38 +149,38 @@ public constructor() {
 	 * <p>For interpreters, we don't know their serialized ATN despite having
 	 * created the interpreter from it.</p>
 	 */
-	public getSerializedATN = (): string => {
+	public getSerializedATN = ():  java.lang.String | null => {
 		throw new  java.lang.UnsupportedOperationException("there is no serialized ATN");
 	}
 
 	/** For debugging and other purposes, might want the grammar name.
 	 *  Have ANTLR generate an implementation for this method.
 	 */
-	public abstract getGrammarFileName: () => string;
+	public abstract getGrammarFileName: () =>  java.lang.String | null;
 
 	/**
 	 * Get the {@link ATN} used by the recognizer for prediction.
 	 *
-	 * @return The {@link ATN} used by the recognizer for prediction.
+	  @returns The {@link ATN} used by the recognizer for prediction.
 	 */
-	public abstract getATN: () => ATN;
+	public abstract getATN: () =>  ATN | null;
 
 	/**
 	 * Get the ATN interpreter used by the recognizer for prediction.
 	 *
-	 * @return The ATN interpreter used by the recognizer for prediction.
+	  @returns The ATN interpreter used by the recognizer for prediction.
 	 */
-	public getInterpreter = (): ATNInterpreter => {
+	public getInterpreter = ():  ATNInterpreter | null => {
 		return this._interp;
 	}
 
 	/** If profiling during the parse/lex, this will return DecisionInfo records
 	 *  for each decision in recognizer in a ParseInfo object.
 	 *
-	 * @since 4.3
+	 *
 	 */
-	public getParseInfo = (): ParseInfo => {
-		return undefined;
+	public getParseInfo = ():  ParseInfo | null => {
+		return null;
 	}
 
 	/**
@@ -187,12 +189,12 @@ public constructor() {
 	 * @param interpreter The ATN interpreter used by the recognizer for
 	 * prediction.
 	 */
-	public setInterpreter = (interpreter: ATNInterpreter): void => {
+	public setInterpreter = (interpreter: ATNInterpreter| null):  void => {
 		this._interp = interpreter;
 	}
 
 	/** What is the error header, normally line/character position information? */
-	public getErrorHeader = (e: RecognitionException): string => {
+	public getErrorHeader = (e: RecognitionException| null):  java.lang.String | null => {
 		let  line: number = e.getOffendingToken().getLine();
 		let  charPositionInLine: number = e.getOffendingToken().getCharPositionInLine();
 		return "line "+line+":"+charPositionInLine;
@@ -211,13 +213,13 @@ public constructor() {
 	 * feature when necessary. For example, see
 	 * {@link DefaultErrorStrategy#getTokenErrorDisplay}.
 	 */
-	public getTokenErrorDisplay = (t: Token): string => {
-		if ( t===undefined ) {
+	public getTokenErrorDisplay = (t: Token| null):  java.lang.String | null => {
+		if ( t===null ) {
  return "<no token>";
 }
 
-		let  s: string = t.getText();
-		if ( s===undefined ) {
+		let  s: java.lang.String = t.getText();
+		if ( s===null ) {
 			if ( t.getType()===Token.EOF ) {
 				s = "<EOF>";
 			}
@@ -234,45 +236,45 @@ public constructor() {
 	/**
 	 * @exception NullPointerException if {@code listener} is {@code null}.
 	 */
-	public addErrorListener = (listener: ANTLRErrorListener): void => {
-		if (listener === undefined) {
+	public addErrorListener = (listener: ANTLRErrorListener| null):  void => {
+		if (listener === null) {
 			throw new  java.lang.NullPointerException("listener cannot be null.");
 		}
 
 		this._listeners.add(listener);
 	}
 
-	public removeErrorListener = (listener: ANTLRErrorListener): void => {
+	public removeErrorListener = (listener: ANTLRErrorListener| null):  void => {
 		this._listeners.remove(listener);
 	}
 
-	public removeErrorListeners = (): void => {
+	public removeErrorListeners = ():  void => {
 		this._listeners.clear();
 	}
 
 
-	public getErrorListeners = (): java.util.List< ANTLRErrorListener> => {
+	public getErrorListeners = ():  java.util.List< ANTLRErrorListener> | null => {
 		return this._listeners;
 	}
 
-	public getErrorListenerDispatch = (): ANTLRErrorListener => {
+	public getErrorListenerDispatch = ():  ANTLRErrorListener | null => {
 		return new  ProxyErrorListener(this.getErrorListeners());
 	}
 
 	// subclass needs to override these if there are sempreds or actions
 	// that the ATN interp needs to execute
-	public sempred = (_localctx: RuleContext, ruleIndex: number, actionIndex: number): boolean => {
+	public sempred = (_localctx: RuleContext| null, ruleIndex: number, actionIndex: number):  boolean => {
 		return true;
 	}
 
-	public precpred = (localctx: RuleContext, precedence: number): boolean => {
+	public precpred = (localctx: RuleContext| null, precedence: number):  boolean => {
 		return true;
 	}
 
-	public action = (_localctx: RuleContext, ruleIndex: number, actionIndex: number): void => {
+	public action = (_localctx: RuleContext| null, ruleIndex: number, actionIndex: number):  void => {
 	}
 
-	public readonly  getState = (): number => {
+	public readonly  getState = ():  number => {
 		return this._stateNumber;
 	}
 
@@ -283,18 +285,18 @@ public constructor() {
 	 *  invoking rules. Combine this and we have complete ATN
 	 *  configuration information.
 	 */
-	public readonly  setState = (atnState: number): void => {
+	public readonly  setState = (atnState: number):  void => {
 //		System.err.println("setState "+atnState);
 		this._stateNumber = atnState;
 //		if ( traceATNStates ) _ctx.trace(atnState);
 	}
 
-	public abstract getInputStream: () => IntStream;
+	public abstract getInputStream: () =>  IntStream | null;
 
-	public abstract setInputStream: (input: IntStream) => void;
+	public abstract setInputStream: (input: IntStream| null) =>  void;
 
 
-	public abstract getTokenFactory: () => TokenFactory<unknown>;
+	public abstract getTokenFactory: () =>  TokenFactory<unknown> | null;
 
-	public abstract setTokenFactory: (input: TokenFactory<unknown>) => void;
+	public abstract setTokenFactory: (input: TokenFactory<unknown>| null) =>  void;
 }

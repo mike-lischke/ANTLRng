@@ -15,6 +15,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
@@ -33,24 +34,24 @@ import { PredicateTransition } from "./atn/PredicateTransition";
 export  class FailedPredicateException extends RecognitionException {
 	private readonly  ruleIndex:  number;
 	private readonly  predicateIndex:  number;
-	private readonly  predicate?:  string;
+	private readonly  predicate:  java.lang.String | null;
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(recognizer: Parser);
+public constructor(recognizer: Parser| null);
 
-	public constructor(recognizer: Parser, predicate: string);
+	public constructor(recognizer: Parser| null, predicate: java.lang.String| null);
 
-	public constructor(recognizer: Parser,
-									predicate: string,
-									message: string);
+	public constructor(recognizer: Parser| null,
+									predicate: java.lang.String| null,
+									message: java.lang.String| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(recognizer: Parser, predicate?: string, message?: string) {
-const $this = (recognizer: Parser, predicate?: string, message?: string): void => {
+public constructor(recognizer: Parser | null, predicate?: java.lang.String | null, message?: java.lang.String | null) {
+const $this = (recognizer: Parser | null, predicate?: java.lang.String | null, message?: java.lang.String | null): void => {
 if (predicate === undefined) {
-		$this(recognizer, undefined);
+		$this(recognizer, null);
 	}
- else if (typeof predicate === "string" && message === undefined) {
-		$this(recognizer, predicate, undefined);
+ else if (predicate instanceof java.lang.String && message === undefined) {
+		$this(recognizer, predicate, null);
 	}
  else 
 	{
@@ -79,25 +80,25 @@ $this(recognizer, predicate, message);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public getRuleIndex = (): number => {
+	public getRuleIndex = ():  number => {
 		return this.ruleIndex;
 	}
 
-	public getPredIndex = (): number => {
+	public getPredIndex = ():  number => {
 		return this.predicateIndex;
 	}
 
 
-	public getPredicate = (): string => {
+	public getPredicate = ():  java.lang.String | null => {
 		return this.predicate;
 	}
 
 
-	private static formatMessage = (predicate: string, message: string): string => {
-		if (message !== undefined) {
+	private static formatMessage = (predicate: java.lang.String| null, message: java.lang.String| null):  java.lang.String | null => {
+		if (message !== null) {
 			return message;
 		}
 
-		return util.format(java.util.Locale.getDefault(), "failed predicate: {%s}?", predicate);
+		return java.lang.String.format(java.util.Locale.getDefault(), "failed predicate: {%s}?", predicate);
 	}
 }

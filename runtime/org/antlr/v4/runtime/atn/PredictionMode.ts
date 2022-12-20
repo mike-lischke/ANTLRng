@@ -20,6 +20,7 @@
 
 
 
+
 /**
  * This enumeration defines the prediction modes available in ANTLR 4 along with
  * utility methods for analyzing configuration sets for conflicts and/or
@@ -232,7 +233,7 @@ export  enum PredictionMode {
 				// dup configs, tossing out semantic predicates
 				ATNConfigSet dup = new ATNConfigSet();
 				for (ATNConfig c : configs) {
-					c = new ATNConfig(c,SemanticContext.NONE);
+					c = new ATNConfig(c,SemanticContext.Empty.Instance);
 					dup.add(c);
 				}
 				configs = dup;
@@ -255,7 +256,7 @@ export  enum PredictionMode {
 	 * context).
 	 *
 	 * @param configs the configuration set to test
-	 * @return {@code true} if any configuration in {@code configs} is in a
+	  @returns {@code true} if any configuration in {@code configs} is in a
 	 * {@link RuleStopState}, otherwise {@code false}
 	 */
 	public static boolean hasConfigInRuleStopState(ATNConfigSet configs) {
@@ -275,7 +276,7 @@ export  enum PredictionMode {
 	 * context).
 	 *
 	 * @param configs the configuration set to test
-	 * @return {@code true} if all configurations in {@code configs} are in a
+	  @returns {@code true} if all configurations in {@code configs} are in a
 	 * {@link RuleStopState}, otherwise {@code false}
 	 */
 	public static boolean allConfigsInRuleStopStates(ATNConfigSet configs) {
@@ -438,7 +439,7 @@ export  enum PredictionMode {
 	 * than one alternative.
 	 *
 	 * @param altsets a collection of alternative subsets
-	 * @return {@code true} if every {@link BitSet} in {@code altsets} has
+	  @returns {@code true} if every {@link BitSet} in {@code altsets} has
 	 * {@link BitSet#cardinality cardinality} &gt; 1, otherwise {@code false}
 	 */
 	public static boolean allSubsetsConflict(Collection<BitSet> altsets) {
@@ -450,7 +451,7 @@ export  enum PredictionMode {
 	 * exactly one alternative.
 	 *
 	 * @param altsets a collection of alternative subsets
-	 * @return {@code true} if {@code altsets} contains a {@link BitSet} with
+	  @returns {@code true} if {@code altsets} contains a {@link BitSet} with
 	 * {@link BitSet#cardinality cardinality} 1, otherwise {@code false}
 	 */
 	public static boolean hasNonConflictingAltSet(Collection<BitSet> altsets) {
@@ -467,7 +468,7 @@ export  enum PredictionMode {
 	 * more than one alternative.
 	 *
 	 * @param altsets a collection of alternative subsets
-	 * @return {@code true} if {@code altsets} contains a {@link BitSet} with
+	  @returns {@code true} if {@code altsets} contains a {@link BitSet} with
 	 * {@link BitSet#cardinality cardinality} &gt; 1, otherwise {@code false}
 	 */
 	public static boolean hasConflictingAltSet(Collection<BitSet> altsets) {
@@ -483,7 +484,7 @@ export  enum PredictionMode {
 	 * Determines if every alternative subset in {@code altsets} is equivalent.
 	 *
 	 * @param altsets a collection of alternative subsets
-	 * @return {@code true} if every member of {@code altsets} is equal to the
+	  @returns {@code true} if every member of {@code altsets} is equal to the
 	 * others, otherwise {@code false}
 	 */
 	public static boolean allSubsetsEqual(Collection<BitSet> altsets) {
@@ -515,7 +516,7 @@ export  enum PredictionMode {
 	 * in {@code altsets}.
 	 *
 	 * @param altsets a collection of alternative subsets
-	 * @return the set of represented alternatives in {@code altsets}
+	  @returns the set of represented alternatives in {@code altsets}
 	 */
 	public static BitSet getAlts(Collection<BitSet> altsets) {
 		BitSet all = new BitSet();
@@ -528,7 +529,7 @@ export  enum PredictionMode {
 	/**
 	 * Get union of all alts from configs.
 	 *
-	 * @since 4.5.1
+	 *
 	 */
 	public static BitSet getAlts(ATNConfigSet configs) {
 		BitSet alts = new BitSet();

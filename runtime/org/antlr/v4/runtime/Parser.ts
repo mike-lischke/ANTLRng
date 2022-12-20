@@ -15,6 +15,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { ANTLRErrorStrategy } from "./ANTLRErrorStrategy";
@@ -51,26 +52,27 @@ import { ParseTreePattern } from "./tree/pattern/ParseTreePattern";
 import { ParseTreePatternMatcher } from "./tree/pattern/ParseTreePatternMatcher";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /** This is all the parsing support code essentially; most of it is error recovery stuff. */
 export abstract  class Parser extends Recognizer<Token, ParserATNSimulator> {
 	public TraceListener = (($outer) => {
-return  class TraceListener implements ParseTreeListener {
-		public enterEveryRule = (ctx: ParserRuleContext): void => {
+return  class TraceListener extends JavaObject extends  ParseTreeListener {
+		public enterEveryRule = (ctx: ParserRuleContext| null):  void => {
 			java.lang.System.out.println("enter   " + $outer.getRuleNames()[ctx.getRuleIndex()] +
 							   ", LT(1)=" + $outer._input.LT(1).getText());
 		}
 
-		public visitTerminal = (node: TerminalNode): void => {
+		public visitTerminal = (node: TerminalNode| null):  void => {
 			java.lang.System.out.println("consume "+node.getSymbol()+" rule "+
 							   $outer.getRuleNames()[$outer._ctx.getRuleIndex()]);
 		}
 
-		public visitErrorNode = (node: ErrorNode): void => {
+		public visitErrorNode = (node: ErrorNode| null):  void => {
 		}
 
-		public exitEveryRule = (ctx: ParserRuleContext): void => {
+		public exitEveryRule = (ctx: ParserRuleContext| null):  void => {
 			java.lang.System.out.println("exit    "+$outer.getRuleNames()[ctx.getRuleIndex()]+
 							   ", LT(1)="+$outer._input.LT(1).getText());
 		}
@@ -78,16 +80,16 @@ return  class TraceListener implements ParseTreeListener {
 })(this);
 
 
-	public static TrimToSizeListener = class TrimToSizeListener implements ParseTreeListener {
-		public static readonly  INSTANCE?:  Parser.TrimToSizeListener = new  Parser.TrimToSizeListener();
+	public static TrimToSizeListener =  class TrimToSizeListener extends JavaObject extends  ParseTreeListener {
+		public static readonly  INSTANCE:  Parser.TrimToSizeListener | null = new  Parser.TrimToSizeListener();
 
-		public enterEveryRule = (ctx: ParserRuleContext): void => { }
+		public enterEveryRule = (ctx: ParserRuleContext| null):  void => { }
 
-		public visitTerminal = (node: TerminalNode): void => { }
+		public visitTerminal = (node: TerminalNode| null):  void => { }
 
-		public visitErrorNode = (node: ErrorNode): void => {	}
+		public visitErrorNode = (node: ErrorNode| null):  void => {	}
 
-		public exitEveryRule = (ctx: ParserRuleContext): void => {
+		public exitEveryRule = (ctx: ParserRuleContext| null):  void => {
 			if (ctx.children instanceof java.util.ArrayList) {
 				(ctx.children as java.util.ArrayList<unknown>).trimToSize();
 			}
@@ -103,7 +105,7 @@ return  class TraceListener implements ParseTreeListener {
 	 *
 	 * @see ATNDeserializationOptions#isGenerateRuleBypassTransitions()
 	 */
-	private bypassAltsAtnCache?:  ATN;
+	private bypassAltsAtnCache:  ATN | null;
 
 	/**
 	 * The error handling strategy for the parser. The default value is a new
@@ -113,7 +115,7 @@ return  class TraceListener implements ParseTreeListener {
 	 * @see #setErrorHandler
 	 */
 
-	protected _errHandler?:  ANTLRErrorStrategy = new  DefaultErrorStrategy();
+	protected _errHandler:  ANTLRErrorStrategy | null = new  DefaultErrorStrategy();
 
 	/**
 	 * The input stream.
@@ -121,15 +123,15 @@ return  class TraceListener implements ParseTreeListener {
 	 * @see #getInputStream
 	 * @see #setInputStream
 	 */
-	protected _input?:  TokenStream;
+	protected _input:  TokenStream | null;
 
-	protected readonly  _precedenceStack?:  IntegerStack;
+	protected readonly  _precedenceStack:  IntegerStack | null;
 
 	/**
 	 * The {@link ParserRuleContext} object for the currently executing rule.
 	 * This is always non-null during the parsing process.
 	 */
-	protected _ctx?:  ParserRuleContext;
+	protected _ctx:  ParserRuleContext | null;
 
 	/**
 	 * Specifies whether or not the parser should construct a parse tree during
@@ -148,7 +150,7 @@ return  class TraceListener implements ParseTreeListener {
 	 * implemented as a parser listener so this field is not directly used by
 	 * other parser methods.
 	 */
-	private _tracer?:  this.TraceListener;
+	private _tracer:  TraceListener | null;
 
 	/**
 	 * The list of {@link ParseTreeListener} listeners registered to receive
@@ -156,7 +158,7 @@ return  class TraceListener implements ParseTreeListener {
 	 *
 	 * @see #addParseListener
 	 */
-	protected _parseListeners?:  java.util.List<ParseTreeListener>;
+	protected _parseListeners:  java.util.List<ParseTreeListener> | null;
 
 	/**
 	 * The number of syntax errors reported during parsing. This value is
@@ -167,26 +169,26 @@ return  class TraceListener implements ParseTreeListener {
 	/** Indicates parser has match()ed EOF token. See {@link #exitRule()}. */
 	protected matchedEOF:  boolean;
 
-	public constructor(input: TokenStream) {
+	public constructor(input: TokenStream| null) {
 		super();
 this.setInputStream(input);
 	}
 
 	/** reset the parser's state */
-	public reset = (): void => {
-		if ( this.getInputStream()!==undefined ) {
+	public reset = ():  void => {
+		if ( this.getInputStream()!==null ) {
  this.getInputStream().seek(0);
 }
 
 		this._errHandler.reset(this);
-		this._ctx = undefined;
+		this._ctx = null;
 		this._syntaxErrors = 0;
 		this.matchedEOF = false;
 		this.setTrace(false);
 		this._precedenceStack.clear();
 		this._precedenceStack.push(0);
 		let  interpreter: ATNSimulator = this.getInterpreter();
-		if (interpreter !== undefined) {
+		if (interpreter !== null) {
 			interpreter.reset();
 		}
 	}
@@ -205,12 +207,12 @@ this.setInputStream(input);
 	 * {@link ParserRuleContext#addErrorNode(ErrorNode)}.</p>
 	 *
 	 * @param ttype the token type to match
-	 * @return the matched symbol
+	  @returns the matched symbol
 	 * @throws RecognitionException if the current input symbol did not match
 	 * {@code ttype} and the error strategy could not recover from the
 	 * mismatched symbol
 	 */
-	public match = (ttype: number): Token => {
+	public match = (ttype: number):  Token | null => {
 		let  t: Token = this.getCurrentToken();
 		if ( t.getType()===ttype ) {
 			if ( ttype===Token.EOF ) {
@@ -243,12 +245,12 @@ this.setInputStream(input);
 	 * the parse tree by calling {@link Parser#createErrorNode(ParserRuleContext, Token)}. then
      * {@link ParserRuleContext#addErrorNode(ErrorNode)}</p>
 	 *
-	 * @return the matched symbol
+	  @returns the matched symbol
 	 * @throws RecognitionException if the current input symbol did not match
 	 * a wildcard and the error strategy could not recover from the mismatched
 	 * symbol
 	 */
-	public matchWildcard = (): Token => {
+	public matchWildcard = ():  Token | null => {
 		let  t: Token = this.getCurrentToken();
 		if (t.getType() > 0) {
 			this._errHandler.reportMatch(this);
@@ -281,7 +283,7 @@ this.setInputStream(input);
 	 * {@link ParserRuleContext#children} list. Contexts are then not candidates
 	 * for garbage collection.</p>
 	 */
-	public setBuildParseTree = (buildParseTrees: boolean): void => {
+	public setBuildParseTree = (buildParseTrees: boolean):  void => {
 		this._buildParseTrees = buildParseTrees;
 	}
 
@@ -289,10 +291,10 @@ this.setInputStream(input);
 	 * Gets whether or not a complete parse tree will be constructed while
 	 * parsing. This property is {@code true} for a newly constructed parser.
 	 *
-	 * @return {@code true} if a complete parse tree will be constructed while
+	  @returns {@code true} if a complete parse tree will be constructed while
 	 * parsing, otherwise {@code false}
 	 */
-	public getBuildParseTree = (): boolean => {
+	public getBuildParseTree = ():  boolean => {
 		return this._buildParseTrees;
 	}
 
@@ -303,7 +305,7 @@ this.setInputStream(input);
 	 * @param trimParseTrees {@code true} to trim the capacity of the {@link ParserRuleContext#children}
 	 * list to its size after a rule is parsed.
 	 */
-	public setTrimParseTree = (trimParseTrees: boolean): void => {
+	public setTrimParseTree = (trimParseTrees: boolean):  void => {
 		if (trimParseTrees) {
 			if (this.getTrimParseTree()) {
  return;
@@ -317,17 +319,17 @@ this.setInputStream(input);
 	}
 
 	/**
-	 * @return {@code true} if the {@link ParserRuleContext#children} list is trimmed
+	  @returns {@code true} if the {@link ParserRuleContext#children} list is trimmed
 	 * using the default {@link Parser.TrimToSizeListener} during the parse process.
 	 */
-	public getTrimParseTree = (): boolean => {
+	public getTrimParseTree = ():  boolean => {
 		return this.getParseListeners().contains(Parser.TrimToSizeListener.INSTANCE);
 	}
 
 
-	public getParseListeners = (): java.util.List<ParseTreeListener> => {
+	public getParseListeners = ():  java.util.List<ParseTreeListener> | null => {
 		let  listeners: java.util.List<ParseTreeListener> = this._parseListeners;
-		if (listeners === undefined) {
+		if (listeners === null) {
 			return java.util.Collections.emptyList();
 		}
 
@@ -363,12 +365,12 @@ this.setInputStream(input);
 	 *
 	 * @throws NullPointerException if {@code} listener is {@code null}
 	 */
-	public addParseListener = (listener: ParseTreeListener): void => {
-		if (listener === undefined) {
+	public addParseListener = (listener: ParseTreeListener| null):  void => {
+		if (listener === null) {
 			throw new  java.lang.NullPointerException("listener");
 		}
 
-		if (this._parseListeners === undefined) {
+		if (this._parseListeners === null) {
 			this._parseListeners = new  java.util.ArrayList<ParseTreeListener>();
 		}
 
@@ -385,11 +387,11 @@ this.setInputStream(input);
 	 *
 	 * @param listener the listener to remove
 	 */
-	public removeParseListener = (listener: ParseTreeListener): void => {
-		if (this._parseListeners !== undefined) {
+	public removeParseListener = (listener: ParseTreeListener| null):  void => {
+		if (this._parseListeners !== null) {
 			if (this._parseListeners.remove(listener)) {
 				if (this._parseListeners.isEmpty()) {
-					this._parseListeners = undefined;
+					this._parseListeners = null;
 				}
 			}
 		}
@@ -400,8 +402,8 @@ this.setInputStream(input);
 	 *
 	 * @see #addParseListener
 	 */
-	public removeParseListeners = (): void => {
-		this._parseListeners = undefined;
+	public removeParseListeners = ():  void => {
+		this._parseListeners = null;
 	}
 
 	/**
@@ -409,7 +411,7 @@ this.setInputStream(input);
 	 *
 	 * @see #addParseListener
 	 */
-	protected triggerEnterRuleEvent = (): void => {
+	protected triggerEnterRuleEvent = ():  void => {
 		for (let listener of this._parseListeners) {
 			listener.enterEveryRule(this._ctx);
 			this._ctx.enterRule(listener);
@@ -421,7 +423,7 @@ this.setInputStream(input);
 	 *
 	 * @see #addParseListener
 	 */
-	protected triggerExitRuleEvent = (): void => {
+	protected triggerExitRuleEvent = ():  void => {
 		// reverse order walk of listeners
 		for (let  i: number = this._parseListeners.size()-1; i >= 0; i--) {
 			let  listener: ParseTreeListener = this._parseListeners.get(i);
@@ -436,16 +438,16 @@ this.setInputStream(input);
 	 *
 	 * @see #notifyErrorListeners
 	 */
-	public getNumberOfSyntaxErrors = (): number => {
+	public getNumberOfSyntaxErrors = ():  number => {
 		return this._syntaxErrors;
 	}
 
-	public getTokenFactory = (): TokenFactory<unknown> => {
+	public getTokenFactory = ():  TokenFactory<unknown> | null => {
 		return this._input.getTokenSource().getTokenFactory();
 	}
 
 	/** Tell our token source and error strategy about a new way to create tokens. */
-	public setTokenFactory = (factory: TokenFactory<unknown>): void => {
+	public setTokenFactory = (factory: TokenFactory<unknown>| null):  void => {
 		this._input.getTokenSource().setTokenFactory(factory);
 	}
 
@@ -457,14 +459,14 @@ this.setInputStream(input);
 	 * implement the {@link #getSerializedATN()} method.
 	 */
 
-	public getATNWithBypassAlts = (): ATN => {
-		let  serializedAtn: string = this.getSerializedATN();
-		if (serializedAtn === undefined) {
+	public getATNWithBypassAlts = ():  ATN | null => {
+		let  serializedAtn: java.lang.String = this.getSerializedATN();
+		if (serializedAtn === null) {
 			throw new  java.lang.UnsupportedOperationException("The current parser does not support an ATN with bypass alternatives.");
 		}
 
 		/* synchronized (this) */ {
-			if ( this.bypassAltsAtnCache!==undefined ) {
+			if ( this.bypassAltsAtnCache!==null ) {
 				return this.bypassAltsAtnCache;
 			}
 			let  deserializationOptions: ATNDeserializationOptions = new  ATNDeserializationOptions();
@@ -485,14 +487,14 @@ this.setInputStream(input);
 	 * String id = m.get("ID");
 	 * </pre>
 	 */
-	public compileParseTreePattern(pattern: string, patternRuleIndex: number): ParseTreePattern;
+	public compileParseTreePattern(pattern: java.lang.String| null, patternRuleIndex: number):  ParseTreePattern | null;
 
 	/**
 	 * The same as {@link #compileParseTreePattern(String, int)} but specify a
 	 * {@link Lexer} rather than trying to deduce it from this parser.
 	 */
-	public compileParseTreePattern(pattern: string, patternRuleIndex: number,
-													lexer: Lexer): ParseTreePattern;
+	public compileParseTreePattern(pattern: java.lang.String| null, patternRuleIndex: number,
+													lexer: Lexer| null):  ParseTreePattern | null;
 
 
 	/**
@@ -506,9 +508,9 @@ this.setInputStream(input);
 	 * String id = m.get("ID");
 	 * </pre>
 	 */
-	public compileParseTreePattern(pattern: string, patternRuleIndex: number, lexer?: Lexer):  ParseTreePattern {
+	public compileParseTreePattern(pattern: java.lang.String | null, patternRuleIndex: number, lexer?: Lexer | null):  ParseTreePattern | null {
 if (lexer === undefined) {
-		if ( this.getTokenStream()!==undefined ) {
+		if ( this.getTokenStream()!==null ) {
 			let  tokenSource: TokenSource = this.getTokenStream().getTokenSource();
 			if ( tokenSource instanceof Lexer ) {
 				let  lexer: Lexer = tokenSource as Lexer;
@@ -527,27 +529,27 @@ if (lexer === undefined) {
 
 
 
-	public getErrorHandler = (): ANTLRErrorStrategy => {
+	public getErrorHandler = ():  ANTLRErrorStrategy | null => {
 		return this._errHandler;
 	}
 
-	public setErrorHandler = (handler: ANTLRErrorStrategy): void => {
+	public setErrorHandler = (handler: ANTLRErrorStrategy| null):  void => {
 		this._errHandler = handler;
 	}
 
-	public getInputStream = (): TokenStream => { return this.getTokenStream(); }
+	public getInputStream = ():  TokenStream | null => { return this.getTokenStream(); }
 
-	public readonly  setInputStream = (input: IntStream): void => {
+	public readonly  setInputStream = (input: IntStream| null):  void => {
 		this.setTokenStream(input as TokenStream);
 	}
 
-	public getTokenStream = (): TokenStream => {
+	public getTokenStream = ():  TokenStream | null => {
 		return this._input;
 	}
 
 	/** Set the token stream and reset the parser. */
-	public setTokenStream = (input: TokenStream): void => {
-		this._input = undefined;
+	public setTokenStream = (input: TokenStream| null):  void => {
+		this._input = null;
 		this.reset();
 		this._input = input;
 	}
@@ -556,20 +558,20 @@ if (lexer === undefined) {
      *  into the label for the associated token ref; e.g., x=ID.
      */
 
-    public getCurrentToken = (): Token => {
+    public getCurrentToken = ():  Token | null => {
 		return this._input.LT(1);
 	}
 
-	public readonly  notifyErrorListeners(msg: string): void;
+	public readonly  notifyErrorListeners(msg: java.lang.String| null):  void;
 
-	public notifyErrorListeners(offendingToken: Token, msg: string,
-									 e: RecognitionException): void;
+	public notifyErrorListeners(offendingToken: Token| null, msg: java.lang.String| null,
+									 e: RecognitionException| null):  void;
 
 
-	public readonly  notifyErrorListeners(msgOrOffendingToken: string | Token, msg?: string, e?: RecognitionException):  void {
-if (typeof msgOrOffendingToken === "string" && msg === undefined)	{
-const msg = msgOrOffendingToken as string;
-		this.notifyErrorListeners(this.getCurrentToken(), msg, undefined);
+	public readonly  notifyErrorListeners(msgOrOffendingToken: java.lang.String | Token | null, msg?: java.lang.String | null, e?: RecognitionException | null):  void {
+if (msgOrOffendingToken instanceof java.lang.String && msg === undefined)	{
+const msg = msgOrOffendingToken as java.lang.String;
+		this.notifyErrorListeners(this.getCurrentToken(), msg, null);
 	}
  else 
 	{
@@ -608,16 +610,16 @@ let offendingToken = msgOrOffendingToken as Token;
 	 * {@link ParseTreeListener#visitErrorNode} is called on any parse
 	 * listeners.
 	 */
-	public consume = (): Token => {
+	public consume = ():  Token | null => {
 		let  o: Token = this.getCurrentToken();
 		if (o.getType() !== Recognizer.EOF) {
 			this.getInputStream().consume();
 		}
-		let  hasListener: boolean = this._parseListeners !== undefined && !(this._parseListeners.isEmpty());
+		let  hasListener: boolean = this._parseListeners !== null && !this._parseListeners.isEmpty();
 		if (this._buildParseTrees || hasListener) {
 			if ( this._errHandler.inErrorRecoveryMode(this) ) {
 				let  node: ErrorNode = this._ctx.addErrorNode(this.createErrorNode(this._ctx,o));
-				if (this._parseListeners !== undefined) {
+				if (this._parseListeners !== null) {
 					for (let listener of this._parseListeners) {
 						listener.visitErrorNode(node);
 					}
@@ -625,7 +627,7 @@ let offendingToken = msgOrOffendingToken as Token;
 			}
 			else {
 				let  node: TerminalNode = this._ctx.addChild(this.createTerminalNode(this._ctx,o));
-				if (this._parseListeners !== undefined) {
+				if (this._parseListeners !== null) {
 					for (let listener of this._parseListeners) {
 						listener.visitTerminal(node);
 					}
@@ -638,25 +640,25 @@ let offendingToken = msgOrOffendingToken as Token;
 	/** How to create a token leaf node associated with a parent.
 	 *  Typically, the terminal node to create is not a function of the parent.
 	 *
-	 * @since 4.7
+	 *
 	 */
-	public createTerminalNode = (parent: ParserRuleContext, t: Token): TerminalNode => {
+	public createTerminalNode = (parent: ParserRuleContext| null, t: Token| null):  TerminalNode | null => {
 		return new  TerminalNodeImpl(t);
 	}
 
 	/** How to create an error node, given a token, associated with a parent.
 	 *  Typically, the error node to create is not a function of the parent.
 	 *
-	 * @since 4.7
+	 *
 	 */
-	public createErrorNode = (parent: ParserRuleContext, t: Token): ErrorNode => {
+	public createErrorNode = (parent: ParserRuleContext| null, t: Token| null):  ErrorNode | null => {
 		return new  ErrorNodeImpl(t);
 	}
 
-	protected addContextToParseTree = (): void => {
+	protected addContextToParseTree = ():  void => {
 		let  parent: ParserRuleContext = this._ctx.parent as ParserRuleContext;
 		// add current context to parent if we have a parent
-		if ( parent!==undefined )	{
+		if ( parent!==null )	{
 			parent.addChild(this._ctx);
 		}
 	}
@@ -665,7 +667,7 @@ let offendingToken = msgOrOffendingToken as Token;
 	 * Always called by generated parsers upon entry to a rule. Access field
 	 * {@link #_ctx} get the current context.
 	 */
-	public enterRule = (localctx: ParserRuleContext, state: number, ruleIndex: number): void => {
+	public enterRule = (localctx: ParserRuleContext| null, state: number, ruleIndex: number):  void => {
 		this.setState(state);
 		this._ctx = localctx;
 		this._ctx.start = this._input.LT(1);
@@ -673,13 +675,13 @@ let offendingToken = msgOrOffendingToken as Token;
  this.addContextToParseTree();
 }
 
-        if ( this._parseListeners !== undefined) {
+        if ( this._parseListeners !== null) {
  this.triggerEnterRuleEvent();
 }
 
 	}
 
-    public exitRule = (): void => {
+    public exitRule = ():  void => {
 		if ( this.matchedEOF ) {
 			// if we have matched EOF, it cannot consume past EOF so we use LT(1) here
 			this._ctx.stop = this._input.LT(1); // LT(1) will be end of file
@@ -688,7 +690,7 @@ let offendingToken = msgOrOffendingToken as Token;
 			this._ctx.stop = this._input.LT(-1); // stop node is what we just matched
 		}
         // trigger event on _ctx, before it reverts to parent
-        if ( this._parseListeners !== undefined) {
+        if ( this._parseListeners !== null) {
  this.triggerExitRuleEvent();
 }
 
@@ -696,13 +698,13 @@ let offendingToken = msgOrOffendingToken as Token;
 		this._ctx = this._ctx.parent as ParserRuleContext;
     }
 
-	public enterOuterAlt = (localctx: ParserRuleContext, altNum: number): void => {
+	public enterOuterAlt = (localctx: ParserRuleContext| null, altNum: number):  void => {
 		localctx.setAltNumber(altNum);
 		// if we have new localctx, make sure we replace existing ctx
 		// that is previous child of parse tree
 		if ( this._buildParseTrees && this._ctx !== localctx ) {
 			let  parent: ParserRuleContext = this._ctx.parent as ParserRuleContext;
-			if ( parent!==undefined )	{
+			if ( parent!==null )	{
 				parent.removeLastChild();
 				parent.addChild(localctx);
 			}
@@ -713,10 +715,10 @@ let offendingToken = msgOrOffendingToken as Token;
 	/**
 	 * Get the precedence level for the top-most precedence rule.
 	 *
-	 * @return The precedence level for the top-most precedence rule, or -1 if
+	  @returns The precedence level for the top-most precedence rule, or -1 if
 	 * the parser context is not nested within a precedence rule.
 	 */
-	public readonly  getPrecedence = (): number => {
+	public readonly  getPrecedence = ():  number => {
 		if (this._precedenceStack.isEmpty()) {
 			return -1;
 		}
@@ -728,16 +730,16 @@ let offendingToken = msgOrOffendingToken as Token;
 	 * @deprecated Use
 	 * {@link #enterRecursionRule(ParserRuleContext, int, int, int)} instead.
 	 */
-	public enterRecursionRule(localctx: ParserRuleContext, ruleIndex: number): void;
+	public enterRecursionRule(localctx: ParserRuleContext| null, ruleIndex: number):  void;
 
-	public enterRecursionRule(localctx: ParserRuleContext, state: number, ruleIndex: number, precedence: number): void;
+	public enterRecursionRule(localctx: ParserRuleContext| null, state: number, ruleIndex: number, precedence: number):  void;
 
 
 	/**
 	 * @deprecated Use
 	 * {@link #enterRecursionRule(ParserRuleContext, int, int, int)} instead.
 	 */
-	public enterRecursionRule(localctx: ParserRuleContext, ruleIndexOrState: number, ruleIndex?: number, precedence?: number):  void {
+	public enterRecursionRule(localctx: ParserRuleContext | null, ruleIndexOrState: number, ruleIndex?: number, precedence?: number):  void {
 if (ruleIndex === undefined) {
 		this.enterRecursionRule(localctx, this.getATN().ruleToStartState[ruleIndex].stateNumber, ruleIndex, 0);
 	}
@@ -747,7 +749,7 @@ let state = ruleIndexOrState as number;
 		this._precedenceStack.push(precedence);
 		this._ctx = localctx;
 		this._ctx.start = this._input.LT(1);
-		if (this._parseListeners !== undefined) {
+		if (this._parseListeners !== null) {
 			this.triggerEnterRuleEvent(); // simulates rule entry for left-recursive rules
 		}
 	}
@@ -758,7 +760,7 @@ let state = ruleIndexOrState as number;
 	/** Like {@link #enterRule} but for recursive rules.
 	 *  Make the current context the child of the incoming localctx.
 	 */
-	public pushNewRecursionContext = (localctx: ParserRuleContext, state: number, ruleIndex: number): void => {
+	public pushNewRecursionContext = (localctx: ParserRuleContext| null, state: number, ruleIndex: number):  void => {
 		let  previous: ParserRuleContext = this._ctx;
 		previous.parent = localctx;
 		previous.invokingState = state;
@@ -770,18 +772,18 @@ let state = ruleIndexOrState as number;
 			this._ctx.addChild(previous);
 		}
 
-		if ( this._parseListeners !== undefined ) {
+		if ( this._parseListeners !== null ) {
 			this.triggerEnterRuleEvent(); // simulates rule entry for left-recursive rules
 		}
 	}
 
-	public unrollRecursionContexts = (_parentctx: ParserRuleContext): void => {
+	public unrollRecursionContexts = (_parentctx: ParserRuleContext| null):  void => {
 		this._precedenceStack.pop();
 		this._ctx.stop = this._input.LT(-1);
 		let  retctx: ParserRuleContext = this._ctx; // save current ctx (return value)
 
 		// unroll so _ctx is as it was before call to recursive method
-		if ( this._parseListeners !== undefined ) {
+		if ( this._parseListeners !== null ) {
 			while ( this._ctx !== _parentctx ) {
 				this.triggerExitRuleEvent();
 				this._ctx = this._ctx.parent as ParserRuleContext;
@@ -794,37 +796,37 @@ let state = ruleIndexOrState as number;
 		// hook into tree
 		retctx.parent = _parentctx;
 
-		if (this._buildParseTrees && _parentctx !== undefined) {
+		if (this._buildParseTrees && _parentctx !== null) {
 			// add return ctx into invoking rule's tree
 			_parentctx.addChild(retctx);
 		}
 	}
 
-	public getInvokingContext = (ruleIndex: number): ParserRuleContext => {
+	public getInvokingContext = (ruleIndex: number):  ParserRuleContext | null => {
 		let  p: ParserRuleContext = this._ctx;
-		while ( p!==undefined ) {
+		while ( p!==null ) {
 			if ( p.getRuleIndex() === ruleIndex ) {
  return p;
 }
 
 			p = p.parent as ParserRuleContext;
 		}
-		return undefined;
+		return null;
 	}
 
-	public getContext = (): ParserRuleContext => {
+	public getContext = ():  ParserRuleContext | null => {
 		return this._ctx;
 	}
 
-	public setContext = (ctx: ParserRuleContext): void => {
+	public setContext = (ctx: ParserRuleContext| null):  void => {
 		this._ctx = ctx;
 	}
 
-	public precpred = (localctx: RuleContext, precedence: number): boolean => {
+	public precpred = (localctx: RuleContext| null, precedence: number):  boolean => {
 		return precedence >= this._precedenceStack.peek();
 	}
 
-	public inContext = (context: string): boolean => {
+	public inContext = (context: java.lang.String| null):  boolean => {
 		// TODO: useful in parser?
 		return false;
 	}
@@ -840,10 +842,10 @@ let state = ruleIndexOrState as number;
 	 * </pre>
 	 *
 	 * @param symbol the symbol type to check
-	 * @return {@code true} if {@code symbol} can follow the current state in
+	  @returns {@code true} if {@code symbol} can follow the current state in
 	 * the ATN, otherwise {@code false}.
 	 */
-    public isExpectedToken = (symbol: number): boolean => {
+    public isExpectedToken = (symbol: number):  boolean => {
 //   		return getInterpreter().atn.nextTokens(_ctx);
         let  atn: ATN = this.getInterpreter().atn;
 		let  ctx: ParserRuleContext = this._ctx;
@@ -853,12 +855,12 @@ let state = ruleIndexOrState as number;
             return true;
         }
 //        System.out.println("following "+s+"="+following);
-        if ( !(following.contains(Token.EPSILON)) ) {
+        if ( !following.contains(Token.EPSILON) ) {
  return false;
 }
 
 
-        while ( ctx!==undefined && ctx.invokingState>=0 && following.contains(Token.EPSILON) ) {
+        while ( ctx!==null && ctx.invokingState>=0 && following.contains(Token.EPSILON) ) {
             let  invokingState: ATNState = atn.states.get(ctx.invokingState);
             let  rt: RuleTransition = invokingState.transition(0) as RuleTransition;
             following = atn.nextTokens(rt.followState);
@@ -876,7 +878,7 @@ let state = ruleIndexOrState as number;
         return false;
     }
 
-	public isMatchedEOF = (): boolean => {
+	public isMatchedEOF = ():  boolean => {
 		return this.matchedEOF;
 	}
 
@@ -887,28 +889,28 @@ let state = ruleIndexOrState as number;
 	 *
 	 * @see ATN#getExpectedTokens(int, RuleContext)
 	 */
-	public getExpectedTokens = (): IntervalSet => {
+	public getExpectedTokens = ():  IntervalSet | null => {
 		return this.getATN().getExpectedTokens(this.getState(), this.getContext());
 	}
 
 
-    public getExpectedTokensWithinCurrentRule = (): IntervalSet => {
+    public getExpectedTokensWithinCurrentRule = ():  IntervalSet | null => {
         let  atn: ATN = this.getInterpreter().atn;
         let  s: ATNState = atn.states.get(this.getState());
    		return atn.nextTokens(s);
    	}
 
 	/** Get a rule's index (i.e., {@code RULE_ruleName} field) or -1 if not found. */
-	public getRuleIndex = (ruleName: string): number => {
+	public getRuleIndex = (ruleName: java.lang.String| null):  number => {
 		let  ruleIndex: java.lang.Integer = this.getRuleIndexMap().get(ruleName);
-		if ( ruleIndex!==undefined ) {
+		if ( ruleIndex!==null ) {
  return ruleIndex;
 }
 
 		return -1;
 	}
 
-	public getRuleContext = (): ParserRuleContext => { return this._ctx; }
+	public getRuleContext = ():  ParserRuleContext | null => { return this._ctx; }
 
 	/** Return List&lt;String&gt; of the rule names in your parser instance
 	 *  leading up to a call to the current rule.  You could override if
@@ -917,9 +919,9 @@ let state = ruleIndexOrState as number;
 	 *
 	 *  This is very useful for error messages.
 	 */
-	public getRuleInvocationStack(): java.util.List<string>;
+	public getRuleInvocationStack():  java.util.List<java.lang.String> | null;
 
-	public getRuleInvocationStack(p: RuleContext): java.util.List<string>;
+	public getRuleInvocationStack(p: RuleContext| null):  java.util.List<java.lang.String> | null;
 
 
 	/** Return List&lt;String&gt; of the rule names in your parser instance
@@ -929,14 +931,14 @@ let state = ruleIndexOrState as number;
 	 *
 	 *  This is very useful for error messages.
 	 */
-	public getRuleInvocationStack(p?: RuleContext):  java.util.List<string> {
+	public getRuleInvocationStack(p?: RuleContext | null):  java.util.List<java.lang.String> | null {
 if (p === undefined) {
 		return this.getRuleInvocationStack(this._ctx);
 	}
  else  {
-		let  ruleNames: string[] = this.getRuleNames();
-		let  stack: java.util.List<string> = new  java.util.ArrayList<string>();
-		while ( p!==undefined ) {
+		let  ruleNames: java.lang.String[] = this.getRuleNames();
+		let  stack: java.util.List<java.lang.String> = new  java.util.ArrayList<java.lang.String>();
+		while ( p!==null ) {
 			// compute what follows who invoked us
 			let  ruleIndex: number = p.getRuleIndex();
 			if ( ruleIndex<0 ) {
@@ -955,9 +957,9 @@ if (p === undefined) {
 
 
 	/** For debugging and other purposes. */
-	public getDFAStrings = (): java.util.List<string> => {
+	public getDFAStrings = ():  java.util.List<java.lang.String> | null => {
 		/* synchronized (_interp.decisionToDFA) */ {
-			let  s: java.util.List<string> = new  java.util.ArrayList<string>();
+			let  s: java.util.List<java.lang.String> = new  java.util.ArrayList<java.lang.String>();
 			for (let  d: number = 0; d < this._interp.decisionToDFA.length; d++) {
 				let  dfa: DFA = this._interp.decisionToDFA[d];
 				s.add( dfa.toString(this.getVocabulary()) );
@@ -966,41 +968,53 @@ if (p === undefined) {
 		}
     }
 
+	public dumpDFA():  void;
+
 	/** For debugging and other purposes. */
-	public dumpDFA = (): void => {
+	public dumpDFA(dumpStream: java.io.PrintStream| null):  void;
+
+
+	public dumpDFA(dumpStream?: java.io.PrintStream | null):  void {
+if (dumpStream === undefined) {
+		this.dumpDFA(java.lang.System.out);
+	}
+ else  {
 		/* synchronized (_interp.decisionToDFA) */ {
 			let  seenOne: boolean = false;
 			for (let  d: number = 0; d < this._interp.decisionToDFA.length; d++) {
 				let  dfa: DFA = this._interp.decisionToDFA[d];
-				if ( !(dfa.states.isEmpty()) ) {
+				if ( !dfa.states.isEmpty() ) {
 					if ( seenOne ) {
- java.lang.System.out.println();
+ dumpStream.println();
 }
 
-					java.lang.System.out.println("Decision " + dfa.decision + ":");
-					java.lang.System.out.print(dfa.toString(this.getVocabulary()));
+					dumpStream.println("Decision " + dfa.decision + ":");
+					dumpStream.print(dfa.toString(this.getVocabulary()));
 					seenOne = true;
 				}
 			}
 		}
     }
 
-	public getSourceName = (): string => {
+}
+
+
+	public getSourceName = ():  java.lang.String | null => {
 		return this._input.getSourceName();
 	}
 
-	public getParseInfo = (): ParseInfo => {
+	public getParseInfo = ():  ParseInfo | null => {
 		let  interp: ParserATNSimulator = this.getInterpreter();
 		if (interp instanceof ProfilingATNSimulator) {
 			return new  ParseInfo(interp as ProfilingATNSimulator);
 		}
-		return undefined;
+		return null;
 	}
 
 	/**
-	 * @since 4.3
+	 *
 	 */
-	public setProfile = (profile: boolean): void => {
+	public setProfile = (profile: boolean):  void => {
 		let  interp: ParserATNSimulator = this.getInterpreter();
 		let  saveMode: PredictionMode = interp.getPredictionMode();
 		if ( profile ) {
@@ -1021,17 +1035,17 @@ if (p === undefined) {
 	/** During a parse is sometimes useful to listen in on the rule entry and exit
 	 *  events as well as token matches. This is for quick and dirty debugging.
 	 */
-	public setTrace = (trace: boolean): void => {
+	public setTrace = (trace: boolean):  void => {
 		if ( !trace ) {
 			this.removeParseListener(this._tracer);
-			this._tracer = undefined;
+			this._tracer = null;
 		}
 		else {
-			if ( this._tracer!==undefined ) {
+			if ( this._tracer!==null ) {
  this.removeParseListener(this._tracer);
 }
 
-			else { this._tracer = new  this.TraceListener();
+			else { this._tracer = new  TraceListener();
 }
 
 			this.addParseListener(this._tracer);
@@ -1044,23 +1058,21 @@ if (p === undefined) {
 	 *
 	 * @see #setTrace(boolean)
 	 */
-	public isTrace = (): boolean => {
-		return this._tracer !== undefined;
+	public isTrace = ():  boolean => {
+		return this._tracer !== null;
 	}
 public constructor() {
 	super();
-
+"
 		this._precedenceStack = new  IntegerStack();
 		this._precedenceStack.push(0);
 	
 }
 }
 
-namespace Parser {
-
-export type TraceListener = InstanceType<Parser.TraceListener>;
-
-export type TrimToSizeListener = InstanceType<typeof Parser.TrimToSizeListener>;
+export namespace Parser {
+	export type TraceListener = InstanceType<Parser.TraceListener>;
+	export type TrimToSizeListener = InstanceType<typeof Parser.TrimToSizeListener>;
 }
 
 

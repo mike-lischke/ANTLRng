@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { ATNState } from "./ATNState";
 
 
@@ -26,7 +27,7 @@ import { ATNState } from "./ATNState";
  */
 export  class RuleStopState extends ATNState {
 
-	public getStateType = (): number => {
+	public getStateType = ():  number => {
 		return ATNState.RULE_STOP;
 	}
 

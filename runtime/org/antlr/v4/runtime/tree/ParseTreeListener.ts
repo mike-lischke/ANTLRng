@@ -16,6 +16,7 @@
 
 
 
+
 import { ErrorNode } from "./ErrorNode";
 import { TerminalNode } from "./TerminalNode";
 import { ParserRuleContext } from "../ParserRuleContext";
@@ -34,9 +35,9 @@ import { ParserRuleContext } from "../ParserRuleContext";
  *
  * 		https://github.com/antlr/antlr4/issues/841
  */
-export abstract class ParseTreeListener {
-	public  abstract visitTerminal: (node: TerminalNode) => void;
-	public  abstract visitErrorNode: (node: ErrorNode) => void;
-    public  abstract enterEveryRule: (ctx: ParserRuleContext) => void;
-    public  abstract exitEveryRule: (ctx: ParserRuleContext) => void;
+export  interface ParseTreeListener {
+	 visitTerminal: (node: TerminalNode| null) => void;
+	 visitErrorNode: (node: ErrorNode| null) => void;
+     enterEveryRule: (ctx: ParserRuleContext| null) => void;
+     exitEveryRule: (ctx: ParserRuleContext| null) => void;
 }

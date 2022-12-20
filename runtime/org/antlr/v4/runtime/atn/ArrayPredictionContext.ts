@@ -6,16 +6,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
 import { java } from "../../../../../../lib/java/java";
+import { S } from "../../../../../../lib/templates";
+
 import { PredictionContext } from "./PredictionContext";
 import { SingletonPredictionContext } from "./SingletonPredictionContext";
 
@@ -25,39 +18,30 @@ export class ArrayPredictionContext extends PredictionContext {
      *  from {@link #EMPTY} and non-empty. We merge {@link #EMPTY} by using null parent and
      *  returnState == {@link #EMPTY_RETURN_STATE}.
      */
-    public readonly parents?: PredictionContext[];
+    public readonly parents: PredictionContext[] | null;
 
     /**
      * Sorted for merge, no duplicates; if present,
      *  {@link #EMPTY_RETURN_STATE} is always last.
      */
-    public readonly returnStates: number[];
+    public readonly returnStates: Int32Array;
 
-    /* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
     public constructor(a: SingletonPredictionContext);
+    public constructor(parents: PredictionContext[], returnStates: Int32Array);
+    public constructor(aOrParents: SingletonPredictionContext | PredictionContext[] | null, returnStates?: Int32Array) {
+        const parents = aOrParents instanceof SingletonPredictionContext ? [aOrParents] : aOrParents;
+        let states;
+        if (aOrParents instanceof SingletonPredictionContext) {
+            states = new Int32Array(1);
+            states[0] = aOrParents.returnState;
+        } else {
+            states = returnStates!;
+        }
+        super(PredictionContext.calculateHashCode(parents, states));
 
-    public constructor(parents: PredictionContext[], returnStates: number[]);
-    /* @ts-expect-error, because of the super() call in the closure. */
-    public constructor(aOrParents: SingletonPredictionContext | PredictionContext[], returnStates?: number[]) {
-        const $this = (aOrParents: SingletonPredictionContext | PredictionContext[], returnStates?: number[]): void => {
-            if (aOrParents instanceof SingletonPredictionContext && returnStates === undefined) {
-                const a = aOrParents;
-                $this([a.parent], [a.returnState]);
-            } else {
-                const parents = aOrParents as PredictionContext[];
-                /* @ts-expect-error, because of the super() call in the closure. */
-                super(PredictionContext.calculateHashCode(parents, returnStates));
-                /* @ts-ignore */
-                this.parents = parents;
-                /* @ts-ignore */
-                this.returnStates = returnStates;
-            }
-        };
-
-        $this(aOrParents, returnStates);
-
+        this.parents = parents;
+        this.returnStates = states;
     }
-    /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
     public isEmpty = (): boolean => {
         // since EMPTY_RETURN_STATE can only appear in the last position, we
@@ -69,15 +53,15 @@ export class ArrayPredictionContext extends PredictionContext {
         return this.returnStates.length;
     };
 
-    public getParent = (index: number): PredictionContext => {
-        return this.parents[index];
+    public getParent = (index: number): PredictionContext | null => {
+        return this.parents ? this.parents[index] : null;
     };
 
     public getReturnState = (index: number): number => {
         return this.returnStates[index];
     };
 
-    public equals = (o: object): boolean => {
+    public equals = (o: java.lang.Object): boolean => {
         if (this === o) {
             return true;
         } else {
@@ -90,13 +74,15 @@ export class ArrayPredictionContext extends PredictionContext {
             return false; // can't be same if hash is different
         }
 
-        return java.util.Arrays.equals(this.returnStates, o.returnStates) &&
-            java.util.Arrays.equals(this.parents, o.parents);
+        const a: ArrayPredictionContext = o;
+
+        return java.util.Arrays.equals(this.returnStates, a.returnStates) &&
+            java.util.Arrays.equals(this.parents ?? [], a.parents ?? []);
     };
 
-    public toString = (): string => {
+    public toString = (): java.lang.String => {
         if (this.isEmpty()) {
-            return "[]";
+            return S`[]`;
         }
 
         const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
@@ -112,7 +98,7 @@ export class ArrayPredictionContext extends PredictionContext {
             }
 
             buf.append(this.returnStates[i]);
-            if (this.parents[i] !== undefined) {
+            if (this.parents && this.parents[i]) {
                 buf.append(" ");
                 buf.append(this.parents[i].toString());
             } else {

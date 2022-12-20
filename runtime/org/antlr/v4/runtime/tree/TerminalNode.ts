@@ -16,12 +16,13 @@
 
 
 
+
 import { ParseTree } from "./ParseTree";
 import { Token } from "../Token";
 
 
 
 
-export abstract class TerminalNode extends ParseTree {
-	public  abstract getSymbol: () => Token;
+export  interface TerminalNode extends ParseTree {
+	 getSymbol: () => Token;
 }

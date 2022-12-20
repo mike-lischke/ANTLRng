@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { ATNState } from "./ATNState";
 import { RuleStopState } from "./RuleStopState";
 
@@ -21,10 +22,10 @@ import { RuleStopState } from "./RuleStopState";
 
 
 export  class RuleStartState extends ATNState {
-	public stopState?:  RuleStopState;
+	public stopState:  RuleStopState | null;
 	public isLeftRecursiveRule:  boolean;
 
-	public getStateType = (): number => {
+	public getStateType = ():  number => {
 		return ATNState.RULE_START;
 	}
 }

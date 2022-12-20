@@ -16,6 +16,7 @@
 
 
 
+
 import { ATNConfigSet } from "./ATNConfigSet";
 import { DecisionEventInfo } from "./DecisionEventInfo";
 import { TokenStream } from "../TokenStream";
@@ -39,7 +40,7 @@ import { TokenStream } from "../TokenStream";
  * @see ParserATNSimulator#reportContextSensitivity
  * @see ANTLRErrorListener#reportContextSensitivity
  *
- * @since 4.3
+ *
  */
 export  class ContextSensitivityInfo extends DecisionEventInfo {
 	/**
@@ -55,8 +56,8 @@ export  class ContextSensitivityInfo extends DecisionEventInfo {
 	 * identified during full-context prediction
 	 */
 	public constructor(decision: number,
-								  configs: ATNConfigSet,
-								  input: TokenStream, startIndex: number, stopIndex: number)
+								  configs: ATNConfigSet| null,
+								  input: TokenStream| null, startIndex: number, stopIndex: number)
 	{
 		super( decision, configs, input, startIndex, stopIndex, true);
 	}

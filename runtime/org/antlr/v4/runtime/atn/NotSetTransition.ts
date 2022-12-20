@@ -16,6 +16,7 @@
 
 
 
+
 import { ATNState } from "./ATNState";
 import { SetTransition } from "./SetTransition";
 import { Transition } from "./Transition";
@@ -25,21 +26,21 @@ import { IntervalSet } from "../misc/IntervalSet";
 
 
 export  class NotSetTransition extends SetTransition {
-	public constructor(target: ATNState, set: IntervalSet) {
+	public constructor(target: ATNState| null, set: IntervalSet| null) {
 		super(target, set);
 	}
 
-	public getSerializationType = (): number => {
+	public getSerializationType = ():  number => {
 		return Transition.NOT_SET;
 	}
 
-	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
+	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number):  boolean => {
 		return symbol >= minVocabSymbol
 			&& symbol <= maxVocabSymbol
-			&& !(super.matches(symbol, minVocabSymbol, maxVocabSymbol));
+			&& !super.matches(symbol, minVocabSymbol, maxVocabSymbol);
 	}
 
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return '~'+super.toString();
 	}
 }

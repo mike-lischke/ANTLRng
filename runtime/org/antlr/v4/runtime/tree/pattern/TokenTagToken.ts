@@ -16,6 +16,8 @@
 
 
 
+
+import { java } from "../../../../../../../lib/java/java";
 import { CommonToken } from "../../CommonToken";
 
 
@@ -31,12 +33,12 @@ export  class TokenTagToken extends CommonToken {
 	 * This is the backing field for {@link #getTokenName}.
 	 */
 
-	private readonly  tokenName?:  string;
+	private readonly  tokenName:  java.lang.String | null;
 	/**
 	 * This is the backing field for {@link #getLabel}.
 	 */
 
-	private readonly  label?:  string;
+	private readonly  label:  java.lang.String | null;
 
 	/**
 	 * Constructs a new instance of {@link TokenTagToken} for an unlabeled tag
@@ -45,7 +47,7 @@ export  class TokenTagToken extends CommonToken {
 	 * @param tokenName The token name.
 	 * @param type The token type.
 	 */
-	public constructor(tokenName: string, type: number);
+	public constructor(tokenName: java.lang.String| null, type: number);
 
 	/**
 	 * Constructs a new instance of {@link TokenTagToken} with the specified
@@ -56,11 +58,11 @@ export  class TokenTagToken extends CommonToken {
 	 * @param label The label associated with the token tag, or {@code null} if
 	 * the token tag is unlabeled.
 	 */
-	public constructor(tokenName: string, type: number, label: string);
-public constructor(tokenName: string, type: number, label?: string) {
-const $this = (tokenName: string, type: number, label?: string): void => {
+	public constructor(tokenName: java.lang.String| null, type: number, label: java.lang.String| null);
+public constructor(tokenName: java.lang.String | null, type: number, label?: java.lang.String | null) {
+const $this = (tokenName: java.lang.String | null, type: number, label?: java.lang.String | null): void => {
 if (label === undefined) {
-		$this(tokenName, type, undefined);
+		$this(tokenName, type, null);
 	}
  else  {
 		super(type);
@@ -76,32 +78,31 @@ $this(tokenName, type, label);
 
 	/**
 	 * Gets the token name.
-	 * @return The token name.
+	  @returns The token name.
 	 */
 
-	public readonly  getTokenName = (): string => {
+	public readonly  getTokenName = ():  java.lang.String | null => {
 		return this.tokenName;
 	}
 
 	/**
 	 * Gets the label associated with the rule tag.
 	 *
-	 * @return The name of the label associated with the rule tag, or
+	  @returns The name of the label associated with the rule tag, or
 	 * {@code null} if this is an unlabeled rule tag.
 	 */
 
-	public readonly  getLabel = (): string => {
+	public readonly  getLabel = ():  java.lang.String | null => {
 		return this.label;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link TokenTagToken} returns the token tag
 	 * formatted with {@code <} and {@code >} delimiters.</p>
 	 */
-	public getText = (): string => {
-		if (this.label !== undefined) {
+	public getText = ():  java.lang.String | null => {
+		if (this.label !== null) {
 			return "<" + this.label + ":" + this.tokenName + ">";
 		}
 
@@ -109,12 +110,11 @@ $this(tokenName, type, label);
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link TokenTagToken} returns a string of the form
 	 * {@code tokenName:type}.</p>
 	 */
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return this.tokenName + ":" + CommonToken.type;
 	}
 }

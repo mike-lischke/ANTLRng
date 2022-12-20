@@ -14,6 +14,8 @@
 
 /* cspell: disable */
 
+
+import { java } from "../../../../../../lib/java/java";
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
@@ -21,21 +23,20 @@ import { RuleNode } from "./RuleNode";
 import { TerminalNode } from "./TerminalNode";
 
 
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
-export abstract  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T> {
+export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements ParseTreeVisitor<T> {
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation calls {@link ParseTree#accept} on the
 	 * specified tree.</p>
 	 */
-	public visit = (tree: ParseTree): T => {
+	public visit = (tree: ParseTree| null):  T | null => {
 		return tree.accept(this);
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation initializes the aggregate result to
 	 * {@link #defaultResult defaultResult()}. Before visiting each child, it
@@ -49,7 +50,7 @@ export abstract  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T
 	 * the tree structure. Visitors that modify the tree should override this
 	 * method to behave properly in respect to the specific algorithm in use.</p>
 	 */
-	public visitChildren = (node: RuleNode): T => {
+	public visitChildren = (node: RuleNode| null):  T | null => {
 		let  result: T = this.defaultResult();
 		let  n: number = node.getChildCount();
 		for (let  i: number=0; i<n; i++) {
@@ -66,22 +67,20 @@ export abstract  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of
 	 * {@link #defaultResult defaultResult}.</p>
 	 */
-	public visitTerminal = (node: TerminalNode): T => {
+	public visitTerminal = (node: TerminalNode| null):  T | null => {
 		return this.defaultResult();
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of
 	 * {@link #defaultResult defaultResult}.</p>
 	 */
-	public visitErrorNode = (node: ErrorNode): T => {
+	public visitErrorNode = (node: ErrorNode| null):  T | null => {
 		return this.defaultResult();
 	}
 
@@ -94,10 +93,10 @@ export abstract  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T
 	 *
 	 * <p>The base implementation returns {@code null}.</p>
 	 *
-	 * @return The default value returned by visitor methods.
+	  @returns The default value returned by visitor methods.
 	 */
-	protected defaultResult = (): T => {
-		return undefined;
+	protected defaultResult = ():  T | null => {
+		return null;
 	}
 
 	/**
@@ -117,9 +116,9 @@ export abstract  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T
 	 * @param nextResult The result of the immediately preceeding call to visit
 	 * a child node.
 	 *
-	 * @return The updated aggregate result.
+	  @returns The updated aggregate result.
 	 */
-	protected aggregateResult = (aggregate: T, nextResult: T): T => {
+	protected aggregateResult = (aggregate: T| null, nextResult: T| null):  T | null => {
 		return nextResult;
 	}
 
@@ -143,11 +142,11 @@ export abstract  class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T
 	 * @param currentResult The current aggregate result of the children visited
 	 * to the current point.
 	 *
-	 * @return {@code true} to continue visiting children. Otherwise return
+	  @returns {@code true} to continue visiting children. Otherwise return
 	 * {@code false} to stop visiting children and immediately return the
 	 * current aggregate result from {@link #visitChildren}.
 	 */
-	protected shouldVisitNextChild = (node: RuleNode, currentResult: T): boolean => {
+	protected shouldVisitNextChild = (node: RuleNode| null, currentResult: T| null):  boolean => {
 		return true;
 	}
 

@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { PredictionContext } from "./PredictionContext";
 import { SingletonPredictionContext } from "./SingletonPredictionContext";
 
@@ -21,29 +22,35 @@ import { SingletonPredictionContext } from "./SingletonPredictionContext";
 
 
 export  class EmptyPredictionContext extends SingletonPredictionContext {
-	public constructor() {
-		super(undefined, PredictionContext.EMPTY_RETURN_STATE);
+	/**
+	 * Represents {@code $} in local context prediction, which means wildcard.
+	 * {@code *+x = *}.
+	 */
+	public static readonly  Instance:  EmptyPredictionContext | null = new  EmptyPredictionContext();
+
+	private constructor() {
+		super(null, PredictionContext.EMPTY_RETURN_STATE);
 	}
 
-	public isEmpty = (): boolean => { return true; }
+	public isEmpty = ():  boolean => { return true; }
 
-	public size = (): number => {
+	public size = ():  number => {
 		return 1;
 	}
 
-	public getParent = (index: number): PredictionContext => {
-		return undefined;
+	public getParent = (index: number):  PredictionContext | null => {
+		return null;
 	}
 
-	public getReturnState = (index: number): number => {
+	public getReturnState = (index: number):  number => {
 		return this.returnState;
 	}
 
-	public equals = (o: object): boolean => {
+	public equals = (o: java.lang.Object| null):  boolean => {
 		return this === o;
 	}
 
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return "$";
 	}
 }

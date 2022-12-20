@@ -15,11 +15,13 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { Token } from "./Token";
 import { Vocabulary } from "./Vocabulary";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -28,8 +30,8 @@ import { Vocabulary } from "./Vocabulary";
  *
  * @author Sam Harwell
  */
-export  class VocabularyImpl implements Vocabulary {
-	private static readonly  EMPTY_NAMES?:  string[] = new   Array<string>(0);
+export  class VocabularyImpl extends JavaObject implements Vocabulary {
+	private static readonly  EMPTY_NAMES:  java.lang.String[] | null = new   Array<java.lang.String>(0);
 
 	/**
 	 * Gets an empty {@link Vocabulary} instance.
@@ -39,14 +41,14 @@ export  class VocabularyImpl implements Vocabulary {
 	 * {@link #getDisplayName(int)} returns the numeric value for all tokens
 	 * except {@link Token#EOF}.</p>
 	 */
-	public static readonly  EMPTY_VOCABULARY?:  VocabularyImpl = new  VocabularyImpl(VocabularyImpl.EMPTY_NAMES, VocabularyImpl.EMPTY_NAMES, VocabularyImpl.EMPTY_NAMES);
+	public static readonly  EMPTY_VOCABULARY:  VocabularyImpl | null = new  VocabularyImpl(VocabularyImpl.EMPTY_NAMES, VocabularyImpl.EMPTY_NAMES, VocabularyImpl.EMPTY_NAMES);
 
 
-	private readonly  literalNames?:  string[];
+	private readonly  literalNames:  java.lang.String[] | null;
 
-	private readonly  symbolicNames?:  string[];
+	private readonly  symbolicNames:  java.lang.String[] | null;
 
-	private readonly  displayNames?:  string[];
+	private readonly  displayNames:  java.lang.String[] | null;
 
 	private readonly  maxTokenType:  number;
 
@@ -63,7 +65,7 @@ export  class VocabularyImpl implements Vocabulary {
 	 * @see #getSymbolicName(int)
 	 */
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(literalNames: string[], symbolicNames: string[]);
+public constructor(literalNames: java.lang.String[]| null, symbolicNames: java.lang.String[]| null);
 
 	/**
 	 * Constructs a new instance of {@link VocabularyImpl} from the specified
@@ -82,20 +84,20 @@ public constructor(literalNames: string[], symbolicNames: string[]);
 	 * @see #getSymbolicName(int)
 	 * @see #getDisplayName(int)
 	 */
-	public constructor(literalNames: string[], symbolicNames: string[], displayNames: string[]);
+	public constructor(literalNames: java.lang.String[]| null, symbolicNames: java.lang.String[]| null, displayNames: java.lang.String[]| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(literalNames: string[], symbolicNames: string[], displayNames?: string[]) {
-const $this = (literalNames: string[], symbolicNames: string[], displayNames?: string[]): void => {
+public constructor(literalNames: java.lang.String[] | null, symbolicNames: java.lang.String[] | null, displayNames?: java.lang.String[] | null) {
+const $this = (literalNames: java.lang.String[] | null, symbolicNames: java.lang.String[] | null, displayNames?: java.lang.String[] | null): void => {
 if (displayNames === undefined) {
-		$this(literalNames, symbolicNames, undefined);
+		$this(literalNames, symbolicNames, null);
 	}
  else  {
 
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
-this.literalNames = literalNames !== undefined ? literalNames : VocabularyImpl.EMPTY_NAMES;
-		this.symbolicNames = symbolicNames !== undefined ? symbolicNames : VocabularyImpl.EMPTY_NAMES;
-		this.displayNames = displayNames !== undefined ? displayNames : VocabularyImpl.EMPTY_NAMES;
+this.literalNames = literalNames !== null ? literalNames : VocabularyImpl.EMPTY_NAMES;
+		this.symbolicNames = symbolicNames !== null ? symbolicNames : VocabularyImpl.EMPTY_NAMES;
+		this.displayNames = displayNames !== null ? displayNames : VocabularyImpl.EMPTY_NAMES;
 		// See note here on -1 part: https://github.com/antlr/antlr4/pull/1146
 		this.maxTokenType =
 			Math.max(this.displayNames.length,
@@ -119,30 +121,30 @@ $this(literalNames, symbolicNames, displayNames);
 	 *
 	 * @param tokenNames The token names, or {@code null} if no token names are
 	 * available.
-	 * @return A {@link Vocabulary} instance which uses {@code tokenNames} for
+	  @returns A {@link Vocabulary} instance which uses {@code tokenNames} for
 	 * the display names of tokens.
 	 */
-	public static fromTokenNames = (tokenNames: string[]): Vocabulary => {
-		if (tokenNames === undefined || tokenNames.length === 0) {
+	public static fromTokenNames = (tokenNames: java.lang.String[]| null):  Vocabulary | null => {
+		if (tokenNames === null || tokenNames.length === 0) {
 			return VocabularyImpl.EMPTY_VOCABULARY;
 		}
 
-		let  literalNames: string[] = java.util.Arrays.copyOf(tokenNames, tokenNames.length);
-		let  symbolicNames: string[] = java.util.Arrays.copyOf(tokenNames, tokenNames.length);
+		let  literalNames: java.lang.String[] = java.util.Arrays.copyOf(tokenNames, tokenNames.length);
+		let  symbolicNames: java.lang.String[] = java.util.Arrays.copyOf(tokenNames, tokenNames.length);
 		for (let  i: number = 0; i < tokenNames.length; i++) {
-			let  tokenName: string = tokenNames[i];
-			if (tokenName === undefined) {
+			let  tokenName: java.lang.String = tokenNames[i];
+			if (tokenName === null) {
 				continue;
 			}
 
-			if (!(tokenName.length === 0)) {
+			if (!tokenName.isEmpty()) {
 				let  firstChar: CodePoint = tokenName.charAt(0);
 				if (firstChar === '\'') {
-					symbolicNames[i] = undefined;
+					symbolicNames[i] = null;
 					continue;
 				}
 				else { if (java.lang.Character.isUpperCase(firstChar)) {
-					literalNames[i] = undefined;
+					literalNames[i] = null;
 					continue;
 				}
 }
@@ -150,26 +152,26 @@ $this(literalNames, symbolicNames, displayNames);
 			}
 
 			// wasn't a literal or symbolic name
-			literalNames[i] = undefined;
-			symbolicNames[i] = undefined;
+			literalNames[i] = null;
+			symbolicNames[i] = null;
 		}
 
 		return new  VocabularyImpl(literalNames, symbolicNames, tokenNames);
 	}
 
-	public getMaxTokenType = (): number => {
+	public getMaxTokenType = ():  number => {
 		return this.maxTokenType;
 	}
 
-	public getLiteralName = (tokenType: number): string => {
+	public getLiteralName = (tokenType: number):  java.lang.String | null => {
 		if (tokenType >= 0 && tokenType < this.literalNames.length) {
 			return this.literalNames[tokenType];
 		}
 
-		return undefined;
+		return null;
 	}
 
-	public getSymbolicName = (tokenType: number): string => {
+	public getSymbolicName = (tokenType: number):  java.lang.String | null => {
 		if (tokenType >= 0 && tokenType < this.symbolicNames.length) {
 			return this.symbolicNames[tokenType];
 		}
@@ -178,24 +180,24 @@ $this(literalNames, symbolicNames, displayNames);
 			return "EOF";
 		}
 
-		return undefined;
+		return null;
 	}
 
-	public getDisplayName = (tokenType: number): string => {
+	public getDisplayName = (tokenType: number):  java.lang.String | null => {
 		if (tokenType >= 0 && tokenType < this.displayNames.length) {
-			let  displayName: string = this.displayNames[tokenType];
-			if (displayName !== undefined) {
+			let  displayName: java.lang.String = this.displayNames[tokenType];
+			if (displayName !== null) {
 				return displayName;
 			}
 		}
 
-		let  literalName: string = this.getLiteralName(tokenType);
-		if (literalName !== undefined) {
+		let  literalName: java.lang.String = this.getLiteralName(tokenType);
+		if (literalName !== null) {
 			return literalName;
 		}
 
-		let  symbolicName: string = this.getSymbolicName(tokenType);
-		if (symbolicName !== undefined) {
+		let  symbolicName: java.lang.String = this.getSymbolicName(tokenType);
+		if (symbolicName !== null) {
 			return symbolicName;
 		}
 
@@ -204,15 +206,15 @@ $this(literalNames, symbolicNames, displayNames);
 
 	// Because this is an actual implementation object, we can provide access methods for vocabulary symbols
 
-	public getLiteralNames = (): string[] => {
+	public getLiteralNames = ():  java.lang.String[] | null => {
 		return this.literalNames;
 	}
 
-	public getSymbolicNames = (): string[] => {
+	public getSymbolicNames = ():  java.lang.String[] | null => {
 		return this.symbolicNames;
 	}
 
-	public getDisplayNames = (): string[] => {
+	public getDisplayNames = ():  java.lang.String[] | null => {
 		return this.displayNames;
 	}
 }

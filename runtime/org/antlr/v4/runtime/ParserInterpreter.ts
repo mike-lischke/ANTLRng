@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { FailedPredicateException } from "./FailedPredicateException";
@@ -63,16 +64,16 @@ import { Pair } from "./misc/Pair";
  *  See TestParserInterpreter for examples.
  */
 export  class ParserInterpreter extends Parser {
-	protected readonly  grammarFileName?:  string;
-	protected readonly  atn?:  ATN;
+	protected readonly  grammarFileName:  java.lang.String | null;
+	protected readonly  atn:  ATN | null;
 
-	protected readonly  decisionToDFA?:  DFA[]; // not shared like it is for generated parsers
-	protected readonly  sharedContextCache?:  PredictionContextCache = new  PredictionContextCache();
+	protected readonly  decisionToDFA:  DFA[] | null; // not shared like it is for generated parsers
+	protected readonly  sharedContextCache:  PredictionContextCache | null = new  PredictionContextCache();
 
-	protected readonly  tokenNames?:  string[];
-	protected readonly  ruleNames?:  string[];
+	protected readonly  tokenNames:  java.lang.String[] | null;
+	protected readonly  ruleNames:  java.lang.String[] | null;
 
-	private readonly  vocabulary?:  Vocabulary;
+	private readonly  vocabulary:  Vocabulary | null;
 
 	/** This stack corresponds to the _parentctx, _parentState pair of locals
 	 *  that would exist on call stack frames with a recursive descent parser;
@@ -87,7 +88,7 @@ export  class ParserInterpreter extends Parser {
 	 *  Those values are used to create new recursive rule invocation contexts
 	 *  associated with left operand of an alt like "expr '*' expr".
 	 */
-	protected readonly  _parentContextStack?:  Deque<Pair<ParserRuleContext, java.lang.Integer>> =
+	protected readonly  _parentContextStack:  Deque<Pair<ParserRuleContext, java.lang.Integer>> | null =
 		new  ArrayDeque<Pair<ParserRuleContext, java.lang.Integer>>();
 
 	/** We need a map from (decision,inputIndex)->forced alt for computing ambiguous
@@ -102,26 +103,26 @@ export  class ParserInterpreter extends Parser {
 	 *  us what the root of the parse tree is when using override
 	 *  for an ambiguity/lookahead check.
 	 */
-	protected overrideDecisionRoot?:  InterpreterRuleContext = undefined;
+	protected overrideDecisionRoot:  InterpreterRuleContext | null = null;
 
 
-	protected rootContext?:  InterpreterRuleContext;
+	protected rootContext:  InterpreterRuleContext | null;
 
 	/**
 	 * @deprecated Use {@link #ParserInterpreter(String, Vocabulary, Collection, ATN, TokenStream)} instead.
 	 */
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(grammarFileName: string, tokenNames: java.util.Collection<string>,
-							 ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream);
+public constructor(grammarFileName: java.lang.String| null, tokenNames: java.util.Collection<java.lang.String>| null,
+							 ruleNames: java.util.Collection<java.lang.String>| null, atn: ATN| null, input: TokenStream| null);
 
-	public constructor(grammarFileName: string, vocabulary: Vocabulary,
-							 ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream);
+	public constructor(grammarFileName: java.lang.String| null, vocabulary: Vocabulary| null,
+							 ruleNames: java.util.Collection<java.lang.String>| null, atn: ATN| null, input: TokenStream| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream) {
-const $this = (grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary, ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream): void => {
+public constructor(grammarFileName: java.lang.String | null, tokenNamesOrVocabulary: java.util.Collection<java.lang.String> | Vocabulary | null, ruleNames: java.util.Collection<java.lang.String> | null, atn: ATN | null, input: TokenStream | null) {
+const $this = (grammarFileName: java.lang.String | null, tokenNamesOrVocabulary: java.util.Collection<java.lang.String> | Vocabulary | null, ruleNames: java.util.Collection<java.lang.String> | null, atn: ATN | null, input: TokenStream | null): void => {
 if (tokenNamesOrVocabulary instanceof java.util.Collection) {
-const tokenNames = tokenNamesOrVocabulary as java.util.Collection<string>;
-		$this(grammarFileName, VocabularyImpl.fromTokenNames(tokenNames.toArray(new   Array<string>(0))), ruleNames, atn, input);
+const tokenNames = tokenNamesOrVocabulary as java.util.Collection<java.lang.String>;
+		$this(grammarFileName, VocabularyImpl.fromTokenNames(tokenNames.toArray(new   Array<java.lang.String>(0))), ruleNames, atn, input);
 	}
  else 
 	{
@@ -130,12 +131,12 @@ let vocabulary = tokenNamesOrVocabulary as Vocabulary;
 		super(input);
 		this.grammarFileName = grammarFileName;
 		this.atn = atn;
-		this.tokenNames = new   Array<string>(atn.maxTokenType);
+		this.tokenNames = new   Array<java.lang.String>(atn.maxTokenType);
 		for (let  i: number = 0; i < this.tokenNames.length; i++) {
 			this.tokenNames[i] = vocabulary.getDisplayName(i);
 		}
 
-		this.ruleNames = ruleNames.toArray(new   Array<string>(0));
+		this.ruleNames = ruleNames.toArray(new   Array<java.lang.String>(0));
 		this.vocabulary = vocabulary;
 
 		// init decision DFA
@@ -158,37 +159,37 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public reset = (): void => {
+	public reset = ():  void => {
 		super.reset();
 		this.overrideDecisionReached = false;
-		this.overrideDecisionRoot = undefined;
+		this.overrideDecisionRoot = null;
 	}
 
-	public getATN = (): ATN => {
+	public getATN = ():  ATN | null => {
 		return this.atn;
 	}
 
-	public getTokenNames = (): string[] => {
+	public getTokenNames = ():  java.lang.String[] | null => {
 		return this.tokenNames;
 	}
 
-	public getVocabulary = (): Vocabulary => {
+	public getVocabulary = ():  Vocabulary | null => {
 		return this.vocabulary;
 	}
 
-	public getRuleNames = (): string[] => {
+	public getRuleNames = ():  java.lang.String[] | null => {
 		return this.ruleNames;
 	}
 
-	public getGrammarFileName = (): string => {
+	public getGrammarFileName = ():  java.lang.String | null => {
 		return this.grammarFileName;
 	}
 
 	/** Begin parsing at startRuleIndex */
-	public parse = (startRuleIndex: number): ParserRuleContext => {
+	public parse = (startRuleIndex: number):  ParserRuleContext | null => {
 		let  startRuleStartState: RuleStartState = this.atn.ruleToStartState[startRuleIndex];
 
-		this.rootContext = this.createInterpreterRuleContext(undefined, ATNState.INVALID_STATE_NUMBER, startRuleIndex);
+		this.rootContext = this.createInterpreterRuleContext(null, ATNState.INVALID_STATE_NUMBER, startRuleIndex);
 		if (startRuleStartState.isLeftRecursiveRule) {
 			this.enterRecursionRule(this.rootContext, startRuleStartState.stateNumber, startRuleIndex, 0);
 		}
@@ -240,17 +241,17 @@ if (e instanceof RecognitionException) {
 		}
 	}
 
-	public enterRecursionRule = (localctx: ParserRuleContext, state: number, ruleIndex: number, precedence: number): void => {
+	public enterRecursionRule = (localctx: ParserRuleContext| null, state: number, ruleIndex: number, precedence: number):  void => {
 		let  pair: Pair<ParserRuleContext, java.lang.Integer> = new  Pair<ParserRuleContext, java.lang.Integer>(this._ctx, localctx.invokingState);
 		this._parentContextStack.push(pair);
 		super.enterRecursionRule(localctx, state, ruleIndex, precedence);
 	}
 
-	protected getATNState = (): ATNState => {
+	protected getATNState = ():  ATNState | null => {
 		return this.atn.states.get(this.getState());
 	}
 
-	protected visitState = (p: ATNState): void => {
+	protected visitState = (p: ATNState| null):  void => {
 //		System.out.println("visitState "+p.stateNumber);
 		let  predictedAlt: number = 1;
 		if ( p instanceof DecisionState ) {
@@ -287,7 +288,7 @@ if (e instanceof RecognitionException) {
 			case Transition.RANGE:
 			case Transition.SET:
 			case Transition.NOT_SET:{
-				if (!(transition.matches(this._input.LA(1), Token.MIN_USER_TOKEN_TYPE, 65535))) {
+				if (!transition.matches(this._input.LA(1), Token.MIN_USER_TOKEN_TYPE, 65535)) {
 					this.recoverInline();
 				}
 				this.matchWildcard();
@@ -334,7 +335,7 @@ if (e instanceof RecognitionException) {
 
 			case Transition.PRECEDENCE:{
 				if (!this.precpred(this._ctx, (transition as PrecedencePredicateTransition).precedence)) {
-					throw new  FailedPredicateException(this, util.format("precpred(_ctx, %d)", (transition as PrecedencePredicateTransition).precedence));
+					throw new  FailedPredicateException(this, java.lang.String.format("precpred(_ctx, %d)", (transition as PrecedencePredicateTransition).precedence));
 				}
 				break;
 }
@@ -353,7 +354,7 @@ if (e instanceof RecognitionException) {
 	 *  a decision state (instance of DecisionState). It gives an opportunity
 	 *  for subclasses to track interesting things.
 	 */
-	protected visitDecisionState = (p: DecisionState): number => {
+	protected visitDecisionState = (p: DecisionState| null):  number => {
 		let  predictedAlt: number = 1;
 		if ( p.getNumberOfTransitions()>1 ) {
 			this.getErrorHandler().sync(this);
@@ -375,14 +376,14 @@ if (e instanceof RecognitionException) {
 	 *  @since 4.5.1
 	 */
 	protected createInterpreterRuleContext = (
-		parent: ParserRuleContext,
+		parent: ParserRuleContext| null,
 		invokingStateNumber: number,
-		ruleIndex: number): InterpreterRuleContext =>
+		ruleIndex: number):  InterpreterRuleContext | null =>
 	{
 		return new  InterpreterRuleContext(parent, invokingStateNumber, ruleIndex);
 	}
 
-	protected visitRuleStopState = (p: ATNState): void => {
+	protected visitRuleStopState = (p: ATNState| null):  void => {
 		let  ruleStartState: RuleStartState = this.atn.ruleToStartState[p.ruleIndex];
 		if (ruleStartState.isLeftRecursiveRule) {
 			let  parentContext: Pair<ParserRuleContext, java.lang.Integer> = this._parentContextStack.pop();
@@ -437,13 +438,13 @@ if (e instanceof RecognitionException) {
 	 *
 	 *  @since 4.5.1
 	 */
-	public addDecisionOverride = (decision: number, tokenIndex: number, forcedAlt: number): void => {
+	public addDecisionOverride = (decision: number, tokenIndex: number, forcedAlt: number):  void => {
 		this.overrideDecision = decision;
 		this.overrideDecisionInputIndex = tokenIndex;
 		this.overrideDecisionAlt = forcedAlt;
 	}
 
-	public getOverrideDecisionRoot = (): InterpreterRuleContext => {
+	public getOverrideDecisionRoot = ():  InterpreterRuleContext | null => {
 		return this.overrideDecisionRoot;
 	}
 
@@ -451,7 +452,7 @@ if (e instanceof RecognitionException) {
 	 *  to recover, add an error node. Otherwise, nothing is seen in the parse
 	 *  tree.
 	 */
-	protected recover = (e: RecognitionException): void => {
+	protected recover = (e: RecognitionException| null):  void => {
 		let  i: number = this._input.index();
 		this.getErrorHandler().recover(this, e);
 		if ( this._input.index()===i ) {
@@ -460,7 +461,7 @@ if (e instanceof RecognitionException) {
 				let  ime: InputMismatchException = e as InputMismatchException;
 				let  tok: Token = e.getOffendingToken();
 				let  expectedTokenType: number = Token.INVALID_TYPE;
-				if ( !(ime.getExpectedTokens().isNil()) ) {
+				if ( !ime.getExpectedTokens().isNil() ) {
 					expectedTokenType = ime.getExpectedTokens().getMinElement(); // get any element
 				}
 				let  errToken: Token =
@@ -484,7 +485,7 @@ if (e instanceof RecognitionException) {
 		}
 	}
 
-	protected recoverInline = (): Token => {
+	protected recoverInline = ():  Token | null => {
 		return this._errHandler.recoverInline(this);
 	}
 
@@ -494,9 +495,9 @@ if (e instanceof RecognitionException) {
 	 *  that the root will not have any children if the start rule immediately
 	 *  called and left recursive rule that fails.
 	 *
-	 * @since 4.5.1
+	 *
 	 */
-	public getRootContext = (): InterpreterRuleContext => {
+	public getRootContext = ():  InterpreterRuleContext | null => {
 		return this.rootContext;
 	}
 }

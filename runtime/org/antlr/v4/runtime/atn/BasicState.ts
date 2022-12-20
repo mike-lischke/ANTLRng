@@ -1,9 +1,10 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-
 
 /*
  eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
@@ -16,17 +17,14 @@
 
 import { ATNState } from "./ATNState";
 
-
-
-
 /**
  *
  * @author Sam Harwell
  */
-export  class BasicState extends ATNState {
+export class BasicState extends ATNState {
 
-	public getStateType = (): number => {
-		return ATNState.BASIC;
-	}
+    public getStateType = (): number => {
+        return ATNState.BASIC;
+    };
 
 }

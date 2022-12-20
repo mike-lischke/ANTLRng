@@ -16,43 +16,46 @@
 
 
 
+
 import { java } from "../../../../../../lib/java/java";
+import { EmptyPredictionContext } from "./EmptyPredictionContext";
 import { PredictionContext } from "./PredictionContext";
 
 
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
 /** Used to cache {@link PredictionContext} objects. Its used for the shared
  *  context cash associated with contexts in DFA states. This cache
  *  can be used for both lexers and parsers.
  */
-export  class PredictionContextCache {
-	protected readonly  cache?:  java.util.Map<PredictionContext, PredictionContext> =
+export  class PredictionContextCache extends JavaObject {
+	protected readonly  cache:  java.util.Map<PredictionContext, PredictionContext> | null =
 		new  java.util.HashMap<PredictionContext, PredictionContext>();
 
 	/** Add a context to the cache and return it. If the context already exists,
 	 *  return that one instead and do not add a new context to the cache.
 	 *  Protect shared cache from unsafe thread access.
 	 */
-	public add = (ctx: PredictionContext): PredictionContext => {
-		if ( ctx===PredictionContext.EMPTY ) {
- return PredictionContext.EMPTY;
+	public add = (ctx: PredictionContext| null):  PredictionContext | null => {
+		if ( ctx===EmptyPredictionContext.Instance ) {
+ return EmptyPredictionContext.Instance;
 }
 
 		let  existing: PredictionContext = this.cache.get(ctx);
-		if ( existing!==undefined ) {
+		if ( existing!==null ) {
 //			System.out.println(name+" reuses "+existing);
 			return existing;
 		}
-		this.cache.set(ctx, ctx);
+		this.cache.put(ctx, ctx);
 		return ctx;
 	}
 
-	public get = (ctx: PredictionContext): PredictionContext => {
+	public get = (ctx: PredictionContext| null):  PredictionContext | null => {
 		return this.cache.get(ctx);
 	}
 
-	public size = (): number => {
-		return this.cache.size;
+	public size = ():  number => {
+		return this.cache.size();
 	}
 }

@@ -16,6 +16,7 @@
 
 
 
+
 import { ATNConfigSet } from "./ATNConfigSet";
 import { DecisionEventInfo } from "./DecisionEventInfo";
 import { TokenStream } from "../TokenStream";
@@ -32,7 +33,7 @@ import { TokenStream } from "../TokenStream";
  * @see Parser#notifyErrorListeners(Token, String, RecognitionException)
  * @see ANTLRErrorListener#syntaxError
  *
- * @since 4.3
+ *
  */
 export  class ErrorInfo extends DecisionEventInfo {
 	/**
@@ -50,8 +51,8 @@ export  class ErrorInfo extends DecisionEventInfo {
 	 * during SLL prediction
 	 */
 	public constructor(decision: number,
-					 configs: ATNConfigSet,
-					 input: TokenStream, startIndex: number, stopIndex: number,
+					 configs: ATNConfigSet| null,
+					 input: TokenStream| null, startIndex: number, stopIndex: number,
 					 fullCtx: boolean)
 	{
 		super(decision, configs, input, startIndex, stopIndex, fullCtx);

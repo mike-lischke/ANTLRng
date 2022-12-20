@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { AbstractPredicateTransition } from "./AbstractPredicateTransition";
 import { ATNState } from "./ATNState";
 import { SemanticContext } from "./SemanticContext";
@@ -32,28 +33,28 @@ export  class PredicateTransition extends AbstractPredicateTransition {
 	public readonly  predIndex:  number;
 	public readonly  isCtxDependent:  boolean;  // e.g., $i ref in pred
 
-	public constructor(target: ATNState, ruleIndex: number, predIndex: number, isCtxDependent: boolean) {
+	public constructor(target: ATNState| null, ruleIndex: number, predIndex: number, isCtxDependent: boolean) {
 		super(target);
 		this.ruleIndex = ruleIndex;
 		this.predIndex = predIndex;
 		this.isCtxDependent = isCtxDependent;
 	}
 
-	public getSerializationType = (): number => {
+	public getSerializationType = ():  number => {
 		return Transition.PREDICATE;
 	}
 
-	public isEpsilon = (): boolean => { return true; }
+	public isEpsilon = ():  boolean => { return true; }
 
-	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
+	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number):  boolean => {
 		return false;
 	}
 
-    public getPredicate = (): SemanticContext.Predicate => {
+    public getPredicate = ():  SemanticContext.Predicate | null => {
    		return new  SemanticContext..PredicatePredicate(this.ruleIndex, this.predIndex, this.isCtxDependent);
    	}
 
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return "pred_"+this.ruleIndex+":"+this.predIndex;
 	}
 

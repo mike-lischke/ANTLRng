@@ -27,6 +27,7 @@ import { Lexer } from "../Lexer";
 import { Token } from "../Token";
 import { Vocabulary } from "../Vocabulary";
 import { VocabularyImpl } from "../VocabularyImpl";
+import { jsl } from "../../../../../../lib/helpers";
 
 /**
  * This class implements the {@link IntSet} backed by a sorted array of
@@ -58,18 +59,20 @@ export class IntervalSet extends IntSet {
     public constructor(...intervalsOrSetOrEls: unknown[]) {
         const $this = (...intervalsOrSetOrEls: unknown[]): void => {
             if (intervalsOrSetOrEls.length === 1 && intervalsOrSetOrEls[0] instanceof java.util.List) {
-                const intervals = intervalsOrSetOrEls[0] as java.util.List<Interval>;
                 /* @ts-expect-error, because of the super() call in the closure. */
                 super();
+
+                const intervals = intervalsOrSetOrEls[0] as java.util.List<Interval>;
                 this.intervals = intervals;
             } else if (intervalsOrSetOrEls.length === 1 && intervalsOrSetOrEls[0] instanceof IntervalSet) {
                 const set = intervalsOrSetOrEls[0];
                 $this();
                 this.addAll(set);
             } else {
-                const els = intervalsOrSetOrEls as number[];
                 /* @ts-expect-error, because of the super() call in the closure. */
                 super();
+
+                const els = intervalsOrSetOrEls as number[];
                 if (els === undefined) {
                     this.intervals = new java.util.ArrayList<Interval>(2); // most sets are 1 or 2 elements
                 } else {
@@ -538,21 +541,21 @@ export class IntervalSet extends IntSet {
         return this.intervals.equals(obj.intervals);
     };
 
-    public toString(): string;
-    public toString(elemAreChar: boolean): string;
+    public toString(): java.lang.String;
+    public toString(elemAreChar: boolean): java.lang.String;
     /**
      * @deprecated Use {@link #toString(Vocabulary)} instead.
      */
-    public toString(tokenNames: string[]): string;
-    public toString(vocabulary: Vocabulary): string;
-    public toString(elemAreCharOrTokenNamesOrVocabulary?: boolean | string[] | Vocabulary): string {
+    public toString(tokenNames: string[]): java.lang.String;
+    public toString(vocabulary: Vocabulary): java.lang.String;
+    public toString(elemAreCharOrTokenNamesOrVocabulary?: boolean | string[] | Vocabulary): java.lang.String {
         if (elemAreCharOrTokenNamesOrVocabulary === undefined) {
             return this.toString(false);
         } else if (typeof elemAreCharOrTokenNamesOrVocabulary === "boolean") {
             const elemAreChar = elemAreCharOrTokenNamesOrVocabulary;
             const buf = new java.lang.StringBuilder();
             if (this.intervals === undefined || this.intervals.isEmpty()) {
-                return "{}";
+                return jsl`{}`;
             }
 
             if (this.size() > 1) {
@@ -604,7 +607,7 @@ export class IntervalSet extends IntSet {
             const buf = new java.lang.StringBuilder();
 
             if (this.intervals === undefined || this.intervals.isEmpty()) {
-                return "{}";
+                return jsl`{}`;
             }
 
             if (this.size() > 1) {

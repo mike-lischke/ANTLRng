@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../../../lib/java/java";
 import { XPathElement } from "./XPathElement";
 import { ParseTree } from "../ParseTree";
@@ -29,12 +30,12 @@ import { Trees } from "../Trees";
  */
 export  class XPathRuleAnywhereElement extends XPathElement {
 	protected ruleIndex:  number;
-	public constructor(ruleName: string, ruleIndex: number) {
+	public constructor(ruleName: java.lang.String| null, ruleIndex: number) {
 		super(ruleName);
 		this.ruleIndex = ruleIndex;
 	}
 
-	public evaluate = (t: ParseTree): java.util.Collection<ParseTree> => {
+	public evaluate = (t: ParseTree| null):  java.util.Collection<ParseTree> | null => {
 		return Trees.findAllRuleNodes(t, this.ruleIndex);
 	}
 }

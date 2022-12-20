@@ -16,6 +16,7 @@
 
 
 
+
 import { CharStream } from "./CharStream";
 import { CommonToken } from "./CommonToken";
 import { TokenFactory } from "./TokenFactory";
@@ -24,13 +25,14 @@ import { Interval } from "./misc/Interval";
 import { Pair } from "./misc/Pair";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
  * This default implementation of {@link TokenFactory} creates
  * {@link CommonToken} objects.
  */
-export  class CommonTokenFactory implements TokenFactory<CommonToken> {
+export  class CommonTokenFactory extends JavaObject implements TokenFactory<CommonToken> {
 	/**
 	 * The default {@link CommonTokenFactory} instance.
 	 *
@@ -38,7 +40,7 @@ export  class CommonTokenFactory implements TokenFactory<CommonToken> {
 	 * This token factory does not explicitly copy token text when constructing
 	 * tokens.</p>
 	 */
-	public static readonly  DEFAULT?:  TokenFactory<CommonToken> = new  CommonTokenFactory();
+	public static readonly  DEFAULT:  TokenFactory<CommonToken> | null = new  CommonTokenFactory();
 
 	/**
 	 * Indicates whether {@link CommonToken#setText} should be called after
@@ -94,17 +96,17 @@ $this(copyText);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public create(type: number, text: string): CommonToken;
+	public create(type: number, text: java.lang.String| null):  CommonToken | null;
 
-	public create(source: Pair<TokenSource, CharStream>, type: number, text: string,
+	public create(source: Pair<TokenSource, CharStream>| null, type: number, text: java.lang.String| null,
 							  channel: number, start: number, stop: number,
-							  line: number, charPositionInLine: number): CommonToken;
+							  line: number, charPositionInLine: number):  CommonToken | null;
 
 
-	public create(typeOrSource: number | Pair<TokenSource, CharStream>, textOrType: string | number, text?: string, channel?: number, start?: number, stop?: number, line?: number, charPositionInLine?: number):  CommonToken {
-if (typeof typeOrSource === "number" && typeof textOrType === "string" && text === undefined) {
+	public create(typeOrSource: number | Pair<TokenSource, CharStream> | null, textOrType: java.lang.String | number | null, text?: java.lang.String | null, channel?: number, start?: number, stop?: number, line?: number, charPositionInLine?: number):  CommonToken | null {
+if (typeof typeOrSource === "number" && textOrType instanceof java.lang.String && text === undefined) {
 const type = typeOrSource as number;
-const text = textOrType as string;
+const text = textOrType as java.lang.String;
 		return new  CommonToken(type, text);
 	}
  else 
@@ -114,10 +116,10 @@ let type = textOrType as number;
 		let  t: CommonToken = new  CommonToken(source, type, channel, start, stop);
 		t.setLine(line);
 		t.setCharPositionInLine(charPositionInLine);
-		if ( text!==undefined ) {
+		if ( text!==null ) {
 			t.setText(text);
 		}
-		else { if ( this.copyText && source.b !== undefined ) {
+		else { if ( this.copyText && source.b !== null ) {
 			t.setText(source.b.getText(Interval.of(start,stop)));
 		}
 }

@@ -16,6 +16,8 @@
 
 
 
+
+import { java } from "../../../../../lib/java/java";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
 
@@ -23,7 +25,7 @@ import { Interval } from "./misc/Interval";
 
 
 /** A source of characters for an ANTLR lexer. */
-export abstract class CharStream extends IntStream {
+export  interface CharStream extends IntStream {
 	/**
 	 * This method returns the text for a range of characters within this input
 	 * stream. This method is guaranteed to not throw an exception if the
@@ -31,7 +33,7 @@ export abstract class CharStream extends IntStream {
 	 * information about marked ranges, see {@link IntStream#mark}.
 	 *
 	 * @param interval an interval within the stream
-	 * @return the text of the specified interval
+	  @returns the text of the specified interval
 	 *
 	 * @throws NullPointerException if {@code interval} is {@code null}
 	 * @throws IllegalArgumentException if {@code interval.a < 0}, or if
@@ -40,5 +42,5 @@ export abstract class CharStream extends IntStream {
 	 * @throws UnsupportedOperationException if the stream does not support
 	 * getting the text of the specified interval
 	 */
-	public abstract getText: (interval: Interval) =>  string;
+	 getText: (interval: Interval| null) => java.lang.String;
 }

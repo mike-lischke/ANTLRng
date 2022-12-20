@@ -14,12 +14,14 @@
 
 /* cspell: disable */
 
+
 import { ATNState } from "./ATNState";
 import { AtomTransition } from "./AtomTransition";
 import { RangeTransition } from "./RangeTransition";
 import { Transition } from "./Transition";
 
 
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
 /**
@@ -31,14 +33,14 @@ import { Transition } from "./Transition";
  * transition for a Unicode code point > U+FFFF. Now that we can serialize
  * 32-bit int/chars in the ATN serialization, this is no longer necessary.
  */
-export abstract  class CodePointTransitions {
+export abstract  class CodePointTransitions extends JavaObject {
 	/** Return new {@link AtomTransition} */
-	public static createWithCodePoint = (target: ATNState, codePoint: number): Transition => {
+	public static createWithCodePoint = (target: ATNState| null, codePoint: number):  Transition | null => {
 		return CodePointTransitions.createWithCodePointRange(target, codePoint, codePoint);
 	}
 
 	/** Return new {@link AtomTransition} if range represents one atom else {@link SetTransition}. */
-	public static createWithCodePointRange = (target: ATNState, codePointFrom: number, codePointTo: number): Transition => {
+	public static createWithCodePointRange = (target: ATNState| null, codePointFrom: number, codePointTo: number):  Transition | null => {
 		return codePointFrom === codePointTo
 				? new  AtomTransition(target, codePointFrom)
 				: new  RangeTransition(target, codePointFrom, codePointTo);

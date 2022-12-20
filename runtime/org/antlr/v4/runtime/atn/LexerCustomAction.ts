@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+
 /*
  eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
@@ -13,10 +14,17 @@
 
 /* cspell: disable */
 
+
+
+
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
+import { MurmurHash } from "../misc/MurmurHash";
+
+
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+
 
 /**
  * Executes a custom lexer action by calling {@link Recognizer#action} with the
@@ -29,102 +37,97 @@ import { MurmurHash } from "../../../../../../lib/MurmurHash";
  * command argument could not be evaluated when the grammar was compiled.</p>
  *
  * @author Sam Harwell
- * @since 4.2
+ *
  */
-export class LexerCustomAction implements LexerAction {
-    private readonly ruleIndex: number;
-    private readonly actionIndex: number;
+export  class LexerCustomAction extends JavaObject implements LexerAction {
+	private readonly  ruleIndex:  number;
+	private readonly  actionIndex:  number;
 
-    /**
-     * Constructs a custom lexer action with the specified rule and action
-     * indexes.
-     *
-     * @param ruleIndex The rule index to use for calls to
-     * {@link Recognizer#action}.
-     * @param actionIndex The action index to use for calls to
-     * {@link Recognizer#action}.
-     */
-    public constructor(ruleIndex: number, actionIndex: number) {
-        super();
-        this.ruleIndex = ruleIndex;
-        this.actionIndex = actionIndex;
-    }
+	/**
+	 * Constructs a custom lexer action with the specified rule and action
+	 * indexes.
+	 *
+	 * @param ruleIndex The rule index to use for calls to
+	 * {@link Recognizer#action}.
+	 * @param actionIndex The action index to use for calls to
+	 * {@link Recognizer#action}.
+	 */
+	public constructor(ruleIndex: number, actionIndex: number) {
+		super();
+this.ruleIndex = ruleIndex;
+		this.actionIndex = actionIndex;
+	}
 
-    /**
-     * Gets the rule index to use for calls to {@link Recognizer#action}.
-     *
-     * @return The rule index for the custom action.
-     */
-    public getRuleIndex = (): number => {
-        return this.ruleIndex;
-    };
+	/**
+	 * Gets the rule index to use for calls to {@link Recognizer#action}.
+	 *
+	  @returns The rule index for the custom action.
+	 */
+	public getRuleIndex = ():  number => {
+		return this.ruleIndex;
+	}
 
-    /**
-     * Gets the action index to use for calls to {@link Recognizer#action}.
-     *
-     * @return The action index for the custom action.
-     */
-    public getActionIndex = (): number => {
-        return this.actionIndex;
-    };
+	/**
+	 * Gets the action index to use for calls to {@link Recognizer#action}.
+	 *
+	  @returns The action index for the custom action.
+	 */
+	public getActionIndex = ():  number => {
+		return this.actionIndex;
+	}
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return This method returns {@link LexerActionType#CUSTOM}.
-     */
-    public getActionType = (): LexerActionType => {
-        return LexerActionType.CUSTOM;
-    };
+	/**
+	 *
+	  @returns This method returns {@link LexerActionType#CUSTOM}.
+	 */
+	public getActionType = ():  LexerActionType | null => {
+		return LexerActionType.CUSTOM;
+	}
 
-    /**
-     * Gets whether the lexer action is position-dependent. Position-dependent
-     * actions may have different semantics depending on the {@link CharStream}
-     * index at the time the action is executed.
-     *
-     * <p>Custom actions are position-dependent since they may represent a
-     * user-defined embedded action which makes calls to methods like
-     * {@link Lexer#getText}.</p>
-     *
-     * @return This method returns {@code true}.
-     */
-    public isPositionDependent = (): boolean => {
-        return true;
-    };
+	/**
+	 * Gets whether the lexer action is position-dependent. Position-dependent
+	 * actions may have different semantics depending on the {@link CharStream}
+	 * index at the time the action is executed.
+	 *
+	 * <p>Custom actions are position-dependent since they may represent a
+	 * user-defined embedded action which makes calls to methods like
+	 * {@link Lexer#getText}.</p>
+	 *
+	  @returns This method returns {@code true}.
+	 */
+	public isPositionDependent = ():  boolean => {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Custom actions are implemented by calling {@link Lexer#action} with the
-     * appropriate rule and action indexes.</p>
-     *
-     * @param lexer
-     */
-    public execute = (lexer: Lexer): void => {
-        lexer.action(undefined, this.ruleIndex, this.actionIndex);
-    };
+	/**
+	 *
+	 * <p>Custom actions are implemented by calling {@link Lexer#action} with the
+	 * appropriate rule and action indexes.</p>
+	 */
+	public execute = (lexer: Lexer| null):  void => {
+		lexer.action(null, this.ruleIndex, this.actionIndex);
+	}
 
-    public hashCode = (): number => {
-        let hash: number = MurmurHash.initialize();
-        hash = MurmurHash.update(hash, this.getActionType().ordinal());
-        hash = MurmurHash.update(hash, this.ruleIndex);
-        hash = MurmurHash.update(hash, this.actionIndex);
+	public hashCode = ():  number => {
+		let  hash: number = MurmurHash.initialize();
+		hash = MurmurHash.update(hash, this.getActionType().ordinal());
+		hash = MurmurHash.update(hash, this.ruleIndex);
+		hash = MurmurHash.update(hash, this.actionIndex);
+		return MurmurHash.finish(hash, 3);
+	}
 
-        return MurmurHash.finish(hash, 3);
-    };
+	public equals = (obj: java.lang.Object| null):  boolean => {
+		if (obj === this) {
+			return true;
+		}
+		else { if (!(obj instanceof LexerCustomAction)) {
+			return false;
+		}
+}
 
-    public equals = (obj: object): boolean => {
-        if (obj === this) {
-            return true;
-        } else {
-            if (!(obj instanceof LexerCustomAction)) {
-                return false;
-            }
-        }
 
-        const other: LexerCustomAction = obj;
-
-        return this.ruleIndex === other.ruleIndex
-            && this.actionIndex === other.actionIndex;
-    };
+		let  other: LexerCustomAction = obj as LexerCustomAction;
+		return this.ruleIndex === other.ruleIndex
+			&& this.actionIndex === other.actionIndex;
+	}
 }

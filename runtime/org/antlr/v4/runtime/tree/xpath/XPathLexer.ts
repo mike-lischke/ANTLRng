@@ -15,6 +15,7 @@
 
 
 
+
 import { java } from "../../../../../../../lib/java/java";
 import { CharStream } from "../../CharStream";
 import { CommonToken } from "../../CommonToken";
@@ -41,58 +42,58 @@ public static readonly  BANG:  number=6;
 public static readonly  ID:  number=7;
 public static readonly 
 		STRING:  number=8;
-	public static modeNames?:  string[] = [
+	public readonly  static modeNames:  java.lang.String[] | null = [
 		"DEFAULT_MODE"
 	];
 
-	public static readonly  ruleNames?:  string[] = [
+	public static readonly  ruleNames:  java.lang.String[] | null = [
 		"ANYWHERE", "ROOT", "WILDCARD", "BANG", "ID", "NameChar", "NameStartChar",
 		"STRING"
 	];
 
-	private static readonly  _LITERAL_NAMES?:  string[] = [
-		undefined, undefined, undefined, "'//'", "'/'", "'*'", "'!'"
+	private static readonly  _LITERAL_NAMES:  java.lang.String[] | null = [
+		null, null, null, "'//'", "'/'", "'*'", "'!'"
 	];
-	private static readonly  _SYMBOLIC_NAMES?:  string[] = [
-		undefined, "TOKEN_REF", "RULE_REF", "ANYWHERE", "ROOT", "WILDCARD", "BANG",
+	private static readonly  _SYMBOLIC_NAMES:  java.lang.String[] | null = [
+		null, "TOKEN_REF", "RULE_REF", "ANYWHERE", "ROOT", "WILDCARD", "BANG",
 		"ID", "STRING"
 	];
-	public static readonly  VOCABULARY?:  Vocabulary = new  VocabularyImpl(XPathLexer._LITERAL_NAMES, XPathLexer._SYMBOLIC_NAMES);
+	public static readonly  VOCABULARY:  Vocabulary | null = new  VocabularyImpl(XPathLexer._LITERAL_NAMES, XPathLexer._SYMBOLIC_NAMES);
 
 	/**
 	 * @deprecated Use {@link #VOCABULARY} instead.
 	 */
-	public static readonly  tokenNames?:  string[];
+	public static readonly  tokenNames:  java.lang.String[] | null;
 
-	public getGrammarFileName = (): string => { return "XPathLexer.g4"; }
+	public getGrammarFileName = ():  java.lang.String | null => { return "XPathLexer.g4"; }
 
-	public getRuleNames = (): string[] => { return XPathLexer.ruleNames; }
+	public getRuleNames = ():  java.lang.String[] | null => { return XPathLexer.ruleNames; }
 
-	public getModeNames = (): string[] => { return XPathLexer.modeNames; }
+	public getModeNames = ():  java.lang.String[] | null => { return XPathLexer.modeNames; }
 
-	public getTokenNames = (): string[] => {
+	public getTokenNames = ():  java.lang.String[] | null => {
 		return XPathLexer.tokenNames;
 	}
 
-	public getVocabulary = (): Vocabulary => {
+	public getVocabulary = ():  Vocabulary | null => {
 		return XPathLexer.VOCABULARY;
 	}
 
-	public getATN = (): ATN => {
-		return undefined;
+	public getATN = ():  ATN | null => {
+		return null;
 	}
 
 	protected line:  number = 1;
 	protected charPositionInLine:  number = 0;
 
-	public constructor(input: CharStream) {
+	public constructor(input: CharStream| null) {
 		super(input);
 	}
 
-	public nextToken = (): Token => {
+	public nextToken = ():  Token | null => {
 		Lexer._tokenStartCharIndex = Lexer._input.index();
-		let  t: CommonToken = undefined;
-		while ( t===undefined ) {
+		let  t: CommonToken = null;
+		while ( t===null ) {
 			switch ( Lexer._input.LA(1) ) {
 				case '/':{
 					this.consume();
@@ -119,7 +120,7 @@ public static readonly
 }
 
 				case '\'':{
-					let  s: string = this.matchString();
+					let  s: java.lang.String = this.matchString();
 					t = new  CommonToken(XPathLexer.STRING, s);
 					break;
 }
@@ -130,7 +131,7 @@ public static readonly
 
 				default:{
 					if ( this.isNameStartChar(Lexer._input.LA(1)) ) {
-						let  id: string = this.matchID();
+						let  id: java.lang.String = this.matchID();
 						if ( java.lang.Character.isUpperCase(id.charAt(0)) ) {
  t = new  CommonToken(XPathLexer.TOKEN_REF, id);
 }
@@ -140,7 +141,7 @@ public static readonly
 
 					}
 					else {
-						throw new  LexerNoViableAltException(this, Lexer._input, Lexer._tokenStartCharIndex, undefined);
+						throw new  LexerNoViableAltException(this, Lexer._input, Lexer._tokenStartCharIndex, null);
 					}
 					break;
 }
@@ -153,7 +154,7 @@ public static readonly
 		return t;
 	}
 
-	public consume = (): void => {
+	public consume = ():  void => {
 		let  curChar: number = Lexer._input.LA(1);
 		if ( curChar==='\n' ) {
 			this.line++;
@@ -165,11 +166,11 @@ public static readonly
 		Lexer._input.consume();
 	}
 
-	public getCharPositionInLine = (): number => {
+	public getCharPositionInLine = ():  number => {
 		return this.charPositionInLine;
 	}
 
-	public matchID = (): string => {
+	public matchID = ():  java.lang.String | null => {
 		let  start: number = Lexer._input.index();
 		this.consume(); // drop start char
 		while ( this.isNameChar(Lexer._input.LA(1)) ) {
@@ -178,7 +179,7 @@ public static readonly
 		return Lexer._input.getText(Interval.of(start,Lexer._input.index()-1));
 	}
 
-	public matchString = (): string => {
+	public matchString = ():  java.lang.String | null => {
 		let  start: number = Lexer._input.index();
 		this.consume(); // drop first quote
 		while ( Lexer._input.LA(1)!=='\'' ) {
@@ -188,18 +189,18 @@ public static readonly
 		return Lexer._input.getText(Interval.of(start,Lexer._input.index()-1));
 	}
 
-	public isNameChar = (c: number): boolean => { return java.lang.Character.isUnicodeIdentifierPart(c); }
+	public isNameChar = (c: number):  boolean => { return java.lang.Character.isUnicodeIdentifierPart(c); }
 
-	public isNameStartChar = (c: number): boolean => { return java.lang.Character.isUnicodeIdentifierStart(c); }
+	public isNameStartChar = (c: number):  boolean => { return java.lang.Character.isUnicodeIdentifierStart(c); }
 	static {
-		XPathLexer.tokenNames = new   Array<string>(XPathLexer._SYMBOLIC_NAMES.length);
+		XPathLexer.tokenNames = new   Array<java.lang.String>(XPathLexer._SYMBOLIC_NAMES.length);
 		for (let  i: number = 0; i < XPathLexer.tokenNames.length; i++) {
 			XPathLexer.tokenNames[i] = XPathLexer.VOCABULARY.getLiteralName(i);
-			if (XPathLexer.tokenNames[i] === undefined) {
+			if (XPathLexer.tokenNames[i] === null) {
 				XPathLexer.tokenNames[i] = XPathLexer.VOCABULARY.getSymbolicName(i);
 			}
 
-			if (XPathLexer.tokenNames[i] === undefined) {
+			if (XPathLexer.tokenNames[i] === null) {
 				XPathLexer.tokenNames[i] = "<INVALID>";
 			}
 		}

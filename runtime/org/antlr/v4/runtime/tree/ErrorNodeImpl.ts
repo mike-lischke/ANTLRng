@@ -16,6 +16,7 @@
 
 
 
+
 import { ErrorNode } from "./ErrorNode";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
 import { TerminalNode } from "./TerminalNode";
@@ -32,11 +33,11 @@ import { Token } from "../Token";
  *  upon no viable alternative exceptions.
  */
 export  class ErrorNodeImpl extends TerminalNodeImpl implements ErrorNode {
-	public constructor(token: Token) {
+	public constructor(token: Token| null) {
 		super(token);
 	}
 
-	public accept =  <T>(visitor: ParseTreeVisitor< T>): T => {
+	public accept =  <T>(visitor: ParseTreeVisitor< T>| null):  T | null => {
 		return visitor.visitErrorNode(this);
 	}
 }

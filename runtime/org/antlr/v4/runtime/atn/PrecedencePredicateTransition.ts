@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { AbstractPredicateTransition } from "./AbstractPredicateTransition";
 import { ATNState } from "./ATNState";
 import { SemanticContext } from "./SemanticContext";
@@ -29,28 +30,28 @@ import { Transition } from "./Transition";
 export  class PrecedencePredicateTransition extends AbstractPredicateTransition {
 	public readonly  precedence:  number;
 
-	public constructor(target: ATNState, precedence: number) {
+	public constructor(target: ATNState| null, precedence: number) {
 		super(target);
 		this.precedence = precedence;
 	}
 
-	public getSerializationType = (): number => {
+	public getSerializationType = ():  number => {
 		return Transition.PRECEDENCE;
 	}
 
-	public isEpsilon = (): boolean => {
+	public isEpsilon = ():  boolean => {
 		return true;
 	}
 
-	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
+	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number):  boolean => {
 		return false;
 	}
 
-	public getPredicate = (): SemanticContext.PrecedencePredicate => {
+	public getPredicate = ():  SemanticContext.PrecedencePredicate | null => {
 		return new  SemanticContext..PrecedencePredicatePrecedencePredicate(this.precedence);
 	}
 
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return this.precedence + " >= _p";
 	}
 

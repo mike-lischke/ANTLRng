@@ -15,6 +15,8 @@
 
 
 
+
+import { java } from "../../../../../lib/java/java";
 import { ANTLRInputStream } from "./ANTLRInputStream";
 import { CharStream } from "./CharStream";
 import { Utils } from "./misc/Utils";
@@ -29,17 +31,17 @@ import { Utils } from "./misc/Utils";
  * @deprecated as of 4.7 Please use {@link CharStreams} interface.
  */
 export  class ANTLRFileStream extends ANTLRInputStream {
-	protected fileName?:  string;
+	protected fileName:  java.lang.String | null;
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(fileName: string);
+public constructor(fileName: java.lang.String| null);
 
-	public constructor(fileName: string, encoding: string);
+	public constructor(fileName: java.lang.String| null, encoding: java.lang.String| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(fileName: string, encoding?: string) {
-const $this = (fileName: string, encoding?: string): void => {
+public constructor(fileName: java.lang.String | null, encoding?: java.lang.String | null) {
+const $this = (fileName: java.lang.String | null, encoding?: java.lang.String | null): void => {
 if (encoding === undefined) {
-		$this(fileName, undefined);
+		$this(fileName, null);
 	}
  else  {
 
@@ -55,13 +57,13 @@ $this(fileName, encoding);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public load = (fileName: string, encoding: string): void =>
+	public load = (fileName: java.lang.String| null, encoding: java.lang.String| null):  void =>
 	{
 		this.data = Utils.readFile(fileName, encoding);
 		this.n = this.data.length;
 	}
 
-	public getSourceName = (): string => {
+	public getSourceName = ():  java.lang.String | null => {
 		return this.fileName;
 	}
 }

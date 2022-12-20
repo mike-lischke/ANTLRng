@@ -16,7 +16,7 @@
 
 
 
-import { java } from "../../../../../../lib/java/java";
+
 import { ATNState } from "./ATNState";
 import { Transition } from "./Transition";
 import { IntervalSet } from "../misc/IntervalSet";
@@ -28,23 +28,23 @@ export  class RangeTransition extends Transition {
 	public readonly  from:  number;
 	public readonly  to:  number;
 
-	public constructor(target: ATNState, from: number, to: number) {
+	public constructor(target: ATNState| null, from: number, to: number) {
 		super(target);
 		this.from = from;
 		this.to = to;
 	}
 
-	public getSerializationType = (): number => {
+	public getSerializationType = ():  number => {
 		return Transition.RANGE;
 	}
 
-	public label = (): IntervalSet => { return IntervalSet.of(this.from, this.to); }
+	public label = ():  IntervalSet | null => { return IntervalSet.of(this.from, this.to); }
 
-	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
+	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number):  boolean => {
 		return symbol >= this.from && symbol <= this.to;
 	}
 
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return new  java.lang.StringBuilder("'")
 				.appendCodePoint(this.from)
 				.append("'..'")

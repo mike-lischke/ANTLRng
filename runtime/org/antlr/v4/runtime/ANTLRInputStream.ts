@@ -15,11 +15,13 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -31,7 +33,7 @@ import { Interval } from "./misc/Interval";
  *
  * @deprecated as of 4.7 Please use {@link CharStreams} interface.
  */
-export  class ANTLRInputStream implements CharStream {
+export  class ANTLRInputStream extends JavaObject implements CharStream {
     public static readonly  READ_BUFFER_SIZE:  number = 1024;
    	public static readonly  INITIAL_BUFFER_SIZE:  number = 1024;
 
@@ -45,41 +47,41 @@ export  class ANTLRInputStream implements CharStream {
 	protected p:  number=0;
 
 	/** What is name or source of this char stream? */
-	public name?:  string;
+	public name:  java.lang.String | null;
 
     /* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
 public constructor();
 
 	/** Copy data in string to a local char array */
-	public constructor(input: string);
+	public constructor(input: java.lang.String| null);
 
-    public constructor(r: java.io.Reader);
+    public constructor(r: java.io.Reader| null);
 
-	public constructor(input: java.io.InputStream);
+	public constructor(input: java.io.InputStream| null);
 
 	/** This is the preferred constructor for strings as no data is copied */
 	public constructor(data: Uint16Array, numberOfActualCharsInArray: number);
 
-    public constructor(r: java.io.Reader, initialSize: number);
+    public constructor(r: java.io.Reader| null, initialSize: number);
 
-	public constructor(input: java.io.InputStream, initialSize: number);
+	public constructor(input: java.io.InputStream| null, initialSize: number);
 
-    public constructor(r: java.io.Reader, initialSize: number, readChunkSize: number);
+    public constructor(r: java.io.Reader| null, initialSize: number, readChunkSize: number);
 
-	public constructor(input: java.io.InputStream, initialSize: number, readChunkSize: number);
+	public constructor(input: java.io.InputStream| null, initialSize: number, readChunkSize: number);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(inputOrROrData?: string | java.io.Reader | java.io.InputStream | Uint16Array, numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number) {
-const $this = (inputOrROrData?: string | java.io.Reader | java.io.InputStream | Uint16Array, numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number): void => {
+public constructor(inputOrROrData?: java.lang.String | java.io.Reader | java.io.InputStream | Uint16Array | null, numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number) {
+const $this = (inputOrROrData?: java.lang.String | java.io.Reader | java.io.InputStream | Uint16Array | null, numberOfActualCharsInArrayOrInitialSize?: number, readChunkSize?: number): void => {
 if (inputOrROrData === undefined) {
 
 /* @ts-expect-error, because of the super() call in the closure. */ super();
 }
- else if (typeof inputOrROrData === "string" && numberOfActualCharsInArrayOrInitialSize === undefined) {
-const input = inputOrROrData as string;
+ else if (inputOrROrData instanceof java.lang.String && numberOfActualCharsInArrayOrInitialSize === undefined) {
+const input = inputOrROrData as java.lang.String;
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
 this.data = input.toCharArray();
-		this.n = input.length;
+		this.n = input.length();
 	}
  else if (inputOrROrData instanceof java.io.Reader && numberOfActualCharsInArrayOrInitialSize === undefined) {
 const r = inputOrROrData as java.io.Reader;
@@ -126,9 +128,9 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 }
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-	public load = (r: java.io.Reader, size: number, readChunkSize: number): void =>
+	public load = (r: java.io.Reader| null, size: number, readChunkSize: number):  void =>
 	{
-		if ( r===undefined ) {
+		if ( r===null ) {
 			return;
 		}
 		if ( size<=0 ) {
@@ -167,11 +169,11 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 	 *  when the object was created *except* the data array is not
 	 *  touched.
 	 */
-	public reset = (): void => {
+	public reset = ():  void => {
 		this.p = 0;
 	}
 
-    public consume = (): void => {
+    public consume = ():  void => {
 		if (this.p >= this.n) {
 			/* assert LA(1) == IntStream.EOF; */ 
 			throw new  java.lang.IllegalStateException("cannot consume EOF");
@@ -184,7 +186,7 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
         }
     }
 
-    public LA = (i: number): number => {
+    public LA = (i: number):  number => {
 		if ( i===0 ) {
 			return 0; // undefined
 		}
@@ -204,7 +206,7 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 		return this.data[this.p+i-1];
     }
 
-	public LT = (i: number): number => {
+	public LT = (i: number):  number => {
 		return this.LA(i);
 	}
 
@@ -212,26 +214,26 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
      *  last symbol has been read.  The index is the index of char to
 	 *  be returned from LA(1).
      */
-    public index = (): number => {
+    public index = ():  number => {
         return this.p;
     }
 
-	public size = (): number => {
+	public size = ():  number => {
 		return this.n;
 	}
 
     /** mark/release do nothing; we have entire buffer */
-	public mark = (): number => {
+	public mark = ():  number => {
 		return -1;
     }
 
-	public release = (marker: number): void => {
+	public release = (marker: number):  void => {
 	}
 
 	/** consume() ahead until p==index; can't just set p=index as we must
 	 *  update line and charPositionInLine. If we seek backwards, just set p
 	 */
-	public seek = (index: number): void => {
+	public seek = (index: number):  void => {
 		if ( index<=this.p ) {
 			this.p = index; // just jump; don't update stream state (line, ...)
 			return;
@@ -243,7 +245,7 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 		}
 	}
 
-	public getText = (interval: Interval): string => {
+	public getText = (interval: Interval| null):  java.lang.String | null => {
 		let  start: number = interval.a;
 		let  stop: number = interval.b;
 		if ( stop >= this.n ) {
@@ -258,16 +260,16 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 //		System.err.println("data: "+Arrays.toString(data)+", n="+n+
 //						   ", start="+start+
 //						   ", stop="+stop);
-		return new  string(this.data, start, count);
+		return new  java.lang.String(this.data, start, count);
 	}
 
-	public getSourceName = (): string => {
-		if (this.name === undefined || this.name.length === 0) {
+	public getSourceName = ():  java.lang.String | null => {
+		if (this.name === null || this.name.isEmpty()) {
 			return IntStream.UNKNOWN_SOURCE_NAME;
 		}
 
 		return this.name;
 	}
 
-    public toString = (): string => { return new  string(this.data); }
+    public toString = ():  java.lang.String | null => { return new  java.lang.String(this.data); }
 }

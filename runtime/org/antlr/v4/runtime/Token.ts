@@ -14,6 +14,8 @@
 
 /* cspell: disable */
 
+
+import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { IntStream } from "./IntStream";
 import { TokenSource } from "./TokenSource";
@@ -25,7 +27,7 @@ import { TokenSource } from "./TokenSource";
  *  (so we can ignore tabs), token channel, index, and source from which
  *  we obtained this token.
  */
-export abstract class Token {
+export  abstract class Token {
 	public static readonly INVALID_TYPE:  number = 0;
 
     /** During lookahead operations, this "token" signifies we hit rule end ATN state
@@ -64,7 +66,7 @@ export abstract class Token {
 	/**
 	 * Get the text of the token.
 	 */
-	public  abstract getText: () => string;
+	public  abstract getText: () => java.lang.String;
 
 	/** Get the token type of the token */
 	public  abstract getType: () => number;

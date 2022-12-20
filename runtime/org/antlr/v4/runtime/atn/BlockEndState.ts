@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { ATNState } from "./ATNState";
 import { BlockStartState } from "./BlockStartState";
 
@@ -22,9 +23,9 @@ import { BlockStartState } from "./BlockStartState";
 
 /** Terminal node of a simple {@code (a|b|c)} block. */
 export  class BlockEndState extends ATNState {
-	public startState?:  BlockStartState;
+	public startState:  BlockStartState | null;
 
-	public getStateType = (): number => {
+	public getStateType = ():  number => {
 		return ATNState.BLOCK_END;
 	}
 }

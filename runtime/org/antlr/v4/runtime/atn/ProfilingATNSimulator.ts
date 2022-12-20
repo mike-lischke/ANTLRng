@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../../lib/java/java";
 import { AmbiguityInfo } from "./AmbiguityInfo";
 import { ATNConfigSet } from "./ATNConfigSet";
@@ -36,17 +37,17 @@ import { DFAState } from "../dfa/DFAState";
 
 
 /**
- * @since 4.3
+ *
  */
 export  class ProfilingATNSimulator extends ParserATNSimulator {
-	protected readonly  decisions?:  DecisionInfo[];
+	protected readonly  decisions:  DecisionInfo[] | null;
 	protected numDecisions:  number;
 
 	protected _sllStopIndex:  number;
 	protected _llStopIndex:  number;
 
 	protected currentDecision:  number;
-	protected currentState?:  DFAState;
+	protected currentState:  DFAState | null;
 
  	/** At the point of LL failover, we record how SLL would resolve the conflict so that
 	 *  we can determine whether or not a decision / input pair is context-sensitive.
@@ -61,7 +62,7 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
  	 */
 	protected conflictingAltResolvedBySLL:  number;
 
-	public constructor(parser: Parser) {
+	public constructor(parser: Parser| null) {
 		super(parser,
 				parser.getInterpreter().atn,
 				parser.getInterpreter().decisionToDFA,
@@ -73,14 +74,14 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		}
 	}
 
-	public adaptivePredict = (input: TokenStream, decision: number, outerContext: ParserRuleContext): number => {
+	public adaptivePredict = (input: TokenStream| null, decision: number, outerContext: ParserRuleContext| null):  number => {
 		try {
 			this._sllStopIndex = -1;
 			this._llStopIndex = -1;
 			this.currentDecision = decision;
-			let  start: number = java.lang.System.nanoTime(); // expensive but useful info
+			let  start: bigint = java.lang.System.nanoTime(); // expensive but useful info
 			let  alt: number = super.adaptivePredict(input, decision, outerContext);
-			let  stop: number = java.lang.System.nanoTime();
+			let  stop: bigint = java.lang.System.nanoTime();
 			this.decisions[decision].timeInPrediction += (stop-start);
 			this.decisions[decision].invocations++;
 
@@ -90,7 +91,7 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 			if ( SLL_k > this.decisions[decision].SLL_MaxLook ) {
 				this.decisions[decision].SLL_MaxLook = SLL_k;
 				this.decisions[decision].SLL_MaxLookEvent =
-						new  LookaheadEventInfo(decision, undefined, alt, input, this._startIndex, this._sllStopIndex, false);
+						new  LookaheadEventInfo(decision, null, alt, input, this._startIndex, this._sllStopIndex, false);
 			}
 
 			if (this._llStopIndex >= 0) {
@@ -100,7 +101,7 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 				if ( LL_k > this.decisions[decision].LL_MaxLook ) {
 					this.decisions[decision].LL_MaxLook = LL_k;
 					this.decisions[decision].LL_MaxLookEvent =
-							new  LookaheadEventInfo(decision, undefined, alt, input, this._startIndex, this._llStopIndex, true);
+							new  LookaheadEventInfo(decision, null, alt, input, this._startIndex, this._llStopIndex, true);
 				}
 			}
 
@@ -111,13 +112,13 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		}
 	}
 
-	protected getExistingTargetState = (previousD: DFAState, t: number): DFAState => {
+	protected getExistingTargetState = (previousD: DFAState| null, t: number):  DFAState | null => {
 		// this method is called after each time the input position advances
 		// during SLL prediction
 		this._sllStopIndex = this._input.index();
 
 		let  existingTargetState: DFAState = super.getExistingTargetState(previousD, t);
-		if ( existingTargetState!==undefined ) {
+		if ( existingTargetState!==null ) {
 			this.decisions[this.currentDecision].SLL_DFATransitions++; // count only if we transition over a DFA state
 			if ( existingTargetState===ATNSimulator.ERROR ) {
 				this.decisions[this.currentDecision].errors.add(
@@ -130,13 +131,13 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		return existingTargetState;
 	}
 
-	protected computeTargetState = (dfa: DFA, previousD: DFAState, t: number): DFAState => {
+	protected computeTargetState = (dfa: DFA| null, previousD: DFAState| null, t: number):  DFAState | null => {
 		let  state: DFAState = super.computeTargetState(dfa, previousD, t);
 		this.currentState = state;
 		return state;
 	}
 
-	protected computeReachSet = (closure: ATNConfigSet, t: number, fullCtx: boolean): ATNConfigSet => {
+	protected computeReachSet = (closure: ATNConfigSet| null, t: number, fullCtx: boolean):  ATNConfigSet | null => {
 		if (fullCtx) {
 			// this method is called after each time the input position advances
 			// during full context prediction
@@ -146,7 +147,7 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		let  reachConfigs: ATNConfigSet = super.computeReachSet(closure, t, fullCtx);
 		if (fullCtx) {
 			this.decisions[this.currentDecision].LL_ATNTransitions++; // count computation even if error
-			if ( reachConfigs!==undefined ) {
+			if ( reachConfigs!==null ) {
 			}
 			else { // no reach on current lookahead symbol. ERROR.
 				// TODO: does not handle delayed errors per getSynValidOrSemInvalidAltThatFinishedDecisionEntryRule()
@@ -157,7 +158,7 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		}
 		else {
 			this.decisions[this.currentDecision].SLL_ATNTransitions++;
-			if ( reachConfigs!==undefined ) {
+			if ( reachConfigs!==null ) {
 			}
 			else { // no reach on current lookahead symbol. ERROR.
 				this.decisions[this.currentDecision].errors.add(
@@ -168,7 +169,7 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		return reachConfigs;
 	}
 
-	protected evalSemanticContext = (pred: SemanticContext, parserCallStack: ParserRuleContext, alt: number, fullCtx: boolean): boolean => {
+	protected evalSemanticContext = (pred: SemanticContext| null, parserCallStack: ParserRuleContext| null, alt: number, fullCtx: boolean):  boolean => {
 		let  result: boolean = super.evalSemanticContext(pred, parserCallStack, alt, fullCtx);
 		if (!(pred instanceof SemanticContext.PrecedencePredicate)) {
 			let  fullContext: boolean = this._llStopIndex >= 0;
@@ -181,8 +182,8 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		return result;
 	}
 
-	protected reportAttemptingFullContext = (dfa: DFA, conflictingAlts: BitSet, configs: ATNConfigSet, startIndex: number, stopIndex: number): void => {
-		if ( conflictingAlts!==undefined ) {
+	protected reportAttemptingFullContext = (dfa: DFA| null, conflictingAlts: java.util.BitSet| null, configs: ATNConfigSet| null, startIndex: number, stopIndex: number):  void => {
+		if ( conflictingAlts!==null ) {
 			this.conflictingAltResolvedBySLL = conflictingAlts.nextSetBit(0);
 		}
 		else {
@@ -192,7 +193,7 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		super.reportAttemptingFullContext(dfa, conflictingAlts, configs, startIndex, stopIndex);
 	}
 
-	protected reportContextSensitivity = (dfa: DFA, prediction: number, configs: ATNConfigSet, startIndex: number, stopIndex: number): void => {
+	protected reportContextSensitivity = (dfa: DFA| null, prediction: number, configs: ATNConfigSet| null, startIndex: number, stopIndex: number):  void => {
 		if ( prediction !== this.conflictingAltResolvedBySLL ) {
 			this.decisions[this.currentDecision].contextSensitivities.add(
 					new  ContextSensitivityInfo(this.currentDecision, configs, this._input, startIndex, stopIndex)
@@ -201,11 +202,11 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 		super.reportContextSensitivity(dfa, prediction, configs, startIndex, stopIndex);
 	}
 
-	protected reportAmbiguity = (dfa: DFA, D: DFAState, startIndex: number, stopIndex: number, exact: boolean,
-								   ambigAlts: BitSet, configs: ATNConfigSet): void =>
+	protected reportAmbiguity = (dfa: DFA| null, D: DFAState| null, startIndex: number, stopIndex: number, exact: boolean,
+								   ambigAlts: java.util.BitSet| null, configs: ATNConfigSet| null):  void =>
 	{
 		let  prediction: number;
-		if ( ambigAlts!==undefined ) {
+		if ( ambigAlts!==null ) {
 			prediction = ambigAlts.nextSetBit(0);
 		}
 		else {
@@ -230,11 +231,11 @@ export  class ProfilingATNSimulator extends ParserATNSimulator {
 
 	// ---------------------------------------------------------------------
 
-	public getDecisionInfo = (): DecisionInfo[] => {
+	public getDecisionInfo = ():  DecisionInfo[] | null => {
 		return this.decisions;
 	}
 
-	public getCurrentState = (): DFAState => {
+	public getCurrentState = ():  DFAState | null => {
 		return this.currentState;
 	}
 }

@@ -15,6 +15,8 @@
 /* cspell: disable */
 
 
+import { java } from "../../../../../lib/java/java";
+
 
 
 
@@ -34,7 +36,7 @@
  *   <li>{@link #size}</li>
  * </ul>
  */
-export abstract class IntStream {
+export  abstract class IntStream {
 	/**
 	 * The value returned by {@link #LA LA()} when the end of the stream is
 	 * reached.
@@ -45,7 +47,7 @@ export abstract class IntStream {
 	 * The value returned by {@link #getSourceName} when the actual name of the
 	 * underlying source is not known.
 	 */
-	public static readonly UNKNOWN_SOURCE_NAME:  string = "<unknown>";
+	public static readonly UNKNOWN_SOURCE_NAME:  java.lang.String = "<unknown>";
 
 	/**
 	 * Consumes the current symbol in the stream. This method has the following
@@ -150,7 +152,7 @@ export abstract class IntStream {
 	 * }
 	 * </pre>
 	 *
-	 * @return An opaque marker which should be passed to
+	  @returns An opaque marker which should be passed to
 	 * {@link #release release()} when the marked range is no longer required.
 	 */
 	public  abstract mark: () => number;
@@ -224,5 +226,5 @@ export abstract class IntStream {
 	 * returns {@link #UNKNOWN_SOURCE_NAME}.
 	 */
 
-	public abstract getSourceName: () =>  string;
+	public abstract getSourceName: () =>  java.lang.String;
 }

@@ -16,6 +16,7 @@
 
 
 
+
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { Token } from "./Token";
@@ -40,12 +41,12 @@ import { Token } from "./Token";
  *
  * <p>TODO: what to do about lexers</p>
  */
-export abstract class ANTLRErrorStrategy {
+export  interface ANTLRErrorStrategy {
 	/**
 	 * Reset the error handler state for the specified {@code recognizer}.
 	 * @param recognizer the parser instance
 	 */
-	public  abstract reset: (recognizer: Parser) => void;
+	 reset: (recognizer: Parser| null) => void;
 
 	/**
 	 * This method is called when an unexpected symbol is encountered during an
@@ -65,7 +66,7 @@ export abstract class ANTLRErrorStrategy {
 	 * @throws RecognitionException if the error strategy was not able to
 	 * recover from the unexpected input symbol
 	 */
-	public  abstract recoverInline: (recognizer: Parser) => Token;
+	 recoverInline: (recognizer: Parser| null) => Token;
 
 	/**
 	 * This method is called to recover from exception {@code e}. This method is
@@ -79,7 +80,7 @@ export abstract class ANTLRErrorStrategy {
 	 * @throws RecognitionException if the error strategy could not recover from
 	 * the recognition exception
 	 */
-	public  abstract recover: (recognizer: Parser, e: RecognitionException) => void;
+	 recover: (recognizer: Parser| null, e: RecognitionException| null) => void;
 
 	/**
 	 * This method provides the error handler with an opportunity to handle
@@ -100,7 +101,7 @@ export abstract class ANTLRErrorStrategy {
 	 * strategy but cannot be automatically recovered at the current state in
 	 * the parsing process
 	 */
-	public  abstract sync: (recognizer: Parser) => void;
+	 sync: (recognizer: Parser| null) => void;
 
 	/**
 	 * Tests whether or not {@code recognizer} is in the process of recovering
@@ -111,10 +112,10 @@ export abstract class ANTLRErrorStrategy {
 	 * {@link Parser#createTerminalNode(ParserRuleContext, Token)}.
 	 *
 	 * @param recognizer the parser instance
-	 * @return {@code true} if the parser is currently recovering from a parse
+	  @returns {@code true} if the parser is currently recovering from a parse
 	 * error, otherwise {@code false}
 	 */
-	public  abstract inErrorRecoveryMode: (recognizer: Parser) => boolean;
+	 inErrorRecoveryMode: (recognizer: Parser| null) => boolean;
 
 	/**
 	 * This method is called by when the parser successfully matches an input
@@ -122,7 +123,7 @@ export abstract class ANTLRErrorStrategy {
 	 *
 	 * @param recognizer the parser instance
 	 */
-	public  abstract reportMatch: (recognizer: Parser) => void;
+	 reportMatch: (recognizer: Parser| null) => void;
 
 	/**
 	 * Report any kind of {@link RecognitionException}. This method is called by
@@ -131,5 +132,5 @@ export abstract class ANTLRErrorStrategy {
 	 * @param recognizer the parser instance
 	 * @param e the recognition exception to report
 	 */
-	public  abstract reportError: (recognizer: Parser, e: RecognitionException) => void;
+	 reportError: (recognizer: Parser| null, e: RecognitionException| null) => void;
 }

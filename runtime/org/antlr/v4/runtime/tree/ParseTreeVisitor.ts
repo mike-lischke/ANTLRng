@@ -14,6 +14,7 @@
 
 /* cspell: disable */
 
+
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { RuleNode } from "./RuleNode";
@@ -30,39 +31,39 @@ import { TerminalNode } from "./TerminalNode";
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-export abstract class ParseTreeVisitor<T> {
+export  interface ParseTreeVisitor<T> {
 
 	/**
 	 * Visit a parse tree, and return a user-defined result of the operation.
 	 *
 	 * @param tree The {@link ParseTree} to visit.
-	 * @return The result of visiting the parse tree.
+	  @returns The result of visiting the parse tree.
 	 */
-	public  abstract visit: (tree: ParseTree) => T;
+	 visit: (tree: ParseTree| null) => T;
 
 	/**
 	 * Visit the children of a node, and return a user-defined result of the
 	 * operation.
 	 *
 	 * @param node The {@link RuleNode} whose children should be visited.
-	 * @return The result of visiting the children of the node.
+	  @returns The result of visiting the children of the node.
 	 */
-	public  abstract visitChildren: (node: RuleNode) => T;
+	 visitChildren: (node: RuleNode| null) => T;
 
 	/**
 	 * Visit a terminal node, and return a user-defined result of the operation.
 	 *
 	 * @param node The {@link TerminalNode} to visit.
-	 * @return The result of visiting the node.
+	  @returns The result of visiting the node.
 	 */
-	public  abstract visitTerminal: (node: TerminalNode) => T;
+	 visitTerminal: (node: TerminalNode| null) => T;
 
 	/**
 	 * Visit an error node, and return a user-defined result of the operation.
 	 *
 	 * @param node The {@link ErrorNode} to visit.
-	 * @return The result of visiting the node.
+	  @returns The result of visiting the node.
 	 */
-	public  abstract visitErrorNode: (node: ErrorNode) => T;
+	 visitErrorNode: (node: ErrorNode| null) => T;
 
 }

@@ -16,12 +16,13 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+
 import { CharStream } from "../../CharStream";
 import { Token } from "../../Token";
 import { TokenSource } from "../../TokenSource";
 
 
+import { JavaObject } from "../../../../../../../lib/java/lang/Object";
 
 
 /**
@@ -29,11 +30,11 @@ import { TokenSource } from "../../TokenSource";
  * rule; e.g., {@code <expr>}. These tokens are created for {@link TagChunk}
  * chunks where the tag corresponds to a parser rule.
  */
-export  class RuleTagToken implements Token {
+export  class RuleTagToken extends JavaObject extends  Token {
 	/**
 	 * This is the backing field for {@link #getRuleName}.
 	 */
-	private readonly  ruleName?:  string;
+	private readonly  ruleName:  java.lang.String | null;
 	/**
 	 * The token type for the current token. This is the token type assigned to
 	 * the bypass alternative for the rule during ATN deserialization.
@@ -42,7 +43,7 @@ export  class RuleTagToken implements Token {
 	/**
 	 * This is the backing field for {@link #getLabel}.
 	 */
-	private readonly  label?:  string;
+	private readonly  label:  java.lang.String | null;
 
 	/**
 	 * Constructs a new instance of {@link RuleTagToken} with the specified rule
@@ -54,7 +55,8 @@ export  class RuleTagToken implements Token {
 	 * @exception IllegalArgumentException if {@code ruleName} is {@code null}
 	 * or empty.
 	 */
-	public constructor(ruleName: string, bypassTokenType: number);
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor(ruleName: java.lang.String| null, bypassTokenType: number);
 
 	/**
 	 * Constructs a new instance of {@link RuleTagToken} with the specified rule
@@ -68,14 +70,18 @@ export  class RuleTagToken implements Token {
 	 * @exception IllegalArgumentException if {@code ruleName} is {@code null}
 	 * or empty.
 	 */
-	public constructor(ruleName: string, bypassTokenType: number, label: string);
-public constructor(ruleName: string, bypassTokenType: number, label?: string) {
-const $this = (ruleName: string, bypassTokenType: number, label?: string): void => {
+	public constructor(ruleName: java.lang.String| null, bypassTokenType: number, label: java.lang.String| null);
+/* @ts-expect-error, because of the super() call in the closure. */
+public constructor(ruleName: java.lang.String | null, bypassTokenType: number, label?: java.lang.String | null) {
+const $this = (ruleName: java.lang.String | null, bypassTokenType: number, label?: java.lang.String | null): void => {
 if (label === undefined) {
-		$this(ruleName, bypassTokenType, undefined);
+		$this(ruleName, bypassTokenType, null);
 	}
  else  {
-		if (ruleName === undefined || ruleName.length === 0) {
+
+/* @ts-expect-error, because of the super() call in the closure. */
+		super();
+if (ruleName === null || ruleName.isEmpty()) {
 			throw new  java.lang.IllegalArgumentException("ruleName cannot be null or empty.");
 		}
 
@@ -88,46 +94,44 @@ if (label === undefined) {
 $this(ruleName, bypassTokenType, label);
 
 }
-
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	/**
 	 * Gets the name of the rule associated with this rule tag.
 	 *
-	 * @return The name of the parser rule associated with this rule tag.
+	  @returns The name of the parser rule associated with this rule tag.
 	 */
 
-	public readonly  getRuleName = (): string => {
+	public readonly  getRuleName = ():  java.lang.String | null => {
 		return this.ruleName;
 	}
 
 	/**
 	 * Gets the label associated with the rule tag.
 	 *
-	 * @return The name of the label associated with the rule tag, or
+	  @returns The name of the label associated with the rule tag, or
 	 * {@code null} if this is an unlabeled rule tag.
 	 */
 
-	public readonly  getLabel = (): string => {
+	public readonly  getLabel = ():  java.lang.String | null => {
 		return this.label;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>Rule tag tokens are always placed on the {@link #DEFAULT_CHANNEL}.</p>
 	 */
-	public getChannel = (): number => {
+	public getChannel = ():  number => {
 		return Token.DEFAULT_CHANNEL;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>This method returns the rule tag formatted with {@code <} and {@code >}
 	 * delimiters.</p>
 	 */
-	public getText = (): string => {
-		if (this.label !== undefined) {
+	public getText = ():  java.lang.String | null => {
+		if (this.label !== null) {
 			return "<" + this.label + ":" + this.ruleName + ">";
 		}
 
@@ -135,85 +139,76 @@ $this(ruleName, bypassTokenType, label);
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>Rule tag tokens have types assigned according to the rule bypass
 	 * transitions created during ATN deserialization.</p>
 	 */
-	public getType = (): number => {
+	public getType = ():  number => {
 		return this.bypassTokenType;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} always returns 0.</p>
 	 */
-	public getLine = (): number => {
+	public getLine = ():  number => {
 		return 0;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} always returns -1.</p>
 	 */
-	public getCharPositionInLine = (): number => {
+	public getCharPositionInLine = ():  number => {
 		return -1;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} always returns -1.</p>
 	 */
-	public getTokenIndex = (): number => {
+	public getTokenIndex = ():  number => {
 		return -1;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} always returns -1.</p>
 	 */
-	public getStartIndex = (): number => {
+	public getStartIndex = ():  number => {
 		return -1;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} always returns -1.</p>
 	 */
-	public getStopIndex = (): number => {
+	public getStopIndex = ():  number => {
 		return -1;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} always returns {@code null}.</p>
 	 */
-	public getTokenSource = (): TokenSource => {
-		return undefined;
+	public getTokenSource = ():  TokenSource | null => {
+		return null;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} always returns {@code null}.</p>
 	 */
-	public getInputStream = (): CharStream => {
-		return undefined;
+	public getInputStream = ():  CharStream | null => {
+		return null;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 *
 	 * <p>The implementation for {@link RuleTagToken} returns a string of the form
 	 * {@code ruleName:bypassTokenType}.</p>
 	 */
-	public toString = (): string => {
+	public toString = ():  java.lang.String | null => {
 		return this.ruleName + ":" + this.bypassTokenType;
 	}
 }

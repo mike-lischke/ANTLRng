@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { CommonTokenFactory } from "./CommonTokenFactory";
@@ -25,6 +26,7 @@ import { TokenSource } from "./TokenSource";
 import { Pair } from "./misc/Pair";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -35,11 +37,11 @@ import { Pair } from "./misc/Pair";
  * as the EOF token for every call to {@link #nextToken} after the end of the
  * list is reached. Otherwise, an EOF token will be created.</p>
  */
-export  class ListTokenSource implements TokenSource {
+export  class ListTokenSource extends JavaObject implements TokenSource {
 	/**
 	 * The wrapped collection of {@link Token} objects to return.
 	 */
-	protected readonly  tokens?:  java.util.List< Token>;
+	protected readonly  tokens:  java.util.List< Token> | null;
 
 	/**
 	 * The name of the input source. If this value is {@code null}, a call to
@@ -47,7 +49,7 @@ export  class ListTokenSource implements TokenSource {
 	 * the next token in {@link #tokens} (or the previous token if the end of
 	 * the input has been reached).
 	 */
-	private readonly  sourceName?:  string;
+	private readonly  sourceName:  java.lang.String | null;
 
 	/**
 	 * The index into {@link #tokens} of token to return by the next call to
@@ -59,13 +61,13 @@ export  class ListTokenSource implements TokenSource {
 	/**
 	 * This field caches the EOF token for the token source.
 	 */
-	protected eofToken?:  Token;
+	protected eofToken:  Token | null;
 
 	/**
 	 * This is the backing field for {@link #getTokenFactory} and
 	 * {@link setTokenFactory}.
 	 */
-	private _factory?:  TokenFactory<unknown> = CommonTokenFactory.DEFAULT;
+	private _factory:  TokenFactory<unknown> | null = CommonTokenFactory.DEFAULT;
 
 	/**
 	 * Constructs a new {@link ListTokenSource} instance from the specified
@@ -76,7 +78,7 @@ export  class ListTokenSource implements TokenSource {
 	 * @exception NullPointerException if {@code tokens} is {@code null}
 	 */
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(tokens: java.util.List< Token>);
+public constructor(tokens: java.util.List< Token>| null);
 
 	/**
 	 * Constructs a new {@link ListTokenSource} instance from the specified
@@ -91,18 +93,18 @@ public constructor(tokens: java.util.List< Token>);
 	 *
 	 * @exception NullPointerException if {@code tokens} is {@code null}
 	 */
-	public constructor(tokens: java.util.List< Token>, sourceName: string);
+	public constructor(tokens: java.util.List< Token>| null, sourceName: java.lang.String| null);
 /* @ts-expect-error, because of the super() call in the closure. */
-public constructor(tokens: java.util.List< Token>, sourceName?: string) {
-const $this = (tokens: java.util.List< Token>, sourceName?: string): void => {
+public constructor(tokens: java.util.List< Token> | null, sourceName?: java.lang.String | null) {
+const $this = (tokens: java.util.List< Token> | null, sourceName?: java.lang.String | null): void => {
 if (sourceName === undefined) {
-		$this(tokens, undefined);
+		$this(tokens, null);
 	}
  else  {
 
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
-if (tokens === undefined) {
+if (tokens === null) {
 			throw new  java.lang.NullPointerException("tokens cannot be null");
 		}
 
@@ -117,24 +119,23 @@ $this(tokens, sourceName);
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	/**
-	 * {@inheritDoc}
 	 */
-	public getCharPositionInLine = (): number => {
+	public getCharPositionInLine = ():  number => {
 		if (this.i < this.tokens.size()) {
 			return this.tokens.get(this.i).getCharPositionInLine();
 		}
-		else { if (this.eofToken !== undefined) {
+		else { if (this.eofToken !== null) {
 			return this.eofToken.getCharPositionInLine();
 		}
 		else { if (this.tokens.size() > 0) {
 			// have to calculate the result from the line/column of the previous
 			// token, along with the text of the token.
 			let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
-			let  tokenText: string = lastToken.getText();
-			if (tokenText !== undefined) {
+			let  tokenText: java.lang.String = lastToken.getText();
+			if (tokenText !== null) {
 				let  lastNewLine: number = tokenText.lastIndexOf('\n');
 				if (lastNewLine >= 0) {
-					return tokenText.length - lastNewLine - 1;
+					return tokenText.length() - lastNewLine - 1;
 				}
 			}
 
@@ -151,11 +152,10 @@ $this(tokens, sourceName);
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
-	public nextToken = (): Token => {
+	public nextToken = ():  Token | null => {
 		if (this.i >= this.tokens.size()) {
-			if (this.eofToken === undefined) {
+			if (this.eofToken === null) {
 				let  start: number = -1;
 				if (this.tokens.size() > 0) {
 					let  previousStop: number = this.tokens.get(this.tokens.size() - 1).getStopIndex();
@@ -181,13 +181,12 @@ $this(tokens, sourceName);
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
-	public getLine = (): number => {
+	public getLine = ():  number => {
 		if (this.i < this.tokens.size()) {
 			return this.tokens.get(this.i).getLine();
 		}
-		else { if (this.eofToken !== undefined) {
+		else { if (this.eofToken !== null) {
 			return this.eofToken.getLine();
 		}
 		else { if (this.tokens.size() > 0) {
@@ -196,9 +195,9 @@ $this(tokens, sourceName);
 			let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
 			let  line: number = lastToken.getLine();
 
-			let  tokenText: string = lastToken.getText();
-			if (tokenText !== undefined) {
-				for (let  i: number = 0; i < tokenText.length; i++) {
+			let  tokenText: java.lang.String = lastToken.getText();
+			if (tokenText !== null) {
+				for (let  i: number = 0; i < tokenText.length(); i++) {
 					if (tokenText.charAt(i) === '\n') {
 						line++;
 					}
@@ -219,13 +218,12 @@ $this(tokens, sourceName);
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
-	public getInputStream = (): CharStream => {
+	public getInputStream = ():  CharStream | null => {
 		if (this.i < this.tokens.size()) {
 			return this.tokens.get(this.i).getInputStream();
 		}
-		else { if (this.eofToken !== undefined) {
+		else { if (this.eofToken !== null) {
 			return this.eofToken.getInputStream();
 		}
 		else { if (this.tokens.size() > 0) {
@@ -237,19 +235,18 @@ $this(tokens, sourceName);
 
 
 		// no input stream information is available
-		return undefined;
+		return null;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
-	public getSourceName = (): string => {
-		if (this.sourceName !== undefined) {
+	public getSourceName = ():  java.lang.String | null => {
+		if (this.sourceName !== null) {
 			return this.sourceName;
 		}
 
 		let  inputStream: CharStream = this.getInputStream();
-		if (inputStream !== undefined) {
+		if (inputStream !== null) {
 			return inputStream.getSourceName();
 		}
 
@@ -257,16 +254,14 @@ $this(tokens, sourceName);
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
-	public setTokenFactory = (factory: TokenFactory<unknown>): void => {
+	public setTokenFactory = (factory: TokenFactory<unknown>| null):  void => {
 		this._factory = factory;
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
-	public getTokenFactory = (): TokenFactory<unknown> => {
+	public getTokenFactory = ():  TokenFactory<unknown> | null => {
 		return this._factory;
 	}
 }

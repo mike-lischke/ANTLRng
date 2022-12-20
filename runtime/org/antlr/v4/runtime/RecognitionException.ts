@@ -15,6 +15,7 @@
 
 
 
+
 import { IntStream } from "./IntStream";
 import { ParserRuleContext } from "./ParserRuleContext";
 import { Recognizer } from "./Recognizer";
@@ -33,30 +34,30 @@ import { IntervalSet } from "./misc/IntervalSet";
  */
 export  class RecognitionException extends java.lang.RuntimeException {
 	/** The {@link Recognizer} where this exception originated. */
-	private readonly  recognizer?:  Recognizer<unknown, unknown>;
+	private readonly  recognizer:  Recognizer<unknown, unknown> | null;
 
-	private readonly  ctx?:  RuleContext;
+	private readonly  ctx:  RuleContext | null;
 
-	private readonly  input?:  IntStream;
+	private readonly  input:  IntStream | null;
 
 	/**
 	 * The current {@link Token} when an error occurred. Since not all streams
 	 * support accessing symbols by index, we have to track the {@link Token}
 	 * instance itself.
 	 */
-	private offendingToken?:  Token;
+	private offendingToken:  Token | null;
 
 	private offendingState:  number = -1;
 
-	public constructor(recognizer: Recognizer<unknown, unknown>,
-								input: IntStream,
-								ctx: ParserRuleContext);
+	public constructor(recognizer: Recognizer<unknown, unknown>| null,
+								input: IntStream| null,
+								ctx: ParserRuleContext| null);
 
-	public constructor(message: string,
-								recognizer: Recognizer<unknown, unknown>,
-								input: IntStream,
-								ctx: ParserRuleContext);
-public constructor(recognizerOrMessage: Recognizer<unknown, unknown> | string, inputOrRecognizer: IntStream | Recognizer<unknown, unknown>, ctxOrInput: ParserRuleContext | IntStream, ctx?: ParserRuleContext) {
+	public constructor(message: java.lang.String| null,
+								recognizer: Recognizer<unknown, unknown>| null,
+								input: IntStream| null,
+								ctx: ParserRuleContext| null);
+public constructor(recognizerOrMessage: Recognizer<unknown, unknown> | java.lang.String | null, inputOrRecognizer: IntStream | Recognizer<unknown, unknown> | null, ctxOrInput: ParserRuleContext | IntStream | null, ctx?: ParserRuleContext | null) {
 if (recognizerOrMessage instanceof Recognizer && inputOrRecognizer instanceof IntStream && ctxOrInput instanceof ParserRuleContext && ctx === undefined)
 	{
 const recognizer = recognizerOrMessage as Recognizer<unknown, unknown>;
@@ -66,21 +67,21 @@ const ctx = ctxOrInput as ParserRuleContext;
 this.recognizer = recognizer;
 		this.input = input;
 		this.ctx = ctx;
-		if ( recognizer!==undefined ) {
+		if ( recognizer!==null ) {
  this.offendingState = recognizer.getState();
 }
 
 	}
  else 
 	{
-let message = recognizerOrMessage as string;
+let message = recognizerOrMessage as java.lang.String;
 let recognizer = inputOrRecognizer as Recognizer<unknown, unknown>;
 let input = ctxOrInput as IntStream;
 		super(message);
 		this.recognizer = recognizer;
 		this.input = input;
 		this.ctx = ctx;
-		if ( recognizer!==undefined ) {
+		if ( recognizer!==null ) {
  this.offendingState = recognizer.getState();
 }
 
@@ -98,11 +99,11 @@ let input = ctxOrInput as IntStream;
 	 *
 	 * <p>If the state number is not known, this method returns -1.</p>
 	 */
-	public getOffendingState = (): number => {
+	public getOffendingState = ():  number => {
 		return this.offendingState;
 	}
 
-	protected readonly  setOffendingState = (offendingState: number): void => {
+	protected readonly  setOffendingState = (offendingState: number):  void => {
 		this.offendingState = offendingState;
 	}
 
@@ -113,15 +114,15 @@ let input = ctxOrInput as IntStream;
 	 * <p>If the set of expected tokens is not known and could not be computed,
 	 * this method returns {@code null}.</p>
 	 *
-	 * @return The set of token types that could potentially follow the current
+	  @returns The set of token types that could potentially follow the current
 	 * state in the ATN, or {@code null} if the information is not available.
 	 */
-	public getExpectedTokens = (): IntervalSet => {
-		if (this.recognizer !== undefined) {
+	public getExpectedTokens = ():  IntervalSet | null => {
+		if (this.recognizer !== null) {
 			return this.recognizer.getATN().getExpectedTokens(this.offendingState, this.ctx);
 		}
 
-		return undefined;
+		return null;
 	}
 
 	/**
@@ -129,10 +130,10 @@ let input = ctxOrInput as IntStream;
 	 *
 	 * <p>If the context is not available, this method returns {@code null}.</p>
 	 *
-	 * @return The {@link RuleContext} at the time this exception was thrown.
+	  @returns The {@link RuleContext} at the time this exception was thrown.
 	 * If the context is not available, this method returns {@code null}.
 	 */
-	public getCtx = (): RuleContext => {
+	public getCtx = ():  RuleContext | null => {
 		return this.ctx;
 	}
 
@@ -142,20 +143,20 @@ let input = ctxOrInput as IntStream;
 	 *
 	 * <p>If the input stream is not available, this method returns {@code null}.</p>
 	 *
-	 * @return The input stream which is the symbol source for the recognizer
+	  @returns The input stream which is the symbol source for the recognizer
 	 * where this exception was thrown, or {@code null} if the stream is not
 	 * available.
 	 */
-	public getInputStream = (): IntStream => {
+	public getInputStream = ():  IntStream | null => {
 		return this.input;
 	}
 
 
-	public getOffendingToken = (): Token => {
+	public getOffendingToken = ():  Token | null => {
 		return this.offendingToken;
 	}
 
-	protected readonly  setOffendingToken = (offendingToken: Token): void => {
+	protected readonly  setOffendingToken = (offendingToken: Token| null):  void => {
 		this.offendingToken = offendingToken;
 	}
 
@@ -164,10 +165,10 @@ let input = ctxOrInput as IntStream;
 	 *
 	 * <p>If the recognizer is not available, this method returns {@code null}.</p>
 	 *
-	 * @return The recognizer where this exception occurred, or {@code null} if
+	  @returns The recognizer where this exception occurred, or {@code null} if
 	 * the recognizer is not available.
 	 */
-	public getRecognizer = (): Recognizer<unknown, unknown> => {
+	public getRecognizer = ():  Recognizer<unknown, unknown> | null => {
 		return this.recognizer;
 	}
 }

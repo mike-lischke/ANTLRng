@@ -16,6 +16,7 @@
 
 
 
+
 import { java } from "../../../../../lib/java/java";
 import { IntStream } from "./IntStream";
 import { Lexer } from "./Lexer";
@@ -27,6 +28,7 @@ import { WritableToken } from "./WritableToken";
 import { Interval } from "./misc/Interval";
 
 
+import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
@@ -41,18 +43,18 @@ import { Interval } from "./misc/Interval";
  * {@link Token#HIDDEN_CHANNEL}, use a filtering token stream such a
  * {@link CommonTokenStream}.</p>
  */
-export  class BufferedTokenStream implements TokenStream {
+export  class BufferedTokenStream extends JavaObject implements TokenStream {
 	/**
 	 * The {@link TokenSource} from which tokens for this stream are fetched.
 	 */
-    protected tokenSource?:  TokenSource;
+    protected tokenSource:  TokenSource | null;
 
 	/**
 	 * A collection of all tokens fetched from the token source. The list is
 	 * considered a complete view of the input once {@link #fetchedEOF} is set
 	 * to {@code true}.
 	 */
-    protected tokens?:  java.util.List<Token> = new  java.util.ArrayList<Token>(100);
+    protected tokens:  java.util.List<Token> | null = new  java.util.ArrayList<Token>(100);
 
 	/**
 	 * The index into {@link #tokens} of the current token (next token to
@@ -82,23 +84,23 @@ export  class BufferedTokenStream implements TokenStream {
 	 */
 	protected fetchedEOF:  boolean;
 
-    public constructor(tokenSource: TokenSource) {
+    public constructor(tokenSource: TokenSource| null) {
 		super();
-if (tokenSource === undefined) {
+if (tokenSource === null) {
 			throw new  java.lang.NullPointerException("tokenSource cannot be null");
 		}
         this.tokenSource = tokenSource;
     }
 
-    public getTokenSource = (): TokenSource => { return this.tokenSource; }
+    public getTokenSource = ():  TokenSource | null => { return this.tokenSource; }
 
-	public index = (): number => { return this.p; }
+	public index = ():  number => { return this.p; }
 
-    public mark = (): number => {
+    public mark = ():  number => {
 		return 0;
 	}
 
-	public release = (marker: number): void => {
+	public release = (marker: number):  void => {
 		// no resources to release
 	}
 
@@ -109,18 +111,18 @@ if (tokenSource === undefined) {
 	 * @see #setTokenSource(TokenSource)
 	 * @deprecated Use {@code seek(0)} instead.
 	 */
-	public reset = (): void => {
+	public reset = ():  void => {
         this.seek(0);
     }
 
-    public seek = (index: number): void => {
+    public seek = (index: number):  void => {
         this.lazyInit();
         this.p = this.adjustSeekIndex(index);
     }
 
-    public size = (): number => { return this.tokens.size(); }
+    public size = ():  number => { return this.tokens.size(); }
 
-    public consume = (): void => {
+    public consume = ():  void => {
 		let  skipEofCheck: boolean;
 		if (this.p >= 0) {
 			if (this.fetchedEOF) {
@@ -149,11 +151,11 @@ if (tokenSource === undefined) {
 
     /** Make sure index {@code i} in tokens has a token.
 	 *
-	 * @return {@code true} if a token is located at index {@code i}, otherwise
+	  @returns {@code true} if a token is located at index {@code i}, otherwise
 	 *    {@code false}.
 	 * @see #get(int i)
 	 */
-    protected sync = (i: number): boolean => {
+    protected sync = (i: number):  boolean => {
 		/* assert i >= 0; */ 
         let  n: number = i - this.tokens.size() + 1; // how many more elements we need?
         //System.out.println("sync("+i+") needs "+n);
@@ -167,9 +169,9 @@ if (tokenSource === undefined) {
 
     /** Add {@code n} elements to buffer.
 	 *
-	 * @return The actual number of elements added to the buffer.
+	  @returns The actual number of elements added to the buffer.
 	 */
-    protected fetch = (n: number): number => {
+    protected fetch = (n: number):  number => {
 		if (this.fetchedEOF) {
 			return 0;
 		}
@@ -189,13 +191,13 @@ if (tokenSource === undefined) {
 		return n;
     }
 
-    public get(i: number): Token;
+    public get(i: number):  Token | null;
 
 	/** Get all tokens from start..stop inclusively */
-	public get(start: number, stop: number): java.util.List<Token>;
+	public get(start: number, stop: number):  java.util.List<Token> | null;
 
 
-    public get(iOrStart: number, stop?: number):  Token |  java.util.List<Token> {
+    public get(iOrStart: number, stop?: number):  Token | null |  java.util.List<Token> | null {
 if (stop === undefined) {
         if ( i < 0 || i >= this.tokens.size() ) {
             throw new  java.lang.IndexOutOfBoundsException("token index "+i+" out of range 0.."+(this.tokens.size()-1));
@@ -205,7 +207,7 @@ if (stop === undefined) {
  else  {
 let start = iOrStart as number;
 		if ( start<0 || stop<0 ) {
- return undefined;
+ return null;
 }
 
 		this.lazyInit();
@@ -228,21 +230,21 @@ let start = iOrStart as number;
 }
 
 
-	public LA = (i: number): number => { return this.LT(i).getType(); }
+	public LA = (i: number):  number => { return this.LT(i).getType(); }
 
-    protected LB = (k: number): Token => {
+    protected LB = (k: number):  Token | null => {
         if ( (this.p-k)<0 ) {
- return undefined;
+ return null;
 }
 
         return this.tokens.get(this.p-k);
     }
 
 
-    public LT = (k: number): Token => {
+    public LT = (k: number):  Token | null => {
         this.lazyInit();
         if ( k===0 ) {
- return undefined;
+ return null;
 }
 
         if ( k < 0 ) {
@@ -271,51 +273,51 @@ let start = iOrStart as number;
 	 * the seek target is always an on-channel token.</p>
 	 *
 	 * @param i The target token index.
-	 * @return The adjusted target token index.
+	  @returns The adjusted target token index.
 	 */
-	protected adjustSeekIndex = (i: number): number => {
+	protected adjustSeekIndex = (i: number):  number => {
 		return i;
 	}
 
-	protected readonly  lazyInit = (): void => {
+	protected readonly  lazyInit = ():  void => {
 		if (this.p === -1) {
 			this.setup();
 		}
 	}
 
-    protected setup = (): void => {
+    protected setup = ():  void => {
 		this.sync(0);
 		this.p = this.adjustSeekIndex(0);
 	}
 
     /** Reset this token stream by setting its token source. */
-    public setTokenSource = (tokenSource: TokenSource): void => {
+    public setTokenSource = (tokenSource: TokenSource| null):  void => {
         this.tokenSource = tokenSource;
         this.tokens.clear();
         this.p = -1;
         this.fetchedEOF = false;
     }
 
-    public getTokens(): java.util.List<Token>;
+    public getTokens():  java.util.List<Token> | null;
 
-    public getTokens(start: number, stop: number): java.util.List<Token>;
+    public getTokens(start: number, stop: number):  java.util.List<Token> | null;
 
     /** Given a start and stop index, return a List of all tokens in
      *  the token type BitSet.  Return null if no tokens were found.  This
      *  method looks at both on and off channel tokens.
      */
-    public getTokens(start: number, stop: number, types: Set<java.lang.Integer>): java.util.List<Token>;
+    public getTokens(start: number, stop: number, types: java.util.Set<java.lang.Integer>| null):  java.util.List<Token> | null;
 
-    public getTokens(start: number, stop: number, ttype: number): java.util.List<Token>;
+    public getTokens(start: number, stop: number, ttype: number):  java.util.List<Token> | null;
 
 
-    public getTokens(start?: number, stop?: number, typesOrTtype?: Set<java.lang.Integer> | number):  java.util.List<Token> {
+    public getTokens(start?: number, stop?: number, typesOrTtype?: java.util.Set<java.lang.Integer> | number | null):  java.util.List<Token> | null {
 if (start === undefined) { return this.tokens; }
  else if (typeof start === "number" && typeof stop === "number" && typesOrTtype === undefined) {
-        return this.getTokens(start, stop, undefined);
+        return this.getTokens(start, stop, null);
     }
- else if (typeof start === "number" && typeof stop === "number" && typesOrTtype instanceof Set) {
-const types = typesOrTtype as Set<java.lang.Integer>;
+ else if (typeof start === "number" && typeof stop === "number" && typesOrTtype instanceof java.util.Set) {
+const types = typesOrTtype as java.util.Set<java.lang.Integer>;
         this.lazyInit();
 		if ( start<0 || stop>=this.tokens.size() ||
 			 stop<0  || start>=this.tokens.size() )
@@ -324,7 +326,7 @@ const types = typesOrTtype as Set<java.lang.Integer>;
 												" not in 0.."+(this.tokens.size()-1));
 		}
         if ( start>stop ) {
- return undefined;
+ return null;
 }
 
 
@@ -332,18 +334,18 @@ const types = typesOrTtype as Set<java.lang.Integer>;
         let  filteredTokens: java.util.List<Token> = new  java.util.ArrayList<Token>();
         for (let  i: number=start; i<=stop; i++) {
             let  t: Token = this.tokens.get(i);
-            if ( types===undefined || types.contains(t.getType()) ) {
+            if ( types===null || types.contains(t.getType()) ) {
                 filteredTokens.add(t);
             }
         }
         if ( filteredTokens.isEmpty() ) {
-            filteredTokens = undefined;
+            filteredTokens = null;
         }
         return filteredTokens;
     }
  else  {
 let ttype = typesOrTtype as number;
-		let  s: HashSet<java.lang.Integer> = new  HashSet<java.lang.Integer>(ttype);
+		let  s: java.util.HashSet<java.lang.Integer> = new  java.util.HashSet<java.lang.Integer>(ttype);
 		s.add(ttype);
 		return this.getTokens(start,stop, s);
     }
@@ -357,7 +359,7 @@ let ttype = typesOrTtype as number;
 	 * the EOF token if there are no tokens on channel between {@code i} and
 	 * EOF.
 	 */
-	protected nextTokenOnChannel = (i: number, channel: number): number => {
+	protected nextTokenOnChannel = (i: number, channel: number):  number => {
 		this.sync(i);
 		if (i >= this.size()) {
 			return this.size() - 1;
@@ -387,7 +389,7 @@ let ttype = typesOrTtype as number;
 	 * index is returned. This is due to the fact that the EOF token is treated
 	 * as though it were on every channel.</p>
 	 */
-	protected previousTokenOnChannel = (i: number, channel: number): number => {
+	protected previousTokenOnChannel = (i: number, channel: number):  number => {
 		this.sync(i);
 		if (i >= this.size()) {
 			// the EOF token is on every channel
@@ -410,20 +412,20 @@ let ttype = typesOrTtype as number;
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL
 	 *  or EOF.
 	 */
-	public getHiddenTokensToRight(tokenIndex: number): java.util.List<Token>;
+	public getHiddenTokensToRight(tokenIndex: number):  java.util.List<Token> | null;
 
 	/** Collect all tokens on specified channel to the right of
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL or
 	 *  EOF. If channel is -1, find any non default channel token.
 	 */
-	public getHiddenTokensToRight(tokenIndex: number, channel: number): java.util.List<Token>;
+	public getHiddenTokensToRight(tokenIndex: number, channel: number):  java.util.List<Token> | null;
 
 
 	/** Collect all tokens on specified channel to the right of
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL or
 	 *  EOF. If channel is -1, find any non default channel token.
 	 */
-	public getHiddenTokensToRight(tokenIndex: number, channel?: number):  java.util.List<Token> {
+	public getHiddenTokensToRight(tokenIndex: number, channel?: number):  java.util.List<Token> | null {
 if (channel === undefined) {
 		return this.getHiddenTokensToRight(tokenIndex, -1);
 	}
@@ -455,20 +457,20 @@ if (channel === undefined) {
 	/** Collect all hidden tokens (any off-default channel) to the left of
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL.
 	 */
-	public getHiddenTokensToLeft(tokenIndex: number): java.util.List<Token>;
+	public getHiddenTokensToLeft(tokenIndex: number):  java.util.List<Token> | null;
 
 	/** Collect all tokens on specified channel to the left of
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL.
 	 *  If channel is -1, find any non default channel token.
 	 */
-	public getHiddenTokensToLeft(tokenIndex: number, channel: number): java.util.List<Token>;
+	public getHiddenTokensToLeft(tokenIndex: number, channel: number):  java.util.List<Token> | null;
 
 
 	/** Collect all tokens on specified channel to the left of
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL.
 	 *  If channel is -1, find any non default channel token.
 	 */
-	public getHiddenTokensToLeft(tokenIndex: number, channel?: number):  java.util.List<Token> {
+	public getHiddenTokensToLeft(tokenIndex: number, channel?: number):  java.util.List<Token> | null {
 if (channel === undefined) {
 		return this.getHiddenTokensToLeft(tokenIndex, -1);
 	}
@@ -480,13 +482,13 @@ if (channel === undefined) {
 
 		if (tokenIndex === 0) {
 			// obviously no tokens can appear before the first token
-			return undefined;
+			return null;
 		}
 
 		let  prevOnChannel: number =
 			this.previousTokenOnChannel(tokenIndex - 1, Lexer.DEFAULT_TOKEN_CHANNEL);
 		if ( prevOnChannel === tokenIndex - 1 ) {
- return undefined;
+ return null;
 }
 
 		// if none onchannel to left, prevOnChannel=-1 then from=0
@@ -499,7 +501,7 @@ if (channel === undefined) {
 }
 
 
-	protected filterForChannel = (from: number, to: number, channel: number): java.util.List<Token> => {
+	protected filterForChannel = (from: number, to: number, channel: number):  java.util.List<Token> | null => {
 		let  hidden: java.util.List<Token> = new  java.util.ArrayList<Token>();
 		for (let  i: number=from; i<=to; i++) {
 			let  t: Token = this.tokens.get(i);
@@ -517,30 +519,30 @@ if (channel === undefined) {
 			}
 		}
 		if ( hidden.size()===0 ) {
- return undefined;
+ return null;
 }
 
 		return hidden;
 	}
 
-	public getSourceName = (): string => {	return this.tokenSource.getSourceName();	}
+	public getSourceName = ():  java.lang.String | null => {	return this.tokenSource.getSourceName();	}
 
 	/** Get the text of all tokens in this buffer. */
 
-	public getText(): string;
+	public getText():  java.lang.String | null;
 
-	public getText(interval: Interval): string;
-
-
-	public getText(ctx: RuleContext): string;
+	public getText(interval: Interval| null):  java.lang.String | null;
 
 
-    public getText(start: Token, stop: Token): string;
+	public getText(ctx: RuleContext| null):  java.lang.String | null;
+
+
+    public getText(start: Token| null, stop: Token| null):  java.lang.String | null;
 
 
 	/** Get the text of all tokens in this buffer. */
 
-	public getText(intervalOrCtxOrStart?: Interval | RuleContext | Token, stop?: Token):  string {
+	public getText(intervalOrCtxOrStart?: Interval | RuleContext | Token | null, stop?: Token | null):  java.lang.String | null {
 if (intervalOrCtxOrStart === undefined) {
 		return this.getText(Interval.of(0,this.size()-1));
 	}
@@ -552,7 +554,7 @@ const interval = intervalOrCtxOrStart as Interval;
  return "";
 }
 
-		this.fill();
+		this.sync(stop);
         if ( stop>=this.tokens.size() ) {
  stop = this.tokens.size()-1;
 }
@@ -575,7 +577,7 @@ const ctx = intervalOrCtxOrStart as RuleContext;
 	}
  else  {
 let start = intervalOrCtxOrStart as Token;
-        if ( start!==undefined && stop!==undefined ) {
+        if ( start!==null && stop!==null ) {
             return this.getText(Interval.of(start.getTokenIndex(), stop.getTokenIndex()));
         }
 
@@ -586,7 +588,7 @@ let start = intervalOrCtxOrStart as Token;
 
 
     /** Get all tokens from lexer until EOF */
-    public fill = (): void => {
+    public fill = ():  void => {
         this.lazyInit();
 		 let  blockSize: number = 1000;
 		while (true) {

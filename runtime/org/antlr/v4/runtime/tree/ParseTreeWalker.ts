@@ -16,6 +16,7 @@
 
 
 
+
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeListener } from "./ParseTreeListener";
@@ -24,10 +25,11 @@ import { TerminalNode } from "./TerminalNode";
 import { ParserRuleContext } from "../ParserRuleContext";
 
 
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
-export  class ParseTreeWalker {
-    public static readonly  DEFAULT?:  ParseTreeWalker = new  ParseTreeWalker();
+export  class ParseTreeWalker extends JavaObject {
+    public static readonly  DEFAULT:  ParseTreeWalker | null = new  ParseTreeWalker();
 
 
 	/**
@@ -38,7 +40,7 @@ export  class ParseTreeWalker {
 	 * @param listener The listener used by the walker to process grammar rules
 	 * @param t The parse tree to be walked on
 	 */
-	public walk = (listener: ParseTreeListener, t: ParseTree): void => {
+	public walk = (listener: ParseTreeListener| null, t: ParseTree| null):  void => {
 		if ( t instanceof ErrorNode) {
 			listener.visitErrorNode(t as ErrorNode);
 			return;
@@ -64,7 +66,7 @@ export  class ParseTreeWalker {
 	 * @param listener The listener responding to the trigger events
 	 * @param r The grammar rule containing the rule context
 	 */
-    protected enterRule = (listener: ParseTreeListener, r: RuleNode): void => {
+    protected enterRule = (listener: ParseTreeListener| null, r: RuleNode| null):  void => {
 		let  ctx: ParserRuleContext = r.getRuleContext() as ParserRuleContext;
 		listener.enterEveryRule(ctx);
 		ctx.enterRule(listener);
@@ -77,7 +79,7 @@ export  class ParseTreeWalker {
 	 * @param listener The listener responding to the trigger events
 	 * @param r The grammar rule containing the rule context
 	 */
-	protected exitRule = (listener: ParseTreeListener, r: RuleNode): void => {
+	protected exitRule = (listener: ParseTreeListener| null, r: RuleNode| null):  void => {
 		let  ctx: ParserRuleContext = r.getRuleContext() as ParserRuleContext;
 		ctx.exitRule(listener);
 		listener.exitEveryRule(ctx);
