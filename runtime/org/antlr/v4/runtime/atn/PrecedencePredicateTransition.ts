@@ -21,6 +21,7 @@ import { SemanticContext } from "./SemanticContext";
 import { Transition } from "./Transition";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 /**
@@ -52,7 +53,7 @@ export  class PrecedencePredicateTransition extends AbstractPredicateTransition 
 	}
 
 	public toString = ():  java.lang.String | null => {
-		return this.precedence + " >= _p";
+		return this.precedence + S` >= _p`;
 	}
 
 }

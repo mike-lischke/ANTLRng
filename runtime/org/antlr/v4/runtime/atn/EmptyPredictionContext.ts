@@ -19,6 +19,7 @@ import { PredictionContext } from "./PredictionContext";
 import { SingletonPredictionContext } from "./SingletonPredictionContext";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 export  class EmptyPredictionContext extends SingletonPredictionContext {
@@ -51,6 +52,6 @@ export  class EmptyPredictionContext extends SingletonPredictionContext {
 	}
 
 	public toString = ():  java.lang.String | null => {
-		return "$";
+		return S`$`;
 	}
 }

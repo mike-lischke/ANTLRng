@@ -17,6 +17,7 @@
 
 
 
+import { java } from "../../../../../../lib/java/java";
 import { ATNConfigSet } from "./ATNConfigSet";
 import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
 
@@ -42,6 +43,7 @@ this.configLookup = new  OrderedATNConfigSet.LexerConfigHashSet();
 
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace OrderedATNConfigSet {
 	export type LexerConfigHashSet = InstanceType<typeof OrderedATNConfigSet.LexerConfigHashSet>;
 }

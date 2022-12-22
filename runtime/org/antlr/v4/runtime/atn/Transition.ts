@@ -11,6 +11,7 @@
 import { java } from "../../../../../../lib/java/java";
 import { ATNState } from "./ATNState";
 import { IntervalSet } from "../misc/IntervalSet";
+import { S } from "../../../../../../lib/templates";
 
 /**
  * An ATN transition between any two ATN states.  Subclasses define
@@ -59,7 +60,7 @@ export abstract class Transition extends java.lang.Object {
         super();
 
         if (!target) {
-            throw new java.lang.NullPointerException("target cannot be null.");
+            throw new java.lang.NullPointerException(S`target cannot be null.`);
         }
 
         this.target = target;
@@ -78,7 +79,7 @@ export abstract class Transition extends java.lang.Object {
         return false;
     }
 
-    public labelValue(): IntervalSet | null {
+    public label(): IntervalSet | null {
         return null;
     }
 

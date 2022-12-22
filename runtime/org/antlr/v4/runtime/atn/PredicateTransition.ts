@@ -20,6 +20,7 @@ import { ATNState } from "./ATNState";
 import { SemanticContext } from "./SemanticContext";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 /** TODO: this is old comment:
@@ -55,7 +56,7 @@ export  class PredicateTransition extends AbstractPredicateTransition {
    	}
 
 	public toString = ():  java.lang.String | null => {
-		return "pred_"+this.ruleIndex+":"+this.predIndex;
+		return S`pred_`+this.ruleIndex+S`:`+this.predIndex;
 	}
 
 }

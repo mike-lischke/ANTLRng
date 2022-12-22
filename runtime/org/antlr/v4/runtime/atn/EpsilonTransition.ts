@@ -19,6 +19,7 @@ import { ATNState } from "./ATNState";
 import { Transition } from "./Transition";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 export  class EpsilonTransition extends Transition {
@@ -71,6 +72,6 @@ $this(target, outermostPrecedenceReturn);
 	}
 
 	public toString = ():  java.lang.String | null => {
-		return "epsilon";
+		return S`epsilon`;
 	}
 }

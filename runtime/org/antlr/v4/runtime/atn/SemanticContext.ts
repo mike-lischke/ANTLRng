@@ -20,11 +20,12 @@
 import { java } from "../../../../../../lib/java/java";
 import { Recognizer } from "../Recognizer";
 import { RuleContext } from "../RuleContext";
-import { MurmurHash } from "../misc/MurmurHash";
 import { Utils } from "../misc/Utils";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 
 /** A tree structure used to record the semantic context in which
@@ -140,7 +141,7 @@ this.ruleIndex = ruleIndex;
 		}
 
 		public toString = ():  java.lang.String | null => {
-            return "{"+$outer.ruleIndex+":"+$outer.predIndex+"}?";
+            return S`{`+$outer.ruleIndex+S`:`+$outer.predIndex+S`}?`;
         }
     };
 
@@ -201,7 +202,7 @@ this.precedence = precedence;
 		}
 
 		public toString = ():  java.lang.String | null => {
-			return "{"+$outer.precedence+">=prec}?";
+			return S`{`+$outer.precedence+S`>=prec}?`;
 		}
 	};
 
@@ -239,14 +240,16 @@ this.precedence = precedence;
  operands.addAll(java.util.Arrays.asList((a as AND).opnds));
 }
 
-			else { operands.add(a);
+			else {
+ operands.add(a);
 }
 
 			if ( b instanceof AND ) {
  operands.addAll(java.util.Arrays.asList((b as AND).opnds));
 }
 
-			else { operands.add(b);
+			else {
+ operands.add(b);
 }
 
 
@@ -307,7 +310,8 @@ this.precedence = precedence;
 					// The AND context is false if any element is false
 					return null;
 				}
-				else { if (evaluated !== SemanticContext.Empty.Instance) {
+				else {
+ if (evaluated !== SemanticContext.Empty.Instance) {
 					// Reduce the result by skipping true elements
 					operands.add(evaluated);
 				}
@@ -333,7 +337,7 @@ this.precedence = precedence;
 		}
 
 		public toString = ():  java.lang.String | null => {
-			return Utils.join(java.util.Arrays.asList($outer.opnds).iterator(), "&&");
+			return Utils.join(java.util.Arrays.asList($outer.opnds).iterator(), S`&&`);
         }
     };
 
@@ -351,14 +355,16 @@ this.precedence = precedence;
  operands.addAll(java.util.Arrays.asList((a as OR).opnds));
 }
 
-			else { operands.add(a);
+			else {
+ operands.add(a);
 }
 
 			if ( b instanceof OR ) {
  operands.addAll(java.util.Arrays.asList((b as OR).opnds));
 }
 
-			else { operands.add(b);
+			else {
+ operands.add(b);
 }
 
 
@@ -419,7 +425,8 @@ this.precedence = precedence;
 					// The OR context is true if any element is true
 					return SemanticContext.Empty.Instance;
 				}
-				else { if (evaluated !== null) {
+				else {
+ if (evaluated !== null) {
 					// Reduce the result by skipping false elements
 					operands.add(evaluated);
 				}
@@ -445,7 +452,7 @@ this.precedence = precedence;
 		}
 
         public toString = ():  java.lang.String | null => {
-			return Utils.join(java.util.Arrays.asList($outer.opnds).iterator(), "||");
+			return Utils.join(java.util.Arrays.asList($outer.opnds).iterator(), S`||`);
         }
     };
 
@@ -494,7 +501,7 @@ this.precedence = precedence;
 
 	private static filterPrecedencePredicates = (collection: java.util.Collection< SemanticContext>| null):  java.util.List<SemanticContext.PrecedencePredicate> | null => {
 		let  result: java.util.ArrayList<SemanticContext.PrecedencePredicate> = null;
-		for (let  iterator: Iterator< SemanticContext> = collection.iterator(); iterator.hasNext(); ) {
+		for (let  iterator: java.util.Iterator< SemanticContext> = collection.iterator(); iterator.hasNext(); ) {
 			let  context: SemanticContext = iterator.next();
 			if (context instanceof SemanticContext.PrecedencePredicate) {
 				if (result === null) {
@@ -514,6 +521,7 @@ this.precedence = precedence;
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace SemanticContext {
 	export type Empty = InstanceType<typeof SemanticContext.Empty>;
 	export type Predicate = InstanceType<typeof SemanticContext.Predicate>;

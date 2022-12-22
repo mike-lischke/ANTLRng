@@ -19,6 +19,7 @@ import { EmptyPredictionContext } from "./EmptyPredictionContext";
 import { PredictionContext } from "./PredictionContext";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 export  class SingletonPredictionContext extends PredictionContext {
@@ -58,7 +59,8 @@ export  class SingletonPredictionContext extends PredictionContext {
 		if (this === o) {
 			return true;
 		}
-		else { if ( !(o instanceof SingletonPredictionContext) ) {
+		else {
+ if ( !(o instanceof SingletonPredictionContext) ) {
 			return false;
 		}
 }
@@ -74,13 +76,13 @@ export  class SingletonPredictionContext extends PredictionContext {
 	}
 
 	public toString = ():  java.lang.String | null => {
-		let  up: java.lang.String = this.parent!==null ? this.parent.toString() : "";
+		let  up: java.lang.String = this.parent!==null ? this.parent.toString() : S``;
 		if ( up.length()===0 ) {
 			if ( this.returnState === PredictionContext.EMPTY_RETURN_STATE ) {
-				return "$";
+				return S`$`;
 			}
 			return java.lang.String.valueOf(this.returnState);
 		}
-		return java.lang.String.valueOf(this.returnState)+" "+up;
+		return java.lang.String.valueOf(this.returnState)+S` `+up;
 	}
 }

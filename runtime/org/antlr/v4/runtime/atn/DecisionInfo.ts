@@ -26,6 +26,7 @@ import { PredicateEvalInfo } from "./PredicateEvalInfo";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
 
 
 /**
@@ -247,17 +248,17 @@ this.decision = decision;
 	}
 
 	public toString = ():  java.lang.String | null => {
-		return "{" +
-			   "decision=" + this.decision +
-			   ", contextSensitivities=" + this.contextSensitivities.size() +
-			   ", errors=" + this.errors.size() +
-			   ", ambiguities=" + this.ambiguities.size() +
-			   ", SLL_lookahead=" + this.SLL_TotalLook +
-			   ", SLL_ATNTransitions=" + this.SLL_ATNTransitions +
-			   ", SLL_DFATransitions=" + this.SLL_DFATransitions +
-			   ", LL_Fallback=" + this.LL_Fallback +
-			   ", LL_lookahead=" + this.LL_TotalLook +
-			   ", LL_ATNTransitions=" + this.LL_ATNTransitions +
+		return S`{` +
+			   S`decision=` + this.decision +
+			   S`, contextSensitivities=` + this.contextSensitivities.size() +
+			   S`, errors=` + this.errors.size() +
+			   S`, ambiguities=` + this.ambiguities.size() +
+			   S`, SLL_lookahead=` + this.SLL_TotalLook +
+			   S`, SLL_ATNTransitions=` + this.SLL_ATNTransitions +
+			   S`, SLL_DFATransitions=` + this.SLL_DFATransitions +
+			   S`, LL_Fallback=` + this.LL_Fallback +
+			   S`, LL_lookahead=` + this.LL_TotalLook +
+			   S`, LL_ATNTransitions=` + this.LL_ATNTransitions +
 			   '}';
 	}
 }

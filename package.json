@@ -11,7 +11,8 @@
     "author": "Mike Lischke",
     "license": "MIT",
     "dependencies": {
-        "immutable": "4.1.0"
+        "immutable": "4.1.0",
+        "printf": "0.6.1"
     },
     "devDependencies": {
         "@types/jest": "29.2.4",

@@ -1,30 +1,19 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
-
-
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
-import { MurmurHash } from "../misc/MurmurHash";
 
-
+import { java } from "../../../../../../lib/java/java";
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
-
+import { S } from "../../../../../../lib/templates";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * Implements the {@code more} lexer action by calling {@link Lexer#more}.
@@ -35,52 +24,56 @@ import { JavaObject } from "../../../../../../lib/java/lang/Object";
  * @author Sam Harwell
  *
  */
-export  class LexerMoreAction extends JavaObject implements LexerAction {
-	/**
-	 * Provides a singleton instance of this parameterless lexer action.
-	 */
-	public static readonly  INSTANCE:  LexerMoreAction | null = new  LexerMoreAction();
+export class LexerMoreAction extends JavaObject implements LexerAction {
+    /**
+     * Provides a singleton instance of this parameter-less lexer action.
+     */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static readonly INSTANCE = new LexerMoreAction();
 
-	/**
-	 * Constructs the singleton instance of the lexer {@code more} command.
-	 */
-	private constructor() {
-	super();
-}
+    /**
+     * Constructs the singleton instance of the lexer {@code more} command.
+     */
+    private constructor() {
+        super();
+    }
 
-	/**
-	  @returns This method returns {@link LexerActionType#MORE}.
-	 */
-	public getActionType = ():  LexerActionType | null => {
-		return LexerActionType.MORE;
-	}
+    /**
+      @returns This method returns {@link LexerActionType#MORE}.
+     */
+    public getActionType = (): LexerActionType => {
+        return LexerActionType.MORE;
+    };
 
-	/**
-	  @returns This method returns {@code false}.
-	 */
-	public isPositionDependent = ():  boolean => {
-		return false;
-	}
+    /**
+      @returns This method returns {@code false}.
+     */
+    public isPositionDependent = (): boolean => {
+        return false;
+    };
 
-	/**
-	 *
-	 * <p>This action is implemented by calling {@link Lexer#more}.</p>
-	 */
-	public execute = (lexer: Lexer| null):  void => {
-		lexer.more();
-	}
+    /**
+     *
+     * <p>This action is implemented by calling {@link Lexer#more}.</p>
+     *
+     * @param lexer tbd
+     */
+    public execute = (lexer: Lexer): void => {
+        lexer.more();
+    };
 
-	public hashCode = ():  number => {
-		let  hash: number = MurmurHash.initialize();
-		hash = MurmurHash.update(hash, this.getActionType().ordinal());
-		return MurmurHash.finish(hash, 1);
-	}
+    public hashCode = (): number => {
+        let hash: number = MurmurHash.initialize();
+        hash = MurmurHash.update(hash, this.getActionType());
 
-	public equals = (obj: java.lang.Object| null):  boolean => {
-		return obj === this;
-	}
+        return MurmurHash.finish(hash, 1);
+    };
 
-	public toString = ():  java.lang.String | null => {
-		return "more";
-	}
+    public equals = (obj: unknown): boolean => {
+        return obj === this;
+    };
+
+    public toString = (): java.lang.String => {
+        return S`more`;
+    };
 }

@@ -21,10 +21,11 @@ import { ATNState } from "./ATNState";
 import { PredictionContext } from "./PredictionContext";
 import { SemanticContext } from "./SemanticContext";
 import { Recognizer } from "../Recognizer";
-import { MurmurHash } from "../misc/MurmurHash";
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
 import { ATNSimulator } from "./ATNSimulator";
+import { S } from "../../../../../../lib/templates";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * A tuple: (ATN state, predicted alt, syntactic, semantic context).
@@ -78,90 +79,48 @@ export class ATNConfig extends JavaObject {
      * {@link ATNConfigSet#add(ATNConfig, DoubleKeyMap)} method are
      * <em>completely</em> unaffected by the change.</p>
      */
-    public reachesIntoOuterContext: number;
+    public reachesIntoOuterContext = 0;
 
-    public readonly semanticContext: SemanticContext | null;
+    public readonly semanticContext: SemanticContext;
 
     public constructor(old: ATNConfig);
-    public constructor(c: ATNConfig, state: ATNState);
     public constructor(c: ATNConfig, semanticContext: SemanticContext);
-    public constructor(state: ATNState, alt: number, context: PredictionContext | null);
-    public constructor(c: ATNConfig, state: ATNState | null, semanticContext: SemanticContext | null);
-    public constructor(c: ATNConfig, state: ATNState | null, context: PredictionContext | null);
-    public constructor(state: ATNState, alt: number, context: PredictionContext | null, semanticContext: SemanticContext | null);
-    public constructor(c: ATNConfig, state: ATNState | null, context: PredictionContext | null, semanticContext: SemanticContext | null);
-    public constructor(oldOrCOrState: ATNConfig | ATNState, stateOrSemanticContextOrAlt?: ATNState | SemanticContext | number | null, contextOrSemanticContext?: PredictionContext | SemanticContext | null, semanticContext?: SemanticContext | null) {
+    public constructor(c: ATNConfig, state: ATNState, semanticContext?: SemanticContext);
+    public constructor(c: ATNConfig, state: ATNState, context: PredictionContext, semanticContext?: SemanticContext);
+    public constructor(state: ATNState, alt: number, context: PredictionContext, semanticContext?: SemanticContext);
+    public constructor(oldOrCOrState: ATNConfig | ATNState, semanticContextOrStateOrAlt?: ATNState | SemanticContext | number,
+        semanticContextOrContext?: PredictionContext | SemanticContext, semanticContext?: SemanticContext) {
         super();
-        if (oldOrCOrState instanceof ATNConfig) {
+        if (oldOrCOrState instanceof ATNConfig && semanticContextOrStateOrAlt === undefined) { // dup
             this.state = oldOrCOrState.state;
             this.alt = oldOrCOrState.alt;
             this.context = oldOrCOrState.context;
             this.semanticContext = oldOrCOrState.semanticContext;
             this.reachesIntoOuterContext = oldOrCOrState.reachesIntoOuterContext;
-        } else if (stateOrSemanticContextOrAlt !== undefined) {
+        } else if (oldOrCOrState instanceof ATNState) {
             this.state = oldOrCOrState;
+            this.alt = semanticContextOrStateOrAlt as number;
+            this.context = semanticContextOrContext as PredictionContext;
+            this.semanticContext = semanticContext ?? SemanticContext.Empty.Instance;
+        } else {
+            this.alt = oldOrCOrState.alt;
+            this.reachesIntoOuterContext = oldOrCOrState.reachesIntoOuterContext;
+            if (semanticContextOrStateOrAlt instanceof ATNState) {
+                this.state = semanticContextOrStateOrAlt;
 
-        }
-
-        const $this = (oldOrCOrState: ATNConfig | ATNState | null, stateOrSemanticContextOrAlt?: ATNState | SemanticContext | number | null, contextOrSemanticContext?: PredictionContext | SemanticContext | null, semanticContext?: SemanticContext | null): void => {
-            if (oldOrCOrState instanceof ATNConfig && stateOrSemanticContextOrAlt === undefined) {
-                const old = oldOrCOrState;
-                /* @ts-expect-error, because of the super() call in the closure. */ // dup
-                super();
-                this.state = old.state;
-                this.alt = old.alt;
-                this.context = old.context;
-                this.semanticContext = old.semanticContext;
-                this.reachesIntoOuterContext = old.reachesIntoOuterContext;
-            } else if (oldOrCOrState instanceof ATNConfig && stateOrSemanticContextOrAlt instanceof ATNState && contextOrSemanticContext === undefined) {
-                const c = oldOrCOrState;
-                const state = stateOrSemanticContextOrAlt;
-                $this(c, state, c.context, c.semanticContext);
-            } else if (oldOrCOrState instanceof ATNConfig && stateOrSemanticContextOrAlt instanceof SemanticContext && contextOrSemanticContext === undefined) {
-                const c = oldOrCOrState;
-                const semanticContext = stateOrSemanticContextOrAlt;
-                $this(c, c.state, c.context, semanticContext);
-            } else if (oldOrCOrState instanceof ATNState && typeof stateOrSemanticContextOrAlt === "number" && contextOrSemanticContext instanceof PredictionContext && semanticContext === undefined) {
-                const state = oldOrCOrState;
-                const alt = stateOrSemanticContextOrAlt;
-                const context = contextOrSemanticContext;
-                $this(state, alt, context, SemanticContext.Empty.Instance);
-            } else if (oldOrCOrState instanceof ATNConfig && stateOrSemanticContextOrAlt instanceof ATNState && contextOrSemanticContext instanceof SemanticContext && semanticContext === undefined) {
-                const c = oldOrCOrState;
-                const state = stateOrSemanticContextOrAlt;
-                const semanticContext = contextOrSemanticContext;
-                $this(c, state, c.context, semanticContext);
-            } else if (oldOrCOrState instanceof ATNConfig && stateOrSemanticContextOrAlt instanceof ATNState && contextOrSemanticContext instanceof PredictionContext && semanticContext === undefined) {
-                const c = oldOrCOrState;
-                const state = stateOrSemanticContextOrAlt;
-                const context = contextOrSemanticContext;
-                $this(c, state, context, c.semanticContext);
-            } else if (oldOrCOrState instanceof ATNState && typeof stateOrSemanticContextOrAlt === "number" && contextOrSemanticContext instanceof PredictionContext && semanticContext instanceof SemanticContext) {
-                const state = oldOrCOrState;
-                const alt = stateOrSemanticContextOrAlt;
-                const context = contextOrSemanticContext;
-                /* @ts-expect-error, because of the super() call in the closure. */
-                super();
-                this.state = state;
-                this.alt = alt;
-                this.context = context;
-                this.semanticContext = semanticContext;
+                if (semanticContextOrContext instanceof SemanticContext) {
+                    this.semanticContext = semanticContextOrContext;
+                    this.context = oldOrCOrState.context;
+                } else {
+                    this.semanticContext = oldOrCOrState.semanticContext;
+                    this.context = semanticContextOrContext ?? oldOrCOrState.context;
+                }
             } else {
-                const c = oldOrCOrState as ATNConfig;
-                const state = stateOrSemanticContextOrAlt as ATNState;
-                const context = contextOrSemanticContext as PredictionContext;
-                /* @ts-expect-error, because of the super() call in the closure. */
-                super();
-                this.state = state;
-                this.alt = c.alt;
-                this.context = context;
-                this.semanticContext = semanticContext;
-                this.reachesIntoOuterContext = c.reachesIntoOuterContext;
+                this.state = oldOrCOrState.state;
+                this.context = oldOrCOrState.context;
+                this.semanticContext = semanticContextOrStateOrAlt as SemanticContext;
             }
-        };
-
-        $this(oldOrCOrState, stateOrSemanticContextOrAlt, contextOrSemanticContext, semanticContext);
-
+        }
     }
 
     /**
@@ -191,45 +150,25 @@ export class ATNConfig extends JavaObject {
      * An ATN configuration is equal to another if both have
      *  the same state, they predict the same alternative, and
      *  syntactic/semantic contexts are the same.
-     */
-    public equals(o: java.lang.Object | null): boolean;
-
-    public equals(other: ATNConfig | null): boolean;
-
-    /**
-     * An ATN configuration is equal to another if both have
-     *  the same state, they predict the same alternative, and
-     *  syntactic/semantic contexts are the same.
      *
-     * @param oOrOther tbd
+     * @param other tbd
      *
      * @returns tbd
      */
-    public equals(oOrOther: java.lang.Object | ATNConfig | null): boolean {
-        if (oOrOther instanceof java.lang.Object) {
-            const o = oOrOther as java.lang.Object;
-            if (!(o instanceof ATNConfig)) {
-                return false;
-            }
-
-            return this.equals(o);
-        } else {
-            const other = oOrOther as ATNConfig;
-            if (this === other) {
-                return true;
-            } else {
-                if (other === null) {
-                    return false;
-                }
-            }
-
-            return this.state.stateNumber === other.state.stateNumber
-                && this.alt === other.alt
-                && Objects.equals(this.context, other.context)
-                && this.semanticContext.equals(other.semanticContext)
-                && this.isPrecedenceFilterSuppressed() === other.isPrecedenceFilterSuppressed();
+    public equals(other: unknown): boolean {
+        if (this === other) {
+            return true;
         }
 
+        if (other === null || !(other instanceof ATNConfig)) {
+            return false;
+        }
+
+        return this.state.stateNumber === other.state.stateNumber
+            && this.alt === other.alt
+            && java.util.Objects.equals(this.context, other.context)
+            && this.semanticContext.equals(other.semanticContext)
+            && this.isPrecedenceFilterSuppressed() === other.isPrecedenceFilterSuppressed();
     }
 
     public hashCode = (): number => {
@@ -250,33 +189,27 @@ export class ATNConfig extends JavaObject {
             return this.toString(null, true);
         } else {
             const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
-            //		if ( state.ruleIndex>=0 ) {
-            //			if ( recog!=null ) buf.append(recog.getRuleNames()[state.ruleIndex]+":");
-            //			else buf.append(state.ruleIndex+":");
-            //		}
-            buf.append("(");
-            buf.append(this.state);
+            buf.append(S`(`);
+            buf.append(this.state as java.lang.Object);
             if (showAlt) {
-                buf.append(",");
+                buf.append(S`,`);
                 buf.append(this.alt);
             }
             if (this.context !== null) {
-                buf.append(",[");
+                buf.append(S`, [`);
                 buf.append(this.context.toString());
-                buf.append("]");
+                buf.append(S`]`);
             }
             if (this.semanticContext !== null && this.semanticContext !== SemanticContext.Empty.Instance) {
-                buf.append(",");
+                buf.append(S`,`);
                 buf.append(this.semanticContext);
             }
             if (this.getOuterContextDepth() > 0) {
-                buf.append(",up=").append(this.getOuterContextDepth());
+                buf.append(S`,up=`).append(this.getOuterContextDepth());
             }
-            buf.append(")");
+            buf.append(S`)`);
 
             return buf.toString();
         }
-
     }
-
 }

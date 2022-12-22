@@ -20,10 +20,10 @@
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
-import { MurmurHash } from "../misc/MurmurHash";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 
 /**
@@ -120,7 +120,8 @@ this.offset = offset;
 		if (obj === this) {
 			return true;
 		}
-		else { if (!(obj instanceof LexerIndexedCustomAction)) {
+		else {
+ if (!(obj instanceof LexerIndexedCustomAction)) {
 			return false;
 		}
 }

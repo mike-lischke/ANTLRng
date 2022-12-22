@@ -48,6 +48,7 @@ import { IntervalSet } from "../misc/IntervalSet";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
 
 
 /** This class represents a target neutral serializer for ATNs. An ATN is converted to a list of integers
@@ -191,7 +192,7 @@ export  class ATNSerializer extends JavaObject {
 
 
 				default:{
-					let  message: java.lang.String = java.lang.String.format(java.util.Locale.getDefault(), "The specified lexer action type %s is not valid.", action.getActionType());
+					let  message: java.lang.String = java.lang.String.format(java.util.Locale.getDefault(), S`The specified lexer action type %s is not valid.`, action.getActionType());
 					throw new  java.lang.IllegalArgumentException(message);
 }
 
@@ -239,7 +240,8 @@ if (nedges === undefined) {
 			if ( s.getStateType() === ATNState.LOOP_END ) {
 				this.data.add((s as LoopEndState).loopBackState.stateNumber);
 			}
-			else { if ( s instanceof BlockStartState ) {
+			else {
+ if ( s instanceof BlockStartState ) {
 				this.data.add((s as BlockStartState).endState.stateNumber);
 			}
 }
@@ -277,7 +279,7 @@ if (nedges === undefined) {
 				let  t: Transition = s.transition(i);
 
 				if (this.atn.states.get(t.target.stateNumber) === null) {
-					throw new  java.lang.IllegalStateException("Cannot serialize a transition to a removed state.");
+					throw new  java.lang.IllegalStateException(S`Cannot serialize a transition to a removed state.`);
 				}
 
 				let  src: number = s.stateNumber;

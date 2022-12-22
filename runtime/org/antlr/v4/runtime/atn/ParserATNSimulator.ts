@@ -60,6 +60,7 @@ import { IntervalSet } from "../misc/IntervalSet";
 import { Pair } from "../misc/Pair";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 /**
@@ -296,7 +297,7 @@ export  class ParserATNSimulator extends ATNSimulator {
 	public static retry_debug:  boolean = false;
 
 	/** Just in case this optimization is bad, add an ENV variable to turn it off */
-	public static readonly  TURN_OFF_LR_LOOP_ENTRY_BRANCH_OPT:  boolean = java.lang.Boolean.parseBoolean(ParserATNSimulator.getSafeEnv("TURN_OFF_LR_LOOP_ENTRY_BRANCH_OPT"));
+	public static readonly  TURN_OFF_LR_LOOP_ENTRY_BRANCH_OPT:  boolean = java.lang.Boolean.parseBoolean(ParserATNSimulator.getSafeEnv(S`TURN_OFF_LR_LOOP_ENTRY_BRANCH_OPT`));
 
 	protected readonly  parser:  Parser | null;
 
@@ -373,9 +374,9 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 							   outerContext: ParserRuleContext| null):  number =>
 	{
 		if ( ParserATNSimulator.debug || ParserATNSimulator.trace_atn_sim )  {
-			java.lang.System.out.println("adaptivePredict decision "+decision+
-								   " exec LA(1)=="+ this.getLookaheadName(input)+
-								   " line "+input.LT(1).getLine()+":"+input.LT(1).getCharPositionInLine());
+			java.lang.System.out.println(S`adaptivePredict decision `+decision+
+								   S` exec LA(1)==`+ this.getLookaheadName(input)+
+								   S` line `+input.LT(1).getLine()+S`:`+input.LT(1).getCharPositionInLine());
 		}
 
 		this._input = input;
@@ -432,7 +433,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 
 			let  alt: number = this.execATN(dfa, s0, input, index, outerContext);
 			if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("DFA after predictATN: "+ dfa.toString(this.parser.getVocabulary()));
+ java.lang.System.out.println(S`DFA after predictATN: `+ dfa.toString(this.parser.getVocabulary()));
 }
 
 			return alt;
@@ -480,10 +481,10 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 					   outerContext: ParserRuleContext| null):  number =>
 	{
 		if ( ParserATNSimulator.debug || ParserATNSimulator.trace_atn_sim ) {
-			java.lang.System.out.println("execATN decision "+dfa.decision+
-							   ", DFA state "+s0+
-							   ", LA(1)=="+ this.getLookaheadName(input)+
-							   " line "+input.LT(1).getLine()+":"+input.LT(1).getCharPositionInLine());
+			java.lang.System.out.println(S`execATN decision `+dfa.decision+
+							   S`, DFA state `+s0+
+							   S`, LA(1)==`+ this.getLookaheadName(input)+
+							   S` line `+input.LT(1).getLine()+S`:`+input.LT(1).getCharPositionInLine());
 
 		}
 
@@ -521,7 +522,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 				let  conflictingAlts: java.util.BitSet = D.configs.conflictingAlts;
 				if ( D.predicates!==null ) {
 					if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("DFA state has preds in DFA sim LL failover");
+ java.lang.System.out.println(S`DFA state has preds in DFA sim LL failover`);
 }
 
 					let  conflictIndex: number = input.index();
@@ -532,7 +533,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 					conflictingAlts = this.evalSemanticContext(D.predicates, outerContext, true);
 					if ( conflictingAlts.cardinality()===1 ) {
 						if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("Full LL avoided");
+ java.lang.System.out.println(S`Full LL avoided`);
 }
 
 						return conflictingAlts.nextSetBit(0);
@@ -546,7 +547,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 				}
 
 				if ( ParserATNSimulator.dfa_debug ) {
- java.lang.System.out.println("ctx sensitive state "+outerContext+" in "+D);
+ java.lang.System.out.println(S`ctx sensitive state `+outerContext+S` in `+D);
 }
 
 				let  fullCtx: boolean = true;
@@ -644,10 +645,10 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 
 		if ( ParserATNSimulator.debug ) {
 			let  altSubSets: java.util.Collection<java.util.BitSet> = PredictionMode.getConflictingAltSubsets(reach);
-			java.lang.System.out.println("SLL altSubSets="+altSubSets+
-							   ", configs="+reach+
-							   ", predict="+predictedAlt+", allSubsetsConflict="+
-								   PredictionMode.allSubsetsConflict(altSubSets)+", conflictingAlts="+
+			java.lang.System.out.println(S`SLL altSubSets=`+altSubSets+
+							   S`, configs=`+reach+
+							   S`, predict=`+predictedAlt+S`, allSubsetsConflict=`+
+								   PredictionMode.allSubsetsConflict(altSubSets)+S`, conflictingAlts=`+
 							   this.getConflictingAlts(reach));
 		}
 
@@ -657,7 +658,8 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 			D.configs.uniqueAlt = predictedAlt;
 			D.prediction = predictedAlt;
 		}
-		else { if ( PredictionMode.hasSLLConflictTerminatingPrediction(this.mode, reach) ) {
+		else {
+ if ( PredictionMode.hasSLLConflictTerminatingPrediction(this.mode, reach) ) {
 			// MORE THAN ONE VIABLE ALTERNATIVE
 			D.configs.conflictingAlts = this.getConflictingAlts(reach);
 			D.requiresFullContext = true;
@@ -708,7 +710,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 										 outerContext: ParserRuleContext| null):  number =>
 	{
 		if ( ParserATNSimulator.debug || ParserATNSimulator.trace_atn_sim ) {
-			java.lang.System.out.println("execATNWithFullContext "+s0);
+			java.lang.System.out.println(S`execATNWithFullContext `+s0);
 		}
 		let  fullCtx: boolean = true;
 		let  foundExactAmbig: boolean = false;
@@ -743,9 +745,9 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 
 			let  altSubSets: java.util.Collection<java.util.BitSet> = PredictionMode.getConflictingAltSubsets(reach);
 			if ( ParserATNSimulator.debug ) {
-				java.lang.System.out.println("LL altSubSets="+altSubSets+
-								   ", predict="+PredictionMode.getUniqueAlt(altSubSets)+
-								   ", resolvesToJustOneViableAlt="+
+				java.lang.System.out.println(S`LL altSubSets=`+altSubSets+
+								   S`, predict=`+PredictionMode.getUniqueAlt(altSubSets)+
+								   S`, resolvesToJustOneViableAlt=`+
 									   PredictionMode.resolvesToJustOneViableAlt(altSubSets));
 			}
 
@@ -831,7 +833,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 	{
 		if ( ParserATNSimulator.debug ) {
 
-			java.lang.System.out.println("in computeReachSet, starting closure: " + closure);
+			java.lang.System.out.println(S`in computeReachSet, starting closure: ` + closure);
 }
 
 
@@ -856,7 +858,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 		// First figure out where we can reach on input t
 		for (let c of closure) {
 			if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("testing "+this.getTokenName(t)+" at "+c.toString());
+ java.lang.System.out.println(S`testing `+this.getTokenName(t)+S` at `+c.toString());
 }
 
 
@@ -904,7 +906,8 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 				// among the configurations.
 				reach = intermediate;
 			}
-			else { if ( ParserATNSimulator.getUniqueAlt(intermediate)!==ATN.INVALID_ALT_NUMBER ) {
+			else {
+ if ( ParserATNSimulator.getUniqueAlt(intermediate)!==ATN.INVALID_ALT_NUMBER ) {
 				// Also don't pursue the closure if there is unique alternative
 				// among the configurations.
 				reach = intermediate;
@@ -962,7 +965,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 		}
 
 		if ( ParserATNSimulator.trace_atn_sim ) {
-			java.lang.System.out.println("computeReachSet "+closure+" -> "+reach);
+			java.lang.System.out.println(S`computeReachSet `+closure+S` -> `+reach);
 		}
 
 		if ( reach.isEmpty() ) {
@@ -1026,7 +1029,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 		let  configs: ATNConfigSet = new  ATNConfigSet(fullCtx);
 
 		if ( ParserATNSimulator.trace_atn_sim )  {
-			java.lang.System.out.println("computeStartState from ATN state "+p+" initialContext="+initialContext.toString(this.parser));
+			java.lang.System.out.println(S`computeStartState from ATN state `+p+S` initialContext=`+initialContext.toString(this.parser));
 		}
 
 		for (let  i: number=0; i<p.getNumberOfTransitions(); i++) {
@@ -1286,7 +1289,8 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 			if (altToPred[i] === null) {
 				altToPred[i] = SemanticContext.Empty.Instance;
 			}
-			else { if (altToPred[i] !== SemanticContext.Empty.Instance) {
+			else {
+ if (altToPred[i] !== SemanticContext.Empty.Instance) {
 				nPredAlts++;
 			}
 }
@@ -1304,7 +1308,7 @@ $this(atnOrParser, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, shared
 }
 
 		if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("getPredsForAmbigAlts result "+java.util.Arrays.toString(altToPred));
+ java.lang.System.out.println(S`getPredsForAmbigAlts result `+java.util.Arrays.toString(altToPred));
 }
 
 		return altToPred;
@@ -1518,12 +1522,12 @@ const complete = completeOrAlt as boolean;
 			let  fullCtx: boolean = false; // in dfa
 			let  predicateEvaluationResult: boolean = this.evalSemanticContext(pair.pred, outerContext, pair.alt, fullCtx);
 			if ( ParserATNSimulator.debug || ParserATNSimulator.dfa_debug ) {
-				java.lang.System.out.println("eval pred "+pair+"="+predicateEvaluationResult);
+				java.lang.System.out.println(S`eval pred `+pair+S`=`+predicateEvaluationResult);
 			}
 
 			if ( predicateEvaluationResult ) {
 				if ( ParserATNSimulator.debug || ParserATNSimulator.dfa_debug ) {
- java.lang.System.out.println("PREDICT "+pair.alt);
+ java.lang.System.out.println(S`PREDICT `+pair.alt);
 }
 
 				predictions.set(pair.alt);
@@ -1575,7 +1579,7 @@ let alt = completeOrAlt as number;
 											treatEofAsEpsilon: boolean):  void =>
 	{
 		if ( ParserATNSimulator.trace_atn_sim ) {
- java.lang.System.out.println("closure("+config.toString(this.parser,true)+")");
+ java.lang.System.out.println(S`closure(`+config.toString(this.parser,true)+S`)`);
 }
 
 
@@ -1592,7 +1596,7 @@ let alt = completeOrAlt as number;
 						else {
 							// we have no context info, just chase follow links (if greedy)
 							if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("FALLING off rule "+
+ java.lang.System.out.println(S`FALLING off rule `+
 															this.getRuleName(config.state.ruleIndex));
 }
 
@@ -1619,7 +1623,8 @@ let alt = completeOrAlt as number;
 				}
 				return;
 			}
-			else { if (fullCtx) {
+			else {
+ if (fullCtx) {
 				// reached end of start rule
 				configs.add(config, this.mergeCache);
 				return;
@@ -1627,7 +1632,7 @@ let alt = completeOrAlt as number;
 			else {
 				// else if we have no context info, just chase follow links (if greedy)
 				if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("FALLING off rule "+
+ java.lang.System.out.println(S`FALLING off rule `+
 												this.getRuleName(config.state.ruleIndex));
 }
 
@@ -1697,7 +1702,7 @@ let alt = completeOrAlt as number;
 					/* assert newDepth > Integer.MIN_VALUE; */ 
 					newDepth--;
 					if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("dips into outer ctx: "+c);
+ java.lang.System.out.println(S`dips into outer ctx: `+c);
 }
 
 				}
@@ -1892,7 +1897,7 @@ let alt = completeOrAlt as number;
  return this.parser.getRuleNames()[index];
 }
 
-		return "<rule "+index+">";
+		return S`<rule `+index+S`>`;
 	}
 
 
@@ -1957,7 +1962,7 @@ let alt = completeOrAlt as number;
 
 	protected actionTransition = (config: ATNConfig| null, t: ActionTransition| null):  ATNConfig | null => {
 		if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("ACTION edge "+t.ruleIndex+":"+t.actionIndex);
+ java.lang.System.out.println(S`ACTION edge `+t.ruleIndex+S`:`+t.actionIndex);
 }
 
 		return new  ATNConfig(config, t.target);
@@ -1971,11 +1976,11 @@ let alt = completeOrAlt as number;
 									fullCtx: boolean):  ATNConfig | null =>
 	{
 		if ( ParserATNSimulator.debug ) {
-			java.lang.System.out.println("PRED (collectPredicates="+collectPredicates+") "+
-                    pt.precedence+">=_p"+
-					", ctx dependent=true");
+			java.lang.System.out.println(S`PRED (collectPredicates=`+collectPredicates+S`) `+
+                    pt.precedence+S`>=_p`+
+					S`, ctx dependent=true`);
 			if ( this.parser !== null ) {
-                java.lang.System.out.println("context surrounding pred is "+
+                java.lang.System.out.println(S`context surrounding pred is `+
                                    this.parser.getRuleInvocationStack());
             }
 		}
@@ -2006,7 +2011,7 @@ let alt = completeOrAlt as number;
 		}
 
 		if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("config from pred transition="+c);
+ java.lang.System.out.println(S`config from pred transition=`+c);
 }
 
         return c;
@@ -2020,11 +2025,11 @@ let alt = completeOrAlt as number;
 									fullCtx: boolean):  ATNConfig | null =>
 	{
 		if ( ParserATNSimulator.debug ) {
-			java.lang.System.out.println("PRED (collectPredicates="+collectPredicates+") "+
-                    pt.ruleIndex+":"+pt.predIndex+
-					", ctx dependent="+pt.isCtxDependent);
+			java.lang.System.out.println(S`PRED (collectPredicates=`+collectPredicates+S`) `+
+                    pt.ruleIndex+S`:`+pt.predIndex+
+					S`, ctx dependent=`+pt.isCtxDependent);
 			if ( this.parser !== null ) {
-                java.lang.System.out.println("context surrounding pred is "+
+                java.lang.System.out.println(S`context surrounding pred is `+
                                    this.parser.getRuleInvocationStack());
             }
 		}
@@ -2057,7 +2062,7 @@ let alt = completeOrAlt as number;
 		}
 
 		if ( ParserATNSimulator.debug ) {
- java.lang.System.out.println("config from pred transition="+c);
+ java.lang.System.out.println(S`config from pred transition=`+c);
 }
 
         return c;
@@ -2066,8 +2071,8 @@ let alt = completeOrAlt as number;
 
 	protected ruleTransition = (config: ATNConfig| null, t: RuleTransition| null):  ATNConfig | null => {
 		if ( ParserATNSimulator.debug ) {
-			java.lang.System.out.println("CALL rule "+this.getRuleName(t.target.ruleIndex)+
-							   ", ctx="+config.context);
+			java.lang.System.out.println(S`CALL rule `+this.getRuleName(t.target.ruleIndex)+
+							   S`, ctx=`+config.context);
 		}
 
 		let  returnState: ATNState = t.followState;
@@ -2141,7 +2146,7 @@ let alt = completeOrAlt as number;
 
 	public getTokenName = (t: number):  java.lang.String | null => {
 		if (t === Token.EOF) {
-			return "EOF";
+			return S`EOF`;
 		}
 
 		let  vocabulary: Vocabulary = this.parser !== null ? this.parser.getVocabulary() : VocabularyImpl.EMPTY_VOCABULARY;
@@ -2150,7 +2155,7 @@ let alt = completeOrAlt as number;
 			return displayName;
 		}
 
-		return displayName + "<" + t + ">";
+		return displayName + S`<` + t + S`>`;
 	}
 
 	public getLookaheadName = (input: TokenStream| null):  java.lang.String | null => {
@@ -2162,24 +2167,25 @@ let alt = completeOrAlt as number;
 	 *  "dead" code for a bit.
 	 */
 	public dumpDeadEndConfigs = (nvae: NoViableAltException| null):  void => {
-		java.lang.System.err.println("dead end configs: ");
+		java.lang.System.err.println(S`dead end configs: `);
 		for (let c of nvae.getDeadEndConfigs()) {
-			let  trans: java.lang.String = "no edges";
+			let  trans: java.lang.String = S`no edges`;
 			if ( c.state.getNumberOfTransitions()>0 ) {
 				let  t: Transition = c.state.transition(0);
 				if ( t instanceof AtomTransition) {
 					let  at: AtomTransition = t as AtomTransition;
-					trans = "Atom "+this.getTokenName(at.label);
+					trans = S`Atom `+this.getTokenName(at.label);
 				}
-				else { if ( t instanceof SetTransition ) {
+				else {
+ if ( t instanceof SetTransition ) {
 					let  st: SetTransition = t as SetTransition;
 					let  not: boolean = st instanceof NotSetTransition;
-					trans = (not?"~":"")+"Set "+st.set.toString();
+					trans = (not?S`~`:S``)+S`Set `+st.set.toString();
 				}
 }
 
 			}
-			java.lang.System.err.println(c.toString(this.parser, true)+":"+trans);
+			java.lang.System.err.println(c.toString(this.parser, true)+S`:`+trans);
 		}
 	}
 
@@ -2201,7 +2207,8 @@ let alt = completeOrAlt as number;
 			if ( alt === ATN.INVALID_ALT_NUMBER ) {
 				alt = c.alt; // found first alt
 			}
-			else { if ( c.alt!==alt ) {
+			else {
+ if ( c.alt!==alt ) {
 				return ATN.INVALID_ALT_NUMBER;
 			}
 }
@@ -2236,7 +2243,7 @@ let alt = completeOrAlt as number;
 								  to: DFAState| null):  DFAState | null =>
 	{
 		if ( ParserATNSimulator.debug ) {
-			java.lang.System.out.println("EDGE "+from+" -> "+to+" upon "+this.getTokenName(t));
+			java.lang.System.out.println(S`EDGE `+from+S` -> `+to+S` upon `+this.getTokenName(t));
 		}
 
 		if (to === null) {
@@ -2257,7 +2264,7 @@ let alt = completeOrAlt as number;
 		}
 
 		if ( ParserATNSimulator.debug ) {
-			java.lang.System.out.println("DFA=\n"+dfa.toString(this.parser!==null?this.parser.getVocabulary():VocabularyImpl.EMPTY_VOCABULARY));
+			java.lang.System.out.println(S`DFA=\n`+dfa.toString(this.parser!==null?this.parser.getVocabulary():VocabularyImpl.EMPTY_VOCABULARY));
 		}
 
 		return to;
@@ -2288,7 +2295,7 @@ let alt = completeOrAlt as number;
 
 			if ( existing!==null ) {
 				if ( ParserATNSimulator.trace_atn_sim ) {
- java.lang.System.out.println("addDFAState " + D + " exists");
+ java.lang.System.out.println(S`addDFAState ` + D + S` exists`);
 }
 
 				return existing;
@@ -2302,7 +2309,7 @@ let alt = completeOrAlt as number;
 			}
 
 			if ( ParserATNSimulator.trace_atn_sim ) {
- java.lang.System.out.println("addDFAState new "+D);
+ java.lang.System.out.println(S`addDFAState new `+D);
 }
 
 
@@ -2314,8 +2321,8 @@ let alt = completeOrAlt as number;
 	protected reportAttemptingFullContext = (dfa: DFA| null, conflictingAlts: java.util.BitSet| null, configs: ATNConfigSet| null, startIndex: number, stopIndex: number):  void => {
         if ( ParserATNSimulator.debug || ParserATNSimulator.retry_debug ) {
 			let  interval: Interval = Interval.of(startIndex, stopIndex);
-			java.lang.System.out.println("reportAttemptingFullContext decision="+dfa.decision+":"+configs+
-                               ", input="+this.parser.getTokenStream().getText(interval));
+			java.lang.System.out.println(S`reportAttemptingFullContext decision=`+dfa.decision+S`:`+configs+
+                               S`, input=`+this.parser.getTokenStream().getText(interval));
         }
         if ( this.parser!==null ) {
  this.parser.getErrorListenerDispatch().reportAttemptingFullContext(this.parser, dfa, startIndex, stopIndex, conflictingAlts, configs);
@@ -2326,8 +2333,8 @@ let alt = completeOrAlt as number;
 	protected reportContextSensitivity = (dfa: DFA| null, prediction: number, configs: ATNConfigSet| null, startIndex: number, stopIndex: number):  void => {
         if ( ParserATNSimulator.debug || ParserATNSimulator.retry_debug ) {
 			let  interval: Interval = Interval.of(startIndex, stopIndex);
-            java.lang.System.out.println("reportContextSensitivity decision="+dfa.decision+":"+configs+
-                               ", input="+this.parser.getTokenStream().getText(interval));
+            java.lang.System.out.println(S`reportContextSensitivity decision=`+dfa.decision+S`:`+configs+
+                               S`, input=`+this.parser.getTokenStream().getText(interval));
         }
         if ( this.parser!==null ) {
  this.parser.getErrorListenerDispatch().reportContextSensitivity(this.parser, dfa, startIndex, stopIndex, prediction, configs);
@@ -2345,9 +2352,9 @@ let alt = completeOrAlt as number;
 	{
 		if ( ParserATNSimulator.debug || ParserATNSimulator.retry_debug ) {
 			let  interval: Interval = Interval.of(startIndex, stopIndex);
-			java.lang.System.out.println("reportAmbiguity "+
-							   ambigAlts+":"+configs+
-                               ", input="+this.parser.getTokenStream().getText(interval));
+			java.lang.System.out.println(S`reportAmbiguity `+
+							   ambigAlts+S`:`+configs+
+                               S`, input=`+this.parser.getTokenStream().getText(interval));
         }
         if ( this.parser!==null ) {
  this.parser.getErrorListenerDispatch().reportAmbiguity(this.parser, dfa, startIndex, stopIndex,

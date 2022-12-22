@@ -17,6 +17,7 @@
 
 
 
+import { java } from "../../../../../../lib/java/java";
 import { ATNConfigSet } from "./ATNConfigSet";
 import { DecisionEventInfo } from "./DecisionEventInfo";
 import { TokenStream } from "../TokenStream";

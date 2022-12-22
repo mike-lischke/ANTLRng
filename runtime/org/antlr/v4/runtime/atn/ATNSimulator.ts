@@ -26,6 +26,7 @@ import { DFAState } from "../dfa/DFAState";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
 
 
 export abstract  class ATNSimulator extends JavaObject {
@@ -79,7 +80,7 @@ this.atn = atn;
 	 *
 	 */
 	public clearDFA = ():  void => {
-		throw new  java.lang.UnsupportedOperationException("This ATN simulator does not support clearing the DFA.");
+		throw new  java.lang.UnsupportedOperationException(S`This ATN simulator does not support clearing the DFA.`);
 	}
 
 	public getSharedContextCache = ():  PredictionContextCache | null => {

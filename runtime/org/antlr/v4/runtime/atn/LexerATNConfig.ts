@@ -24,10 +24,10 @@ import { DecisionState } from "./DecisionState";
 import { LexerActionExecutor } from "./LexerActionExecutor";
 import { PredictionContext } from "./PredictionContext";
 import { SemanticContext } from "./SemanticContext";
-import { MurmurHash } from "../misc/MurmurHash";
 import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
 
 
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 
 export  class LexerATNConfig extends ATNConfig {
@@ -129,7 +129,8 @@ let context = contextOrLexerActionExecutor as PredictionContext;
 		if (this === other) {
 			return true;
 		}
-		else { if (!(other instanceof LexerATNConfig)) {
+		else {
+ if (!(other instanceof LexerATNConfig)) {
 			return false;
 		}
 }

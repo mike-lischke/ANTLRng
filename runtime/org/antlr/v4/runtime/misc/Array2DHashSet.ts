@@ -270,8 +270,6 @@ export class Array2DHashSet<T extends IEquatable> implements java.util.Collectio
         return this.get(obj) !== undefined;
     };
 
-    public toArray(): T[];
-    public toArray<U extends T>(a: U[]): U[];
     public toArray<U extends T>(a?: U[]): T[] | U[] {
         if (a === undefined) {
             const a: T[] = this.createBucket(this.size());

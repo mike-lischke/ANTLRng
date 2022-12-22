@@ -46,6 +46,7 @@ import { Interval } from "../misc/Interval";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
 
 
 /** "dup" of ParserInterpreter */
@@ -188,7 +189,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 		let  startState: ATNState = this.atn.modeToStartState.get(this.mode);
 
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(java.util.Locale.getDefault(), "matchATN mode %d start: %s\n", this.mode, startState);
+			java.lang.System.out.format(java.util.Locale.getDefault(), S`matchATN mode %d start: %s\n`, this.mode, startState);
 		}
 
 		let  old_mode: number = this.mode;
@@ -205,7 +206,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 		let  predict: number = this.execATN(input, next);
 
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(java.util.Locale.getDefault(), "DFA after matchATN: %s\n", this.decisionToDFA[old_mode].toLexerString());
+			java.lang.System.out.format(java.util.Locale.getDefault(), S`DFA after matchATN: %s\n`, this.decisionToDFA[old_mode].toLexerString());
 		}
 
 		return predict;
@@ -214,7 +215,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 	protected execATN = (input: CharStream| null, ds0: DFAState| null):  number => {
 		//System.out.println("enter exec index "+input.index()+" from "+ds0.configs);
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(java.util.Locale.getDefault(), "start state closure=%s\n", ds0.configs);
+			java.lang.System.out.format(java.util.Locale.getDefault(), S`start state closure=%s\n`, ds0.configs);
 		}
 
 		if (ds0.isAcceptState) {
@@ -228,7 +229,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 
 		while ( true ) { // while more work
 			if ( LexerATNSimulator.debug ) {
-				java.lang.System.out.format(java.util.Locale.getDefault(), "execATN loop starting closure: %s\n", s.configs);
+				java.lang.System.out.format(java.util.Locale.getDefault(), S`execATN loop starting closure: %s\n`, s.configs);
 			}
 
 			// As we move src->trg, src->trg, we keep track of the previous trg to
@@ -298,8 +299,8 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 
 		let  target: DFAState = s.edges[t - LexerATNSimulator.MIN_DFA_EDGE];
 		if (LexerATNSimulator.debug && target !== null) {
-			java.lang.System.out.println("reuse state "+s.stateNumber+
-							   " edge to "+target.stateNumber);
+			java.lang.System.out.println(S`reuse state `+s.stateNumber+
+							   S` edge to `+target.stateNumber);
 		}
 
 		return target;
@@ -374,7 +375,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 			}
 
 			if ( LexerATNSimulator.debug ) {
-				java.lang.System.out.format(java.util.Locale.getDefault(), "testing %s at %s\n", this.getTokenName(t), c.toString(this.recog, true));
+				java.lang.System.out.format(java.util.Locale.getDefault(), S`testing %s at %s\n`, this.getTokenName(t), c.toString(this.recog, true));
 			}
 
 			let  n: number = c.state.getNumberOfTransitions();
@@ -403,7 +404,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 						  startIndex: number, index: number, line: number, charPos: number):  void =>
 	{
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.format(java.util.Locale.getDefault(), "ACTION %s\n", lexerActionExecutor);
+			java.lang.System.out.format(java.util.Locale.getDefault(), S`ACTION %s\n`, lexerActionExecutor);
 		}
 
 		// seek to after last char in token
@@ -451,16 +452,16 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 	 */
 	protected closure = (input: CharStream| null, config: LexerATNConfig| null, configs: ATNConfigSet| null, currentAltReachedAcceptState: boolean, speculative: boolean, treatEofAsEpsilon: boolean):  boolean => {
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.println("closure("+config.toString(this.recog, true)+")");
+			java.lang.System.out.println(S`closure(`+config.toString(this.recog, true)+S`)`);
 		}
 
 		if ( config.state instanceof RuleStopState ) {
 			if ( LexerATNSimulator.debug ) {
 				if ( this.recog!==null ) {
-					java.lang.System.out.format(java.util.Locale.getDefault(), "closure at %s rule stop %s\n", this.recog.getRuleNames()[config.state.ruleIndex], config);
+					java.lang.System.out.format(java.util.Locale.getDefault(), S`closure at %s rule stop %s\n`, this.recog.getRuleNames()[config.state.ruleIndex], config);
 				}
 				else {
-					java.lang.System.out.format(java.util.Locale.getDefault(), "closure at rule stop %s\n", config);
+					java.lang.System.out.format(java.util.Locale.getDefault(), S`closure at rule stop %s\n`, config);
 				}
 			}
 
@@ -529,7 +530,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 
 
 			case Transition.PRECEDENCE:{
-				throw new  java.lang.UnsupportedOperationException("Precedence predicates are not supported in lexers.");
+				throw new  java.lang.UnsupportedOperationException(S`Precedence predicates are not supported in lexers.`);
 }
 
 
@@ -554,7 +555,7 @@ $this(atnOrRecog, decisionToDFAOrAtn, sharedContextCacheOrDecisionToDFA, sharedC
 			 */
 				let  pt: PredicateTransition = t as PredicateTransition;
 				if ( LexerATNSimulator.debug ) {
-					java.lang.System.out.println("EVAL rule "+pt.ruleIndex+":"+pt.predIndex);
+					java.lang.System.out.println(S`EVAL rule `+pt.ruleIndex+S`:`+pt.predIndex);
 				}
 				configs.hasSemanticContext = true;
 				if (this.evaluatePredicate(input, pt.ruleIndex, pt.predIndex, speculative)) {
@@ -718,7 +719,7 @@ let p = fromOrP as DFAState;
 		}
 
 		if ( LexerATNSimulator.debug ) {
-			java.lang.System.out.println("EDGE "+p+" -> "+q+" upon "+(t as CodePoint));
+			java.lang.System.out.println(S`EDGE `+p+S` -> `+q+S` upon `+(t as CodePoint));
 		}
 
 		/* synchronized (p) */ {
@@ -822,14 +823,15 @@ let p = fromOrP as DFAState;
 
 	public getTokenName = (t: number):  java.lang.String | null => {
 		if ( t===-1 ) {
- return "EOF";
+ return S`EOF`;
 }
 
 		//if ( atn.g!=null ) return atn.g.getTokenDisplayName(t);
-		return "'"+t as CodePoint+"'";
+		return S`'`+t as CodePoint+S`'`;
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace LexerATNSimulator {
 	// @ts-expect-error, because of protected inner class.
 	export type SimState = InstanceType<typeof LexerATNSimulator.SimState>;

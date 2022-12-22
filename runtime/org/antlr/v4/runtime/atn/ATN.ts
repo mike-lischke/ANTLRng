@@ -21,6 +21,7 @@ import { Token } from "../Token";
 import { IntervalSet } from "../misc/IntervalSet";
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
 
 export class ATN extends JavaObject {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -72,7 +73,7 @@ export class ATN extends JavaObject {
      */
     public lexerActions?: LexerAction[];
 
-    public readonly modeToStartState?: java.util.List<TokensStartState> = new java.util.ArrayList<TokensStartState>();
+    public readonly modeToStartState = new java.util.ArrayList<TokensStartState>();
 
     /**
      * Used for runtime deserialization of ATNs from strings
@@ -189,7 +190,7 @@ export class ATN extends JavaObject {
      */
     public getExpectedTokens = (stateNumber: number, context: RuleContext | null): IntervalSet | null => {
         if (stateNumber < 0 || stateNumber >= this.states.size()) {
-            throw new java.lang.IllegalArgumentException("Invalid state number.");
+            throw new java.lang.IllegalArgumentException(S`Invalid state number.`);
         }
 
         let ctx: RuleContext | null = context;

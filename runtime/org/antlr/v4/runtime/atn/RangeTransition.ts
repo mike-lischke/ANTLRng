@@ -22,6 +22,7 @@ import { Transition } from "./Transition";
 import { IntervalSet } from "../misc/IntervalSet";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 export  class RangeTransition extends Transition {
@@ -45,11 +46,11 @@ export  class RangeTransition extends Transition {
 	}
 
 	public toString = ():  java.lang.String | null => {
-		return new  java.lang.StringBuilder("'")
+		return new  java.lang.StringBuilder(S`'`)
 				.appendCodePoint(this.from)
-				.append("'..'")
+				.append(S`'..'`)
 				.appendCodePoint(this.to)
-				.append("'")
+				.append(S`'`)
 				.toString();
 	}
 }

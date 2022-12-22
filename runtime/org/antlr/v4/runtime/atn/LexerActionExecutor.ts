@@ -22,10 +22,10 @@ import { LexerAction } from "./LexerAction";
 import { LexerIndexedCustomAction } from "./LexerIndexedCustomAction";
 import { CharStream } from "../CharStream";
 import { Lexer } from "../Lexer";
-import { MurmurHash } from "../misc/MurmurHash";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 
 /**
@@ -175,7 +175,8 @@ this.lexerActions = lexerActions;
 					lexerAction = (lexerAction as LexerIndexedCustomAction).getAction();
 					requiresSeek = (startIndex + offset) !== stopIndex;
 				}
-				else { if (lexerAction.isPositionDependent()) {
+				else {
+ if (lexerAction.isPositionDependent()) {
 					input.seek(stopIndex);
 					requiresSeek = false;
 				}
@@ -200,7 +201,8 @@ this.lexerActions = lexerActions;
 		if (obj === this) {
 			return true;
 		}
-		else { if (!(obj instanceof LexerActionExecutor)) {
+		else {
+ if (!(obj instanceof LexerActionExecutor)) {
 			return false;
 		}
 }

@@ -19,6 +19,7 @@ import { ATNState } from "./ATNState";
 import { Transition } from "./Transition";
 
 
+import { S } from "../../../../../../lib/templates";
 
 
 export  class WildcardTransition extends Transition {
@@ -33,6 +34,6 @@ export  class WildcardTransition extends Transition {
 	}
 
 	public toString = ():  java.lang.String | null => {
-		return ".";
+		return S`.`;
 	}
 }
