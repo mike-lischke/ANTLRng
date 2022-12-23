@@ -110,12 +110,12 @@ export abstract class ATNState extends JavaObject {
         S`LOOP_END`,
     ];
 
-    public static readonly INVALID_STATE_NUMBER: number = -1;
+    public static readonly INVALID_STATE_NUMBER = -1;
 
     /** Which ATN are we in? */
     public atn: ATN | null = null;
 
-    public stateNumber: number = ATNState.INVALID_STATE_NUMBER;
+    public stateNumber = ATNState.INVALID_STATE_NUMBER;
 
     public ruleIndex = 0; // at runtime, we don't have Rule objects
 
@@ -124,8 +124,8 @@ export abstract class ATNState extends JavaObject {
     /** Used to cache lookahead during parsing, not used during construction */
     public nextTokenWithinRule: IntervalSet | null = null;
 
-    /** Track the transitions emanating from this ATN state. */
-    protected readonly transitions = new java.util.ArrayList<Transition>(ATNState.INITIAL_NUM_TRANSITIONS);
+    /** Track the transitions emanating from this ATN state. package-private in Java */
+    public readonly transitions = new java.util.ArrayList<Transition>(ATNState.INITIAL_NUM_TRANSITIONS);
 
     public abstract getStateType: () => number;
 

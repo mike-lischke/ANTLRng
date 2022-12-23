@@ -36,11 +36,21 @@
         "javax",
         "linkplain",
         "nanos",
+        "ndecisions",
+        "nedges",
+        "nintervals",
+        "nmodes",
+        "nrules",
+        "nsets",
+        "nstates",
         "preds",
         "rarr",
         "semctx",
         "stringbuilder",
-        "stringtemplate"
+        "stringtemplate",
+        "stype",
+        "ttype",
+        "vnext"
     ],
     "ignorePaths": [
         ".eslintrc.json"

@@ -64,6 +64,7 @@ import { S } from "../../../../../../lib/templates";
  * @author Sam Harwell
  */
 export class ATNDeserializer extends JavaObject {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly SERIALIZED_VERSION = 4;
 
     private readonly deserializationOptions: ATNDeserializationOptions;
@@ -73,8 +74,106 @@ export class ATNDeserializer extends JavaObject {
         this.deserializationOptions = deserializationOptions ?? ATNDeserializationOptions.getDefaultOptions();
     }
 
-    public deserialize(data: Uint16Array): ATN;
-    public deserialize(data: Int32Array): ATN;
+    /**
+     * Given a list of integers representing a serialized ATN, encode values too large to fit into 15 bits
+     *  as two 16bit values. We use the high bit (0x8000_0000) to indicate values requiring two 16 bit words.
+     *  If the high bit is set, we grab the next value and combine them to get a 31-bit value. The possible
+     *  input int values are [-1,0x7FFF_FFFF].
+     *
+     * 		| compression/encoding                         | uint16 count | type            |
+     * 		| -------------------------------------------- | ------------ | --------------- |
+     * 		| 0xxxxxxx xxxxxxxx                            | 1            | uint (15 bit)   |
+     * 		| 1xxxxxxx xxxxxxxx yyyyyyyy yyyyyyyy          | 2            | uint (16+ bits) |
+     * 		| 11111111 11111111 11111111 11111111          | 2            | int value -1    |
+     *
+     * 	This is only used (other than for testing) by {@link org.antlr.v4.codegen.model.SerializedJavaATN}
+     * 	to encode ints as char values for the java target, but it is convenient to combine it with the
+     * 	#decodeIntsEncodedAs16BitWords that follows as they are a pair (I did not want to introduce a new class
+     * 	into the runtime). Used only for Java Target.
+     *
+     * @param data tbd
+     *
+     * @returns tbd
+     */
+    public static encodeIntsWith16BitWords = (data: IntegerList): IntegerList | null => {
+        const data16: IntegerList = new IntegerList(Number((data.size() * 1.5)));
+        for (let i = 0; i < data.size(); i++) {
+            let v: number = data.get(i);
+            if (v === -1) { // use two max uint16 for -1
+                data16.add(0xFFFF);
+                data16.add(0xFFFF);
+            } else {
+                if (v <= 0x7FFF) {
+                    data16.add(v);
+                } else { // v > 0x7FFF
+                    if (v >= 0x7FFF_FFFF) {
+                        // too big to fit in 15 bits + 16 bits? (+1 would be 8000_0000 which is bad encoding)
+                        throw new java.lang.UnsupportedOperationException(
+                            S`Serialized ATN data element[${i}] = ${v} doesn't fit in 31 bits`);
+                    }
+                    v = v & 0x7FFF_FFFF;			// strip high bit (sentinel) if set
+                    data16.add((v >> 16) | 0x8000); // store high 15-bit word first and set high bit to say word follows
+                    data16.add((v & 0xFFFF));       // then store lower 16-bit word
+                }
+            }
+
+        }
+
+        return data16;
+    };
+
+    /**
+     * Convert a list of chars (16 uint) that represent a serialized and compressed list of ints for an ATN.
+     *  This method pairs with {@link #encodeIntsWith16BitWords(IntegerList)} above. Used only for Java Target.
+     *
+     * @param data16 tbd
+     * @param trimToSize tbd
+     *
+     * @returns tbd
+     */
+    public static decodeIntsEncodedAs16BitWords(data16: Uint16Array, trimToSize?: boolean): Int32Array {
+        if (trimToSize === undefined) {
+            return ATNDeserializer.decodeIntsEncodedAs16BitWords(data16, false);
+        } else {
+            // will be strictly smaller but we waste bit of space to avoid copying during initialization of parsers
+            const data = new Int32Array(data16.length);
+            let i = 0;
+            let i2 = 0;
+            while (i < data16.length) {
+                const v = data16[i++];
+                if ((v & 0x8000) === 0) { // hi bit not set? Implies 1-word value
+                    data[i2++] = v; // 7 bit int
+                } else { // hi bit set. Implies 2-word value
+                    const vnext = data16[i++];
+                    if (v === 0xFFFF && vnext === 0xFFFF) { // is it -1?
+                        data[i2++] = -1;
+                    } else { // 31-bit int
+                        data[i2++] = ((v & 0x7FFF) << 16) | (vnext & 0xFFFF);
+                    }
+                }
+            }
+
+            if (trimToSize) {
+                return java.util.Arrays.copyOf(data, i2);
+            }
+
+            return data;
+        }
+
+    }
+
+    protected static toInt = (c: java.lang.char): number => {
+        return c;
+    };
+
+    protected static toInt32(data: Uint16Array | Int32Array, offset: number): number {
+        if (data instanceof Uint16Array) {
+            return Number(data[offset]) | (Number(data[offset + 1]) << 16);
+        } else {
+            return data[offset] | (data[offset + 1] << 16);
+        }
+    }
+
     public deserialize(data: Uint16Array | Int32Array): ATN {
         if (data instanceof Uint16Array) {
             return this.deserialize(ATNDeserializer.decodeIntsEncodedAs16BitWords(data));
@@ -85,7 +184,8 @@ export class ATNDeserializer extends JavaObject {
                 const reason = java.lang.String.format(java.util.Locale.getDefault(),
                     S`Could not deserialize ATN with version %d (expected %d).`, version,
                     ATNDeserializer.SERIALIZED_VERSION);
-                throw new java.lang.UnsupportedOperationException(new java.io.InvalidClassException(ATN.class.getName(), reason));
+                throw new java.lang.UnsupportedOperationException(
+                    new java.io.InvalidClassException(ATN.class.getName(), reason));
             }
 
             const grammarType = Object.values(ATNType)[data[p++]] as ATNType;
@@ -99,7 +199,7 @@ export class ATNDeserializer extends JavaObject {
             const endStateNumbers = new java.util.ArrayList<Pair<BlockStartState, number>>();
             const nstates = data[p++];
             for (let i = 0; i < nstates; i++) {
-                const stype: number = data[p++];
+                const stype = data[p++];
                 // ignore bad type of states
                 if (stype === ATNState.INVALID_TYPE) {
                     atn.addState(null);
@@ -121,7 +221,8 @@ export class ATNDeserializer extends JavaObject {
                 atn.addState(s);
             }
 
-            // delay the assignment of loop back and end states until we know all the state instances have been initialized
+            // delay the assignment of loop back and end states until we know all the state instances
+            // have been initialized
             for (const pair of loopBackStateNumbers) {
                 pair.a.loopBackState = atn.states.get(pair.b);
             }
@@ -145,7 +246,7 @@ export class ATNDeserializer extends JavaObject {
             //
             // RULES
             //
-            const nrules: number = data[p++];
+            const nrules = data[p++];
             if (atn.grammarType === ATNType.LEXER) {
                 atn.ruleToTokenType = new Int32Array(nrules);
             }
@@ -175,7 +276,7 @@ export class ATNDeserializer extends JavaObject {
             //
             // MODES
             //
-            const nmodes: number = data[p++];
+            const nmodes = data[p++];
             for (let i = 0; i < nmodes; i++) {
                 const s: number = data[p++];
                 atn.modeToStartState.add(atn.states.get(s) as TokensStartState);
@@ -223,7 +324,8 @@ export class ATNDeserializer extends JavaObject {
                             }
                         }
 
-                        const returnTransition = new EpsilonTransition(ruleTransition.followState, outermostPrecedenceReturn);
+                        const returnTransition =
+                            new EpsilonTransition(ruleTransition.followState, outermostPrecedenceReturn);
                         atn.ruleToStopState[ruleTransition.target.ruleIndex].addTransition(returnTransition);
                     }
                 }
@@ -320,7 +422,7 @@ export class ATNDeserializer extends JavaObject {
                     bypassStop.startState = bypassStart;
 
                     let endState: ATNState | null;
-                    let excludeTransition: Transition | null;
+                    let excludeTransition: Transition | null = null;
                     if (atn.ruleToStartState[i].isLeftRecursiveRule) {
                         // wrap from the beginning of the rule to the StarLoopEntryState
                         endState = null;
@@ -333,12 +435,13 @@ export class ATNDeserializer extends JavaObject {
                                 continue;
                             }
 
-                            const maybeLoopEndState: ATNState = state.transition(state.getNumberOfTransitions() - 1).target;
+                            const maybeLoopEndState = state.transition(state.getNumberOfTransitions() - 1).target;
                             if (!(maybeLoopEndState instanceof LoopEndState)) {
                                 continue;
                             }
 
-                            if (maybeLoopEndState.epsilonOnlyTransitions && maybeLoopEndState.transition(0).target instanceof RuleStopState) {
+                            if (maybeLoopEndState.epsilonOnlyTransitions
+                                && maybeLoopEndState.transition(0).target instanceof RuleStopState) {
                                 endState = state;
                                 break;
                             }
@@ -371,7 +474,8 @@ export class ATNDeserializer extends JavaObject {
 
                     // all transitions leaving the rule start state need to leave blockStart instead
                     while (atn.ruleToStartState[i].getNumberOfTransitions() > 0) {
-                        const transition: Transition = atn.ruleToStartState[i].removeTransition(atn.ruleToStartState[i].getNumberOfTransitions() - 1);
+                        const transition = atn.ruleToStartState[i].removeTransition(atn.ruleToStartState[i]
+                            .getNumberOfTransitions() - 1);
                         bypassStart.addTransition(transition);
                     }
 
@@ -396,29 +500,6 @@ export class ATNDeserializer extends JavaObject {
 
     }
 
-    private deserializeSets = (data: Int32Array, p: number, sets: java.util.List<IntervalSet> | null): number => {
-        const nsets: number = data[p++];
-        for (let i = 0; i < nsets; i++) {
-            const nintervals: number = data[p];
-            p++;
-            const set: IntervalSet = new IntervalSet();
-            sets.add(set);
-
-            const containsEof: boolean = data[p++] !== 0;
-            if (containsEof) {
-                set.add(-1);
-            }
-
-            for (let j = 0; j < nintervals; j++) {
-                const a: number = data[p++];
-                const b: number = data[p++];
-                set.add(a, b);
-            }
-        }
-
-        return p;
-    };
-
     /**
      * Analyze the {@link StarLoopEntryState} states in the specified ATN to set
      * the {@link StarLoopEntryState#isPrecedenceDecision} field to the
@@ -426,7 +507,7 @@ export class ATNDeserializer extends JavaObject {
      *
      * @param atn The ATN.
      */
-    protected markPrecedenceDecisions = (atn: ATN | null): void => {
+    protected markPrecedenceDecisions = (atn: ATN): void => {
         for (const state of atn.states) {
             if (!(state instanceof StarLoopEntryState)) {
                 continue;
@@ -439,7 +520,8 @@ export class ATNDeserializer extends JavaObject {
             if (atn.ruleToStartState[state.ruleIndex].isLeftRecursiveRule) {
                 const maybeLoopEndState: ATNState = state.transition(state.getNumberOfTransitions() - 1).target;
                 if (maybeLoopEndState instanceof LoopEndState) {
-                    if (maybeLoopEndState.epsilonOnlyTransitions && maybeLoopEndState.transition(0).target instanceof RuleStopState) {
+                    if (maybeLoopEndState.epsilonOnlyTransitions
+                        && maybeLoopEndState.transition(0).target instanceof RuleStopState) {
                         (state).isPrecedenceDecision = true;
                     }
                 }
@@ -447,7 +529,7 @@ export class ATNDeserializer extends JavaObject {
         }
     };
 
-    protected verifyATN = (atn: ATN | null): void => {
+    protected verifyATN = (atn: ATN): void => {
         // verify assumptions
         for (const state of atn.states) {
             if (state === null) {
@@ -509,34 +591,9 @@ export class ATNDeserializer extends JavaObject {
         }
     };
 
-    protected checkCondition(condition: boolean): void;
-
-    protected checkCondition(condition: boolean, message: java.lang.String | null): void;
-
-    protected checkCondition(condition: boolean, message?: java.lang.String | null): void {
-        if (message === undefined) {
-            this.checkCondition(condition, null);
-        } else {
-            if (!condition) {
-                throw new java.lang.IllegalStateException(message);
-            }
-        }
-
-    }
-
-    protected static toInt = (c: CodePoint): number => {
-        return c;
-    };
-
-    protected static toInt32(data: Uint16Array, offset: number): number;
-
-    protected static toInt32(data: Int32Array, offset: number): number;
-
-    protected static toInt32(data: Uint16Array | Int32Array, offset: number): number {
-        if (data instanceof Uint16Array) {
-            return Number(data[offset]) | (Number(data[offset + 1]) << 16);
-        } else {
-            return data[offset] | (data[offset + 1] << 16);
+    protected checkCondition(condition: boolean, message?: java.lang.String): void {
+        if (!condition) {
+            throw new java.lang.IllegalStateException(message);
         }
 
     }
@@ -672,7 +729,8 @@ export class ATNDeserializer extends JavaObject {
             }
 
             default: {
-                const message: java.lang.String = java.lang.String.format(java.util.Locale.getDefault(), S`The specified state type %d is not valid.`, type);
+                const message = java.lang.String.format(java.util.Locale.getDefault(),
+                    S`The specified state type %d is not valid.`, type);
                 throw new java.lang.IllegalArgumentException(message);
             }
 
@@ -718,95 +776,34 @@ export class ATNDeserializer extends JavaObject {
             }
 
             default: {
-                throw new java.lang.IllegalArgumentException(java.lang.String.format(java.util.Locale.getDefault(), S`The specified lexer action type %s is not valid.`, type));
+                throw new java.lang.IllegalArgumentException(java.lang.String.format(java.util.Locale.getDefault(),
+                    S`The specified lexer action type %s is not valid.`, type));
             }
-
         }
     };
 
-    /**
-     * Given a list of integers representing a serialized ATN, encode values too large to fit into 15 bits
-     *  as two 16bit values. We use the high bit (0x8000_0000) to indicate values requiring two 16 bit words.
-     *  If the high bit is set, we grab the next value and combine them to get a 31-bit value. The possible
-     *  input int values are [-1,0x7FFF_FFFF].
-     *
-     * 		| compression/encoding                         | uint16 count | type            |
-     * 		| -------------------------------------------- | ------------ | --------------- |
-     * 		| 0xxxxxxx xxxxxxxx                            | 1            | uint (15 bit)   |
-     * 		| 1xxxxxxx xxxxxxxx yyyyyyyy yyyyyyyy          | 2            | uint (16+ bits) |
-     * 		| 11111111 11111111 11111111 11111111          | 2            | int value -1    |
-     *
-     * 	This is only used (other than for testing) by {@link org.antlr.v4.codegen.model.SerializedJavaATN}
-     * 	to encode ints as char values for the java target, but it is convenient to combine it with the
-     * 	#decodeIntsEncodedAs16BitWords that follows as they are a pair (I did not want to introduce a new class
-     * 	into the runtime). Used only for Java Target.
-     *
-     * @param data tbd
-     *
-     * @returns tbd
-     */
-    public static encodeIntsWith16BitWords = (data: IntegerList): IntegerList | null => {
-        const data16: IntegerList = new IntegerList(Number((data.size() * 1.5)));
-        for (let i = 0; i < data.size(); i++) {
-            let v: number = data.get(i);
-            if (v === -1) { // use two max uint16 for -1
-                data16.add(0xFFFF);
-                data16.add(0xFFFF);
-            } else {
-                if (v <= 0x7FFF) {
-                    data16.add(v);
-                } else { // v > 0x7FFF
-                    if (v >= 0x7FFF_FFFF) { // too big to fit in 15 bits + 16 bits? (+1 would be 8000_0000 which is bad encoding)
-                        throw new java.lang.UnsupportedOperationException(
-                            S`Serialized ATN data element[${i}] = ${v} doesn't fit in 31 bits`);
-                    }
-                    v = v & 0x7FFF_FFFF;			 // strip high bit (sentinel) if set
-                    data16.add((v >> 16) | 0x8000);   // store high 15-bit word first and set high bit to say word follows
-                    data16.add((v & 0xFFFF)); 		// then store lower 16-bit word
-                }
+    private deserializeSets = (data: Int32Array, p: number, sets: java.util.List<IntervalSet>): number => {
+        const nsets = data[p++];
+        for (let i = 0; i < nsets; i++) {
+            const nintervals = data[p];
+            p++;
+
+            const set = new IntervalSet();
+            sets.add(set);
+
+            const containsEof: boolean = data[p++] !== 0;
+            if (containsEof) {
+                set.add(-1);
             }
 
+            for (let j = 0; j < nintervals; j++) {
+                const a: number = data[p++];
+                const b: number = data[p++];
+                set.add(a, b);
+            }
         }
 
-        return data16;
+        return p;
     };
-
-    public static decodeIntsEncodedAs16BitWords(data16: Uint16Array): Int32Array;
-
-    /**
-     * Convert a list of chars (16 uint) that represent a serialized and compressed list of ints for an ATN.
-     *  This method pairs with {@link #encodeIntsWith16BitWords(IntegerList)} above. Used only for Java Target.
-     */
-    public static decodeIntsEncodedAs16BitWords(data16: Uint16Array, trimToSize: boolean): Int32Array;
-
-    public static decodeIntsEncodedAs16BitWords(data16: Uint16Array, trimToSize?: boolean): Int32Array {
-        if (trimToSize === undefined) {
-            return ATNDeserializer.decodeIntsEncodedAs16BitWords(data16, false);
-        } else {
-            // will be strictly smaller but we waste bit of space to avoid copying during initialization of parsers
-            const data: Int32Array = new Array<number>(data16.length);
-            let i = 0;
-            let i2 = 0;
-            while (i < data16.length) {
-                const v: CodePoint = data16[i++];
-                if ((v & 0x8000) === 0) { // hi bit not set? Implies 1-word value
-                    data[i2++] = v; // 7 bit int
-                } else { // hi bit set. Implies 2-word value
-                    const vnext: CodePoint = data16[i++];
-                    if (v === 0xFFFF && vnext === 0xFFFF) { // is it -1?
-                        data[i2++] = -1;
-                    } else { // 31-bit int
-                        data[i2++] = (v & 0x7FFF) << 16 | (vnext & 0xFFFF);
-                    }
-                }
-            }
-            if (trimToSize) {
-                return java.util.Arrays.copyOf(data, i2);
-            }
-
-            return data;
-        }
-
-    }
 
 }
