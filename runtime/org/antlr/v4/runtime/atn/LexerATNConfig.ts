@@ -1,23 +1,11 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
-
-
-import { java } from "../../../../../../lib/java/java";
 import { ATNConfig } from "./ATNConfig";
 import { ATNState } from "./ATNState";
 import { DecisionState } from "./DecisionState";
@@ -26,130 +14,112 @@ import { PredictionContext } from "./PredictionContext";
 import { SemanticContext } from "./SemanticContext";
 import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
 
-
 import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
+export class LexerATNConfig extends ATNConfig {
+    /**
+     * This is the backing field for {@link #getLexerActionExecutor}.
+     */
+    private readonly lexerActionExecutor: LexerActionExecutor;
 
-export  class LexerATNConfig extends ATNConfig {
-	/**
-	 * This is the backing field for {@link #getLexerActionExecutor}.
-	 */
-	private readonly  lexerActionExecutor:  LexerActionExecutor | null;
+    private readonly passedThroughNonGreedyDecision: boolean;
 
-	private readonly  passedThroughNonGreedyDecision:  boolean;
+    public constructor(c: LexerATNConfig, state: ATNState, lexerActionExecutor?: LexerActionExecutor);
+    public constructor(c: LexerATNConfig, state: ATNState, context: PredictionContext);
+    public constructor(state: ATNState, alt: number, context: PredictionContext,
+        lexerActionExecutor?: LexerActionExecutor);
+    public constructor(cOrState: LexerATNConfig | ATNState, stateOrAlt: ATNState | number,
+        contextOrLexerActionExecutor?: PredictionContext | LexerActionExecutor,
+        lexerActionExecutor?: LexerActionExecutor) {
 
-	public constructor(c: LexerATNConfig| null, state: ATNState| null);
+        let state;
+        let alt;
+        let context;
+        let semanticContext = SemanticContext.Empty.Instance;
+        let executor;
+        let flag = false;
 
-	public constructor(state: ATNState| null,
-						  alt: number,
-						  context: PredictionContext| null);
+        if (cOrState instanceof ATNState) {
+            state = cOrState;
+            alt = stateOrAlt as number;
+            context = contextOrLexerActionExecutor as PredictionContext;
+            executor = lexerActionExecutor;
 
-	public constructor(c: LexerATNConfig| null, state: ATNState| null,
-						  lexerActionExecutor: LexerActionExecutor| null);
+            // @ts-ignore
+            super(state, alt, context, semanticContext);
+        } else {
+            const config = cOrState;
+            state = stateOrAlt as ATNState;
+            semanticContext = config.semanticContext;
 
-	public constructor(c: LexerATNConfig| null, state: ATNState| null,
-						  context: PredictionContext| null);
+            if (!contextOrLexerActionExecutor) {
+                context = config.context;
+                executor = config.lexerActionExecutor;
+            } else if (contextOrLexerActionExecutor instanceof PredictionContext) {
+                context = contextOrLexerActionExecutor;
+            } else {
+                executor = contextOrLexerActionExecutor;
+                context = config.context;
+            }
+            flag = LexerATNConfig.checkNonGreedyDecision(config, state);
 
-	public constructor(state: ATNState| null,
-						  alt: number,
-						  context: PredictionContext| null,
-						  lexerActionExecutor: LexerActionExecutor| null);
-public constructor(cOrState: LexerATNConfig | ATNState | null, stateOrAlt: ATNState | number | null, contextOrLexerActionExecutor?: PredictionContext | LexerActionExecutor | null, lexerActionExecutor?: LexerActionExecutor | null) {
-if (cOrState instanceof LexerATNConfig && stateOrAlt instanceof ATNState && contextOrLexerActionExecutor === undefined) {
-const c = cOrState as LexerATNConfig;
-const state = stateOrAlt as ATNState;
-		super(c, state, c.context, c.semanticContext);
-		this.lexerActionExecutor = c.lexerActionExecutor;
-		this.passedThroughNonGreedyDecision = LexerATNConfig.checkNonGreedyDecision(c, state);
-	}
- else if (cOrState instanceof ATNState && typeof stateOrAlt === "number" && contextOrLexerActionExecutor instanceof PredictionContext && lexerActionExecutor === undefined)
-	{
-const state = cOrState as ATNState;
-const alt = stateOrAlt as number;
-const context = contextOrLexerActionExecutor as PredictionContext;
-		super(state, alt, context, SemanticContext.Empty.Instance);
-		this.passedThroughNonGreedyDecision = false;
-		this.lexerActionExecutor = null;
-	}
- else if (cOrState instanceof LexerATNConfig && stateOrAlt instanceof ATNState && contextOrLexerActionExecutor instanceof LexerActionExecutor && lexerActionExecutor === undefined)
-	{
-const c = cOrState as LexerATNConfig;
-const state = stateOrAlt as ATNState;
-const lexerActionExecutor = contextOrLexerActionExecutor as LexerActionExecutor;
-		super(c, state, c.context, c.semanticContext);
-		this.lexerActionExecutor = lexerActionExecutor;
-		this.passedThroughNonGreedyDecision = LexerATNConfig.checkNonGreedyDecision(c, state);
-	}
- else if (cOrState instanceof LexerATNConfig && stateOrAlt instanceof ATNState && contextOrLexerActionExecutor instanceof PredictionContext && lexerActionExecutor === undefined) {
-const c = cOrState as LexerATNConfig;
-const state = stateOrAlt as ATNState;
-const context = contextOrLexerActionExecutor as PredictionContext;
-		super(c, state, context, c.semanticContext);
-		this.lexerActionExecutor = c.lexerActionExecutor;
-		this.passedThroughNonGreedyDecision = LexerATNConfig.checkNonGreedyDecision(c, state);
-	}
- else 
-	{
-let state = cOrState as ATNState;
-let alt = stateOrAlt as number;
-let context = contextOrLexerActionExecutor as PredictionContext;
-		super(state, alt, context, SemanticContext.Empty.Instance);
-		this.lexerActionExecutor = lexerActionExecutor;
-		this.passedThroughNonGreedyDecision = false;
-	}
+            super(config, state, context, semanticContext);
+        }
 
-}
+        this.lexerActionExecutor = executor;
+        this.passedThroughNonGreedyDecision = flag;
+    }
 
+    private static checkNonGreedyDecision = (source: LexerATNConfig, target: ATNState): boolean => {
+        return source.passedThroughNonGreedyDecision
+            || (target instanceof DecisionState && target.nonGreedy);
+    };
 
-	/**
-	 * Gets the {@link LexerActionExecutor} capable of executing the embedded
-	 * action(s) for the current configuration.
-	 */
-	public readonly  getLexerActionExecutor = ():  LexerActionExecutor | null => {
-		return this.lexerActionExecutor;
-	}
+    /**
+     * Gets the {@link LexerActionExecutor} capable of executing the embedded
+     * action(s) for the current configuration.
+     *
+     * @returns tbd
+     */
+    public readonly getLexerActionExecutor = (): LexerActionExecutor => {
+        return this.lexerActionExecutor;
+    };
 
-	public readonly  hasPassedThroughNonGreedyDecision = ():  boolean => {
-		return this.passedThroughNonGreedyDecision;
-	}
+    public readonly hasPassedThroughNonGreedyDecision = (): boolean => {
+        return this.passedThroughNonGreedyDecision;
+    };
 
-	public hashCode = ():  number => {
-		let  hashCode: number = MurmurHash.initialize(7);
-		hashCode = MurmurHash.update(hashCode, this.state.stateNumber);
-		hashCode = MurmurHash.update(hashCode, this.alt);
-		hashCode = MurmurHash.update(hashCode, this.context);
-		hashCode = MurmurHash.update(hashCode, this.semanticContext);
-		hashCode = MurmurHash.update(hashCode, this.passedThroughNonGreedyDecision ? 1 : 0);
-		hashCode = MurmurHash.update(hashCode, this.lexerActionExecutor);
-		hashCode = MurmurHash.finish(hashCode, 6);
-		return hashCode;
-	}
+    public hashCode = (): number => {
+        let hashCode: number = MurmurHash.initialize(7);
+        hashCode = MurmurHash.update(hashCode, this.state.stateNumber);
+        hashCode = MurmurHash.update(hashCode, this.alt);
+        hashCode = MurmurHash.update(hashCode, this.context);
+        hashCode = MurmurHash.update(hashCode, this.semanticContext);
+        hashCode = MurmurHash.update(hashCode, this.passedThroughNonGreedyDecision ? 1 : 0);
+        hashCode = MurmurHash.update(hashCode, this.lexerActionExecutor);
+        hashCode = MurmurHash.finish(hashCode, 6);
 
-	public equals = (other: ATNConfig| null):  boolean => {
-		if (this === other) {
-			return true;
-		}
-		else {
- if (!(other instanceof LexerATNConfig)) {
-			return false;
-		}
-}
+        return hashCode;
+    };
 
+    public equals = (other: unknown): boolean => {
+        if (this === other) {
+            return true;
+        }
 
-		let  lexerOther: LexerATNConfig = other as LexerATNConfig;
-		if (this.passedThroughNonGreedyDecision !== lexerOther.passedThroughNonGreedyDecision) {
-			return false;
-		}
+        if (!(other instanceof LexerATNConfig)) {
+            return false;
+        }
 
-		if (!ObjectEqualityComparator.INSTANCE.equals(this.lexerActionExecutor, lexerOther.lexerActionExecutor)) {
-			return false;
-		}
+        if (this.passedThroughNonGreedyDecision !== other.passedThroughNonGreedyDecision) {
+            return false;
+        }
 
-		return super.equals(other);
-	}
+        if (!ObjectEqualityComparator.INSTANCE.equals(this.lexerActionExecutor, other.lexerActionExecutor)) {
+            return false;
+        }
 
-	private static checkNonGreedyDecision = (source: LexerATNConfig| null, target: ATNState| null):  boolean => {
-		return source.passedThroughNonGreedyDecision
-			|| target instanceof DecisionState && (target as DecisionState).nonGreedy;
-	}
+        return super.equals(other);
+    };
+
 }

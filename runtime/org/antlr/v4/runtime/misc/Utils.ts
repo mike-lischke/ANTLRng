@@ -20,15 +20,16 @@
 import * as fs from "fs";
 
 import { java } from "../../../../../../lib/java/java";
-import { CodePoint } from "../../../../../../lib/java/lang";
+import { S } from "../../../../../../lib/templates";
 
 import { BitSet } from "../support";
 import { IntegerList } from "./IntegerList";
 import { IntervalSet } from "./IntervalSet";
 
 export class Utils {
-    public static escapeWhitespace = (s: string, escapeSpaces: boolean): string => {
+    public static escapeWhitespace = (input: java.lang.String, escapeSpaces: boolean): java.lang.String => {
         const buf = new java.lang.StringBuilder();
+        const s = input.valueOf();
         for (const c of s) {
             if (c === " " && escapeSpaces) {
                 buf.append("\u00B7");
@@ -52,12 +53,12 @@ export class Utils {
         return buf.toString();
     };
 
-    public static writeFile(fileName: string, content: string, encoding?: BufferEncoding): void {
-        fs.writeFileSync(fileName, content, encoding);
+    public static writeFile(fileName: java.lang.String, content: java.lang.String, encoding?: BufferEncoding): void {
+        fs.writeFileSync(fileName.valueOf(), content.valueOf(), encoding);
     }
 
-    public static readFile(fileName: string, encoding?: BufferEncoding): string {
-        return fs.readFileSync(fileName, encoding);
+    public static readFile(fileName: java.lang.String, encoding?: BufferEncoding): java.lang.String {
+        return new java.lang.String(fs.readFileSync(fileName.valueOf(), encoding) as string);
     }
 
     /**
@@ -69,7 +70,7 @@ export class Utils {
     public static toMap = (keys: string[]): java.util.Map<string, number> => {
         const m = new java.util.HashMap<string, number>();
         for (let i = 0; i < keys.length; i++) {
-            m.set(keys[i], i);
+            m.put(keys[i], i);
         }
 
         return m;
@@ -94,9 +95,10 @@ export class Utils {
         return s;
     };
 
-    public static expandTabs = (s: string, tabSize: number): string => {
+    public static expandTabs = (input: java.lang.String, tabSize: number): java.lang.String => {
         const buf = new java.lang.StringBuilder();
         let col = 0;
+        const s = input.valueOf();
         for (const c of s) {
             switch (c) {
                 case "\n": {
@@ -123,22 +125,19 @@ export class Utils {
         return buf.toString();
     };
 
-    public static spaces = (n: number): string => {
-        return Utils.sequence(n, " ");
+    public static spaces = (n: number): java.lang.String => {
+        return S`${" ".repeat(n)}`;
     };
 
-    public static newlines = (n: number): string => {
-        return Utils.sequence(n, "\n");
+    public static newlines = (n: number): java.lang.String => {
+        return S`${"\n".repeat(n)}`;
     };
 
-    public static sequence = (n: number, s: string): string => {
-        const buf = new java.lang.StringBuilder();
-        for (let sp = 1; sp <= n; sp++) { buf.append(s); }
-
-        return buf.toString();
+    public static sequence = (n: number, s: java.lang.String): java.lang.String => {
+        return S`${s.valueOf().repeat(n)}`;
     };
 
-    public static count = (s: string, x: CodePoint): number => {
+    public static count = (s: string, x: java.lang.char): number => {
         let n = 0;
         for (const c of s) {
             if (c.codePointAt(0) === x) {

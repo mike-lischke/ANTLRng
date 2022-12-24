@@ -1,77 +1,49 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
 import { ATNState } from "./ATNState";
 import { Transition } from "./Transition";
 
-
 import { S } from "../../../../../../lib/templates";
+import { java } from "../../../../../../lib/java/java";
 
+export class EpsilonTransition extends Transition {
 
-export  class EpsilonTransition extends Transition {
+    readonly #outermostPrecedenceReturn: number;
 
-	private readonly  outermostPrecedenceReturn:  number;
+    public constructor(target: ATNState, outermostPrecedenceReturn?: number) {
+        super(target);
+        this.#outermostPrecedenceReturn = outermostPrecedenceReturn ?? -1;
+    }
 
-	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(target: ATNState| null);
+    /**
+      @returns the rule index of a precedence rule for which this transition is
+     * returning from, where the precedence value is 0; otherwise, -1.
+     *
+     * @see ATNConfig#isPrecedenceFilterSuppressed()
+     * @see ParserATNSimulator#applyPrecedenceFilter(ATNConfigSet)
+     *
+     */
+    public outermostPrecedenceReturn = (): number => {
+        return this.#outermostPrecedenceReturn;
+    };
 
-	public constructor(target: ATNState| null, outermostPrecedenceReturn: number);
-/* @ts-expect-error, because of the super() call in the closure. */
-public constructor(target: ATNState | null, outermostPrecedenceReturn?: number) {
-const $this = (target: ATNState | null, outermostPrecedenceReturn?: number): void => {
-if (outermostPrecedenceReturn === undefined) {
-		$this(target, -1);
-	}
- else  {
+    public getSerializationType = (): number => {
+        return Transition.EPSILON;
+    };
 
-/* @ts-expect-error, because of the super() call in the closure. */
-		super(target);
-		this.outermostPrecedenceReturn = outermostPrecedenceReturn;
-	}
-};
+    public isEpsilon = (): boolean => { return true; };
 
-$this(target, outermostPrecedenceReturn);
+    public matches = (_symbol: number, _minVocabSymbol: number, _maxVocabSymbol: number): boolean => {
+        return false;
+    };
 
-}
-/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
-
-	/**
-	  @returns the rule index of a precedence rule for which this transition is
-	 * returning from, where the precedence value is 0; otherwise, -1.
-	 *
-	 * @see ATNConfig#isPrecedenceFilterSuppressed()
-	 * @see ParserATNSimulator#applyPrecedenceFilter(ATNConfigSet)
-	 *
-	 */
-	public outermostPrecedenceReturn = ():  number => {
-		return this.outermostPrecedenceReturn;
-	}
-
-	public getSerializationType = ():  number => {
-		return Transition.EPSILON;
-	}
-
-	public isEpsilon = ():  boolean => { return true; }
-
-	public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number):  boolean => {
-		return false;
-	}
-
-	public toString = ():  java.lang.String | null => {
-		return S`epsilon`;
-	}
+    public toString = (): java.lang.String => {
+        return S`epsilon`;
+    };
 }

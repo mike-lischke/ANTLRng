@@ -1,28 +1,17 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
 import { ATNState } from "./ATNState";
 import { AtomTransition } from "./AtomTransition";
 import { RangeTransition } from "./RangeTransition";
 import { Transition } from "./Transition";
 
-
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
-
 
 /**
  * Utility class to create {@link AtomTransition}, {@link RangeTransition},
@@ -33,16 +22,28 @@ import { JavaObject } from "../../../../../../lib/java/lang/Object";
  * transition for a Unicode code point > U+FFFF. Now that we can serialize
  * 32-bit int/chars in the ATN serialization, this is no longer necessary.
  */
-export abstract  class CodePointTransitions extends JavaObject {
-	/** Return new {@link AtomTransition} */
-	public static createWithCodePoint = (target: ATNState| null, codePoint: number):  Transition | null => {
-		return CodePointTransitions.createWithCodePointRange(target, codePoint, codePoint);
-	}
+export abstract class CodePointTransitions extends JavaObject {
+    /**
+     * @returns new {@link AtomTransition}
+     *
+     * @param target tbd
+     * @param codePoint tbd
+     */
+    public static createWithCodePoint = (target: ATNState, codePoint: number): Transition => {
+        return CodePointTransitions.createWithCodePointRange(target, codePoint, codePoint);
+    };
 
-	/** Return new {@link AtomTransition} if range represents one atom else {@link SetTransition}. */
-	public static createWithCodePointRange = (target: ATNState| null, codePointFrom: number, codePointTo: number):  Transition | null => {
-		return codePointFrom === codePointTo
-				? new  AtomTransition(target, codePointFrom)
-				: new  RangeTransition(target, codePointFrom, codePointTo);
-	}
+    /**
+     * @returns new {@link AtomTransition} if range represents one atom else {@link SetTransition}.
+     *
+     * @param target tbd
+     * @param codePointFrom tbd
+     * @param codePointTo tbd
+     */
+    public static createWithCodePointRange = (target: ATNState, codePointFrom: number,
+        codePointTo: number): Transition => {
+        return codePointFrom === codePointTo
+            ? new AtomTransition(target, codePointFrom)
+            : new RangeTransition(target, codePointFrom, codePointTo);
+    };
 }
