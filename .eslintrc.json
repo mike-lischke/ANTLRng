@@ -501,19 +501,7 @@
             }
         ],
         "@typescript-eslint/interface-name-prefix": "off",
-        "@typescript-eslint/member-delimiter-style": [
-            "error",
-            {
-                "multiline": {
-                    "delimiter": "semi",
-                    "requireLast": true
-                },
-                "singleline": {
-                    "delimiter": "semi",
-                    "requireLast": false
-                }
-            }
-        ],
+        "@typescript-eslint/member-delimiter-style": "off",
         "@typescript-eslint/member-ordering": [
             "error",
             {

@@ -26,6 +26,7 @@ import { DFA } from "./dfa/DFA";
 import { Interval } from "./misc/Interval";
 
 
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -101,7 +102,7 @@ $this(exactOnly);
 			return;
 		}
 
-		let  format: java.lang.String = "reportAmbiguity d=%s: ambigAlts=%s, input='%s'";
+		let  format: java.lang.String = S`reportAmbiguity d=%s: ambigAlts=%s, input='%s'`;
 		let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
 		let  conflictingAlts: java.util.BitSet = this.getConflictingAlts(ambigAlts, configs);
 		let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
@@ -116,7 +117,7 @@ $this(exactOnly);
 											conflictingAlts: java.util.BitSet| null,
 											configs: ATNConfigSet| null):  void =>
 	{
-		let  format: java.lang.String = "reportAttemptingFullContext d=%s, input='%s'";
+		let  format: java.lang.String = S`reportAttemptingFullContext d=%s, input='%s'`;
 		let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
 		let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
 		let  message: java.lang.String = java.lang.String.format(format, decision, text);
@@ -130,7 +131,7 @@ $this(exactOnly);
 										 prediction: number,
 										 configs: ATNConfigSet| null):  void =>
 	{
-		let  format: java.lang.String = "reportContextSensitivity d=%s, input='%s'";
+		let  format: java.lang.String = S`reportContextSensitivity d=%s, input='%s'`;
 		let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
 		let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
 		let  message: java.lang.String = java.lang.String.format(format, decision, text);
@@ -151,7 +152,7 @@ $this(exactOnly);
 			return java.lang.String.valueOf(decision);
 		}
 
-		return java.lang.String.format("%d (%s)", decision, ruleName);
+		return java.lang.String.format(S`%d (%s)`, decision, ruleName);
 	}
 
 	/**

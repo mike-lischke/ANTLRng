@@ -53,7 +53,7 @@ export abstract class ATNSimulator extends JavaObject {
      *  more time I think and doesn't save on the overall footprint
      *  so it's not worth the complexity.</p>
      */
-    protected readonly sharedContextCache: PredictionContextCache | null;
+    public readonly sharedContextCache: PredictionContextCache | null;
 
     public constructor(atn: ATN, sharedContextCache: PredictionContextCache | null) {
         super();

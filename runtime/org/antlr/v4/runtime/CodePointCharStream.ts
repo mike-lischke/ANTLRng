@@ -25,6 +25,7 @@ import { Interval } from "./misc/Interval";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -56,7 +57,7 @@ export abstract  class CodePointCharStream extends JavaObject implements CharStr
 	}
 
 	// Visible for testing.
-	public abstract getInternalStorage: () =>  java.lang.Object | null;
+	protected abstract getInternalStorage: () =>  java.lang.Object | null;
 
 	/**
 	 * Constructs a {@link CodePointCharStream} which provides access
@@ -122,7 +123,7 @@ if (name === undefined) {
 default:
 
 		}
-		throw new  java.lang.UnsupportedOperationException("Not reached");
+		throw new  java.lang.UnsupportedOperationException(S`Not reached`);
 	}
 
 }
@@ -131,7 +132,7 @@ default:
 	public readonly  consume = ():  void => {
 		if (this.size - this.position === 0) {
 			/* assert LA(1) == IntStream.EOF; */ 
-			throw new  java.lang.IllegalStateException("cannot consume EOF");
+			throw new  java.lang.IllegalStateException(S`cannot consume EOF`);
 		}
 		this.position = this.position + 1;
 	}
@@ -187,7 +188,7 @@ default:
 			// We know the maximum code point in byteArray is U+00FF,
 			// so we can treat this as if it were ISO-8859-1, aka Latin-1,
 			// which shares the same code points up to 0xFF.
-			return new  java.lang.String($outer.byteArray, startIdx, len, java.nio.charset.StandardCharsets.ISO_8859_1);
+			return new  java.lang.String(this.byteArray, startIdx, len, java.nio.charset.StandardCharsets.ISO_8859_1);
 		}
 
 		public LA = (i: number):  number => {
@@ -198,7 +199,7 @@ default:
 					if (offset < 0) {
 						return IntStream.EOF;
 					}
-					return $outer.byteArray[offset] & 0xFF;
+					return this.byteArray[offset] & 0xFF;
 }
 
 				case 0:{
@@ -211,19 +212,19 @@ default:
 					if (offset >= this.size) {
 						return IntStream.EOF;
 					}
-					return $outer.byteArray[offset] & 0xFF;
+					return this.byteArray[offset] & 0xFF;
 }
 
 
 default:
 
 			}
-			throw new  java.lang.UnsupportedOperationException("Not reached");
+			throw new  java.lang.UnsupportedOperationException(S`Not reached`);
 		}
 
-		public  getInternalStorage = (): 
+		protected  getInternalStorage = (): 
 		java.lang.Object | null => {
-			return $outer.byteArray;
+			return this.byteArray;
 		}
 	};
 
@@ -250,7 +251,7 @@ default:
 			//
 			// So, it's safe to treat this as if it were
 			// UTF-16.
-			return new  java.lang.String($outer.charArray, startIdx, len);
+			return new  java.lang.String(this.charArray, startIdx, len);
 		}
 
 		public LA = (i: number):  number => {
@@ -261,7 +262,7 @@ default:
 					if (offset < 0) {
 						return IntStream.EOF;
 					}
-					return $outer.charArray[offset] & 0xFFFF;
+					return this.charArray[offset] & 0xFFFF;
 }
 
 				case 0:{
@@ -274,19 +275,19 @@ default:
 					if (offset >= this.size) {
 						return IntStream.EOF;
 					}
-					return $outer.charArray[offset] & 0xFFFF;
+					return this.charArray[offset] & 0xFFFF;
 }
 
 
 default:
 
 			}
-			throw new  java.lang.UnsupportedOperationException("Not reached");
+			throw new  java.lang.UnsupportedOperationException(S`Not reached`);
 		}
 
-		public  getInternalStorage = (): 
+		protected  getInternalStorage = (): 
 		java.lang.Object | null => {
-			return $outer.charArray;
+			return this.charArray;
 		}
 	};
 
@@ -309,7 +310,7 @@ default:
 
 			// Note that we pass the int[] code points to the String constructor --
 			// this is supported, and the constructor will convert to UTF-16 internally.
-			return new  java.lang.String($outer.intArray, startIdx, len);
+			return new  java.lang.String(this.intArray, startIdx, len);
 		}
 
 		public LA = (i: number):  number => {
@@ -320,7 +321,7 @@ default:
 					if (offset < 0) {
 						return IntStream.EOF;
 					}
-					return $outer.intArray[offset];
+					return this.intArray[offset];
 }
 
 				case 0:{
@@ -333,24 +334,25 @@ default:
 					if (offset >= this.size) {
 						return IntStream.EOF;
 					}
-					return $outer.intArray[offset];
+					return this.intArray[offset];
 }
 
 
 default:
 
 			}
-			throw new  java.lang.UnsupportedOperationException("Not reached");
+			throw new  java.lang.UnsupportedOperationException(S`Not reached`);
 		}
 
-		public  getInternalStorage = (): 
+		protected  getInternalStorage = (): 
 		java.lang.Object | null => {
-			return $outer.intArray;
+			return this.intArray;
 		}
 	};
 
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace CodePointCharStream {
 	// @ts-expect-error, because of protected inner class.
 	export type CodePoint8BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint8BitCharStream>;

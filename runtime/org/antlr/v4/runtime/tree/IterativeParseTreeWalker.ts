@@ -49,7 +49,8 @@ export  class IterativeParseTreeWalker extends ParseTreeWalker {
 			if (currentNode instanceof ErrorNode) {
 				listener.visitErrorNode( currentNode as ErrorNode);
 			}
-			else { if (currentNode instanceof TerminalNode) {
+			else {
+ if (currentNode instanceof TerminalNode) {
 				listener.visitTerminal( currentNode as TerminalNode);
 			}
 			else {

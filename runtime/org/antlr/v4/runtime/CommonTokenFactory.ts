@@ -119,7 +119,8 @@ let type = textOrType as number;
 		if ( text!==null ) {
 			t.setText(text);
 		}
-		else { if ( this.copyText && source.b !== null ) {
+		else {
+ if ( this.copyText && source.b !== null ) {
 			t.setText(source.b.getText(Interval.of(start,stop)));
 		}
 }

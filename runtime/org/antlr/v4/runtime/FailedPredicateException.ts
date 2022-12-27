@@ -24,6 +24,7 @@ import { AbstractPredicateTransition } from "./atn/AbstractPredicateTransition";
 import { PredicateTransition } from "./atn/PredicateTransition";
 
 
+import { S } from "../../../../../lib/templates";
 
 
 /** A semantic predicate failed during validation.  Validation of predicates
@@ -99,6 +100,6 @@ $this(recognizer, predicate, message);
 			return message;
 		}
 
-		return java.lang.String.format(java.util.Locale.getDefault(), "failed predicate: {%s}?", predicate);
+		return java.lang.String.format(java.util.Locale.getDefault(), S`failed predicate: {%s}?`, predicate);
 	}
 }

@@ -36,6 +36,7 @@ import { Pair } from "./misc/Pair";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -153,14 +154,16 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 		if ( e instanceof NoViableAltException ) {
 			this.reportNoViableAlternative(recognizer,  e as NoViableAltException);
 		}
-		else { if ( e instanceof InputMismatchException ) {
+		else {
+ if ( e instanceof InputMismatchException ) {
 			this.reportInputMismatch(recognizer, e as InputMismatchException);
 		}
-		else { if ( e instanceof FailedPredicateException ) {
+		else {
+ if ( e instanceof FailedPredicateException ) {
 			this.reportFailedPredicate(recognizer, e as FailedPredicateException);
 		}
 		else {
-			java.lang.System.err.println("unknown recognition error type: "+e.getClass().getName());
+			java.lang.System.err.println(S`unknown recognition error type: `+e.getClass().getName());
 			recognizer.notifyErrorListeners(e.getOffendingToken(), e.getMessage(), e);
 		}
 }
@@ -329,17 +332,18 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 		let  input: java.lang.String;
 		if ( tokens!==null ) {
 			if ( e.getStartToken().getType()===Token.EOF ) {
- input = "<EOF>";
+ input = S`<EOF>`;
 }
 
-			else { input = tokens.getText(e.getStartToken(), e.getOffendingToken());
+			else {
+ input = tokens.getText(e.getStartToken(), e.getOffendingToken());
 }
 
 		}
 		else {
-			input = "<unknown input>";
+			input = S`<unknown input>`;
 		}
-		let  msg: java.lang.String = "no viable alternative at input "+this.escapeWSAndQuote(input);
+		let  msg: java.lang.String = S`no viable alternative at input `+this.escapeWSAndQuote(input);
 		recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
 	}
 
@@ -355,8 +359,8 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 	protected reportInputMismatch = (recognizer: Parser| null,
 									   e: InputMismatchException| null):  void =>
 	{
-		let  msg: java.lang.String = "mismatched input "+this.getTokenErrorDisplay(e.getOffendingToken())+
-		" expecting "+e.getExpectedTokens().toString(recognizer.getVocabulary());
+		let  msg: java.lang.String = S`mismatched input `+this.getTokenErrorDisplay(e.getOffendingToken())+
+		S` expecting `+e.getExpectedTokens().toString(recognizer.getVocabulary());
 		recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
 	}
 
@@ -373,7 +377,7 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 										 e: FailedPredicateException| null):  void =>
 	{
 		let  ruleName: java.lang.String = recognizer.getRuleNames()[recognizer._ctx.getRuleIndex()];
-		let  msg: java.lang.String = "rule "+ruleName+" "+e.getMessage();
+		let  msg: java.lang.String = S`rule `+ruleName+S` `+e.getMessage();
 		recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
 	}
 
@@ -405,7 +409,7 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 		let  t: Token = recognizer.getCurrentToken();
 		let  tokenName: java.lang.String = this.getTokenErrorDisplay(t);
 		let  expecting: IntervalSet = this.getExpectedTokens(recognizer);
-		let  msg: java.lang.String = "extraneous input "+tokenName+" expecting "+
+		let  msg: java.lang.String = S`extraneous input `+tokenName+S` expecting `+
 			expecting.toString(recognizer.getVocabulary());
 		recognizer.notifyErrorListeners(t, msg, null);
 	}
@@ -436,8 +440,8 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 
 		let  t: Token = recognizer.getCurrentToken();
 		let  expecting: IntervalSet = this.getExpectedTokens(recognizer);
-		let  msg: java.lang.String = "missing "+expecting.toString(recognizer.getVocabulary())+
-			" at "+this.getTokenErrorDisplay(t);
+		let  msg: java.lang.String = S`missing `+expecting.toString(recognizer.getVocabulary())+
+			S` at `+this.getTokenErrorDisplay(t);
 
 		recognizer.notifyErrorListeners(t, msg, null);
 	}
@@ -619,10 +623,11 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 		}
 		let  tokenText: java.lang.String;
 		if ( expectedTokenType=== Token.EOF ) {
- tokenText = "<missing EOF>";
+ tokenText = S`<missing EOF>`;
 }
 
-		else { tokenText = "<missing "+recognizer.getVocabulary().getDisplayName(expectedTokenType)+">";
+		else {
+ tokenText = S`<missing `+recognizer.getVocabulary().getDisplayName(expectedTokenType)+S`>`;
 }
 
 		let  current: Token = currentSymbol;
@@ -652,16 +657,16 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 	 */
 	protected getTokenErrorDisplay = (t: Token| null):  java.lang.String | null => {
 		if ( t===null ) {
- return "<no token>";
+ return S`<no token>`;
 }
 
 		let  s: java.lang.String = this.getSymbolText(t);
 		if ( s===null ) {
 			if ( this.getSymbolType(t)===Token.EOF ) {
-				s = "<EOF>";
+				s = S`<EOF>`;
 			}
 			else {
-				s = "<"+this.getSymbolType(t)+">";
+				s = S`<`+this.getSymbolType(t)+S`>`;
 			}
 		}
 		return this.escapeWSAndQuote(s);
@@ -678,10 +683,10 @@ export  class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrat
 
 	protected escapeWSAndQuote = (s: java.lang.String| null):  java.lang.String | null => {
 //		if ( s==null ) return s;
-		s = s.replace("\n","\\n");
-		s = s.replace("\r","\\r");
-		s = s.replace("\t","\\t");
-		return "'"+s+"'";
+		s = s.replace(S`\n`,S`\\n`);
+		s = s.replace(S`\r`,S`\\r`);
+		s = s.replace(S`\t`,S`\\t`);
+		return S`'`+s+S`'`;
 	}
 
 	/*  Compute the error recovery set for the current rule.  During

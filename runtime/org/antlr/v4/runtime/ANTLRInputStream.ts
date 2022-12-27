@@ -22,6 +22,7 @@ import { Interval } from "./misc/Interval";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -176,7 +177,7 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
     public consume = ():  void => {
 		if (this.p >= this.n) {
 			/* assert LA(1) == IntStream.EOF; */ 
-			throw new  java.lang.IllegalStateException("cannot consume EOF");
+			throw new  java.lang.IllegalStateException(S`cannot consume EOF`);
 		}
 
 		//System.out.println("prev p="+p+", c="+(char)data[p]);
@@ -254,7 +255,7 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 
 		let  count: number = stop - start + 1;
 		if ( start >= this.n ) {
- return "";
+ return S``;
 }
 
 //		System.err.println("data: "+Arrays.toString(data)+", n="+n+

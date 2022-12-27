@@ -24,6 +24,7 @@ import { Interval } from "./misc/Interval";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /** Do not buffer up the entire char stream. It does keep a small buffer
@@ -154,7 +155,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 
 	public consume = ():  void => {
 		if (this.LA(1) === IntStream.EOF) {
-			throw new  java.lang.IllegalStateException("cannot consume EOF");
+			throw new  java.lang.IllegalStateException(S`cannot consume EOF`);
 		}
 
 		// buf always has at least data[p==0] in this method due to ctor
@@ -201,25 +202,27 @@ $this(bufferSizeOrInput, bufferSize, charset);
 					this.add(c);
 				}
 				else {
-					let  ch: CodePoint =  c as CodePoint;
+					let  ch: java.lang.char =  c as java.lang.char;
 					if (java.lang.Character.isLowSurrogate(ch)) {
-						throw new  java.lang.RuntimeException("Invalid UTF-16 (low surrogate with no preceding high surrogate)");
+						throw new  java.lang.RuntimeException(S`Invalid UTF-16 (low surrogate with no preceding high surrogate)`);
 					}
-					else { if (java.lang.Character.isHighSurrogate(ch)) {
+					else {
+ if (java.lang.Character.isHighSurrogate(ch)) {
 						let  lowSurrogate: number = this.nextChar();
 						if (lowSurrogate > java.lang.Character.MAX_VALUE) {
-							throw new  java.lang.RuntimeException("Invalid UTF-16 (high surrogate followed by code point > U+FFFF");
-						}
-						else { if (lowSurrogate === IntStream.EOF) {
-							throw new  java.lang.RuntimeException("Invalid UTF-16 (dangling high surrogate at end of file)");
+							throw new  java.lang.RuntimeException(S`Invalid UTF-16 (high surrogate followed by code point > U+FFFF`);
 						}
 						else {
-							let  lowSurrogateChar: CodePoint =  lowSurrogate as CodePoint;
+ if (lowSurrogate === IntStream.EOF) {
+							throw new  java.lang.RuntimeException(S`Invalid UTF-16 (dangling high surrogate at end of file)`);
+						}
+						else {
+							let  lowSurrogateChar: java.lang.char =  lowSurrogate as java.lang.char;
 							if (java.lang.Character.isLowSurrogate(lowSurrogateChar)) {
 								this.add(java.lang.Character.toCodePoint(ch, lowSurrogateChar));
 							}
 							else {
-								throw new  java.lang.RuntimeException("Invalid UTF-16 (dangling high surrogate");
+								throw new  java.lang.RuntimeException(S`Invalid UTF-16 (dangling high surrogate`);
 							}
 						}
 }
@@ -299,7 +302,7 @@ if (ioe instanceof java.io.IOException) {
     public release = (marker: number):  void => {
 		let  expectedMark: number = -this.numMarkers;
 		if ( marker!==expectedMark ) {
-			throw new  java.lang.IllegalStateException("release() called with an invalid marker.");
+			throw new  java.lang.IllegalStateException(S`release() called with an invalid marker.`);
 		}
 
 		this.numMarkers--;
@@ -333,11 +336,12 @@ if (ioe instanceof java.io.IOException) {
         // index == to bufferStartIndex should set p to 0
         let  i: number = index - this.getBufferStartIndex();
         if ( i < 0 ) {
-			throw new  java.lang.IllegalArgumentException("cannot seek to negative index " + index);
+			throw new  java.lang.IllegalArgumentException(S`cannot seek to negative index ` + index);
 		}
-		else { if (i >= this.n) {
-            throw new  java.lang.UnsupportedOperationException("seek to index outside buffer: "+
-                    index+" not in "+this.getBufferStartIndex()+".."+(this.getBufferStartIndex()+this.n));
+		else {
+ if (i >= this.n) {
+            throw new  java.lang.UnsupportedOperationException(S`seek to index outside buffer: `+
+                    index+S` not in `+this.getBufferStartIndex()+S`..`+(this.getBufferStartIndex()+this.n));
         }
 }
 
@@ -353,7 +357,7 @@ if (ioe instanceof java.io.IOException) {
     }
 
     public size = ():  number => {
-        throw new  java.lang.UnsupportedOperationException("Unbuffered stream cannot know its size");
+        throw new  java.lang.UnsupportedOperationException(S`Unbuffered stream cannot know its size`);
     }
 
     public getSourceName = ():  java.lang.String | null => {
@@ -366,19 +370,19 @@ if (ioe instanceof java.io.IOException) {
 
 	public getText = (interval: Interval| null):  java.lang.String | null => {
 		if (interval.a < 0 || interval.b < interval.a - 1) {
-			throw new  java.lang.IllegalArgumentException("invalid interval");
+			throw new  java.lang.IllegalArgumentException(S`invalid interval`);
 		}
 
 		let  bufferStartIndex: number = this.getBufferStartIndex();
 		if (this.n > 0 && this.data[this.n - 1] === java.lang.Character.MAX_VALUE) {
 			if (interval.a + interval.length() > bufferStartIndex + this.n) {
-				throw new  java.lang.IllegalArgumentException("the interval extends past the end of the stream");
+				throw new  java.lang.IllegalArgumentException(S`the interval extends past the end of the stream`);
 			}
 		}
 
 		if (interval.a < bufferStartIndex || interval.b >= bufferStartIndex + this.n) {
-			throw new  java.lang.UnsupportedOperationException("interval "+interval+" outside buffer: "+
-			                    bufferStartIndex+".."+(bufferStartIndex+this.n-1));
+			throw new  java.lang.UnsupportedOperationException(S`interval `+interval+S` outside buffer: `+
+			                    bufferStartIndex+S`..`+(bufferStartIndex+this.n-1));
 		}
 		// convert from absolute to local index
 		let  i: number = interval.a - bufferStartIndex;

@@ -45,7 +45,8 @@ export  class ParseTreeWalker extends JavaObject {
 			listener.visitErrorNode(t as ErrorNode);
 			return;
 		}
-		else { if ( t instanceof TerminalNode) {
+		else {
+ if ( t instanceof TerminalNode) {
 			listener.visitTerminal(t as TerminalNode);
 			return;
 		}

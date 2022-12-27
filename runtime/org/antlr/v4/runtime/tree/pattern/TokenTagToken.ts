@@ -21,6 +21,7 @@ import { java } from "../../../../../../../lib/java/java";
 import { CommonToken } from "../../CommonToken";
 
 
+import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -103,10 +104,10 @@ $this(tokenName, type, label);
 	 */
 	public getText = ():  java.lang.String | null => {
 		if (this.label !== null) {
-			return "<" + this.label + ":" + this.tokenName + ">";
+			return S`<` + this.label + S`:` + this.tokenName + S`>`;
 		}
 
-		return "<" + this.tokenName + ">";
+		return S`<` + this.tokenName + S`>`;
 	}
 
 	/**
@@ -115,6 +116,6 @@ $this(tokenName, type, label);
 	 * {@code tokenName:type}.</p>
 	 */
 	public toString = ():  java.lang.String | null => {
-		return this.tokenName + ":" + CommonToken.type;
+		return this.tokenName + S`:` + CommonToken.type;
 	}
 }

@@ -26,6 +26,7 @@ import { Interval } from "./misc/Interval";
 import { Utils } from "./misc/Utils";
 
 
+import { S } from "../../../../../lib/templates";
 
 
 export  class LexerNoViableAltException extends RecognitionException {
@@ -58,12 +59,12 @@ export  class LexerNoViableAltException extends RecognitionException {
 	}
 
 	public toString = ():  java.lang.String | null => {
-		let  symbol: java.lang.String = "";
+		let  symbol: java.lang.String = S``;
 		if (this.startIndex >= 0 && this.startIndex < this.getInputStream().size()) {
 			symbol = this.getInputStream().getText(Interval.of(this.startIndex,this.startIndex));
 			symbol = Utils.escapeWhitespace(symbol, false);
 		}
 
-		return java.lang.String.format(java.util.Locale.getDefault(), "%s('%s')", LexerNoViableAltException.class.getSimpleName(), symbol);
+		return java.lang.String.format(java.util.Locale.getDefault(), S`%s('%s')`, LexerNoViableAltException.class.getSimpleName(), symbol);
 	}
 }

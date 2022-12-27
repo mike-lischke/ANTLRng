@@ -6,21 +6,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-/* eslint-disable jsdoc/require-returns */
-
 import { java } from "../../../../../../lib/java/java";
 import { ATNConfigSet } from "../atn/ATNConfigSet";
 import { LexerActionExecutor } from "../atn/LexerActionExecutor";
 import { SemanticContext } from "../atn/SemanticContext";
+
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { I, S } from "../../../../../../lib/templates";
 import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
@@ -48,17 +40,35 @@ import { MurmurHash } from "../../../../../../lib/MurmurHash";
  *  but with different ATN contexts (with same or different alts)
  *  meaning that state was reached via a different set of rule invocations.</p>
  */
-export class DFAState {
+export class DFAState extends JavaObject {
+    /** Map a predicate to a predicted alternative. */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static PredPrediction = class PredPrediction extends JavaObject {
+
+        public pred: SemanticContext; // never null; at least SemanticContext.NONE
+        public alt: number;
+
+        public constructor(pred: SemanticContext, alt: number) {
+            super();
+            this.alt = alt;
+            this.pred = pred;
+        }
+
+        public toString = (): java.lang.String => {
+            return S`(${this.pred}, ${this.alt})`;
+        };
+    };
+
     public stateNumber = -1;
 
-    public configs = new ATNConfigSet();
+    public configs: ATNConfigSet | null = new ATNConfigSet();
 
     /**
      * {@code edges[symbol]} points to target of symbol. Shift up by 1 so (-1)
      *  {@link Token#EOF} maps to {@code edges[0]}.
      */
 
-    public edges?: DFAState[];
+    public edges: DFAState[] | null = null;
 
     public isAcceptState = false;
 
@@ -67,9 +77,9 @@ export class DFAState {
      *  This is set to {@link ATN#INVALID_ALT_NUMBER} when {@link #predicates}{@code !=null} or
      *  {@link #requiresFullContext}.
      */
-    public prediction: number;
+    public prediction = -1;
 
-    public lexerActionExecutor?: LexerActionExecutor;
+    public lexerActionExecutor: LexerActionExecutor | null = null;
 
     /**
      * Indicates that this state was created during SLL prediction that
@@ -77,7 +87,7 @@ export class DFAState {
      * {@link ParserATNSimulator#execATN} invocations immediately jumped doing
      * full context prediction if this field is true.
      */
-    public requiresFullContext: boolean;
+    public requiresFullContext = false;
 
     /**
      * During SLL parsing, this is a list of predicates associated with the
@@ -93,48 +103,37 @@ export class DFAState {
      *  <p>This list is computed by {@link ParserATNSimulator#predicateDFAState}.</p>
      */
 
-    public predicates?: DFAState.PredPrediction[];
+    public predicates: DFAState.PredPrediction[] | null = null;
 
-    /** Map a predicate to a predicted alternative. */
-    public static PredPrediction = class PredPrediction {
-
-        public pred?: SemanticContext; // never null; at least SemanticContext.NONE
-        public alt: number;
-        public constructor(pred: SemanticContext, alt: number) {
-            this.alt = alt;
-            this.pred = pred;
-        }
-        public toString = (): string => {
-            return "(" + this.pred + ", " + this.alt + ")";
-        };
-    };
-
-    public constructor();
     public constructor(stateNumber: number);
-    public constructor(configs: ATNConfigSet);
+    public constructor(configs?: ATNConfigSet);
     public constructor(stateNumberOrConfigs?: number | ATNConfigSet) {
-        if (stateNumberOrConfigs === undefined) {
-            // Nothing.
-        } else if (typeof stateNumberOrConfigs === "number") {
-            const stateNumber = stateNumberOrConfigs; this.stateNumber = stateNumber;
-        } else {
-            const configs = stateNumberOrConfigs; this.configs = configs;
+        super();
+
+        if (stateNumberOrConfigs) {
+            if (typeof stateNumberOrConfigs === "number") {
+                this.stateNumber = stateNumberOrConfigs;
+            } else {
+                this.configs = stateNumberOrConfigs;
+            }
         }
     }
 
     /**
-     * Get the set of all alts mentioned by all ATN configurations in this DFA state.
+     * Get the set of all alts mentioned by all ATN configurations in this
+     *  DFA state.
+     *
+     * @returns tbd
      */
-    public getAltSet = (): Set<number> | undefined => {
-        const alts = new Set<number>();
-        if (this.configs) {
-            for (let i = 0; i < this.configs.size(); ++i) {
-                alts.add(this.configs.get(i).alt);
+    public getAltSet = (): java.util.Set<java.lang.Integer> | null => {
+        const alts = new java.util.HashSet<java.lang.Integer>();
+        if (this.configs !== null) {
+            for (const c of this.configs) {
+                alts.add(I`${c.alt}`);
             }
         }
-
-        if (alts.size === 0) {
-            return undefined;
+        if (alts.isEmpty()) {
+            return null;
         }
 
         return alts;
@@ -142,7 +141,7 @@ export class DFAState {
 
     public hashCode = (): number => {
         let hash: number = MurmurHash.initialize(7);
-        hash = MurmurHash.update(hash, this.configs.hashCode());
+        hash = MurmurHash.update(hash, this.configs?.hashCode() ?? 0);
         hash = MurmurHash.finish(hash, 1);
 
         return hash;
@@ -162,6 +161,8 @@ export class DFAState {
      * {@link #stateNumber} is irrelevant.</p>
      *
      * @param o tbd
+     *
+     * @returns tbd
      */
     public equals = (o: unknown): boolean => {
         // compare set of ATN configurations in this set with other
@@ -173,18 +174,23 @@ export class DFAState {
             return false;
         }
 
-        // TODO (sam): what to do when configs==null?
-        const sameSet = this.configs.equals(o.configs);
+        if (this.configs === null) {
+            if (o.configs === null) {
+                return true;
+            }
 
-        return sameSet;
+            return false;
+        }
+
+        return this.configs.equals(o.configs);
     };
 
-    public toString = (): string => {
-        const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
-        buf.append(this.stateNumber).append(":").append(this.configs);
+    public toString = (): java.lang.String => {
+        const buf = new java.lang.StringBuilder();
+        buf.append(this.stateNumber).append(S`:`).append(this.configs ?? "");
         if (this.isAcceptState) {
-            buf.append("=>");
-            if (this.predicates !== undefined) {
+            buf.append(S`=>`);
+            if (this.predicates !== null) {
                 buf.append(java.util.Arrays.toString(this.predicates));
             } else {
                 buf.append(this.prediction);
@@ -195,6 +201,7 @@ export class DFAState {
     };
 }
 
-namespace DFAState {
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
+export namespace DFAState {
     export type PredPrediction = InstanceType<typeof DFAState.PredPrediction>;
 }

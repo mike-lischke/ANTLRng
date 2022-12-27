@@ -33,6 +33,7 @@ import { Interval } from "./misc/Interval";
 import { Pair } from "./misc/Pair";
 
 
+import { S } from "../../../../../lib/templates";
 
 
 /** A lexer is recognizer that draws input symbols from a character stream.
@@ -139,7 +140,7 @@ this._input = input;
 	 */
 	public nextToken = ():  Token | null => {
 		if (this._input === null) {
-			throw new  java.lang.IllegalStateException("nextToken requires a non-null input stream.");
+			throw new  java.lang.IllegalStateException(S`nextToken requires a non-null input stream.`);
 		}
 
 		// Mark start location in char stream so unbuffered streams are
@@ -221,7 +222,7 @@ if (e instanceof LexerNoViableAltException) {
 
 	public pushMode = (m: number):  void => {
 		if ( LexerATNSimulator.debug ) {
- java.lang.System.out.println("pushMode "+m);
+ java.lang.System.out.println(S`pushMode `+m);
 }
 
 		this._modeStack.push(this._mode);
@@ -234,7 +235,7 @@ if (e instanceof LexerNoViableAltException) {
 }
 
 		if ( LexerATNSimulator.debug ) {
- java.lang.System.out.println("popMode back to "+ this._modeStack.peek());
+ java.lang.System.out.println(S`popMode back to `+ this._modeStack.peek());
 }
 
 		this.mode( this._modeStack.pop() );
@@ -430,7 +431,7 @@ let re = eOrRe as RecognitionException;
 
 	public notifyListeners = (e: LexerNoViableAltException| null):  void => {
 		let  text: java.lang.String = this._input.getText(Interval.of(this._tokenStartCharIndex, this._input.index()));
-		let  msg: java.lang.String = "token recognition error at: '"+ this.getErrorDisplay(text) + "'";
+		let  msg: java.lang.String = S`token recognition error at: '`+ this.getErrorDisplay(text) + S`'`;
 
 		let  listener: ANTLRErrorListener = this.getErrorListenerDispatch();
 		listener.syntaxError(this, null, this._tokenStartLine, this._tokenStartCharPositionInLine, msg, e);
@@ -452,25 +453,25 @@ const s = sOrC as java.lang.String;
 	}
  else  {
 let c = sOrC as number;
-		let  s: java.lang.String = java.lang.String.valueOf(c as CodePoint);
+		let  s: java.lang.String = java.lang.String.valueOf(c as java.lang.char);
 		switch ( c ) {
 			case Token.EOF :{
-				s = "<EOF>";
+				s = S`<EOF>`;
 				break;
 }
 
 			case '\n' :{
-				s = "\\n";
+				s = S`\\n`;
 				break;
 }
 
 			case '\t' :{
-				s = "\\t";
+				s = S`\\t`;
 				break;
 }
 
 			case '\r' :{
-				s = "\\r";
+				s = S`\\r`;
 				break;
 }
 
@@ -486,6 +487,6 @@ default:
 
 	public getCharErrorDisplay = (c: number):  java.lang.String | null => {
 		let  s: java.lang.String = this.getErrorDisplay(c);
-		return "'"+s+"'";
+		return S`'`+s+S`'`;
 	}
 }

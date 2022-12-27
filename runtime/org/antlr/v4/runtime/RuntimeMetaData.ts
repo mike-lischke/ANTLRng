@@ -18,6 +18,7 @@
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -81,7 +82,7 @@ export  class RuntimeMetaData extends JavaObject {
 	 * omitted.</li>
 	 * </ul>
 	 */
-	public static readonly  VERSION:  java.lang.String | null = "4.11.2-SNAPSHOT";
+	public static readonly  VERSION:  java.lang.String | null = S`4.11.2-SNAPSHOT`;
 
 	/**
 	 * Gets the currently executing version of the ANTLR 4 runtime library.
@@ -171,11 +172,11 @@ export  class RuntimeMetaData extends JavaObject {
 			!RuntimeMetaData.getMajorMinorVersion(runtimeVersion).equals(RuntimeMetaData.getMajorMinorVersion(compileTimeVersion));
 
 		if ( runtimeConflictsWithGeneratingTool ) {
-			java.lang.System.err.printf("ANTLR Tool version %s used for code generation does not match the current runtime version %s%n",
+			java.lang.System.err.printf(S`ANTLR Tool version %s used for code generation does not match the current runtime version %s%n`,
 							  generatingToolVersion, runtimeVersion);
 		}
 		if ( runtimeConflictsWithCompileTimeTool ) {
-			java.lang.System.err.printf("ANTLR Runtime version %s used for parser compilation does not match the current runtime version %s%n",
+			java.lang.System.err.printf(S`ANTLR Runtime version %s used for parser compilation does not match the current runtime version %s%n`,
 							  compileTimeVersion, runtimeVersion);
 		}
 	}

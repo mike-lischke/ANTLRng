@@ -37,6 +37,7 @@ import { ParseTree } from "../ParseTree";
 
 
 import { JavaObject } from "../../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -83,8 +84,8 @@ import { JavaObject } from "../../../../../../../lib/java/lang/Object";
  * Whitespace is not allowed.</p>
  */
 export  class XPath extends JavaObject {
-	public static readonly  WILDCARD:  java.lang.String | null = "*"; // word not operator/separator
-	public static readonly  NOT:  java.lang.String | null = "!"; 	   // word for invert operator
+	public static readonly  WILDCARD:  java.lang.String | null = S`*`; // word not operator/separator
+	public static readonly  NOT:  java.lang.String | null = S`!`; 	   // word for invert operator
 
 	protected path:  java.lang.String | null;
 	protected elements:  XPathElement[] | null;
@@ -106,7 +107,7 @@ this.parser = parser;
 			in = new  ANTLRInputStream(new  StringReader(path));
 		} catch (ioe) {
 if (ioe instanceof java.io.IOException) {
-			throw new  java.lang.IllegalArgumentException("Could not read path: "+path, ioe);
+			throw new  java.lang.IllegalArgumentException(S`Could not read path: `+path, ioe);
 		} else {
 	throw ioe;
 	}
@@ -122,7 +123,7 @@ if (ioe instanceof java.io.IOException) {
 		} catch (e) {
 if (e instanceof LexerNoViableAltException) {
 			let  pos: number = lexer.getCharPositionInLine();
-			let  msg: java.lang.String = "Invalid tokens or characters at index "+pos+" in path '"+path+"'";
+			let  msg: java.lang.String = S`Invalid tokens or characters at index `+pos+S` in path '`+path+S`'`;
 			throw new  java.lang.IllegalArgumentException(msg, e);
 		} else {
 	throw e;
@@ -172,7 +173,7 @@ loop:
 
 
 				default :{
-					throw new  java.lang.IllegalArgumentException("Unknowth path element "+el);
+					throw new  java.lang.IllegalArgumentException(S`Unknowth path element `+el);
 }
 
 			}
@@ -187,7 +188,7 @@ loop:
 	 */
 	protected getXPathElement = (wordToken: Token| null, anywhere: boolean):  XPathElement | null => {
 		if ( wordToken.getType()===Token.EOF ) {
-			throw new  java.lang.IllegalArgumentException("Missing path element at end of path");
+			throw new  java.lang.IllegalArgumentException(S`Missing path element at end of path`);
 		}
 		let  word: java.lang.String = wordToken.getText();
 		let  ttype: number = this.parser.getTokenType(word);
@@ -203,9 +204,9 @@ loop:
 			case XPathLexer.STRING :{
 				if ( ttype===Token.INVALID_TYPE ) {
 					throw new  java.lang.IllegalArgumentException(word+
-													   " at index "+
+													   S` at index `+
 													   wordToken.getStartIndex()+
-													   " isn't a valid token name");
+													   S` isn't a valid token name`);
 				}
 				return anywhere ?
 					new  XPathTokenAnywhereElement(word, ttype) :
@@ -215,9 +216,9 @@ loop:
 			default :{
 				if ( ruleIndex===-1 ) {
 					throw new  java.lang.IllegalArgumentException(word+
-													   " at index "+
+													   S` at index `+
 													   wordToken.getStartIndex()+
-													   " isn't a valid rule name");
+													   S` isn't a valid rule name`);
 				}
 				return anywhere ?
 					new  XPathRuleAnywhereElement(word, ruleIndex) :

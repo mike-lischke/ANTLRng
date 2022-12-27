@@ -77,16 +77,16 @@ export class LexerPushModeAction extends JavaObject implements LexerAction {
         return MurmurHash.finish(hash, 2);
     };
 
-    public equals = (obj: java.lang.Object | null): boolean => {
+    public equals = (obj: unknown): boolean => {
         if (obj === this) {
             return true;
-        } else {
-            if (!(obj instanceof LexerPushModeAction)) {
-                return false;
-            }
         }
 
-        return this.mode === (obj).mode;
+        if (!(obj instanceof LexerPushModeAction)) {
+            return false;
+        }
+
+        return this.mode === obj.mode;
     };
 
     public toString = (): java.lang.String => {

@@ -16,6 +16,7 @@
 /* cspell: disable */
 
 import { java } from "../../../../../../lib/java/java";
+
 import { AbstractPredicateTransition } from "./AbstractPredicateTransition";
 import { ATN } from "./ATN";
 import { ATNConfig } from "./ATNConfig";
@@ -26,7 +27,6 @@ import { PredictionContext } from "./PredictionContext";
 import { RuleStopState } from "./RuleStopState";
 import { RuleTransition } from "./RuleTransition";
 import { SingletonPredictionContext } from "./SingletonPredictionContext";
-import { Transition } from "./Transition";
 import { WildcardTransition } from "./WildcardTransition";
 import { RuleContext } from "../RuleContext";
 import { Token } from "../Token";
@@ -41,7 +41,7 @@ export class LL1Analyzer extends JavaObject {
      */
     public static readonly HIT_PRED: number = Token.INVALID_TYPE;
 
-    public readonly atn: ATN | null;
+    public readonly atn: ATN;
 
     public constructor(atn: ATN) {
         super();
@@ -58,22 +58,23 @@ export class LL1Analyzer extends JavaObject {
      * @param s the ATN state
       @returns the expected symbols for each outgoing transition of {@code s}.
      */
-    public getDecisionLookahead = (s: ATNState): IntervalSet[] | null => {
-        //		System.out.println("LOOK("+s.stateNumber+")");
+    public getDecisionLookahead = (s: ATNState | null): Array<IntervalSet | null> | null => {
         if (s === null) {
             return null;
         }
 
-        const look: IntervalSet[] = new Array<IntervalSet>(s.getNumberOfTransitions());
+        const look = new Array<IntervalSet | null>(s.getNumberOfTransitions());
         for (let alt = 0; alt < s.getNumberOfTransitions(); alt++) {
-            look[alt] = new IntervalSet();
-            const lookBusy: java.util.Set<ATNConfig> = new java.util.HashSet<ATNConfig>();
+            const l = new IntervalSet();
+            look[alt] = l;
+            const lookBusy = new java.util.HashSet<ATNConfig>();
             const seeThruPreds = false; // fail to get lookahead upon pred
-            this._LOOK(s.transition(alt).target, null, EmptyPredictionContext.Instance,
-                look[alt], lookBusy, new java.util.BitSet(), seeThruPreds, false);
+            this._LOOK(s.transition(alt).target, null, EmptyPredictionContext.Instance, l, lookBusy,
+                new java.util.BitSet(), seeThruPreds, false);
+
             // Wipe out lookahead for this alternative if we found nothing
             // or we had a predicate when we !seeThruPreds
-            if (look[alt].size() === 0 || look[alt].contains(LL1Analyzer.HIT_PRED)) {
+            if (look[alt]?.size() === 0 || look[alt]?.contains(LL1Analyzer.HIT_PRED)) {
                 look[alt] = null;
             }
         }
@@ -116,23 +117,24 @@ export class LL1Analyzer extends JavaObject {
       @returns The set of tokens that can follow {@code s} in the ATN in the
      * specified {@code ctx}.
      */
-    public LOOK(s: ATNState, stopState: ATNState, ctx: RuleContext): IntervalSet;
+    public LOOK(s: ATNState, stopState: ATNState | null, ctx: RuleContext | null): IntervalSet;
     public LOOK(s: ATNState, ctxOrStopState: RuleContext | ATNState | null, ctx?: RuleContext | null): IntervalSet {
-        if (ctxOrStopState instanceof RuleContext && ctx === undefined) {
-            const ctx = ctxOrStopState;
-
-            return this.LOOK(s, null, ctx);
+        let stop: ATNState | null = null;
+        let context;
+        if (ctxOrStopState instanceof ATNState) {
+            stop = ctxOrStopState;
+            context = ctx;
         } else {
-            const stopState = ctxOrStopState as ATNState;
-            const r = new IntervalSet();
-            const seeThruPreds = true; // ignore preds; get all lookahead
-            const lookContext = ctx !== null ? PredictionContext.fromRuleContext(s.atn, ctx) : null;
-            this._LOOK(s, stopState, lookContext,
-                r, new java.util.HashSet<ATNConfig>(), new java.util.BitSet(), seeThruPreds, true);
-
-            return r;
+            context = ctxOrStopState;
         }
 
+        const r = new IntervalSet();
+        const seeThruPreds = true; // ignore preds; get all lookahead
+        const lookContext = context ? PredictionContext.fromRuleContext(s.atn, context) : null;
+        this._LOOK(s, stop, lookContext, r,
+            new java.util.HashSet<ATNConfig>(), new java.util.BitSet(), seeThruPreds, true);
+
+        return r;
     }
 
     /**
@@ -166,13 +168,12 @@ export class LL1Analyzer extends JavaObject {
      * is {@code null}.
      */
     protected _LOOK = (s: ATNState,
-        stopState: ATNState,
-        ctx: PredictionContext,
+        stopState: ATNState | null,
+        ctx: PredictionContext | null,
         look: IntervalSet,
         lookBusy: java.util.Set<ATNConfig>,
         calledRuleStack: java.util.BitSet,
         seeThruPreds: boolean, addEOF: boolean): void => {
-        //		System.out.println("_LOOK("+s.stateNumber+", ctx="+ctx);
         const c: ATNConfig = new ATNConfig(s, 0, ctx);
         if (!lookBusy.add(c)) {
             return;
@@ -212,9 +213,10 @@ export class LL1Analyzer extends JavaObject {
                 try {
                     calledRuleStack.clear(s.ruleIndex);
                     for (let i = 0; i < ctx.size(); i++) {
-                        const returnState: ATNState = this.atn.states.get(ctx.getReturnState(i));
-                        //					    System.out.println("popping back to "+retState);
-                        this._LOOK(returnState, stopState, ctx.getParent(i), look, lookBusy, calledRuleStack, seeThruPreds, addEOF);
+                        const returnState = this.atn.states.get(ctx.getReturnState(i));
+                        if (returnState) {
+                            this._LOOK(returnState, stopState, ctx.getParent(i), look, lookBusy, calledRuleStack, seeThruPreds, addEOF);
+                        }
                     }
                 } finally {
                     if (removed) {
@@ -228,20 +230,19 @@ export class LL1Analyzer extends JavaObject {
 
         const n: number = s.getNumberOfTransitions();
         for (let i = 0; i < n; i++) {
-            const t: Transition = s.transition(i);
-            if (t.getClass() === new java.lang.Class(RuleTransition)) {
-                if (calledRuleStack.get((t as RuleTransition).target.ruleIndex)) {
+            const t = s.transition(i);
+            if (t instanceof RuleTransition) {
+                if (calledRuleStack.get((t).target.ruleIndex)) {
                     continue;
                 }
 
-                const newContext: PredictionContext =
-                    SingletonPredictionContext.create(ctx, (t as RuleTransition).followState.stateNumber);
+                const newContext: PredictionContext = SingletonPredictionContext.create(ctx, (t).followState.stateNumber);
 
                 try {
-                    calledRuleStack.set((t as RuleTransition).target.ruleIndex);
+                    calledRuleStack.set((t).target.ruleIndex);
                     this._LOOK(t.target, stopState, newContext, look, lookBusy, calledRuleStack, seeThruPreds, addEOF);
                 } finally {
-                    calledRuleStack.clear((t as RuleTransition).target.ruleIndex);
+                    calledRuleStack.clear((t).target.ruleIndex);
                 }
             } else {
                 if (t instanceof AbstractPredicateTransition) {
@@ -254,11 +255,10 @@ export class LL1Analyzer extends JavaObject {
                     if (t.isEpsilon()) {
                         this._LOOK(t.target, stopState, ctx, look, lookBusy, calledRuleStack, seeThruPreds, addEOF);
                     } else {
-                        if (t.getClass() === new java.lang.Class(WildcardTransition)) {
+                        if (t instanceof WildcardTransition) {
                             look.addAll(IntervalSet.of(Token.MIN_USER_TOKEN_TYPE, this.atn.maxTokenType));
                         } else {
-                            //				System.out.println("adding "+ t);
-                            let set: IntervalSet = t.label();
+                            let set = t.label();
                             if (set !== null) {
                                 if (t instanceof NotSetTransition) {
                                     set = set.complement(IntervalSet.of(Token.MIN_USER_TOKEN_TYPE, this.atn.maxTokenType));
@@ -267,11 +267,8 @@ export class LL1Analyzer extends JavaObject {
                             }
                         }
                     }
-
                 }
-
             }
-
         }
     };
 }

@@ -20,7 +20,7 @@ export class LexerATNConfig extends ATNConfig {
     /**
      * This is the backing field for {@link #getLexerActionExecutor}.
      */
-    private readonly lexerActionExecutor: LexerActionExecutor;
+    private readonly lexerActionExecutor: LexerActionExecutor | null;
 
     private readonly passedThroughNonGreedyDecision: boolean;
 
@@ -29,21 +29,21 @@ export class LexerATNConfig extends ATNConfig {
     public constructor(state: ATNState, alt: number, context: PredictionContext,
         lexerActionExecutor?: LexerActionExecutor);
     public constructor(cOrState: LexerATNConfig | ATNState, stateOrAlt: ATNState | number,
-        contextOrLexerActionExecutor?: PredictionContext | LexerActionExecutor,
-        lexerActionExecutor?: LexerActionExecutor) {
+        contextOrLexerActionExecutor?: PredictionContext | LexerActionExecutor | null,
+        lexerActionExecutor?: LexerActionExecutor | null) {
 
         let state;
         let alt;
         let context;
-        let semanticContext = SemanticContext.Empty.Instance;
-        let executor;
+        let semanticContext: SemanticContext | null = SemanticContext.Empty.Instance;
+        let executor: LexerActionExecutor | null = null;
         let flag = false;
 
         if (cOrState instanceof ATNState) {
             state = cOrState;
             alt = stateOrAlt as number;
             context = contextOrLexerActionExecutor as PredictionContext;
-            executor = lexerActionExecutor;
+            executor = lexerActionExecutor ?? null;
 
             // @ts-ignore
             super(state, alt, context, semanticContext);
@@ -81,7 +81,7 @@ export class LexerATNConfig extends ATNConfig {
      *
      * @returns tbd
      */
-    public readonly getLexerActionExecutor = (): LexerActionExecutor => {
+    public readonly getLexerActionExecutor = (): LexerActionExecutor | null => {
         return this.lexerActionExecutor;
     };
 

@@ -28,6 +28,7 @@ import { ATN } from "../../atn/ATN";
 import { Interval } from "../../misc/Interval";
 
 
+import { S } from "../../../../../../../lib/templates";
 
 
 /** Mimic the old XPathLexer from .g4 file */
@@ -43,20 +44,20 @@ public static readonly  ID:  number=7;
 public static readonly 
 		STRING:  number=8;
 	public readonly  static modeNames:  java.lang.String[] | null = [
-		"DEFAULT_MODE"
+		S`DEFAULT_MODE`
 	];
 
 	public static readonly  ruleNames:  java.lang.String[] | null = [
-		"ANYWHERE", "ROOT", "WILDCARD", "BANG", "ID", "NameChar", "NameStartChar",
-		"STRING"
+		S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`, S`ID`, S`NameChar`, S`NameStartChar`,
+		S`STRING`
 	];
 
 	private static readonly  _LITERAL_NAMES:  java.lang.String[] | null = [
-		null, null, null, "'//'", "'/'", "'*'", "'!'"
+		null, null, null, S`'//'`, S`'/'`, S`'*'`, S`'!'`
 	];
 	private static readonly  _SYMBOLIC_NAMES:  java.lang.String[] | null = [
-		null, "TOKEN_REF", "RULE_REF", "ANYWHERE", "ROOT", "WILDCARD", "BANG",
-		"ID", "STRING"
+		null, S`TOKEN_REF`, S`RULE_REF`, S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`,
+		S`ID`, S`STRING`
 	];
 	public static readonly  VOCABULARY:  Vocabulary | null = new  VocabularyImpl(XPathLexer._LITERAL_NAMES, XPathLexer._SYMBOLIC_NAMES);
 
@@ -65,7 +66,7 @@ public static readonly
 	 */
 	public static readonly  tokenNames:  java.lang.String[] | null;
 
-	public getGrammarFileName = ():  java.lang.String | null => { return "XPathLexer.g4"; }
+	public getGrammarFileName = ():  java.lang.String | null => { return S`XPathLexer.g4`; }
 
 	public getRuleNames = ():  java.lang.String[] | null => { return XPathLexer.ruleNames; }
 
@@ -99,23 +100,23 @@ public static readonly
 					this.consume();
 					if ( Lexer._input.LA(1)==='/' ) {
 						this.consume();
-						t = new  CommonToken(XPathLexer.ANYWHERE, "//");
+						t = new  CommonToken(XPathLexer.ANYWHERE, S`//`);
 					}
 					else {
-						t = new  CommonToken(XPathLexer.ROOT, "/");
+						t = new  CommonToken(XPathLexer.ROOT, S`/`);
 					}
 					break;
 }
 
 				case '*':{
 					this.consume();
-					t = new  CommonToken(XPathLexer.WILDCARD, "*");
+					t = new  CommonToken(XPathLexer.WILDCARD, S`*`);
 					break;
 }
 
 				case '!':{
 					this.consume();
-					t = new  CommonToken(XPathLexer.BANG, "!");
+					t = new  CommonToken(XPathLexer.BANG, S`!`);
 					break;
 }
 
@@ -126,7 +127,7 @@ public static readonly
 }
 
 				case CharStream.EOF :{
-					return new  CommonToken(Token.EOF, "<EOF>");
+					return new  CommonToken(Token.EOF, S`<EOF>`);
 }
 
 				default:{
@@ -136,7 +137,8 @@ public static readonly
  t = new  CommonToken(XPathLexer.TOKEN_REF, id);
 }
 
-						else { t = new  CommonToken(XPathLexer.RULE_REF, id);
+						else {
+ t = new  CommonToken(XPathLexer.RULE_REF, id);
 }
 
 					}
@@ -201,7 +203,7 @@ public static readonly
 			}
 
 			if (XPathLexer.tokenNames[i] === null) {
-				XPathLexer.tokenNames[i] = "<INVALID>";
+				XPathLexer.tokenNames[i] = S`<INVALID>`;
 			}
 		}
 	}

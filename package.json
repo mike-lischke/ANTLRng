@@ -12,7 +12,8 @@
     "license": "MIT",
     "dependencies": {
         "immutable": "4.1.0",
-        "printf": "0.6.1"
+        "printf": "0.6.1",
+        "unicode-properties": "1.4.1"
     },
     "devDependencies": {
         "@types/jest": "29.2.4",

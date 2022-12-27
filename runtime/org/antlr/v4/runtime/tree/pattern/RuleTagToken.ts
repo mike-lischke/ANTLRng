@@ -23,6 +23,7 @@ import { TokenSource } from "../../TokenSource";
 
 
 import { JavaObject } from "../../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -82,7 +83,7 @@ if (label === undefined) {
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
 if (ruleName === null || ruleName.isEmpty()) {
-			throw new  java.lang.IllegalArgumentException("ruleName cannot be null or empty.");
+			throw new  java.lang.IllegalArgumentException(S`ruleName cannot be null or empty.`);
 		}
 
 		this.ruleName = ruleName;
@@ -132,10 +133,10 @@ $this(ruleName, bypassTokenType, label);
 	 */
 	public getText = ():  java.lang.String | null => {
 		if (this.label !== null) {
-			return "<" + this.label + ":" + this.ruleName + ">";
+			return S`<` + this.label + S`:` + this.ruleName + S`>`;
 		}
 
-		return "<" + this.ruleName + ">";
+		return S`<` + this.ruleName + S`>`;
 	}
 
 	/**
@@ -209,6 +210,6 @@ $this(ruleName, bypassTokenType, label);
 	 * {@code ruleName:bypassTokenType}.</p>
 	 */
 	public toString = ():  java.lang.String | null => {
-		return this.ruleName + ":" + this.bypassTokenType;
+		return this.ruleName + S`:` + this.bypassTokenType;
 	}
 }

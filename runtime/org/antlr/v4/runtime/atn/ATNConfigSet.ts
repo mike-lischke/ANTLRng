@@ -125,6 +125,14 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
     public readonly fullCtx: boolean;
 
     /**
+     * Currently this is only used when we detect SLL conflict; this does
+     *  not necessarily represent the ambiguous alternatives. In fact,
+     *  I should also point out that this seems to include predicated alternatives
+     *  that have predicates that evaluate to false. Computed in computeTargetState().
+     */
+    public conflictingAlts?: java.util.BitSet;
+
+    /**
      * Indicates that the set of configurations is read-only. Do not
      *  allow any code to manipulate the set; DFA states will point at
      *  the sets and they must not change. This does not protect the other
@@ -132,14 +140,6 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
      *  we've made this readonly.
      */
     protected readonly = false;
-
-    /**
-     * Currently this is only used when we detect SLL conflict; this does
-     *  not necessarily represent the ambiguous alternatives. In fact,
-     *  I should also point out that this seems to include predicated alternatives
-     *  that have predicates that evaluate to false. Computed in computeTargetState().
-     */
-    protected conflictingAlts?: java.util.BitSet;
 
     private cachedHashCode = -1;
 

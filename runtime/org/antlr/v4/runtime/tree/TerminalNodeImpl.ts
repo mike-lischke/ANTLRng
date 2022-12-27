@@ -26,6 +26,7 @@ import { Interval } from "../misc/Interval";
 
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
 
 
 export  class TerminalNodeImpl extends JavaObject implements TerminalNode {
@@ -83,7 +84,7 @@ if (parser === undefined) {
 
 	public toString = ():  java.lang.String | null => {
 			if ( this.symbol.getType() === Token.EOF ) {
- return "<EOF>";
+ return S`<EOF>`;
 }
 
 			return this.symbol.getText();

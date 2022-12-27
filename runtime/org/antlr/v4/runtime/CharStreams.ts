@@ -27,6 +27,7 @@ import { IntStream } from "./IntStream";
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
 import { closeResources, handleResourceError, throwResourceError } from "../../../../../lib/helpers";
+import { S } from "../../../../../lib/templates";
 
 
 /** This class represents the primary interface for creating {@link CharStream}s
@@ -311,9 +312,10 @@ let decodingErrorAction = sourceNameOrDecodingErrorAction as CodingErrorAction;
 			let  utf16CodeUnitsOut: java.nio.CharBuffer = java.nio.CharBuffer.allocate(bufferSize);
 			if (inputSize === -1) {
 				inputSize = bufferSize;
-			} else { if (inputSize > java.lang.Integer.MAX_VALUE) {
+			} else {
+ if (inputSize > java.lang.Integer.MAX_VALUE) {
 				// ByteBuffer et al don't support long sizes
-				throw new  java.io.IOException(java.lang.String.format("inputSize %d larger than max %d", inputSize, java.lang.Integer.MAX_VALUE));
+				throw new  java.io.IOException(java.lang.String.format(S`inputSize %d larger than max %d`, inputSize, java.lang.Integer.MAX_VALUE));
 			}
 }
 

@@ -1,17 +1,10 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
 
 import { java } from "../../../../../../lib/java/java";
 import { DecisionInfo } from "./DecisionInfo";
@@ -27,9 +20,9 @@ import { JavaObject } from "../../../../../../lib/java/lang/Object";
  *
  */
 export class ParseInfo extends JavaObject {
-    protected readonly atnSimulator: ProfilingATNSimulator | null;
+    protected readonly atnSimulator: ProfilingATNSimulator;
 
-    public constructor(atnSimulator: ProfilingATNSimulator | null) {
+    public constructor(atnSimulator: ProfilingATNSimulator) {
         super();
         this.atnSimulator = atnSimulator;
     }
@@ -54,8 +47,8 @@ export class ParseInfo extends JavaObject {
      * full-context predictions during parsing.
      */
     public getLLDecisions = (): java.util.List<java.lang.Integer> | null => {
-        const decisions: DecisionInfo[] = this.atnSimulator.getDecisionInfo();
-        const LL: java.util.List<java.lang.Integer> = new java.util.ArrayList<java.lang.Integer>();
+        const decisions = this.atnSimulator.getDecisionInfo();
+        const LL = new java.util.ArrayList<java.lang.Integer>();
         for (let i = 0; i < decisions.length; i++) {
             const fallBack: bigint = decisions[i].LL_Fallback;
             if (fallBack > 0) {

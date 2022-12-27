@@ -43,6 +43,7 @@ import { TerminalNode } from "../TerminalNode";
 
 
 import { JavaObject } from "../../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -126,9 +127,9 @@ export  class ParseTreePatternMatcher extends JavaObject {
 	 */
 	private readonly  parser:  Parser | null;
 
-	protected start:  java.lang.String | null = "<";
-	protected stop:  java.lang.String | null = ">";
-	protected escape:  java.lang.String | null = "\\"; // e.g., \< and \> must escape BOTH!
+	protected start:  java.lang.String | null = S`<`;
+	protected stop:  java.lang.String | null = S`>`;
+	protected escape:  java.lang.String | null = S`\\`; // e.g., \< and \> must escape BOTH!
 
 	/**
 	 * Constructs a {@link ParseTreePatternMatcher} or from a {@link Lexer} and
@@ -155,11 +156,11 @@ this.lexer = lexer;
 	 */
 	public setDelimiters = (start: java.lang.String| null, stop: java.lang.String| null, escapeLeft: java.lang.String| null):  void => {
 		if (start === null || start.isEmpty()) {
-			throw new  java.lang.IllegalArgumentException("start cannot be null or empty");
+			throw new  java.lang.IllegalArgumentException(S`start cannot be null or empty`);
 		}
 
 		if (stop === null || stop.isEmpty()) {
-			throw new  java.lang.IllegalArgumentException("stop cannot be null or empty");
+			throw new  java.lang.IllegalArgumentException(S`stop cannot be null or empty`);
 		}
 
 		this.start = start;
@@ -311,11 +312,11 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 								  labels: MultiMap<java.lang.String, ParseTree>| null):  ParseTree | null =>
 	{
 		if (tree === null) {
-			throw new  java.lang.IllegalArgumentException("tree cannot be null");
+			throw new  java.lang.IllegalArgumentException(S`tree cannot be null`);
 		}
 
 		if (patternTree === null) {
-			throw new  java.lang.IllegalArgumentException("patternTree cannot be null");
+			throw new  java.lang.IllegalArgumentException(S`patternTree cannot be null`);
 		}
 
 		// x and <ID>, x and y, or x and x; or could be mismatched types
@@ -333,7 +334,8 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 						labels.map(tokenTagToken.getLabel(), tree);
 					}
 				}
-				else { if ( t1.getText().equals(t2.getText()) ) {
+				else {
+ if ( t1.getText().equals(t2.getText()) ) {
 					// x and x
 				}
 				else {
@@ -430,21 +432,22 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 				if ( java.lang.Character.isUpperCase(tagChunk.getTag().charAt(0)) ) {
 					let  ttype: java.lang.Integer = this.parser.getTokenType(tagChunk.getTag());
 					if ( ttype===Token.INVALID_TYPE ) {
-						throw new  java.lang.IllegalArgumentException("Unknown token "+tagChunk.getTag()+" in pattern: "+pattern);
+						throw new  java.lang.IllegalArgumentException(S`Unknown token `+tagChunk.getTag()+S` in pattern: `+pattern);
 					}
 					let  t: TokenTagToken = new  TokenTagToken(tagChunk.getTag(), ttype, tagChunk.getLabel());
 					tokens.add(t);
 				}
-				else { if ( java.lang.Character.isLowerCase(tagChunk.getTag().charAt(0)) ) {
+				else {
+ if ( java.lang.Character.isLowerCase(tagChunk.getTag().charAt(0)) ) {
 					let  ruleIndex: number = this.parser.getRuleIndex(tagChunk.getTag());
 					if ( ruleIndex===-1 ) {
-						throw new  java.lang.IllegalArgumentException("Unknown rule "+tagChunk.getTag()+" in pattern: "+pattern);
+						throw new  java.lang.IllegalArgumentException(S`Unknown rule `+tagChunk.getTag()+S` in pattern: `+pattern);
 					}
 					let  ruleImaginaryTokenType: number = this.parser.getATNWithBypassAlts().ruleToTokenType[ruleIndex];
 					tokens.add(new  RuleTagToken(tagChunk.getTag(), ruleImaginaryTokenType, tagChunk.getLabel()));
 				}
 				else {
-					throw new  java.lang.IllegalArgumentException("invalid tag: "+tagChunk.getTag()+" in pattern: "+pattern);
+					throw new  java.lang.IllegalArgumentException(S`invalid tag: `+tagChunk.getTag()+S` in pattern: `+pattern);
 				}
 }
 
@@ -478,14 +481,17 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 			if ( p === pattern.indexOf(this.escape+this.start,p) ) {
 				p += this.escape.length() + this.start.length();
 			}
-			else { if ( p === pattern.indexOf(this.escape+this.stop,p) ) {
+			else {
+ if ( p === pattern.indexOf(this.escape+this.stop,p) ) {
 				p += this.escape.length() + this.stop.length();
 			}
-			else { if ( p === pattern.indexOf(this.start,p) ) {
+			else {
+ if ( p === pattern.indexOf(this.start,p) ) {
 				starts.add(p);
 				p += this.start.length();
 			}
-			else { if ( p === pattern.indexOf(this.stop,p) ) {
+			else {
+ if ( p === pattern.indexOf(this.stop,p) ) {
 				stops.add(p);
 				p += this.stop.length();
 			}
@@ -504,17 +510,17 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 //		System.out.println(starts);
 //		System.out.println(stops);
 		if ( starts.size() > stops.size() ) {
-			throw new  java.lang.IllegalArgumentException("unterminated tag in pattern: "+pattern);
+			throw new  java.lang.IllegalArgumentException(S`unterminated tag in pattern: `+pattern);
 		}
 
 		if ( starts.size() < stops.size() ) {
-			throw new  java.lang.IllegalArgumentException("missing start tag in pattern: "+pattern);
+			throw new  java.lang.IllegalArgumentException(S`missing start tag in pattern: `+pattern);
 		}
 
 		let  ntags: number = starts.size();
 		for (let  i: number=0; i<ntags; i++) {
 			if ( starts.get(i)>=stops.get(i) ) {
-				throw new  java.lang.IllegalArgumentException("tag delimiters out of order in pattern: "+pattern);
+				throw new  java.lang.IllegalArgumentException(S`tag delimiters out of order in pattern: `+pattern);
 			}
 		}
 
@@ -558,7 +564,7 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 			let  c: Chunk = chunks.get(i);
 			if ( c instanceof TextChunk ) {
 				let  tc: TextChunk = c as TextChunk;
-				let  unescaped: java.lang.String = tc.getText().replace(this.escape, "");
+				let  unescaped: java.lang.String = tc.getText().replace(this.escape, S``);
 				if (unescaped.length() < tc.getText().length()) {
 					chunks.set(i, new  TextChunk(unescaped));
 				}
@@ -569,6 +575,7 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace ParseTreePatternMatcher {
 	export type CannotInvokeStartRule = InstanceType<typeof ParseTreePatternMatcher.CannotInvokeStartRule>;
 	export type StartRuleDoesNotConsumeFullPattern = InstanceType<typeof ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern>;

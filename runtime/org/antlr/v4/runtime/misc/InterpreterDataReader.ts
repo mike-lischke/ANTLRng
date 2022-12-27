@@ -26,17 +26,18 @@ import { ATNDeserializer } from "../atn/ATNDeserializer";
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
 import { closeResources, handleResourceError, throwResourceError } from "../../../../../../lib/helpers";
+import { S } from "../../../../../../lib/templates";
 
 
 // A class to read plain text interpreter data produced by ANTLR.
 export  class InterpreterDataReader extends JavaObject {
 
 	public static InterpreterData =  class InterpreterData extends JavaObject {
-	  public  atn: ATN | null;
-	  public  vocabulary: Vocabulary | null;
-	  public  ruleNames: java.util.List<java.lang.String> | null;
-	  public  channels: java.util.List<java.lang.String> | null; // Only valid for lexer grammars.
-	  public  modes: java.util.List<java.lang.String> | null; // ditto
+	  protected  atn: ATN | null;
+	  protected  vocabulary: Vocabulary | null;
+	  protected  ruleNames: java.util.List<java.lang.String> | null;
+	  protected  channels: java.util.List<java.lang.String> | null; // Only valid for lexer grammars.
+	  protected  modes: java.util.List<java.lang.String> | null; // ditto
 	};
 ;
 
@@ -79,9 +80,9 @@ try {
 		  	let  symbolicNames: java.util.List<java.lang.String> = new  java.util.ArrayList<java.lang.String>();
 
 			line = br.readLine();
-			if ( !line.equals("token literal names:") ) {
+			if ( !line.equals(S`token literal names:`) ) {
 
-				throw new  java.lang.RuntimeException("Unexpected data entry");
+				throw new  java.lang.RuntimeException(S`Unexpected data entry`);
 }
 
 		    while ((line = br.readLine()) !== null) {
@@ -90,13 +91,13 @@ try {
 					break;
 }
 
-				literalNames.add(line.equals("null") ? "" : line);
+				literalNames.add(line.equals(S`null`) ? S`` : line);
 		    }
 
 			line = br.readLine();
-			if ( !line.equals("token symbolic names:") ) {
+			if ( !line.equals(S`token symbolic names:`) ) {
 
-				throw new  java.lang.RuntimeException("Unexpected data entry");
+				throw new  java.lang.RuntimeException(S`Unexpected data entry`);
 }
 
 		    while ((line = br.readLine()) !== null) {
@@ -105,15 +106,15 @@ try {
 					break;
 }
 
-				symbolicNames.add(line.equals("null") ? "" : line);
+				symbolicNames.add(line.equals(S`null`) ? S`` : line);
 		    }
 
 		  	result.vocabulary = new  VocabularyImpl(literalNames.toArray(new   Array<java.lang.String>(0)), symbolicNames.toArray(new   Array<java.lang.String>(0)));
 
 			line = br.readLine();
-			if ( !line.equals("rule names:") ) {
+			if ( !line.equals(S`rule names:`) ) {
 
-				throw new  java.lang.RuntimeException("Unexpected data entry");
+				throw new  java.lang.RuntimeException(S`Unexpected data entry`);
 }
 
 		    while ((line = br.readLine()) !== null) {
@@ -126,7 +127,7 @@ try {
 		    }
 
 			line = br.readLine();
-			if ( line.equals("channel names:") ) { // Additional lexer data.
+			if ( line.equals(S`channel names:`) ) { // Additional lexer data.
 				result.channels = new  java.util.ArrayList<java.lang.String>();
 			    while ((line = br.readLine()) !== null) {
 			       if ( line.isEmpty() ) {
@@ -138,9 +139,9 @@ try {
 			    }
 
 				line = br.readLine();
-				if ( !line.equals("mode names:") ) {
+				if ( !line.equals(S`mode names:`) ) {
 
-					throw new  java.lang.RuntimeException("Unexpected data entry");
+					throw new  java.lang.RuntimeException(S`Unexpected data entry`);
 }
 
 				result.modes = new  java.util.ArrayList<java.lang.String>();
@@ -155,13 +156,13 @@ try {
 			}
 
 		  	line = br.readLine();
-		  	if ( !line.equals("atn:") ) {
+		  	if ( !line.equals(S`atn:`) ) {
 
-		  		throw new  java.lang.RuntimeException("Unexpected data entry");
+		  		throw new  java.lang.RuntimeException(S`Unexpected data entry`);
 }
 
 			line = br.readLine();
-			let  elements: java.lang.String[] = line.substring(1,line.length()-1).split(",");
+			let  elements: java.lang.String[] = line.substring(1,line.length()-1).split(S`,`);
 	  		let  serializedATN: Int32Array = new   Array<number>(elements.length);
 
 			for (let  i: number = 0; i < elements.length; ++i) { // ignore [...] on ends
@@ -193,6 +194,7 @@ if (e instanceof java.io.IOException) {
 
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace InterpreterDataReader {
 	export type InterpreterData = InstanceType<typeof InterpreterDataReader.InterpreterData>;
 }

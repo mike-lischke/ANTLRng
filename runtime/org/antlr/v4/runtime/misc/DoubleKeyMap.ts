@@ -1,100 +1,99 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
+
 /*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
+ eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
  max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
  @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
+ no-underscore-dangle, max-len
 */
 
 /* cspell: disable */
 
-import { java } from "../../../../../../lib/java/java";
-import { HashableType } from "../../../../../../lib/MurmurHash";
 
-/**
- * Sometimes we need to map a key to a value but key is two pieces of data.
+
+
+import { java } from "../../../../../../lib/java/java";
+
+
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+
+
+/** Sometimes we need to map a key to a value but key is two pieces of data.
  *  This nested hash table saves creating a single key each time we access
  *  map; avoids mem creation.
  */
-export class DoubleKeyMap<Key1, Key2, Value extends HashableType> {
-    public data = new java.util.HashMap<Key1, Map<Key2, Value>>();
+export  class DoubleKeyMap<Key1, Key2, Value> extends JavaObject {
+	protected  data: java.util.Map<Key1, java.util.Map<Key2, Value>> | null = new  java.util.LinkedHashMap<Key1, java.util.Map<Key2, Value>>();
 
-    public put = (k1: Key1, k2: Key2, v: Value): Value => {
-        let data2: Map<Key2, Value> = this.data.get(k1);
-        let prev: Value;
-        if (data2 === undefined) {
-            data2 = new java.util.HashMap<Key2, Value>();
-            this.data.set(k1, data2);
-        } else {
-            prev = data2.get(k2);
-        }
-        data2.set(k2, v);
+	public put = (k1: Key1| null, k2: Key2| null, v: Value| null):  Value | null => {
+		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		let  prev: Value = null;
+		if ( data2===null ) {
+			data2 = new  java.util.LinkedHashMap<Key2, Value>();
+			this.data.put(k1, data2);
+		}
+		else {
+			prev = data2.get(k2);
+		}
+		data2.put(k2, v);
+		return prev;
+	}
 
-        return prev;
-    };
+	public get(k1: Key1| null):  java.util.Map<Key2, Value> | null;
 
-    public get(k1: Key1): Map<Key2, Value>;
-    public get(k1: Key1, k2: Key2): Value;
-    public get(k1: Key1, k2?: Key2): Map<Key2, Value> | Value {
-        if (k2 === undefined) {
-            return this.data.get(k1);
-        } else {
-            const data2: Map<Key2, Value> = this.data.get(k1);
-            if (data2 === undefined) {
-                return undefined;
-            }
+	public get(k1: Key1| null, k2: Key2| null):  Value | null;
 
-            return data2.get(k2);
-        }
 
-    }
+	public get(k1: Key1 | null, k2?: Key2 | null):  java.util.Map<Key2, Value> | null |  Value | null {
+if (k2 === undefined) { return this.data.get(k1); }
+ else  {
+		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		if ( data2===null ) {
+ return null;
+}
 
-    /**
-     * Get all values associated with primary key
-     *
-     * @param k1 The primary key.
-     *
-     * @returns The values collection.
-     */
-    public values = (k1: Key1): java.util.Collection<Value> => {
-        const data2: Map<Key2, Value> = this.data.get(k1);
-        if (data2 === undefined) {
-            return undefined;
-        }
+		return data2.get(k2);
+	}
 
-        return new java.util.ArrayList<Value>([...data2.values()]);
-    };
+}
 
-    /** get all primary keys */
-    public keySet(): Set<Key1>;
-    /** get all secondary keys associated with a primary key */
-    public keySet(k1: Key1): Set<Key2>;
-    /**
-     * get all primary keys
-     *
-     * @param k1 The primary key.
-     *
-     * @returns The found keys.
-     */
-    public keySet(k1?: Key1): Set<Key1> | Set<Key2> {
-        if (k1 === undefined) {
-            return this.data.keySet();
-        } else {
-            const data2: Map<Key2, Value> = this.data.get(k1);
-            if (data2 === undefined) {
-                return undefined;
-            }
 
-            return new Set(data2.keys());
-        }
+	/** Get all values associated with primary key */
+	public values = (k1: Key1| null):  java.util.Collection<Value> | null => {
+		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		if ( data2===null ) {
+ return null;
+}
 
-    }
+		return data2.values();
+	}
+
+	/** get all primary keys */
+	public keySet():  java.util.Set<Key1> | null;
+
+	/** get all secondary keys associated with a primary key */
+	public keySet(k1: Key1| null):  java.util.Set<Key2> | null;
+
+
+	/** get all primary keys */
+	public keySet(k1?: Key1 | null):  java.util.Set<Key1> | null |  java.util.Set<Key2> | null {
+if (k1 === undefined) {
+		return this.data.keySet();
+	}
+ else  {
+		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		if ( data2===null ) {
+ return null;
+}
+
+		return data2.keySet();
+	}
+
+}
 
 }

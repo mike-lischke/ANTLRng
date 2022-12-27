@@ -25,6 +25,7 @@ import { Interval } from "./misc/Interval";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -104,7 +105,7 @@ import { JavaObject } from "../../../../../lib/java/lang/Object";
  * first example shows.</p>
  */
 export  class TokenStreamRewriter extends JavaObject {
-	public static readonly  DEFAULT_PROGRAM_NAME:  java.lang.String | null = "default";
+	public static readonly  DEFAULT_PROGRAM_NAME:  java.lang.String | null = S`default`;
 	public static readonly  PROGRAM_INIT_SIZE:  number = 100;
 	public static readonly  MIN_TOKEN_INDEX:  number = 0;
 
@@ -145,14 +146,14 @@ this.index = index;
 			let  opName: java.lang.String = getClass().getName();
 			let  $index: number = opName.indexOf('$');
 			opName = opName.substring($index+1, opName.length());
-			return "<"+opName+"@"+$outer.tokens.get($outer.index)+
-					":\""+$outer.text+"\">";
+			return S`<`+opName+S`@`+$outer.tokens.get($outer.index)+
+					S`:\"`+$outer.text+S`\">`;
 		}
 	}
 })(this);
 
 
-	public  InsertBeforeOp = (($outer) => {
+	protected  InsertBeforeOp = (($outer) => {
 return class InsertBeforeOp extends RewriteOperation {
 		public constructor(index: number, text: java.lang.Object| null) {
 			super(index,text);
@@ -173,7 +174,7 @@ return class InsertBeforeOp extends RewriteOperation {
 	 *  first and then the "insert befores" at same index. Implementation
 	 *  of "insert after" is "insert before index+1".
 	 */
-    public  InsertAfterOp = (($outer) => {
+    protected  InsertAfterOp = (($outer) => {
 return class InsertAfterOp extends InsertBeforeOp {
         public constructor(index: number, text: java.lang.Object| null) {
             super(index+1, text); // insert after is insert before index+1
@@ -185,7 +186,7 @@ return class InsertAfterOp extends InsertBeforeOp {
 	/** I'm going to try replacing range from x..y with (y-x)+1 ReplaceOp
 	 *  instructions.
 	 */
-	public  ReplaceOp = (($outer) => {
+	protected  ReplaceOp = (($outer) => {
 return class ReplaceOp extends RewriteOperation {
 		protected lastIndex:  number;
 		public constructor(from: number, to: number, text: java.lang.Object| null) {
@@ -200,11 +201,11 @@ return class ReplaceOp extends RewriteOperation {
 		}
 		public toString = ():  java.lang.String | null => {
 			if ( CommonToken.text===null ) {
-				return "<DeleteOp@"+$outer.tokens.get(ANTLRInputStream.index)+
-						".."+$outer.tokens.get($outer.lastIndex)+">";
+				return S`<DeleteOp@`+$outer.tokens.get(ANTLRInputStream.index)+
+						S`..`+$outer.tokens.get($outer.lastIndex)+S`>`;
 			}
-			return "<ReplaceOp@"+$outer.tokens.get(ANTLRInputStream.index)+
-					".."+$outer.tokens.get($outer.lastIndex)+":\""+CommonToken.text+"\">";
+			return S`<ReplaceOp@`+$outer.tokens.get(ANTLRInputStream.index)+
+					S`..`+$outer.tokens.get($outer.lastIndex)+S`:\"`+CommonToken.text+S`\">`;
 		}
 	}
 })(this);
@@ -393,7 +394,7 @@ const programName = indexOrIndexTOrFromOrProgramName as java.lang.String;
 const from = textOrToOrFrom as number;
 const to = textOrTo as number;
 		if ( from > to || from<0 || to<0 || to >= this.tokens.size() ) {
-			throw new  java.lang.IllegalArgumentException("replace: range invalid: "+from+".."+to+"(size="+this.tokens.size()+")");
+			throw new  java.lang.IllegalArgumentException(S`replace: range invalid: `+from+S`..`+to+S`(size=`+this.tokens.size()+S`)`);
 		}
 		let  op: RewriteOperation = new  ReplaceOp(from, to, text);
 		let  rewrites: java.util.List<RewriteOperation> = this.getProgram(programName);
@@ -669,9 +670,10 @@ let programName = programNameOrInterval as java.lang.String;
 					// E.g., insert before 2, delete 2..2; update replace
 					// text to include insert before, kill insert
 					rewrites.set(iop.instructionIndex, null);
-					rop.text = iop.text.toString() + (rop.text!==null?rop.text.toString():"");
+					rop.text = iop.text.toString() + (rop.text!==null?rop.text.toString():S``);
 				}
-				else { if ( iop.index > rop.index && iop.index <= rop.lastIndex ) {
+				else {
+ if ( iop.index > rop.index && iop.index <= rop.lastIndex ) {
 					// delete insert as it's a no-op.
 					rewrites.set(iop.instructionIndex, null);
 				}
@@ -696,10 +698,11 @@ let programName = programNameOrInterval as java.lang.String;
 					rewrites.set(prevRop.instructionIndex, null); // kill first delete
 					rop.index = Math.min(prevRop.index, rop.index);
 					rop.lastIndex = Math.max(prevRop.lastIndex, rop.lastIndex);
-					java.lang.System.out.println("new rop "+rop);
+					java.lang.System.out.println(S`new rop `+rop);
 				}
-				else { if ( !disjoint ) {
-					throw new  java.lang.IllegalArgumentException("replace op boundaries of "+rop+" overlap with previous "+prevRop);
+				else {
+ if ( !disjoint ) {
+					throw new  java.lang.IllegalArgumentException(S`replace op boundaries of `+rop+S` overlap with previous `+prevRop);
 				}
 }
 
@@ -726,7 +729,8 @@ let programName = programNameOrInterval as java.lang.String;
 						iop.text = this.catOpText(prevIop.text, iop.text);
 						rewrites.set(prevIop.instructionIndex, null);
 					}
-					else { if ( InsertBeforeOp.class.isInstance(prevIop) ) { // combine objects
+					else {
+ if ( InsertBeforeOp.class.isInstance(prevIop) ) { // combine objects
 						// convert to strings...we're in process of toString'ing
 						// whole token buffer so no lazy eval issue with any templates
 						iop.text = this.catOpText(iop.text, prevIop.text);
@@ -746,7 +750,7 @@ let programName = programNameOrInterval as java.lang.String;
 					continue;
 				}
 				if ( iop.index >= rop.index && iop.index <= rop.lastIndex ) {
-					throw new  java.lang.IllegalArgumentException("insert op "+iop+" within boundaries of previous "+rop);
+					throw new  java.lang.IllegalArgumentException(S`insert op `+iop+S` within boundaries of previous `+rop);
 				}
 			}
 		}
@@ -759,7 +763,7 @@ let programName = programNameOrInterval as java.lang.String;
 }
  // ignore deleted ops
 			if ( m.get(op.index)!==null ) {
-				throw new  java.lang.Error("should only be one op per index");
+				throw new  java.lang.Error(S`should only be one op per index`);
 			}
 			m.put(op.index, op);
 		}
@@ -768,8 +772,8 @@ let programName = programNameOrInterval as java.lang.String;
 	}
 
 	protected catOpText = (a: java.lang.Object| null, b: java.lang.Object| null):  java.lang.String | null => {
-		let  x: java.lang.String = "";
-		let  y: java.lang.String = "";
+		let  x: java.lang.String = S``;
+		let  y: java.lang.String = S``;
 		if ( a!==null ) {
  x = a.toString();
 }
@@ -798,10 +802,14 @@ let programName = programNameOrInterval as java.lang.String;
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace TokenStreamRewriter {
 	export type RewriteOperation = InstanceType<TokenStreamRewriter.RewriteOperation>;
+	// @ts-expect-error, because of protected inner class.
 	export type InsertBeforeOp = InstanceType<TokenStreamRewriter.InsertBeforeOp>;
+	// @ts-expect-error, because of protected inner class.
 	export type InsertAfterOp = InstanceType<TokenStreamRewriter.InsertAfterOp>;
+	// @ts-expect-error, because of protected inner class.
 	export type ReplaceOp = InstanceType<TokenStreamRewriter.ReplaceOp>;
 }
 

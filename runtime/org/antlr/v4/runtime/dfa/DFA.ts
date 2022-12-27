@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable @typescript-eslint/unified-signatures */
-
 import { java } from "../../../../../../lib/java/java";
 import { DFASerializer } from "./DFASerializer";
 import { DFAState } from "./DFAState";
@@ -18,21 +16,24 @@ import { ATNConfigSet } from "../atn/ATNConfigSet";
 import { DecisionState } from "../atn/DecisionState";
 import { StarLoopEntryState } from "../atn/StarLoopEntryState";
 
-export class DFA {
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
+
+export class DFA extends JavaObject {
     /**
      * A set of all DFA states. Use {@link Map} so we can get old state back
      *  ({@link Set} only allows you to see if it's there).
      */
 
-    public readonly states?: java.util.Map<DFAState, DFAState> = new java.util.HashMap<DFAState, DFAState>();
+    public readonly states = new java.util.HashMap<DFAState, DFAState>();
 
-    public s0?: DFAState;
+    public s0: DFAState | null = null;
 
     public readonly decision: number;
 
     /** From which ATN state did we create this DFA? */
 
-    public readonly atnStartState?: DecisionState;
+    public readonly atnStartState: DecisionState | null;
 
     /**
      * {@code true} if this DFA is for a precedence decision; otherwise,
@@ -40,37 +41,24 @@ export class DFA {
      */
     private readonly precedenceDfa: boolean;
 
-    public constructor(atnStartState: DecisionState);
+    public constructor(atnStartState: DecisionState | null, decision?: number) {
+        super();
+        this.atnStartState = atnStartState;
+        this.decision = decision ?? 0;
 
-    public constructor(atnStartState: DecisionState, decision: number);
-    public constructor(atnStartState: DecisionState, decision?: number) {
-        const $this = (atnStartState: DecisionState, decision?: number): void => {
-            if (decision === undefined) {
-                $this(atnStartState, 0);
-            } else {
-                // @ts-expect-error
-                this.atnStartState = atnStartState;
-                // @ts-expect-error
-                this.decision = decision;
-
-                let precedenceDfa = false;
-                if (atnStartState instanceof StarLoopEntryState) {
-                    if ((atnStartState).isPrecedenceDecision) {
-                        precedenceDfa = true;
-                        const precedenceState: DFAState = new DFAState(new ATNConfigSet());
-                        precedenceState.edges = new Array<DFAState>(0);
-                        precedenceState.isAcceptState = false;
-                        precedenceState.requiresFullContext = false;
-                        this.s0 = precedenceState;
-                    }
-                }
-
-                // @ts-expect-error
-                this.precedenceDfa = precedenceDfa;
+        let precedenceDfa = false;
+        if (atnStartState instanceof StarLoopEntryState) {
+            if (atnStartState.isPrecedenceDecision) {
+                precedenceDfa = true;
+                const precedenceState: DFAState = new DFAState(new ATNConfigSet());
+                precedenceState.edges = [];
+                precedenceState.isAcceptState = false;
+                precedenceState.requiresFullContext = false;
+                this.s0 = precedenceState;
             }
-        };
+        }
 
-        $this(atnStartState, decision);
+        this.precedenceDfa = precedenceDfa;
     }
 
     /**
@@ -80,7 +68,7 @@ export class DFA {
      * supplying individual start states corresponding to specific precedence
      * values.
      *
-     * @returns value {@code true} if this is a precedence DFA; otherwise,
+      @returns `true` if this is a precedence DFA; otherwise,
      * {@code false}.
      * @see Parser#getPrecedence()
      */
@@ -92,21 +80,20 @@ export class DFA {
      * Get the start state for a specific precedence value.
      *
      * @param precedence The current precedence.
-     *
-     * @returns The start state corresponding to the specified precedence, or
+      @returns The start state corresponding to the specified precedence, or
      * {@code null} if no start state exists for the specified precedence.
      *
      * @throws IllegalStateException if this is not a precedence DFA.
      * @see #isPrecedenceDfa()
      */
-    public readonly getPrecedenceStartState = (precedence: number): DFAState => {
+    public readonly getPrecedenceStartState = (precedence: number): DFAState | null => {
         if (!this.isPrecedenceDfa()) {
-            throw new java.lang.IllegalStateException("Only precedence DFAs may contain a precedence start state.");
+            throw new java.lang.IllegalStateException(S`Only precedence DFAs may contain a precedence start state.`);
         }
 
         // s0.edges is never null for a precedence DFA
-        if (precedence < 0 || precedence >= this.s0.edges.length) {
-            return undefined;
+        if (!this.s0 || !this.s0.edges || precedence < 0 || precedence >= this.s0.edges.length) {
+            return null;
         }
 
         return this.s0.edges[precedence];
@@ -124,10 +111,10 @@ export class DFA {
      */
     public readonly setPrecedenceStartState = (precedence: number, startState: DFAState): void => {
         if (!this.isPrecedenceDfa()) {
-            throw new java.lang.IllegalStateException("Only precedence DFAs may contain a precedence start state.");
+            throw new java.lang.IllegalStateException(S`Only precedence DFAs may contain a precedence start state.`);
         }
 
-        if (precedence < 0) {
+        if (precedence < 0 || !this.s0?.edges) {
             return;
         }
 
@@ -155,17 +142,16 @@ export class DFA {
     public readonly setPrecedenceDfa = (precedenceDfa: boolean): void => {
         if (precedenceDfa !== this.isPrecedenceDfa()) {
             throw new java.lang.UnsupportedOperationException(
-                "The precedenceDfa field cannot change after a DFA is constructed.");
+                S`The precedenceDfa field cannot change after a DFA is constructed.`);
         }
     };
 
     /**
-     * Return a list of all states in this DFA, ordered by state number.
+     * @returns a list of all states in this DFA, ordered by state number.
      */
-
     public getStates = (): java.util.List<DFAState> => {
         const result = new java.util.ArrayList<DFAState>(this.states.keySet());
-        java.util.Collections.sort(result, new class extends java.util.Comparator<DFAState> {
+        java.util.Collections.sort(result, new class implements java.util.Comparator<DFAState> {
             public compare = (o1: DFAState, o2: DFAState): number => {
                 return o1.stateNumber - o2.stateNumber;
             };
@@ -174,46 +160,28 @@ export class DFA {
         return result;
     };
 
-    public toString(): string;
-
-    /**
-     * @deprecated Use {@link #toString(Vocabulary)} instead.
-     */
-    public toString(tokenNames: string[]): string;
-    public toString(vocabulary: Vocabulary): string;
-    public toString(tokenNamesOrVocabulary?: string[] | Vocabulary): string {
-        if (tokenNamesOrVocabulary === undefined) {
+    public toString(vocabulary?: Vocabulary): java.lang.String {
+        if (!vocabulary) {
             return this.toString(VocabularyImpl.EMPTY_VOCABULARY);
-        } else if (Array.isArray(tokenNamesOrVocabulary)) {
-            const tokenNames = tokenNamesOrVocabulary;
-            if (this.s0 === undefined) {
-                return "";
-            }
-
-            const serializer = new DFASerializer(this, tokenNames);
-
-            return serializer.toString();
-        } else {
-            const vocabulary = tokenNamesOrVocabulary;
-            if (this.s0 === undefined) {
-                return "";
-            }
-
-            const serializer = new DFASerializer(this, vocabulary);
-
-            return serializer.toString();
         }
 
+        if (this.s0 === null) {
+            return S``;
+        }
+
+        const serializer = new DFASerializer(this, vocabulary);
+
+        return serializer.toString() ?? S``;
     }
 
-    public toLexerString = (): string => {
-        if (this.s0 === undefined) {
-            return "";
+    public toLexerString = (): java.lang.String => {
+        if (this.s0 === null) {
+            return S``;
         }
 
         const serializer = new LexerDFASerializer(this);
 
-        return serializer.toString();
+        return serializer.toString() ?? S``;
     };
 
 }

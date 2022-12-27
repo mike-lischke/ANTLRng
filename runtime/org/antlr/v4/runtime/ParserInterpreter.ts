@@ -48,6 +48,7 @@ import { DFA } from "./dfa/DFA";
 import { Pair } from "./misc/Pair";
 
 
+import { S } from "../../../../../lib/templates";
 
 
 /** A parser simulator that mimics what ANTLR's generated
@@ -335,14 +336,14 @@ if (e instanceof RecognitionException) {
 
 			case Transition.PRECEDENCE:{
 				if (!this.precpred(this._ctx, (transition as PrecedencePredicateTransition).precedence)) {
-					throw new  FailedPredicateException(this, java.lang.String.format("precpred(_ctx, %d)", (transition as PrecedencePredicateTransition).precedence));
+					throw new  FailedPredicateException(this, java.lang.String.format(S`precpred(_ctx, %d)`, (transition as PrecedencePredicateTransition).precedence));
 				}
 				break;
 }
 
 
 			default:{
-				throw new  java.lang.UnsupportedOperationException("Unrecognized ATN transition type.");
+				throw new  java.lang.UnsupportedOperationException(S`Unrecognized ATN transition type.`);
 }
 
 		}

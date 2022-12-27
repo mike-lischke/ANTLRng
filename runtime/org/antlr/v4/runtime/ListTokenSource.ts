@@ -27,6 +27,7 @@ import { Pair } from "./misc/Pair";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -105,7 +106,7 @@ if (sourceName === undefined) {
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
 if (tokens === null) {
-			throw new  java.lang.NullPointerException("tokens cannot be null");
+			throw new  java.lang.NullPointerException(S`tokens cannot be null`);
 		}
 
 		this.tokens = tokens;
@@ -124,10 +125,12 @@ $this(tokens, sourceName);
 		if (this.i < this.tokens.size()) {
 			return this.tokens.get(this.i).getCharPositionInLine();
 		}
-		else { if (this.eofToken !== null) {
+		else {
+ if (this.eofToken !== null) {
 			return this.eofToken.getCharPositionInLine();
 		}
-		else { if (this.tokens.size() > 0) {
+		else {
+ if (this.tokens.size() > 0) {
 			// have to calculate the result from the line/column of the previous
 			// token, along with the text of the token.
 			let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
@@ -165,7 +168,7 @@ $this(tokens, sourceName);
 				}
 
 				let  stop: number = Math.max(-1, start - 1);
-				this.eofToken = this._factory.create(new  Pair<TokenSource, CharStream>(this, this.getInputStream()), Token.EOF, "EOF", Token.DEFAULT_CHANNEL, start, stop, this.getLine(), this.getCharPositionInLine());
+				this.eofToken = this._factory.create(new  Pair<TokenSource, CharStream>(this, this.getInputStream()), Token.EOF, S`EOF`, Token.DEFAULT_CHANNEL, start, stop, this.getLine(), this.getCharPositionInLine());
 			}
 
 			return this.eofToken;
@@ -186,10 +189,12 @@ $this(tokens, sourceName);
 		if (this.i < this.tokens.size()) {
 			return this.tokens.get(this.i).getLine();
 		}
-		else { if (this.eofToken !== null) {
+		else {
+ if (this.eofToken !== null) {
 			return this.eofToken.getLine();
 		}
-		else { if (this.tokens.size() > 0) {
+		else {
+ if (this.tokens.size() > 0) {
 			// have to calculate the result from the line/column of the previous
 			// token, along with the text of the token.
 			let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
@@ -223,10 +228,12 @@ $this(tokens, sourceName);
 		if (this.i < this.tokens.size()) {
 			return this.tokens.get(this.i).getInputStream();
 		}
-		else { if (this.eofToken !== null) {
+		else {
+ if (this.eofToken !== null) {
 			return this.eofToken.getInputStream();
 		}
-		else { if (this.tokens.size() > 0) {
+		else {
+ if (this.tokens.size() > 0) {
 			return this.tokens.get(this.tokens.size() - 1).getInputStream();
 		}
 }
@@ -250,7 +257,7 @@ $this(tokens, sourceName);
 			return inputStream.getSourceName();
 		}
 
-		return "List";
+		return S`List`;
 	}
 
 	/**

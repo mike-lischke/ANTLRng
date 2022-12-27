@@ -8,30 +8,23 @@
 
 /* eslint-disable jsdoc/require-returns */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
 /** An immutable inclusive interval a..b */
 export class Interval {
-    public static readonly INTERVAL_POOL_MAX_VALUE: number = 1000;
-
-    public static readonly INVALID?: Interval = new Interval(-1, -2);
-
-    public static cache?: Interval[] = new Array<Interval>(Interval.INTERVAL_POOL_MAX_VALUE + 1);
-
-    public a: number;
-    public b: number;
-
     public static creates = 0;
     public static misses = 0;
     public static hits = 0;
     public static outOfRange = 0;
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static readonly INTERVAL_POOL_MAX_VALUE: number = 1000;
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static readonly INVALID?: Interval = new Interval(-1, -2);
+
+    public static cache = new Array<Interval>(Interval.INTERVAL_POOL_MAX_VALUE + 1);
+
+    public a: number;
+    public b: number;
 
     public constructor(a: number, b: number) { this.a = a; this.b = b; }
 
@@ -177,8 +170,8 @@ export class Interval {
      *
      * @param other tbd
      */
-    public differenceNotProperlyContained = (other: Interval): Interval => {
-        let diff: Interval;
+    public differenceNotProperlyContained = (other: Interval): Interval | null => {
+        let diff: Interval | null = null;
         // other.a to left of this.a (or same)
         if (other.startsBeforeNonDisjoint(this)) {
             diff = Interval.of(Math.max(this.a, other.b + 1),

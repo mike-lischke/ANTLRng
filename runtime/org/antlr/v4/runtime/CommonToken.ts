@@ -27,6 +27,7 @@ import { Pair } from "./misc/Pair";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 export  class CommonToken extends JavaObject implements WritableToken, java.io.Serializable {
@@ -207,7 +208,7 @@ this.source = source;
 			return input.getText(Interval.of(this.start,this.stop));
 		}
 		else {
-			return "<EOF>";
+			return S`<EOF>`;
 		}
 	}
 
@@ -290,24 +291,24 @@ if (r === undefined) {
 		return this.toString(null);
 	}
  else  {
-		let  channelStr: java.lang.String = "";
+		let  channelStr: java.lang.String = S``;
 		if ( this.channel>0 ) {
-			channelStr=",channel="+this.channel;
+			channelStr=S`,channel=`+this.channel;
 		}
 		let  txt: java.lang.String = this.getText();
 		if ( txt!==null ) {
-			txt = txt.replace("\n","\\n");
-			txt = txt.replace("\r","\\r");
-			txt = txt.replace("\t","\\t");
+			txt = txt.replace(S`\n`,S`\\n`);
+			txt = txt.replace(S`\r`,S`\\r`);
+			txt = txt.replace(S`\t`,S`\\t`);
 		}
 		else {
-			txt = "<no text>";
+			txt = S`<no text>`;
 		}
 		let  typeString: java.lang.String = java.lang.String.valueOf(this.type);
 		if ( r!==null ) {
 			typeString = r.getVocabulary().getDisplayName(this.type);
 		}
-		return "[@"+this.getTokenIndex()+","+this.start+":"+this.stop+"='"+txt+"',<"+typeString+">"+channelStr+","+this.line+":"+this.getCharPositionInLine()+"]";
+		return S`[@`+this.getTokenIndex()+S`,`+this.start+S`:`+this.stop+S`='`+txt+S`',<`+typeString+S`>`+channelStr+S`,`+this.line+S`:`+this.getCharPositionInLine()+S`]`;
 	}
 
 }

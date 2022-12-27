@@ -29,6 +29,7 @@ import { Interval } from "./misc/Interval";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -87,7 +88,7 @@ export  class BufferedTokenStream extends JavaObject implements TokenStream {
     public constructor(tokenSource: TokenSource| null) {
 		super();
 if (tokenSource === null) {
-			throw new  java.lang.NullPointerException("tokenSource cannot be null");
+			throw new  java.lang.NullPointerException(S`tokenSource cannot be null`);
 		}
         this.tokenSource = tokenSource;
     }
@@ -141,7 +142,7 @@ if (tokenSource === null) {
 		}
 
 		if (!skipEofCheck && this.LA(1) === IntStream.EOF) {
-			throw new  java.lang.IllegalStateException("cannot consume EOF");
+			throw new  java.lang.IllegalStateException(S`cannot consume EOF`);
 		}
 
 		if (this.sync(this.p + 1)) {
@@ -200,7 +201,7 @@ if (tokenSource === null) {
     public get(iOrStart: number, stop?: number):  Token | null |  java.util.List<Token> | null {
 if (stop === undefined) {
         if ( i < 0 || i >= this.tokens.size() ) {
-            throw new  java.lang.IndexOutOfBoundsException("token index "+i+" out of range 0.."+(this.tokens.size()-1));
+            throw new  java.lang.IndexOutOfBoundsException(S`token index `+i+S` out of range 0..`+(this.tokens.size()-1));
         }
         return this.tokens.get(i);
     }
@@ -322,8 +323,8 @@ const types = typesOrTtype as java.util.Set<java.lang.Integer>;
 		if ( start<0 || stop>=this.tokens.size() ||
 			 stop<0  || start>=this.tokens.size() )
 		{
-			throw new  java.lang.IndexOutOfBoundsException("start "+start+" or stop "+stop+
-												" not in 0.."+(this.tokens.size()-1));
+			throw new  java.lang.IndexOutOfBoundsException(S`start `+start+S` or stop `+stop+
+												S` not in 0..`+(this.tokens.size()-1));
 		}
         if ( start>stop ) {
  return null;
@@ -432,7 +433,7 @@ if (channel === undefined) {
  else  {
 		this.lazyInit();
 		if ( tokenIndex<0 || tokenIndex>=this.tokens.size() ) {
-			throw new  java.lang.IndexOutOfBoundsException(tokenIndex+" not in 0.."+(this.tokens.size()-1));
+			throw new  java.lang.IndexOutOfBoundsException(tokenIndex+S` not in 0..`+(this.tokens.size()-1));
 		}
 
 		let  nextOnChannel: number =
@@ -444,7 +445,8 @@ if (channel === undefined) {
  to = this.size()-1;
 }
 
-		else { to = nextOnChannel;
+		else {
+ to = nextOnChannel;
 }
 
 
@@ -477,7 +479,7 @@ if (channel === undefined) {
  else  {
 		this.lazyInit();
 		if ( tokenIndex<0 || tokenIndex>=this.tokens.size() ) {
-			throw new  java.lang.IndexOutOfBoundsException(tokenIndex+" not in 0.."+(this.tokens.size()-1));
+			throw new  java.lang.IndexOutOfBoundsException(tokenIndex+S` not in 0..`+(this.tokens.size()-1));
 		}
 
 		if (tokenIndex === 0) {
@@ -551,7 +553,7 @@ const interval = intervalOrCtxOrStart as Interval;
 		let  start: number = interval.a;
 		let  stop: number = interval.b;
 		if ( start<0 || stop<0 ) {
- return "";
+ return S``;
 }
 
 		this.sync(stop);
@@ -581,7 +583,7 @@ let start = intervalOrCtxOrStart as Token;
             return this.getText(Interval.of(start.getTokenIndex(), stop.getTokenIndex()));
         }
 
-		return "";
+		return S``;
     }
 
 }

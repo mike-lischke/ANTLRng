@@ -18,6 +18,7 @@
 import { Chunk } from "./Chunk";
 
 
+import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -40,7 +41,7 @@ export class TextChunk extends Chunk {
 	public constructor(text: java.lang.String| null) {
 		super();
 if (text === null) {
-			throw new  java.lang.IllegalArgumentException("text cannot be null");
+			throw new  java.lang.IllegalArgumentException(S`text cannot be null`);
 		}
 
 		this.text = text;
@@ -62,6 +63,6 @@ if (text === null) {
 	 * {@link #getText()} in single quotes.</p>
 	 */
 	public toString = ():  java.lang.String | null => {
-		return "'"+this.text+"'";
+		return S`'`+this.text+S`'`;
 	}
 }

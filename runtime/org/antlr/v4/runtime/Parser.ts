@@ -53,6 +53,7 @@ import { ParseTreePatternMatcher } from "./tree/pattern/ParseTreePatternMatcher"
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 /** This is all the parsing support code essentially; most of it is error recovery stuff. */
@@ -60,12 +61,12 @@ export abstract  class Parser extends Recognizer<Token, ParserATNSimulator> {
 	public TraceListener = (($outer) => {
 return  class TraceListener extends JavaObject extends  ParseTreeListener {
 		public enterEveryRule = (ctx: ParserRuleContext| null):  void => {
-			java.lang.System.out.println("enter   " + $outer.getRuleNames()[ctx.getRuleIndex()] +
-							   ", LT(1)=" + $outer._input.LT(1).getText());
+			java.lang.System.out.println(S`enter   ` + $outer.getRuleNames()[ctx.getRuleIndex()] +
+							   S`, LT(1)=` + $outer._input.LT(1).getText());
 		}
 
 		public visitTerminal = (node: TerminalNode| null):  void => {
-			java.lang.System.out.println("consume "+node.getSymbol()+" rule "+
+			java.lang.System.out.println(S`consume `+node.getSymbol()+S` rule `+
 							   $outer.getRuleNames()[$outer._ctx.getRuleIndex()]);
 		}
 
@@ -73,8 +74,8 @@ return  class TraceListener extends JavaObject extends  ParseTreeListener {
 		}
 
 		public exitEveryRule = (ctx: ParserRuleContext| null):  void => {
-			java.lang.System.out.println("exit    "+$outer.getRuleNames()[ctx.getRuleIndex()]+
-							   ", LT(1)="+$outer._input.LT(1).getText());
+			java.lang.System.out.println(S`exit    `+$outer.getRuleNames()[ctx.getRuleIndex()]+
+							   S`, LT(1)=`+$outer._input.LT(1).getText());
 		}
 	}
 })(this);
@@ -367,7 +368,7 @@ this.setInputStream(input);
 	 */
 	public addParseListener = (listener: ParseTreeListener| null):  void => {
 		if (listener === null) {
-			throw new  java.lang.NullPointerException("listener");
+			throw new  java.lang.NullPointerException(S`listener`);
 		}
 
 		if (this._parseListeners === null) {
@@ -462,7 +463,7 @@ this.setInputStream(input);
 	public getATNWithBypassAlts = ():  ATN | null => {
 		let  serializedAtn: java.lang.String = this.getSerializedATN();
 		if (serializedAtn === null) {
-			throw new  java.lang.UnsupportedOperationException("The current parser does not support an ATN with bypass alternatives.");
+			throw new  java.lang.UnsupportedOperationException(S`The current parser does not support an ATN with bypass alternatives.`);
 		}
 
 		/* synchronized (this) */ {
@@ -517,7 +518,7 @@ if (lexer === undefined) {
 				return this.compileParseTreePattern(pattern, patternRuleIndex, lexer);
 			}
 		}
-		throw new  java.lang.UnsupportedOperationException("Parser can't discover a lexer to use");
+		throw new  java.lang.UnsupportedOperationException(S`Parser can't discover a lexer to use`);
 	}
  else 
 	{
@@ -942,10 +943,11 @@ if (p === undefined) {
 			// compute what follows who invoked us
 			let  ruleIndex: number = p.getRuleIndex();
 			if ( ruleIndex<0 ) {
- stack.add("n/a");
+ stack.add(S`n/a`);
 }
 
-			else { stack.add(ruleNames[ruleIndex]);
+			else {
+ stack.add(ruleNames[ruleIndex]);
 }
 
 			p = p.parent;
@@ -988,7 +990,7 @@ if (dumpStream === undefined) {
  dumpStream.println();
 }
 
-					dumpStream.println("Decision " + dfa.decision + ":");
+					dumpStream.println(S`Decision ` + dfa.decision + S`:`);
 					dumpStream.print(dfa.toString(this.getVocabulary()));
 					seenOne = true;
 				}
@@ -1022,7 +1024,8 @@ if (dumpStream === undefined) {
 				this.setInterpreter(new  ProfilingATNSimulator(this));
 			}
 		}
-		else { if ( interp instanceof ProfilingATNSimulator ) {
+		else {
+ if ( interp instanceof ProfilingATNSimulator ) {
 			let  sim: ParserATNSimulator =
 				new  ParserATNSimulator(this, this.getATN(), interp.decisionToDFA, interp.getSharedContextCache());
 			this.setInterpreter(sim);
@@ -1045,7 +1048,8 @@ if (dumpStream === undefined) {
  this.removeParseListener(this._tracer);
 }
 
-			else { this._tracer = new  TraceListener();
+			else {
+ this._tracer = new  TraceListener();
 }
 
 			this.addParseListener(this._tracer);
@@ -1070,6 +1074,7 @@ public constructor() {
 }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace Parser {
 	export type TraceListener = InstanceType<Parser.TraceListener>;
 	export type TrimToSizeListener = InstanceType<typeof Parser.TrimToSizeListener>;

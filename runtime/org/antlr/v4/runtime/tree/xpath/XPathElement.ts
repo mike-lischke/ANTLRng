@@ -22,6 +22,7 @@ import { ParseTree } from "../ParseTree";
 
 
 import { JavaObject } from "../../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../../lib/templates";
 
 
 export abstract  class XPathElement extends JavaObject {
@@ -43,7 +44,7 @@ this.nodeName = nodeName;
 	public abstract evaluate: (t: ParseTree| null) =>  java.util.Collection<ParseTree> | null;
 
 	public toString = ():  java.lang.String | null => {
-		let  inv: java.lang.String = this.invert ? "!" : "";
-		return getClass().getSimpleName()+"["+inv+this.nodeName+"]";
+		let  inv: java.lang.String = this.invert ? S`!` : S``;
+		return getClass().getSimpleName()+S`[`+inv+this.nodeName+S`]`;
 	}
 }

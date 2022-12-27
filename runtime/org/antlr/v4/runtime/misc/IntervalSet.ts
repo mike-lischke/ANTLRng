@@ -6,28 +6,20 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-/* eslint-disable jsdoc/require-returns */
+/* eslint-disable @typescript-eslint/naming-convention */
 
 import { java } from "../../../../../../lib/java/java";
 
 import { IntegerList } from "./IntegerList";
 import { Interval } from "./Interval";
 import { IntSet } from "./IntSet";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { Lexer } from "../Lexer";
 import { Token } from "../Token";
 import { Vocabulary } from "../Vocabulary";
-import { VocabularyImpl } from "../VocabularyImpl";
-import { jsl } from "../../../../../../lib/helpers";
+
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { I, S } from "../../../../../../lib/templates";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * This class implements the {@link IntSet} backed by a sorted array of
@@ -41,92 +33,152 @@ import { jsl } from "../../../../../../lib/helpers";
  * the range {@link Integer#MIN_VALUE} to {@link Integer#MAX_VALUE}
  * (inclusive).</p>
  */
-export class IntervalSet extends IntSet {
-    public static readonly COMPLETE_CHAR_SET?: IntervalSet = IntervalSet.of(Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE);
-
-    public static readonly EMPTY_SET?: IntervalSet = new IntervalSet();
+export class IntervalSet extends JavaObject implements IntSet {
+    public static readonly COMPLETE_CHAR_SET = IntervalSet.of(Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE);
+    public static readonly EMPTY_SET = new IntervalSet();
 
     /** The list of sorted, disjoint intervals. */
-    protected intervals?: java.util.List<Interval>;
+    protected intervals: java.util.List<Interval>;
 
-    protected readonly: boolean;
+    #readOnly = false;
 
-    /* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-    public constructor(intervals: java.util.List<Interval>);
-    public constructor(set: IntervalSet);
+    public constructor(intervals: java.util.List<Interval> | IntervalSet);
     public constructor(...els: number[]);
-    /* @ts-expect-error, because of the super() call in the closure. */
     public constructor(...intervalsOrSetOrEls: unknown[]) {
-        const $this = (...intervalsOrSetOrEls: unknown[]): void => {
-            if (intervalsOrSetOrEls.length === 1 && intervalsOrSetOrEls[0] instanceof java.util.List) {
-                /* @ts-expect-error, because of the super() call in the closure. */
-                super();
+        super();
 
-                const intervals = intervalsOrSetOrEls[0] as java.util.List<Interval>;
-                this.intervals = intervals;
-            } else if (intervalsOrSetOrEls.length === 1 && intervalsOrSetOrEls[0] instanceof IntervalSet) {
-                const set = intervalsOrSetOrEls[0];
-                $this();
-                this.addAll(set);
+        if (intervalsOrSetOrEls.length === 1) {
+            if (intervalsOrSetOrEls[0] instanceof IntervalSet) {
+                this.intervals = new java.util.ArrayList<Interval>(2); // most sets are 1 or 2 elements
+                this.addAll(intervalsOrSetOrEls[0]);
             } else {
-                /* @ts-expect-error, because of the super() call in the closure. */
-                super();
-
-                const els = intervalsOrSetOrEls as number[];
-                if (els === undefined) {
-                    this.intervals = new java.util.ArrayList<Interval>(2); // most sets are 1 or 2 elements
-                } else {
-                    this.intervals = new java.util.ArrayList<Interval>(els.length);
-                    for (const e of els) { this.add(e); }
-                }
+                this.intervals = intervalsOrSetOrEls[0] as java.util.List<Interval>;
             }
-        };
-
-        $this(...intervalsOrSetOrEls);
-
+        } else {
+            this.intervals = new java.util.ArrayList<Interval>(intervalsOrSetOrEls.length);
+            for (const e of intervalsOrSetOrEls) {
+                this.add(e as number);
+            }
+        }
     }
-    /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
-    /** Create a set with a single element, el. */
-    public static of(a: number): IntervalSet;
-    /** Create a set with all ints within range [a..b] (inclusive) */
-    public static of(a: number, b: number): IntervalSet;
     /**
-     * Create a set with a single element, el.
+     * Create a set with a single element a or  all ints within range [a..b] (inclusive)
      *
      * @param a tbd
      * @param b tbd
+     *
+     * @returns tbd
      */
     public static of(a: number, b?: number): IntervalSet {
         if (b === undefined) {
-            const s: IntervalSet = new IntervalSet();
+            const s = new IntervalSet();
             s.add(a);
 
             return s;
         } else {
-            const s: IntervalSet = new IntervalSet();
+            const s = new IntervalSet();
             s.add(a, b);
 
             return s;
         }
-
     }
 
+    /**
+     * Compute the set difference between two interval sets. The specific
+     * operation is {@code left - right}. If either of the input sets is
+     * {@code null}, it is treated as though it was an empty set.
+     *
+     * @param left tbd
+     * @param right tbd
+     *
+     * @returns tbd
+     */
+    public static subtract = (left: IntervalSet | null, right: IntervalSet | null): IntervalSet => {
+        if (left === null || left.isNil()) {
+            return new IntervalSet();
+        }
+
+        const result: IntervalSet = new IntervalSet(left);
+        if (right === null || right.isNil()) {
+            // right set has no elements; just return the copy of the current set
+            return result;
+        }
+
+        let resultI = 0;
+        let rightI = 0;
+        while (resultI < result.intervals.size() && rightI < right.intervals.size()) {
+            const resultInterval: Interval = result.intervals.get(resultI);
+            const rightInterval: Interval = right.intervals.get(rightI);
+
+            // operation: (resultInterval - rightInterval) and update indexes
+
+            if (rightInterval.b < resultInterval.a) {
+                rightI++;
+                continue;
+            }
+
+            if (rightInterval.a > resultInterval.b) {
+                resultI++;
+                continue;
+            }
+
+            let beforeCurrent: Interval | null = null;
+            let afterCurrent: Interval | null = null;
+            if (rightInterval.a > resultInterval.a) {
+                beforeCurrent = new Interval(resultInterval.a, rightInterval.a - 1);
+            }
+
+            if (rightInterval.b < resultInterval.b) {
+                afterCurrent = new Interval(rightInterval.b + 1, resultInterval.b);
+            }
+
+            if (beforeCurrent !== null) {
+                if (afterCurrent !== null) {
+                    // split the current interval into two
+                    result.intervals.set(resultI, beforeCurrent);
+                    result.intervals.add(resultI + 1, afterCurrent);
+                    resultI++;
+                    rightI++;
+                    continue;
+                } else {
+                    // replace the current interval
+                    result.intervals.set(resultI, beforeCurrent);
+                    resultI++;
+                    continue;
+                }
+            } else {
+                if (afterCurrent !== null) {
+                    // replace the current interval
+                    result.intervals.set(resultI, afterCurrent);
+                    rightI++;
+                    continue;
+                } else {
+                    // remove the current interval (thus no need to increment resultI)
+                    result.intervals.remove(resultI);
+                    continue;
+                }
+            }
+        }
+
+        // If rightI reached right.intervals.size(), no more intervals to subtract from result.
+        // If resultI reached result.intervals.size(), we would be subtracting from an empty set.
+        // Either way, we are done.
+        return result;
+    };
+
     public clear = (): void => {
-        if (this.readonly) {
-            throw new java.lang.IllegalStateException("can't alter readonly IntervalSet");
+        if (this.#readOnly) {
+            throw new java.lang.IllegalStateException(S`can't alter readonly IntervalSet`);
         }
 
         this.intervals.clear();
     };
 
     /**
-     * Add a single element to the set.  An isolated element is stored
-     *  as a range el..el.
+     * Add a single element or an interval to the set. An isolated element is stored as a range el..el.
      */
-    public add(el: number): void;
-    // copy on write so we can cache a..a intervals and sets of that
-    public add(addition: Interval): void;
+    public add(addition: Interval | number): void;
     /**
      * Add interval; i.e., add all integers from a to b to set.
      *  If b&lt;a, do nothing.
@@ -136,39 +188,26 @@ export class IntervalSet extends IntSet {
      *  {1..5, 6..7, 10..20}.  Adding 4..8 yields {1..8, 10..20}.
      */
     public add(a: number, b: number): void;
-    /**
-     * Add a single element to the set.  An isolated element is stored
-     *  as a range el..el.
-     *
-     * @param elOrAdditionOrA tbd
-     * @param b tbd
-     */
-    public add(elOrAdditionOrA: number | Interval, b?: number): void {
-        if (typeof elOrAdditionOrA === "number" && b === undefined) {
-            const el = elOrAdditionOrA;
-            if (this.readonly) {
-                throw new java.lang.IllegalStateException("can't alter readonly IntervalSet");
-            }
+    public add(additionOrA: number | Interval, b?: number): void {
+        if (this.#readOnly) {
+            throw new java.lang.IllegalStateException(S`can't alter readonly IntervalSet`);
+        }
 
-            this.add(el, el);
-        } else if (elOrAdditionOrA instanceof Interval && b === undefined) {
-            const addition = elOrAdditionOrA;
-            if (this.readonly) {
-                throw new java.lang.IllegalStateException("can't alter readonly IntervalSet");
-            }
-
-            //System.out.println("add "+addition+" to "+intervals.toString());
+        if (additionOrA instanceof Interval) {
+            const addition = additionOrA;
             if (addition.b < addition.a) {
                 return;
             }
+
             // find position in list
             // Use iterators as we modify list in place
-            for (let iter: java.util.ListIterator<Interval> = this.intervals.listIterator(); iter.hasNext();) {
-                const r: Interval = iter.next();
+            for (let iter = this.intervals.listIterator(); iter.hasNext();) {
+                const r = iter.next();
                 if (addition.equals(r)) {
                     return;
                 }
-                if (addition.adjacent(r) || !(addition.disjoint(r))) {
+
+                if (addition.adjacent(r) || !addition.disjoint(r)) {
                     // next to each other, make a single larger interval
                     const bigger: Interval = addition.union(r);
                     iter.set(bigger);
@@ -176,7 +215,7 @@ export class IntervalSet extends IntSet {
                     // should be merged with next interval in list
                     while (iter.hasNext()) {
                         const next: Interval = iter.next();
-                        if (!(bigger.adjacent(next)) && bigger.disjoint(next)) {
+                        if (!bigger.adjacent(next) && bigger.disjoint(next)) {
                             break;
                         }
 
@@ -198,18 +237,17 @@ export class IntervalSet extends IntSet {
                 }
                 // if disjoint and after r, a future iteration will handle it
             }
+
             // ok, must be after last interval (and disjoint from last interval)
             // just add it
             this.intervals.add(addition);
         } else {
-            const a = elOrAdditionOrA as number;
-            this.add(Interval.of(a, b));
+            this.add(Interval.of(additionOrA, b ?? additionOrA));
         }
-
     }
 
-    public addAll = (set: IntSet): IntervalSet => {
-        if (set === undefined) {
+    public addAll = (set: IntSet | null): IntSet => {
+        if (set === null) {
             return this;
         }
 
@@ -230,34 +268,33 @@ export class IntervalSet extends IntSet {
         return this;
     };
 
-    /** {@inheritDoc} */
-    public complement(vocabulary: IntSet): IntervalSet;
+    public complement(vocabulary: IntSet | null): IntervalSet | null;
     public complement(minElement: number, maxElement: number): IntervalSet;
-    public complement(vocabularyOrMinElement: IntSet | number, maxElement?: number): IntervalSet {
-        if (vocabularyOrMinElement instanceof IntSet && maxElement === undefined) {
-            const vocabulary = vocabularyOrMinElement;
-            if (vocabulary === undefined || vocabulary.isNil()) {
-                return undefined; // nothing in common with null set
-            }
-
-            let vocabularyIS: IntervalSet;
-            if (vocabulary instanceof IntervalSet) {
-                vocabularyIS = vocabulary;
-            } else {
-                vocabularyIS = new IntervalSet();
-                vocabularyIS.addAll(vocabulary);
-            }
-
-            return vocabularyIS.subtract(this);
-        } else {
-            const minElement = vocabularyOrMinElement as number;
-
-            return this.complement(IntervalSet.of(minElement, maxElement));
+    public complement(vocabularyOrMinElement: IntSet | number | null, maxElement?: number): IntervalSet | null {
+        if (vocabularyOrMinElement === null) {
+            return null; // nothing in common with null set
         }
+
+        let vocabulary: IntSet;
+        if (typeof vocabularyOrMinElement === "number") {
+            vocabulary = IntervalSet.of(vocabularyOrMinElement, maxElement);
+        } else {
+            vocabulary = vocabularyOrMinElement;
+        }
+
+        let vocabularyIS: IntervalSet;
+        if (vocabulary instanceof IntervalSet) {
+            vocabularyIS = vocabulary;
+        } else {
+            vocabularyIS = new IntervalSet();
+            vocabularyIS.addAll(vocabulary);
+        }
+
+        return vocabularyIS.subtract(this);
     }
 
-    public subtract(a?: IntSet): IntervalSet {
-        if (a === undefined || a.isNil()) {
+    public subtract = (a: IntSet | null): IntervalSet => {
+        if (a === null || a.isNil()) {
             return new IntervalSet(this);
         }
 
@@ -269,89 +306,9 @@ export class IntervalSet extends IntSet {
         other.addAll(a);
 
         return IntervalSet.subtract(this, other);
-    }
+    };
 
-    /**
-     * Compute the set difference between two interval sets. The specific
-     * operation is {@code left - right}. If either of the input sets is
-     * {@code null}, it is treated as though it was an empty set.
-     *
-     * @param left tbd
-     * @param right tbd
-     */
-    public static subtract(left?: IntervalSet, right?: IntervalSet): IntervalSet {
-        if (left === undefined || left.isNil()) {
-            return new IntervalSet();
-        }
-
-        const result = new IntervalSet(left);
-        if (right === undefined || right.isNil()) {
-            // right set has no elements; just return the copy of the current set
-            return result;
-        }
-
-        let resultI = 0;
-        let rightI = 0;
-        while (resultI < result.intervals.size() && rightI < right.intervals.size()) {
-            const resultInterval = result.intervals.get(resultI);
-            const rightInterval = right.intervals.get(rightI);
-
-            // operation: (resultInterval - rightInterval) and update indexes
-            if (rightInterval.b < resultInterval.a) {
-                rightI++;
-                continue;
-            }
-
-            if (rightInterval.a > resultInterval.b) {
-                resultI++;
-                continue;
-            }
-
-            let beforeCurrent;
-            let afterCurrent;
-            if (rightInterval.a > resultInterval.a) {
-                beforeCurrent = new Interval(resultInterval.a, rightInterval.a - 1);
-            }
-
-            if (rightInterval.b < resultInterval.b) {
-                afterCurrent = new Interval(rightInterval.b + 1, resultInterval.b);
-            }
-
-            if (beforeCurrent !== undefined) {
-                if (afterCurrent !== undefined) {
-                    // split the current interval into two
-                    result.intervals.set(resultI, beforeCurrent);
-                    result.intervals.add(resultI + 1, afterCurrent);
-                    resultI++;
-                    rightI++;
-                    continue;
-                } else {
-                    // replace the current interval
-                    result.intervals.set(resultI, beforeCurrent);
-                    resultI++;
-                    continue;
-                }
-            } else {
-                if (afterCurrent !== undefined) {
-                    // replace the current interval
-                    result.intervals.set(resultI, afterCurrent);
-                    rightI++;
-                    continue;
-                } else {
-                    // remove the current interval (thus no need to increment resultI)
-                    result.intervals.remove(resultI);
-                    continue;
-                }
-            }
-        }
-
-        // If rightI reached right.intervals.size(), no more intervals to subtract from result.
-        // If resultI reached result.intervals.size(), we would be subtracting from an empty set.
-        // Either way, we are done.
-        return result;
-    }
-
-    public or = (a: IntSet): IntervalSet => {
+    public or = (a: IntSet | null): IntervalSet => {
         const o: IntervalSet = new IntervalSet();
         o.addAll(this);
         o.addAll(a);
@@ -360,27 +317,27 @@ export class IntervalSet extends IntSet {
     };
 
     /**
-     * {@inheritDoc}
-     *
      * @param other tbd
+     *
+     * @returns tbd
      */
-    public and = (other: IntSet): IntervalSet => {
-        if (other === undefined) { //|| !(other instanceof IntervalSet) ) {
-            return undefined; // nothing in common with null set
+    public and = (other: IntSet | null): IntervalSet | null => {
+        if (other === null) {
+            return null; // nothing in common with null set
         }
 
         const myIntervals: java.util.List<Interval> = this.intervals;
         const theirIntervals: java.util.List<Interval> = (other as IntervalSet).intervals;
-        let intersection: IntervalSet;
+        let intersection: IntervalSet | null = null;
         const mySize: number = myIntervals.size();
         const theirSize: number = theirIntervals.size();
         let i = 0;
         let j = 0;
-        // iterate down both interval lists looking for nondisjoint intervals
+
+        // iterate down both interval lists looking for non-disjoint intervals
         while (i < mySize && j < theirSize) {
             const mine: Interval = myIntervals.get(i);
             const theirs: Interval = theirIntervals.get(j);
-            //System.out.println("mine="+mine+" and theirs="+theirs);
             if (mine.startsBeforeDisjoint(theirs)) {
                 // move this iterator looking for interval that might overlap
                 i++;
@@ -391,7 +348,7 @@ export class IntervalSet extends IntSet {
                 } else {
                     if (mine.properlyContains(theirs)) {
                         // overlap, add intersection, get next theirs
-                        if (intersection === undefined) {
+                        if (intersection === null) {
                             intersection = new IntervalSet();
                         }
                         intersection.add(mine.intersection(theirs));
@@ -399,18 +356,19 @@ export class IntervalSet extends IntSet {
                     } else {
                         if (theirs.properlyContains(mine)) {
                             // overlap, add intersection, get next mine
-                            if (intersection === undefined) {
+                            if (intersection === null) {
                                 intersection = new IntervalSet();
                             }
                             intersection.add(mine.intersection(theirs));
                             i++;
                         } else {
-                            if (!(mine.disjoint(theirs))) {
+                            if (!mine.disjoint(theirs)) {
                                 // overlap, add intersection
-                                if (intersection === undefined) {
+                                if (intersection === null) {
                                     intersection = new IntervalSet();
                                 }
                                 intersection.add(mine.intersection(theirs));
+
                                 // Move the iterator of lower range [a..b], but not
                                 // the upper range as it may contain elements that will collide
                                 // with the next iterator. So, if mine=[0..115] and
@@ -436,17 +394,17 @@ export class IntervalSet extends IntSet {
             }
 
         }
-        if (intersection === undefined) {
-            return new IntervalSet();
+        if (intersection === null) {
+            return new IntervalSet() as this;
         }
 
-        return intersection;
+        return intersection as this;
     };
 
     /**
-     * {@inheritDoc}
-     *
      * @param el tbd
+     *
+     * @returns tbd
      */
     public contains = (el: number): boolean => {
         const n: number = this.intervals.size();
@@ -474,20 +432,19 @@ export class IntervalSet extends IntSet {
         return false;
     };
 
-    /** {@inheritDoc} */
     public isNil = (): boolean => {
-        return this.intervals === undefined || this.intervals.isEmpty();
+        return this.intervals === null || this.intervals.isEmpty();
     };
 
     /**
      * Returns the maximum value contained in the set if not isNil().
      *
-     * @return the maximum value contained in the set.
+      @returns the maximum value contained in the set.
      * @throws RuntimeException if set is empty
      */
     public getMaxElement = (): number => {
         if (this.isNil()) {
-            throw new java.lang.RuntimeException("set is empty");
+            throw new java.lang.RuntimeException(S`set is empty`);
         }
         const last: Interval = this.intervals.get(this.intervals.size() - 1);
 
@@ -497,19 +454,19 @@ export class IntervalSet extends IntSet {
     /**
      * Returns the minimum value contained in the set if not isNil().
      *
-     * @return the minimum value contained in the set.
+      @returns the minimum value contained in the set.
      * @throws RuntimeException if set is empty
      */
     public getMinElement = (): number => {
         if (this.isNil()) {
-            throw new java.lang.RuntimeException("set is empty");
+            throw new java.lang.RuntimeException(S`set is empty`);
         }
 
         return this.intervals.get(0).a;
     };
 
-    /** Return a list of Interval objects. */
-    public getIntervals = (): java.util.List<Interval> => {
+    /** @returns a list of Interval objects. */
+    public getIntervals = (): java.util.List<Interval> | null => {
         return this.intervals;
     };
 
@@ -532,157 +489,112 @@ export class IntervalSet extends IntSet {
      *  by the List.equals() method to check the ranges.
      *
      * @param obj tbd
+     *
+     * @returns tbd
      */
-    public equals = (obj: unknown): boolean => {
-        if (obj === undefined || !((obj instanceof IntervalSet))) {
+    public equals = (obj: java.lang.Object | null): boolean => {
+        if (obj === null || !(obj instanceof IntervalSet)) {
             return false;
         }
+        const other: IntervalSet = obj;
 
-        return this.intervals.equals(obj.intervals);
+        return this.intervals.equals(other.intervals);
     };
 
-    public toString(): java.lang.String;
-    public toString(elemAreChar: boolean): java.lang.String;
-    /**
-     * @deprecated Use {@link #toString(Vocabulary)} instead.
-     */
-    public toString(tokenNames: string[]): java.lang.String;
+    public toString(elemAreChar?: boolean): java.lang.String;
     public toString(vocabulary: Vocabulary): java.lang.String;
-    public toString(elemAreCharOrTokenNamesOrVocabulary?: boolean | string[] | Vocabulary): java.lang.String {
-        if (elemAreCharOrTokenNamesOrVocabulary === undefined) {
-            return this.toString(false);
-        } else if (typeof elemAreCharOrTokenNamesOrVocabulary === "boolean") {
-            const elemAreChar = elemAreCharOrTokenNamesOrVocabulary;
+    public toString(elemAreCharOrVocabulary?: boolean | Vocabulary): java.lang.String {
+        if (elemAreCharOrVocabulary === undefined || typeof elemAreCharOrVocabulary === "boolean") {
+            const elemAreChar = elemAreCharOrVocabulary ?? false;
+            if (this.intervals === null || this.intervals.isEmpty()) {
+                return S`{}`;
+            }
+
             const buf = new java.lang.StringBuilder();
-            if (this.intervals === undefined || this.intervals.isEmpty()) {
-                return jsl`{}`;
-            }
-
             if (this.size() > 1) {
-                buf.append("{");
+                buf.append(S`{`);
             }
 
-            const localBuffer = new java.lang.StringBuilder();
-            for (const interval of this.intervals) {
-                if (localBuffer.length() > 0) {
-                    localBuffer.append(", ");
-                }
-
-                const a = interval.a;
-                const b = interval.b;
+            const iter = this.intervals.iterator();
+            while (iter.hasNext()) {
+                const I = iter.next();
+                const a = I.a;
+                const b = I.b;
                 if (a === b) {
                     if (a === Token.EOF) {
-                        localBuffer.append("<EOF>");
+                        buf.append(S`<EOF>`);
                     } else {
                         if (elemAreChar) {
-                            localBuffer.append("'").appendCodePoint(a).append("'");
+                            buf.append(S`'`).appendCodePoint(a).append(S`'`);
                         } else {
-                            localBuffer.append(a);
+                            buf.append(a);
                         }
 
                     }
-
                 } else {
                     if (elemAreChar) {
-                        localBuffer.append("'").appendCodePoint(a).append("'..'").appendCodePoint(b).append("'");
+                        buf.append(S`'`).appendCodePoint(a).append(S`'..'`).appendCodePoint(b).append(S`'`);
                     } else {
-                        localBuffer.append(a).append("..").append(b);
+                        buf.append(a).append(S`..`).append(b);
                     }
+
+                }
+                if (iter.hasNext()) {
+                    buf.append(S`, `);
                 }
             }
-
-            buf.append(localBuffer);
-
             if (this.size() > 1) {
-                buf.append("}");
+                buf.append(S`}`);
             }
 
             return buf.toString();
-        } else if (Array.isArray(elemAreCharOrTokenNamesOrVocabulary)) {
-            const tokenNames = elemAreCharOrTokenNamesOrVocabulary;
-
-            return this.toString(VocabularyImpl.fromTokenNames(tokenNames));
         } else {
-            const vocabulary = elemAreCharOrTokenNamesOrVocabulary;
+            const vocabulary = elemAreCharOrVocabulary;
+            if (this.intervals === null || this.intervals.isEmpty()) {
+                return S`{}`;
+            }
+
             const buf = new java.lang.StringBuilder();
-
-            if (this.intervals === undefined || this.intervals.isEmpty()) {
-                return jsl`{}`;
-            }
-
             if (this.size() > 1) {
-                buf.append("{");
+                buf.append(S`{`);
             }
 
-            const localBuffer = new java.lang.StringBuilder();
-            for (const interval of this.intervals) {
-                if (localBuffer.length() > 0) {
-                    localBuffer.append(", ");
-                }
-
-                const a = interval.a;
-                const b = interval.b;
+            const iter = this.intervals.iterator();
+            while (iter.hasNext()) {
+                const I = iter.next();
+                const a = I.a;
+                const b = I.b;
                 if (a === b) {
-                    localBuffer.append(this.elementName(vocabulary, a));
+                    buf.append(this.elementName(vocabulary, a));
                 } else {
                     for (let i: number = a; i <= b; i++) {
                         if (i > a) {
-                            localBuffer.append(", ");
+                            buf.append(S`, `);
                         }
 
-                        localBuffer.append(this.elementName(vocabulary, i));
+                        buf.append(this.elementName(vocabulary, i));
                     }
                 }
+                if (iter.hasNext()) {
+                    buf.append(S`, `);
+                }
             }
-
-            buf.append(localBuffer);
             if (this.size() > 1) {
-                buf.append("}");
+                buf.append(S`}`);
             }
 
             return buf.toString();
-        }
-
-    }
-
-    /**
-     * @deprecated Use {@link #elementName(Vocabulary, int)} instead.
-     */
-    protected elementName(tokenNames: string[], a: number): string;
-    protected elementName(vocabulary: Vocabulary, a: number): string;
-    /**
-     * @param tokenNamesOrVocabulary tbd
-     * @param a tbd
-     * @deprecated Use {@link #elementName(Vocabulary, int)} instead.
-     */
-    protected elementName(tokenNamesOrVocabulary: string[] | Vocabulary, a: number): string {
-        if (Array.isArray(tokenNamesOrVocabulary)) {
-            const tokenNames = tokenNamesOrVocabulary;
-
-            return this.elementName(VocabularyImpl.fromTokenNames(tokenNames), a);
-        } else {
-            const vocabulary = tokenNamesOrVocabulary;
-            if (a === Token.EOF) {
-                return "<EOF>";
-            } else {
-                if (a === Token.EPSILON) {
-                    return "<EPSILON>";
-                } else {
-                    return vocabulary.getDisplayName(a);
-                }
-            }
         }
     }
 
     public size = (): number => {
         let n = 0;
-        const numIntervals = this.intervals.size();
+        const numIntervals: number = this.intervals.size();
         if (numIntervals === 1) {
-            const firstInterval = this.intervals.get(0);
+            const firstInterval: Interval = this.intervals.get(0);
 
             return firstInterval.b - firstInterval.a + 1;
         }
-
         for (let i = 0; i < numIntervals; i++) {
             const I: Interval = this.intervals.get(i);
             n += (I.b - I.a + 1);
@@ -706,28 +618,28 @@ export class IntervalSet extends IntSet {
         return values;
     };
 
-    public toList = (): number[] => {
-        const values: number[] = [];
+    public toList = (): java.util.List<java.lang.Integer> => {
+        const values: java.util.List<java.lang.Integer> = new java.util.ArrayList<java.lang.Integer>();
         const n: number = this.intervals.size();
         for (let i = 0; i < n; i++) {
             const interval = this.intervals.get(i);
-            const a: number = interval.a;
-            const b: number = interval.b;
-            for (let v: number = a; v <= b; v++) {
-                values.push(v);
+            const a = interval.a;
+            const b = interval.b;
+            for (let v = a; v <= b; v++) {
+                values.add(I`${v}`);
             }
         }
 
         return values;
     };
 
-    public toSet = (): Set<number> => {
-        const s = new Set<number>();
-        for (const I of this.intervals) {
-            const a: number = I.a;
-            const b: number = I.b;
-            for (let v: number = a; v <= b; v++) {
-                s.add(v);
+    public toSet = (): java.util.Set<java.lang.Integer> => {
+        const s = new java.util.HashSet<java.lang.Integer>();
+        for (const interval of this.intervals) {
+            const a = interval.a;
+            const b = interval.b;
+            for (let v = a; v <= b; v++) {
+                s.add(I`${v}`);
             }
         }
 
@@ -740,15 +652,17 @@ export class IntervalSet extends IntSet {
      *  ANTLR code gen target.
      *
      * @param i tbd
+     *
+     * @returns tbd
      */
     public get = (i: number): number => {
         const n: number = this.intervals.size();
         let index = 0;
         for (let j = 0; j < n; j++) {
-            const I: Interval = this.intervals.get(j);
-            const a: number = I.a;
-            const b: number = I.b;
-            for (let v: number = a; v <= b; v++) {
+            const interval = this.intervals.get(j);
+            const a = interval.a;
+            const b = interval.b;
+            for (let v = a; v <= b; v++) {
                 if (index === i) {
                     return v;
                 }
@@ -756,65 +670,80 @@ export class IntervalSet extends IntSet {
             }
         }
 
-        return -(1);
+        return -1;
     };
 
-    public toArray = (): number[] => {
+    public toArray = (): Int32Array => {
         return this.toIntegerList().toArray();
     };
 
     public remove = (el: number): void => {
-        if (this.readonly) {
-            throw new java.lang.IllegalStateException("can't alter readonly IntervalSet");
+        if (this.#readOnly) {
+            throw new java.lang.IllegalStateException(S`can't alter readonly IntervalSet`);
         }
 
         const n: number = this.intervals.size();
         for (let i = 0; i < n; i++) {
-            const I: Interval = this.intervals.get(i);
-            const a: number = I.a;
-            const b: number = I.b;
+            const interval = this.intervals.get(i);
+            const a = interval.a;
+            const b = interval.b;
             if (el < a) {
                 break; // list is sorted and el is before this interval; not here
             }
+
             // if whole interval x..x, rm
             if (el === a && el === b) {
                 this.intervals.remove(i);
                 break;
             }
+
             // if on left edge x..b, adjust left
             if (el === a) {
-                I.a++;
+                interval.a++;
                 break;
             }
+
             // if on right edge a..x, adjust right
             if (el === b) {
-                I.b--;
+                interval.b--;
                 break;
             }
+
             // if in middle a..x..b, split interval
             if (el > a && el < b) { // found in this interval
-                const oldb: number = I.b;
-                I.b = el - 1;      // [a..x-1]
-                this.add(el + 1, oldb); // add [x+1..b]
+                const oldB = interval.b;
+                interval.b = el - 1;      // [a..x-1]
+                this.add(el + 1, oldB); // add [x+1..b]
             }
         }
     };
 
     public isReadonly = (): boolean => {
-        return this.readonly;
+        return this.#readOnly;
     };
 
     public setReadonly = (readonly: boolean): void => {
-        if (this.readonly && !(readonly)) {
-            throw new java.lang.IllegalStateException("can't alter readonly IntervalSet");
+        if (this.#readOnly && !readonly) {
+            throw new java.lang.IllegalStateException(S`can't alter readonly IntervalSet`);
         }
 
-        this.readonly = readonly;
+        this.#readOnly = readonly;
     };
+
+    protected elementName(vocabulary: Vocabulary, a: number): java.lang.String {
+        if (a === Token.EOF) {
+            return S`<EOF>`;
+        } else {
+            if (a === Token.EPSILON) {
+                return S`<EPSILON>`;
+            } else {
+                return vocabulary.getDisplayName(a) ?? S`null`;
+            }
+        }
+    }
+
     static {
         IntervalSet.COMPLETE_CHAR_SET.setReadonly(true);
-    }
-    static {
         IntervalSet.EMPTY_SET.setReadonly(true);
     }
 }

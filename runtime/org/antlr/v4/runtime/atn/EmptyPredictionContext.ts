@@ -38,11 +38,11 @@ export class EmptyPredictionContext extends SingletonPredictionContext {
         return this.returnState;
     };
 
-    public equals = (o: java.lang.Object | null): boolean => {
+    public equals = (o: unknown): boolean => {
         return this === o;
     };
 
-    public toString = (): java.lang.String | null => {
+    public toString = (): java.lang.String => {
         return S`$`;
     };
 }

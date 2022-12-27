@@ -27,6 +27,7 @@ import { Interval } from "./misc/Interval";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 
 export  class UnbufferedTokenStream<T extends Token> extends JavaObject implements TokenStream {
@@ -112,8 +113,8 @@ $this(tokenSource, bufferSize);
 	public get = (i: number):  Token | null => { // get absolute index
 		let  bufferStartIndex: number = this.getBufferStartIndex();
 		if (i < bufferStartIndex || i >= bufferStartIndex + this.n) {
-			throw new  java.lang.IndexOutOfBoundsException("get("+i+") outside buffer: "+
-			                    bufferStartIndex+".."+(bufferStartIndex+this.n));
+			throw new  java.lang.IndexOutOfBoundsException(S`get(`+i+S`) outside buffer: `+
+			                    bufferStartIndex+S`..`+(bufferStartIndex+this.n));
 		}
 		return this.tokens[i - bufferStartIndex];
 	}
@@ -126,7 +127,7 @@ $this(tokenSource, bufferSize);
 		this.sync(i);
         let  index: number = this.p + i - 1;
         if ( index < 0 ) {
-			throw new  java.lang.IndexOutOfBoundsException("LT("+i+") gives negative index");
+			throw new  java.lang.IndexOutOfBoundsException(S`LT(`+i+S`) gives negative index`);
 		}
 
 		if ( index >= this.n ) {
@@ -161,7 +162,7 @@ $this(tokenSource, bufferSize);
 
 	public getText(ctxOrIntervalOrStart?: RuleContext | Interval | Token | null, stop?: Token | null):  java.lang.String | null {
 if (ctxOrIntervalOrStart === undefined) {
-		return "";
+		return S``;
 	}
  else if (ctxOrIntervalOrStart instanceof RuleContext && stop === undefined) {
 const ctx = ctxOrIntervalOrStart as RuleContext;
@@ -175,8 +176,8 @@ const interval = ctxOrIntervalOrStart as Interval;
 		let  start: number = interval.a;
 		let  stop: number = interval.b;
 		if (start < bufferStartIndex || stop > bufferStopIndex) {
-			throw new  java.lang.UnsupportedOperationException("interval "+interval+" not in token buffer window: "+
-													bufferStartIndex+".."+bufferStopIndex);
+			throw new  java.lang.UnsupportedOperationException(S`interval `+interval+S` not in token buffer window: `+
+													bufferStartIndex+S`..`+bufferStopIndex);
 		}
 
 		let  a: number = start - bufferStartIndex;
@@ -200,7 +201,7 @@ let start = ctxOrIntervalOrStart as Token;
 
 	public consume = ():  void => {
 		if (this.LA(1) === Token.EOF) {
-			throw new  java.lang.IllegalStateException("cannot consume EOF");
+			throw new  java.lang.IllegalStateException(S`cannot consume EOF`);
 		}
 
 		// buf always has at least tokens[p==0] in this method due to ctor
@@ -279,7 +280,7 @@ let start = ctxOrIntervalOrStart as Token;
 	public release = (marker: number):  void => {
 		let  expectedMark: number = -this.numMarkers;
 		if ( marker!==expectedMark ) {
-			throw new  java.lang.IllegalStateException("release() called with an invalid marker.");
+			throw new  java.lang.IllegalStateException(S`release() called with an invalid marker.`);
 		}
 
 		this.numMarkers--;
@@ -313,11 +314,12 @@ let start = ctxOrIntervalOrStart as Token;
 		let  bufferStartIndex: number = this.getBufferStartIndex();
 		let  i: number = index - bufferStartIndex;
 		if ( i < 0 ) {
-			throw new  java.lang.IllegalArgumentException("cannot seek to negative index " + index);
+			throw new  java.lang.IllegalArgumentException(S`cannot seek to negative index ` + index);
 		}
-		else { if (i >= this.n) {
-			throw new  java.lang.UnsupportedOperationException("seek to index outside buffer: "+
-													index+" not in "+ bufferStartIndex +".."+(bufferStartIndex +this.n));
+		else {
+ if (i >= this.n) {
+			throw new  java.lang.UnsupportedOperationException(S`seek to index outside buffer: `+
+													index+S` not in `+ bufferStartIndex +S`..`+(bufferStartIndex +this.n));
 		}
 }
 
@@ -333,7 +335,7 @@ let start = ctxOrIntervalOrStart as Token;
 	}
 
 	public size = ():  number => {
-		throw new  java.lang.UnsupportedOperationException("Unbuffered stream cannot know its size");
+		throw new  java.lang.UnsupportedOperationException(S`Unbuffered stream cannot know its size`);
 	}
 
 	public getSourceName = ():  java.lang.String | null => {

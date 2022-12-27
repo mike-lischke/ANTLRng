@@ -18,6 +18,7 @@
 import { Chunk } from "./Chunk";
 
 
+import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -81,7 +82,7 @@ let label = tagOrLabel as java.lang.String;
 /* @ts-expect-error, because of the super() call in the closure. */
 		super();
 if (tag === null || tag.isEmpty()) {
-			throw new  java.lang.IllegalArgumentException("tag cannot be null or empty");
+			throw new  java.lang.IllegalArgumentException(S`tag cannot be null or empty`);
 		}
 
 		this.label = label;
@@ -122,7 +123,7 @@ $this(tagOrLabel, tag);
 	 */
 	public toString = ():  java.lang.String | null => {
 		if (this.label !== null) {
-			return this.label + ":" + this.tag;
+			return this.label + S`:` + this.tag;
 		}
 
 		return this.tag;
