@@ -6,20 +6,27 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable @typescript-eslint/naming-convention */
+
+import { Enum } from "../../../../../../lib/java/lang/Enum";
+import { S } from "../../../../../../lib/templates";
+
 /**
  * Represents the type of recognizer an ATN applies to.
  *
  * @author Sam Harwell
  */
-export enum ATNType {
+export class ATNType extends Enum<ATNType> {
 
     /**
      * A lexer grammar.
      */
-    LEXER,
+    public static readonly LEXER: ATNType = new class extends ATNType {
+    }(S`LEXER`, 0);
 
     /**
      * A parser grammar.
      */
-    PARSER,
+    public static readonly PARSER: ATNType = new class extends ATNType {
+    }(S`PARSER`, 1);
 }

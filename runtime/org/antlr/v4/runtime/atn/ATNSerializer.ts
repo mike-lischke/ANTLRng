@@ -53,8 +53,8 @@ export class ATNSerializer extends JavaObject {
         entries with the same key.
      */
     private readonly sets = new java.util.LinkedHashMap<IntervalSet, boolean>();
-    private readonly nonGreedyStates: IntegerList = new IntegerList();
-    private readonly precedenceStates: IntegerList = new IntegerList();
+    private readonly nonGreedyStates = new IntegerList();
+    private readonly precedenceStates = new IntegerList();
 
     public constructor(atn: ATN) {
         super();
@@ -71,7 +71,7 @@ export class ATNSerializer extends JavaObject {
         data.add(nSets);
 
         for (const set of sets) {
-            const containsEof: boolean = set.contains(Token.EOF);
+            const containsEof = set.contains(Token.EOF);
             if (containsEof && set.getIntervals().get(0).b === Token.EOF) {
                 data.add(set.getIntervals().size() - 1);
             } else {

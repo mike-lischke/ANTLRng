@@ -466,7 +466,7 @@ export class IntervalSet extends JavaObject implements IntSet {
     };
 
     /** @returns a list of Interval objects. */
-    public getIntervals = (): java.util.List<Interval> | null => {
+    public getIntervals = (): java.util.List<Interval> => {
         return this.intervals;
     };
 
@@ -492,7 +492,7 @@ export class IntervalSet extends JavaObject implements IntSet {
      *
      * @returns tbd
      */
-    public equals = (obj: java.lang.Object | null): boolean => {
+    public equals = (obj: unknown): boolean => {
         if (obj === null || !(obj instanceof IntervalSet)) {
             return false;
         }

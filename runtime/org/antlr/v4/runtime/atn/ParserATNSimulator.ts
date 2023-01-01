@@ -519,13 +519,11 @@ export class ParserATNSimulator extends ATNSimulator {
                 }
 
                 if (ParserATNSimulator.dfa_debug) {
-                    java.lang.System.out.println(S`ctx sensitive state` + outerContext + S` in ` + D);
+                    java.lang.System.out.println(S`ctx sensitive state${outerContext} in ${D}`);
                 }
 
                 let fullCtx: boolean = true;
-                let s0_closure: ATNConfigSet =
-                    this.computeStartState(dfa.atnStartState, outerContext,
-                        fullCtx);
+                let s0_closure = this.computeStartState(dfa.atnStartState, outerContext, fullCtx);
                 this.reportAttemptingFullContext(dfa, conflictingAlts, D.configs, startIndex, input.index());
                 let alt: number = this.execATNWithFullContext(dfa, D, s0_closure,
                     input, startIndex,
@@ -583,7 +581,7 @@ export class ParserATNSimulator extends ATNSimulator {
      * already cached
      */
     protected getExistingTargetState = (previousD: DFAState | null, t: number): DFAState | null => {
-        let edges: DFAState[] = previousD.edges;
+        let edges = previousD?.edges ?? null;
         if (edges === null || t + 1 < 0 || t + 1 >= edges.length) {
             return null;
         }
@@ -604,7 +602,7 @@ export class ParserATNSimulator extends ATNSimulator {
      * returns {@link #ERROR}.
      */
     protected computeTargetState = (dfa: DFA | null, previousD: DFAState | null, t: number): DFAState => {
-        let reach: ATNConfigSet = this.computeReachSet(previousD.configs, t, false);
+        let reach = this.computeReachSet(previousD?.configs ?? null, t, false);
         if (reach === null) {
             this.addDFAEdge(dfa, previousD, t, ATNSimulator.ERROR);
             return ATNSimulator.ERROR;
@@ -616,7 +614,7 @@ export class ParserATNSimulator extends ATNSimulator {
         let predictedAlt: number = ParserATNSimulator.getUniqueAlt(reach);
 
         if (ParserATNSimulator.debug) {
-            let altSubSets: java.util.Collection<java.util.BitSet> = PredictionMode.getConflictingAltSubsets(reach);
+            let altSubSets = PredictionMode.getConflictingAltSubsets(reach);
             java.lang.System.out.println(S`SLL altSubSets = ` + altSubSets +
                 S`, configs = ` + reach +
                 S`, predict = ` + predictedAlt + S`, allSubsetsConflict = ` +
