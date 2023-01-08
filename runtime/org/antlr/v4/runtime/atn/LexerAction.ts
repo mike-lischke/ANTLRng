@@ -55,5 +55,5 @@ export interface LexerAction {
     execute: (lexer: Lexer) => void;
 
     equals: (o: unknown) => boolean;
-    toString: () => java.lang.String;
+    toString: () => java.lang.String | null;
 }

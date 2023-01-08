@@ -6,6 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { java } from "../../../../../../lib/java/java";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
 import { SyntaxTree } from "./SyntaxTree";
 import { Parser } from "../Parser";
@@ -17,9 +18,14 @@ import { RuleContext } from "../RuleContext";
  *  This node represents both internal nodes, rule invocations,
  *  and leaf nodes, token matches.
  *
- *  The payload is either a {@link Token} or a {@link RuleContext} object.
+ *  <p>The payload is either a {@link Token} or a {@link RuleContext} object.</p>
  */
-export abstract class ParseTree extends SyntaxTree {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface ParseTree extends SyntaxTree {
+    // the following methods narrow the return type; they are not additional methods
+    getParent: () => ParseTree;
+    getChild: (i: number) => ParseTree;
+
     /**
      * Set the parent for this node.
      *
@@ -34,23 +40,22 @@ export abstract class ParseTree extends SyntaxTree {
      *  but that's a major change. So I'll do the
      *  minimal change, which is to add this method.
      *
-     *  since 4.7
      */
-    public abstract setParent: (parent: RuleContext) => void;
+    setParent: (parent: RuleContext | null) => void;
 
     /** The {@link ParseTreeVisitor} needs a double dispatch method. */
-    public abstract accept: <T>(visitor: ParseTreeVisitor<T>) => T;
+    accept: <T>(visitor: ParseTreeVisitor<T> | null) => T;
 
     /**
      * Return the combined text of all leaf nodes. Does not get any
      *  off-channel tokens (if any) so won't return whitespace and
      *  comments if they are sent to parser on hidden channel.
      */
-    public abstract getText: () => string;
+    getText: () => java.lang.String;
 
     /**
      * Specialize toStringTree so that it can print out more information
      * 	based upon the parser.
      */
-    public abstract toStringTree(parser?: Parser): string;
+    toStringTree: (parser?: Parser) => java.lang.String;
 }

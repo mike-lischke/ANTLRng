@@ -6,18 +6,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
 import { DecisionInfo } from "./DecisionInfo";
 import { ProfilingATNSimulator } from "./ProfilingATNSimulator";
-import { DFA } from "../dfa/DFA";
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 /**
  * This class provides access to specific and aggregate statistics gathered
  * during profiling of a parser.
- *
- *
  */
 export class ParseInfo extends JavaObject {
     protected readonly atnSimulator: ProfilingATNSimulator;
@@ -46,145 +42,122 @@ export class ParseInfo extends JavaObject {
       @returns A list of decision numbers which required one or more
      * full-context predictions during parsing.
      */
-    public getLLDecisions = (): java.util.List<java.lang.Integer> | null => {
+    public getLLDecisions = (): number[] => {
         const decisions = this.atnSimulator.getDecisionInfo();
-        const LL = new java.util.ArrayList<java.lang.Integer>();
+        const result: number[] = [];
         for (let i = 0; i < decisions.length; i++) {
-            const fallBack: bigint = decisions[i].LL_Fallback;
+            const fallBack = decisions[i].LL_Fallback;
             if (fallBack > 0) {
-                LL.add(i);
+                result.push(i);
             }
-
         }
 
-        return LL;
+        return result;
     };
 
     /**
      * Gets the total time spent during prediction across all decisions made
      * during parsing. This value is the sum of
      * {@link DecisionInfo#timeInPrediction} for all decisions.
+     *
+     * @returns tbd
      */
     public getTotalTimeInPrediction = (): bigint => {
-        const decisions: DecisionInfo[] = this.atnSimulator.getDecisionInfo();
-        let t: bigint = 0;
-        for (let i = 0; i < decisions.length; i++) {
-            t += decisions[i].timeInPrediction;
-        }
+        const decisions = this.atnSimulator.getDecisionInfo();
 
-        return t;
+        return decisions.reduce((previous, currentValue) => {
+            return previous += currentValue.timeInPrediction;
+        }, 0n);
     };
 
     /**
      * Gets the total number of SLL lookahead operations across all decisions
      * made during parsing. This value is the sum of
      * {@link DecisionInfo#SLL_TotalLook} for all decisions.
+     *
+     * @returns tbd
      */
     public getTotalSLLLookaheadOps = (): bigint => {
-        const decisions: DecisionInfo[] = this.atnSimulator.getDecisionInfo();
-        let k: bigint = 0;
-        for (let i = 0; i < decisions.length; i++) {
-            k += decisions[i].SLL_TotalLook;
-        }
+        const decisions = this.atnSimulator.getDecisionInfo();
 
-        return k;
+        return decisions.reduce((previous, currentValue) => {
+            return previous += currentValue.SLL_TotalLook;
+        }, 0n);
     };
 
     /**
      * Gets the total number of LL lookahead operations across all decisions
      * made during parsing. This value is the sum of
      * {@link DecisionInfo#LL_TotalLook} for all decisions.
+     *
+     * @returns tbd
      */
     public getTotalLLLookaheadOps = (): bigint => {
-        const decisions: DecisionInfo[] = this.atnSimulator.getDecisionInfo();
-        let k: bigint = 0;
-        for (let i = 0; i < decisions.length; i++) {
-            k += decisions[i].LL_TotalLook;
-        }
+        const decisions = this.atnSimulator.getDecisionInfo();
 
-        return k;
+        return decisions.reduce((previous, currentValue) => {
+            return previous += currentValue.LL_TotalLook;
+        }, 0n);
     };
 
     /**
      * Gets the total number of ATN lookahead operations for SLL prediction
      * across all decisions made during parsing.
+     *
+     * @returns tbd
      */
     public getTotalSLLATNLookaheadOps = (): bigint => {
-        const decisions: DecisionInfo[] = this.atnSimulator.getDecisionInfo();
-        let k: bigint = 0;
-        for (let i = 0; i < decisions.length; i++) {
-            k += decisions[i].SLL_ATNTransitions;
-        }
+        const decisions = this.atnSimulator.getDecisionInfo();
 
-        return k;
+        return decisions.reduce((previous, currentValue) => {
+            return previous += currentValue.SLL_ATNTransitions;
+        }, 0n);
     };
 
     /**
      * Gets the total number of ATN lookahead operations for LL prediction
      * across all decisions made during parsing.
+     *
+     * @returns tbd
      */
     public getTotalLLATNLookaheadOps = (): bigint => {
-        const decisions: DecisionInfo[] = this.atnSimulator.getDecisionInfo();
-        let k: bigint = 0;
-        for (let i = 0; i < decisions.length; i++) {
-            k += decisions[i].LL_ATNTransitions;
-        }
+        const decisions = this.atnSimulator.getDecisionInfo();
 
-        return k;
+        return decisions.reduce((previous, currentValue) => {
+            return previous += currentValue.LL_ATNTransitions;
+        }, 0n);
     };
 
     /**
      * Gets the total number of ATN lookahead operations for SLL and LL
      * prediction across all decisions made during parsing.
      *
-     * <p>
      * This value is the sum of {@link #getTotalSLLATNLookaheadOps} and
-     * {@link #getTotalLLATNLookaheadOps}.</p>
+     * {@link #getTotalLLATNLookaheadOps}.
+     *
+     * @returns tbd
      */
     public getTotalATNLookaheadOps = (): bigint => {
-        const decisions: DecisionInfo[] = this.atnSimulator.getDecisionInfo();
-        let k: bigint = 0;
-        for (let i = 0; i < decisions.length; i++) {
-            k += decisions[i].SLL_ATNTransitions;
-            k += decisions[i].LL_ATNTransitions;
-        }
+        const decisions = this.atnSimulator.getDecisionInfo();
 
-        return k;
+        return decisions.reduce((previous, currentValue) => {
+            return previous += currentValue.SLL_ATNTransitions + currentValue.LL_ATNTransitions;
+        }, 0n);
     };
 
-    /**
-     * Gets the total number of DFA states stored in the DFA cache for all
-     * decisions in the ATN.
-     */
-    public getDFASize(): number;
-
-    /**
-     * Gets the total number of DFA states stored in the DFA cache for a
-     * particular decision.
-     */
-    public getDFASize(decision: number): number;
-
-    /**
-     * Gets the total number of DFA states stored in the DFA cache for all
-     * decisions in the ATN.
-     *
-     * @param decision
-     */
     public getDFASize(decision?: number): number {
         if (decision === undefined) {
             let n = 0;
-            const decisionToDFA: DFA[] = this.atnSimulator.decisionToDFA;
+            const decisionToDFA = this.atnSimulator.decisionToDFA;
             for (let i = 0; i < decisionToDFA.length; i++) {
                 n += this.getDFASize(i);
             }
 
             return n;
         } else {
-            const decisionToDFA: DFA = this.atnSimulator.decisionToDFA[decision];
+            const decisionToDFA = this.atnSimulator.decisionToDFA[decision];
 
             return decisionToDFA.states.size();
         }
-
     }
-
 }

@@ -5,18 +5,9 @@
  */
 
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
 
 
-
-
+import { java } from "../../../../../../lib/java/java";
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeListener } from "./ParseTreeListener";
@@ -37,7 +28,7 @@ export  class IterativeParseTreeWalker extends ParseTreeWalker {
 
 	public walk = (listener: ParseTreeListener| null, t: ParseTree| null):  void => {
 
-		 let  nodeStack: Deque<ParseTree> = new  ArrayDeque<ParseTree>();
+		 let  nodeStack: java.util.Deque<ParseTree> = new  ArrayDeque<ParseTree>();
 		 let  indexStack: IntegerStack = new  IntegerStack();
 
 		let  currentNode: ParseTree = t;

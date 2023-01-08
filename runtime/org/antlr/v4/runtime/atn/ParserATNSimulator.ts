@@ -989,7 +989,7 @@ export class ParserATNSimulator extends ATNSimulator {
 
     protected computeStartState = (p: ATNState | null,
         ctx: RuleContext | null,
-        fullCtx: boolean): ATNConfigSet | null => {
+        fullCtx: boolean): ATNConfigSet => {
         // always at least the implicit call to start rule
         let initialContext: PredictionContext = PredictionContext.fromRuleContext(this.atn, ctx);
         let configs: ATNConfigSet = new ATNConfigSet(fullCtx);
@@ -1171,16 +1171,16 @@ export class ParserATNSimulator extends ATNSimulator {
      * for a precedence DFA at a particular precedence level (determined by
      * calling {@link Parser#getPrecedence}).
      */
-    protected applyPrecedenceFilter = (configs: ATNConfigSet | null): ATNConfigSet | null => {
-        let statesFromAlt1: java.util.Map<java.lang.Integer, PredictionContext> = new java.util.HashMap<java.lang.Integer, PredictionContext>();
-        let configSet: ATNConfigSet = new ATNConfigSet(configs.fullCtx);
+    protected applyPrecedenceFilter = (configs: ATNConfigSet): ATNConfigSet => {
+        let statesFromAlt1 = new java.util.HashMap<number, PredictionContext>();
+        let configSet = new ATNConfigSet(configs.fullCtx);
         for (let config of configs) {
             // handle alt 1 first
             if (config.alt !== 1) {
                 continue;
             }
 
-            let updatedContext: SemanticContext = config.semanticContext.evalPrecedence(this.parser, this._outerContext);
+            let updatedContext = config.semanticContext.evalPrecedence(this.parser, this._outerContext);
             if (updatedContext === null) {
                 // the configuration was eliminated
                 continue;
@@ -1188,10 +1188,10 @@ export class ParserATNSimulator extends ATNSimulator {
 
             statesFromAlt1.put(config.state.stateNumber, config.context);
             if (updatedContext !== config.semanticContext) {
-                configSet.add(new ATNConfig(config, updatedContext), this.mergeCache);
+                configSet.add(new ATNConfig(config, updatedContext), this.mergeCache ?? undefined);
             }
             else {
-                configSet.add(config, this.mergeCache);
+                configSet.add(config, this.mergeCache ?? undefined);
             }
         }
 

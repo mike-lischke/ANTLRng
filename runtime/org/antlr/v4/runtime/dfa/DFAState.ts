@@ -61,7 +61,7 @@ export class DFAState extends JavaObject {
 
     public stateNumber = -1;
 
-    public configs: ATNConfigSet | null = new ATNConfigSet();
+    public configs: ATNConfigSet = new ATNConfigSet();
 
     /**
      * {@code edges[symbol]} points to target of symbol. Shift up by 1 so (-1)

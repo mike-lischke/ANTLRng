@@ -14,7 +14,8 @@ import { Interval } from "../misc/Interval";
  *  is some kind of syntax tree. Sub interfaces distinguish
  *  between parse trees and other kinds of syntax trees we might want to create.
  */
-export abstract class SyntaxTree extends Tree {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface SyntaxTree extends Tree {
     /**
      * Return an {@link Interval} indicating the index in the
      * {@link TokenStream} of the first and last token associated with this
@@ -31,5 +32,5 @@ export abstract class SyntaxTree extends Tree {
      * <p>As a weird special case, the source interval for rules matched after
      * EOF is unspecified.</p>
      */
-    public abstract getSourceInterval(): Interval;
+    getSourceInterval: () => Interval;
 }

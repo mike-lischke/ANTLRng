@@ -130,7 +130,7 @@ export class LL1Analyzer extends JavaObject {
 
         const r = new IntervalSet();
         const seeThruPreds = true; // ignore preds; get all lookahead
-        const lookContext = context ? PredictionContext.fromRuleContext(s.atn, context) : null;
+        const lookContext = context ? PredictionContext.fromRuleContext(s.atn!, context) : null;
         this._LOOK(s, stop, lookContext, r,
             new java.util.HashSet<ATNConfig>(), new java.util.BitSet(), seeThruPreds, true);
 

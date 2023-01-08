@@ -62,9 +62,9 @@ export abstract class Recognizer<Symbol extends Token, ATNInterpreter extends AT
      *
      * @deprecated Use {@link #getVocabulary()} instead.
      */
-    public abstract getTokenNames: () => java.lang.String[] | null;
+    public abstract getTokenNames: () => java.lang.String[];
 
-    public abstract getRuleNames: () => java.lang.String[] | null;
+    public abstract getRuleNames: () => java.lang.String[];
 
     /**
      * Get the vocabulary used by the recognizer.
@@ -279,15 +279,15 @@ export abstract class Recognizer<Symbol extends Token, ATNInterpreter extends AT
 
     // subclass needs to override these if there are sempreds or actions
     // that the ATN interp needs to execute
-    public sempred = (_localctx: RuleContext, _ruleIndex: number, _actionIndex: number): boolean => {
+    public sempred = (_localctx: RuleContext | null, _ruleIndex: number, _actionIndex: number): boolean => {
         return true;
     };
 
-    public precpred = (_localctx: RuleContext, _precedence: number): boolean => {
+    public precpred = (_localctx: RuleContext | null, _precedence: number): boolean => {
         return true;
     };
 
-    public action = (_localctx: RuleContext, _ruleIndex: number, _actionIndex: number): void => {
+    public action = (_localctx: RuleContext | null, _ruleIndex: number, _actionIndex: number): void => {
     };
 
     public readonly getState = (): number => {
@@ -309,10 +309,7 @@ export abstract class Recognizer<Symbol extends Token, ATNInterpreter extends AT
     };
 
     public abstract getInputStream: () => IntStream | null;
-
     public abstract setInputStream: (input: IntStream | null) => void;
-
     public abstract getTokenFactory: () => TokenFactory<Symbol>;
-
     public abstract setTokenFactory: (input: TokenFactory<Symbol>) => void;
 }

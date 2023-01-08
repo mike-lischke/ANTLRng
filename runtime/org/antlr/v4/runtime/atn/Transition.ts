@@ -6,24 +6,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import { java } from "../../../../../../lib/java/java";
-import { ActionTransition } from "./ActionTransition";
 import { ATNState } from "./ATNState";
-import { AtomTransition } from "./AtomTransition";
-import { EpsilonTransition } from "./EpsilonTransition";
-import { NotSetTransition } from "./NotSetTransition";
-import { PrecedencePredicateTransition } from "./PrecedencePredicateTransition";
-import { PredicateTransition } from "./PredicateTransition";
-import { RangeTransition } from "./RangeTransition";
-import { RuleTransition } from "./RuleTransition";
-import { SetTransition } from "./SetTransition";
-import { WildcardTransition } from "./WildcardTransition";
 import { IntervalSet } from "../misc/IntervalSet";
 
 import { JavaObject } from "../../../../../../lib/java/lang/Object";
 import { S } from "../../../../../../lib/templates";
-
-/* eslint-disable @typescript-eslint/naming-convention */
 
 /**
  * An ATN transition between any two ATN states.  Subclasses define
@@ -51,7 +41,7 @@ export abstract class Transition extends JavaObject {
     public static readonly WILDCARD = 9;
     public static readonly PRECEDENCE = 10;
 
-    public static readonly serializationNames = new java.util.ArrayList<java.lang.String>([
+    public static readonly serializationNames = java.util.Arrays.asList(
         S`INVALID`,
         S`EPSILON`,
         S`RANGE`,
@@ -63,27 +53,17 @@ export abstract class Transition extends JavaObject {
         S`NOT_SET`,
         S`WILDCARD`,
         S`PRECEDENCE`,
-    ]);
-
-    public static readonly serializationTypes = new java.util.HashMap<java.lang.Class<Transition>, number>([
-        [EpsilonTransition.class, Transition.EPSILON],
-        [RangeTransition.class, Transition.RANGE],
-        [RuleTransition.class, Transition.RULE],
-        [PredicateTransition.class, Transition.PREDICATE],
-        [AtomTransition.class, Transition.ATOM],
-        [ActionTransition.class, Transition.ACTION],
-        [SetTransition.class, Transition.SET],
-        [NotSetTransition.class, Transition.NOT_SET],
-        [WildcardTransition.class, Transition.WILDCARD],
-        [PrecedencePredicateTransition.class, Transition.PRECEDENCE],
-    ]);
+    );
 
     /** The target of this transition. */
-
     public target: ATNState;
 
-    protected constructor(target: ATNState) {
+    public abstract getSerializationType: () => number;
+    public abstract matches: (symbol: number, minVocabSymbol: number, maxVocabSymbol: number) => boolean;
+
+    protected constructor(target: ATNState | null) {
         super();
+
         if (target === null) {
             throw new java.lang.NullPointerException(S`target cannot be null.`);
         }
@@ -91,14 +71,12 @@ export abstract class Transition extends JavaObject {
         this.target = target;
     }
 
-    public abstract getSerializationType: () => number;
-
     /**
      * Determines if the transition is an "epsilon" transition.
      *
      * <p>The default implementation returns {@code false}.</p>
      *
-      @returns {@code true} if traversing this transition in the ATN does not
+      @returns `true` if traversing this transition in the ATN does not
      * consume an input symbol; otherwise, {@code false} if traversing this
      * transition consumes (matches) an input symbol.
      */
@@ -106,7 +84,7 @@ export abstract class Transition extends JavaObject {
         return false;
     };
 
-    public label = (): IntervalSet | null => { return null; };
-
-    public abstract matches: (symbol, minVocabSymbol, maxVocabSymbol) => boolean;
+    public label = (): IntervalSet | null => {
+        return null;
+    };
 }

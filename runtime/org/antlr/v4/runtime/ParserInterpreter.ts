@@ -5,16 +5,6 @@
  */
 
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
 
 
 import { java } from "../../../../../lib/java/java";
@@ -89,7 +79,7 @@ export  class ParserInterpreter extends Parser {
 	 *  Those values are used to create new recursive rule invocation contexts
 	 *  associated with left operand of an alt like "expr '*' expr".
 	 */
-	protected readonly  _parentContextStack:  Deque<Pair<ParserRuleContext, java.lang.Integer>> | null =
+	protected readonly  _parentContextStack:  java.util.Deque<Pair<ParserRuleContext, java.lang.Integer>> | null =
 		new  ArrayDeque<Pair<ParserRuleContext, java.lang.Integer>>();
 
 	/** We need a map from (decision,inputIndex)->forced alt for computing ambiguous

@@ -6,11 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { PredictionContext } from "./PredictionContext";
-import { SingletonPredictionContext } from "./SingletonPredictionContext";
-
 import { S } from "../../../../../../lib/templates";
 import { java } from "../../../../../../lib/java/java";
+
+import { PredictionContext } from "./PredictionContext";
+import { SingletonPredictionContext } from "./SingletonPredictionContext";
 
 export class EmptyPredictionContext extends SingletonPredictionContext {
     /**
@@ -18,7 +18,7 @@ export class EmptyPredictionContext extends SingletonPredictionContext {
      * {@code *+x = *}.
      */
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    public static readonly Instance: EmptyPredictionContext = new EmptyPredictionContext();
+    public static readonly Instance = new EmptyPredictionContext();
 
     private constructor() {
         super(null, PredictionContext.EMPTY_RETURN_STATE);

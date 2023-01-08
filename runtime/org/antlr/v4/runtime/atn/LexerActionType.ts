@@ -1,12 +1,15 @@
 /* java2ts: keep */
 
 /*
-* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD 3-clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD 3-clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 
 /* eslint-disable @typescript-eslint/naming-convention */
+
+import { Enum } from "../../../../../../lib/java/lang/Enum";
+import { S } from "../../../../../../lib/templates";
 
 /**
  * Represents the serialization type of a {@link LexerAction}.
@@ -14,37 +17,45 @@
  * @author Sam Harwell
  *
  */
-export enum LexerActionType {
+export class LexerActionType extends Enum<LexerActionType> {
     /**
      * The type of a {@link LexerChannelAction} action.
      */
-    CHANNEL,
+    public static readonly CHANNEL: LexerActionType = new class extends LexerActionType {
+    }(S`CHANNEL`, 0);
     /**
      * The type of a {@link LexerCustomAction} action.
      */
-    CUSTOM,
+    public static readonly CUSTOM: LexerActionType = new class extends LexerActionType {
+    }(S`CUSTOM`, 1);
     /**
      * The type of a {@link LexerModeAction} action.
      */
-    MODE,
+    public static readonly MODE: LexerActionType = new class extends LexerActionType {
+    }(S`MODE`, 2);
     /**
      * The type of a {@link LexerMoreAction} action.
      */
-    MORE,
+    public static readonly MORE: LexerActionType = new class extends LexerActionType {
+    }(S`MORE`, 3);
     /**
      * The type of a {@link LexerPopModeAction} action.
      */
-    POP_MODE,
+    public static readonly POP_MODE: LexerActionType = new class extends LexerActionType {
+    }(S`POP_MODE`, 4);
     /**
      * The type of a {@link LexerPushModeAction} action.
      */
-    PUSH_MODE,
+    public static readonly PUSH_MODE: LexerActionType = new class extends LexerActionType {
+    }(S`PUSH_MODE`, 5);
     /**
      * The type of a {@link LexerSkipAction} action.
      */
-    SKIP,
+    public static readonly SKIP: LexerActionType = new class extends LexerActionType {
+    }(S`SKIP`, 6);
     /**
      * The type of a {@link LexerTypeAction} action.
      */
-    TYPE,
+    public static readonly TYPE: LexerActionType = new class extends LexerActionType {
+    }(S`TYPE`, 7);
 }

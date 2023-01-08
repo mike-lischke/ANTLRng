@@ -18,7 +18,7 @@ export class ArrayPredictionContext extends PredictionContext {
      *  from {@link #EMPTY} and non-empty. We merge {@link #EMPTY} by using null parent and
      *  returnState == {@link #EMPTY_RETURN_STATE}.
      */
-    public readonly parents: PredictionContext[] | null;
+    public readonly parents: Array<PredictionContext | null>;
 
     /**
      * Sorted for merge, no duplicates; if present,
@@ -27,8 +27,9 @@ export class ArrayPredictionContext extends PredictionContext {
     public readonly returnStates: Int32Array;
 
     public constructor(a: SingletonPredictionContext);
-    public constructor(parents: PredictionContext[], returnStates: Int32Array);
-    public constructor(aOrParents: SingletonPredictionContext | PredictionContext[] | null, returnStates?: Int32Array) {
+    public constructor(parents: Array<PredictionContext | null>, returnStates: Int32Array);
+    public constructor(aOrParents: SingletonPredictionContext | Array<PredictionContext | null>,
+        returnStates?: Int32Array) {
         const parents = aOrParents instanceof SingletonPredictionContext ? [aOrParents] : aOrParents;
         let states;
         if (aOrParents instanceof SingletonPredictionContext) {
@@ -61,23 +62,21 @@ export class ArrayPredictionContext extends PredictionContext {
         return this.returnStates[index];
     };
 
-    public equals = (o: java.lang.Object): boolean => {
+    public equals = (o: unknown): boolean => {
         if (this === o) {
             return true;
-        } else {
-            if (!(o instanceof ArrayPredictionContext)) {
-                return false;
-            }
+        }
+
+        if (!(o instanceof ArrayPredictionContext)) {
+            return false;
         }
 
         if (this.hashCode() !== o.hashCode()) {
             return false; // can't be same if hash is different
         }
 
-        const a: ArrayPredictionContext = o;
-
-        return java.util.Arrays.equals(this.returnStates, a.returnStates) &&
-            java.util.Arrays.equals(this.parents ?? [], a.parents ?? []);
+        return java.util.Arrays.equals(this.returnStates, o.returnStates) &&
+            java.util.Arrays.equals(this.parents ?? [], o.parents ?? []);
     };
 
     public toString = (): java.lang.String => {
@@ -85,7 +84,7 @@ export class ArrayPredictionContext extends PredictionContext {
             return S`[]`;
         }
 
-        const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
+        const buf = new java.lang.StringBuilder();
         buf.append("[");
         for (let i = 0; i < this.returnStates.length; i++) {
             if (i > 0) {
@@ -98,9 +97,9 @@ export class ArrayPredictionContext extends PredictionContext {
             }
 
             buf.append(this.returnStates[i]);
-            if (this.parents && this.parents[i]) {
+            if (this.parents[i]) {
                 buf.append(" ");
-                buf.append(this.parents[i].toString());
+                buf.append(this.parents[i]!.toString());
             } else {
                 buf.append("null");
             }

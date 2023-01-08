@@ -5,22 +5,13 @@
  */
 
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
-
 
 
 import { java } from "../../../../../lib/java/java";
 
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { Enum } from "../../../../../lib/java/lang/Enum";
 import { S } from "../../../../../lib/templates";
 
 
@@ -31,12 +22,24 @@ import { S } from "../../../../../lib/templates";
  * do not share an interface, so we have to write one manually.
  */
 export  class CodePointBuffer extends JavaObject {
-	private readonly  type:  this.Type | null;
+	public
+	public Type = (($outer) => {
+return  class  Type extends Enum<Type> {
+			public static readonly BYTE: Type = new class extends Type {
+}(S`BYTE`, 0);
+			public static readonly CHAR: Type = new class extends Type {
+}(S`CHAR`, 1);
+			public static readonly INT: Type = new class extends Type {
+}(S`INT`, 2)
+	}
+})(this);
+
+	private readonly  type:  Type | null;
 	private readonly  byteBuffer:  java.nio.ByteBuffer | null;
 	private readonly  charBuffer:  java.nio.CharBuffer | null;
 	private readonly  intBuffer:  IntBuffer | null;
 
-	private constructor(type: this.Type| null, byteBuffer: java.nio.ByteBuffer| null, charBuffer: java.nio.CharBuffer| null, intBuffer: IntBuffer| null) {
+	private constructor(type: Type| null, byteBuffer: java.nio.ByteBuffer| null, charBuffer: java.nio.CharBuffer| null, intBuffer: IntBuffer| null) {
 		super();
 this.type = type;
 		this.byteBuffer = byteBuffer;
@@ -45,15 +48,15 @@ this.type = type;
 	}
 
 	public static withBytes = (byteBuffer: java.nio.ByteBuffer| null):  CodePointBuffer | null => {
-		return new  CodePointBuffer(this.Type.BYTE, byteBuffer, null, null);
+		return new  CodePointBuffer(Type.BYTE, byteBuffer, null, null);
 	}
 
 	public static withChars = (charBuffer: java.nio.CharBuffer| null):  CodePointBuffer | null => {
-		return new  CodePointBuffer(this.Type.CHAR, null, charBuffer, null);
+		return new  CodePointBuffer(Type.CHAR, null, charBuffer, null);
 	}
 
 	public static withInts = (intBuffer: IntBuffer| null):  CodePointBuffer | null => {
-		return new  CodePointBuffer(this.Type.INT, null, null, intBuffer);
+		return new  CodePointBuffer(Type.INT, null, null, intBuffer);
 	}
 
 	public position():  number;
@@ -150,7 +153,7 @@ default:
 		throw new  java.lang.UnsupportedOperationException(S`Not reached`);
 	}
 
-	protected  getType = (): this.Type | null => {
+	protected  getType = (): Type | null => {
 		return this.type;
 	}
 
@@ -195,7 +198,7 @@ default:
 	}
 
 	public static Builder =  class Builder extends JavaObject {
-		private type:  this.Type | null;
+		private type:  Type | null;
 		private byteBuffer:  java.nio.ByteBuffer | null;
 		private charBuffer:  java.nio.CharBuffer | null;
 		private intBuffer:  IntBuffer | null;
@@ -203,14 +206,14 @@ default:
 
 		private constructor(initialBufferSize: number) {
 			super();
-this.type = this.Type.BYTE;
+this.type = Type.BYTE;
 			this.byteBuffer = java.nio.ByteBuffer.allocate(initialBufferSize);
 			this.charBuffer = null;
 			this.intBuffer = null;
 			this.prevHighSurrogate = -1;
 		}
 
-		protected  getType = (): this.Type | null => {
+		protected  getType = (): Type | null => {
 			return this.type;
 		}
 
@@ -451,7 +454,7 @@ default:
 			while (this.byteBuffer.hasRemaining()) {
 				newBuffer.put( (this.byteBuffer.get() & 0xFF) as java.lang.char);
 			}
-			this.type = this.Type.CHAR;
+			this.type = Type.CHAR;
 			this.byteBuffer = null;
 			this.charBuffer = newBuffer;
 		}
@@ -463,7 +466,7 @@ default:
 			while (this.byteBuffer.hasRemaining()) {
 				newBuffer.put(this.byteBuffer.get() & 0xFF);
 			}
-			this.type = this.Type.INT;
+			this.type = Type.INT;
 			this.byteBuffer = null;
 			this.intBuffer = newBuffer;
 		}
@@ -475,7 +478,7 @@ default:
 			while (this.charBuffer.hasRemaining()) {
 				newBuffer.put(this.charBuffer.get() & 0xFFFF);
 			}
-			this.type = this.Type.INT;
+			this.type = Type.INT;
 			this.charBuffer = null;
 			this.intBuffer = newBuffer;
 		}
@@ -485,12 +488,8 @@ default:
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace CodePointBuffer {
-
-	 enum Type {
-			BYTE,
-			CHAR,
-			INT
-	}	export type Builder = InstanceType<typeof CodePointBuffer.Builder>;
+	export type Type = InstanceType<CodePointBuffer.Type>;
+	export type Builder = InstanceType<typeof CodePointBuffer.Builder>;
 }
 
 

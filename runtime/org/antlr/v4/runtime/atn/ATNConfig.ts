@@ -71,15 +71,17 @@ export class ATNConfig extends JavaObject {
      */
     public reachesIntoOuterContext = 0;
 
-    public readonly semanticContext: SemanticContext | null;
+    public readonly semanticContext: SemanticContext;
 
     public constructor(c: ATNConfig, semanticContext?: SemanticContext);
     public constructor(c: ATNConfig, state: ATNState, semanticContext?: SemanticContext);
-    public constructor(c: ATNConfig, state: ATNState, context: PredictionContext, semanticContext?: SemanticContext);
-    public constructor(state: ATNState, alt: number, context: PredictionContext, semanticContext?: SemanticContext);
+    public constructor(c: ATNConfig, state: ATNState, context: PredictionContext | null,
+        semanticContext?: SemanticContext);
+    public constructor(state: ATNState, alt: number, context: PredictionContext | null,
+        semanticContext?: SemanticContext);
     public constructor(cOrState: ATNConfig | ATNState,
         semanticContextOrStateOrAlt?: ATNState | SemanticContext | number,
-        semanticContextOrContext?: PredictionContext | SemanticContext, semanticContext?: SemanticContext) {
+        semanticContextOrContext?: PredictionContext | SemanticContext | null, semanticContext?: SemanticContext) {
         super();
         if (cOrState instanceof ATNConfig && semanticContextOrStateOrAlt === undefined) { // dup
             this.state = cOrState.state;

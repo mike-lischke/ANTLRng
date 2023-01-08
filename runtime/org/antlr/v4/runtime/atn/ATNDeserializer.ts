@@ -602,7 +602,7 @@ export class ATNDeserializer extends JavaObject {
         type: number, src: number, trg: number,
         arg1: number, arg2: number, arg3: number,
         sets: java.util.List<IntervalSet>): Transition => {
-        const target = atn.states.get(trg);
+        const target = atn.states.get(trg)!;
         switch (type) {
             case Transition.EPSILON: {
                 return new EpsilonTransition(target);

@@ -27,7 +27,7 @@ import { DFAState } from "../dfa/DFAState";
  *
  */
 export class ProfilingATNSimulator extends ParserATNSimulator {
-    protected readonly decisions: DecisionInfo[] | null;
+    protected readonly decisions: DecisionInfo[] = [];
     protected numDecisions: number;
 
     protected _sllStopIndex = 0;
@@ -51,18 +51,18 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
     protected conflictingAltResolvedBySLL = 0;
 
     public constructor(parser: Parser) {
-        const interpreter = parser.getInterpreter();
-        super(parser, interpreter?.atn ?? null, interpreter?.decisionToDFA ?? null,
-            interpreter?.sharedContextCache ?? null);
+        super(parser,
+            parser.getInterpreter().atn,
+            parser.getInterpreter().decisionToDFA,
+            parser.getInterpreter().sharedContextCache);
 
         this.numDecisions = this.atn.decisionToState.size();
-        this.decisions = new Array<DecisionInfo>(this.numDecisions);
         for (let i = 0; i < this.numDecisions; i++) {
-            this.decisions[i] = new DecisionInfo(i);
+            this.decisions.push(new DecisionInfo(i));
         }
     }
 
-    public adaptivePredict = (input: TokenStream, decision: number, outerContext: ParserRuleContext | null): number => {
+    public adaptivePredict = (input: TokenStream | null, decision: number, outerContext: ParserRuleContext | null): number => {
         try {
             this._sllStopIndex = -1;
             this._llStopIndex = -1;
@@ -215,7 +215,7 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
 
     // ---------------------------------------------------------------------
 
-    public getDecisionInfo = (): DecisionInfo[] | null => {
+    public getDecisionInfo = (): DecisionInfo[] => {
         return this.decisions;
     };
 

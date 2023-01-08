@@ -39,7 +39,7 @@ import { S } from "../../../../../../lib/templates";
 /**
  * This class represents a target neutral serializer for ATNs. An ATN is converted to a list of integers
  *  that can be converted back to and ATN. We compute the list of integers and then generate an array
- *  into the target language for a particular lexer or parser.  Java is a special case where we must
+ *  into the target language for a particular lexer or parser. Java is a special case where we must
  *  generate strings instead of arrays, but that is handled outside of this class.
  *  See {@link ATNDeserializer#encodeIntsWith16BitWords(IntegerList)} and
  *  {@link org.antlr.v4.codegen.model.SerializedJavaATN}.
@@ -49,7 +49,7 @@ export class ATNSerializer extends JavaObject {
 
     private readonly data = new IntegerList();
     /**
-         Note that we use a LinkedHashMap as a set to maintain insertion order while deduplicating
+        Note that we use a LinkedHashMap as a set to maintain insertion order while deduplicating
         entries with the same key.
      */
     private readonly sets = new java.util.LinkedHashMap<IntervalSet, boolean>();
@@ -142,7 +142,7 @@ export class ATNSerializer extends JavaObject {
         this.data.add(ATNDeserializer.SERIALIZED_VERSION);
 
         // convert grammar type to ATN const to avoid dependence on ANTLRParser
-        this.data.add(this.atn.grammarType);
+        this.data.add(+this.atn.grammarType);
         this.data.add(this.atn.maxTokenType);
     };
 
@@ -265,7 +265,7 @@ export class ATNSerializer extends JavaObject {
 
                 for (let i = 0; i < s.getNumberOfTransitions(); i++) {
                     const t = s.transition(i);
-                    const edgeType = Transition.serializationTypes.get(t.getClass());
+                    const edgeType = t.getSerializationType();
                     if (edgeType === Transition.SET || edgeType === Transition.NOT_SET) {
                         const st: SetTransition = t as SetTransition;
                         this.sets.put(st.set, true);
@@ -295,10 +295,7 @@ export class ATNSerializer extends JavaObject {
 
                     const src = s.stateNumber;
                     let trg = t.target.stateNumber;
-                    const edgeType = Transition.serializationTypes.get(t.getClass());
-                    if (edgeType === null) {
-                        throw new java.lang.IllegalStateException(S`Invalid transition class found.`);
-                    }
+                    const edgeType = t.getSerializationType();
 
                     let arg1 = 0;
                     let arg2 = 0;

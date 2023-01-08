@@ -6,16 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
-*/
-
-/* cspell: disable */
-
-import { java } from "../../../../../../lib/java/java";
+import { java } from "../../../../../lib/java/java";
 import { Parser } from "./Parser";
 import { ParserRuleContext } from "./ParserRuleContext";
 import { Recognizer } from "./Recognizer";
@@ -25,7 +16,9 @@ import { ParseTree } from "./tree/ParseTree";
 import { ParseTreeVisitor } from "./tree/ParseTreeVisitor";
 import { RuleNode } from "./tree/RuleNode";
 import { Trees } from "./tree/Trees";
-import { ATNSimulator } from "./atn";
+
+import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { S } from "../../../../../lib/templates";
 
 /**
  * A rule context is a record of a single rule invocation.
@@ -78,9 +71,9 @@ import { ATNSimulator } from "./atn";
  *
  *  @see ParserRuleContext
  */
-export class RuleContext extends RuleNode {
+export class RuleContext extends JavaObject extends RuleNode {
     /** What context invoked this rule? */
-    public parent?: RuleContext;
+    public parent: RuleContext | null;
 
     /**
      * What state invoked the rule associated with this context?
@@ -91,14 +84,15 @@ export class RuleContext extends RuleNode {
     public invokingState = -1;
 
     public constructor();
-    public constructor(parent: RuleContext, invokingState: number);
-    public constructor(parent?: RuleContext, invokingState?: number) {
+
+    public constructor(parent: RuleContext | null, invokingState: number);
+    public constructor(parent?: RuleContext | null, invokingState?: number) {
         if (parent === undefined) {
             super();
         } else {
             super();
-
             this.parent = parent;
+            //if ( parent!=null ) System.out.println("invoke "+stateNumber+" from "+parent);
             this.invokingState = invokingState;
         }
 
@@ -106,9 +100,8 @@ export class RuleContext extends RuleNode {
 
     public depth = (): number => {
         let n = 0;
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let p: RuleContext = this;
-        while (p !== undefined) {
+        while (p !== null) {
             p = p.parent;
             n++;
         }
@@ -119,8 +112,6 @@ export class RuleContext extends RuleNode {
     /**
      * A context is empty if there is no invoking state; meaning nobody called
      *  current context.
-     *
-     * @returns True if the context is empty, otherwise false.
      */
     public isEmpty = (): boolean => {
         return this.invokingState === -1;
@@ -128,35 +119,27 @@ export class RuleContext extends RuleNode {
 
     // satisfy the ParseTree / SyntaxTree interface
 
-    public getSourceInterval = (): Interval => {
+    public getSourceInterval = (): Interval | null => {
         return Interval.INVALID;
     };
 
-    public getRuleContext(): this {
-        return this;
-    }
+    public getRuleContext = (): RuleContext | null => { return this; };
 
-    public getParent = (): this | undefined => {
-        return this.parent as this;
-    };
+    public getParent = (): RuleContext | null => { return this.parent; };
 
-    public getPayload = (): RuleContext => {
-        return this;
-    };
+    public getPayload = (): RuleContext | null => { return this; };
 
     /**
      * Return the combined text of all child nodes. This method only considers
      *  tokens which have been added to the parse tree.
-     *
+     *  <p>
      *  Since tokens on hidden channels (e.g. whitespace or comments) are not
      *  added to the parse trees, they will not appear in the output of this
      *  method.
-     *
-     * @returns The text of this context.
      */
-    public getText = (): string => {
+    public getText = (): java.lang.String | null => {
         if (this.getChildCount() === 0) {
-            return "";
+            return S``;
         }
 
         const builder: java.lang.StringBuilder = new java.lang.StringBuilder();
@@ -177,13 +160,9 @@ export class RuleContext extends RuleNode {
      *  option contextSuperClass.
      *  to set it.
      *
-     *  since 4.5.3
-     *
-     * @returns The alt number.
+     *  @since 4.5.3
      */
-    public getAltNumber = (): number => {
-        return ATN.INVALID_ALT_NUMBER;
-    };
+    public getAltNumber = (): number => { return ATN.INVALID_ALT_NUMBER; };
 
     /**
      * Set the outer alternative number for this context node. Default
@@ -192,96 +171,119 @@ export class RuleContext extends RuleNode {
      *  a subclass of ParserRuleContext with backing field and set
      *  option contextSuperClass.
      *
-     * since 4.5.3
-     *
-     * @param altNumber The alt number to set.
+     * @param altNumber
+     *  @since 4.5.3
      */
-    public setAltNumber = (altNumber: number): void => {
-    };
+    public setAltNumber = (altNumber: number): void => { };
 
-    /**
-     * @param parent
-     * since 4.7. {@see ParseTree#setParent} comment
-     */
-    public setParent = (parent: RuleContext): void => {
+    /***/
+    public setParent = (parent: RuleContext | null): void => {
         this.parent = parent;
     };
 
-    public getChild(_i: number): ParseTree | undefined {
-        return undefined;
-    }
+    public getChild = (i: number): ParseTree | null => {
+        return null;
+    };
 
     public getChildCount = (): number => {
         return 0;
     };
 
-    public accept = <T>(visitor: ParseTreeVisitor<T>): T => {
-        return visitor.visitChildren(this);
-    };
+    public accept = <T>(visitor: ParseTreeVisitor<T> | null): T | null => { return visitor.visitChildren(this); };
+
+    public toStringTree(): java.lang.String | null;
 
     /**
      * Print out a whole tree, not just a node, in LISP format
      *  (root child1 .. childN). Print just a node if this is a leaf.
      *  We have to know the recognizer so we can get rule names.
      */
-    public toStringTree(recog?: Parser): string;
-    public toStringTree(ruleNames: java.util.List<string>): string;
-    public toStringTree(): string;
-    public toStringTree(recogOrRuleNames?: Parser | java.util.List<string>): string {
-        if (recogOrRuleNames instanceof Parser) {
-            return Trees.toStringTree(this, recogOrRuleNames);
-        }
+    public toStringTree(recog: Parser | null): java.lang.String | null;
 
-        if (recogOrRuleNames instanceof java.util.List) {
-            return Trees.toStringTree(this, recogOrRuleNames);
-        }
+    /**
+     * Print out a whole tree, not just a node, in LISP format
+     *  (root child1 .. childN). Print just a node if this is a leaf.
+     */
+    public toStringTree(ruleNames: java.util.List<java.lang.String> | null): java.lang.String | null;
 
-        return Trees.toStringTree(this);
-    }
+    /**
+     * Print out a whole tree, not just a node, in LISP format
+     *  (root child1 .. childN). Print just a node if this is a leaf.
+     *  We have to know the recognizer so we can get rule names.
+     *
+     * @param recogOrRuleNames
+     */
+    public toStringTree(recogOrRuleNames?: Parser | java.util.List<java.lang.String> | null): java.lang.String | null {
+        if (recogOrRuleNames === undefined) {
+            return this.toStringTree(null as java.util.List<java.lang.String>);
+        } else if (recogOrRuleNames instanceof Parser) {
+            const recog = recogOrRuleNames;
 
-    public toString(): string;
-    public toString(recog: Recognizer<unknown, ATNSimulator>): string;
-    public toString(ruleNames: java.util.List<string>): string;
-    public toString(recog: Recognizer<unknown, ATNSimulator> | undefined, stop: RuleContext): string;
-    public toString(ruleNames: java.util.List<string> | undefined, stop: RuleContext): string;
-    public toString(recogOrRuleNames?: Recognizer<unknown, ATNSimulator> | java.util.List<string>,
-        stop?: RuleContext): string {
-
-        stop = stop ?? ParserRuleContext.EMPTY;
-        let ruleNames: java.util.List<string> | undefined;
-        if (recogOrRuleNames instanceof Recognizer) {
-            ruleNames = java.util.Arrays.asList(...recogOrRuleNames.getRuleNames());
+            return Trees.toStringTree(this, recog);
         } else {
-            ruleNames = recogOrRuleNames;
+            const ruleNames = recogOrRuleNames as java.util.List<java.lang.String>;
+
+            return Trees.toStringTree(this, ruleNames);
         }
 
-        const buf = new java.lang.StringBuilder();
-
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let p: RuleContext = this;
-        buf.append("[");
-        while (p !== undefined && p !== stop) {
-            if (ruleNames === undefined) {
-                if (!p.isEmpty()) {
-                    buf.append(p.invokingState);
-                }
-            } else {
-                const ruleIndex: number = p.getRuleIndex();
-                const ruleName = ruleIndex >= 0 && ruleIndex < ruleNames.size()
-                    ? ruleNames.get(ruleIndex)
-                    : java.lang.Integer.toString(ruleIndex);
-                buf.append(ruleName);
-            }
-
-            if (p.parent !== undefined && (ruleNames !== undefined || !p.parent.isEmpty())) {
-                buf.append(" ");
-            }
-
-            p = p.parent;
-        }
-
-        buf.append("]");
-
-        return buf.toString();
     }
+
+    public toString(): java.lang.String | null;
+
+    public readonly toString(recog: Recognizer<unknown, unknown> | null): java.lang.String | null;
+
+    public readonly toString(ruleNames: java.util.List<java.lang.String> | null): java.lang.String | null;
+
+    // recog null unless ParserRuleContext, in which case we use subclass toString(...)
+    public toString(recog: Recognizer<unknown, unknown> | null, stop: RuleContext | null): java.lang.String | null;
+
+    public toString(ruleNames: java.util.List<java.lang.String> | null, stop: RuleContext | null): java.lang.String | null;
+
+    public toString(recogOrRuleNames?: Recognizer<unknown, unknown> | java.util.List<java.lang.String> | null, stop?: RuleContext | null): java.lang.String | null {
+        if (recogOrRuleNames === undefined) {
+            return this.toString(null as java.util.List<java.lang.String>, null as RuleContext);
+        } else if (recogOrRuleNames instanceof Recognizer && stop === undefined) {
+            const recog = recogOrRuleNames;
+
+            return this.toString(recog, ParserRuleContext.EMPTY);
+        } else if (recogOrRuleNames instanceof java.util.List && stop === undefined) {
+            const ruleNames = recogOrRuleNames as java.util.List<java.lang.String>;
+
+            return this.toString(ruleNames, null);
+        } else if (recogOrRuleNames instanceof Recognizer && stop instanceof RuleContext) {
+            const recog = recogOrRuleNames;
+            const ruleNames: java.lang.String[] = recog !== null ? recog.getRuleNames() : null;
+            const ruleNamesList: java.util.List<java.lang.String> = ruleNames !== null ? java.util.Arrays.asList(ruleNames) : null;
+
+            return this.toString(ruleNamesList, stop);
+        } else {
+            const ruleNames = recogOrRuleNames as java.util.List<java.lang.String>;
+            const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
+            let p: RuleContext = this;
+            buf.append(S`[`);
+            while (p !== null && p !== stop) {
+                if (ruleNames === null) {
+                    if (!p.isEmpty()) {
+                        buf.append(p.invokingState);
+                    }
+                } else {
+                    const ruleIndex: number = p.getRuleIndex();
+                    const ruleName: java.lang.String = ruleIndex >= 0 && ruleIndex < ruleNames.size() ? ruleNames.get(ruleIndex) : java.lang.Integer.toString(ruleIndex);
+                    buf.append(ruleName);
+                }
+
+                if (p.parent !== null && (ruleNames !== null || !p.parent.isEmpty())) {
+                    buf.append(S` `);
+                }
+
+                p = p.parent;
+            }
+
+            buf.append(S`]`);
+
+            return buf.toString();
+        }
+
+    }
+
 }

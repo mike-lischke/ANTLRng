@@ -25,16 +25,16 @@ export class LexerATNConfig extends ATNConfig {
     private readonly passedThroughNonGreedyDecision: boolean;
 
     public constructor(c: LexerATNConfig, state: ATNState, lexerActionExecutor?: LexerActionExecutor);
-    public constructor(c: LexerATNConfig, state: ATNState, context: PredictionContext);
-    public constructor(state: ATNState, alt: number, context: PredictionContext,
+    public constructor(c: LexerATNConfig, state: ATNState, context: PredictionContext | null);
+    public constructor(state: ATNState, alt: number, context: PredictionContext | null,
         lexerActionExecutor?: LexerActionExecutor);
     public constructor(cOrState: LexerATNConfig | ATNState, stateOrAlt: ATNState | number,
         contextOrLexerActionExecutor?: PredictionContext | LexerActionExecutor | null,
-        lexerActionExecutor?: LexerActionExecutor | null) {
+        lexerActionExecutor?: LexerActionExecutor) {
 
         let state;
         let alt;
-        let context;
+        let context: PredictionContext | null;
         let semanticContext: SemanticContext | null = SemanticContext.Empty.Instance;
         let executor: LexerActionExecutor | null = null;
         let flag = false;

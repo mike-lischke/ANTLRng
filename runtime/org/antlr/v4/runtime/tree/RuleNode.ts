@@ -9,6 +9,7 @@
 import { ParseTree } from "./ParseTree";
 import { RuleContext } from "../RuleContext";
 
-export abstract class RuleNode extends ParseTree {
-    public abstract getRuleContext(): RuleContext;
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface RuleNode extends ParseTree {
+    getRuleContext: () => RuleContext;
 }

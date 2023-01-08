@@ -6,20 +6,18 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
+/* eslint-disable @typescript-eslint/naming-convention , no-underscore-dangle */
 
 import { java } from "../../../../../../lib/java/java";
+
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
+import { MurmurHash } from "../../../../../../lib/MurmurHash";
+
 import { ArrayPredictionContext } from "./ArrayPredictionContext";
 import { ATN } from "./ATN";
-import { ATNState } from "./ATNState";
 import { EmptyPredictionContext } from "./EmptyPredictionContext";
+import { ParserATNSimulator } from "./ParserATNSimulator";
 import { PredictionContextCache } from "./PredictionContextCache";
 import { RuleTransition } from "./RuleTransition";
 import { SingletonPredictionContext } from "./SingletonPredictionContext";
@@ -27,10 +25,9 @@ import { ParserRuleContext } from "../ParserRuleContext";
 import { Recognizer } from "../Recognizer";
 import { RuleContext } from "../RuleContext";
 import { DoubleKeyMap } from "../misc/DoubleKeyMap";
-import { MurmurHash } from "../misc/MurmurHash";
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 import { ATNSimulator } from "./ATNSimulator";
+import { Token } from "../Token";
 
 export abstract class PredictionContext extends JavaObject {
     /**
@@ -38,11 +35,11 @@ export abstract class PredictionContext extends JavaObject {
      * doesn't mean wildcard: {@code $ + x = [$,x]}. Here,
      * {@code $} = {@link #EMPTY_RETURN_STATE}.
      */
-    public static readonly EMPTY_RETURN_STATE: number = java.lang.Integer.MAX_VALUE;
+    public static readonly EMPTY_RETURN_STATE = java.lang.Integer.MAX_VALUE;
 
-    private static readonly INITIAL_HASH: number = 1;
+    private static readonly INITIAL_HASH = 1;
 
-    public static globalNodeCount = 0;
+    private static globalNodeCount = 0;
     public readonly id: number = PredictionContext.globalNodeCount++;
 
     /**
@@ -68,114 +65,28 @@ export abstract class PredictionContext extends JavaObject {
      */
     public readonly cachedHashCode: number;
 
+    public abstract size: () => number;
+    public abstract getParent: (index: number) => PredictionContext | null;
+    public abstract getReturnState: (index: number) => number;
+
+    public abstract equals: (obj: unknown) => boolean;
+
     protected constructor(cachedHashCode: number) {
         super();
         this.cachedHashCode = cachedHashCode;
     }
 
-    /**
-     * Convert a {@link RuleContext} tree to a {@link PredictionContext} graph.
-     *  Return {@link EmptyPredictionContext#Instance} if {@code outerContext} is empty or null.
-     *
-     * @param atn
-     * @param outerContext
-     */
-    public static fromRuleContext = (atn: ATN | null, outerContext: RuleContext | null): PredictionContext | null => {
-        if (outerContext === undefined) {
-            outerContext = ParserRuleContext.EMPTY;
-        }
-
-        // if we are in RuleContext of start rule, s, then PredictionContext
-        // is EMPTY. Nobody called us. (if we are empty, return empty)
-        if (outerContext.parent === undefined || outerContext === ParserRuleContext.EMPTY) {
-            return EmptyPredictionContext.Instance;
-        }
-
-        // If we have a parent, convert it to a PredictionContext graph
-        let parent: PredictionContext = EmptyPredictionContext.Instance;
-        parent = PredictionContext.fromRuleContext(atn, outerContext.parent);
-
-        const state: ATNState = atn.states.get(outerContext.invokingState);
-        const transition: RuleTransition = state.transition(0) as RuleTransition;
-
-        return SingletonPredictionContext.create(parent, transition.followState.stateNumber);
-    };
-
-    public abstract size: () => number;
-
-    public abstract getParent: (index: number) => PredictionContext | null;
-
-    public abstract getReturnState: (index: number) => number;
-
-    /** This means only the {@link EmptyPredictionContext#Instance} (wildcard? not sure) context is in set. */
-    public isEmpty = (): boolean => {
-        return this === EmptyPredictionContext.Instance;
-    };
-
-    public hasEmptyPath = (): boolean => {
-        // since EMPTY_RETURN_STATE can only appear in the last position, we check last one
-        return this.getReturnState(this.size() - 1) === PredictionContext.EMPTY_RETURN_STATE;
-    };
-
-    public readonly hashCode = (): number => {
-        return this.cachedHashCode;
-    };
-
-    protected static calculateEmptyHashCode = (): number => {
-        let hash: number = MurmurHash.initialize(PredictionContext.INITIAL_HASH);
-        hash = MurmurHash.finish(hash, 0);
-
-        return hash;
-    };
-
-    protected static calculateHashCode(parent: PredictionContext | null, returnState: number): number;
-    protected static calculateHashCode(parents: PredictionContext[] | null, returnStates: Int32Array): number;
-    protected static calculateHashCode(parentOrParents: PredictionContext | null | PredictionContext[] | null, returnStateOrReturnStates: number | Int32Array): number {
-        if (parentOrParents instanceof PredictionContext | null && typeof returnStateOrReturnStates === "number") {
-            const parent = parentOrParents as PredictionContext | null;
-            const returnState = returnStateOrReturnStates;
-            let hash: number = MurmurHash.initialize(PredictionContext.INITIAL_HASH);
-            hash = MurmurHash.update(hash, parent);
-            hash = MurmurHash.update(hash, returnState);
-            hash = MurmurHash.finish(hash, 2);
-
-            return hash;
-        } else {
-            const parents = parentOrParents as PredictionContext[] | null;
-            const returnStates = returnStateOrReturnStates as Int32Array;
-            let hash: number = MurmurHash.initialize(PredictionContext.INITIAL_HASH);
-
-            for (const parent of parents) {
-                hash = MurmurHash.update(hash, parent);
-            }
-
-            for (const returnState of returnStates) {
-                hash = MurmurHash.update(hash, returnState);
-            }
-
-            hash = MurmurHash.finish(hash, 2 * parents.length);
-
-            return hash;
-        }
-
-    }
-
     // dispatch
-    public static merge = (
-        a: PredictionContext | null, b: PredictionContext | null,
-        rootIsWildcard: boolean,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): PredictionContext | null => {
-        /* assert a!=null && b!=null; */  // must be empty context, never null
-
+    public static merge = (a: PredictionContext | null, b: PredictionContext | null, rootIsWildcard: boolean,
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+    ): PredictionContext | null => {
         // share same graph if both same
-        if (a === b || a.equals(b)) {
+        if (a === b || a!.equals(b)) {
             return a;
         }
 
         if (a instanceof SingletonPredictionContext && b instanceof SingletonPredictionContext) {
-            return PredictionContext.mergeSingletons(a,
-                b,
-                rootIsWildcard, mergeCache);
+            return PredictionContext.mergeSingletons(a, b, rootIsWildcard, mergeCache);
         }
 
         // At least one of a or b is array
@@ -204,6 +115,36 @@ export abstract class PredictionContext extends JavaObject {
     };
 
     /**
+     * Convert a {@link RuleContext} tree to a {@link PredictionContext} graph.
+     *  Return {@link EmptyPredictionContext#Instance} if {@code outerContext} is empty or null.
+     *
+     * @param atn tbd
+     * @param outerContext tbd
+     *
+     * @returns tbd
+     */
+    public static fromRuleContext = (atn: ATN, outerContext: RuleContext | null): PredictionContext => {
+        if (outerContext === null) {
+            outerContext = ParserRuleContext.EMPTY;
+        }
+
+        // if we are in RuleContext of start rule, s, then PredictionContext
+        // is EMPTY. Nobody called us. (if we are empty, return empty)
+        if (outerContext.parent === null || outerContext === ParserRuleContext.EMPTY) {
+            return EmptyPredictionContext.Instance;
+        }
+
+        // If we have a parent, convert it to a PredictionContext graph
+        let parent: PredictionContext = EmptyPredictionContext.Instance;
+        parent = PredictionContext.fromRuleContext(atn, outerContext.parent);
+
+        const state = atn.states.get(outerContext.invokingState);
+        const transition: RuleTransition = state!.transition(0) as RuleTransition;
+
+        return SingletonPredictionContext.create(parent, transition.followState.stateNumber);
+    };
+
+    /**
      * Merge two {@link SingletonPredictionContext} instances.
      *
      * <p>Stack tops equal, parents merge is same; return left graph.<br>
@@ -228,29 +169,30 @@ export abstract class PredictionContext extends JavaObject {
      * @param b the second {@link SingletonPredictionContext}
      * @param rootIsWildcard {@code true} if this is a local-context merge,
      * otherwise false to indicate a full-context merge
-     * @param mergeCache
+     * @param mergeCache tbd
+     *
+     * @returns tbd
      */
-    public static mergeSingletons = (
-        a: SingletonPredictionContext | null,
-        b: SingletonPredictionContext | null,
+    public static mergeSingletons = (a: SingletonPredictionContext, b: SingletonPredictionContext,
         rootIsWildcard: boolean,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): PredictionContext | null => {
-        if (mergeCache !== undefined) {
-            let previous: PredictionContext = mergeCache.get(a, b);
-            if (previous !== undefined) {
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+    ): PredictionContext => {
+        if (mergeCache !== null) {
+            let previous = mergeCache.get(a, b);
+            if (previous !== null) {
                 return previous;
             }
 
             previous = mergeCache.get(b, a);
-            if (previous !== undefined) {
+            if (previous !== null) {
                 return previous;
             }
 
         }
 
-        const rootMerge: PredictionContext = PredictionContext.mergeRoot(a, b, rootIsWildcard);
-        if (rootMerge !== undefined) {
-            if (mergeCache !== undefined) {
+        const rootMerge = PredictionContext.mergeRoot(a, b, rootIsWildcard);
+        if (rootMerge !== null) {
+            if (mergeCache !== null) {
                 mergeCache.put(a, b, rootMerge);
             }
 
@@ -258,7 +200,7 @@ export abstract class PredictionContext extends JavaObject {
         }
 
         if (a.returnState === b.returnState) { // a == b
-            const parent: PredictionContext = PredictionContext.merge(a.parent, b.parent, rootIsWildcard, mergeCache);
+            const parent = PredictionContext.merge(a.parent, b.parent, rootIsWildcard, mergeCache);
             // if parent is same as existing a or b parent or reduced to a parent, return it
             if (parent === a.parent) {
                 return a;
@@ -272,28 +214,28 @@ export abstract class PredictionContext extends JavaObject {
             // merge parents x and y, giving array node with x,y then remainders
             // of those graphs.  dup a, a' points at merged array
             // new joined parent so create new singleton pointing to it, a'
-            const a_: PredictionContext = SingletonPredictionContext.create(parent, a.returnState);
-            if (mergeCache !== undefined) {
+            const a_ = SingletonPredictionContext.create(parent, a.returnState);
+            if (mergeCache !== null) {
                 mergeCache.put(a, b, a_);
             }
 
             return a_;
         } else { // a != b payloads differ
             // see if we can collapse parents due to $+x parents if local ctx
-            let singleParent: PredictionContext;
-            if (a === b || (a.parent !== undefined && a.parent.equals(b.parent))) { // ax + bx = [a,b]x
+            let singleParent: PredictionContext | null = null;
+            if (a === b || (a.parent !== null && a.parent.equals(b.parent))) { // ax + bx = [a,b]x
                 singleParent = a.parent;
             }
-            if (singleParent !== undefined) {	// parents are same
+            if (singleParent !== null) {	// parents are same
                 // sort payloads and use same parent
-                const payloads: Int32Array = [a.returnState, b.returnState];
+                const payloads = new Int32Array([a.returnState, b.returnState]);
                 if (a.returnState > b.returnState) {
                     payloads[0] = b.returnState;
                     payloads[1] = a.returnState;
                 }
-                const parents: PredictionContext[] = [singleParent, singleParent];
-                const a_: PredictionContext = new ArrayPredictionContext(parents, payloads);
-                if (mergeCache !== undefined) {
+                const parents = [singleParent, singleParent];
+                const a_ = new ArrayPredictionContext(parents, payloads);
+                if (mergeCache !== null) {
                     mergeCache.put(a, b, a_);
                 }
 
@@ -302,15 +244,15 @@ export abstract class PredictionContext extends JavaObject {
             // parents differ and can't merge them. Just pack together
             // into array; can't merge.
             // ax + by = [ax,by]
-            const payloads: Int32Array = [a.returnState, b.returnState];
-            let parents: PredictionContext[] = [a.parent, b.parent];
+            const payloads = new Int32Array([a.returnState, b.returnState]);
+            let parents = [a.parent!, b.parent!];
             if (a.returnState > b.returnState) { // sort by payload
                 payloads[0] = b.returnState;
                 payloads[1] = a.returnState;
-                parents = [b.parent, a.parent];
+                parents = [b.parent!, a.parent!];
             }
-            const a_: PredictionContext = new ArrayPredictionContext(parents, payloads);
-            if (mergeCache !== undefined) {
+            const a_ = new ArrayPredictionContext(parents, payloads);
+            if (mergeCache !== null) {
                 mergeCache.put(a, b, a_);
             }
 
@@ -328,7 +270,8 @@ export abstract class PredictionContext extends JavaObject {
      * <p>These local-context merge operations are used when {@code rootIsWildcard}
      * is true.</p>
      *
-     * <p>{@link EmptyPredictionContext#Instance} is superset of any graph; return {@link EmptyPredictionContext#Instance}.<br>
+     * <p>{@link EmptyPredictionContext#Instance} is superset of any graph; return
+     * {@link EmptyPredictionContext#Instance}.<br>
      * <embed src="images/LocalMerge_EmptyRoot.svg" type="image/svg+xml"/></p>
      *
      * <p>{@link EmptyPredictionContext#Instance} and anything is {@code #EMPTY}, so merged parent is
@@ -355,9 +298,10 @@ export abstract class PredictionContext extends JavaObject {
      * @param b the second {@link SingletonPredictionContext}
      * @param rootIsWildcard {@code true} if this is a local-context merge,
      * otherwise false to indicate a full-context merge
+     *
+     * @returns tbd
      */
-    public static mergeRoot = (a: SingletonPredictionContext | null,
-        b: SingletonPredictionContext | null,
+    public static mergeRoot = (a: SingletonPredictionContext, b: SingletonPredictionContext,
         rootIsWildcard: boolean): PredictionContext | null => {
         if (rootIsWildcard) {
             if (a === EmptyPredictionContext.Instance) {
@@ -374,24 +318,22 @@ export abstract class PredictionContext extends JavaObject {
             }
             // $ + $ = $
             if (a === EmptyPredictionContext.Instance) { // $ + x = [x,$]
-                const payloads: Int32Array = [b.returnState, PredictionContext.EMPTY_RETURN_STATE];
-                const parents: PredictionContext[] = [b.parent, undefined];
-                const joined: PredictionContext =
-                    new ArrayPredictionContext(parents, payloads);
+                const payloads = new Int32Array([b.returnState, PredictionContext.EMPTY_RETURN_STATE]);
+                const parents = [b.parent, null];
+                const joined = new ArrayPredictionContext(parents, payloads);
 
                 return joined;
             }
             if (b === EmptyPredictionContext.Instance) { // x + $ = [x,$] ($ is always last if present)
-                const payloads: Int32Array = [a.returnState, PredictionContext.EMPTY_RETURN_STATE];
-                const parents: PredictionContext[] = [a.parent, undefined];
-                const joined: PredictionContext =
-                    new ArrayPredictionContext(parents, payloads);
+                const payloads = new Int32Array([a.returnState, PredictionContext.EMPTY_RETURN_STATE]);
+                const parents = [a.parent, null];
+                const joined = new ArrayPredictionContext(parents, payloads);
 
                 return joined;
             }
         }
 
-        return undefined;
+        return null;
     };
 
     /**
@@ -413,27 +355,33 @@ export abstract class PredictionContext extends JavaObject {
      * {@link SingletonPredictionContext}.<br>
      * <embed src="images/ArrayMerge_EqualTop.svg" type="image/svg+xml"/></p>
      *
-     * @param a
-     * @param b
-     * @param rootIsWildcard
-     * @param mergeCache
+     * @param a tbd
+     * @param b tbd
+     * @param rootIsWildcard tbd
+     * @param mergeCache tbd
+     *
+     * @returns tbd
      */
-    public static mergeArrays = (
-        a: ArrayPredictionContext | null,
-        b: ArrayPredictionContext | null,
-        rootIsWildcard: boolean,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): PredictionContext | null => {
-        if (mergeCache !== undefined) {
-            let previous: PredictionContext = mergeCache.get(a, b);
-            if (previous !== undefined) {
+    public static mergeArrays = (a: ArrayPredictionContext, b: ArrayPredictionContext, rootIsWildcard: boolean,
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+    ): PredictionContext | null => {
+        if (mergeCache !== null) {
+            let previous = mergeCache.get(a, b);
+            if (previous !== null) {
+                if (ParserATNSimulator.trace_atn_sim) {
+                    java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> previous`);
+                }
+
                 return previous;
             }
-
             previous = mergeCache.get(b, a);
-            if (previous !== undefined) {
+            if (previous !== null) {
+                if (ParserATNSimulator.trace_atn_sim) {
+                    java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> previous`);
+                }
+
                 return previous;
             }
-
         }
 
         // merge sorted payloads a + b => M
@@ -441,28 +389,25 @@ export abstract class PredictionContext extends JavaObject {
         let j = 0; // walks b
         let k = 0; // walks target M array
 
-        let mergedReturnStates: Int32Array =
-            new Array<number>(a.returnStates.length + b.returnStates.length);
-        let mergedParents: PredictionContext[] =
-            new Array<PredictionContext>(a.returnStates.length + b.returnStates.length);
+        let mergedReturnStates = new Int32Array([a.returnStates.length + b.returnStates.length]);
+        let mergedParents = new Array<PredictionContext | null>(a.returnStates.length + b.returnStates.length);
         // walk and merge to yield mergedParents, mergedReturnStates
         while (i < a.returnStates.length && j < b.returnStates.length) {
-            const a_parent: PredictionContext = a.parents[i];
-            const b_parent: PredictionContext = b.parents[j];
+            const a_parent = a.parents[i];
+            const b_parent = b.parents[j];
             if (a.returnStates[i] === b.returnStates[j]) {
                 // same payload (stack tops are equal), must yield merged singleton
                 const payload: number = a.returnStates[i];
                 // $+$ = $
-                const both$: boolean = payload === PredictionContext.EMPTY_RETURN_STATE &&
-                    a_parent === undefined && b_parent === undefined;
-                const ax_ax: boolean = (a_parent !== undefined && b_parent !== undefined) &&
+                const both$ = payload === PredictionContext.EMPTY_RETURN_STATE &&
+                    a_parent === null && b_parent === null;
+                const ax_ax = (a_parent !== null && b_parent !== null) &&
                     a_parent.equals(b_parent); // ax+ax -> ax
                 if (both$ || ax_ax) {
                     mergedParents[k] = a_parent; // choose left
                     mergedReturnStates[k] = payload;
                 } else { // ax+ay -> a'[x,y]
-                    const mergedParent: PredictionContext =
-                        PredictionContext.merge(a_parent, b_parent, rootIsWildcard, mergeCache);
+                    const mergedParent = PredictionContext.merge(a_parent, b_parent, rootIsWildcard, mergeCache);
                     mergedParents[k] = mergedParent;
                     mergedReturnStates[k] = payload;
                 }
@@ -504,31 +449,38 @@ export abstract class PredictionContext extends JavaObject {
                 const a_: PredictionContext =
                     SingletonPredictionContext.create(mergedParents[0],
                         mergedReturnStates[0]);
-                if (mergeCache !== undefined) {
+                if (mergeCache !== null) {
                     mergeCache.put(a, b, a_);
                 }
 
                 return a_;
             }
-            mergedParents = java.util.Arrays.copyOf(mergedParents, k);
-            mergedReturnStates = java.util.Arrays.copyOf(mergedReturnStates, k);
+            mergedParents = mergedParents.slice(0, k);
+            mergedReturnStates = mergedReturnStates.slice(0, k);
         }
 
-        const M: PredictionContext =
-            new ArrayPredictionContext(mergedParents, mergedReturnStates);
+        const M = new ArrayPredictionContext(mergedParents, mergedReturnStates);
 
         // if we created same array as a or b, return that instead
         // TODO: track whether this is possible above during merge sort for speed
         if (M.equals(a)) {
-            if (mergeCache !== undefined) {
+            if (mergeCache !== null) {
                 mergeCache.put(a, b, a);
+            }
+
+            if (ParserATNSimulator.trace_atn_sim) {
+                java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> a`);
             }
 
             return a;
         }
         if (M.equals(b)) {
-            if (mergeCache !== undefined) {
+            if (mergeCache !== null) {
                 mergeCache.put(a, b, b);
+            }
+
+            if (ParserATNSimulator.trace_atn_sim) {
+                java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> b`);
             }
 
             return b;
@@ -536,47 +488,29 @@ export abstract class PredictionContext extends JavaObject {
 
         PredictionContext.combineCommonParents(mergedParents);
 
-        if (mergeCache !== undefined) {
+        if (mergeCache !== null) {
             mergeCache.put(a, b, M);
+        }
+
+        if (ParserATNSimulator.trace_atn_sim) {
+            java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> ${M}`);
         }
 
         return M;
     };
 
-    /**
-     * Make pass over all <em>M</em> {@code parents}; merge any {@code equals()}
-     * ones.
-     *
-     * @param parents
-     */
-    protected static combineCommonParents = (parents: PredictionContext[] | null): void => {
-        const uniqueParents: java.util.Map<PredictionContext, PredictionContext> =
-            new java.util.HashMap<PredictionContext, PredictionContext>();
-
-        for (let p = 0; p < parents.length; p++) {
-            const parent: PredictionContext = parents[p];
-            if (!(uniqueParents.containsKey(parent))) { // don't replace
-                uniqueParents.put(parent, parent);
-            }
-        }
-
-        for (let p = 0; p < parents.length; p++) {
-            parents[p] = uniqueParents.get(parents[p]);
-        }
-    };
-
     public static toDOTString = (context: PredictionContext | null): java.lang.String | null => {
-        if (context === undefined) {
-            return "";
+        if (context === null) {
+            return S``;
         }
 
-        const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
-        buf.append("digraph G {\n");
-        buf.append("rankdir=LR;\n");
+        const buf = new java.lang.StringBuilder();
+        buf.append(S`digraph G {\n`);
+        buf.append(S`rankdir=LR;\n`);
 
-        const nodes: java.util.List<PredictionContext> = PredictionContext.getAllContextNodes(context);
-        java.util.Collections.sort(nodes, new class extends java.util.Comparator<PredictionContext> {
-            public compare = (o1: PredictionContext | null, o2: PredictionContext | null): number => {
+        const nodes = PredictionContext.getAllContextNodes(context);
+        java.util.Collections.sort(nodes, new class implements java.util.Comparator<PredictionContext> {
+            public compare = (o1: PredictionContext, o2: PredictionContext): number => {
                 return o1.id - o2.id;
             };
         }());
@@ -584,35 +518,35 @@ export abstract class PredictionContext extends JavaObject {
         for (const current of nodes) {
             if (current instanceof SingletonPredictionContext) {
                 const s: java.lang.String = java.lang.String.valueOf(current.id);
-                buf.append("  s").append(s);
+                buf.append(S`  s`).append(s);
                 let returnState: java.lang.String = java.lang.String.valueOf(current.getReturnState(0));
                 if (current instanceof EmptyPredictionContext) {
-                    returnState = "$";
+                    returnState = S`$`;
                 }
 
-                buf.append(" [label=\"").append(returnState).append("\"];\n");
+                buf.append(S` [label=\"`).append(returnState).append(S`\"];\n`);
                 continue;
             }
             const arr: ArrayPredictionContext = current as ArrayPredictionContext;
-            buf.append("  s").append(arr.id);
-            buf.append(" [shape=box, label=\"");
-            buf.append("[");
+            buf.append(S`  s`).append(arr.id);
+            buf.append(S` [shape=box, label=\"`);
+            buf.append(S`[`);
             let first = true;
             for (const inv of arr.returnStates) {
                 if (!first) {
-                    buf.append(", ");
+                    buf.append(S`, `);
                 }
 
                 if (inv === PredictionContext.EMPTY_RETURN_STATE) {
-                    buf.append("$");
+                    buf.append(S`$`);
                 } else {
                     buf.append(inv);
                 }
 
                 first = false;
             }
-            buf.append("]");
-            buf.append("\"];\n");
+            buf.append(S`]`);
+            buf.append(S`\"];\n`);
         }
 
         for (const current of nodes) {
@@ -621,54 +555,51 @@ export abstract class PredictionContext extends JavaObject {
             }
 
             for (let i = 0; i < current.size(); i++) {
-                if (current.getParent(i) === undefined) {
+                if (current.getParent(i) === null) {
                     continue;
                 }
 
-                const s: java.lang.String = java.lang.String.valueOf(current.id);
-                buf.append("  s").append(s);
-                buf.append("->");
-                buf.append("s");
-                buf.append(current.getParent(i).id);
+                const s = java.lang.String.valueOf(current.id);
+                buf.append(S`  s`).append(s);
+                buf.append(S`->`);
+                buf.append(S`s`);
+                buf.append(current.getParent(i)!.id);
                 if (current.size() > 1) {
-                    buf.append(" [label=\"parent[" + i + "]\"];\n");
+                    buf.append(S` [label=\"parent[${i}]\"];\n`);
                 } else {
-                    buf.append(";\n");
+                    buf.append(S`;\n`);
                 }
-
             }
         }
 
-        buf.append("}\n");
+        buf.append(S`}\n`);
 
         return buf.toString();
     };
 
     // From Sam
-    public static getCachedContext = (
-        context: PredictionContext | null,
-        contextCache: PredictionContextCache | null,
-        visited: java.util.IdentityHashMap<PredictionContext, PredictionContext> | null): PredictionContext | null => {
-        if (context.isEmpty()) {
+    public static getCachedContext = (context: PredictionContext | null, contextCache: PredictionContextCache,
+        visited: java.util.IdentityHashMap<PredictionContext, PredictionContext>): PredictionContext | null => {
+        if (!context || context.isEmpty()) {
             return context;
         }
 
-        let existing: PredictionContext = visited.get(context);
-        if (existing !== undefined) {
+        let existing = visited.get(context);
+        if (existing !== null) {
             return existing;
         }
 
         existing = contextCache.get(context);
-        if (existing !== undefined) {
+        if (existing !== null) {
             visited.put(context, existing);
 
             return existing;
         }
 
         let changed = false;
-        let parents: PredictionContext[] = new Array<PredictionContext>(context.size());
+        let parents = new Array<PredictionContext | null>(context.size());
         for (let i = 0; i < parents.length; i++) {
-            const parent: PredictionContext = PredictionContext.getCachedContext(context.getParent(i), contextCache, visited);
+            const parent = PredictionContext.getCachedContext(context.getParent(i), contextCache, visited);
             if (changed || parent !== context.getParent(i)) {
                 if (!changed) {
                     parents = new Array<PredictionContext>(context.size());
@@ -709,42 +640,18 @@ export abstract class PredictionContext extends JavaObject {
         return updated;
     };
 
-    //	// extra structures, but cut/paste/morphed works, so leave it.
-    //	// seems to do a breadth-first walk
-    //	public static List<PredictionContext> getAllNodes(PredictionContext context) {
-    //		Map<PredictionContext, PredictionContext> visited =
-    //			new IdentityHashMap<PredictionContext, PredictionContext>();
-    //		Deque<PredictionContext> workList = new ArrayDeque<PredictionContext>();
-    //		workList.add(context);
-    //		visited.put(context, context);
-    //		List<PredictionContext> nodes = new ArrayList<PredictionContext>();
-    //		while (!workList.isEmpty()) {
-    //			PredictionContext current = workList.pop();
-    //			nodes.add(current);
-    //			for (int i = 0; i < current.size(); i++) {
-    //				PredictionContext parent = current.getParent(i);
-    //				if ( parent!=null && visited.put(parent, parent) == null) {
-    //					workList.push(parent);
-    //				}
-    //			}
-    //		}
-    //		return nodes;
-    //	}
-
     // ter's recursive version of Sam's getAllNodes()
-    public static getAllContextNodes = (context: PredictionContext | null): java.util.List<PredictionContext> | null => {
-        const nodes: java.util.List<PredictionContext> = new java.util.ArrayList<PredictionContext>();
-        const visited: java.util.Map<PredictionContext, PredictionContext> =
-            new java.util.IdentityHashMap<PredictionContext, PredictionContext>();
+    public static getAllContextNodes = (context: PredictionContext): java.util.List<PredictionContext> => {
+        const nodes = new java.util.ArrayList<PredictionContext>();
+        const visited = new java.util.IdentityHashMap<PredictionContext, PredictionContext>();
         PredictionContext.getAllContextNodes_(context, nodes, visited);
 
         return nodes;
     };
 
-    public static getAllContextNodes_ = (context: PredictionContext | null,
-        nodes: java.util.List<PredictionContext> | null,
-        visited: java.util.Map<PredictionContext, PredictionContext> | null): void => {
-        if (context === undefined || visited.containsKey(context)) {
+    public static getAllContextNodes_ = (context: PredictionContext | null, nodes: java.util.List<PredictionContext>,
+        visited: java.util.Map<PredictionContext, PredictionContext>): void => {
+        if (context === null || visited.containsKey(context)) {
             return;
         }
 
@@ -755,83 +662,165 @@ export abstract class PredictionContext extends JavaObject {
         }
     };
 
-    public toString<T extends ATNSimulator>(_recog?: Recognizer<unknown, T>): java.lang.String {
-        return super.toString();
-    }
+    protected static calculateEmptyHashCode = (): number => {
+        let hash: number = MurmurHash.initialize(PredictionContext.INITIAL_HASH);
+        hash = MurmurHash.finish(hash, 0);
 
-    public toStrings<T extends ATNSimulator>(recognizer: Recognizer<unknown, T> | null, currentState: number): java.lang.String[] | null;
-    public toStrings<T extends ATNSimulator>(recognizer: Recognizer<unknown, T> | null, stop: PredictionContext | null, currentState: number): java.lang.String[] | null;
-    public toStrings<T extends ATNSimulator>(recognizer: Recognizer<unknown, T> | null, currentStateOrStop: number | PredictionContext | null, currentState?: number): java.lang.String[] | null {
-        if (typeof currentStateOrStop === "number" && currentState === undefined) {
-            const currentState = currentStateOrStop;
+        return hash;
+    };
 
-            return this.toStrings(recognizer, EmptyPredictionContext.Instance, currentState);
+    protected static calculateHashCode(parent: PredictionContext, returnState: number): number;
+    protected static calculateHashCode(parents: Array<PredictionContext | null>, returnStates: Int32Array): number;
+    protected static calculateHashCode(parentOrParents: PredictionContext | Array<PredictionContext | null>,
+        returnStateOrReturnStates: number | Int32Array): number {
+        if (parentOrParents instanceof PredictionContext) {
+            let hash = MurmurHash.initialize(PredictionContext.INITIAL_HASH);
+            hash = MurmurHash.update(hash, parentOrParents);
+            hash = MurmurHash.update(hash, returnStateOrReturnStates);
+            hash = MurmurHash.finish(hash, 2);
+
+            return hash;
         } else {
-            const stop = currentStateOrStop as PredictionContext | null;
-            const result: java.util.List<java.lang.String> = new java.util.ArrayList<java.lang.String>();
+            const returnStates = returnStateOrReturnStates as Int32Array;
+            let hash: number = MurmurHash.initialize(PredictionContext.INITIAL_HASH);
 
-            outer:
-            for (let perm = 0; ; perm++) {
-                let offset = 0;
-                let last = true;
-                let p: PredictionContext = this;
-                let stateNumber: number = currentState;
-                const localBuffer: java.lang.StringBuilder = new java.lang.StringBuilder();
-                localBuffer.append("[");
-                while (!(p.isEmpty()) && p !== stop) {
-                    let index = 0;
-                    if (p.size() > 0) {
-                        let bits = 1;
-                        while ((1 << bits) < p.size()) {
-                            bits++;
-                        }
-
-                        const mask: number = (1 << bits) - 1;
-                        index = (perm >> offset) & mask;
-                        last &= index >= p.size() - 1;
-                        if (index >= p.size()) {
-                            continue outer;
-                        }
-                        offset += bits;
-                    }
-
-                    if (recognizer !== undefined) {
-                        if (localBuffer.length() > 1) {
-                            // first char is '[', if more than that this isn't the first rule
-                            localBuffer.append(" ");
-                        }
-
-                        const atn: ATN = recognizer.getATN();
-                        const s: ATNState = atn.states.get(stateNumber);
-                        const ruleName: java.lang.String = recognizer.getRuleNames()[s.ruleIndex];
-                        localBuffer.append(ruleName);
-                    } else {
-                        if (p.getReturnState(index) !== PredictionContext.EMPTY_RETURN_STATE) {
-                            if (!(p.isEmpty())) {
-                                if (localBuffer.length() > 1) {
-                                    // first char is '[', if more than that this isn't the first rule
-                                    localBuffer.append(" ");
-                                }
-
-                                localBuffer.append(p.getReturnState(index));
-                            }
-                        }
-                    }
-
-                    stateNumber = p.getReturnState(index);
-                    p = p.getParent(index);
-                }
-                localBuffer.append("]");
-                result.add(localBuffer.toString());
-
-                if (last) {
-                    break;
-                }
+            for (const parent of parentOrParents) {
+                hash = MurmurHash.update(hash, parent);
             }
 
-            return result.toArray(new Array<java.lang.String>(0));
+            for (const returnState of returnStates) {
+                hash = MurmurHash.update(hash, returnState);
+            }
+
+            hash = MurmurHash.finish(hash, 2 * parentOrParents.length);
+
+            return hash;
         }
 
     }
+
+    /**
+     * Make pass over all <em>M</em> {@code parents}; merge any {@code equals()}
+     * ones.
+     *
+     * @param parents tbd
+     */
+    protected static combineCommonParents = (parents: Array<PredictionContext | null>): void => {
+        const uniqueParents = new java.util.HashMap<PredictionContext | null, PredictionContext | null>();
+
+        for (const parent of parents) {
+            if (!uniqueParents.containsKey(parent)) { // don't replace
+                uniqueParents.put(parent, parent);
+            }
+        }
+
+        for (let p = 0; p < parents.length; p++) {
+            parents[p] = uniqueParents.get(parents[p])!;
+        }
+    };
+
+    public toString = <S extends Token, T extends ATNSimulator>(_recog?: Recognizer<S, T>): java.lang.String => {
+        return this.toString();
+    };
+
+    public toStrings<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+        currentState: number): java.lang.String[];
+    public toStrings<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+        stop: PredictionContext, currentState: number): java.lang.String[];
+    public toStrings<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+        currentStateOrStop: number | PredictionContext, currentState?: number): java.lang.String[] {
+        let state: number;
+        let stop;
+        if (currentStateOrStop instanceof PredictionContext) {
+            stop = currentStateOrStop;
+            state = currentState!;
+        } else {
+            state = currentStateOrStop;
+            stop = EmptyPredictionContext.Instance;
+        }
+
+        const result: java.lang.String[] = [];
+        const atn = recognizer.getATN();
+
+        outer:
+        for (let perm = 0; ; perm++) {
+            let offset = 0;
+            let last = true;
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            let p: PredictionContext | null = this;
+            let stateNumber = state;
+            const localBuffer = new java.lang.StringBuilder();
+            localBuffer.append(S`[`);
+            while (p && !p.isEmpty() && p !== stop) {
+                let index = 0;
+                if (p.size() > 0) {
+                    let bits = 1;
+                    while ((1 << bits) < p.size()) {
+                        bits++;
+                    }
+
+                    const mask = (1 << bits) - 1;
+                    index = (perm >> offset) & mask;
+                    last &&= index >= p.size() - 1;
+                    if (index >= p.size()) {
+                        continue outer;
+                    }
+                    offset += bits;
+                }
+
+                if (recognizer !== null) {
+                    if (localBuffer.length() > 1) {
+                        // first char is '[', if more than that this isn't the first rule
+                        localBuffer.append(" ");
+                    }
+
+                    const s = atn.states.get(stateNumber);
+                    const ruleName = recognizer.getRuleNames()[s!.ruleIndex];
+                    localBuffer.append(ruleName);
+                } else {
+                    if (p.getReturnState(index) !== PredictionContext.EMPTY_RETURN_STATE) {
+                        if (!p.isEmpty()) {
+                            if (localBuffer.length() > 1) {
+                                // first char is '[', if more than that this isn't the first rule
+                                localBuffer.append(" ");
+                            }
+
+                            localBuffer.append(p.getReturnState(index));
+                        }
+                    }
+                }
+
+                stateNumber = p.getReturnState(index);
+                p = p.getParent(index);
+            }
+
+            localBuffer.append(S`]`);
+            result.push(localBuffer.toString());
+
+            if (last) {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * This means only the {@link EmptyPredictionContext#Instance} (wildcard? not sure) context is in set.
+     *
+     * @returns tbd
+     */
+    public isEmpty = (): boolean => {
+        return this === EmptyPredictionContext.Instance;
+    };
+
+    public hasEmptyPath = (): boolean => {
+        // since EMPTY_RETURN_STATE can only appear in the last position, we check last one
+        return this.getReturnState(this.size() - 1) === PredictionContext.EMPTY_RETURN_STATE;
+    };
+
+    public readonly hashCode = (): number => {
+        return this.cachedHashCode;
+    };
 
 }

@@ -26,7 +26,7 @@ import { S } from "../../../../../../lib/templates";
  * info about the set, with support for combining similar configurations using a
  * graph-structured stack.
  */
-export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig> {
+export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNConfig>, "add"> {
     public static AbstractConfigHashSet = class AbstractConfigHashSet extends Array2DHashSet<ATNConfig> {
         public constructor(comparator: EqualityComparator<ATNConfig>);
         public constructor(comparator: EqualityComparator<ATNConfig>, initialCapacity: number,
@@ -59,7 +59,7 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
      * the standard hash code and equals. We need all configurations with the same
      * {@code (s,i,_,semctx)} to be equal. Unfortunately, this key effectively doubles
      * the number of objects associated with ATNConfigs. The other solution is to
-     * use a hash table that lets us specify the equals/hashcode operation.
+     * use a hash table that lets us specify the equals/hash code operation.
      */
     public static ConfigHashSet = class ConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
         public constructor() {
@@ -178,7 +178,7 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
      * @returns tbd
      */
     public add(config: ATNConfig,
-        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext>): boolean {
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
         if (this.readonly || this.configLookup === null) {
             throw new java.lang.IllegalStateException(S`This set is readonly`);
         }
@@ -201,7 +201,7 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
 
         // a previous (s,i,pi,_), merge with it and save result
         const rootIsWildcard = !this.fullCtx;
-        const merged = PredictionContext.merge(existing.context, config.context, rootIsWildcard, mergeCache ?? null);
+        const merged = PredictionContext.merge(existing.context, config.context, rootIsWildcard, mergeCache);
         // no need to check for existing.context, config.context in cache
         // since only way to create new graphs is "call rule" and here. We
         // cache at both places.
@@ -276,9 +276,9 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
         }
     };
 
-    public addAll = (coll: java.util.Collection<ATNConfig>): boolean => {
+    public addAll = (coll: Omit<java.util.Collection<ATNConfig>, "add">): boolean => {
         for (const c of coll) {
-            this.add(c);
+            this.add(c, null);
         }
 
         return false;
@@ -324,7 +324,7 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
         return this.configs.isEmpty();
     };
 
-    public contains = (o: java.lang.Object | null): boolean => {
+    public contains = (o: ATNConfig): boolean => {
         if (this.configLookup === null) {
             throw new java.lang.UnsupportedOperationException(S`This method is not implemented for readonly sets.`);
         }
@@ -369,7 +369,7 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
 
     public toString = (): java.lang.String => {
         const buf = new java.lang.StringBuilder();
-        buf.append(this.elements().toString());
+        buf.append(this.elements().toString() ?? S``);
         if (this.hasSemanticContext) {
             buf.append(S`,hasSemanticContext=`).append(this.hasSemanticContext);
         }
@@ -392,6 +392,10 @@ export class ATNConfigSet extends JavaObject implements java.util.Set<ATNConfig>
     public toArray(): ATNConfig[];
     public toArray<T extends ATNConfig>(a: T[]): T[];
     public toArray<T extends ATNConfig>(a?: T[]): ATNConfig[] | T[] | null {
+        if (a === undefined) {
+            return this.configLookup?.toArray() ?? null;
+        }
+
         return this.configLookup?.toArray(a) ?? null;
     }
 
