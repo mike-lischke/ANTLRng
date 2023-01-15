@@ -23,8 +23,8 @@ import { RuleContext } from "../RuleContext";
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ParseTree extends SyntaxTree {
     // the following methods narrow the return type; they are not additional methods
-    getParent: () => ParseTree;
-    getChild: (i: number) => ParseTree;
+    getParent: () => ParseTree | null;
+    getChild: (i: number) => ParseTree | null;
 
     /**
      * Set the parent for this node.
@@ -44,7 +44,7 @@ export interface ParseTree extends SyntaxTree {
     setParent: (parent: RuleContext | null) => void;
 
     /** The {@link ParseTreeVisitor} needs a double dispatch method. */
-    accept: <T>(visitor: ParseTreeVisitor<T> | null) => T;
+    accept: <T>(visitor: ParseTreeVisitor<T>) => T;
 
     /**
      * Return the combined text of all leaf nodes. Does not get any

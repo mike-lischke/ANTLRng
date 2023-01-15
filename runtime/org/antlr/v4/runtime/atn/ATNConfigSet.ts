@@ -130,7 +130,7 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
      *  I should also point out that this seems to include predicated alternatives
      *  that have predicates that evaluate to false. Computed in computeTargetState().
      */
-    public conflictingAlts?: java.util.BitSet;
+    public conflictingAlts: java.util.BitSet | null = null;
 
     /**
      * Indicates that the set of configurations is read-only. Do not
@@ -178,7 +178,7 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
      * @returns tbd
      */
     public add(config: ATNConfig,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
+        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
         if (this.readonly || this.configLookup === null) {
             throw new java.lang.IllegalStateException(S`This set is readonly`);
         }

@@ -204,7 +204,7 @@ export abstract class Recognizer<Symbol extends Token, ATNInterpreter extends AT
      *
      * @returns tbd
      */
-    public getErrorHeader = (e: RecognitionException<ATNInterpreter>): java.lang.String => {
+    public getErrorHeader = (e: RecognitionException<Symbol, ATNInterpreter>): java.lang.String => {
         const line = e.getOffendingToken()?.getLine() ?? 0;
         const charPositionInLine = e.getOffendingToken()?.getCharPositionInLine() ?? 0;
 
@@ -310,6 +310,6 @@ export abstract class Recognizer<Symbol extends Token, ATNInterpreter extends AT
 
     public abstract getInputStream: () => IntStream | null;
     public abstract setInputStream: (input: IntStream | null) => void;
-    public abstract getTokenFactory: () => TokenFactory<Symbol>;
+    public abstract getTokenFactory: () => TokenFactory<Symbol> | null;
     public abstract setTokenFactory: (input: TokenFactory<Symbol>) => void;
 }

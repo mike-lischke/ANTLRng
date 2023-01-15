@@ -6,7 +6,6 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
 import { CharStream } from "../../CharStream";
 import { CommonToken } from "../../CommonToken";
 import { Lexer } from "../../Lexer";
@@ -82,13 +81,13 @@ public static readonly
 	}
 
 	public nextToken = ():  Token | null => {
-		Lexer._tokenStartCharIndex = Lexer._input.index();
+		this._tokenStartCharIndex = this._input.index();
 		let  t: CommonToken = null;
 		while ( t===null ) {
-			switch ( Lexer._input.LA(1) ) {
+			switch ( this._input.LA(1) ) {
 				case '/':{
 					this.consume();
-					if ( Lexer._input.LA(1)==='/' ) {
+					if ( this._input.LA(1)==='/' ) {
 						this.consume();
 						t = new  CommonToken(XPathLexer.ANYWHERE, S`//`);
 					}
@@ -117,11 +116,11 @@ public static readonly
 }
 
 				case CharStream.EOF :{
-					return new  CommonToken(Token.EOF, S`<EOF>`);
+					return new  CommonToken(Recognizer.EOF, S`<EOF>`);
 }
 
 				default:{
-					if ( this.isNameStartChar(Lexer._input.LA(1)) ) {
+					if ( this.isNameStartChar(this._input.LA(1)) ) {
 						let  id: java.lang.String = this.matchID();
 						if ( java.lang.Character.isUpperCase(id.charAt(0)) ) {
  t = new  CommonToken(XPathLexer.TOKEN_REF, id);
@@ -133,21 +132,21 @@ public static readonly
 
 					}
 					else {
-						throw new  LexerNoViableAltException(this, Lexer._input, Lexer._tokenStartCharIndex, null);
+						throw new  LexerNoViableAltException(this, this._input, this._tokenStartCharIndex, null);
 					}
 					break;
 }
 
 			}
 		}
-		t.setStartIndex(Lexer._tokenStartCharIndex);
-		t.setCharPositionInLine(Lexer._tokenStartCharIndex);
+		t.setStartIndex(this._tokenStartCharIndex);
+		t.setCharPositionInLine(this._tokenStartCharIndex);
 		t.setLine(this.line);
 		return t;
 	}
 
 	public consume = ():  void => {
-		let  curChar: number = Lexer._input.LA(1);
+		let  curChar: number = this._input.LA(1);
 		if ( curChar==='\n' ) {
 			this.line++;
 			this.charPositionInLine=0;
@@ -155,7 +154,7 @@ public static readonly
 		else {
 			this.charPositionInLine++;
 		}
-		Lexer._input.consume();
+		this._input.consume();
 	}
 
 	public getCharPositionInLine = ():  number => {
@@ -163,22 +162,22 @@ public static readonly
 	}
 
 	public matchID = ():  java.lang.String | null => {
-		let  start: number = Lexer._input.index();
+		let  start: number = this._input.index();
 		this.consume(); // drop start char
-		while ( this.isNameChar(Lexer._input.LA(1)) ) {
+		while ( this.isNameChar(this._input.LA(1)) ) {
 			this.consume();
 		}
-		return Lexer._input.getText(Interval.of(start,Lexer._input.index()-1));
+		return this._input.getText(Interval.of(start,this._input.index()-1));
 	}
 
 	public matchString = ():  java.lang.String | null => {
-		let  start: number = Lexer._input.index();
+		let  start: number = this._input.index();
 		this.consume(); // drop first quote
-		while ( Lexer._input.LA(1)!=='\'' ) {
+		while ( this._input.LA(1)!=='\'' ) {
 			this.consume();
 		}
 		this.consume(); // drop last quote
-		return Lexer._input.getText(Interval.of(start,Lexer._input.index()-1));
+		return this._input.getText(Interval.of(start,this._input.index()-1));
 	}
 
 	public isNameChar = (c: number):  boolean => { return java.lang.Character.isUnicodeIdentifierPart(c); }

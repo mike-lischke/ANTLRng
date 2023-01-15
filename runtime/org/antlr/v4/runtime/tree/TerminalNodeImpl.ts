@@ -1,11 +1,14 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-
+import { java } from "../../../../../../lib/java/java";
+import { JavaObject } from "../../../../../../lib/java/lang/Object";
+import { S } from "../../../../../../lib/templates";
 
 import { ParseTree } from "./ParseTree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
@@ -13,70 +16,68 @@ import { Parser } from "../Parser";
 import { RuleContext } from "../RuleContext";
 import { Token } from "../Token";
 import { Interval } from "../misc/Interval";
+import { TerminalNode } from "./TerminalNode";
 
+export class TerminalNodeImpl extends JavaObject implements TerminalNode {
+    public symbol: Token;
+    public parent: ParseTree | null = null;
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
+    public constructor(symbol: Token) {
+        super();
+        this.symbol = symbol;
+    }
 
+    public getChild = (_i: number): ParseTree | null => {
+        return null;
+    };
 
-export  class TerminalNodeImpl extends JavaObject implements TerminalNode {
-	public symbol:  Token | null;
-	public parent:  ParseTree | null;
+    public getSymbol = (): Token => {
+        return this.symbol;
+    };
 
-	public constructor(symbol: Token| null) {	super();
-this.symbol = symbol;	}
+    public getParent = (): ParseTree | null => {
+        return this.parent;
+    };
 
-	public getChild = (i: number):  ParseTree | null => {return null;}
+    public setParent = (parent: RuleContext | null): void => {
+        this.parent = parent;
+    };
 
-	public getSymbol = ():  Token | null => {return this.symbol;}
+    public getPayload = (): Token => {
+        return this.symbol;
+    };
 
-	public getParent = ():  ParseTree | null => { return this.parent; }
+    public getSourceInterval = (): Interval => {
+        if (this.symbol === null) {
+            return Interval.INVALID;
+        }
 
-	public setParent = (parent: RuleContext| null):  void => {
-		this.parent = parent;
-	}
+        const tokenIndex: number = this.symbol.getTokenIndex();
 
-	public getPayload = ():  Token | null => { return this.symbol; }
+        return new Interval(tokenIndex, tokenIndex);
+    };
 
-	public getSourceInterval = ():  Interval | null => {
-		if ( this.symbol ===null ) {
- return Interval.INVALID;
-}
+    public getChildCount = (): number => {
+        return 0;
+    };
 
+    public accept = <T>(visitor: ParseTreeVisitor<T>): T => {
+        return visitor.visitTerminal(this);
+    };
 
-		let  tokenIndex: number = this.symbol.getTokenIndex();
-		return new  Interval(tokenIndex, tokenIndex);
-	}
+    public getText = (): java.lang.String => {
+        return this.symbol.getText();
+    };
 
-	public getChildCount = ():  number => { return 0; }
+    public toStringTree(_parser?: Parser | null): java.lang.String {
+        return this.toString();
+    }
 
-	public accept =  <T>(visitor: ParseTreeVisitor< T>| null):  T | null => {
-		return visitor.visitTerminal(this);
-	}
+    public toString = (): java.lang.String => {
+        if (this.symbol.getType() === Token.EOF) {
+            return S`<EOF>`;
+        }
 
-	public getText = ():  java.lang.String | null => { return this.symbol.getText(); }
-
-	public toStringTree():  java.lang.String | null;
-
-	public toStringTree(parser: Parser| null):  java.lang.String | null;
-
-
-	public toStringTree(parser?: Parser | null):  java.lang.String | null {
-if (parser === undefined) {
-		return this.toString();
-	}
- else  {
-		return this.toString();
-	}
-
-}
-
-
-	public toString = ():  java.lang.String | null => {
-			if ( this.symbol.getType() === Token.EOF ) {
- return S`<EOF>`;
-}
-
-			return this.symbol.getText();
-	}
+        return this.symbol.getText();
+    };
 }

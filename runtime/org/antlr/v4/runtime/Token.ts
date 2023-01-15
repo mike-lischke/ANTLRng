@@ -1,5 +1,3 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -18,71 +16,33 @@ import { TokenSource } from "./TokenSource";
  *  (so we can ignore tabs), token channel, index, and source from which
  *  we obtained this token.
  */
-export abstract class Token {
-    public static readonly INVALID_TYPE: number = 0;
-
-    /**
-     * During lookahead operations, this "token" signifies we hit rule end ATN state
-     *  and did not follow it despite needing to.
-     */
-    public static readonly EPSILON: number = -2;
-
-    public static readonly MIN_USER_TOKEN_TYPE: number = 1;
-
-    public static readonly EOF: number = IntStream.EOF;
-
-    /**
-     * All tokens go to the parser (unless skip() is called in that rule)
-     *  on a particular "channel".  The parser tunes to a particular channel
-     *  so that whitespace etc... can go to the parser on a "hidden" channel.
-     */
-    public static readonly DEFAULT_CHANNEL: number = 0;
-
-    /**
-     * Anything on different channel than DEFAULT_CHANNEL is not parsed
-     *  by parser.
-     */
-    public static readonly HIDDEN_CHANNEL: number = 1;
-
-    /**
-     * This is the minimum constant value which can be assigned to a
-     * user-defined token channel.
-     *
-     * <p>
-     * The non-negative numbers less than {@link #MIN_USER_CHANNEL_VALUE} are
-     * assigned to the predefined channels {@link #DEFAULT_CHANNEL} and
-     * {@link #HIDDEN_CHANNEL}.</p>
-     *
-     * @see Token#getChannel()
-     */
-    public static readonly MIN_USER_CHANNEL_VALUE: number = 2;
-
+export interface Token {
     /**
      * Get the text of the token.
      */
-    public abstract getText: () => java.lang.String | null;
+    getText: () => java.lang.String;
 
     /** Get the token type of the token */
-    public abstract getType: () => number;
+    getType: () => number;
 
     /**
      * The line number on which the 1st character of this token was matched,
      *  line=1..n
      */
-    public abstract getLine: () => number;
+    getLine: () => number;
 
     /**
      * The index of the first character of this token relative to the
      *  beginning of the line at which it occurs, 0..n-1
      */
-    public abstract getCharPositionInLine: () => number;
+    getCharPositionInLine: () => number;
 
     /**
      * Return the channel this token. Each token can arrive at the parser
      *  on a different channel, but the parser only "tunes" to a single channel.
      *  The parser ignores everything not on DEFAULT_CHANNEL.
      */
-    public abstract getChannel: () => number;
+    getChannel: () => number;
 
     /**
      * An index from 0..n-1 of the token object in the input stream.
@@ -92,27 +52,42 @@ export abstract class Token {
      *  Return -1 to indicate that this token was conjured up since
      *  it doesn't have a valid index.
      */
-    public abstract getTokenIndex: () => number;
+    getTokenIndex: () => number;
 
     /**
      * The starting character index of the token
      *  This method is optional; return -1 if not implemented.
      */
-    public abstract getStartIndex: () => number;
+    getStartIndex: () => number;
 
     /**
      * The last character index of the token.
      *  This method is optional; return -1 if not implemented.
      */
-    public abstract getStopIndex: () => number;
+    getStopIndex: () => number;
 
     /**
       Gets the {@link TokenSource} which created this token.
      */
-    public abstract getTokenSource: () => TokenSource;
+    getTokenSource: () => TokenSource;
 
     /**
      * Gets the {@link CharStream} from which this token was derived.
      */
-    public abstract getInputStream: () => CharStream;
+    getInputStream: () => CharStream;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
+export namespace Token {
+    export const INVALID_TYPE = 0;
+    export const EPSILON = -2;
+    export const MIN_USER_TOKEN_TYPE = 1;
+    export const EOF: number = IntStream.EOF;
+    export const DEFAULT_CHANNEL = 0;
+    export const HIDDEN_CHANNEL = 1;
+    export const MIN_USER_CHANNEL_VALUE = 2;
+}
+
+export const isToken = (candidate: unknown): candidate is Token => {
+    return (candidate as Token).getTokenSource !== undefined;
+};

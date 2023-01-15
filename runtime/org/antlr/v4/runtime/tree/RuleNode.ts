@@ -11,5 +11,5 @@ import { RuleContext } from "../RuleContext";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface RuleNode extends ParseTree {
-    getRuleContext: () => RuleContext;
+    getRuleContext: () => RuleContext | null;
 }

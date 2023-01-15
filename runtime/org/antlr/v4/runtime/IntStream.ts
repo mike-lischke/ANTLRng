@@ -9,7 +9,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import { java } from "../../../../../lib/java/java";
-
 import { S } from "../../../../../lib/templates";
 
 /**
@@ -28,19 +27,7 @@ import { S } from "../../../../../lib/templates";
  *   <li>{@link #size}</li>
  * </ul>
  */
-export abstract class IntStream {
-    /**
-     * The value returned by {@link #LA LA()} when the end of the stream is
-     * reached.
-     */
-    public static readonly EOF: number = -1;
-
-    /**
-     * The value returned by {@link #getSourceName} when the actual name of the
-     * underlying source is not known.
-     */
-    public static readonly UNKNOWN_SOURCE_NAME: java.lang.String = S`<unknown>`;
-
+export interface IntStream {
     /**
      * Consumes the current symbol in the stream. This method has the following
      * effects:
@@ -63,7 +50,7 @@ export abstract class IntStream {
      * end of the stream (i.e. if {@code LA(1)==}{@link #EOF EOF} before calling
      * {@code consume}).
      */
-    public abstract consume: () => void;
+    consume: () => void;
 
     /**
      * Gets the value of the symbol at offset {@code i} from the current
@@ -99,7 +86,7 @@ export abstract class IntStream {
      * @throws UnsupportedOperationException if the stream does not support
      * retrieving the value of the specified symbol
      */
-    public abstract LA: (i: number) => number;
+    LA: (i: number) => number;
 
     /**
      * A mark provides a guarantee that {@link #seek seek()} operations will be
@@ -147,7 +134,7 @@ export abstract class IntStream {
       @returns An opaque marker which should be passed to
      * {@link #release release()} when the marked range is no longer required.
      */
-    public abstract mark: () => number;
+    mark: () => number;
 
     /**
      * This method releases a marked range created by a call to
@@ -161,7 +148,7 @@ export abstract class IntStream {
      * @param marker A marker returned by a call to {@code mark()}.
      * @see #mark
      */
-    public abstract release: (marker: number) => void;
+    release: (marker: number) => void;
 
     /**
      * Return the index into the stream of the input symbol referred to by
@@ -171,7 +158,7 @@ export abstract class IntStream {
      * {@link IntStream initializing method} has occurred after this stream was
      * constructed.</p>
      */
-    public abstract index: () => number;
+    index: () => number;
 
     /**
      * Set the input cursor to the position indicated by {@code index}. If the
@@ -201,7 +188,7 @@ export abstract class IntStream {
      * @throws UnsupportedOperationException if the stream does not support
      * seeking to the specified index
      */
-    public abstract seek: (index: number) => void;
+    seek: (index: number) => void;
 
     /**
      * Returns the total number of symbols in the stream, including a single EOF
@@ -210,7 +197,7 @@ export abstract class IntStream {
      * @throws UnsupportedOperationException if the size of the stream is
      * unknown.
      */
-    public abstract size: () => number;
+    size: () => number;
 
     /**
      * Gets the name of the underlying symbol source. This method returns a
@@ -218,5 +205,20 @@ export abstract class IntStream {
      * returns {@link #UNKNOWN_SOURCE_NAME}.
      */
 
-    public abstract getSourceName: () => java.lang.String;
+    getSourceName: () => java.lang.String;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
+export namespace IntStream {
+    /**
+     * The value returned by {@link #LA LA()} when the end of the stream is
+     * reached.
+     */
+    export const EOF = -1;
+
+    /**
+     * The value returned by {@link #getSourceName} when the actual name of the
+     * underlying source is not known.
+     */
+    export const UNKNOWN_SOURCE_NAME = S`<unknown>`;
 }

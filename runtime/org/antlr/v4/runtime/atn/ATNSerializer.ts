@@ -150,7 +150,7 @@ export class ATNSerializer extends JavaObject {
         if (this.atn.grammarType === ATNType.LEXER) {
             this.data.add(this.atn.lexerActions?.length ?? 0);
             for (const action of this.atn.lexerActions ?? []) {
-                this.data.add(action.getActionType());
+                this.data.add(+action.getActionType());
                 switch (action.getActionType()) {
                     case LexerActionType.CHANNEL: {
                         const channel: number = (action as LexerChannelAction).getChannel();

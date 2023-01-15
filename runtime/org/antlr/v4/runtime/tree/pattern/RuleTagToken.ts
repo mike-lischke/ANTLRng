@@ -113,7 +113,7 @@ $this(ruleName, bypassTokenType, label);
 	 * <p>Rule tag tokens are always placed on the {@link #DEFAULT_CHANNEL}.</p>
 	 */
 	public getChannel = ():  number => {
-		return Token.DEFAULT_CHANNEL;
+		return this.DEFAULT_CHANNEL;
 	}
 
 	/**

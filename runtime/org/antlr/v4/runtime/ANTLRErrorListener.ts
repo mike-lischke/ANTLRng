@@ -14,6 +14,7 @@ import { Recognizer } from "./Recognizer";
 import { ATNConfigSet } from "./atn/ATNConfigSet";
 import { DFA } from "./dfa/DFA";
 import { ATNSimulator } from "./atn";
+import { Token } from "./Token";
 
 /** How to emit recognition errors. */
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -51,12 +52,12 @@ export interface ANTLRErrorListener {
      *        the parser was able to recover in line without exiting the
      *        surrounding rule.
      */
-    syntaxError: <T extends ATNSimulator>(recognizer: Recognizer<unknown, T>,
+    syntaxError: <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
         offendingSymbol: unknown,
         line: number,
         charPositionInLine: number,
         msg: java.lang.String,
-        e: RecognitionException<T>) => void;
+        e?: RecognitionException<S, T>) => void;
 
     /**
      * This method is called by the parser when a full-context prediction

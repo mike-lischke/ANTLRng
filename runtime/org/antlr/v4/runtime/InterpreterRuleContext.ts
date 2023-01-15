@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { java } from "../../../../../lib/java/java";
 import { ParserRuleContext } from "./ParserRuleContext";
 import { RuleContext } from "./RuleContext";
 

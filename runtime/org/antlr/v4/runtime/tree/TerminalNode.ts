@@ -13,3 +13,7 @@ import { Token } from "../Token";
 export interface TerminalNode extends ParseTree {
     getSymbol: () => Token;
 }
+
+export const isTerminalNode = (candidate: unknown): candidate is TerminalNode => {
+    return (candidate as TerminalNode).getSymbol !== undefined;
+};

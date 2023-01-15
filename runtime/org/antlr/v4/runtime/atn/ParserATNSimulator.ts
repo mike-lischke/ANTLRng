@@ -601,7 +601,7 @@ export class ParserATNSimulator extends ATNSimulator {
      * {@code t}. If {@code t} does not lead to a valid DFA state, this method
      * returns {@link #ERROR}.
      */
-    protected computeTargetState = (dfa: DFA | null, previousD: DFAState | null, t: number): DFAState => {
+    protected computeTargetState = (dfa: DFA, previousD: DFAState | null, t: number): DFAState | null => {
         let reach = this.computeReachSet(previousD?.configs ?? null, t, false);
         if (reach === null) {
             this.addDFAEdge(dfa, previousD, t, ATNSimulator.ERROR);
@@ -615,11 +615,11 @@ export class ParserATNSimulator extends ATNSimulator {
 
         if (ParserATNSimulator.debug) {
             let altSubSets = PredictionMode.getConflictingAltSubsets(reach);
-            java.lang.System.out.println(S`SLL altSubSets = ` + altSubSets +
-                S`, configs = ` + reach +
-                S`, predict = ` + predictedAlt + S`, allSubsetsConflict = ` +
-                PredictionMode.allSubsetsConflict(altSubSets) + S`, conflictingAlts = ` +
-                this.getConflictingAlts(reach));
+            const text = `SLL altSubSets = ${altSubSets}` +
+                `, configs = ${reach}` +
+                `, predict = ${predictedAlt}, allSubsetsConflict = ` +
+                `${PredictionMode.allSubsetsConflict(altSubSets)}, conflictingAlts = ${this.getConflictingAlts(reach)}`;
+            java.lang.System.out.println(S`${text}`);
         }
 
         if (predictedAlt !== ATN.INVALID_ALT_NUMBER) {
@@ -641,25 +641,25 @@ export class ParserATNSimulator extends ATNSimulator {
 
 
         if (D.isAcceptState && D.configs.hasSemanticContext) {
-            this.predicateDFAState(D, this.atn.getDecisionState(dfa.decision));
+            this.predicateDFAState(D, this.atn.getDecisionState(dfa.decision)!);
             if (D.predicates !== null) {
                 D.prediction = ATN.INVALID_ALT_NUMBER;
             }
         }
 
         // all adds to dfa are done after we've created full D state
-        D = this.addDFAEdge(dfa, previousD, t, D);
-        return D;
+        return this.addDFAEdge(dfa, previousD, t, D);
     };
 
-    protected predicateDFAState = (dfaState: DFAState | null, decisionState: DecisionState | null): void => {
+    protected predicateDFAState = (dfaState: DFAState, decisionState: DecisionState): void => {
         // We need to test all predicates, even in DFA states that
         // uniquely predict alternative.
-        let nalts: number = decisionState.getNumberOfTransitions();
+        let altCount = decisionState.getNumberOfTransitions();
+
         // Update DFA so reach becomes accept state with (predicate,alt)
         // pairs if preds found for conflicting alts
-        let altsToCollectPredsFrom: java.util.BitSet = this.getConflictingAltsOrUniqueAlt(dfaState.configs);
-        let altToPred: SemanticContext[] = this.getPredsForAmbigAlts(altsToCollectPredsFrom, dfaState.configs, nalts);
+        let altsToCollectPredsFrom = this.getConflictingAltsOrUniqueAlt(dfaState.configs);
+        let altToPred = this.getPredsForAmbigAlts(altsToCollectPredsFrom, dfaState.configs, altCount);
         if (altToPred !== null) {
             dfaState.predicates = this.getPredicatePredictions(altsToCollectPredsFrom, altToPred);
             dfaState.prediction = ATN.INVALID_ALT_NUMBER; // make sure we use preds
@@ -668,7 +668,7 @@ export class ParserATNSimulator extends ATNSimulator {
             // There are preds in configs but they might go away
             // when OR'd together like {p}? || NONE == NONE. If neither
             // alt has preds, resolve to min alt
-            dfaState.prediction = altsToCollectPredsFrom.nextSetBit(0);
+            dfaState.prediction = altsToCollectPredsFrom!.nextSetBit(0);
         }
     };
 
@@ -676,15 +676,15 @@ export class ParserATNSimulator extends ATNSimulator {
     protected execATNWithFullContext = (dfa: DFA | null,
         D: DFAState | null, // how far we got in SLL DFA before failing over
         s0: ATNConfigSet | null,
-        input: TokenStream | null, startIndex: number,
+        input: TokenStream, startIndex: number,
         outerContext: ParserRuleContext | null): number => {
         if (ParserATNSimulator.debug || ParserATNSimulator.trace_atn_sim) {
-            java.lang.System.out.println(S`execATNWithFullContext` + s0);
+            java.lang.System.out.println(S`execATNWithFullContext${s0}`);
         }
         let fullCtx: boolean = true;
         let foundExactAmbig: boolean = false;
-        let reach: ATNConfigSet = null;
-        let previous: ATNConfigSet = s0;
+        let reach: ATNConfigSet | null = null;
+        let previous = s0;
         input.seek(startIndex);
         let t: number = input.LA(1);
         let predictedAlt: number;
@@ -714,14 +714,14 @@ export class ParserATNSimulator extends ATNSimulator {
 
             let altSubSets: java.util.Collection<java.util.BitSet> = PredictionMode.getConflictingAltSubsets(reach);
             if (ParserATNSimulator.debug) {
-                java.lang.System.out.println(S`LL altSubSets = ` + altSubSets +
-                    S`, predict = ` + PredictionMode.getUniqueAlt(altSubSets) +
-                    S`, resolvesToJustOneViableAlt = ` +
-                    PredictionMode.resolvesToJustOneViableAlt(altSubSets));
+                const text = `LL altSubSets = ${altSubSets}` +
+                    `, predict = ` + PredictionMode.getUniqueAlt(altSubSets) +
+                    `, resolvesToJustOneViableAlt = ` +
+                    PredictionMode.resolvesToJustOneViableAlt(altSubSets);
+
+                java.lang.System.out.println(S`${text}`);
             }
 
-            //			System.out.println("altSubSets: "+altSubSets);
-            //			System.err.println("reach="+reach+", "+reach.conflictingAlts);
             reach.uniqueAlt = ParserATNSimulator.getUniqueAlt(reach);
             // unique prediction?
             if (reach.uniqueAlt !== ATN.INVALID_ALT_NUMBER) {
@@ -796,11 +796,11 @@ export class ParserATNSimulator extends ATNSimulator {
         return predictedAlt;
     };
 
-    protected computeReachSet = (closure: ATNConfigSet | null, t: number,
+    protected computeReachSet = (closure: ATNConfigSet, t: number,
         fullCtx: boolean): ATNConfigSet | null => {
         if (ParserATNSimulator.debug) {
 
-            java.lang.System.out.println(S`in computeReachSet, starting closure: ` + closure);
+            java.lang.System.out.println(S`in computeReachSet, starting closure: ${closure}`);
         }
 
 
@@ -820,12 +820,12 @@ export class ParserATNSimulator extends ATNSimulator {
          * ensure that the alternative matching the longest overall sequence is
          * chosen when multiple such configurations can match the input.
          */
-        let skippedStopStates: java.util.List<ATNConfig> = null;
+        let skippedStopStates: java.util.List<ATNConfig> | null = null;
 
         // First figure out where we can reach on input t
         for (let c of closure) {
             if (ParserATNSimulator.debug) {
-                java.lang.System.out.println(S`testing` + this.getTokenName(t) + S` at` + c.toString());
+                java.lang.System.out.println(S`testing${this.getTokenName(t)} at${c.toString()}`);
             }
 
 
@@ -842,10 +842,10 @@ export class ParserATNSimulator extends ATNSimulator {
                 continue;
             }
 
-            let n: number = c.state.getNumberOfTransitions();
-            for (let ti: number = 0; ti < n; ti++) {               // for each transition
-                let trans: Transition = c.state.transition(ti);
-                let target: ATNState = this.getReachableTarget(trans, t);
+            let n = c.state.getNumberOfTransitions();
+            for (let ti = 0; ti < n; ti++) {               // for each transition
+                let trans = c.state.transition(ti);
+                let target = this.getReachableTarget(trans, t);
                 if (target !== null) {
                     intermediate.add(new ATNConfig(c, target), this.mergeCache);
                 }
@@ -854,7 +854,7 @@ export class ParserATNSimulator extends ATNSimulator {
 
         // Now figure out where the reach operation can take us...
 
-        let reach: ATNConfigSet = null;
+        let reach: ATNConfigSet | null = null;
 
         /* This block optimizes the reach operation for intermediate sets which
          * trivially indicate a termination state for the overall
@@ -891,7 +891,7 @@ export class ParserATNSimulator extends ATNSimulator {
             let closureBusy: java.util.Set<ATNConfig> = new java.util.HashSet<ATNConfig>();
             let treatEofAsEpsilon: boolean = t === Token.EOF;
             for (let c of intermediate) {
-                closure(c, reach, closureBusy, false, fullCtx, treatEofAsEpsilon);
+                this.closure(c, reach, closureBusy, false, fullCtx, treatEofAsEpsilon);
             }
         }
 
@@ -932,7 +932,7 @@ export class ParserATNSimulator extends ATNSimulator {
         }
 
         if (ParserATNSimulator.trace_atn_sim) {
-            java.lang.System.out.println(S`computeReachSet` + closure + S` -> ` + reach);
+            java.lang.System.out.println(S`computeReachSet${closure} -> ${reach}`);
         }
 
         if (reach.isEmpty()) {
@@ -962,7 +962,7 @@ export class ParserATNSimulator extends ATNSimulator {
      * rule stop state, otherwise return a new configuration set containing only
      * the configurations from {@code configs} which are in a rule stop state
      */
-    protected removeAllConfigsNotInRuleStopState = (configs: ATNConfigSet | null, lookToEndOfRule: boolean): ATNConfigSet | null => {
+    protected removeAllConfigsNotInRuleStopState = (configs: ATNConfigSet, lookToEndOfRule: boolean): ATNConfigSet => {
         if (PredictionMode.allConfigsInRuleStopStates(configs)) {
             return configs;
         }
@@ -987,15 +987,14 @@ export class ParserATNSimulator extends ATNSimulator {
     };
 
 
-    protected computeStartState = (p: ATNState | null,
-        ctx: RuleContext | null,
-        fullCtx: boolean): ATNConfigSet => {
+    protected computeStartState = (p: ATNState | null, ctx: RuleContext | null, fullCtx: boolean): ATNConfigSet => {
         // always at least the implicit call to start rule
-        let initialContext: PredictionContext = PredictionContext.fromRuleContext(this.atn, ctx);
-        let configs: ATNConfigSet = new ATNConfigSet(fullCtx);
+        let initialContext = PredictionContext.fromRuleContext(this.atn, ctx);
+        let configs = new ATNConfigSet(fullCtx);
 
         if (ParserATNSimulator.trace_atn_sim) {
-            java.lang.System.out.println(S`computeStartState from ATN state` + p + S` initialContext = ` + initialContext.toString(this.parser));
+            const text = this.parser !== null ? initialContext.toString(this.parser) : "null";
+            java.lang.System.out.println(S`computeStartState from ATN state ${p} ${initialContext} = ${text}`);
         }
 
         for (let i: number = 0; i < p.getNumberOfTransitions(); i++) {
@@ -2027,9 +2026,10 @@ export class ParserATNSimulator extends ATNSimulator {
      * conflicting alternative subsets. If {@code configs} does not contain any
      * conflicting subsets, this method returns an empty {@link BitSet}.
      */
-    protected getConflictingAlts = (configs: ATNConfigSet | null): java.util.BitSet | null => {
-        let altsets: java.util.Collection<java.util.BitSet> = PredictionMode.getConflictingAltSubsets(configs);
-        return PredictionMode.getAlts(altsets);
+    protected getConflictingAlts = (configs: ATNConfigSet): java.util.BitSet => {
+        let altSets = PredictionMode.getConflictingAltSubsets(configs);
+
+        return PredictionMode.getAlts(altSets);
     };
 
     /**
@@ -2068,8 +2068,8 @@ export class ParserATNSimulator extends ATNSimulator {
      ignore a set of conflicting alts when we have an alternative
      that we still need to pursue.
      */
-    protected getConflictingAltsOrUniqueAlt = (configs: ATNConfigSet | null): java.util.BitSet | null => {
-        let conflictingAlts: java.util.BitSet;
+    protected getConflictingAltsOrUniqueAlt = (configs: ATNConfigSet): java.util.BitSet | null => {
+        let conflictingAlts;
         if (configs.uniqueAlt !== ATN.INVALID_ALT_NUMBER) {
             conflictingAlts = new java.util.BitSet();
             conflictingAlts.set(configs.uniqueAlt);
@@ -2172,12 +2172,9 @@ export class ParserATNSimulator extends ATNSimulator {
      * otherwise this method returns the result of calling {@link #addDFAState}
      * on {@code to}
      */
-    protected addDFAEdge = (dfa: DFA | null,
-        from: DFAState | null,
-        t: number,
-        to: DFAState | null): DFAState | null => {
+    protected addDFAEdge = (dfa: DFA, from: DFAState | null, t: number, to: DFAState | null): DFAState | null => {
         if (ParserATNSimulator.debug) {
-            java.lang.System.out.println(S`EDGE` + from + S` -> ` + to + S` upon` + this.getTokenName(t));
+            java.lang.System.out.println(S`EDGE${from} -> ${to} upon${this.getTokenName(t)}`);
         }
 
         if (to === null) {
@@ -2198,7 +2195,8 @@ export class ParserATNSimulator extends ATNSimulator {
         }
 
         if (ParserATNSimulator.debug) {
-            java.lang.System.out.println(S`DFA =\n` + dfa.toString(this.parser !== null ? this.parser.getVocabulary() : VocabularyImpl.EMPTY_VOCABULARY));
+            const vocabulary = this.parser ? this.parser.getVocabulary() : VocabularyImpl.EMPTY_VOCABULARY;
+            java.lang.System.out.println(S`DFA =\n${dfa.toString(vocabulary)}`);
         }
 
         return to;

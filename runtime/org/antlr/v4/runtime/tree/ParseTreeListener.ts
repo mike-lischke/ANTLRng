@@ -24,8 +24,8 @@ import { ParserRuleContext } from "../ParserRuleContext";
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ParseTreeListener {
-    visitTerminal: (node: TerminalNode | null) => void;
-    visitErrorNode: (node: ErrorNode | null) => void;
-    enterEveryRule: (ctx: ParserRuleContext | null) => void;
-    exitEveryRule: (ctx: ParserRuleContext | null) => void;
+    visitTerminal: (node: TerminalNode) => void;
+    visitErrorNode: (node: ErrorNode) => void;
+    enterEveryRule: (ctx: ParserRuleContext) => void;
+    exitEveryRule: (ctx: ParserRuleContext) => void;
 }

@@ -18,7 +18,7 @@ export interface Tree {
      * The parent of this node. If the return value is null, then this
      *  node is the root of the tree.
      */
-    getParent: () => Tree;
+    getParent: () => Tree | null;
 
     /**
      * This method returns whatever object represents the data at this node. For
@@ -27,10 +27,10 @@ export interface Tree {
      * invocation. For abstract syntax trees (ASTs), this is a {@link Token}
      * object.
      */
-    getPayload: () => java.lang.Object;
+    getPayload: () => unknown;
 
     /** If there are children, get the {@code i}th value indexed from 0. */
-    getChild: (i: number) => Tree;
+    getChild: (i: number) => Tree | null;
 
     /**
      * How many children are there? If there is none, then this
@@ -43,4 +43,6 @@ export interface Tree {
      *  {@code (root child1 .. childN)}. Print just a node if this is a leaf.
      */
     toStringTree: () => java.lang.String;
+
+    toString: () => java.lang.String;
 }

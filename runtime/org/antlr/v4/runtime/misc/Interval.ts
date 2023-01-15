@@ -19,7 +19,7 @@ export class Interval {
     public static readonly INTERVAL_POOL_MAX_VALUE: number = 1000;
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    public static readonly INVALID?: Interval = new Interval(-1, -2);
+    public static readonly INVALID = new Interval(-1, -2);
 
     public static cache = new Array<Interval>(Interval.INTERVAL_POOL_MAX_VALUE + 1);
 

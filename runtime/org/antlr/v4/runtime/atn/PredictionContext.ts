@@ -78,7 +78,7 @@ export abstract class PredictionContext extends JavaObject {
 
     // dispatch
     public static merge = (a: PredictionContext | null, b: PredictionContext | null, rootIsWildcard: boolean,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
     ): PredictionContext | null => {
         // share same graph if both same
         if (a === b || a!.equals(b)) {
@@ -175,9 +175,9 @@ export abstract class PredictionContext extends JavaObject {
      */
     public static mergeSingletons = (a: SingletonPredictionContext, b: SingletonPredictionContext,
         rootIsWildcard: boolean,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
     ): PredictionContext => {
-        if (mergeCache !== null) {
+        if (mergeCache) {
             let previous = mergeCache.get(a, b);
             if (previous !== null) {
                 return previous;
@@ -192,9 +192,7 @@ export abstract class PredictionContext extends JavaObject {
 
         const rootMerge = PredictionContext.mergeRoot(a, b, rootIsWildcard);
         if (rootMerge !== null) {
-            if (mergeCache !== null) {
-                mergeCache.put(a, b, rootMerge);
-            }
+            mergeCache?.put(a, b, rootMerge);
 
             return rootMerge;
         }
@@ -215,9 +213,7 @@ export abstract class PredictionContext extends JavaObject {
             // of those graphs.  dup a, a' points at merged array
             // new joined parent so create new singleton pointing to it, a'
             const a_ = SingletonPredictionContext.create(parent, a.returnState);
-            if (mergeCache !== null) {
-                mergeCache.put(a, b, a_);
-            }
+            mergeCache?.put(a, b, a_);
 
             return a_;
         } else { // a != b payloads differ
@@ -235,9 +231,7 @@ export abstract class PredictionContext extends JavaObject {
                 }
                 const parents = [singleParent, singleParent];
                 const a_ = new ArrayPredictionContext(parents, payloads);
-                if (mergeCache !== null) {
-                    mergeCache.put(a, b, a_);
-                }
+                mergeCache?.put(a, b, a_);
 
                 return a_;
             }
@@ -252,9 +246,7 @@ export abstract class PredictionContext extends JavaObject {
                 parents = [b.parent!, a.parent!];
             }
             const a_ = new ArrayPredictionContext(parents, payloads);
-            if (mergeCache !== null) {
-                mergeCache.put(a, b, a_);
-            }
+            mergeCache?.put(a, b, a_);
 
             return a_;
         }
@@ -363,9 +355,9 @@ export abstract class PredictionContext extends JavaObject {
      * @returns tbd
      */
     public static mergeArrays = (a: ArrayPredictionContext, b: ArrayPredictionContext, rootIsWildcard: boolean,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
     ): PredictionContext | null => {
-        if (mergeCache !== null) {
+        if (mergeCache) {
             let previous = mergeCache.get(a, b);
             if (previous !== null) {
                 if (ParserATNSimulator.trace_atn_sim) {
@@ -449,9 +441,7 @@ export abstract class PredictionContext extends JavaObject {
                 const a_: PredictionContext =
                     SingletonPredictionContext.create(mergedParents[0],
                         mergedReturnStates[0]);
-                if (mergeCache !== null) {
-                    mergeCache.put(a, b, a_);
-                }
+                mergeCache?.put(a, b, a_);
 
                 return a_;
             }
@@ -464,9 +454,7 @@ export abstract class PredictionContext extends JavaObject {
         // if we created same array as a or b, return that instead
         // TODO: track whether this is possible above during merge sort for speed
         if (M.equals(a)) {
-            if (mergeCache !== null) {
-                mergeCache.put(a, b, a);
-            }
+            mergeCache?.put(a, b, a);
 
             if (ParserATNSimulator.trace_atn_sim) {
                 java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> a`);
@@ -475,9 +463,7 @@ export abstract class PredictionContext extends JavaObject {
             return a;
         }
         if (M.equals(b)) {
-            if (mergeCache !== null) {
-                mergeCache.put(a, b, b);
-            }
+            mergeCache?.put(a, b, b);
 
             if (ParserATNSimulator.trace_atn_sim) {
                 java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> b`);
@@ -488,9 +474,7 @@ export abstract class PredictionContext extends JavaObject {
 
         PredictionContext.combineCommonParents(mergedParents);
 
-        if (mergeCache !== null) {
-            mergeCache.put(a, b, M);
-        }
+        mergeCache?.put(a, b, M);
 
         if (ParserATNSimulator.trace_atn_sim) {
             java.lang.System.out.println(S`mergeArrays a=${a},b=${b} -> ${M}`);
@@ -719,8 +703,9 @@ export abstract class PredictionContext extends JavaObject {
         }
     };
 
-    public toString = <S extends Token, T extends ATNSimulator>(_recog?: Recognizer<S, T>): java.lang.String => {
-        return this.toString();
+    public toString = <S extends Token, T extends ATNSimulator>(
+        _recog?: Recognizer<S, T> | null): java.lang.String | null => {
+        return super.toString();
     };
 
     public toStrings<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
@@ -811,7 +796,7 @@ export abstract class PredictionContext extends JavaObject {
      * @returns tbd
      */
     public isEmpty = (): boolean => {
-        return this === EmptyPredictionContext.Instance;
+        return false;
     };
 
     public hasEmptyPath = (): boolean => {

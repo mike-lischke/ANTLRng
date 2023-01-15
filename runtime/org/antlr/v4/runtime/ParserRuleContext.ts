@@ -6,16 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention,
- jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle
-*/
-
-/* cspell: disable */
-
-import { java } from "../../../../../../lib/java/java";
+import { java } from "../../../../../lib/java/java";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { RuleContext } from "./RuleContext";
@@ -25,8 +16,11 @@ import { ErrorNode } from "./tree/ErrorNode";
 import { ErrorNodeImpl } from "./tree/ErrorNodeImpl";
 import { ParseTree } from "./tree/ParseTree";
 import { ParseTreeListener } from "./tree/ParseTreeListener";
-import { TerminalNode } from "./tree/TerminalNode";
+import { isTerminalNode, TerminalNode } from "./tree/TerminalNode";
 import { TerminalNodeImpl } from "./tree/TerminalNodeImpl";
+
+import { S } from "../../../../../lib/templates";
+import { ParserATNSimulator } from "./atn";
 
 /**
  * A rule invocation record for parsing.
@@ -52,7 +46,8 @@ import { TerminalNodeImpl } from "./tree/TerminalNodeImpl";
  *  satisfy the superclass interface.
  */
 export class ParserRuleContext extends RuleContext {
-    public static readonly EMPTY = new ParserRuleContext();
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static readonly EMPTY: ParserRuleContext = new ParserRuleContext();
 
     /**
      * If we are debugging or building a parse tree for a visitor,
@@ -61,7 +56,7 @@ export class ParserRuleContext extends RuleContext {
      *  operation because we don't the need to track the details about
      *  how we parse this rule.
      */
-    public children?: java.util.List<ParseTree>;
+    public children: java.util.List<ParseTree> | null = null;
 
     /**
      * For debugging/tracing purposes, we want to track all of the nodes in
@@ -84,20 +79,18 @@ export class ParserRuleContext extends RuleContext {
      */
     //	public List<Integer> states;
 
-    public start?: Token;
-    public stop?: Token;
+    public start: Token | null = null;
+    public stop: Token | null = null;
 
     /**
      * The exception that forced this rule to return. If the rule successfully
      * completed, this is {@code null}.
      */
-    public exception?: RecognitionException;
+    public exception: RecognitionException<Token, ParserATNSimulator> | null = null;
 
-    public constructor();
-
-    public constructor(parent: ParserRuleContext, invokingStateNumber: number);
     public constructor(parent?: ParserRuleContext, invokingStateNumber?: number) {
-        super(parent, invokingStateNumber);
+        super(parent ?? null, invokingStateNumber);
+
     }
 
     /**
@@ -113,7 +106,7 @@ export class ParserRuleContext extends RuleContext {
      *  to the generic XContext so this function must copy those nodes to
      *  the YContext as well else they are lost!
      *
-     * @param ctx The source context.
+     * @param ctx tbd
      */
     public copyFrom = (ctx: ParserRuleContext): void => {
         this.parent = ctx.parent;
@@ -123,12 +116,12 @@ export class ParserRuleContext extends RuleContext {
         this.stop = ctx.stop;
 
         // copy any error nodes to alt label node
-        if (ctx.children !== undefined) {
-            this.children = new java.util.ArrayList();
+        if (ctx.children !== null) {
+            this.children = new java.util.ArrayList<ParseTree>();
             // reset parent pointer for any error nodes
             for (const child of ctx.children) {
-                if (child instanceof ErrorNode) {
-                    this.addChild(child);
+                if (child instanceof ErrorNodeImpl) {
+                    this.addChild(child as ErrorNode);
                 }
             }
         }
@@ -136,8 +129,8 @@ export class ParserRuleContext extends RuleContext {
 
     // Double dispatch methods for listeners
 
-    public enterRule = (_listener: ParseTreeListener): void => { };
-    public exitRule = (_listener: ParseTreeListener): void => { };
+    public enterRule = (_listener: ParseTreeListener | null): void => { /**/ };
+    public exitRule = (_listener: ParseTreeListener | null): void => { /**/ };
 
     /**
      * Add a parse tree node to this as a child.  Works for
@@ -149,15 +142,13 @@ export class ParserRuleContext extends RuleContext {
      *  because the existing interfaces do not have a setParent()
      *  method and I don't want to break backward compatibility for this.
      *
-     * since 4.7
+     * @param t tbd
      *
-     * @param t The new child.
-     *
-     * @returns The tree passed in.
+     * @returns tbd
      */
     public addAnyChild = <T extends ParseTree>(t: T): T => {
-        if (this.children === undefined) {
-            this.children = new java.util.ArrayList();
+        if (!this.children) {
+            this.children = new java.util.ArrayList<ParseTree>();
         }
 
         this.children.add(t);
@@ -166,31 +157,27 @@ export class ParserRuleContext extends RuleContext {
     };
 
     public addChild(ruleInvocation: RuleContext): RuleContext;
-
     /** Add a token leaf node child and force its parent to be this node. */
     public addChild(t: TerminalNode): TerminalNode;
-
     /**
      * Add a child to this node based upon matchedToken. It
      *  creates a TerminalNodeImpl rather than using
      *  {@link Parser#createTerminalNode(ParserRuleContext, Token)}. I'm leaving this
      *  in for compatibility but the parser doesn't use this anymore.
      */
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public addChild(matchedToken: Token): TerminalNode;
-
     public addChild(ruleInvocationOrTOrMatchedToken: RuleContext | TerminalNode | Token): RuleContext | TerminalNode {
         if (ruleInvocationOrTOrMatchedToken instanceof RuleContext) {
             const ruleInvocation = ruleInvocationOrTOrMatchedToken;
 
             return this.addAnyChild(ruleInvocation);
-        } else if (ruleInvocationOrTOrMatchedToken instanceof TerminalNode) {
-            const t = ruleInvocationOrTOrMatchedToken;
-            t.setParent(this);
+        } else if (isTerminalNode(ruleInvocationOrTOrMatchedToken)) {
+            ruleInvocationOrTOrMatchedToken.setParent(this);
 
-            return this.addAnyChild(t);
+            return this.addAnyChild(ruleInvocationOrTOrMatchedToken);
         } else {
-            const matchedToken = ruleInvocationOrTOrMatchedToken;
-            const t: TerminalNodeImpl = new TerminalNodeImpl(matchedToken);
+            const t = new TerminalNodeImpl(ruleInvocationOrTOrMatchedToken);
             this.addAnyChild(t);
             t.setParent(this);
 
@@ -202,36 +189,19 @@ export class ParserRuleContext extends RuleContext {
     /**
      * Add an error node child and force its parent to be this node.
      *
-     * @since 4.7
-     */
-    public addErrorNode(errorNode: ErrorNode): ErrorNode;
-
-    /**
-     * Add a child to this node based upon badToken.  It
-     *  creates a ErrorNodeImpl rather than using
-     *  {@link Parser#createErrorNode(ParserRuleContext, Token)}. I'm leaving this
-     *  in for compatibility but the parser doesn't use this anymore.
-     */
-    public addErrorNode(badToken: Token): ErrorNode;
-
-    /**
-     * Add an error node child and force its parent to be this node.
+     * @param errorNodeOrBadToken tbd
      *
-     * since 4.7
-     *
-     * @param errorNodeOrBadToken The error node or token.
-     *
-     * @returns The given error node or an error node constructed from the given token.
+     * @returns tbd
      */
     public addErrorNode(errorNodeOrBadToken: ErrorNode | Token): ErrorNode {
-        if (errorNodeOrBadToken instanceof ErrorNode) {
-            const errorNode = errorNodeOrBadToken;
+        if (errorNodeOrBadToken instanceof ErrorNodeImpl) {
+            const errorNode = errorNodeOrBadToken as ErrorNode;
             errorNode.setParent(this);
 
             return this.addAnyChild(errorNode);
         } else {
-            const badToken = errorNodeOrBadToken;
-            const t: ErrorNodeImpl = new ErrorNodeImpl(badToken);
+            const badToken = errorNodeOrBadToken as Token;
+            const t = new ErrorNodeImpl(badToken);
             this.addAnyChild(t);
             t.setParent(this);
 
@@ -239,11 +209,6 @@ export class ParserRuleContext extends RuleContext {
         }
 
     }
-
-    //	public void trace(int s) {
-    //		if ( states==null ) states = new ArrayList<Integer>();
-    //		states.add(s);
-    //	}
 
     /**
      * Used by enterOuterAlt to toss out a RuleContext previously added as
@@ -251,106 +216,99 @@ export class ParserRuleContext extends RuleContext {
      *  generic ruleContext object.
      */
     public removeLastChild = (): void => {
-        if (this.children !== undefined) {
-            this.children.remove(this.children.size() - 1);
-        }
+        this.children?.remove(this.children.size() - 1);
     };
 
-    public getChild(i: number): ParseTree;
-    public getChild<T extends ParseTree>(ctxType: java.lang.Class<T>, i: number): T | undefined;
+    public getParent = (): this | null => {
+        return super.getParent() as this;
+    };
+
+    public getChild(i: number): ParseTree | null;
+    public getChild<T extends ParseTree>(ctxType: java.lang.Class<T>, i: number): T | null;
     public getChild<T extends ParseTree>(iOrCtxType: number | java.lang.Class<T>,
-        i?: number): ParseTree | T | undefined {
-        if (typeof iOrCtxType === "number" && i === undefined) {
+        i?: number): ParseTree | T | null {
+        if (typeof iOrCtxType === "number") {
             const i = iOrCtxType;
 
-            return this.children !== undefined && i >= 0 && i < this.children.size() ? this.children.get(i) : undefined;
-        } else {
-            const ctxType = iOrCtxType as java.lang.Class<T>;
-            if (this.children === undefined || i < 0 || i >= this.children.size()) {
-                return undefined;
+            return this.children !== null && i >= 0 && i < this.children.size() ? this.children.get(i) : null;
+        } else if (i !== undefined) {
+            if (this.children === null || i < 0 || i >= this.children.size()) {
+                return null;
             }
 
             let j = -1; // what element have we found with ctxType?
             for (const o of this.children) {
-                if (ctxType.isInstance(o)) {
+                if (iOrCtxType.isInstance(o)) {
                     j++;
                     if (j === i) {
-                        return ctxType.cast(o);
+                        return iOrCtxType.cast(o);
                     }
                 }
             }
-
-            return undefined;
         }
+
+        return null;
     }
 
-    public getToken = (ttype: number, i: number): TerminalNode => {
-        if (this.children === undefined || i < 0 || i >= this.children.size()) {
-            return undefined;
+    public getToken = (ttype: number, i: number): TerminalNode | null => {
+        if (this.children === null || i < 0 || i >= this.children.size()) {
+            return null;
         }
 
         let j = -1; // what token with ttype have we found?
         for (const o of this.children) {
-            if (o instanceof TerminalNode) {
-                const tnode: TerminalNode = o;
-                const symbol: Token = tnode.getSymbol();
+            if (isTerminalNode(o)) {
+                const symbol: Token = o.getSymbol();
                 if (symbol.getType() === ttype) {
                     j++;
                     if (j === i) {
-                        return tnode;
+                        return o;
                     }
                 }
             }
         }
 
-        return undefined;
+        return null;
     };
 
     public getTokens = (ttype: number): java.util.List<TerminalNode> => {
-        if (this.children === undefined) {
+        if (this.children === null) {
             return java.util.Collections.emptyList();
         }
 
-        let tokens: java.util.List<TerminalNode>;
+        let tokens: java.util.List<TerminalNode> | null = null;
         for (const o of this.children) {
-            if (o instanceof TerminalNode) {
-                const tnode: TerminalNode = o;
-                const symbol: Token = tnode.getSymbol();
+            if (isTerminalNode(o)) {
+                const symbol = o.getSymbol();
                 if (symbol.getType() === ttype) {
-                    if (tokens === undefined) {
+                    if (tokens === null) {
                         tokens = new java.util.ArrayList<TerminalNode>();
                     }
-                    tokens.add(tnode);
+                    tokens.add(o);
                 }
             }
         }
 
-        if (tokens === undefined) {
+        if (tokens === null) {
             return java.util.Collections.emptyList();
         }
 
         return tokens;
     };
 
-    public getRuleContext(): this;
-    public getRuleContext<T extends this>(ctxType: java.lang.Class<T>, i: number): T;
-    public getRuleContext<T extends this>(ctxType?: java.lang.Class<T>, i?: number): T {
-        if (ctxType === undefined) {
-            return this as T;
-        }
-
+    public getRuleContext<T extends ParserRuleContext>(ctxType: java.lang.Class<T>, i: number): T | null {
         return this.getChild(ctxType, i);
     }
 
-    public getRuleContexts = <T extends ParserRuleContext>(ctxType: java.lang.Class<T>): java.util.List<T> => {
-        if (this.children === undefined) {
+    public getRuleContexts = <T extends ParserRuleContext>(ctxType: java.lang.Class<T>): java.util.List<T> | null => {
+        if (this.children === null) {
             return java.util.Collections.emptyList();
         }
 
-        let contexts: java.util.List<T>;
+        let contexts: java.util.List<T> | null = null;
         for (const o of this.children) {
             if (ctxType.isInstance(o)) {
-                if (contexts === undefined) {
+                if (contexts === null) {
                     contexts = new java.util.ArrayList<T>();
                 }
 
@@ -358,20 +316,21 @@ export class ParserRuleContext extends RuleContext {
             }
         }
 
-        if (contexts === undefined) {
+        if (contexts === null) {
             return java.util.Collections.emptyList();
         }
 
         return contexts;
     };
 
-    public getChildCount = (): number => { return this.children !== undefined ? this.children.size() : 0; };
+    public getChildCount = (): number => { return this.children !== null ? this.children.size() : 0; };
 
     public getSourceInterval = (): Interval => {
-        if (this.start === undefined) {
+        if (this.start === null) {
             return Interval.INVALID;
         }
-        if (this.stop === undefined || this.stop.getTokenIndex() < this.start.getTokenIndex()) {
+
+        if (this.stop === null || this.stop.getTokenIndex() < this.start.getTokenIndex()) {
             return Interval.of(this.start.getTokenIndex(), this.start.getTokenIndex() - 1); // empty
         }
 
@@ -383,9 +342,9 @@ export class ParserRuleContext extends RuleContext {
      * Note that the range from start to stop is inclusive, so for rules that do not consume anything
      * (for example, zero length or error productions) this token may exceed stop.
      *
-     * @returns The start token.
+     * @returns tbd
      */
-    public getStart = (): Token | undefined => {
+    public getStart = (): Token | null => {
         return this.start;
     };
 
@@ -394,9 +353,9 @@ export class ParserRuleContext extends RuleContext {
      * Note that the range from start to stop is inclusive, so for rules that do not consume anything
      * (for example, zero length or error productions) this token may precede start.
      *
-     * @returns The end token.
+     * @returns tbd
      */
-    public getStop = (): Token | undefined => {
+    public getStop = (): Token | null => {
         return this.stop;
     };
 
@@ -405,16 +364,17 @@ export class ParserRuleContext extends RuleContext {
      *
      * @param recognizer tbd
      *
-     * @returns The constructed string.
+     * @returns tbd
      */
-    public toInfoString = (recognizer: Parser): string => {
-        const rules: java.util.List<string> = recognizer.getRuleInvocationStack(this);
+    public toInfoString = (recognizer: Parser): java.lang.String => {
+        const rules = recognizer.getRuleInvocationStack(this);
         java.util.Collections.reverse(rules);
 
-        return "ParserRuleContext" + rules + "{" +
-            "start=" + this.start +
-            ", stop=" + this.stop +
+        const text = `ParserRuleContext` + rules + `{` +
+            `start=` + this.start +
+            `, stop=` + this.stop +
             "}";
+
+        return S`${text}`;
     };
 }
-

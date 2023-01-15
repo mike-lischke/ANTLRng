@@ -23,9 +23,9 @@ import { ATNSimulator } from "./atn";
  *  in the input, where it is in the ATN, the rule invocation stack,
  *  and what kind of problem occurred.
  */
-export class RecognitionException<T extends ATNSimulator> extends java.lang.RuntimeException {
+export class RecognitionException<S extends Token, T extends ATNSimulator> extends java.lang.RuntimeException {
     /** The {@link Recognizer} where this exception originated. */
-    private readonly recognizer: Recognizer<unknown, T> | null;
+    private readonly recognizer: Recognizer<S, T> | null;
 
     private readonly ctx: RuleContext | null;
     private readonly input: IntStream | null;
@@ -39,11 +39,11 @@ export class RecognitionException<T extends ATNSimulator> extends java.lang.Runt
 
     private offendingState = -1;
 
-    public constructor(recognizer: Recognizer<unknown, T> | null, input: IntStream, ctx: ParserRuleContext);
-    public constructor(message: java.lang.String, recognizer: Recognizer<unknown, T> | null, input: IntStream,
+    public constructor(recognizer: Recognizer<S, T> | null, input: IntStream, ctx: ParserRuleContext);
+    public constructor(message: java.lang.String, recognizer: Recognizer<S, T> | null, input: IntStream,
         ctx: ParserRuleContext);
-    public constructor(recognizerOrMessage: Recognizer<unknown, T> | java.lang.String | null,
-        inputOrRecognizer: IntStream | Recognizer<unknown, T> | null, ctxOrInput: ParserRuleContext | IntStream,
+    public constructor(recognizerOrMessage: Recognizer<S, T> | java.lang.String | null,
+        inputOrRecognizer: IntStream | Recognizer<S, T> | null, ctxOrInput: ParserRuleContext | IntStream,
         ctx?: ParserRuleContext) {
 
         super(recognizerOrMessage instanceof java.lang.String ? recognizerOrMessage : undefined);
@@ -55,7 +55,7 @@ export class RecognitionException<T extends ATNSimulator> extends java.lang.Runt
             input = inputOrRecognizer as IntStream;
             ctx = ctxOrInput as ParserRuleContext;
         } else {
-            recognizer = inputOrRecognizer as Recognizer<unknown, T>;
+            recognizer = inputOrRecognizer as Recognizer<S, T>;
             input = ctxOrInput as IntStream;
         }
 
@@ -138,7 +138,7 @@ export class RecognitionException<T extends ATNSimulator> extends java.lang.Runt
       @returns The recognizer where this exception occurred, or {@code null} if
      * the recognizer is not available.
      */
-    public getRecognizer = (): Recognizer<unknown, T> | null => {
+    public getRecognizer = (): Recognizer<S, T> | null => {
         return this.recognizer;
     };
 

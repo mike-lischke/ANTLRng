@@ -7,7 +7,6 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
 import { CommonToken } from "../../CommonToken";
 
 
@@ -38,7 +37,8 @@ export  class TokenTagToken extends CommonToken {
 	 * @param tokenName The token name.
 	 * @param type The token type.
 	 */
-	public constructor(tokenName: java.lang.String| null, type: number);
+	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
+public constructor(tokenName: java.lang.String| null, type: number);
 
 	/**
 	 * Constructs a new instance of {@link TokenTagToken} with the specified
@@ -50,12 +50,15 @@ export  class TokenTagToken extends CommonToken {
 	 * the token tag is unlabeled.
 	 */
 	public constructor(tokenName: java.lang.String| null, type: number, label: java.lang.String| null);
+/* @ts-expect-error, because of the super() call in the closure. */
 public constructor(tokenName: java.lang.String | null, type: number, label?: java.lang.String | null) {
 const $this = (tokenName: java.lang.String | null, type: number, label?: java.lang.String | null): void => {
 if (label === undefined) {
 		$this(tokenName, type, null);
 	}
  else  {
+
+/* @ts-expect-error, because of the super() call in the closure. */
 		super(type);
 		this.tokenName = tokenName;
 		this.label = label;
@@ -65,7 +68,7 @@ if (label === undefined) {
 $this(tokenName, type, label);
 
 }
-
+/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	/**
 	 * Gets the token name.
@@ -106,6 +109,6 @@ $this(tokenName, type, label);
 	 * {@code tokenName:type}.</p>
 	 */
 	public toString = ():  java.lang.String | null => {
-		return this.tokenName + S`:` + CommonToken.type;
+		return this.tokenName + S`:` + this.type;
 	}
 }

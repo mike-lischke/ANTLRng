@@ -15,6 +15,7 @@ import { InterpreterRuleContext } from "./InterpreterRuleContext";
 import { Parser } from "./Parser";
 import { ParserRuleContext } from "./ParserRuleContext";
 import { RecognitionException } from "./RecognitionException";
+import { Recognizer } from "./Recognizer";
 import { Token } from "./Token";
 import { TokenSource } from "./TokenSource";
 import { TokenStream } from "./TokenStream";
