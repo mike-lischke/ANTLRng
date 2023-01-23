@@ -44,7 +44,7 @@ export class ATNConfig extends JavaObject {
      *  with this config.  We track only those contexts pushed during
      *  execution of the ATN simulator.
      */
-    public context: PredictionContext | null;
+    public context: PredictionContext;
 
     /**
      * We cannot execute predicates dependent upon local context unless
@@ -182,18 +182,20 @@ export class ATNConfig extends JavaObject {
             buf.append(S`,`);
             buf.append(this.alt);
         }
-        if (this.context !== null) {
-            buf.append(S`, [`);
-            buf.append(this.context.toString());
-            buf.append(S`]`);
-        }
+
+        buf.append(S`, [`);
+        buf.append(this.context.toString());
+        buf.append(S`]`);
+
         if (this.semanticContext !== null && this.semanticContext !== SemanticContext.Empty.Instance) {
             buf.append(S`,`);
             buf.append(this.semanticContext);
         }
+
         if (this.getOuterContextDepth() > 0) {
             buf.append(S`,up=`).append(this.getOuterContextDepth());
         }
+
         buf.append(S`)`);
 
         return buf.toString();

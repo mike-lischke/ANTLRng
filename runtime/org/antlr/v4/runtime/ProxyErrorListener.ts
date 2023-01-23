@@ -17,6 +17,7 @@ import { Recognizer } from "./Recognizer";
 import { ATNConfigSet } from "./atn/ATNConfigSet";
 import { DFA } from "./dfa/DFA";
 import { ATNSimulator } from "./atn";
+import { Token } from "./Token";
 
 /**
  * This implementation of {@link ANTLRErrorListener} dispatches all calls to a
@@ -37,12 +38,9 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         this.delegates = delegates;
     }
 
-    public syntaxError = <T extends ATNSimulator>(recognizer: Recognizer<unknown, T>,
-        offendingSymbol: unknown,
-        line: number,
-        charPositionInLine: number,
-        msg: java.lang.String,
-        e: RecognitionException<T>): void => {
+    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+        offendingSymbol: unknown, line: number, charPositionInLine: number, msg: java.lang.String,
+        e?: RecognitionException<S, T>): void => {
         for (const listener of this.delegates) {
             listener.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
         }

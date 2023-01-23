@@ -14,7 +14,7 @@ import { RecognitionException } from "./RecognitionException";
 import { Token } from "./Token";
 import { TokenStream } from "./TokenStream";
 import { ATNConfigSet } from "./atn/ATNConfigSet";
-import { ATNSimulator } from "./atn";
+import { ParserATNSimulator } from "./atn/ParserATNSimulator";
 
 /**
  * Indicates that the parser could not decide which of two or more paths
@@ -22,7 +22,7 @@ import { ATNSimulator } from "./atn";
  *  of the offending input and also knows where the parser was
  *  in the various paths when the error. Reported by reportNoViableAlternative()
  */
-export class NoViableAltException extends RecognitionException<Token, ATNSimulator> {
+export class NoViableAltException extends RecognitionException<Token, ParserATNSimulator> {
     /** Which configurations did we try at input.index() that couldn't match input.LT(1)? */
 
     private readonly deadEndConfigs: ATNConfigSet | null = null;
@@ -36,13 +36,13 @@ export class NoViableAltException extends RecognitionException<Token, ATNSimulat
 
     private readonly startToken: Token | null;
 
-    public constructor(recognizer: Parser, input?: TokenStream | null, startToken?: Token | null,
-        offendingToken?: Token | null, deadEndConfigs?: ATNConfigSet | null, ctx?: ParserRuleContext | null) {
-        super(recognizer, input ?? recognizer.getInputStream(), ctx ?? recognizer._ctx);
+    public constructor(recognizer: Parser | null, input: TokenStream | null, startToken: Token | null,
+        offendingToken: Token | null, deadEndConfigs: ATNConfigSet | null, ctx: ParserRuleContext | null) {
+        super(recognizer, input ?? recognizer?.getInputStream() ?? null, ctx ?? recognizer?._ctx ?? null);
 
         this.deadEndConfigs = deadEndConfigs ?? null;
-        this.startToken = startToken ?? recognizer.getCurrentToken();
-        this.setOffendingToken(offendingToken ?? recognizer.getCurrentToken());
+        this.startToken = startToken ?? recognizer?.getCurrentToken() ?? null;
+        this.setOffendingToken(offendingToken ?? recognizer?.getCurrentToken() ?? null);
 
     }
 

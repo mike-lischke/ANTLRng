@@ -128,5 +128,5 @@ export interface Vocabulary {
       @returns The display name of the token type, for use in error reporting or
      * other user-visible messages which reference specific token types.
      */
-    getDisplayName: (tokenType: number) => java.lang.String | null;
+    getDisplayName: (tokenType: number) => java.lang.String;
 }

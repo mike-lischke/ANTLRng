@@ -39,12 +39,12 @@ export class RecognitionException<S extends Token, T extends ATNSimulator> exten
 
     private offendingState = -1;
 
-    public constructor(recognizer: Recognizer<S, T> | null, input: IntStream, ctx: ParserRuleContext);
-    public constructor(message: java.lang.String, recognizer: Recognizer<S, T> | null, input: IntStream,
-        ctx: ParserRuleContext);
+    public constructor(recognizer: Recognizer<S, T> | null, input: IntStream | null, ctx: ParserRuleContext | null);
+    public constructor(message: java.lang.String, recognizer: Recognizer<S, T> | null, input: IntStream | null,
+        ctx: ParserRuleContext | null);
     public constructor(recognizerOrMessage: Recognizer<S, T> | java.lang.String | null,
-        inputOrRecognizer: IntStream | Recognizer<S, T> | null, ctxOrInput: ParserRuleContext | IntStream,
-        ctx?: ParserRuleContext) {
+        inputOrRecognizer: IntStream | Recognizer<S, T> | null, ctxOrInput: ParserRuleContext | IntStream | null,
+        ctx?: ParserRuleContext | null) {
 
         super(recognizerOrMessage instanceof java.lang.String ? recognizerOrMessage : undefined);
 

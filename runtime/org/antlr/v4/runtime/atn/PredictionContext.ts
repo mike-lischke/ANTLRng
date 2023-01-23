@@ -78,11 +78,11 @@ export abstract class PredictionContext extends JavaObject {
 
     // dispatch
     public static merge = (a: PredictionContext | null, b: PredictionContext | null, rootIsWildcard: boolean,
-        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
-    ): PredictionContext | null => {
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+    ): PredictionContext => {
         // share same graph if both same
         if (a === b || a!.equals(b)) {
-            return a;
+            return a!;
         }
 
         if (a instanceof SingletonPredictionContext && b instanceof SingletonPredictionContext) {
@@ -175,7 +175,7 @@ export abstract class PredictionContext extends JavaObject {
      */
     public static mergeSingletons = (a: SingletonPredictionContext, b: SingletonPredictionContext,
         rootIsWildcard: boolean,
-        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
     ): PredictionContext => {
         if (mergeCache) {
             let previous = mergeCache.get(a, b);
@@ -355,8 +355,8 @@ export abstract class PredictionContext extends JavaObject {
      * @returns tbd
      */
     public static mergeArrays = (a: ArrayPredictionContext, b: ArrayPredictionContext, rootIsWildcard: boolean,
-        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
-    ): PredictionContext | null => {
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null,
+    ): PredictionContext => {
         if (mergeCache) {
             let previous = mergeCache.get(a, b);
             if (previous !== null) {
@@ -562,8 +562,8 @@ export abstract class PredictionContext extends JavaObject {
     };
 
     // From Sam
-    public static getCachedContext = (context: PredictionContext | null, contextCache: PredictionContextCache,
-        visited: java.util.IdentityHashMap<PredictionContext, PredictionContext>): PredictionContext | null => {
+    public static getCachedContext = (context: PredictionContext, contextCache: PredictionContextCache,
+        visited: java.util.IdentityHashMap<PredictionContext, PredictionContext>): PredictionContext => {
         if (!context || context.isEmpty()) {
             return context;
         }
@@ -583,7 +583,7 @@ export abstract class PredictionContext extends JavaObject {
         let changed = false;
         let parents = new Array<PredictionContext | null>(context.size());
         for (let i = 0; i < parents.length; i++) {
-            const parent = PredictionContext.getCachedContext(context.getParent(i), contextCache, visited);
+            const parent = PredictionContext.getCachedContext(context.getParent(i)!, contextCache, visited);
             if (changed || parent !== context.getParent(i)) {
                 if (!changed) {
                     parents = new Array<PredictionContext>(context.size());
@@ -704,7 +704,7 @@ export abstract class PredictionContext extends JavaObject {
     };
 
     public toString = <S extends Token, T extends ATNSimulator>(
-        _recog?: Recognizer<S, T> | null): java.lang.String | null => {
+        _recog?: Recognizer<S, T> | null): java.lang.String => {
         return super.toString();
     };
 

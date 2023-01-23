@@ -84,8 +84,6 @@ export class RuleContext extends JavaObject implements Omit<RuleNode, "getParent
      */
     public invokingState = -1;
 
-    public constructor();
-    public constructor(parent: RuleContext | null, invokingState: number);
     public constructor(parent?: RuleContext | null, invokingState?: number) {
         super();
         if (parent !== undefined) {

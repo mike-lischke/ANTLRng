@@ -1,95 +1,67 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
+/* eslint-disable no-underscore-dangle */
 
 import { java } from "../../../../../lib/java/java";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
-import { ATNState } from "./atn/ATNState";
 import { AbstractPredicateTransition } from "./atn/AbstractPredicateTransition";
 import { PredicateTransition } from "./atn/PredicateTransition";
 
-
 import { S } from "../../../../../lib/templates";
+import { Token } from "./Token";
+import { ParserATNSimulator } from "./atn";
 
-
-/** A semantic predicate failed during validation.  Validation of predicates
+/**
+ * A semantic predicate failed during validation.  Validation of predicates
  *  occurs when normally parsing the alternative just like matching a token.
  *  Disambiguating predicate evaluation occurs when we test a predicate during
  *  prediction.
  */
-export  class FailedPredicateException extends RecognitionException {
-	private readonly  ruleIndex:  number;
-	private readonly  predicateIndex:  number;
-	private readonly  predicate:  java.lang.String | null;
+export class FailedPredicateException extends RecognitionException<Token, ParserATNSimulator> {
+    private readonly ruleIndex: number = 0;
+    private readonly predicateIndex: number = 0;
+    private readonly predicate: java.lang.String | null;
 
-	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
-public constructor(recognizer: Parser| null);
+    public constructor(recognizer: Parser, predicate?: java.lang.String | null, message?: java.lang.String | null) {
+        super(FailedPredicateException.formatMessage(predicate ?? null, message ?? null), recognizer,
+            recognizer.getInputStream(), recognizer._ctx);
+        const s = recognizer.getInterpreter()!.atn.states.get(recognizer.getState());
+        const trans = s?.transition(0) as AbstractPredicateTransition;
+        if (trans instanceof PredicateTransition) {
+            this.ruleIndex = trans.ruleIndex;
+            this.predicateIndex = trans.predIndex;
+        }
 
-	public constructor(recognizer: Parser| null, predicate: java.lang.String| null);
+        this.predicate = predicate ?? null;
+        this.setOffendingToken(recognizer.getCurrentToken());
+    }
 
-	public constructor(recognizer: Parser| null,
-									predicate: java.lang.String| null,
-									message: java.lang.String| null);
-/* @ts-expect-error, because of the super() call in the closure. */
-public constructor(recognizer: Parser | null, predicate?: java.lang.String | null, message?: java.lang.String | null) {
-const $this = (recognizer: Parser | null, predicate?: java.lang.String | null, message?: java.lang.String | null): void => {
-if (predicate === undefined) {
-		$this(recognizer, null);
-	}
- else if (predicate instanceof java.lang.String && message === undefined) {
-		$this(recognizer, predicate, null);
-	}
- else 
-	{
+    private static formatMessage = (predicate: java.lang.String | null,
+        message: java.lang.String | null): java.lang.String => {
+        if (message !== null) {
+            return message;
+        }
 
-/* @ts-expect-error, because of the super() call in the closure. */
-		super(FailedPredicateException.formatMessage(predicate, message), recognizer, recognizer.getInputStream(), recognizer._ctx);
-		let  s: ATNState = recognizer.getInterpreter().atn.states.get(recognizer.getState());
+        return java.lang.String.format(java.util.Locale.getDefault(), S`failed predicate: {%s}?`, predicate);
+    };
 
-		let  trans: AbstractPredicateTransition = s.transition(0) as AbstractPredicateTransition;
-		if (trans instanceof PredicateTransition) {
-			this.ruleIndex = (trans as PredicateTransition).ruleIndex;
-			this.predicateIndex = (trans as PredicateTransition).predIndex;
-		}
-		else {
-			this.ruleIndex = 0;
-			this.predicateIndex = 0;
-		}
+    public getRuleIndex = (): number => {
+        return this.ruleIndex;
+    };
 
-		this.predicate = predicate;
-		this.setOffendingToken(recognizer.getCurrentToken());
-	}
-};
+    public getPredIndex = (): number => {
+        return this.predicateIndex;
+    };
 
-$this(recognizer, predicate, message);
+    public getPredicate = (): java.lang.String | null => {
+        return this.predicate;
+    };
 
-}
-/* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
-
-	public getRuleIndex = ():  number => {
-		return this.ruleIndex;
-	}
-
-	public getPredIndex = ():  number => {
-		return this.predicateIndex;
-	}
-
-
-	public getPredicate = ():  java.lang.String | null => {
-		return this.predicate;
-	}
-
-
-	private static formatMessage = (predicate: java.lang.String| null, message: java.lang.String| null):  java.lang.String | null => {
-		if (message !== null) {
-			return message;
-		}
-
-		return java.lang.String.format(java.util.Locale.getDefault(), S`failed predicate: {%s}?`, predicate);
-	}
 }

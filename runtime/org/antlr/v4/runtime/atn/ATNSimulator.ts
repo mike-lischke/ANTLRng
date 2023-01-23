@@ -82,7 +82,7 @@ export abstract class ATNSimulator extends JavaObject {
         return this.sharedContextCache;
     };
 
-    public getCachedContext = (context: PredictionContext | null): PredictionContext | null => {
+    public getCachedContext = (context: PredictionContext): PredictionContext => {
         if (this.sharedContextCache === null) {
             return context;
         }

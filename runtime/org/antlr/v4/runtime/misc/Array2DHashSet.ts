@@ -569,9 +569,3 @@ export class Array2DHashSet<T extends JavaObject> extends JavaObject implements 
     };
 
 }
-
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
-export namespace Array2DHashSet {
-    // @ts-expect-error, because of protected inner class.
-    export type SetIterator = InstanceType<Array2DHashSet.SetIterator>;
-}

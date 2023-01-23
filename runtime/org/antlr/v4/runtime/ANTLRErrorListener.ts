@@ -53,7 +53,7 @@ export interface ANTLRErrorListener {
      *        surrounding rule.
      */
     syntaxError: <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
-        offendingSymbol: unknown,
+        offendingSymbol: S | null,
         line: number,
         charPositionInLine: number,
         msg: java.lang.String,
@@ -104,7 +104,7 @@ export interface ANTLRErrorListener {
         startIndex: number,
         stopIndex: number,
         exact: boolean,
-        ambigAlts: java.util.BitSet,
+        ambigAlts: java.util.BitSet | null,
         configs: ATNConfigSet) => void;
 
     /**
@@ -134,7 +134,7 @@ export interface ANTLRErrorListener {
         dfa: DFA,
         startIndex: number,
         stopIndex: number,
-        conflictingAlts: java.util.BitSet,
+        conflictingAlts: java.util.BitSet | null,
         configs: ATNConfigSet) => void;
 
     /**

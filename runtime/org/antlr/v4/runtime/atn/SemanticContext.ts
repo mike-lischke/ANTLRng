@@ -16,6 +16,7 @@ import { JavaObject } from "../../../../../../lib/java/lang/Object";
 import { S } from "../../../../../../lib/templates";
 import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { ATNSimulator } from "./ATNSimulator";
+import { Token } from "../Token";
 
 /**
  * A tree structure used to record the semantic context in which
@@ -33,7 +34,7 @@ export abstract class SemanticContext extends JavaObject {
          */
         public static readonly Instance = new SemanticContext.Empty();
 
-        public eval = <T extends ATNSimulator>(_parser: Recognizer<unknown, T>,
+        public eval = <S extends Token, T extends ATNSimulator>(_parser: Recognizer<S, T>,
             _parserCallStack: RuleContext): boolean => {
             return false;
         };
@@ -53,7 +54,7 @@ export abstract class SemanticContext extends JavaObject {
             this.isCtxDependent = isCtxDependent ?? false;
         }
 
-        public eval = <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+        public eval = <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
             parserCallStack: RuleContext): boolean => {
             const localctx = this.isCtxDependent ? parserCallStack : null;
 
@@ -98,12 +99,12 @@ export abstract class SemanticContext extends JavaObject {
             this.precedence = precedence ?? 0;
         }
 
-        public eval = <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+        public eval = <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
             parserCallStack: RuleContext): boolean => {
             return parser.precpred(parserCallStack, this.precedence);
         };
 
-        public evalPrecedence = <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+        public evalPrecedence = <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
             parserCallStack: RuleContext): SemanticContext | null => {
             if (parser.precpred(parserCallStack, this.precedence)) {
                 return SemanticContext.Empty.Instance;
@@ -157,7 +158,7 @@ export abstract class SemanticContext extends JavaObject {
             return null;
         }
 
-        public eval = <T extends ATNSimulator>(_parser: Recognizer<unknown, T>,
+        public eval = <S extends Token, T extends ATNSimulator>(_parser: Recognizer<S, T>,
             _parserCallStack: RuleContext): boolean => {
             return false;
         };
@@ -227,7 +228,7 @@ export abstract class SemanticContext extends JavaObject {
          *
          * @returns tbd
          */
-        public eval = <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+        public eval = <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
             parserCallStack: RuleContext): boolean => {
             for (const opnd of this.opnds) {
                 if (!opnd.eval(parser, parserCallStack)) {
@@ -238,7 +239,7 @@ export abstract class SemanticContext extends JavaObject {
             return true;
         };
 
-        public evalPrecedence = <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+        public evalPrecedence = <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
             parserCallStack: RuleContext): SemanticContext | null => {
             let differs = false;
             const operands = new java.util.ArrayList<SemanticContext>();
@@ -343,7 +344,7 @@ export abstract class SemanticContext extends JavaObject {
          *
          * @returns tbd
          */
-        public eval = <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+        public eval = <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
             parserCallStack: RuleContext): boolean => {
             for (const opnd of this.opnds) {
                 if (opnd.eval(parser, parserCallStack)) {
@@ -354,7 +355,7 @@ export abstract class SemanticContext extends JavaObject {
             return false;
         };
 
-        public evalPrecedence = <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+        public evalPrecedence = <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
             parserCallStack: RuleContext): SemanticContext | null => {
             let differs = false;
             const operands = new java.util.ArrayList<SemanticContext>();
@@ -408,12 +409,13 @@ export abstract class SemanticContext extends JavaObject {
      * prediction, so we passed in the outer context here in case of context
      * dependent predicate evaluation.</p>
      */
-    public abstract eval: <T extends ATNSimulator>(parser: Recognizer<unknown, T>,
+    public abstract eval: <S extends Token, T extends ATNSimulator>(parser: Recognizer<S, T>,
         parserCallStack: RuleContext) => boolean;
 
-    public static and = (a: SemanticContext | null, b: SemanticContext | null): SemanticContext | null => {
+    public static and = (a: SemanticContext | null, b: SemanticContext | null): SemanticContext => {
+        // Both a and b can be null, but not at the same time.
         if (a === null || a === SemanticContext.Empty.Instance) {
-            return b;
+            return b!;
         }
 
         if (b === null || b === SemanticContext.Empty.Instance) {
@@ -435,9 +437,9 @@ export abstract class SemanticContext extends JavaObject {
      *
      * @returns tbd
      */
-    public static or = (a: SemanticContext | null, b: SemanticContext | null): SemanticContext | null => {
+    public static or = (a: SemanticContext | null, b: SemanticContext | null): SemanticContext => {
         if (a === null) {
-            return b;
+            return b!;
         }
 
         if (b === null) {
@@ -496,7 +498,7 @@ export abstract class SemanticContext extends JavaObject {
      * semantic context after precedence predicates are evaluated.</li>
      * </ul>
      */
-    public evalPrecedence = <T extends ATNSimulator>(_parser: Recognizer<unknown, T>,
+    public evalPrecedence = <S extends Token, T extends ATNSimulator>(_parser: Recognizer<S, T>,
         _parserCallStack: RuleContext): SemanticContext | null => {
         return this;
     };

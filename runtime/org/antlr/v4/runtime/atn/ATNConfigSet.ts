@@ -178,7 +178,7 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
      * @returns tbd
      */
     public add(config: ATNConfig,
-        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
+        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
         if (this.readonly || this.configLookup === null) {
             throw new java.lang.IllegalStateException(S`This set is readonly`);
         }
@@ -238,7 +238,7 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
      *
       @returns the set of represented alternatives in this configuration set
      */
-    public getAlts = (): java.util.BitSet | null => {
+    public getAlts = (): java.util.BitSet => {
         const alts = new java.util.BitSet();
         for (const config of this.configs) {
             alts.set(config.alt);

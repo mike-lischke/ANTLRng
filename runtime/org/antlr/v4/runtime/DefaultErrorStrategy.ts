@@ -1,8 +1,12 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+
+/* eslint-disable no-underscore-dangle */
 
 import { java } from "../../../../../lib/java/java";
 import { JavaObject } from "../../../../../lib/java/lang/Object";
@@ -18,7 +22,6 @@ import { RecognitionException } from "./RecognitionException";
 import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
 import { TokenSource } from "./TokenSource";
-import { TokenStream } from "./TokenStream";
 import { ATN } from "./atn/ATN";
 import { ATNState } from "./atn/ATNState";
 import { RuleTransition } from "./atn/RuleTransition";
@@ -342,8 +345,8 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
      */
     protected reportInputMismatch = (recognizer: Parser, e: InputMismatchException): void => {
         const msg = `mismatched input ` + this.getTokenErrorDisplay(e.getOffendingToken()) +
-            ` expecting ` + e.getExpectedTokens().toString(recognizer.getVocabulary());
-        recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
+            ` expecting ` + e.getExpectedTokens()?.toString(recognizer.getVocabulary());
+        recognizer.notifyErrorListeners(e.getOffendingToken(), S`${msg}`, e);
     };
 
     /**
@@ -355,10 +358,9 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
      * @param recognizer the parser instance
      * @param e the recognition exception
      */
-    protected reportFailedPredicate = (recognizer: Parser | null,
-        e: FailedPredicateException | null): void => {
-        const ruleName: java.lang.String = recognizer.getRuleNames()[recognizer._ctx.getRuleIndex()];
-        const msg: java.lang.String = S`rule ` + ruleName + S` ` + e.getMessage();
+    protected reportFailedPredicate = (recognizer: Parser, e: FailedPredicateException): void => {
+        const ruleName = recognizer.getRuleNames()[recognizer._ctx!.getRuleIndex()];
+        const msg = `rule ${ruleName} ${e.getMessage()}`;
         recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
     };
 

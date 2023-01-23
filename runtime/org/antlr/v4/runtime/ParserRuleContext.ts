@@ -224,8 +224,8 @@ export class ParserRuleContext extends RuleContext {
     };
 
     public getChild(i: number): ParseTree | null;
-    public getChild<T extends ParseTree>(ctxType: java.lang.Class<T>, i: number): T | null;
-    public getChild<T extends ParseTree>(iOrCtxType: number | java.lang.Class<T>,
+    public getChild<T extends ParseTree>(ctxType: new (...args: unknown[]) => T, i: number): T | null;
+    public getChild<T extends ParseTree>(iOrCtxType: number | (new (...args: unknown[]) => T),
         i?: number): ParseTree | T | null {
         if (typeof iOrCtxType === "number") {
             const i = iOrCtxType;
@@ -238,10 +238,10 @@ export class ParserRuleContext extends RuleContext {
 
             let j = -1; // what element have we found with ctxType?
             for (const o of this.children) {
-                if (iOrCtxType.isInstance(o)) {
+                if (o instanceof iOrCtxType) {
                     j++;
                     if (j === i) {
-                        return iOrCtxType.cast(o);
+                        return o;
                     }
                 }
             }
@@ -296,8 +296,15 @@ export class ParserRuleContext extends RuleContext {
         return tokens;
     };
 
-    public getRuleContext<T extends ParserRuleContext>(ctxType: java.lang.Class<T>, i: number): T | null {
-        return this.getChild(ctxType, i);
+    public getRuleContext(): RuleContext | null;
+    public getRuleContext<T extends ParserRuleContext>(ctxType: new (...args: unknown[]) => T, i: number): T | null;
+    public getRuleContext<T extends ParserRuleContext>(ctxType?: new (...args: unknown[]) => T,
+        i?: number): RuleContext | T | null {
+        if (!ctxType) {
+            return super.getRuleContext();
+        }
+
+        return this.getChild(ctxType, i ?? 0);
     }
 
     public getRuleContexts = <T extends ParserRuleContext>(ctxType: java.lang.Class<T>): java.util.List<T> | null => {
