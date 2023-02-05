@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java, S, JavaObject } from "jree";
 import { DFASerializer } from "./DFASerializer";
 import { DFAState } from "./DFAState";
 import { LexerDFASerializer } from "./LexerDFASerializer";
@@ -15,9 +15,6 @@ import { VocabularyImpl } from "../VocabularyImpl";
 import { ATNConfigSet } from "../atn/ATNConfigSet";
 import { DecisionState } from "../atn/DecisionState";
 import { StarLoopEntryState } from "../atn/StarLoopEntryState";
-
-
-
 
 export class DFA extends JavaObject {
     /**
