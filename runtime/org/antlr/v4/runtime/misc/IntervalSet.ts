@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 
 import { IntegerList } from "./IntegerList";
 import { Interval } from "./Interval";
@@ -17,9 +17,7 @@ import { Lexer } from "../Lexer";
 import { Token } from "../Token";
 import { Vocabulary } from "../Vocabulary";
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 import { I, S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * This class implements the {@link IntSet} backed by a sorted array of

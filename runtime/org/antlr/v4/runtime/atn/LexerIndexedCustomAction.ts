@@ -6,12 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { JavaObject, MurmurHash } from "jree";
+
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * This implementation of {@link LexerAction} is used for tracking input offsets

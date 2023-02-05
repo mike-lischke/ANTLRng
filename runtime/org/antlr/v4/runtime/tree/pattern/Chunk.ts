@@ -5,10 +5,9 @@
  */
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { java,JavaObject } from "jree";
 
 
-import { JavaObject } from "../../../../../../../lib/java/lang/Object";
 
 
 /**
@@ -22,5 +21,5 @@ import { JavaObject } from "../../../../../../../lib/java/lang/Object";
  * chunks are converted to {@link RuleTagToken}, {@link TokenTagToken}, or the
  * regular tokens of the text surrounding the tags.</p>
  */
-export abstract  class Chunk extends JavaObject {
+export abstract class Chunk extends JavaObject {
 }

@@ -6,15 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 
 import { ATNState } from "./ATNState";
 import { PredictionContext } from "./PredictionContext";
 import { SemanticContext } from "./SemanticContext";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * A tuple: (ATN state, predicted alt, syntactic, semantic context).

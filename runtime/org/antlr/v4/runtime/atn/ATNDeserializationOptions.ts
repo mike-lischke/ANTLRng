@@ -6,10 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
+import { java, S, JavaObject } from "jree";
 
 /**
  *

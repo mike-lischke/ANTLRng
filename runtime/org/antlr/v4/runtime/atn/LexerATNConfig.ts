@@ -6,6 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { MurmurHash } from "jree";
+
 import { ATNConfig } from "./ATNConfig";
 import { ATNState } from "./ATNState";
 import { DecisionState } from "./DecisionState";
@@ -13,8 +15,6 @@ import { LexerActionExecutor } from "./LexerActionExecutor";
 import { PredictionContext } from "./PredictionContext";
 import { SemanticContext } from "./SemanticContext";
 import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
-
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 export class LexerATNConfig extends ATNConfig {
     /**

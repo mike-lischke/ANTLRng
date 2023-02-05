@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 import { CharStream } from "./CharStream";
 import { Token } from "./Token";
 import { TokenFactory } from "./TokenFactory";
@@ -34,7 +34,7 @@ export interface TokenSource {
      * on the characters until you get a good one; errors are not passed through
      * to the parser.
      */
-    nextToken: () => Token;
+    nextToken: () => Token | null;
 
     /**
      * Get the line number for the current position in the input stream. The
@@ -62,14 +62,14 @@ export interface TokenSource {
      * the input, or {@code null} if no input stream is available for the token
      * source.
      */
-    getInputStream: () => CharStream;
+    getInputStream: () => CharStream | null;
 
     /**
      * Gets the name of the underlying input source. This method returns a
      * non-null, non-empty string. If such a name is not known, this method
      * returns {@link IntStream#UNKNOWN_SOURCE_NAME}.
      */
-    getSourceName: () => java.lang.String;
+    getSourceName: () => java.lang.String | null;
 
     /**
      * Set the {@link TokenFactory} this token source should use for creating
@@ -85,5 +85,5 @@ export interface TokenSource {
      *
       @returns The {@link TokenFactory} currently used by this token source.
      */
-    getTokenFactory: () => TokenFactory<Token>;
+    getTokenFactory: () => TokenFactory<Token> | null;
 }

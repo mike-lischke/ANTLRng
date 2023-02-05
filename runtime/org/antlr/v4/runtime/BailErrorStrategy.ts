@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 import { ANTLRErrorStrategy } from "./ANTLRErrorStrategy";
 import { DefaultErrorStrategy } from "./DefaultErrorStrategy";
 import { InputMismatchException } from "./InputMismatchException";
@@ -48,14 +48,14 @@ import { ParseCancellationException } from "./misc/ParseCancellationException";
  *
  * @see Parser#setErrorHandler(ANTLRErrorStrategy)
  */
-export  class BailErrorStrategy extends DefaultErrorStrategy {
+export class BailErrorStrategy extends DefaultErrorStrategy {
     /** Instead of recovering from exception {@code e}, re-throw it wrapped
      *  in a {@link ParseCancellationException} so it is not caught by the
      *  rule function catches.  Use {@link Exception#getCause()} to get the
 	 *  original {@link RecognitionException}.
      */
     public recover = (recognizer: Parser| null, e: RecognitionException| null):  void => {
-		for (let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
+		for ( let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
 			context.exception = e;
 		}
 
@@ -67,8 +67,8 @@ export  class BailErrorStrategy extends DefaultErrorStrategy {
      */
     public recoverInline = (recognizer: Parser| null):  Token | null =>
     {
-		let  e: InputMismatchException = new  InputMismatchException(recognizer);
-		for (let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
+		 let  e: InputMismatchException = new  InputMismatchException(recognizer);
+		for ( let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
 			context.exception = e;
 		}
 

@@ -7,16 +7,15 @@
 
 
 
-import { java } from "../../../../../../lib/java/java";
+import { java,S } from "jree";
 import { DFA } from "./DFA";
 import { DFASerializer } from "./DFASerializer";
 import { VocabularyImpl } from "../VocabularyImpl";
 
 
-import { S } from "../../../../../../lib/templates";
 
 
-export  class LexerDFASerializer extends DFASerializer {
+export class LexerDFASerializer extends DFASerializer {
 	public constructor(dfa: DFA| null) {
 		super(dfa, VocabularyImpl.EMPTY_VOCABULARY);
 	}

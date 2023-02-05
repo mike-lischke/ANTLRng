@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { java } from "jree";
 import { XPathElement } from "./XPathElement";
 import { ParserRuleContext } from "../../ParserRuleContext";
 import { ParseTree } from "../ParseTree";
@@ -17,8 +17,8 @@ import { Trees } from "../Trees";
 
 
 
-export  class XPathRuleElement extends XPathElement {
-	protected ruleIndex:  number;
+export class XPathRuleElement extends XPathElement {
+	protected  ruleIndex:  number;
 	public constructor(ruleName: java.lang.String| null, ruleIndex: number) {
 		super(ruleName);
 		this.ruleIndex = ruleIndex;
@@ -26,10 +26,10 @@ export  class XPathRuleElement extends XPathElement {
 
 	public evaluate = (t: ParseTree| null):  java.util.Collection<ParseTree> | null => {
 				// return all children of t that match nodeName
-		let  nodes: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
+		 let  nodes: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
 		for (let c of Trees.getChildren(t)) {
 			if ( c instanceof ParserRuleContext ) {
-				let  ctx: ParserRuleContext = c as ParserRuleContext;
+				 let  ctx: ParserRuleContext = c as ParserRuleContext;
 				if ( (ctx.getRuleIndex() === this.ruleIndex && !this.invert) ||
 					 (ctx.getRuleIndex() !== this.ruleIndex && this.invert) )
 				{

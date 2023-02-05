@@ -5,17 +5,17 @@
  */
 
 
+import { S } from "jree";
 import { Chunk } from "./Chunk";
 
 
-import { S } from "../../../../../../../lib/templates";
 
 
 /**
  * Represents a span of raw text (concrete syntax) between tags in a tree
  * pattern string.
  */
-export class TextChunk extends Chunk {
+exportclass TextChunk extends Chunk {
 	/**
 	 * This is the backing field for {@link #getText}.
 	 */
@@ -40,10 +40,10 @@ if (text === null) {
 	/**
 	 * Gets the raw text of this chunk.
 	 *
-	  @returns The text of the chunk.
+	 * @returns The text of the chunk.
 	 */
 
-	public readonly  getText = ():  java.lang.String | null => {
+	public readonly getText = ():  java.lang.String | null => {
 		return this.text;
 	}
 

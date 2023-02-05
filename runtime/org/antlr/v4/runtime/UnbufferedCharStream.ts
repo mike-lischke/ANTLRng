@@ -7,14 +7,12 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { JavaObject,java,S } from "jree";
 import { CharStream } from "./CharStream";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
 
 
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
 
 
 /** Do not buffer up the entire char stream. It does keep a small buffer
@@ -28,20 +26,20 @@ import { S } from "../../../../../lib/templates";
  *  As of 4.7, the class uses UTF-8 by default, and the buffer holds Unicode
  *  code points in the buffer as ints.
  */
-export  class UnbufferedCharStream extends JavaObject implements CharStream {
+export class UnbufferedCharStream extends JavaObject implements CharStream {
 	/**
 	 * A moving window buffer of the data being scanned. While there's a marker,
 	 * we keep adding to buffer. Otherwise, {@link #consume consume()} resets so
 	 * we start filling at index 0 again.
 	 */
-	protected data:  Int32Array;
+	protected  data:  Int32Array;
 
 	/**
 	 * The number of characters currently in {@link #data data}.
 	 *
 	 * <p>This is not the buffer capacity, that's {@code data.length}.</p>
 	 */
-   	protected n:  number;
+   	protected  n:  number;
 
 	/**
 	 * 0..n-1 index into {@link #data data} of next character.
@@ -49,7 +47,7 @@ export  class UnbufferedCharStream extends JavaObject implements CharStream {
 	 * <p>The {@code LA(1)} character is {@code data[p]}. If {@code p == n}, we are
 	 * out of buffered characters.</p>
 	 */
-   	protected p:  number=0;
+   	protected  p:  number=0;
 
 	/**
 	 * Count up with {@link #mark mark()} and down with
@@ -57,18 +55,18 @@ export  class UnbufferedCharStream extends JavaObject implements CharStream {
 	 * {@code numMarkers} reaches 0 and we reset the buffer. Copy
 	 * {@code data[p]..data[n-1]} to {@code data[0]..data[(n-1)-p]}.
 	 */
-	protected numMarkers:  number = 0;
+	protected  numMarkers:  number = 0;
 
 	/**
 	 * This is the {@code LA(-1)} character for the current position.
 	 */
-	protected lastChar:  number = -1;
+	protected  lastChar:  number = -1;
 
 	/**
 	 * When {@code numMarkers > 0}, this is the {@code LA(-1)} character for the
 	 * first character in {@link #data data}. Otherwise, this is unspecified.
 	 */
-	protected lastCharBufferStart:  number;
+	protected  lastCharBufferStart:  number;
 
 	/**
 	 * Absolute character index. It's the index of the character about to be
@@ -76,12 +74,12 @@ export  class UnbufferedCharStream extends JavaObject implements CharStream {
 	 * entire stream, although the stream size is unknown before the end is
 	 * reached.
 	 */
-    protected currentCharIndex:  number = 0;
+    protected  currentCharIndex:  number = 0;
 
-    protected input:  java.io.Reader | null;
+    protected  input:  java.io.Reader | null;
 
 	/** The name or source of this char stream. */
-	public name:  java.lang.String | null;
+	public  name:  java.lang.String | null;
 
 	/** Useful for subclasses that pull char from other than this.input. */
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
@@ -169,7 +167,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 	 * {@code (p+1-1)==p} must be less than {@code data.length}.
 	 */
 	protected sync = (want: number):  void => {
-		let  need: number = (this.p+want-1) - this.n + 1; // how many more elements we need?
+		 let  need: number = (this.p+want-1) - this.n + 1; // how many more elements we need?
 		if ( need > 0 ) {
 			this.fill(need);
 		}
@@ -181,24 +179,24 @@ $this(bufferSizeOrInput, bufferSize, charset);
 	 * then EOF was reached before {@code n} characters could be added.
 	 */
 	protected fill = (n: number):  number => {
-		for (let  i: number=0; i<n; i++) {
+		for ( let  i: number=0; i<n; i++) {
 			if (this.n > 0 && this.data[this.n - 1] === IntStream.EOF) {
 				return i;
 			}
 
 			try {
-				let  c: number = this.nextChar();
+				 let  c: number = this.nextChar();
 				if (c > java.lang.Character.MAX_VALUE || c === IntStream.EOF) {
 					this.add(c);
 				}
 				else {
-					let  ch: java.lang.char =  c as java.lang.char;
+					 let  ch: java.lang.char =  c as java.lang.char;
 					if (java.lang.Character.isLowSurrogate(ch)) {
 						throw new  java.lang.RuntimeException(S`Invalid UTF-16 (low surrogate with no preceding high surrogate)`);
 					}
 					else {
  if (java.lang.Character.isHighSurrogate(ch)) {
-						let  lowSurrogate: number = this.nextChar();
+						 let  lowSurrogate: number = this.nextChar();
 						if (lowSurrogate > java.lang.Character.MAX_VALUE) {
 							throw new  java.lang.RuntimeException(S`Invalid UTF-16 (high surrogate followed by code point > U+FFFF`);
 						}
@@ -207,7 +205,7 @@ $this(bufferSizeOrInput, bufferSize, charset);
 							throw new  java.lang.RuntimeException(S`Invalid UTF-16 (dangling high surrogate at end of file)`);
 						}
 						else {
-							let  lowSurrogateChar: java.lang.char =  lowSurrogate as java.lang.char;
+							 let  lowSurrogateChar: java.lang.char =  lowSurrogate as java.lang.char;
 							if (java.lang.Character.isLowSurrogate(lowSurrogateChar)) {
 								this.add(java.lang.Character.toCodePoint(ch, lowSurrogateChar));
 							}
@@ -257,7 +255,7 @@ if (ioe instanceof java.io.IOException) {
 }
  // special case
         this.sync(i);
-        let  index: number = this.p + i - 1;
+         let  index: number = this.p + i - 1;
         if ( index < 0 ) {
  throw new  java.lang.IndexOutOfBoundsException();
 }
@@ -281,7 +279,7 @@ if (ioe instanceof java.io.IOException) {
 			this.lastCharBufferStart = this.lastChar;
 		}
 
-		let  mark: number = -this.numMarkers - 1;
+		 let  mark: number = -this.numMarkers - 1;
 		this.numMarkers++;
 		return mark;
     }
@@ -290,7 +288,7 @@ if (ioe instanceof java.io.IOException) {
 	 * @param marker
 	 */
     public release = (marker: number):  void => {
-		let  expectedMark: number = -this.numMarkers;
+		 let  expectedMark: number = -this.numMarkers;
 		if ( marker!==expectedMark ) {
 			throw new  java.lang.IllegalStateException(S`release() called with an invalid marker.`);
 		}
@@ -324,7 +322,7 @@ if (ioe instanceof java.io.IOException) {
 		}
 
         // index == to bufferStartIndex should set p to 0
-        let  i: number = index - this.getBufferStartIndex();
+         let  i: number = index - this.getBufferStartIndex();
         if ( i < 0 ) {
 			throw new  java.lang.IllegalArgumentException(S`cannot seek to negative index ` + index);
 		}
@@ -363,7 +361,7 @@ if (ioe instanceof java.io.IOException) {
 			throw new  java.lang.IllegalArgumentException(S`invalid interval`);
 		}
 
-		let  bufferStartIndex: number = this.getBufferStartIndex();
+		 let  bufferStartIndex: number = this.getBufferStartIndex();
 		if (this.n > 0 && this.data[this.n - 1] === java.lang.Character.MAX_VALUE) {
 			if (interval.a + interval.length() > bufferStartIndex + this.n) {
 				throw new  java.lang.IllegalArgumentException(S`the interval extends past the end of the stream`);
@@ -375,11 +373,11 @@ if (ioe instanceof java.io.IOException) {
 			                    bufferStartIndex+S`..`+(bufferStartIndex+this.n-1));
 		}
 		// convert from absolute to local index
-		let  i: number = interval.a - bufferStartIndex;
+		 let  i: number = interval.a - bufferStartIndex;
 		return new  java.lang.String(this.data, i, interval.length());
 	}
 
-	protected readonly  getBufferStartIndex = ():  number => {
+	protected readonly getBufferStartIndex = ():  number => {
 		return this.currentCharIndex - this.p;
 	}
 }

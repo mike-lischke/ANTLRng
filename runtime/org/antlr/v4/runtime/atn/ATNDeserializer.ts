@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject } from "jree";
 
 import { ActionTransition } from "./ActionTransition";
 import { ATN } from "./ATN";
@@ -51,9 +51,6 @@ import { Token } from "../Token";
 import { IntegerList } from "../misc/IntegerList";
 import { IntervalSet } from "../misc/IntervalSet";
 import { Pair } from "../misc/Pair";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 /**
  * Deserialize ATNs for JavaTarget; it's complicated by the fact that java requires

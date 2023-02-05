@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { JavaObject,S,java } from "jree";
 import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
 import { TokenSource } from "./TokenSource";
@@ -16,26 +16,24 @@ import { WritableToken } from "./WritableToken";
 import { Interval } from "./misc/Interval";
 
 
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
 
 
-export  class UnbufferedTokenStream<T extends Token> extends JavaObject implements TokenStream {
-	protected tokenSource:  TokenSource | null;
+export class UnbufferedTokenStream<T extends Token> extends JavaObject implements TokenStream {
+	protected  tokenSource:  TokenSource | null;
 
 	/**
 	 * A moving window buffer of the data being scanned. While there's a marker,
 	 * we keep adding to buffer. Otherwise, {@link #consume consume()} resets so
 	 * we start filling at index 0 again.
 	 */
-	protected tokens:  Token[] | null;
+	protected  tokens:  Token[] | null;
 
 	/**
 	 * The number of tokens currently in {@link #tokens tokens}.
 	 *
 	 * <p>This is not the buffer capacity, that's {@code tokens.length}.</p>
 	 */
-	protected n:  number;
+	protected  n:  number;
 
 	/**
 	 * 0..n-1 index into {@link #tokens tokens} of next token.
@@ -43,7 +41,7 @@ export  class UnbufferedTokenStream<T extends Token> extends JavaObject implemen
 	 * <p>The {@code LT(1)} token is {@code tokens[p]}. If {@code p == n}, we are
 	 * out of buffered tokens.</p>
 	 */
-	protected p:  number=0;
+	protected  p:  number=0;
 
 	/**
 	 * Count up with {@link #mark mark()} and down with
@@ -51,18 +49,18 @@ export  class UnbufferedTokenStream<T extends Token> extends JavaObject implemen
 	 * {@code numMarkers} reaches 0 and we reset the buffer. Copy
 	 * {@code tokens[p]..tokens[n-1]} to {@code tokens[0]..tokens[(n-1)-p]}.
 	 */
-	protected numMarkers:  number = 0;
+	protected  numMarkers:  number = 0;
 
 	/**
 	 * This is the {@code LT(-1)} token for the current position.
 	 */
-	protected lastToken:  Token | null;
+	protected  lastToken:  Token | null;
 
 	/**
 	 * When {@code numMarkers > 0}, this is the {@code LT(-1)} token for the
 	 * first token in {@link #tokens}. Otherwise, this is {@code null}.
 	 */
-	protected lastTokenBufferStart:  Token | null;
+	protected  lastTokenBufferStart:  Token | null;
 
 	/**
 	 * Absolute token index. It's the index of the token about to be read via
@@ -72,7 +70,7 @@ export  class UnbufferedTokenStream<T extends Token> extends JavaObject implemen
 	 * <p>This value is used to set the token indexes if the stream provides tokens
 	 * that implement {@link WritableToken}.</p>
 	 */
-	protected currentTokenIndex:  number = 0;
+	protected  currentTokenIndex:  number = 0;
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
 public constructor(tokenSource: TokenSource| null);
@@ -101,7 +99,7 @@ $this(tokenSource, bufferSize);
 /* eslint-enable constructor-super, @typescript-eslint/no-unsafe-call */
 
 	public get = (i: number):  Token | null => { // get absolute index
-		let  bufferStartIndex: number = this.getBufferStartIndex();
+		 let  bufferStartIndex: number = this.getBufferStartIndex();
 		if (i < bufferStartIndex || i >= bufferStartIndex + this.n) {
 			throw new  java.lang.IndexOutOfBoundsException(S`get(`+i+S`) outside buffer: `+
 			                    bufferStartIndex+S`..`+(bufferStartIndex+this.n));
@@ -115,7 +113,7 @@ $this(tokenSource, bufferSize);
 		}
 
 		this.sync(i);
-        let  index: number = this.p + i - 1;
+         let  index: number = this.p + i - 1;
         if ( index < 0 ) {
 			throw new  java.lang.IndexOutOfBoundsException(S`LT(`+i+S`) gives negative index`);
 		}
@@ -160,22 +158,22 @@ const ctx = ctxOrIntervalOrStart as RuleContext;
 	}
  else if (ctxOrIntervalOrStart instanceof Interval && stop === undefined) {
 const interval = ctxOrIntervalOrStart as Interval;
-		let  bufferStartIndex: number = this.getBufferStartIndex();
-		let  bufferStopIndex: number = bufferStartIndex + this.tokens.length - 1;
+		 let  bufferStartIndex: number = this.getBufferStartIndex();
+		 let  bufferStopIndex: number = bufferStartIndex + this.tokens.length - 1;
 
-		let  start: number = interval.a;
-		let  stop: number = interval.b;
+		 let  start: number = interval.a;
+		 let  stop: number = interval.b;
 		if (start < bufferStartIndex || stop > bufferStopIndex) {
 			throw new  java.lang.UnsupportedOperationException(S`interval `+interval+S` not in token buffer window: `+
 													bufferStartIndex+S`..`+bufferStopIndex);
 		}
 
-		let  a: number = start - bufferStartIndex;
-		let  b: number = stop - bufferStartIndex;
+		 let  a: number = start - bufferStartIndex;
+		 let  b: number = stop - bufferStartIndex;
 
-		let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
-		for (let  i: number = a; i <= b; i++) {
-			let  t: Token = this.tokens[i];
+		 let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
+		for ( let  i: number = a; i <= b; i++) {
+			 let  t: Token = this.tokens[i];
 			buf.append(t.getText());
 		}
 
@@ -214,7 +212,7 @@ let start = ctxOrIntervalOrStart as Token;
 	 *  ahead.  If we need 1 element, {@code (p+1-1)==p} must be less than {@code tokens.length}.
 	 */
 	protected sync = (want: number):  void => {
-		let  need: number = (this.p+want-1) - this.n + 1; // how many more elements we need?
+		 let  need: number = (this.p+want-1) - this.n + 1; // how many more elements we need?
 		if ( need > 0 ) {
 			this.fill(need);
 		}
@@ -226,12 +224,12 @@ let start = ctxOrIntervalOrStart as Token;
 	 * then EOF was reached before {@code n} tokens could be added.
 	 */
 	protected fill = (n: number):  number => {
-		for (let  i: number=0; i<n; i++) {
+		for ( let  i: number=0; i<n; i++) {
 			if (this.n > 0 && this.tokens[this.n-1].getType() === Token.EOF) {
 				return i;
 			}
 
-			let  t: Token = this.tokenSource.nextToken();
+			 let  t: Token = this.tokenSource.nextToken();
 			this.add(t);
 		}
 
@@ -262,13 +260,13 @@ let start = ctxOrIntervalOrStart as Token;
 			this.lastTokenBufferStart = this.lastToken;
 		}
 
-		let  mark: number = -this.numMarkers - 1;
+		 let  mark: number = -this.numMarkers - 1;
 		this.numMarkers++;
 		return mark;
 	}
 
 	public release = (marker: number):  void => {
-		let  expectedMark: number = -this.numMarkers;
+		 let  expectedMark: number = -this.numMarkers;
 		if ( marker!==expectedMark ) {
 			throw new  java.lang.IllegalStateException(S`release() called with an invalid marker.`);
 		}
@@ -301,8 +299,8 @@ let start = ctxOrIntervalOrStart as Token;
 			index = Math.min(index, this.getBufferStartIndex() + this.n - 1);
 		}
 
-		let  bufferStartIndex: number = this.getBufferStartIndex();
-		let  i: number = index - bufferStartIndex;
+		 let  bufferStartIndex: number = this.getBufferStartIndex();
+		 let  i: number = index - bufferStartIndex;
 		if ( i < 0 ) {
 			throw new  java.lang.IllegalArgumentException(S`cannot seek to negative index ` + index);
 		}
@@ -332,7 +330,7 @@ let start = ctxOrIntervalOrStart as Token;
 		return this.tokenSource.getSourceName();
 	}
 
-	protected readonly  getBufferStartIndex = ():  number => {
+	protected readonly getBufferStartIndex = ():  number => {
 		return this.currentTokenIndex - this.p;
 	}
 }

@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject } from "jree";
 
 import { ATN } from "./ATN";
 import { ATNConfig } from "./ATNConfig";
@@ -17,9 +17,6 @@ import { ATNState } from "./ATNState";
 import { PredictionContext } from "./PredictionContext";
 import { SemanticContext } from "./SemanticContext";
 import { Array2DHashSet, DoubleKeyMap, EqualityComparator } from "../misc";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 /**
  * Specialized {@link Set}{@code <}{@link ATNConfig}{@code >} that can track

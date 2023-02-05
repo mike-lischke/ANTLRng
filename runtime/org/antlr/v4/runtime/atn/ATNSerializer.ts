@@ -6,7 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject } from "jree";
+
 import { ActionTransition } from "./ActionTransition";
 import { ATN } from "./ATN";
 import { ATNDeserializer } from "./ATNDeserializer";
@@ -32,9 +33,6 @@ import { Transition } from "./Transition";
 import { Token } from "../Token";
 import { IntegerList } from "../misc/IntegerList";
 import { IntervalSet } from "../misc/IntervalSet";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 /**
  * This class represents a target neutral serializer for ATNs. An ATN is converted to a list of integers

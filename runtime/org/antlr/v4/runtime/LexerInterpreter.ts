@@ -7,9 +7,11 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java,S } from "jree";
 import { CharStream } from "./CharStream";
 import { Lexer } from "./Lexer";
+import { Recognizer } from "./Recognizer";
+import { TokenSource } from "./TokenSource";
 import { Vocabulary } from "./Vocabulary";
 import { VocabularyImpl } from "./VocabularyImpl";
 import { ATN } from "./atn/ATN";
@@ -19,10 +21,9 @@ import { PredictionContextCache } from "./atn/PredictionContextCache";
 import { DFA } from "./dfa/DFA";
 
 
-import { S } from "../../../../../lib/templates";
 
 
-export  class LexerInterpreter extends Lexer {
+export class LexerInterpreter extends Lexer {
 	protected readonly  grammarFileName:  java.lang.String | null;
 	protected readonly  atn:  ATN | null;
 
@@ -74,7 +75,7 @@ let atn = inputOrAtn as ATN;
 		this.grammarFileName = grammarFileName;
 		this.atn = atn;
 		this.tokenNames = new   Array<java.lang.String>(atn.maxTokenType);
-		for (let  i: number = 0; i < this.tokenNames.length; i++) {
+		for ( let  i: number = 0; i < this.tokenNames.length; i++) {
 			this.tokenNames[i] = vocabulary.getDisplayName(i);
 		}
 
@@ -84,7 +85,7 @@ let atn = inputOrAtn as ATN;
 		this.vocabulary = vocabulary;
 
 		this._decisionToDFA = new   Array<DFA>(atn.getNumberOfDecisions());
-		for (let  i: number = 0; i < this._decisionToDFA.length; i++) {
+		for ( let  i: number = 0; i < this._decisionToDFA.length; i++) {
 			this._decisionToDFA[i] = new  DFA(atn.getDecisionState(i), i);
 		}
 		this._interp = new  LexerATNSimulator(this,atn,this._decisionToDFA,this._sharedContextCache);

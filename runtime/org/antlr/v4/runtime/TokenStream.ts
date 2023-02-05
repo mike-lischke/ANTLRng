@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention, @typescript-eslint/unified-signatures */
 
-import { java } from "../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { IntStream } from "./IntStream";
 import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
@@ -59,7 +59,7 @@ export interface TokenStream extends IntStream {
     /**
      * Return the text of all tokens in the stream. This method behaves like the
      * following code, including potential exceptions from the calls to
-     * {@link IntStream#size} and {@link #getText(Interval)}, but may be
+     * {@link IntStream##size} and {@link #getText(Interval)}, but may be
      * optimized by the specific implementation.
      *
      * <pre>

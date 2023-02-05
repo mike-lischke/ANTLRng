@@ -15,15 +15,13 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject } from "jree";
+
 import { ATN } from "./ATN";
 import { ATNConfigSet } from "./ATNConfigSet";
 import { PredictionContext } from "./PredictionContext";
 import { PredictionContextCache } from "./PredictionContextCache";
 import { DFAState } from "../dfa/DFAState";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 export abstract class ATNSimulator extends JavaObject {
     /** Must distinguish between missing edge and edge we know leads nowhere */

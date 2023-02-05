@@ -7,10 +7,10 @@
 
 
 
+import { S } from "jree";
 import { CommonToken } from "../../CommonToken";
 
 
-import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -18,7 +18,7 @@ import { S } from "../../../../../../../lib/templates";
  * {@code <ID>}. These tokens are created for {@link TagChunk} chunks where the
  * tag corresponds to a lexer rule or token type.
  */
-export  class TokenTagToken extends CommonToken {
+export class TokenTagToken extends CommonToken {
 	/**
 	 * This is the backing field for {@link #getTokenName}.
 	 */
@@ -72,21 +72,21 @@ $this(tokenName, type, label);
 
 	/**
 	 * Gets the token name.
-	  @returns The token name.
+	 * @returns The token name.
 	 */
 
-	public readonly  getTokenName = ():  java.lang.String | null => {
+	public readonly getTokenName = ():  java.lang.String | null => {
 		return this.tokenName;
 	}
 
 	/**
 	 * Gets the label associated with the rule tag.
 	 *
-	  @returns The name of the label associated with the rule tag, or
+	 * @returns The name of the label associated with the rule tag, or
 	 * {@code null} if this is an unlabeled rule tag.
 	 */
 
-	public readonly  getLabel = ():  java.lang.String | null => {
+	public readonly getLabel = ():  java.lang.String | null => {
 		return this.label;
 	}
 

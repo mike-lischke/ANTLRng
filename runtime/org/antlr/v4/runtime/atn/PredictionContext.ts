@@ -8,11 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention , no-underscore-dangle */
 
-import { java } from "../../../../../../lib/java/java";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
+import { java, S, JavaObject, MurmurHash } from "jree";
 
 import { ArrayPredictionContext } from "./ArrayPredictionContext";
 import { ATN } from "./ATN";

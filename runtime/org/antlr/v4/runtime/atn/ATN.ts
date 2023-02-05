@@ -6,7 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject } from "jree";
+
 import { ATNState } from "./ATNState";
 import { ATNType } from "./ATNType";
 import { DecisionState } from "./DecisionState";
@@ -19,9 +20,6 @@ import { TokensStartState } from "./TokensStartState";
 import { RuleContext } from "../RuleContext";
 import { Token } from "../Token";
 import { IntervalSet } from "../misc/IntervalSet";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 export class ATN extends JavaObject {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -188,7 +186,7 @@ export class ATN extends JavaObject {
      * @throws IllegalArgumentException if the ATN does not contain a state with
      * number {@code stateNumber}
      */
-    public getExpectedTokens = (stateNumber: number, context: RuleContext | null): IntervalSet | null => {
+    public getExpectedTokens = (stateNumber: number, context: RuleContext | null): IntervalSet => {
         if (stateNumber < 0 || stateNumber >= this.states.size()) {
             throw new java.lang.IllegalArgumentException(S`Invalid state number.`);
         }

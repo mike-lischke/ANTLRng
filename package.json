@@ -12,6 +12,7 @@
     "license": "MIT",
     "dependencies": {
         "immutable": "4.1.0",
+        "jree": "1.0.2",
         "printf": "0.6.1",
         "unicode-properties": "1.4.1"
     },

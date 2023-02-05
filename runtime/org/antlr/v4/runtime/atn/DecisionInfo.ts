@@ -8,14 +8,13 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, JavaObject } from "jree";
+
 import { AmbiguityInfo } from "./AmbiguityInfo";
 import { ContextSensitivityInfo } from "./ContextSensitivityInfo";
 import { ErrorInfo } from "./ErrorInfo";
 import { LookaheadEventInfo } from "./LookaheadEventInfo";
 import { PredicateEvalInfo } from "./PredicateEvalInfo";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 /**
  * This class contains profiling gathered for a particular decision.

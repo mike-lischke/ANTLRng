@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject } from "jree";
 
 import { ActionTransition } from "./ActionTransition";
 import { ATN } from "./ATN";
@@ -35,9 +35,6 @@ import { Token } from "../Token";
 import { DFA } from "../dfa/DFA";
 import { DFAState } from "../dfa/DFAState";
 import { Interval } from "../misc/Interval";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 /** "dup" of ParserInterpreter */
 export class LexerATNSimulator extends ATNSimulator {
@@ -173,7 +170,7 @@ export class LexerATNSimulator extends ATNSimulator {
       Get the text matched so far for the current token.
      */
 
-    public getText = (input: CharStream): java.lang.String | null => {
+    public getText = (input: CharStream): java.lang.String => {
         // index is first lookahead char, don't include.
         return input.getText(Interval.of(this.startIndex, input.index() - 1));
     };
@@ -511,11 +508,11 @@ export class LexerATNSimulator extends ATNSimulator {
 
             if (config.context === null || config.context.hasEmptyPath()) {
                 if (config.context === null || config.context.isEmpty()) {
-                    configs.add(config);
+                    configs.add(config, null);
 
                     return true;
                 } else {
-                    configs.add(new LexerATNConfig(config, config.state, EmptyPredictionContext.Instance));
+                    configs.add(new LexerATNConfig(config, config.state, EmptyPredictionContext.Instance), null);
                     currentAltReachedAcceptState = true;
                 }
             }
@@ -538,7 +535,7 @@ export class LexerATNSimulator extends ATNSimulator {
         // optimization
         if (!config.state.onlyHasEpsilonTransitions()) {
             if (!currentAltReachedAcceptState || !config.hasPassedThroughNonGreedyDecision()) {
-                configs.add(config);
+                configs.add(config, null);
             }
         }
 

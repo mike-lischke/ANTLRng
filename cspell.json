@@ -20,8 +20,10 @@
         "ᬠᬣᬦᬪᬫᬬᬭ"
     ],
     "ignoreWords": [
+        "Approximator",
         "COLONCOLON",
         "Evals",
+        "Grosch",
         "Harwell",
         "LBRACK",
         "LLATN",
@@ -33,6 +35,7 @@
         "SQUOTE",
         "Sethi",
         "Ullman",
+        "Wirth",
         "Xexact",
         "a4tstool",
         "ambig",
@@ -42,6 +45,7 @@
         "codegen",
         "interp",
         "javax",
+        "jree",
         "linkplain",
         "localctx",
         "mkdirs",

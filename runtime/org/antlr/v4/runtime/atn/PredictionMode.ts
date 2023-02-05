@@ -8,7 +8,9 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, MurmurHash } from "jree";
+import { Enum } from "jree/output/src/java/lang/Enum";
+
 import { ATN } from "./ATN";
 import { ATNConfig } from "./ATNConfig";
 import { ATNConfigSet } from "./ATNConfigSet";
@@ -17,9 +19,6 @@ import { RuleStopState } from "./RuleStopState";
 import { SemanticContext } from "./SemanticContext";
 import { FlexibleHashMap } from "../misc/FlexibleHashMap";
 
-import { Enum } from "../../../../../../lib/java/lang/Enum";
-import { S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { EqualityComparator } from "../misc/EqualityComparator";
 
 /**
@@ -246,10 +245,10 @@ export class PredictionMode extends Enum<PredictionMode> {
             // since we'll often fail over anyway.
             if (configs.hasSemanticContext) {
                 // dup configs, tossing out semantic predicates
-                const dup: ATNConfigSet = new ATNConfigSet();
+                const dup = new ATNConfigSet();
                 for (let c of configs) {
                     c = new ATNConfig(c, SemanticContext.Empty.Instance);
-                    dup.add(c);
+                    dup.add(c, null);
                 }
                 configs = dup;
             }

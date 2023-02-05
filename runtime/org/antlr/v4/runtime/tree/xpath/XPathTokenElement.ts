@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { java } from "jree";
 import { XPathElement } from "./XPathElement";
 import { ParseTree } from "../ParseTree";
 import { TerminalNode } from "../TerminalNode";
@@ -17,8 +17,8 @@ import { Trees } from "../Trees";
 
 
 
-export  class XPathTokenElement extends XPathElement {
-	protected tokenType:  number;
+export class XPathTokenElement extends XPathElement {
+	protected  tokenType:  number;
 	public constructor(tokenName: java.lang.String| null, tokenType: number) {
 		super(tokenName);
 		this.tokenType = tokenType;
@@ -26,10 +26,10 @@ export  class XPathTokenElement extends XPathElement {
 
 	public evaluate = (t: ParseTree| null):  java.util.Collection<ParseTree> | null => {
 		// return all children of t that match nodeName
-		let  nodes: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
+		 let  nodes: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
 		for (let c of Trees.getChildren(t)) {
 			if ( c instanceof TerminalNode ) {
-				let  tnode: TerminalNode = c as TerminalNode;
+				 let  tnode: TerminalNode = c as TerminalNode;
 				if ( (tnode.getSymbol().getType() === this.tokenType && !this.invert) ||
 					 (tnode.getSymbol().getType() !== this.tokenType && this.invert) )
 				{

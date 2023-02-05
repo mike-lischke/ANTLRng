@@ -6,13 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S } from "jree";
 import { AbstractPredicateTransition } from "./AbstractPredicateTransition";
 import { ATNState } from "./ATNState";
 import { SemanticContext } from "./SemanticContext";
 import { Transition } from "./Transition";
-
-import { S } from "../../../../../../lib/templates";
 
 /**
  * @author Sam Harwell

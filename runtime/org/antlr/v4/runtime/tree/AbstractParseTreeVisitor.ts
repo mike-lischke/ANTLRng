@@ -5,7 +5,7 @@
  */
 
 
-import { java } from "../../../../../../lib/java/java";
+import { java,JavaObject } from "jree";
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
@@ -13,10 +13,9 @@ import { RuleNode } from "./RuleNode";
 import { TerminalNode } from "./TerminalNode";
 
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
-export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements ParseTreeVisitor<T> {
+export abstract class AbstractParseTreeVisitor<T> extends JavaObject implements ParseTreeVisitor<T> {
 	/**
 	 *
 	 * <p>The default implementation calls {@link ParseTree#accept} on the
@@ -41,15 +40,15 @@ export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements
 	 * method to behave properly in respect to the specific algorithm in use.</p>
 	 */
 	public visitChildren = (node: RuleNode| null):  T | null => {
-		let  result: T = this.defaultResult();
-		let  n: number = node.getChildCount();
-		for (let  i: number=0; i<n; i++) {
+		 let  result: T = this.defaultResult();
+		 let  n: number = node.getChildCount();
+		for ( let  i: number=0; i<n; i++) {
 			if (!this.shouldVisitNextChild(node, result)) {
 				break;
 			}
 
-			let  c: ParseTree = node.getChild(i);
-			let  childResult: T = c.accept(this);
+			 let  c: ParseTree = node.getChild(i);
+			 let  childResult: T = c.accept(this);
 			result = this.aggregateResult(result, childResult);
 		}
 
@@ -83,7 +82,7 @@ export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements
 	 *
 	 * <p>The base implementation returns {@code null}.</p>
 	 *
-	  @returns The default value returned by visitor methods.
+	 * @returns The default value returned by visitor methods.
 	 */
 	protected defaultResult = ():  T | null => {
 		return null;
@@ -106,7 +105,7 @@ export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements
 	 * @param nextResult The result of the immediately preceeding call to visit
 	 * a child node.
 	 *
-	  @returns The updated aggregate result.
+	 * @returns The updated aggregate result.
 	 */
 	protected aggregateResult = (aggregate: T| null, nextResult: T| null):  T | null => {
 		return nextResult;
@@ -120,7 +119,7 @@ export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements
 	 * call to {@link #defaultResult}. This method is not called after the last
 	 * child is visited.
 	 *
-	 * <p>The default implementation always returns {@code true}, indicating that
+	 * <p>The default implementation always returns `true`, indicating that
 	 * {@code visitChildren} should only return after all children are visited.
 	 * One reason to override this method is to provide a "short circuit"
 	 * evaluation option for situations where the result of visiting a single
@@ -132,7 +131,7 @@ export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements
 	 * @param currentResult The current aggregate result of the children visited
 	 * to the current point.
 	 *
-	  @returns {@code true} to continue visiting children. Otherwise return
+	 * @returns `true` to continue visiting children. Otherwise return
 	 * {@code false} to stop visiting children and immediately return the
 	 * current aggregate result from {@link #visitChildren}.
 	 */

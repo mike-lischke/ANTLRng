@@ -8,12 +8,9 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject } from "jree";
 import { ATNState } from "./ATNState";
 import { IntervalSet } from "../misc/IntervalSet";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 /**
  * An ATN transition between any two ATN states.  Subclasses define
@@ -40,20 +37,6 @@ export abstract class Transition extends JavaObject {
     public static readonly NOT_SET = 8;
     public static readonly WILDCARD = 9;
     public static readonly PRECEDENCE = 10;
-
-    public static readonly serializationNames = java.util.Arrays.asList(
-        S`INVALID`,
-        S`EPSILON`,
-        S`RANGE`,
-        S`RULE`,
-        S`PREDICATE`,
-        S`ATOM`,
-        S`ACTION`,
-        S`SET`,
-        S`NOT_SET`,
-        S`WILDCARD`,
-        S`PRECEDENCE`,
-    );
 
     /** The target of this transition. */
     public target: ATNState;

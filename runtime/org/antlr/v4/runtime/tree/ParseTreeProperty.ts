@@ -7,11 +7,10 @@
 
 
 
-import { java } from "../../../../../../lib/java/java";
+import { JavaObject,java } from "jree";
 import { ParseTree } from "./ParseTree";
 
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
 /**
@@ -30,8 +29,8 @@ import { JavaObject } from "../../../../../../lib/java/lang/Object";
  * You would make one decl (values here) in the listener and use lots of times
  * in your event methods.
  */
-export  class ParseTreeProperty<V> extends JavaObject {
-	protected annotations:  java.util.Map<ParseTree, V> | null = new  java.util.IdentityHashMap<ParseTree, V>();
+export class ParseTreeProperty<V> extends JavaObject {
+	protected  annotations:  java.util.Map<ParseTree, V> | null = new  java.util.IdentityHashMap<ParseTree, V>();
 
 	public get = (node: ParseTree| null):  V | null => { return this.annotations.get(node); }
 	public put = (node: ParseTree| null, value: V| null):  void => { this.annotations.put(node, value); }

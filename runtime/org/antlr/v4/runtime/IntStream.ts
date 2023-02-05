@@ -8,8 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../lib/java/java";
-import { S } from "../../../../../lib/templates";
+import { java, S } from "jree";
 
 /**
  * A simple stream of symbols whose values are represented as integers. This
@@ -204,8 +203,9 @@ export interface IntStream {
      * non-null, non-empty string. If such a name is not known, this method
      * returns {@link #UNKNOWN_SOURCE_NAME}.
      */
-
     getSourceName: () => java.lang.String;
+
+    toString: () => java.lang.String;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare

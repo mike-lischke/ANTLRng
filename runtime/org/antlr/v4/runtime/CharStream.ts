@@ -6,14 +6,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
 
 /** A source of characters for an ANTLR lexer. */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export abstract class CharStream extends IntStream {
+export interface CharStream extends IntStream {
     /**
      * This method returns the text for a range of characters within this input
      * stream. This method is guaranteed to not throw an exception if the
@@ -21,7 +21,7 @@ export abstract class CharStream extends IntStream {
      * information about marked ranges, see {@link IntStream#mark}.
      *
      * @param interval an interval within the stream
-      @returns the text of the specified interval
+     * @returns the text of the specified interval
      *
      * @throws NullPointerException if {@code interval} is {@code null}
      * @throws IllegalArgumentException if {@code interval.a < 0}, or if
@@ -30,5 +30,15 @@ export abstract class CharStream extends IntStream {
      * @throws UnsupportedOperationException if the stream does not support
      * getting the text of the specified interval
      */
-    public abstract getText: (interval: Interval | null) => java.lang.String;
+    getText: (interval: Interval) => java.lang.String;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
+export namespace CharStream {
+    /**
+     * The value returned by {@link #LA LA()} when the end of the stream is
+     * reached.
+     */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    export const EOF = IntStream.EOF;
 }

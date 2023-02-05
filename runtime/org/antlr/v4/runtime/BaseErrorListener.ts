@@ -8,8 +8,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { java } from "../../../../../lib/java/java";
-import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { java, S, JavaObject } from "jree";
 
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { Parser } from "./Parser";
@@ -34,7 +33,7 @@ export class BaseErrorListener extends JavaObject implements ANTLRErrorListener 
         line: number,
         charPositionInLine: number,
         msg: java.lang.String | null,
-        e?: RecognitionException<S, T> | null): void => {
+        e: RecognitionException<S, T> | null): void => {
         //
     };
 

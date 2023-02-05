@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
 import { ParserRuleContext } from "./ParserRuleContext";
-import { RuleContext } from "./RuleContext";
 
 
 
@@ -23,9 +21,9 @@ import { RuleContext } from "./RuleContext";
  * parser, this class (with slightly more memory overhead per node) is used to
  * provide equivalent functionality.</p>
  */
-export  class InterpreterRuleContext extends ParserRuleContext {
+export class InterpreterRuleContext extends ParserRuleContext {
 	/** This is the backing field for {@link #getRuleIndex}. */
-	protected ruleIndex:  number = -1;
+	protected  ruleIndex:  number = -1;
 
 	public constructor();
 

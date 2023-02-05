@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
@@ -57,7 +57,7 @@ export interface ANTLRErrorListener {
         line: number,
         charPositionInLine: number,
         msg: java.lang.String,
-        e?: RecognitionException<S, T>) => void;
+        e: RecognitionException<S, T> | null) => void;
 
     /**
      * This method is called by the parser when a full-context prediction

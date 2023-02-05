@@ -9,7 +9,6 @@
 import { ATNState } from "./ATNState";
 
 /**
- *
  * @author Sam Harwell
  */
 export class BasicState extends ATNState {

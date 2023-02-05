@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -6,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 import { CharStream } from "./CharStream";
 import { IntStream } from "./IntStream";
 import { TokenSource } from "./TokenSource";
@@ -17,32 +19,33 @@ import { TokenSource } from "./TokenSource";
  *  we obtained this token.
  */
 export interface Token {
+
     /**
      * Get the text of the token.
      */
-    getText: () => java.lang.String;
+    getText(): java.lang.String;
 
     /** Get the token type of the token */
-    getType: () => number;
+    getType(): number;
 
     /**
      * The line number on which the 1st character of this token was matched,
      *  line=1..n
      */
-    getLine: () => number;
+    getLine(): number;
 
     /**
      * The index of the first character of this token relative to the
      *  beginning of the line at which it occurs, 0..n-1
      */
-    getCharPositionInLine: () => number;
+    getCharPositionInLine(): number;
 
     /**
      * Return the channel this token. Each token can arrive at the parser
      *  on a different channel, but the parser only "tunes" to a single channel.
      *  The parser ignores everything not on DEFAULT_CHANNEL.
      */
-    getChannel: () => number;
+    getChannel(): number;
 
     /**
      * An index from 0..n-1 of the token object in the input stream.
@@ -52,29 +55,29 @@ export interface Token {
      *  Return -1 to indicate that this token was conjured up since
      *  it doesn't have a valid index.
      */
-    getTokenIndex: () => number;
+    getTokenIndex(): number;
 
     /**
      * The starting character index of the token
      *  This method is optional; return -1 if not implemented.
      */
-    getStartIndex: () => number;
+    getStartIndex(): number;
 
     /**
      * The last character index of the token.
      *  This method is optional; return -1 if not implemented.
      */
-    getStopIndex: () => number;
+    getStopIndex(): number;
 
     /**
       Gets the {@link TokenSource} which created this token.
      */
-    getTokenSource: () => TokenSource;
+    getTokenSource(): TokenSource;
 
     /**
      * Gets the {@link CharStream} from which this token was derived.
      */
-    getInputStream: () => CharStream;
+    getInputStream(): CharStream;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare

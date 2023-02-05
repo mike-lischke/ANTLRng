@@ -1,22 +1,19 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable @typescript-eslint/naming-convention */
 
+import { java, JavaObject, S } from "jree";
 
-
-import { java } from "../../../../../lib/java/java";
 import { CharStream } from "./CharStream";
 import { CodePointBuffer } from "./CodePointBuffer";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
-
-
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
-
 
 /**
  * Alternative to {@link ANTLRInputStream} which treats the input
@@ -26,330 +23,333 @@ import { S } from "../../../../../lib/templates";
  * Use this if you need to parse input which potentially contains
  * Unicode values > U+FFFF.
  */
-export abstract  class CodePointCharStream extends JavaObject implements CharStream {
-	protected readonly  size:  number;
-	protected readonly  name:  java.lang.String | null;
+export abstract class CodePointCharStream extends JavaObject implements CharStream {
+    // 8-bit storage for code points <= U+00FF.
+    public static readonly CodePoint8BitCharStream = class CodePoint8BitCharStream extends CodePointCharStream {
+        private readonly byteArray: Uint8Array;
 
-	// To avoid lots of virtual method calls, we directly access
-	// the state of the underlying code points in the
-	// CodePointBuffer.
-	protected position:  number;
+        public constructor(position: number, remaining: number, name: java.lang.String | null,
+            byteArray: Uint8Array, _arrayOffset: number) {
+            super(position, remaining, name);
+            this.byteArray = byteArray;
+        }
 
-	// Use the factory method {@link #fromBuffer(CodePointBuffer)} to
-	// construct instances of this type.
-	private constructor(position: number, remaining: number, name: java.lang.String| null) {
-		// TODO
-		super();
-/* assert position == 0; */ 
-		this.size = remaining;
-		this.name = name;
-		this.position = 0;
-	}
+        /**
+         * Return the UTF-16 encoded string for the given interval
+         *
+         * @param interval tbd
+         *
+         * @returns tbd
+         */
+        public getText = (interval: Interval): java.lang.String => {
+            const startIdx: number = Math.min(interval.a, this.#size);
+            const len: number = Math.min(interval.b - interval.a + 1, this.#size - startIdx);
 
-	// Visible for testing.
-	protected abstract getInternalStorage: () =>  java.lang.Object | null;
+            // We know the maximum code point in byteArray is U+00FF,
+            // so we can treat this as if it were ISO-8859-1, aka Latin-1,
+            // which shares the same code points up to 0xFF.
+            return new java.lang.String(this.byteArray, startIdx, len,
+                java.nio.charset.StandardCharsets.ISO_8859_1);
+        };
 
-	/**
-	 * Constructs a {@link CodePointCharStream} which provides access
-	 * to the Unicode code points stored in {@code codePointBuffer}.
-	 */
-	public static fromBuffer(codePointBuffer: CodePointBuffer| null):  CodePointCharStream | null;
+        public LA = (i: number): number => {
+            let offset: number;
+            switch (java.lang.Integer.signum(i)) {
+                case -1: {
+                    offset = this.position + i;
+                    if (offset < 0) {
+                        return IntStream.EOF;
+                    }
 
-	/**
-	 * Constructs a named {@link CodePointCharStream} which provides access
-	 * to the Unicode code points stored in {@code codePointBuffer}.
-	 */
-	public static fromBuffer(codePointBuffer: CodePointBuffer| null, name: java.lang.String| null):  CodePointCharStream | null;
+                    return this.byteArray[offset];
+                }
 
+                case 0: {
+                    // Undefined
+                    return 0;
+                }
 
-	/**
-	 * Constructs a {@link CodePointCharStream} which provides access
-	 * to the Unicode code points stored in {@code codePointBuffer}.
-	 */
-	public static fromBuffer(codePointBuffer: CodePointBuffer | null, name?: java.lang.String | null):  CodePointCharStream | null {
-if (name === undefined) {
-		return CodePointCharStream.fromBuffer(codePointBuffer, IntStream.UNKNOWN_SOURCE_NAME);
-	}
- else  {
-		// Java lacks generics on primitive types.
-		//
-		// To avoid lots of calls to virtual methods in the
-		// very hot codepath of LA() below, we construct one
-		// of three concrete subclasses.
-		//
-		// The concrete subclasses directly access the code
-		// points stored in the underlying array (byte[],
-		// char[], or int[]), so we can avoid lots of virtual
-		// method calls to ByteBuffer.get(offset).
-		switch (codePointBuffer.getType()) {
-			case CodePointBuffer.Type.BYTE:{
-				return new  CodePointCharStream.CodePoint8BitCharStream(
-						codePointBuffer.position(),
-						codePointBuffer.remaining(),
-						name,
-						codePointBuffer.byteArray(),
-						codePointBuffer.arrayOffset());
-}
+                case 1: {
+                    offset = this.position + i - 1;
+                    if (offset >= this.#size) {
+                        return IntStream.EOF;
+                    }
 
-			case CodePointBuffer.Type.CHAR:{
-				return new  CodePointCharStream.CodePoint16BitCharStream(
-						codePointBuffer.position(),
-						codePointBuffer.remaining(),
-						name,
-						codePointBuffer.charArray(),
-						codePointBuffer.arrayOffset());
-}
+                    return this.byteArray[offset];
+                }
 
-			case CodePointBuffer.Type.INT:{
-				return new  CodePointCharStream.CodePoint32BitCharStream(
-						codePointBuffer.position(),
-						codePointBuffer.remaining(),
-						name,
-						codePointBuffer.intArray(),
-						codePointBuffer.arrayOffset());
-}
+                default:
 
+            }
+            throw new java.lang.UnsupportedOperationException(S`Not reached`);
+        };
 
-default:
+        protected getInternalStorage = (): Uint8Array => {
+            return this.byteArray;
+        };
+    };
 
-		}
-		throw new  java.lang.UnsupportedOperationException(S`Not reached`);
-	}
+    // 16-bit internal storage for code points between U+0100 and U+FFFF.
+    public static readonly CodePoint16BitCharStream = class CodePoint16BitCharStream extends CodePointCharStream {
+        private readonly charArray: Uint16Array;
 
-}
+        public constructor(position: number, remaining: number, name: java.lang.String | null,
+            charArray: Uint16Array, _arrayOffset: number) {
+            super(position, remaining, name);
+            this.charArray = charArray;
+        }
 
+        /**
+         * Return the UTF-16 encoded string for the given interval
+         *
+         * @param interval tbd
+         *
+         * @returns tbd
+         */
+        public getText = (interval: Interval): java.lang.String => {
+            const startIdx: number = Math.min(interval.a, this.#size);
+            const len: number = Math.min(interval.b - interval.a + 1, this.#size - startIdx);
 
-	public readonly  consume = ():  void => {
-		if (this.size - this.position === 0) {
-			/* assert LA(1) == IntStream.EOF; */ 
-			throw new  java.lang.IllegalStateException(S`cannot consume EOF`);
-		}
-		this.position = this.position + 1;
-	}
+            // We know there are no surrogates in this
+            // array, since otherwise we would be given a
+            // 32-bit int[] array.
+            //
+            // So, it's safe to treat this as if it were
+            // UTF-16.
+            return new java.lang.String(this.charArray, startIdx, len);
+        };
 
-	public readonly  index = ():  number => {
-		return this.position;
-	}
+        public LA = (i: number): number => {
+            let offset: number;
+            switch (java.lang.Integer.signum(i)) {
+                case -1: {
+                    offset = this.position + i;
+                    if (offset < 0) {
+                        return IntStream.EOF;
+                    }
 
-	public readonly  size = ():  number => {
-		return this.size;
-	}
+                    return this.charArray[offset];
+                }
 
-	/** mark/release do nothing; we have entire buffer */
-	public readonly  mark = ():  number => {
-		return -1;
-	}
+                case 0: {
+                    // Undefined
+                    return 0;
+                }
 
-	public readonly  release = (marker: number):  void => {
-	}
+                case 1: {
+                    offset = this.position + i - 1;
+                    if (offset >= this.#size) {
+                        return IntStream.EOF;
+                    }
 
-	public readonly  seek = (index: number):  void => {
-		this.position = index;
-	}
+                    return this.charArray[offset];
+                }
 
-	public readonly  getSourceName = ():  java.lang.String | null => {
-		if (this.name === null || this.name.isEmpty()) {
-			return IntStream.UNKNOWN_SOURCE_NAME;
-		}
+                default:
 
-		return this.name;
-	}
+            }
+            throw new java.lang.UnsupportedOperationException(S`Not reached`);
+        };
 
-	public readonly  toString = ():  java.lang.String | null => {
-		return this.getText(Interval.of(0, this.size - 1));
-	}
+        protected getInternalStorage = (): Uint16Array => {
+            return this.charArray;
+        };
+    };
 
-	// 8-bit storage for code points <= U+00FF.
-	private static readonly  CodePoint8BitCharStream =  class CodePoint8BitCharStream extends CodePointCharStream {
-		private readonly  byteArray:  Int8Array;
+    // 32-bit internal storage for code points between U+10000 and U+10FFFF.
+    public static readonly CodePoint32BitCharStream = class CodePoint32BitCharStream extends CodePointCharStream {
+        private readonly intArray: Uint32Array;
 
-		private constructor(position: number, remaining: number, name: java.lang.String| null, byteArray: Int8Array, arrayOffset: number) {
-			super(position, remaining, name);
-			// TODO
-			/* assert arrayOffset == 0; */ 
-			this.byteArray = byteArray;
-		}
+        public constructor(position: number, remaining: number, name: java.lang.String | null,
+            intArray: Uint32Array, _arrayOffset: number) {
+            super(position, remaining, name);
+            this.intArray = intArray;
+        }
 
-		/** Return the UTF-16 encoded string for the given interval */
-		public getText = (interval: Interval| null):  java.lang.String | null => {
-			let  startIdx: number = Math.min(interval.a, this.size);
-			let  len: number = Math.min(interval.b - interval.a + 1, this.size - startIdx);
+        /**
+         * Return the UTF-16 encoded string for the given interval
+         *
+         * @param interval tbd
+         *
+         * @returns tbd
+         */
+        public getText = (interval: Interval): java.lang.String => {
+            const startIdx: number = Math.min(interval.a, this.#size);
+            const len: number = Math.min(interval.b - interval.a + 1, this.#size - startIdx);
 
-			// We know the maximum code point in byteArray is U+00FF,
-			// so we can treat this as if it were ISO-8859-1, aka Latin-1,
-			// which shares the same code points up to 0xFF.
-			return new  java.lang.String(this.byteArray, startIdx, len, java.nio.charset.StandardCharsets.ISO_8859_1);
-		}
+            // Note that we pass the int[] code points to the String constructor --
+            // this is supported, and the constructor will convert to UTF-16 internally.
+            return new java.lang.String(this.intArray, startIdx, len);
+        };
 
-		public LA = (i: number):  number => {
-			let  offset: number;
-			switch (java.lang.Integer.signum(i)) {
-				case -1:{
-					offset = this.position + i;
-					if (offset < 0) {
-						return IntStream.EOF;
-					}
-					return this.byteArray[offset] & 0xFF;
-}
+        public LA = (i: number): number => {
+            let offset: number;
+            switch (java.lang.Integer.signum(i)) {
+                case -1: {
+                    offset = this.position + i;
+                    if (offset < 0) {
+                        return IntStream.EOF;
+                    }
 
-				case 0:{
-					// Undefined
-					return 0;
-}
+                    return this.intArray[offset];
+                }
 
-				case 1:{
-					offset = this.position + i - 1;
-					if (offset >= this.size) {
-						return IntStream.EOF;
-					}
-					return this.byteArray[offset] & 0xFF;
-}
+                case 0: {
+                    // Undefined
+                    return 0;
+                }
 
+                case 1: {
+                    offset = this.position + i - 1;
+                    if (offset >= this.#size) {
+                        return IntStream.EOF;
+                    }
 
-default:
+                    return this.intArray[offset];
+                }
 
-			}
-			throw new  java.lang.UnsupportedOperationException(S`Not reached`);
-		}
+                default:
 
-		protected  getInternalStorage = (): 
-		java.lang.Object | null => {
-			return this.byteArray;
-		}
-	};
+            }
+            throw new java.lang.UnsupportedOperationException(S`Not reached`);
+        };
 
+        protected getInternalStorage = (): Uint32Array => {
+            return this.intArray;
+        };
+    };
 
-	// 16-bit internal storage for code points between U+0100 and U+FFFF.
-	private static readonly  CodePoint16BitCharStream =  class CodePoint16BitCharStream extends CodePointCharStream {
-		private readonly  charArray:  Uint16Array;
+    protected readonly name: java.lang.String | null;
 
-		private constructor(position: number, remaining: number, name: java.lang.String| null, charArray: Uint16Array, arrayOffset: number) {
-			super(position, remaining, name);
-			this.charArray = charArray;
-			// TODO
-			/* assert arrayOffset == 0; */ 
-		}
+    // To avoid lots of virtual method calls, we directly access
+    // the state of the underlying code points in the
+    // CodePointBuffer.
+    protected position: number;
 
-		/** Return the UTF-16 encoded string for the given interval */
-		public getText = (interval: Interval| null):  java.lang.String | null => {
-			let  startIdx: number = Math.min(interval.a, this.size);
-			let  len: number = Math.min(interval.b - interval.a + 1, this.size - startIdx);
+    public abstract getText: (_interval: Interval) => java.lang.String;
+    public abstract LA: (i: number) => number;
 
-			// We know there are no surrogates in this
-			// array, since otherwise we would be given a
-			// 32-bit int[] array.
-			//
-			// So, it's safe to treat this as if it were
-			// UTF-16.
-			return new  java.lang.String(this.charArray, startIdx, len);
-		}
+    // Visible for testing.
+    protected abstract getInternalStorage: () => Uint8Array | Uint16Array | Uint32Array;
 
-		public LA = (i: number):  number => {
-			let  offset: number;
-			switch (java.lang.Integer.signum(i)) {
-				case -1:{
-					offset = this.position + i;
-					if (offset < 0) {
-						return IntStream.EOF;
-					}
-					return this.charArray[offset] & 0xFFFF;
-}
+    readonly #size: number;
 
-				case 0:{
-					// Undefined
-					return 0;
-}
+    // Use the factory method {@link #fromBuffer(CodePointBuffer)} to
+    // construct instances of this type.
+    private constructor(position: number, remaining: number, name: java.lang.String | null) {
+        // TODO
+        super();
+        this.#size = remaining;
+        this.name = name;
+        this.position = 0;
+    }
 
-				case 1:{
-					offset = this.position + i - 1;
-					if (offset >= this.size) {
-						return IntStream.EOF;
-					}
-					return this.charArray[offset] & 0xFFFF;
-}
+    /**
+     * Constructs a named {@link CodePointCharStream} which provides access
+     * to the Unicode code points stored in {@code codePointBuffer}.
+     *
+     * @param codePointBuffer The buffer for the code points.
+     * @param name An optional name.
+     *
+     * @returns A new CodePointCharStream instance.
+     */
+    public static fromBuffer(codePointBuffer: CodePointBuffer, name?: java.lang.String | null): CodePointCharStream {
+        name ??= IntStream.UNKNOWN_SOURCE_NAME;
 
+        // Java lacks generics on primitive types.
+        //
+        // To avoid lots of calls to virtual methods in the
+        // very hot code path of LA() below, we construct one
+        // of three concrete subclasses.
+        //
+        // The concrete subclasses directly access the code
+        // points stored in the underlying array (byte[],
+        // char[], or int[]), so we can avoid lots of virtual
+        // method calls to ByteBuffer.get(offset).
+        switch (codePointBuffer.getType()) {
+            case CodePointBuffer.Type.BYTE: {
+                return new CodePointCharStream.CodePoint8BitCharStream(
+                    codePointBuffer.position(),
+                    codePointBuffer.remaining(),
+                    name,
+                    codePointBuffer.byteArray(),
+                    codePointBuffer.arrayOffset());
+            }
 
-default:
+            case CodePointBuffer.Type.CHAR: {
+                return new CodePointCharStream.CodePoint16BitCharStream(
+                    codePointBuffer.position(),
+                    codePointBuffer.remaining(),
+                    name,
+                    codePointBuffer.charArray(),
+                    codePointBuffer.arrayOffset());
+            }
 
-			}
-			throw new  java.lang.UnsupportedOperationException(S`Not reached`);
-		}
+            case CodePointBuffer.Type.INT: {
+                return new CodePointCharStream.CodePoint32BitCharStream(
+                    codePointBuffer.position(),
+                    codePointBuffer.remaining(),
+                    name,
+                    new Uint32Array(codePointBuffer.intArray()),
+                    codePointBuffer.arrayOffset());
+            }
 
-		protected  getInternalStorage = (): 
-		java.lang.Object | null => {
-			return this.charArray;
-		}
-	};
+            default:
 
+        }
 
-	// 32-bit internal storage for code points between U+10000 and U+10FFFF.
-	private static readonly  CodePoint32BitCharStream =  class CodePoint32BitCharStream extends CodePointCharStream {
-		private readonly  intArray:  Int32Array;
+        throw new java.lang.UnsupportedOperationException(S`Not reached`);
+    }
 
-		private constructor(position: number, remaining: number, name: java.lang.String| null, intArray: Int32Array, arrayOffset: number) {
-			super(position, remaining, name);
-			this.intArray = intArray;
-			// TODO
-			/* assert arrayOffset == 0; */ 
-		}
+    public readonly consume = (): void => {
+        if (this.#size - this.position === 0) {
+            throw new java.lang.IllegalStateException(S`cannot consume EOF`);
+        }
+        this.position = this.position + 1;
+    };
 
-		/** Return the UTF-16 encoded string for the given interval */
-		public getText = (interval: Interval| null):  java.lang.String | null => {
-			let  startIdx: number = Math.min(interval.a, this.size);
-			let  len: number = Math.min(interval.b - interval.a + 1, this.size - startIdx);
+    public readonly index = (): number => {
+        return this.position;
+    };
 
-			// Note that we pass the int[] code points to the String constructor --
-			// this is supported, and the constructor will convert to UTF-16 internally.
-			return new  java.lang.String(this.intArray, startIdx, len);
-		}
+    public readonly size = (): number => {
+        return this.#size;
+    };
 
-		public LA = (i: number):  number => {
-			let  offset: number;
-			switch (java.lang.Integer.signum(i)) {
-				case -1:{
-					offset = this.position + i;
-					if (offset < 0) {
-						return IntStream.EOF;
-					}
-					return this.intArray[offset];
-}
+    /**
+     * mark/release do nothing; we have entire buffer
+     *
+     * @returns -1
+     */
+    public readonly mark = (): number => {
+        return -1;
+    };
 
-				case 0:{
-					// Undefined
-					return 0;
-}
+    public readonly release = (_marker: number): void => {
+        //
+    };
 
-				case 1:{
-					offset = this.position + i - 1;
-					if (offset >= this.size) {
-						return IntStream.EOF;
-					}
-					return this.intArray[offset];
-}
+    public readonly seek = (index: number): void => {
+        this.position = index;
+    };
 
+    public readonly getSourceName = (): java.lang.String => {
+        if (this.name === null || this.name.isEmpty()) {
+            return IntStream.UNKNOWN_SOURCE_NAME;
+        }
 
-default:
+        return this.name;
+    };
 
-			}
-			throw new  java.lang.UnsupportedOperationException(S`Not reached`);
-		}
-
-		protected  getInternalStorage = (): 
-		java.lang.Object | null => {
-			return this.intArray;
-		}
-	};
+    public toString(): java.lang.String {
+        return this.getText(Interval.of(0, this.#size - 1));
+    }
 
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace CodePointCharStream {
-	// @ts-expect-error, because of protected inner class.
-	export type CodePoint8BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint8BitCharStream>;
-	// @ts-expect-error, because of protected inner class.
-	export type CodePoint16BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint16BitCharStream>;
-	// @ts-expect-error, because of protected inner class.
-	export type CodePoint32BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint32BitCharStream>;
+    export type CodePoint8BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint8BitCharStream>;
+    export type CodePoint16BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint16BitCharStream>;
+    export type CodePoint32BitCharStream = InstanceType<typeof CodePointCharStream.CodePoint32BitCharStream>;
 }
-
-

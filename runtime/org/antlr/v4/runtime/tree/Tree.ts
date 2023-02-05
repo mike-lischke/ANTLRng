@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 
 /**
  * The basic notion of a tree has a parent, a payload, and a list of children.

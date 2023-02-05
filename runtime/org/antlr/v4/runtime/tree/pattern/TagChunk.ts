@@ -5,10 +5,10 @@
  */
 
 
+import { S } from "jree";
 import { Chunk } from "./Chunk";
 
 
-import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -25,7 +25,7 @@ import { S } from "../../../../../../../lib/templates";
  * This class does not perform any validation on the tag or label names aside
  * from ensuring that the tag is a non-null, non-empty string.
  */
-export class TagChunk extends Chunk {
+exportclass TagChunk extends Chunk {
 	/**
 	 * This is the backing field for {@link #getTag}.
 	 */
@@ -88,21 +88,21 @@ $this(tagOrLabel, tag);
 	/**
 	 * Get the tag for this chunk.
 	 *
-	  @returns The tag for the chunk.
+	 * @returns The tag for the chunk.
 	 */
 
-	public readonly  getTag = ():  java.lang.String | null => {
+	public readonly getTag = ():  java.lang.String | null => {
 		return this.tag;
 	}
 
 	/**
 	 * Get the label, if any, assigned to this chunk.
 	 *
-	  @returns The label assigned to this chunk, or {@code null} if no label is
+	 * @returns The label assigned to this chunk, or {@code null} if no label is
 	 * assigned to the chunk.
 	 */
 
-	public readonly  getLabel = ():  java.lang.String | null => {
+	public readonly getLabel = ():  java.lang.String | null => {
 		return this.label;
 	}
 

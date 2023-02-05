@@ -8,13 +8,11 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, JavaObject, S } from "jree";
+
 import { ATN } from "./ATN";
 import { Transition } from "./Transition";
 import { IntervalSet } from "../misc/IntervalSet";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
 
 /**
  * The following images show the relation of states and

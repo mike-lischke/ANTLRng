@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { JavaObject,java,S } from "jree";
 import { IntStream } from "./IntStream";
 import { Lexer } from "./Lexer";
 import { RuleContext } from "./RuleContext";
@@ -18,8 +18,6 @@ import { WritableToken } from "./WritableToken";
 import { Interval } from "./misc/Interval";
 
 
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -34,18 +32,18 @@ import { S } from "../../../../../lib/templates";
  * {@link Token#HIDDEN_CHANNEL}, use a filtering token stream such a
  * {@link CommonTokenStream}.</p>
  */
-export  class BufferedTokenStream extends JavaObject implements TokenStream {
+export class BufferedTokenStream extends JavaObject implements TokenStream {
 	/**
 	 * The {@link TokenSource} from which tokens for this stream are fetched.
 	 */
-    protected tokenSource:  TokenSource | null;
+    protected  tokenSource:  TokenSource | null;
 
 	/**
 	 * A collection of all tokens fetched from the token source. The list is
 	 * considered a complete view of the input once {@link #fetchedEOF} is set
-	 * to {@code true}.
+	 * to `true`.
 	 */
-    protected tokens:  java.util.List<Token> | null = new  java.util.ArrayList<Token>(100);
+    protected  tokens:  java.util.List<Token> | null = new  java.util.ArrayList<Token>(100);
 
 	/**
 	 * The index into {@link #tokens} of the current token (next token to
@@ -58,7 +56,7 @@ export  class BufferedTokenStream extends JavaObject implements TokenStream {
 	 * see the documentation of {@link IntStream} for a description of
 	 * Initializing Methods.</p>
 	 */
-    protected p:  number = -1;
+    protected  p:  number = -1;
 
 	/**
 	 * Indicates whether the {@link Token#EOF} token has been fetched from
@@ -73,7 +71,7 @@ export  class BufferedTokenStream extends JavaObject implements TokenStream {
 	 * {@link #tokens} is trivial with this field.</li>
 	 * <ul>
 	 */
-	protected fetchedEOF:  boolean;
+	protected  fetchedEOF:  boolean;
 
     public constructor(tokenSource: TokenSource| null) {
 		super();
@@ -114,7 +112,7 @@ if (tokenSource === null) {
     public size = ():  number => { return this.tokens.size(); }
 
     public consume = ():  void => {
-		let  skipEofCheck: boolean;
+		 let  skipEofCheck: boolean;
 		if (this.p >= 0) {
 			if (this.fetchedEOF) {
 				// the last token in tokens is EOF. skip check if p indexes any
@@ -142,16 +140,16 @@ if (tokenSource === null) {
 
     /** Make sure index {@code i} in tokens has a token.
 	 *
-	  @returns {@code true} if a token is located at index {@code i}, otherwise
+	 * @returns `true` if a token is located at index {@code i}, otherwise
 	 *    {@code false}.
 	 * @see #get(int i)
 	 */
     protected sync = (i: number):  boolean => {
 		/* assert i >= 0; */ 
-        let  n: number = i - this.tokens.size() + 1; // how many more elements we need?
+         let  n: number = i - this.tokens.size() + 1; // how many more elements we need?
         //System.out.println("sync("+i+") needs "+n);
         if ( n > 0 ) {
-			let  fetched: number = this.fetch(n);
+			 let  fetched: number = this.fetch(n);
 			return fetched >= n;
 		}
 
@@ -160,15 +158,15 @@ if (tokenSource === null) {
 
     /** Add {@code n} elements to buffer.
 	 *
-	  @returns The actual number of elements added to the buffer.
+	 * @returns The actual number of elements added to the buffer.
 	 */
     protected fetch = (n: number):  number => {
 		if (this.fetchedEOF) {
 			return 0;
 		}
 
-        for (let  i: number = 0; i < n; i++) {
-            let  t: Token = this.tokenSource.nextToken();
+        for ( let  i: number = 0; i < n; i++) {
+             let  t: Token = this.tokenSource.nextToken();
             if ( t instanceof WritableToken ) {
                 (t as WritableToken).setTokenIndex(this.tokens.size());
             }
@@ -202,13 +200,13 @@ let start = iOrStart as number;
 }
 
 		this.lazyInit();
-		let  subset: java.util.List<Token> = new  java.util.ArrayList<Token>();
+		 let  subset: java.util.List<Token> = new  java.util.ArrayList<Token>();
 		if ( stop>=this.tokens.size() ) {
  stop = this.tokens.size()-1;
 }
 
-		for (let  i: number = start; i <= stop; i++) {
-			let  t: Token = this.tokens.get(i);
+		for ( let  i: number = start; i <= stop; i++) {
+			 let  t: Token = this.tokens.get(i);
 			if ( t.getType()===Token.EOF ) {
  break;
 }
@@ -243,7 +241,7 @@ let start = iOrStart as number;
 }
 
 
-		let  i: number = this.p + k - 1;
+		 let  i: number = this.p + k - 1;
 		this.sync(i);
         if ( i >= this.tokens.size() ) { // return EOF token
             // EOF must be last token
@@ -264,13 +262,13 @@ let start = iOrStart as number;
 	 * the seek target is always an on-channel token.</p>
 	 *
 	 * @param i The target token index.
-	  @returns The adjusted target token index.
+	 * @returns The adjusted target token index.
 	 */
 	protected adjustSeekIndex = (i: number):  number => {
 		return i;
 	}
 
-	protected readonly  lazyInit = ():  void => {
+	protected readonly lazyInit = ():  void => {
 		if (this.p === -1) {
 			this.setup();
 		}
@@ -322,9 +320,9 @@ const types = typesOrTtype as java.util.Set<java.lang.Integer>;
 
 
         // list = tokens[start:stop]:{T t, t.getType() in types}
-        let  filteredTokens: java.util.List<Token> = new  java.util.ArrayList<Token>();
-        for (let  i: number=start; i<=stop; i++) {
-            let  t: Token = this.tokens.get(i);
+         let  filteredTokens: java.util.List<Token> = new  java.util.ArrayList<Token>();
+        for ( let  i: number=start; i<=stop; i++) {
+             let  t: Token = this.tokens.get(i);
             if ( types===null || types.contains(t.getType()) ) {
                 filteredTokens.add(t);
             }
@@ -336,7 +334,7 @@ const types = typesOrTtype as java.util.Set<java.lang.Integer>;
     }
  else  {
 let ttype = typesOrTtype as number;
-		let  s: java.util.HashSet<java.lang.Integer> = new  java.util.HashSet<java.lang.Integer>(ttype);
+		 let  s: java.util.HashSet<java.lang.Integer> = new  java.util.HashSet<java.lang.Integer>(ttype);
 		s.add(ttype);
 		return this.getTokens(start,stop, s);
     }
@@ -356,7 +354,7 @@ let ttype = typesOrTtype as number;
 			return this.size() - 1;
 		}
 
-		let  token: Token = this.tokens.get(i);
+		 let  token: Token = this.tokens.get(i);
 		while ( token.getChannel()!==channel ) {
 			if ( token.getType()===Token.EOF ) {
 				return i;
@@ -388,7 +386,7 @@ let ttype = typesOrTtype as number;
 		}
 
 		while (i >= 0) {
-			let  token: Token = this.tokens.get(i);
+			 let  token: Token = this.tokens.get(i);
 			if (token.getType() === Token.EOF || token.getChannel() === channel) {
 				return i;
 			}
@@ -426,10 +424,10 @@ if (channel === undefined) {
 			throw new  java.lang.IndexOutOfBoundsException(tokenIndex+S` not in 0..`+(this.tokens.size()-1));
 		}
 
-		let  nextOnChannel: number =
+		 let  nextOnChannel: number =
 			this.nextTokenOnChannel(tokenIndex + 1, Lexer.DEFAULT_TOKEN_CHANNEL);
-		let  to: number;
-		let  from: number = tokenIndex+1;
+		 let  to: number;
+		 let  from: number = tokenIndex+1;
 		// if none onchannel to right, nextOnChannel=-1 so set to = last token
 		if ( nextOnChannel === -1 ) {
  to = this.size()-1;
@@ -477,15 +475,15 @@ if (channel === undefined) {
 			return null;
 		}
 
-		let  prevOnChannel: number =
+		 let  prevOnChannel: number =
 			this.previousTokenOnChannel(tokenIndex - 1, Lexer.DEFAULT_TOKEN_CHANNEL);
 		if ( prevOnChannel === tokenIndex - 1 ) {
  return null;
 }
 
 		// if none onchannel to left, prevOnChannel=-1 then from=0
-		let  from: number = prevOnChannel+1;
-		let  to: number = tokenIndex-1;
+		 let  from: number = prevOnChannel+1;
+		 let  to: number = tokenIndex-1;
 
 		return this.filterForChannel(from, to, channel);
 	}
@@ -494,9 +492,9 @@ if (channel === undefined) {
 
 
 	protected filterForChannel = (from: number, to: number, channel: number):  java.util.List<Token> | null => {
-		let  hidden: java.util.List<Token> = new  java.util.ArrayList<Token>();
-		for (let  i: number=from; i<=to; i++) {
-			let  t: Token = this.tokens.get(i);
+		 let  hidden: java.util.List<Token> = new  java.util.ArrayList<Token>();
+		for ( let  i: number=from; i<=to; i++) {
+			 let  t: Token = this.tokens.get(i);
 			if ( channel===-1 ) {
 				if ( t.getChannel()!== Lexer.DEFAULT_TOKEN_CHANNEL ) {
  hidden.add(t);
@@ -540,8 +538,8 @@ if (intervalOrCtxOrStart === undefined) {
 	}
  else if (intervalOrCtxOrStart instanceof Interval && stop === undefined) {
 const interval = intervalOrCtxOrStart as Interval;
-		let  start: number = interval.a;
-		let  stop: number = interval.b;
+		 let  start: number = interval.a;
+		 let  stop: number = interval.b;
 		if ( start<0 || stop<0 ) {
  return S``;
 }
@@ -552,9 +550,9 @@ const interval = intervalOrCtxOrStart as Interval;
 }
 
 
-		let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
-		for (let  i: number = start; i <= stop; i++) {
-			let  t: Token = this.tokens.get(i);
+		 let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
+		for ( let  i: number = start; i <= stop; i++) {
+			 let  t: Token = this.tokens.get(i);
 			if ( t.getType()===Token.EOF ) {
  break;
 }
@@ -582,9 +580,9 @@ let start = intervalOrCtxOrStart as Token;
     /** Get all tokens from lexer until EOF */
     public fill = ():  void => {
         this.lazyInit();
-		 let  blockSize: number = 1000;
+		  let  blockSize: number = 1000;
 		while (true) {
-			let  fetched: number = this.fetch(blockSize);
+			 let  fetched: number = this.fetch(blockSize);
 			if (fetched < blockSize) {
 				return;
 			}

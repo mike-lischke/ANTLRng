@@ -8,7 +8,7 @@
 
 /* eslint-disable no-underscore-dangle, @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java } from "jree";
 import { AmbiguityInfo } from "./AmbiguityInfo";
 import { ATNConfigSet } from "./ATNConfigSet";
 import { ATNSimulator } from "./ATNSimulator";

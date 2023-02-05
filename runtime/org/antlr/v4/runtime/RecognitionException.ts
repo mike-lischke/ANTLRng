@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 
 import { IntStream } from "./IntStream";
 import { ParserRuleContext } from "./ParserRuleContext";
@@ -23,7 +23,7 @@ import { ATNSimulator } from "./atn";
  *  in the input, where it is in the ATN, the rule invocation stack,
  *  and what kind of problem occurred.
  */
-export class RecognitionException<S extends Token, T extends ATNSimulator> extends java.lang.RuntimeException {
+export class RecognitionException<S, T extends ATNSimulator> extends java.lang.RuntimeException {
     /** The {@link Recognizer} where this exception originated. */
     private readonly recognizer: Recognizer<S, T> | null;
 

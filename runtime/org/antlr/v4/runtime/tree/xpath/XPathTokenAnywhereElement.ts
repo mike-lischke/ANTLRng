@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { java } from "jree";
 import { XPathElement } from "./XPathElement";
 import { ParseTree } from "../ParseTree";
 import { Trees } from "../Trees";
@@ -15,8 +15,8 @@ import { Trees } from "../Trees";
 
 
 
-export  class XPathTokenAnywhereElement extends XPathElement {
-	protected tokenType:  number;
+export class XPathTokenAnywhereElement extends XPathElement {
+	protected  tokenType:  number;
 	public constructor(tokenName: java.lang.String| null, tokenType: number) {
 		super(tokenName);
 		this.tokenType = tokenType;

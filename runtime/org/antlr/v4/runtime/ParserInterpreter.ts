@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java,S } from "jree";
 import { CharStream } from "./CharStream";
 import { FailedPredicateException } from "./FailedPredicateException";
 import { InputMismatchException } from "./InputMismatchException";
@@ -39,7 +39,6 @@ import { DFA } from "./dfa/DFA";
 import { Pair } from "./misc/Pair";
 
 
-import { S } from "../../../../../lib/templates";
 
 
 /** A parser simulator that mimics what ANTLR's generated
@@ -55,7 +54,7 @@ import { S } from "../../../../../lib/templates";
  *
  *  See TestParserInterpreter for examples.
  */
-export  class ParserInterpreter extends Parser {
+export class ParserInterpreter extends Parser {
 	protected readonly  grammarFileName:  java.lang.String | null;
 	protected readonly  atn:  ATN | null;
 
@@ -86,19 +85,19 @@ export  class ParserInterpreter extends Parser {
 	/** We need a map from (decision,inputIndex)->forced alt for computing ambiguous
 	 *  parse trees. For now, we allow exactly one override.
 	 */
-	protected overrideDecision:  number = -1;
-	protected overrideDecisionInputIndex:  number = -1;
-	protected overrideDecisionAlt:  number = -1;
-	protected overrideDecisionReached:  boolean = false; // latch and only override once; error might trigger infinite loop
+	protected  overrideDecision:  number = -1;
+	protected  overrideDecisionInputIndex:  number = -1;
+	protected  overrideDecisionAlt:  number = -1;
+	protected  overrideDecisionReached:  boolean = false; // latch and only override once; error might trigger infinite loop
 
 	/** What is the current context when we override a decisions?  This tells
 	 *  us what the root of the parse tree is when using override
 	 *  for an ambiguity/lookahead check.
 	 */
-	protected overrideDecisionRoot:  InterpreterRuleContext | null = null;
+	protected  overrideDecisionRoot:  InterpreterRuleContext | null = null;
 
 
-	protected rootContext:  InterpreterRuleContext | null;
+	protected  rootContext:  InterpreterRuleContext | null;
 
 	/**
 	 * @deprecated Use {@link #ParserInterpreter(String, Vocabulary, Collection, ATN, TokenStream)} instead.
@@ -124,7 +123,7 @@ let vocabulary = tokenNamesOrVocabulary as Vocabulary;
 		this.grammarFileName = grammarFileName;
 		this.atn = atn;
 		this.tokenNames = new   Array<java.lang.String>(atn.maxTokenType);
-		for (let  i: number = 0; i < this.tokenNames.length; i++) {
+		for ( let  i: number = 0; i < this.tokenNames.length; i++) {
 			this.tokenNames[i] = vocabulary.getDisplayName(i);
 		}
 
@@ -132,10 +131,10 @@ let vocabulary = tokenNamesOrVocabulary as Vocabulary;
 		this.vocabulary = vocabulary;
 
 		// init decision DFA
-		let  numberOfDecisions: number = atn.getNumberOfDecisions();
+		 let  numberOfDecisions: number = atn.getNumberOfDecisions();
 		this.decisionToDFA = new   Array<DFA>(numberOfDecisions);
-		for (let  i: number = 0; i < numberOfDecisions; i++) {
-			let  decisionState: DecisionState = atn.getDecisionState(i);
+		for ( let  i: number = 0; i < numberOfDecisions; i++) {
+			 let  decisionState: DecisionState = atn.getDecisionState(i);
 			this.decisionToDFA[i] = new  DFA(decisionState, i);
 		}
 
@@ -179,7 +178,7 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 
 	/** Begin parsing at startRuleIndex */
 	public parse = (startRuleIndex: number):  ParserRuleContext | null => {
-		let  startRuleStartState: RuleStartState = this.atn.ruleToStartState[startRuleIndex];
+		 let  startRuleStartState: RuleStartState = this.atn.ruleToStartState[startRuleIndex];
 
 		this.rootContext = this.createInterpreterRuleContext(null, ATNState.INVALID_STATE_NUMBER, startRuleIndex);
 		if (startRuleStartState.isLeftRecursiveRule) {
@@ -190,14 +189,14 @@ $this(grammarFileName, tokenNamesOrVocabulary, ruleNames, atn, input);
 		}
 
 		while ( true ) {
-			let  p: ATNState = this.getATNState();
+			 let  p: ATNState = this.getATNState();
 			switch ( p.getStateType() ) {
 			case ATNState.RULE_STOP :{
 				// pop; return from rule
 				if ( this._ctx.isEmpty() ) {
 					if (startRuleStartState.isLeftRecursiveRule) {
-						let  result: ParserRuleContext = this._ctx;
-						let  parentContext: Pair<ParserRuleContext, java.lang.Integer> = this._parentContextStack.pop();
+						 let  result: ParserRuleContext = this._ctx;
+						 let  parentContext: Pair<ParserRuleContext, java.lang.Integer> = this._parentContextStack.pop();
 						this.unrollRecursionContexts(parentContext.a);
 						return result;
 					}
@@ -234,7 +233,7 @@ if (e instanceof RecognitionException) {
 	}
 
 	public enterRecursionRule = (localctx: ParserRuleContext| null, state: number, ruleIndex: number, precedence: number):  void => {
-		let  pair: Pair<ParserRuleContext, java.lang.Integer> = new  Pair<ParserRuleContext, java.lang.Integer>(this._ctx, localctx.invokingState);
+		 let  pair: Pair<ParserRuleContext, java.lang.Integer> = new  Pair<ParserRuleContext, java.lang.Integer>(this._ctx, localctx.invokingState);
 		this._parentContextStack.push(pair);
 		super.enterRecursionRule(localctx, state, ruleIndex, precedence);
 	}
@@ -245,12 +244,12 @@ if (e instanceof RecognitionException) {
 
 	protected visitState = (p: ATNState| null):  void => {
 //		System.out.println("visitState "+p.stateNumber);
-		let  predictedAlt: number = 1;
+		 let  predictedAlt: number = 1;
 		if ( p instanceof DecisionState ) {
 			predictedAlt = this.visitDecisionState( p as DecisionState);
 		}
 
-		let  transition: Transition = p.transition(predictedAlt - 1);
+		 let  transition: Transition = p.transition(predictedAlt - 1);
 		switch (transition.getSerializationType()) {
 			case Transition.EPSILON:{
 				if ( p.getStateType()===ATNState.STAR_LOOP_ENTRY &&
@@ -259,7 +258,7 @@ if (e instanceof RecognitionException) {
 				{
 					// We are at the start of a left recursive rule's (...)* loop
 					// and we're not taking the exit branch of loop.
-					let  localctx: InterpreterRuleContext =
+					 let  localctx: InterpreterRuleContext =
 						this.createInterpreterRuleContext(this._parentContextStack.peek().a,
 													 this._parentContextStack.peek().b,
 													 this._ctx.getRuleIndex());
@@ -295,9 +294,9 @@ if (e instanceof RecognitionException) {
 
 
 			case Transition.RULE:{
-				let  ruleStartState: RuleStartState = transition.target as RuleStartState;
-				let  ruleIndex: number = ruleStartState.ruleIndex;
-				let  newctx: InterpreterRuleContext = this.createInterpreterRuleContext(this._ctx, p.stateNumber, ruleIndex);
+				 let  ruleStartState: RuleStartState = transition.target as RuleStartState;
+				 let  ruleIndex: number = ruleStartState.ruleIndex;
+				 let  newctx: InterpreterRuleContext = this.createInterpreterRuleContext(this._ctx, p.stateNumber, ruleIndex);
 				if (ruleStartState.isLeftRecursiveRule) {
 					this.enterRecursionRule(newctx, ruleStartState.stateNumber, ruleIndex, (transition as RuleTransition).precedence);
 				}
@@ -309,7 +308,7 @@ if (e instanceof RecognitionException) {
 
 
 			case Transition.PREDICATE:{
-				let  predicateTransition: PredicateTransition = transition as PredicateTransition;
+				 let  predicateTransition: PredicateTransition = transition as PredicateTransition;
 				if (!this.sempred(this._ctx, predicateTransition.ruleIndex, predicateTransition.predIndex)) {
 					throw new  FailedPredicateException(this);
 				}
@@ -319,7 +318,7 @@ if (e instanceof RecognitionException) {
 
 
 			case Transition.ACTION:{
-				let  actionTransition: ActionTransition = transition as ActionTransition;
+				 let  actionTransition: ActionTransition = transition as ActionTransition;
 				this.action(this._ctx, actionTransition.ruleIndex, actionTransition.actionIndex);
 				break;
 }
@@ -347,10 +346,10 @@ if (e instanceof RecognitionException) {
 	 *  for subclasses to track interesting things.
 	 */
 	protected visitDecisionState = (p: DecisionState| null):  number => {
-		let  predictedAlt: number = 1;
+		 let  predictedAlt: number = 1;
 		if ( p.getNumberOfTransitions()>1 ) {
 			this.getErrorHandler().sync(this);
-			let  decision: number = p.decision;
+			 let  decision: number = p.decision;
 			if ( decision === this.overrideDecision && this._input.index() === this.overrideDecisionInputIndex &&
 			     !this.overrideDecisionReached )
 			{
@@ -376,9 +375,9 @@ if (e instanceof RecognitionException) {
 	}
 
 	protected visitRuleStopState = (p: ATNState| null):  void => {
-		let  ruleStartState: RuleStartState = this.atn.ruleToStartState[p.ruleIndex];
+		 let  ruleStartState: RuleStartState = this.atn.ruleToStartState[p.ruleIndex];
 		if (ruleStartState.isLeftRecursiveRule) {
-			let  parentContext: Pair<ParserRuleContext, java.lang.Integer> = this._parentContextStack.pop();
+			 let  parentContext: Pair<ParserRuleContext, java.lang.Integer> = this._parentContextStack.pop();
 			this.unrollRecursionContexts(parentContext.a);
 			this.setState(parentContext.b);
 		}
@@ -386,7 +385,7 @@ if (e instanceof RecognitionException) {
 			this.exitRule();
 		}
 
-		let  ruleTransition: RuleTransition = this.atn.states.get(this.getState()).transition(0) as RuleTransition;
+		 let  ruleTransition: RuleTransition = this.atn.states.get(this.getState()).transition(0) as RuleTransition;
 		this.setState(ruleTransition.followState.stateNumber);
 	}
 
@@ -445,18 +444,18 @@ if (e instanceof RecognitionException) {
 	 *  tree.
 	 */
 	protected recover = (e: RecognitionException| null):  void => {
-		let  i: number = this._input.index();
+		 let  i: number = this._input.index();
 		this.getErrorHandler().recover(this, e);
 		if ( this._input.index()===i ) {
 			// no input consumed, better add an error node
 			if ( e instanceof InputMismatchException ) {
-				let  ime: InputMismatchException = e as InputMismatchException;
-				let  tok: Token = e.getOffendingToken();
-				let  expectedTokenType: number = Token.INVALID_TYPE;
+				 let  ime: InputMismatchException = e as InputMismatchException;
+				 let  tok: Token = e.getOffendingToken();
+				 let  expectedTokenType: number = Token.INVALID_TYPE;
 				if ( !ime.getExpectedTokens().isNil() ) {
 					expectedTokenType = ime.getExpectedTokens().getMinElement(); // get any element
 				}
-				let  errToken: Token =
+				 let  errToken: Token =
 					this.getTokenFactory().create(new  Pair<TokenSource, CharStream>(tok.getTokenSource(), tok.getTokenSource().getInputStream()),
 				                             expectedTokenType, tok.getText(),
 				                             Token.DEFAULT_CHANNEL,
@@ -465,8 +464,8 @@ if (e instanceof RecognitionException) {
 				this._ctx.addErrorNode(this.createErrorNode(this._ctx,errToken));
 			}
 			else { // NoViableAlt
-				let  tok: Token = e.getOffendingToken();
-				let  errToken: Token =
+				 let  tok: Token = e.getOffendingToken();
+				 let  errToken: Token =
 					this.getTokenFactory().create(new  Pair<TokenSource, CharStream>(tok.getTokenSource(), tok.getTokenSource().getInputStream()),
 				                             Token.INVALID_TYPE, tok.getText(),
 				                             Token.DEFAULT_CHANNEL,

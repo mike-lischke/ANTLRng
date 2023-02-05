@@ -7,7 +7,8 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java,S } from "jree";
+import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { BaseErrorListener } from "./BaseErrorListener";
 import { Parser } from "./Parser";
 import { ATNConfig } from "./atn/ATNConfig";
@@ -16,7 +17,6 @@ import { DFA } from "./dfa/DFA";
 import { Interval } from "./misc/Interval";
 
 
-import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -40,9 +40,9 @@ import { S } from "../../../../../lib/templates";
  *
  * @author Sam Harwell
  */
-export  class DiagnosticErrorListener extends BaseErrorListener {
+export class DiagnosticErrorListener extends BaseErrorListener {
 	/**
-	 * When {@code true}, only exactly known ambiguities are reported.
+	 * When `true`, only exactly known ambiguities are reported.
 	 */
 	protected readonly  exactOnly:  boolean;
 
@@ -57,7 +57,7 @@ public constructor();
 	 * Initializes a new instance of {@link DiagnosticErrorListener}, specifying
 	 * whether all ambiguities or only exact ambiguities are reported.
 	 *
-	 * @param exactOnly {@code true} to report only exact ambiguities, otherwise
+	 * @param exactOnly `true` to report only exact ambiguities, otherwise
 	 * {@code false} to report all ambiguities.
 	 */
 	public constructor(exactOnly: boolean);
@@ -92,11 +92,11 @@ $this(exactOnly);
 			return;
 		}
 
-		let  format: java.lang.String = S`reportAmbiguity d=%s: ambigAlts=%s, input='%s'`;
-		let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
-		let  conflictingAlts: java.util.BitSet = this.getConflictingAlts(ambigAlts, configs);
-		let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
-		let  message: java.lang.String = java.lang.String.format(format, decision, conflictingAlts, text);
+		 let  format: java.lang.String = S`reportAmbiguity d=%s: ambigAlts=%s, input='%s'`;
+		 let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
+		 let  conflictingAlts: java.util.BitSet = this.getConflictingAlts(ambigAlts, configs);
+		 let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
+		 let  message: java.lang.String = java.lang.String.format(format, decision, conflictingAlts, text);
 		recognizer.notifyErrorListeners(message);
 	}
 
@@ -107,10 +107,10 @@ $this(exactOnly);
 											conflictingAlts: java.util.BitSet| null,
 											configs: ATNConfigSet| null):  void =>
 	{
-		let  format: java.lang.String = S`reportAttemptingFullContext d=%s, input='%s'`;
-		let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
-		let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
-		let  message: java.lang.String = java.lang.String.format(format, decision, text);
+		 let  format: java.lang.String = S`reportAttemptingFullContext d=%s, input='%s'`;
+		 let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
+		 let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
+		 let  message: java.lang.String = java.lang.String.format(format, decision, text);
 		recognizer.notifyErrorListeners(message);
 	}
 
@@ -121,23 +121,23 @@ $this(exactOnly);
 										 prediction: number,
 										 configs: ATNConfigSet| null):  void =>
 	{
-		let  format: java.lang.String = S`reportContextSensitivity d=%s, input='%s'`;
-		let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
-		let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
-		let  message: java.lang.String = java.lang.String.format(format, decision, text);
+		 let  format: java.lang.String = S`reportContextSensitivity d=%s, input='%s'`;
+		 let  decision: java.lang.String = this.getDecisionDescription(recognizer, dfa);
+		 let  text: java.lang.String = recognizer.getTokenStream().getText(Interval.of(startIndex, stopIndex));
+		 let  message: java.lang.String = java.lang.String.format(format, decision, text);
 		recognizer.notifyErrorListeners(message);
 	}
 
 	protected getDecisionDescription = (recognizer: Parser| null, dfa: DFA| null):  java.lang.String | null => {
-		let  decision: number = dfa.decision;
-		let  ruleIndex: number = dfa.atnStartState.ruleIndex;
+		 let  decision: number = dfa.decision;
+		 let  ruleIndex: number = dfa.atnStartState.ruleIndex;
 
-		let  ruleNames: java.lang.String[] = recognizer.getRuleNames();
+		 let  ruleNames: java.lang.String[] = recognizer.getRuleNames();
 		if (ruleIndex < 0 || ruleIndex >= ruleNames.length) {
 			return java.lang.String.valueOf(decision);
 		}
 
-		let  ruleName: java.lang.String = ruleNames[ruleIndex];
+		 let  ruleName: java.lang.String = ruleNames[ruleIndex];
 		if (ruleName === null || ruleName.isEmpty()) {
 			return java.lang.String.valueOf(decision);
 		}
@@ -153,7 +153,7 @@ $this(exactOnly);
 	 * @param reportedAlts The set of conflicting or ambiguous alternatives, as
 	 * reported by the parser.
 	 * @param configs The conflicting or ambiguous configuration set.
-	  @returns Returns {@code reportedAlts} if it is not {@code null}, otherwise
+	 * @returns Returns {@code reportedAlts} if it is not {@code null}, otherwise
 	 * returns the set of alternatives represented in {@code configs}.
 	 */
 	protected getConflictingAlts = (reportedAlts: java.util.BitSet| null, configs: ATNConfigSet| null):  java.util.BitSet | null => {
@@ -161,7 +161,7 @@ $this(exactOnly);
 			return reportedAlts;
 		}
 
-		let  result: java.util.BitSet = new  java.util.BitSet();
+		 let  result: java.util.BitSet = new  java.util.BitSet();
 		for (let config of configs) {
 			result.set(config.alt);
 		}

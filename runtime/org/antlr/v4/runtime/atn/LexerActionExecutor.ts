@@ -6,14 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, JavaObject, MurmurHash } from "jree";
 import { LexerAction } from "./LexerAction";
 import { LexerIndexedCustomAction } from "./LexerIndexedCustomAction";
 import { CharStream } from "../CharStream";
 import { Lexer } from "../Lexer";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * Represents an executor for a sequence of lexer actions which traversed during

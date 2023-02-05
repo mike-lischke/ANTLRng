@@ -6,13 +6,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { DFA } from "./DFA";
 import { DFAState } from "./DFAState";
 import { Vocabulary } from "../Vocabulary";
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
+
+
 
 /** A DFA walker that knows how to dump them to serialized strings. */
 export class DFASerializer extends JavaObject {

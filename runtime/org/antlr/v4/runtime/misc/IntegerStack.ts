@@ -13,7 +13,7 @@ import { IntegerList } from "./IntegerList";
  *
  * @author Sam Harwell
  */
-export  class IntegerStack extends IntegerList {
+export class IntegerStack extends IntegerList {
 
 	public constructor();
 
@@ -36,15 +36,15 @@ let list = capacityOrList as IntegerStack;
 }
 
 
-	public readonly  push = (value: number):  void => {
+	public readonly push = (value: number):  void => {
 		this.add(value);
 	}
 
-	public readonly  pop = ():  number => {
+	public readonly pop = ():  number => {
 		return this.removeAt(this.size() - 1);
 	}
 
-	public readonly  peek = ():  number => {
+	public readonly peek = ():  number => {
 		return this.get(this.size() - 1);
 	}
 

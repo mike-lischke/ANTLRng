@@ -6,11 +6,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { java, S } from "jree";
+
 import { EmptyPredictionContext } from "./EmptyPredictionContext";
 import { PredictionContext } from "./PredictionContext";
-
-import { S } from "../../../../../../lib/templates";
-import { java } from "../../../../../../lib/java/java";
 
 export class SingletonPredictionContext extends PredictionContext {
     public readonly parent: PredictionContext | null;

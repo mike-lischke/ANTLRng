@@ -10,10 +10,7 @@ import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
 import { Lexer } from "../Lexer";
 
-import { java } from "../../../../../../lib/java/java";
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
+import { java, S, JavaObject, MurmurHash } from "jree";
 
 /**
  * Implements the {@code more} lexer action by calling {@link Lexer#more}.

@@ -15,7 +15,7 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, JavaObject } from "jree";
 
 import { AbstractPredicateTransition } from "./AbstractPredicateTransition";
 import { ATN } from "./ATN";
@@ -31,8 +31,6 @@ import { WildcardTransition } from "./WildcardTransition";
 import { RuleContext } from "../RuleContext";
 import { Token } from "../Token";
 import { IntervalSet } from "../misc/IntervalSet";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 export class LL1Analyzer extends JavaObject {
     /**

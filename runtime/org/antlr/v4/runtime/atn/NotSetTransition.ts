@@ -6,12 +6,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S } from "jree";
+
 import { ATNState } from "./ATNState";
 import { SetTransition } from "./SetTransition";
 import { Transition } from "./Transition";
 import { IntervalSet } from "../misc/IntervalSet";
-import { S } from "../../../../../../lib/templates";
 
 export class NotSetTransition extends SetTransition {
     public constructor(target: ATNState, set: IntervalSet) {

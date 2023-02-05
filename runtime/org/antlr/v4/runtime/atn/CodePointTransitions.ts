@@ -6,12 +6,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { JavaObject } from "jree";
+
 import { ATNState } from "./ATNState";
 import { AtomTransition } from "./AtomTransition";
 import { RangeTransition } from "./RangeTransition";
 import { Transition } from "./Transition";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 /**
  * Utility class to create {@link AtomTransition}, {@link RangeTransition},

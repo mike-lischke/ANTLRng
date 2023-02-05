@@ -13,8 +13,6 @@ import { TokenStream } from "../TokenStream";
 /**
  * This class represents profiling event information for tracking the lookahead
  * depth required in order to make a prediction.
- *
- *
  */
 export class LookaheadEventInfo extends DecisionEventInfo {
     /**

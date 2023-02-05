@@ -7,7 +7,9 @@
 
 
 
+import { java } from "jree";
 import { ParserRuleContext } from "./ParserRuleContext";
+import { RuleContext } from "./RuleContext";
 import { ATN } from "./atn/ATN";
 
 
@@ -23,8 +25,8 @@ import { ATN } from "./atn/ATN";
  *  I'm only putting into Java runtime as I'm certain I'm the only one that
  *  will really every use this.
  */
-export  class RuleContextWithAltNum extends ParserRuleContext {
-	public altNum:  number;
+export class RuleContextWithAltNum extends ParserRuleContext {
+	public  altNum:  number;
 	public constructor();
 
 	public constructor(parent: ParserRuleContext| null, invokingStateNumber: number);

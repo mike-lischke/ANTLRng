@@ -6,13 +6,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { java, S } from "jree";
+
 import { BaseErrorListener } from "./BaseErrorListener";
 import { RecognitionException } from "./RecognitionException";
 import { Recognizer } from "./Recognizer";
 
-import { S } from "../../../../../lib/templates";
 import { ATNSimulator } from "./atn";
-import { java } from "../../../../../lib/java/java";
 import { Token } from "./Token";
 
 /**
@@ -44,12 +44,12 @@ export class ConsoleErrorListener extends BaseErrorListener {
      * @param msg tbd
      * @param _e tbd
      */
-    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T> | null,
         offendingSymbol: unknown,
         line: number,
         charPositionInLine: number,
-        msg: java.lang.String,
-        _e: RecognitionException<S, T>): void => {
+        msg: java.lang.String | null,
+        _e: RecognitionException<S, T> | null): void => {
         java.lang.System.err.println(S`line ${line}:${charPositionInLine} ${msg}`);
     };
 

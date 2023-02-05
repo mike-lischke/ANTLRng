@@ -5,22 +5,22 @@
  */
 
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 import { Token } from "./Token";
 
 
 
 
-export  interface WritableToken extends Token {
-	 setText: (text: java.lang.String| null) => void;
+ interface WritableToken extends Token {
+	 setText(text: java.lang.String| null): void;
 
-	 setType: (ttype: number) => void;
+	 setType(ttype: number): void;
 
-	 setLine: (line: number) => void;
+	 setLine(line: number): void;
 
-	 setCharPositionInLine: (pos: number) => void;
+	 setCharPositionInLine(pos: number): void;
 
-	 setChannel: (channel: number) => void;
+	 setChannel(channel: number): void;
 
-	 setTokenIndex: (index: number) => void;
+	 setTokenIndex(index: number): void;
 }

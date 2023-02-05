@@ -6,10 +6,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { JavaObject } from "jree";
+
 import { ATNConfigSet } from "./ATNConfigSet";
 import { TokenStream } from "../TokenStream";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 /**
  * This is the base class for gathering detailed information about prediction

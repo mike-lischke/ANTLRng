@@ -8,8 +8,8 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { Enum } from "../../../../../../lib/java/lang/Enum";
-import { S } from "../../../../../../lib/templates";
+import { S } from "jree";
+import { Enum } from "jree/output/src/java/lang/Enum";
 
 /**
  * Represents the serialization type of a {@link LexerAction}.

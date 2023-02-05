@@ -6,10 +6,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { JavaObject } from "jree";
+
 import { DecisionInfo } from "./DecisionInfo";
 import { ProfilingATNSimulator } from "./ProfilingATNSimulator";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 /**
  * This class provides access to specific and aggregate statistics gathered

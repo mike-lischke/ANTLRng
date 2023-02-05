@@ -7,6 +7,7 @@
 
 
 
+import { JavaObject } from "jree";
 import { CharStream } from "./CharStream";
 import { CommonToken } from "./CommonToken";
 import { TokenFactory } from "./TokenFactory";
@@ -15,14 +16,13 @@ import { Interval } from "./misc/Interval";
 import { Pair } from "./misc/Pair";
 
 
-import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 
 /**
  * This default implementation of {@link TokenFactory} creates
  * {@link CommonToken} objects.
  */
-export  class CommonTokenFactory extends JavaObject implements TokenFactory<CommonToken> {
+export class CommonTokenFactory extends JavaObject implements TokenFactory<CommonToken> {
 	/**
 	 * The default {@link CommonTokenFactory} instance.
 	 *
@@ -30,7 +30,7 @@ export  class CommonTokenFactory extends JavaObject implements TokenFactory<Comm
 	 * This token factory does not explicitly copy token text when constructing
 	 * tokens.</p>
 	 */
-	public static readonly  DEFAULT:  TokenFactory<CommonToken> | null = new  CommonTokenFactory();
+	public readonly  DEFAULT:  TokenFactory<CommonToken> | null = new  CommonTokenFactory();
 
 	/**
 	 * Indicates whether {@link CommonToken#setText} should be called after
@@ -103,7 +103,7 @@ const text = textOrType as java.lang.String;
 	{
 let source = typeOrSource as Pair<TokenSource, CharStream>;
 let type = textOrType as number;
-		let  t: CommonToken = new  CommonToken(source, type, channel, start, stop);
+		 let  t: CommonToken = new  CommonToken(source, type, channel, start, stop);
 		t.setLine(line);
 		t.setCharPositionInLine(charPositionInLine);
 		if ( text!==null ) {

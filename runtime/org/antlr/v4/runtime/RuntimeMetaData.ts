@@ -5,10 +5,9 @@
  */
 
 
+import { JavaObject,S } from "jree";
 
 
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -40,7 +39,7 @@ import { S } from "../../../../../lib/templates";
  *
  *
  */
-export  class RuntimeMetaData extends JavaObject {
+export class RuntimeMetaData extends JavaObject {
 	/**
 	 * A compile-time constant containing the current version of the ANTLR 4
 	 * runtime library.
@@ -72,7 +71,7 @@ export  class RuntimeMetaData extends JavaObject {
 	 * omitted.</li>
 	 * </ul>
 	 */
-	public static readonly  VERSION:  java.lang.String | null = S`4.11.2-SNAPSHOT`;
+	public readonly  VERSION:  java.lang.String | null = S`4.11.2-SNAPSHOT`;
 
 	/**
 	 * Gets the currently executing version of the ANTLR 4 runtime library.
@@ -81,10 +80,10 @@ export  class RuntimeMetaData extends JavaObject {
 	 * This method provides runtime access to the {@link #VERSION} field, as
 	 * opposed to directly referencing the field as a compile-time constant.</p>
 	 *
-	  @returns The currently executing version of the ANTLR 4 library
+	 * @returns The currently executing version of the ANTLR 4 library
 	 */
 
-	public static getRuntimeVersion = ():  java.lang.String | null => {
+	public getRuntimeVersion = ():  java.lang.String | null => {
 		return RuntimeMetaData.VERSION;
 	}
 
@@ -146,10 +145,10 @@ export  class RuntimeMetaData extends JavaObject {
 	 * compiled against. This should always be passed using a direct reference
 	 * to {@link #VERSION}.
 	 */
-	public static checkVersion = (generatingToolVersion: java.lang.String| null, compileTimeVersion: java.lang.String| null):  void => {
-		let  runtimeVersion: java.lang.String = RuntimeMetaData.VERSION;
-		let  runtimeConflictsWithGeneratingTool: boolean = false;
-		let  runtimeConflictsWithCompileTimeTool: boolean = false;
+	public checkVersion = (generatingToolVersion: java.lang.String| null, compileTimeVersion: java.lang.String| null):  void => {
+		 let  runtimeVersion: java.lang.String = RuntimeMetaData.VERSION;
+		 let  runtimeConflictsWithGeneratingTool: boolean = false;
+		 let  runtimeConflictsWithCompileTimeTool: boolean = false;
 
 		if ( generatingToolVersion!==null ) {
 			runtimeConflictsWithGeneratingTool =
@@ -177,14 +176,14 @@ export  class RuntimeMetaData extends JavaObject {
 	 * E.g., from x.y.z return x.y.
 	 *
 	 * @param version The complete version string.
-	  @returns A string of the form <em>major</em>.<em>minor</em> containing
+	 * @returns A string of the form <em>major</em>.<em>minor</em> containing
 	 * only the major and minor components of the version string.
 	 */
-	public static getMajorMinorVersion = (version: java.lang.String| null):  java.lang.String | null => {
-		let  firstDot: number = version.indexOf('.');
-		let  secondDot: number = firstDot >= 0 ? version.indexOf('.', firstDot + 1) : -1;
-		let  firstDash: number = version.indexOf('-');
-		let  referenceLength: number = version.length();
+	public getMajorMinorVersion = (version: java.lang.String| null):  java.lang.String | null => {
+		 let  firstDot: number = version.indexOf('.');
+		 let  secondDot: number = firstDot >= 0 ? version.indexOf('.', firstDot + 1) : -1;
+		 let  firstDash: number = version.indexOf('-');
+		 let  referenceLength: number = version.length();
 		if (secondDot >= 0) {
 			referenceLength = Math.min(referenceLength, secondDot);
 		}

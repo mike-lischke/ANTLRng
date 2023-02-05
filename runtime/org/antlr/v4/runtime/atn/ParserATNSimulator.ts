@@ -8,7 +8,8 @@
 
 /* eslint-disable no-underscore-dangle, @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S } from "jree";
+
 import { ActionTransition } from "./ActionTransition";
 import { ATN } from "./ATN";
 import { ATNConfig } from "./ATNConfig";
@@ -48,8 +49,6 @@ import { DoubleKeyMap } from "../misc/DoubleKeyMap";
 import { Interval } from "../misc/Interval";
 import { IntervalSet } from "../misc/IntervalSet";
 import { Pair } from "../misc/Pair";
-
-import { S } from "../../../../../../lib/templates";
 
 /**
  * The embodiment of the adaptive LL(*), ALL(*), parsing strategy.

@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { Parser } from "./Parser";
 import { Recognizer } from "./Recognizer";
 import { ATN } from "./atn/ATN";
@@ -17,7 +17,7 @@ import { RuleNode } from "./tree/RuleNode";
 import { Trees } from "./tree/Trees";
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
+
 import { ATNSimulator } from "./atn";
 import { Token } from "./Token";
 

@@ -7,13 +7,12 @@
 
 
 
+import { JavaObject,S } from "jree";
 import { CharStream } from "../../CharStream";
 import { Token } from "../../Token";
 import { TokenSource } from "../../TokenSource";
 
 
-import { JavaObject } from "../../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../../lib/templates";
 
 
 /**
@@ -21,7 +20,7 @@ import { S } from "../../../../../../../lib/templates";
  * rule; e.g., {@code <expr>}. These tokens are created for {@link TagChunk}
  * chunks where the tag corresponds to a parser rule.
  */
-export  class RuleTagToken extends JavaObject extends  Token {
+export class RuleTagToken extends JavaObject implements Token {
 	/**
 	 * This is the backing field for {@link #getRuleName}.
 	 */
@@ -90,21 +89,21 @@ $this(ruleName, bypassTokenType, label);
 	/**
 	 * Gets the name of the rule associated with this rule tag.
 	 *
-	  @returns The name of the parser rule associated with this rule tag.
+	 * @returns The name of the parser rule associated with this rule tag.
 	 */
 
-	public readonly  getRuleName = ():  java.lang.String | null => {
+	public readonly getRuleName = ():  java.lang.String | null => {
 		return this.ruleName;
 	}
 
 	/**
 	 * Gets the label associated with the rule tag.
 	 *
-	  @returns The name of the label associated with the rule tag, or
+	 * @returns The name of the label associated with the rule tag, or
 	 * {@code null} if this is an unlabeled rule tag.
 	 */
 
-	public readonly  getLabel = ():  java.lang.String | null => {
+	public readonly getLabel = ():  java.lang.String | null => {
 		return this.label;
 	}
 

@@ -8,11 +8,8 @@
 
 /* eslint-disable @typescript-eslint/naming-convention, no-underscore-dangle */
 
-import { java } from "../../../../../lib/java/java";
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
+import { java, S, JavaObject } from "jree";
 
-import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { ANTLRErrorStrategy } from "./ANTLRErrorStrategy";
 import { DefaultErrorStrategy } from "./DefaultErrorStrategy";
 import { IntStream } from "./IntStream";
@@ -27,13 +24,10 @@ import { TokenStream } from "./TokenStream";
 import { ATN } from "./atn/ATN";
 import { ATNDeserializationOptions } from "./atn/ATNDeserializationOptions";
 import { ATNDeserializer } from "./atn/ATNDeserializer";
-import { ATNState } from "./atn/ATNState";
 import { ParseInfo } from "./atn/ParseInfo";
 import { ParserATNSimulator } from "./atn/ParserATNSimulator";
-import { PredictionMode } from "./atn/PredictionMode";
 import { ProfilingATNSimulator } from "./atn/ProfilingATNSimulator";
 import { RuleTransition } from "./atn/RuleTransition";
-import { DFA } from "./dfa/DFA";
 import { IntegerStack } from "./misc/IntegerStack";
 import { IntervalSet } from "./misc/IntervalSet";
 import { ErrorNode } from "./tree/ErrorNode";
@@ -174,7 +168,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
     public reset = (): void => {
         this.getInputStream()?.seek(0);
 
-        this._errHandler.reset(this);
+        this._errHandler?.reset(this);
         this._ctx = null;
         this._syntaxErrors = 0;
         this.matchedEOF = false;
@@ -204,16 +198,16 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * {@code ttype} and the error strategy could not recover from the
      * mismatched symbol
      */
-    public match = (ttype: number): Token | null => {
+    public match = (ttype: number): Token => {
         let t = this.getCurrentToken();
         if (t?.getType() === ttype) {
             if (ttype === Token.EOF) {
                 this.matchedEOF = true;
             }
-            this._errHandler.reportMatch(this);
+            this._errHandler?.reportMatch(this);
             this.consume();
         } else {
-            t = this._errHandler.recoverInline(this);
+            t = this._errHandler!.recoverInline(this);
             if (this._buildParseTrees && t?.getTokenIndex() === -1) {
                 // we must have conjured up a new token during single token insertion
                 // if it's not the current symbol
@@ -242,13 +236,13 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * a wildcard and the error strategy could not recover from the mismatched
      * symbol
      */
-    public matchWildcard = (): Token | null => {
+    public matchWildcard = (): Token => {
         let t = this.getCurrentToken();
         if (t && t.getType() > 0) {
-            this._errHandler.reportMatch(this);
+            this._errHandler?.reportMatch(this);
             this.consume();
         } else {
-            t = this._errHandler.recoverInline(this);
+            t = this._errHandler!.recoverInline(this);
             if (this._buildParseTrees && t && t.getTokenIndex() === -1) {
                 // we must have conjured up a new token during single token insertion
                 // if it's not the current symbol
@@ -416,7 +410,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
     /**
      * Tell our token source and error strategy about a new way to create tokens.
      *
-     * @param factory
+     * @param factory tbd
      */
     public setTokenFactory = (factory: TokenFactory<Token> | null): void => {
         if (this._input) {
@@ -546,8 +540,8 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         const line = offendingToken?.getLine() ?? -1;
         const charPositionInLine = offendingToken?.getCharPositionInLine() ?? -1;
 
-        const listener: ANTLRErrorListener = this.getErrorListenerDispatch();
-        listener.syntaxError(this, offendingToken, line, charPositionInLine, message ?? S``, e);
+        const listener = this.getErrorListenerDispatch();
+        listener.syntaxError(this, offendingToken, line, charPositionInLine, message ?? S``, e ?? null);
     }
 
     /**
@@ -855,7 +849,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      *
      * @returns tbd
      */
-    public getExpectedTokens = (): IntervalSet | null => {
+    public getExpectedTokens = (): IntervalSet => {
         return this.getATN().getExpectedTokens(this.getState(), this.getContext());
     };
 
@@ -1009,17 +1003,17 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * During a parse is sometimes useful to listen in on the rule entry and exit
      *  events as well as token matches. This is for quick and dirty debugging.
      *
-     * @param trace
+     * @param trace tbd
      */
     public setTrace = (trace: boolean): void => {
         if (!trace) {
-            this.removeParseListener(this._tracer);
+            this.removeParseListener(this._tracer as unknown as ParseTreeListener);
             this._tracer = null;
         } else {
             if (this._tracer !== null) {
-                this.removeParseListener(this._tracer);
+                this.removeParseListener(this._tracer as unknown as ParseTreeListener);
             } else {
-                this._tracer = new TraceListener();
+                this._tracer = new this.TraceListener();
             }
 
             this.addParseListener(this._tracer);
@@ -1052,9 +1046,11 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * @see #addParseListener
      */
     protected triggerEnterRuleEvent = (): void => {
-        for (const listener of this._parseListeners) {
-            listener.enterEveryRule(this._ctx);
-            this._ctx.enterRule(listener);
+        if (this._parseListeners) {
+            for (const listener of this._parseListeners) {
+                listener.enterEveryRule(this._ctx!);
+                this._ctx!.enterRule(listener);
+            }
         }
     };
 
@@ -1065,10 +1061,12 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      */
     protected triggerExitRuleEvent = (): void => {
         // reverse order walk of listeners
-        for (let i: number = this._parseListeners.size() - 1; i >= 0; i--) {
-            const listener: ParseTreeListener = this._parseListeners.get(i);
-            this._ctx.exitRule(listener);
-            listener.exitEveryRule(this._ctx);
+        if (this._parseListeners) {
+            for (let i = this._parseListeners.size() - 1; i >= 0; i--) {
+                const listener = this._parseListeners.get(i);
+                this._ctx!.exitRule(listener);
+                listener.exitEveryRule(this._ctx!);
+            }
         }
     };
 
@@ -1076,6 +1074,6 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace Parser {
-    export type TraceListener = InstanceType<Parser.TraceListener>;
+    export type TraceListener = InstanceType<Parser["TraceListener"]>;
     export type TrimToSizeListener = InstanceType<typeof Parser.TrimToSizeListener>;
 }

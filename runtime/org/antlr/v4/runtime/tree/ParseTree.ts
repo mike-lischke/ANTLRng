@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
 import { SyntaxTree } from "./SyntaxTree";
 import { Parser } from "../Parser";

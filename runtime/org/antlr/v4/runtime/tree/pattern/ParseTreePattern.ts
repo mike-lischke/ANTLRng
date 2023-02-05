@@ -7,21 +7,20 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { JavaObject,java } from "jree";
 import { ParseTreeMatch } from "./ParseTreeMatch";
 import { ParseTreePatternMatcher } from "./ParseTreePatternMatcher";
 import { ParseTree } from "../ParseTree";
 import { XPath } from "../xpath/XPath";
 
 
-import { JavaObject } from "../../../../../../../lib/java/lang/Object";
 
 
 /**
  * A pattern like {@code <ID> = <expr>;} converted to a {@link ParseTree} by
  * {@link ParseTreePatternMatcher#compile(String, int)}.
  */
-export  class ParseTreePattern extends JavaObject {
+export class ParseTreePattern extends JavaObject {
 	/**
 	 * This is the backing field for {@link #getPatternRuleIndex()}.
 	 */
@@ -69,7 +68,7 @@ this.matcher = matcher;
 	 * Match a specific parse tree against this tree pattern.
 	 *
 	 * @param tree The parse tree to match against this tree pattern.
-	  @returns A {@link ParseTreeMatch} object describing the result of the
+	 * @returns A {@link ParseTreeMatch} object describing the result of the
 	 * match operation. The {@link ParseTreeMatch#succeeded()} method can be
 	 * used to determine whether or not the match was successful.
 	 */
@@ -82,7 +81,7 @@ this.matcher = matcher;
 	 * Determine whether or not a parse tree matches this tree pattern.
 	 *
 	 * @param tree The parse tree to match against this tree pattern.
-	  @returns {@code true} if {@code tree} is a match for the current tree
+	 * @returns `true` if {@code tree} is a match for the current tree
 	 * pattern; otherwise, {@code false}.
 	 */
 	public matches = (tree: ParseTree| null):  boolean => {
@@ -96,16 +95,16 @@ this.matcher = matcher;
 	 * @param tree The {@link ParseTree} to match against this pattern.
 	 * @param xpath An expression matching the nodes
 	 *
-	  @returns A collection of {@link ParseTreeMatch} objects describing the
+	 * @returns A collection of {@link ParseTreeMatch} objects describing the
 	 * successful matches. Unsuccessful matches are omitted from the result,
 	 * regardless of the reason for the failure.
 	 */
 
 	public findAll = (tree: ParseTree| null, xpath: java.lang.String| null):  java.util.List<ParseTreeMatch> | null => {
-		let  subtrees: java.util.Collection<ParseTree> = XPath.findAll(tree, xpath, this.matcher.getParser());
-		let  matches: java.util.List<ParseTreeMatch> = new  java.util.ArrayList<ParseTreeMatch>();
+		 let  subtrees: java.util.Collection<ParseTree> = XPath.findAll(tree, xpath, this.matcher.getParser());
+		 let  matches: java.util.List<ParseTreeMatch> = new  java.util.ArrayList<ParseTreeMatch>();
 		for (let t of subtrees) {
-			let  match: ParseTreeMatch = match(t);
+			 let  match: ParseTreeMatch = match(t);
 			if ( match.succeeded() ) {
 				matches.add(match);
 			}
@@ -116,7 +115,7 @@ this.matcher = matcher;
 	/**
 	 * Get the {@link ParseTreePatternMatcher} which created this tree pattern.
 	 *
-	  @returns The {@link ParseTreePatternMatcher} which created this tree
+	 * @returns The {@link ParseTreePatternMatcher} which created this tree
 	 * pattern.
 	 */
 
@@ -127,7 +126,7 @@ this.matcher = matcher;
 	/**
 	 * Get the tree pattern in concrete syntax form.
 	 *
-	  @returns The tree pattern in concrete syntax form.
+	 * @returns The tree pattern in concrete syntax form.
 	 */
 
 	public getPattern = ():  java.lang.String | null => {
@@ -138,7 +137,7 @@ this.matcher = matcher;
 	 * Get the parser rule which serves as the outermost rule for the tree
 	 * pattern.
 	 *
-	  @returns The parser rule which serves as the outermost rule for the tree
+	 * @returns The parser rule which serves as the outermost rule for the tree
 	 * pattern.
 	 */
 	public getPatternRuleIndex = ():  number => {
@@ -150,7 +149,7 @@ this.matcher = matcher;
 	 * the pattern are present in the parse tree as terminal nodes with a symbol
 	 * of type {@link RuleTagToken} or {@link TokenTagToken}.
 	 *
-	  @returns The tree pattern as a {@link ParseTree}.
+	 * @returns The tree pattern as a {@link ParseTree}.
 	 */
 
 	public getPatternTree = ():  ParseTree | null => {

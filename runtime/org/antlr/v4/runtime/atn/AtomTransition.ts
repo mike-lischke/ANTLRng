@@ -6,7 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java } from "jree";
+
 import { ATNState } from "./ATNState";
 import { Transition } from "./Transition";
 import { IntervalSet } from "../misc/IntervalSet";

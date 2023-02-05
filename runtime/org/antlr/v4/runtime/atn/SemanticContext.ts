@@ -8,13 +8,11 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
+
 import { Recognizer } from "../Recognizer";
 import { RuleContext } from "../RuleContext";
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 import { ATNSimulator } from "./ATNSimulator";
 import { Token } from "../Token";
 

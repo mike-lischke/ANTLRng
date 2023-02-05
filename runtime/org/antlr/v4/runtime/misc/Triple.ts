@@ -5,15 +5,14 @@
  */
 
 
+import { JavaObject,S } from "jree";
+import { MurmurHash } from "./MurmurHash";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 
-export  class Triple<A,B,C> extends JavaObject {
+export class Triple<A,B,C> extends JavaObject {
 	public readonly  a:  A | null;
 	public readonly  b:  B | null;
 	public readonly  c:  C | null;
@@ -36,14 +35,14 @@ this.a = a;
 }
 
 
-		let  other: Triple<unknown, unknown, unknown> = obj as Triple<unknown, unknown, unknown>;
+		 let  other: Triple<unknown, unknown, unknown> = obj as Triple<unknown, unknown, unknown>;
 		return ObjectEqualityComparator.INSTANCE.equals(this.a, other.a)
 			&& ObjectEqualityComparator.INSTANCE.equals(this.b, other.b)
 			&& ObjectEqualityComparator.INSTANCE.equals(this.c, other.c);
 	}
 
 	public hashCode = ():  number => {
-		let  hash: number = MurmurHash.initialize();
+		 let  hash: number = MurmurHash.initialize();
 		hash = MurmurHash.update(hash, this.a);
 		hash = MurmurHash.update(hash, this.b);
 		hash = MurmurHash.update(hash, this.c);

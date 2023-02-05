@@ -9,8 +9,7 @@
 import { ATNState } from "./ATNState";
 import { Transition } from "./Transition";
 
-import { S } from "../../../../../../lib/templates";
-import { java } from "../../../../../../lib/java/java";
+import { java, S } from "jree";
 
 export class EpsilonTransition extends Transition {
 

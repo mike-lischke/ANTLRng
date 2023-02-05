@@ -36,7 +36,7 @@ import { TokenSource } from "./TokenSource";
  * such a rule will not be available as part of the token stream, regardless of
  * channel.</p>we
  */
-export  class CommonTokenStream extends BufferedTokenStream {
+export class CommonTokenStream extends BufferedTokenStream {
 	/**
 	 * Specifies the channel to use for filtering tokens.
 	 *
@@ -44,7 +44,7 @@ export  class CommonTokenStream extends BufferedTokenStream {
 	 * The default value is {@link Token#DEFAULT_CHANNEL}, which matches the
 	 * default channel assigned to tokens created by the lexer.</p>
 	 */
-    protected channel:  number = Token.DEFAULT_CHANNEL;
+    protected  channel:  number = Token.DEFAULT_CHANNEL;
 
 	/**
 	 * Constructs a new {@link CommonTokenStream} using the specified token
@@ -95,8 +95,8 @@ $this(tokenSource, channel);
 }
 
 
-        let  i: number = this.p;
-        let  n: number = 1;
+         let  i: number = this.p;
+         let  n: number = 1;
         // find k good tokens looking backwards
         while ( n<=k && i>0 ) {
             // skip off-channel tokens
@@ -121,8 +121,8 @@ $this(tokenSource, channel);
  return this.LB(-k);
 }
 
-        let  i: number = this.p;
-        let  n: number = 1; // we know tokens[p] is a good one
+         let  i: number = this.p;
+         let  n: number = 1; // we know tokens[p] is a good one
         // find k good tokens
         while ( n<k ) {
             // skip off-channel tokens, but make sure to not look past EOF
@@ -137,10 +137,10 @@ $this(tokenSource, channel);
 
 	/** Count EOF just once. */
 	public getNumberOfOnChannelTokens = ():  number => {
-		let  n: number = 0;
+		 let  n: number = 0;
 		this.fill();
-		for (let  i: number = 0; i < this.tokens.size(); i++) {
-			let  t: Token = this.tokens.get(i);
+		for ( let  i: number = 0; i < this.tokens.size(); i++) {
+			 let  t: Token = this.tokens.get(i);
 			if ( t.getChannel()===this.channel ) {
  n++;
 }

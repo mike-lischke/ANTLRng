@@ -7,20 +7,18 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { java,JavaObject,S } from "jree";
 import { ParseTreePattern } from "./ParseTreePattern";
 import { MultiMap } from "../../misc/MultiMap";
 import { ParseTree } from "../ParseTree";
 
 
-import { JavaObject } from "../../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../../lib/templates";
 
 
 /**
  * Represents the result of matching a {@link ParseTree} against a tree pattern.
  */
-export  class ParseTreeMatch extends JavaObject {
+export class ParseTreeMatch extends JavaObject {
 	/**
 	 * This is the backing field for {@link #getTree()}.
 	 */
@@ -89,12 +87,12 @@ if (tree === null) {
 	 *
 	 * @param label The label to check.
 	 *
-	  @returns The last {@link ParseTree} to match a tag with the specified
+	 * @returns The last {@link ParseTree} to match a tag with the specified
 	 * label, or {@code null} if no parse tree matched a tag with the label.
 	 */
 
 	public get = (label: java.lang.String| null):  ParseTree | null => {
-		let  parseTrees: java.util.List<ParseTree> = this.labels.get(label);
+		 let  parseTrees: java.util.List<ParseTree> = this.labels.get(label);
 		if ( parseTrees===null || parseTrees.size()===0 ) {
 			return null;
 		}
@@ -121,13 +119,13 @@ if (tree === null) {
 	 *
 	 * @param label The label.
 	 *
-	  @returns A collection of all {@link ParseTree} nodes matching tags with
+	 * @returns A collection of all {@link ParseTree} nodes matching tags with
 	 * the specified {@code label}. If no nodes matched the label, an empty list
 	 * is returned.
 	 */
 
 	public getAll = (label: java.lang.String| null):  java.util.List<ParseTree> | null => {
-		let  nodes: java.util.List<ParseTree> = this.labels.get(label);
+		 let  nodes: java.util.List<ParseTree> = this.labels.get(label);
 		if ( nodes===null ) {
 			return java.util.Collections.emptyList();
 		}
@@ -142,7 +140,7 @@ if (tree === null) {
 	 * tokens referenced in tags in the original pattern. For additional
 	 * information, see the description of {@link #getAll(String)}.</p>
 	 *
-	  @returns A mapping from labels to parse tree nodes. If the parse tree
+	 * @returns A mapping from labels to parse tree nodes. If the parse tree
 	 * pattern did not contain any rule or token tags, this map will be empty.
 	 */
 
@@ -153,7 +151,7 @@ if (tree === null) {
 	/**
 	 * Get the node at which we first detected a mismatch.
 	 *
-	  @returns the node at which we first detected a mismatch, or {@code null}
+	 * @returns the node at which we first detected a mismatch, or {@code null}
 	 * if the match was successful.
 	 */
 
@@ -164,7 +162,7 @@ if (tree === null) {
 	/**
 	 * Gets a value indicating whether the match operation succeeded.
 	 *
-	  @returns {@code true} if the match operation succeeded; otherwise,
+	 * @returns `true` if the match operation succeeded; otherwise,
 	 * {@code false}.
 	 */
 	public succeeded = ():  boolean => {
@@ -174,7 +172,7 @@ if (tree === null) {
 	/**
 	 * Get the tree pattern we are matching against.
 	 *
-	  @returns The tree pattern we are matching against.
+	 * @returns The tree pattern we are matching against.
 	 */
 
 	public getPattern = ():  ParseTreePattern | null => {
@@ -184,7 +182,7 @@ if (tree === null) {
 	/**
 	 * Get the parse tree we are trying to match to a pattern.
 	 *
-	  @returns The {@link ParseTree} we are trying to match to a pattern.
+	 * @returns The {@link ParseTree} we are trying to match to a pattern.
 	 */
 
 	public getTree = ():  ParseTree | null => {

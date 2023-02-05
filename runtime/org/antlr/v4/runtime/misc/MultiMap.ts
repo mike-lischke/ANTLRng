@@ -7,15 +7,15 @@
 
 
 
-import { java } from "../../../../../../lib/java/java";
+import { java } from "jree";
 import { Pair } from "./Pair";
 
 
 
 
-export  class MultiMap<K, V> extends java.util.LinkedHashMap<K, java.util.List<V>> {
+export class MultiMap<K, V> extends java.util.LinkedHashMap<K, java.util.List<V>> {
 	public map = (key: K| null, value: V| null):  void => {
-		let  elementsForKey: java.util.List<V> = this.get(key);
+		 let  elementsForKey: java.util.List<V> = this.get(key);
 		if ( elementsForKey===null ) {
 			elementsForKey = new  java.util.ArrayList<V>();
 			super.put(key, elementsForKey);
@@ -24,7 +24,7 @@ export  class MultiMap<K, V> extends java.util.LinkedHashMap<K, java.util.List<V
 	}
 
 	public getPairs = ():  java.util.List<Pair<K,V>> | null => {
-		let  pairs: java.util.List<Pair<K,V>> = new  java.util.ArrayList<Pair<K,V>>();
+		 let  pairs: java.util.List<Pair<K,V>> = new  java.util.ArrayList<Pair<K,V>>();
 		for (let key of this.keySet()) {
 			for (let value of this.get(key)) {
 				pairs.add(new  Pair<K,V>(key, value));

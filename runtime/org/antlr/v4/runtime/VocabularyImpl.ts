@@ -6,12 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { Token } from "./Token";
 import { Vocabulary } from "./Vocabulary";
 
 import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
 
 /**
  * This class provides a default implementation of the {@link Vocabulary}

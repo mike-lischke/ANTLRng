@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { java } from "jree";
 import { XPath } from "./XPath";
 import { XPathElement } from "./XPathElement";
 import { ParseTree } from "../ParseTree";
@@ -16,7 +16,7 @@ import { Trees } from "../Trees";
 
 
 
-export  class XPathWildcardAnywhereElement extends XPathElement {
+export class XPathWildcardAnywhereElement extends XPathElement {
 	public constructor() {
 		super(XPath.WILDCARD);
 	}

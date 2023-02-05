@@ -6,12 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
-
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 export class Pair<A, B> extends JavaObject implements java.io.Serializable {
     public readonly a: A;

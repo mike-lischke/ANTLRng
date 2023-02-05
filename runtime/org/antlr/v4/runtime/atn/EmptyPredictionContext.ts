@@ -6,8 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { S } from "../../../../../../lib/templates";
-import { java } from "../../../../../../lib/java/java";
+import { java, S } from "jree";
 
 import { PredictionContext } from "./PredictionContext";
 import { SingletonPredictionContext } from "./SingletonPredictionContext";

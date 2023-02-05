@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../../../lib/java/java";
+import { java } from "jree";
 import { XPath } from "./XPath";
 import { XPathElement } from "./XPathElement";
 import { ParseTree } from "../ParseTree";
@@ -17,7 +17,7 @@ import { Trees } from "../Trees";
 
 
 
-export  class XPathWildcardElement extends XPathElement {
+export class XPathWildcardElement extends XPathElement {
 	public constructor() {
 		super(XPath.WILDCARD);
 	}
@@ -27,7 +27,7 @@ export  class XPathWildcardElement extends XPathElement {
  return new  java.util.ArrayList<ParseTree>();
 }
  // !* is weird but valid (empty)
-		let  kids: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
+		 let  kids: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
 		for (let c of Trees.getChildren(t)) {
 			kids.add(c as ParseTree);
 		}

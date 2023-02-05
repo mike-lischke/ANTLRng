@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java,S } from "jree";
 import { CharStream } from "./CharStream";
 import { Lexer } from "./Lexer";
 import { RecognitionException } from "./RecognitionException";
@@ -16,10 +16,9 @@ import { Interval } from "./misc/Interval";
 import { Utils } from "./misc/Utils";
 
 
-import { S } from "../../../../../lib/templates";
 
 
-export  class LexerNoViableAltException extends RecognitionException {
+export class LexerNoViableAltException extends RecognitionException {
 	/** Matching attempted at what input index? */
 	private readonly  startIndex:  number;
 
@@ -49,7 +48,7 @@ export  class LexerNoViableAltException extends RecognitionException {
 	}
 
 	public toString = ():  java.lang.String | null => {
-		let  symbol: java.lang.String = S``;
+		 let  symbol: java.lang.String = S``;
 		if (this.startIndex >= 0 && this.startIndex < this.getInputStream().size()) {
 			symbol = this.getInputStream().getText(Interval.of(this.startIndex,this.startIndex));
 			symbol = Utils.escapeWhitespace(symbol, false);

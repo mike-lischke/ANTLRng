@@ -7,28 +7,27 @@
 
 
 
-import { java } from "../../../../../../lib/java/java";
+import { JavaObject,java,closeResources,handleResourceError,throwResourceError,S } from "jree";
 import { Vocabulary } from "../Vocabulary";
 import { VocabularyImpl } from "../VocabularyImpl";
 import { ATN } from "../atn/ATN";
 import { ATNDeserializer } from "../atn/ATNDeserializer";
 
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
-import { closeResources, handleResourceError, throwResourceError } from "../../../../../../lib/helpers";
-import { S } from "../../../../../../lib/templates";
 
 
 // A class to read plain text interpreter data produced by ANTLR.
-export  class InterpreterDataReader extends JavaObject {
+export class InterpreterDataReader extends JavaObject {
 
-	public static InterpreterData =  class InterpreterData extends JavaObject {
+	public InterpreterData = (($outer) => {
+return  class InterpreterData extends JavaObject {
 	  protected  atn: ATN | null;
 	  protected  vocabulary: Vocabulary | null;
 	  protected  ruleNames: java.util.List<java.lang.String> | null;
 	  protected  channels: java.util.List<java.lang.String> | null; // Only valid for lexer grammars.
 	  protected  modes: java.util.List<java.lang.String> | null; // ditto
-	};
+	}
+})(this);
 ;
 
 	/**
@@ -54,8 +53,8 @@ export  class InterpreterDataReader extends JavaObject {
 	 *
 	 * Data for a parser does not contain channel and mode names.
 	 */
-	public static parseFile = (fileName: java.lang.String| null):  InterpreterDataReader.InterpreterData | null => {
-		let  result: InterpreterDataReader.InterpreterData = new  InterpreterDataReader.InterpreterData();
+	public parseFile = (fileName: java.lang.String| null):  InterpreterDataReader.InterpreterData | null => {
+		 let  result: InterpreterDataReader.InterpreterData = new  InterpreterDataReader.InterpreterData();
 		result.ruleNames = new  java.util.ArrayList<java.lang.String>();
 
 		try {
@@ -65,9 +64,9 @@ let error: java.lang.Throwable | undefined;
  const br: java.io.BufferedReader  = new  java.io.BufferedReader(new  java.io.FileReader(fileName))
 try {
 	try  {
-		    let  line: java.lang.String;
-		  	let  literalNames: java.util.List<java.lang.String> = new  java.util.ArrayList<java.lang.String>();
-		  	let  symbolicNames: java.util.List<java.lang.String> = new  java.util.ArrayList<java.lang.String>();
+		     let  line: java.lang.String;
+		  	 let  literalNames: java.util.List<java.lang.String> = new  java.util.ArrayList<java.lang.String>();
+		  	 let  symbolicNames: java.util.List<java.lang.String> = new  java.util.ArrayList<java.lang.String>();
 
 			line = br.readLine();
 			if ( !line.equals(S`token literal names:`) ) {
@@ -152,14 +151,14 @@ try {
 }
 
 			line = br.readLine();
-			let  elements: java.lang.String[] = line.substring(1,line.length()-1).split(S`,`);
-	  		let  serializedATN: Int32Array = new   Array<number>(elements.length);
+			 let  elements: java.lang.String[] = line.substring(1,line.length()-1).split(S`,`);
+	  		 let  serializedATN: Int32Array = new   Array<number>(elements.length);
 
-			for (let  i: number = 0; i < elements.length; ++i) { // ignore [...] on ends
+			for ( let  i: number = 0; i < elements.length; ++i) { // ignore [...] on ends
 				serializedATN[i] = java.lang.Integer.parseInt(elements[i].trim());
 			}
 
-		  	let  deserializer: ATNDeserializer = new  ATNDeserializer();
+		  	 let  deserializer: ATNDeserializer = new  ATNDeserializer();
 		  	result.atn = deserializer.deserialize(serializedATN);
 		}
 	finally {
@@ -186,7 +185,7 @@ if (e instanceof java.io.IOException) {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace InterpreterDataReader {
-	export type InterpreterData = InstanceType<typeof InterpreterDataReader.InterpreterData>;
+	export type InterpreterData = InstanceType<InterpreterDataReader["InterpreterData"]>;
 }
 
 

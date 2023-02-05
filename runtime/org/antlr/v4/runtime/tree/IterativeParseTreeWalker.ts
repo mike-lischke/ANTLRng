@@ -7,7 +7,7 @@
 
 
 
-import { java } from "../../../../../../lib/java/java";
+import { java } from "jree";
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeListener } from "./ParseTreeListener";
@@ -24,15 +24,15 @@ import { IntegerStack } from "../misc/IntegerStack";
  * doesn't use the thread stack but heap-based stacks. Makes it possible to
  * process deeply nested parse trees.
  */
-export  class IterativeParseTreeWalker extends ParseTreeWalker {
+export class IterativeParseTreeWalker extends ParseTreeWalker {
 
 	public walk = (listener: ParseTreeListener| null, t: ParseTree| null):  void => {
 
-		 let  nodeStack: java.util.Deque<ParseTree> = new  ArrayDeque<ParseTree>();
-		 let  indexStack: IntegerStack = new  IntegerStack();
+		  let  nodeStack: java.util.Deque<ParseTree> = new  ArrayDeque<ParseTree>();
+		  let  indexStack: IntegerStack = new  IntegerStack();
 
-		let  currentNode: ParseTree = t;
-		let  currentIndex: number = 0;
+		 let  currentNode: ParseTree = t;
+		 let  currentIndex: number = 0;
 
 		while (currentNode !== null) {
 
@@ -45,7 +45,7 @@ export  class IterativeParseTreeWalker extends ParseTreeWalker {
 				listener.visitTerminal( currentNode as TerminalNode);
 			}
 			else {
-				 let  r: RuleNode =  currentNode as RuleNode;
+				  let  r: RuleNode =  currentNode as RuleNode;
 				this.enterRule(listener, r);
 			}
 }

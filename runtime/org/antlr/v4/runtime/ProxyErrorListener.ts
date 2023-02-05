@@ -6,9 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../lib/java/java";
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
+import { java, S, JavaObject } from "jree";
 
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { Parser } from "./Parser";
@@ -39,8 +37,8 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
     }
 
     public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
-        offendingSymbol: unknown, line: number, charPositionInLine: number, msg: java.lang.String,
-        e?: RecognitionException<S, T>): void => {
+        offendingSymbol: S | null, line: number, charPositionInLine: number, msg: java.lang.String,
+        e: RecognitionException<S, T> | null): void => {
         for (const listener of this.delegates) {
             listener.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
         }
@@ -51,7 +49,7 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         startIndex: number,
         stopIndex: number,
         exact: boolean,
-        ambigAlts: java.util.BitSet,
+        ambigAlts: java.util.BitSet | null,
         configs: ATNConfigSet): void => {
         for (const listener of this.delegates) {
             listener.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs);
@@ -62,7 +60,7 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         dfa: DFA,
         startIndex: number,
         stopIndex: number,
-        conflictingAlts: java.util.BitSet,
+        conflictingAlts: java.util.BitSet | null,
         configs: ATNConfigSet): void => {
         for (const listener of this.delegates) {
             listener.reportAttemptingFullContext(recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs);

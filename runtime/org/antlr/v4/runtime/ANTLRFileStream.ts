@@ -6,7 +6,7 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { java } from "jree";
 import { ANTLRInputStream } from "./ANTLRInputStream";
 import { CharStream } from "./CharStream";
 import { Utils } from "./misc/Utils";
@@ -20,8 +20,8 @@ import { Utils } from "./misc/Utils";
  *
  * @deprecated as of 4.7 Please use {@link CharStreams} interface.
  */
-export  class ANTLRFileStream extends ANTLRInputStream {
-	protected fileName:  java.lang.String | null;
+export class ANTLRFileStream extends ANTLRInputStream {
+	protected  fileName:  java.lang.String | null;
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
 public constructor(fileName: java.lang.String| null);

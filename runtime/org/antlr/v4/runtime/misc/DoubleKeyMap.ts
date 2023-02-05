@@ -7,22 +7,21 @@
 
 
 
-import { java } from "../../../../../../lib/java/java";
+import { java,JavaObject } from "jree";
 
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 
 
 /** Sometimes we need to map a key to a value but key is two pieces of data.
  *  This nested hash table saves creating a single key each time we access
  *  map; avoids mem creation.
  */
-export  class DoubleKeyMap<Key1, Key2, Value> extends JavaObject {
+export class DoubleKeyMap<Key1, Key2, Value> extends JavaObject {
 	protected  data: java.util.Map<Key1, java.util.Map<Key2, Value>> | null = new  java.util.LinkedHashMap<Key1, java.util.Map<Key2, Value>>();
 
 	public put = (k1: Key1| null, k2: Key2| null, v: Value| null):  Value | null => {
-		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
-		let  prev: Value = null;
+		 let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		 let  prev: Value = null;
 		if ( data2===null ) {
 			data2 = new  java.util.LinkedHashMap<Key2, Value>();
 			this.data.put(k1, data2);
@@ -42,7 +41,7 @@ export  class DoubleKeyMap<Key1, Key2, Value> extends JavaObject {
 	public get(k1: Key1 | null, k2?: Key2 | null):  java.util.Map<Key2, Value> | null |  Value | null {
 if (k2 === undefined) { return this.data.get(k1); }
  else  {
-		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		 let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
 		if ( data2===null ) {
  return null;
 }
@@ -55,7 +54,7 @@ if (k2 === undefined) { return this.data.get(k1); }
 
 	/** Get all values associated with primary key */
 	public values = (k1: Key1| null):  java.util.Collection<Value> | null => {
-		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		 let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
 		if ( data2===null ) {
  return null;
 }
@@ -76,7 +75,7 @@ if (k1 === undefined) {
 		return this.data.keySet();
 	}
  else  {
-		let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
+		 let  data2: java.util.Map<Key2, Value> = this.data.get(k1);
 		if ( data2===null ) {
  return null;
 }

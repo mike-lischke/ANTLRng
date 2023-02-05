@@ -15,7 +15,8 @@
 
 /* cspell: disable */
 
-import { java } from "../../../../../lib/java/java";
+import { java, S, I, JavaObject } from "jree";
+
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { ConsoleErrorListener } from "./ConsoleErrorListener";
 import { IntStream } from "./IntStream";
@@ -31,10 +32,7 @@ import { ATNSimulator } from "./atn/ATNSimulator";
 import { ParseInfo } from "./atn/ParseInfo";
 import { Utils } from "./misc/Utils";
 
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { I, S } from "../../../../../lib/templates";
-
-export abstract class Recognizer<Symbol extends Token, ATNInterpreter extends ATNSimulator> extends JavaObject {
+export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> extends JavaObject {
     public static readonly EOF: number = -1;
 
     private static readonly tokenTypeMapCache =

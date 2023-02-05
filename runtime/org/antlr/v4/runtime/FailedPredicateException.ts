@@ -8,13 +8,12 @@
 
 /* eslint-disable no-underscore-dangle */
 
-import { java } from "../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { AbstractPredicateTransition } from "./atn/AbstractPredicateTransition";
 import { PredicateTransition } from "./atn/PredicateTransition";
 
-import { S } from "../../../../../lib/templates";
 import { Token } from "./Token";
 import { ParserATNSimulator } from "./atn";
 

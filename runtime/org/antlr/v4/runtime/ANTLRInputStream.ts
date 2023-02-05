@@ -6,13 +6,11 @@
 
 
 
-import { java } from "../../../../../lib/java/java";
+import { JavaObject,java,S } from "jree";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
 
 
-import { JavaObject } from "../../../../../lib/java/lang/Object";
-import { S } from "../../../../../lib/templates";
 
 
 /**
@@ -24,21 +22,21 @@ import { S } from "../../../../../lib/templates";
  *
  * @deprecated as of 4.7 Please use {@link CharStreams} interface.
  */
-export  class ANTLRInputStream extends JavaObject implements CharStream {
-    public static readonly  READ_BUFFER_SIZE:  number = 1024;
-   	public static readonly  INITIAL_BUFFER_SIZE:  number = 1024;
+export class ANTLRInputStream extends JavaObject implements CharStream {
+    public readonly  READ_BUFFER_SIZE:  number = 1024;
+   	public readonly  INITIAL_BUFFER_SIZE:  number = 1024;
 
 	/** The data being scanned */
-	protected data:  Uint16Array;
+	protected  data:  Uint16Array;
 
 	/** How many characters are actually in the buffer */
-	protected n:  number;
+	protected  n:  number;
 
 	/** 0..n-1 index into string of next char */
-	protected p:  number=0;
+	protected  p:  number=0;
 
 	/** What is name or source of this char stream? */
-	public name:  java.lang.String | null;
+	public  name:  java.lang.String | null;
 
     /* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
 public constructor();
@@ -135,8 +133,8 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
    			// alloc initial buffer size.
    			this.data = new   Array<number>(size);
    			// read all the data in chunks of readChunkSize
-   			let  numRead: number=0;
-   			let  p: number = 0;
+   			 let  numRead: number=0;
+   			 let  p: number = 0;
    			do {
    				if ( p+readChunkSize > this.data.length ) { // overflow?
    					// System.out.println("### overflow p="+p+", data.length="+data.length);
@@ -237,13 +235,13 @@ $this(inputOrROrData, numberOfActualCharsInArrayOrInitialSize, readChunkSize);
 	}
 
 	public getText = (interval: Interval| null):  java.lang.String | null => {
-		let  start: number = interval.a;
-		let  stop: number = interval.b;
+		 let  start: number = interval.a;
+		 let  stop: number = interval.b;
 		if ( stop >= this.n ) {
  stop = this.n-1;
 }
 
-		let  count: number = stop - start + 1;
+		 let  count: number = stop - start + 1;
 		if ( start >= this.n ) {
  return S``;
 }

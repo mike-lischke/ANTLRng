@@ -6,14 +6,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "../../../../../../lib/java/java";
+import { java, S, JavaObject, MurmurHash } from "jree";
 import { ATNConfigSet } from "../atn/ATNConfigSet";
 import { LexerActionExecutor } from "../atn/LexerActionExecutor";
 import { SemanticContext } from "../atn/SemanticContext";
 
-import { JavaObject } from "../../../../../../lib/java/lang/Object";
 import { I, S } from "../../../../../../lib/templates";
-import { MurmurHash } from "../../../../../../lib/MurmurHash";
 
 /**
  * A DFA state represents a set of possible ATN configurations.
