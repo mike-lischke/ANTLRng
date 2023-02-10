@@ -16,7 +16,6 @@ export class EmptyPredictionContext extends SingletonPredictionContext {
      * Represents {@code $} in local context prediction, which means wildcard.
      * {@code *+x = *}.
      */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly Instance = new EmptyPredictionContext();
 
     private constructor() {

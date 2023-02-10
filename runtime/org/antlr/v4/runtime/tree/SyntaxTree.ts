@@ -14,7 +14,6 @@ import { Interval } from "../misc/Interval";
  *  is some kind of syntax tree. Sub interfaces distinguish
  *  between parse trees and other kinds of syntax trees we might want to create.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface SyntaxTree extends Tree {
     /**
      * Return an {@link Interval} indicating the index in the

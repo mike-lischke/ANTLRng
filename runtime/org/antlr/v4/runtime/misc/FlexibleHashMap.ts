@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable @typescript-eslint/naming-convention */
-
 import { java, S, JavaObject, MurmurHash } from "jree";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 

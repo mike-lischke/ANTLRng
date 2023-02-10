@@ -28,11 +28,11 @@ export class IterativeParseTreeWalker extends ParseTreeWalker {
 
 	public walk = (listener: ParseTreeListener| null, t: ParseTree| null):  void => {
 
-		  let  nodeStack: java.util.Deque<ParseTree> = new  ArrayDeque<ParseTree>();
-		  let  indexStack: IntegerStack = new  IntegerStack();
+		 let  nodeStack: java.util.Deque<ParseTree> = new  ArrayDeque<ParseTree>();
+		 let  indexStack: IntegerStack = new  IntegerStack();
 
-		 let  currentNode: ParseTree = t;
-		 let  currentIndex: number = 0;
+		let  currentNode: ParseTree = t;
+		let  currentIndex: number = 0;
 
 		while (currentNode !== null) {
 
@@ -45,7 +45,7 @@ export class IterativeParseTreeWalker extends ParseTreeWalker {
 				listener.visitTerminal( currentNode as TerminalNode);
 			}
 			else {
-				  let  r: RuleNode =  currentNode as RuleNode;
+				 let  r: RuleNode =  currentNode as RuleNode;
 				this.enterRule(listener, r);
 			}
 }

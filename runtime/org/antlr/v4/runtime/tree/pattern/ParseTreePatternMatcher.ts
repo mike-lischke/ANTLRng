@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject,S,java } from "jree";
+import { JavaObject, S, java } from "jree";
 import { Chunk } from "./Chunk";
 import { ParseTreeMatch } from "./ParseTreeMatch";
 import { ParseTreePattern } from "./ParseTreePattern";
@@ -92,36 +92,32 @@ import { TerminalNode } from "../TerminalNode";
  * {@code \<} and {@code \>}.</p>
  */
 export class ParseTreePatternMatcher extends JavaObject {
-	public CannotInvokeStartRule = (($outer) => {
-return  class CannotInvokeStartRule extends java.lang.RuntimeException {
+	public static CannotInvokeStartRule =  class CannotInvokeStartRule extends java.lang.RuntimeException {
 		public constructor(e: java.lang.Throwable| null) {
 			super(e);
 		}
-	}
-})(this);
+	};
 
 
 	// Fixes https://github.com/antlr/antlr4/issues/413
 	// "Tree pattern compilation doesn't check for a complete parse"
-	public StartRuleDoesNotConsumeFullPattern = (($outer) => {
-return  class StartRuleDoesNotConsumeFullPattern extends java.lang.RuntimeException {
-	}
-})(this);
+	public static StartRuleDoesNotConsumeFullPattern =  class StartRuleDoesNotConsumeFullPattern extends java.lang.RuntimeException {
+	};
 
 
 	/**
 	 * This is the backing field for {@link #getLexer()}.
 	 */
-	private readonly  lexer:  Lexer | null;
+	private readonly lexer:  Lexer | null;
 
 	/**
 	 * This is the backing field for {@link #getParser()}.
 	 */
-	private readonly  parser:  Parser | null;
+	private readonly parser:  Parser | null;
 
-	protected  start:  java.lang.String | null = S`<`;
-	protected  stop:  java.lang.String | null = S`>`;
-	protected  escape:  java.lang.String | null = S`\\`; // e.g., \< and \> must escape BOTH!
+	protected start:  java.lang.String | null = S`<`;
+	protected stop:  java.lang.String | null = S`>`;
+	protected escape:  java.lang.String | null = S`\\`; // e.g., \< and \> must escape BOTH!
 
 	/**
 	 * Constructs a {@link ParseTreePatternMatcher} or from a {@link Lexer} and
@@ -172,12 +168,12 @@ this.lexer = lexer;
 	/** Does {@code pattern} matched as rule {@code patternRuleIndex} match {@code tree}? */
 	public matches(tree: ParseTree | null, pattern: ParseTreePattern | java.lang.String | null, patternRuleIndex?: number):  boolean {
 if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
-		 let  labels: MultiMap<java.lang.String, ParseTree> = new  MultiMap<java.lang.String, ParseTree>();
-		 let  mismatchedNode: ParseTree = this.matchImpl(tree, pattern.getPatternTree(), labels);
+		let  labels: MultiMap<java.lang.String, ParseTree> = new  MultiMap<java.lang.String, ParseTree>();
+		let  mismatchedNode: ParseTree = this.matchImpl(tree, pattern.getPatternTree(), labels);
 		return mismatchedNode === null;
 	}
  else  {
-		 let  p: ParseTreePattern = this.compile(pattern, patternRuleIndex);
+		let  p: ParseTreePattern = this.compile(pattern, patternRuleIndex);
 		return this.matches(tree, p);
 	}
 
@@ -208,12 +204,12 @@ if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
 	 */
 	public match(tree: ParseTree | null, pattern: ParseTreePattern | java.lang.String | null, patternRuleIndex?: number):  ParseTreeMatch | null {
 if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
-		 let  labels: MultiMap<java.lang.String, ParseTree> = new  MultiMap<java.lang.String, ParseTree>();
-		 let  mismatchedNode: ParseTree = this.matchImpl(tree, pattern.getPatternTree(), labels);
+		let  labels: MultiMap<java.lang.String, ParseTree> = new  MultiMap<java.lang.String, ParseTree>();
+		let  mismatchedNode: ParseTree = this.matchImpl(tree, pattern.getPatternTree(), labels);
 		return new  ParseTreeMatch(tree, pattern, labels, mismatchedNode);
 	}
  else  {
-		 let  p: ParseTreePattern = this.compile(pattern, patternRuleIndex);
+		let  p: ParseTreePattern = this.compile(pattern, patternRuleIndex);
 		return this.match(tree, p);
 	}
 
@@ -225,17 +221,17 @@ if (pattern instanceof ParseTreePattern && patternRuleIndex === undefined) {
 	 * {@link ParseTreePattern} using this method.
 	 */
 	public compile = (pattern: java.lang.String| null, patternRuleIndex: number):  ParseTreePattern | null => {
-		 let  tokenList: java.util.List< Token> = this.tokenize(pattern);
-		 let  tokenSrc: ListTokenSource = new  ListTokenSource(tokenList);
-		 let  tokens: CommonTokenStream = new  CommonTokenStream(tokenSrc);
+		let  tokenList: java.util.List< Token> = this.tokenize(pattern);
+		let  tokenSrc: ListTokenSource = new  ListTokenSource(tokenList);
+		let  tokens: CommonTokenStream = new  CommonTokenStream(tokenSrc);
 
-		 let  parserInterp: ParserInterpreter = new  ParserInterpreter(this.parser.getGrammarFileName(),
+		let  parserInterp: ParserInterpreter = new  ParserInterpreter(this.parser.getGrammarFileName(),
 															   this.parser.getVocabulary(),
 															   java.util.Arrays.asList(this.parser.getRuleNames()),
 															   this.parser.getATNWithBypassAlts(),
 															   tokens);
 
-		 let  tree: ParseTree = null;
+		let  tree: ParseTree = null;
 		try {
 			parserInterp.setErrorHandler(new  BailErrorStrategy());
 			tree = parserInterp.parse(patternRuleIndex);
@@ -313,13 +309,13 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 
 		// x and <ID>, x and y, or x and x; or could be mismatched types
 		if ( tree instanceof TerminalNode && patternTree instanceof TerminalNode ) {
-			 let  t1: TerminalNode = tree as TerminalNode;
-			 let  t2: TerminalNode = patternTree as TerminalNode;
-			 let  mismatchedNode: ParseTree = null;
+			let  t1: TerminalNode = tree as TerminalNode;
+			let  t2: TerminalNode = patternTree as TerminalNode;
+			let  mismatchedNode: ParseTree = null;
 			// both are tokens and they have same type
 			if ( t1.getSymbol().getType() === t2.getSymbol().getType() ) {
 				if ( t2.getSymbol() instanceof TokenTagToken ) { // x and <ID>
-					 let  tokenTagToken: TokenTagToken = t2.getSymbol() as TokenTagToken;
+					let  tokenTagToken: TokenTagToken = t2.getSymbol() as TokenTagToken;
 					// track label->list-of-nodes for both token name and label (if any)
 					labels.map(tokenTagToken.getTokenName(), tree);
 					if ( tokenTagToken.getLabel()!==null ) {
@@ -349,13 +345,13 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 		}
 
 		if ( tree instanceof ParserRuleContext && patternTree instanceof ParserRuleContext ) {
-			 let  r1: ParserRuleContext = tree as ParserRuleContext;
-			 let  r2: ParserRuleContext = patternTree as ParserRuleContext;
-			 let  mismatchedNode: ParseTree = null;
+			let  r1: ParserRuleContext = tree as ParserRuleContext;
+			let  r2: ParserRuleContext = patternTree as ParserRuleContext;
+			let  mismatchedNode: ParseTree = null;
 			// (expr ...) and <expr>
-			 let  ruleTagToken: RuleTagToken = this.getRuleTagToken(r2);
+			let  ruleTagToken: RuleTagToken = this.getRuleTagToken(r2);
 			if ( ruleTagToken!==null ) {
-				 let  m: ParseTreeMatch = null;
+				let  m: ParseTreeMatch = null;
 				if ( r1.getRuleContext().getRuleIndex() === r2.getRuleContext().getRuleIndex() ) {
 					// track label->list-of-nodes for both rule name and label (if any)
 					labels.map(ruleTagToken.getRuleName(), tree);
@@ -381,9 +377,9 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 				return mismatchedNode;
 			}
 
-			 let  n: number = r1.getChildCount();
-			for ( let  i: number = 0; i<n; i++) {
-				 let  childMatch: ParseTree = this.matchImpl(r1.getChild(i), patternTree.getChild(i), labels);
+			let  n: number = r1.getChildCount();
+			for (let  i: number = 0; i<n; i++) {
+				let  childMatch: ParseTree = this.matchImpl(r1.getChild(i), patternTree.getChild(i), labels);
 				if ( childMatch !== null ) {
 					return childMatch;
 				}
@@ -399,9 +395,9 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 	/** Is {@code t} {@code (expr <expr>)} subtree? */
 	protected getRuleTagToken = (t: ParseTree| null):  RuleTagToken | null => {
 		if ( t instanceof RuleNode ) {
-			 let  r: RuleNode = t as RuleNode;
+			let  r: RuleNode = t as RuleNode;
 			if ( r.getChildCount()===1 && r.getChild(0) instanceof TerminalNode ) {
-				 let  c: TerminalNode = r.getChild(0) as TerminalNode;
+				let  c: TerminalNode = r.getChild(0) as TerminalNode;
 				if ( c.getSymbol() instanceof RuleTagToken ) {
 //					System.out.println("rule tag subtree "+t.toStringTree(parser));
 					return c.getSymbol() as RuleTagToken;
@@ -413,29 +409,29 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 
 	public tokenize = (pattern: java.lang.String| null):  java.util.List< Token> | null => {
 		// split pattern into chunks: sea (raw input) and islands (<ID>, <expr>)
-		 let  chunks: java.util.List<Chunk> = this.split(pattern);
+		let  chunks: java.util.List<Chunk> = this.split(pattern);
 
 		// create token stream from text and tags
-		 let  tokens: java.util.List<Token> = new  java.util.ArrayList<Token>();
+		let  tokens: java.util.List<Token> = new  java.util.ArrayList<Token>();
 		for (let chunk of chunks) {
 			if ( chunk instanceof TagChunk ) {
-				 let  tagChunk: TagChunk = chunk as TagChunk;
+				let  tagChunk: TagChunk = chunk as TagChunk;
 				// add special rule token or conjure up new token from name
 				if ( java.lang.Character.isUpperCase(tagChunk.getTag().charAt(0)) ) {
-					 let  ttype: java.lang.Integer = this.parser.getTokenType(tagChunk.getTag());
+					let  ttype: java.lang.Integer = this.parser.getTokenType(tagChunk.getTag());
 					if ( ttype===Token.INVALID_TYPE ) {
 						throw new  java.lang.IllegalArgumentException(S`Unknown token `+tagChunk.getTag()+S` in pattern: `+pattern);
 					}
-					 let  t: TokenTagToken = new  TokenTagToken(tagChunk.getTag(), ttype, tagChunk.getLabel());
+					let  t: TokenTagToken = new  TokenTagToken(tagChunk.getTag(), ttype, tagChunk.getLabel());
 					tokens.add(t);
 				}
 				else {
  if ( java.lang.Character.isLowerCase(tagChunk.getTag().charAt(0)) ) {
-					 let  ruleIndex: number = this.parser.getRuleIndex(tagChunk.getTag());
+					let  ruleIndex: number = this.parser.getRuleIndex(tagChunk.getTag());
 					if ( ruleIndex===-1 ) {
 						throw new  java.lang.IllegalArgumentException(S`Unknown rule `+tagChunk.getTag()+S` in pattern: `+pattern);
 					}
-					 let  ruleImaginaryTokenType: number = this.parser.getATNWithBypassAlts().ruleToTokenType[ruleIndex];
+					let  ruleImaginaryTokenType: number = this.parser.getATNWithBypassAlts().ruleToTokenType[ruleIndex];
 					tokens.add(new  RuleTagToken(tagChunk.getTag(), ruleImaginaryTokenType, tagChunk.getLabel()));
 				}
 				else {
@@ -445,10 +441,10 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 
 			}
 			else {
-				 let  textChunk: TextChunk = chunk as TextChunk;
-				 let  in: ANTLRInputStream = new  ANTLRInputStream(textChunk.getText());
+				let  textChunk: TextChunk = chunk as TextChunk;
+				let  in: ANTLRInputStream = new  ANTLRInputStream(textChunk.getText());
 				this.lexer.setInputStream(in);
-				 let  t: Token = this.lexer.nextToken();
+				let  t: Token = this.lexer.nextToken();
 				while ( t.getType()!==Token.EOF ) {
 					tokens.add(t);
 					t = this.lexer.nextToken();
@@ -462,13 +458,13 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 
 	/** Split {@code <ID> = <e:expr> ;} into 4 chunks for tokenizing by {@link #tokenize}. */
 	public split = (pattern: java.lang.String| null):  java.util.List<Chunk> | null => {
-		 let  p: number = 0;
-		 let  n: number = pattern.length();
-		 let  chunks: java.util.List<Chunk> = new  java.util.ArrayList<Chunk>();
-		 let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
+		let  p: number = 0;
+		let  n: number = pattern.length();
+		let  chunks: java.util.List<Chunk> = new  java.util.ArrayList<Chunk>();
+		let  buf: java.lang.StringBuilder = new  java.lang.StringBuilder();
 		// find all start and stop indexes first, then collect
-		 let  starts: java.util.List<java.lang.Integer> = new  java.util.ArrayList<java.lang.Integer>();
-		 let  stops: java.util.List<java.lang.Integer> = new  java.util.ArrayList<java.lang.Integer>();
+		let  starts: java.util.List<java.lang.Integer> = new  java.util.ArrayList<java.lang.Integer>();
+		let  stops: java.util.List<java.lang.Integer> = new  java.util.ArrayList<java.lang.Integer>();
 		while ( p<n ) {
 			if ( p === pattern.indexOf(this.escape+this.start,p) ) {
 				p += this.escape.length() + this.start.length();
@@ -509,8 +505,8 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 			throw new  java.lang.IllegalArgumentException(S`missing start tag in pattern: `+pattern);
 		}
 
-		 let  ntags: number = starts.size();
-		for ( let  i: number=0; i<ntags; i++) {
+		let  ntags: number = starts.size();
+		for (let  i: number=0; i<ntags; i++) {
 			if ( starts.get(i)>=stops.get(i) ) {
 				throw new  java.lang.IllegalArgumentException(S`tag delimiters out of order in pattern: `+pattern);
 			}
@@ -518,20 +514,20 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 
 		// collect into chunks now
 		if ( ntags===0 ) {
-			 let  text: java.lang.String = pattern.substring(0, n);
+			let  text: java.lang.String = pattern.substring(0, n);
 			chunks.add(new  TextChunk(text));
 		}
 
 		if ( ntags>0 && starts.get(0)>0 ) { // copy text up to first tag into chunks
-			 let  text: java.lang.String = pattern.substring(0, starts.get(0));
+			let  text: java.lang.String = pattern.substring(0, starts.get(0));
 			chunks.add(new  TextChunk(text));
 		}
-		for ( let  i: number=0; i<ntags; i++) {
+		for (let  i: number=0; i<ntags; i++) {
 			// copy inside of <tag>
-			 let  tag: java.lang.String = pattern.substring(starts.get(i) + this.start.length(), stops.get(i));
-			 let  ruleOrToken: java.lang.String = tag;
-			 let  label: java.lang.String = null;
-			 let  colon: number = tag.indexOf(':');
+			let  tag: java.lang.String = pattern.substring(starts.get(i) + this.start.length(), stops.get(i));
+			let  ruleOrToken: java.lang.String = tag;
+			let  label: java.lang.String = null;
+			let  colon: number = tag.indexOf(':');
 			if ( colon >= 0 ) {
 				label = tag.substring(0,colon);
 				ruleOrToken = tag.substring(colon+1, tag.length());
@@ -539,24 +535,24 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 			chunks.add(new  TagChunk(label, ruleOrToken));
 			if ( i+1 < ntags ) {
 				// copy from end of <tag> to start of next
-				 let  text: java.lang.String = pattern.substring(stops.get(i) + this.stop.length(), starts.get(i + 1));
+				let  text: java.lang.String = pattern.substring(stops.get(i) + this.stop.length(), starts.get(i + 1));
 				chunks.add(new  TextChunk(text));
 			}
 		}
 		if ( ntags>0 ) {
-			 let  afterLastTag: number = stops.get(ntags - 1) + this.stop.length();
+			let  afterLastTag: number = stops.get(ntags - 1) + this.stop.length();
 			if ( afterLastTag < n ) { // copy text from end of last tag to end
-				 let  text: java.lang.String = pattern.substring(afterLastTag, n);
+				let  text: java.lang.String = pattern.substring(afterLastTag, n);
 				chunks.add(new  TextChunk(text));
 			}
 		}
 
 		// strip out the escape sequences from text chunks but not tags
-		for ( let  i: number = 0; i < chunks.size(); i++) {
-			 let  c: Chunk = chunks.get(i);
+		for (let  i: number = 0; i < chunks.size(); i++) {
+			let  c: Chunk = chunks.get(i);
 			if ( c instanceof TextChunk ) {
-				 let  tc: TextChunk = c as TextChunk;
-				 let  unescaped: java.lang.String = tc.getText().replace(this.escape, S``);
+				let  tc: TextChunk = c as TextChunk;
+				let  unescaped: java.lang.String = tc.getText().replace(this.escape, S``);
 				if (unescaped.length() < tc.getText().length()) {
 					chunks.set(i, new  TextChunk(unescaped));
 				}
@@ -569,8 +565,8 @@ throw new  ParseTreePatternMatcher.CannotInvokeStartRule(e);
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace ParseTreePatternMatcher {
-	export type CannotInvokeStartRule = InstanceType<ParseTreePatternMatcher["CannotInvokeStartRule"]>;
-	export type StartRuleDoesNotConsumeFullPattern = InstanceType<ParseTreePatternMatcher["StartRuleDoesNotConsumeFullPattern"]>;
+	export type CannotInvokeStartRule = InstanceType<typeof ParseTreePatternMatcher.CannotInvokeStartRule>;
+	export type StartRuleDoesNotConsumeFullPattern = InstanceType<typeof ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern>;
 }
 
 

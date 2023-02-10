@@ -14,7 +14,7 @@
  *
  * @author Sam Harwell
  */
-export abstract class EqualityComparator<T> {
+export interface EqualityComparator<T> {
 
     /**
      * This method returns a hash code for the specified object.
@@ -22,7 +22,7 @@ export abstract class EqualityComparator<T> {
      * @param obj The object.
      * @returns The hash code for {@code obj}.
      */
-    public abstract hashCode: (obj: T) => number;
+    hashCode: (obj: T) => number;
 
     /**
      * This method tests if two objects are equal.
@@ -32,6 +32,6 @@ export abstract class EqualityComparator<T> {
      *
      * @returns True if `a` equals `b`, otherwise false.
      */
-    public abstract equals: (a: T, b: T) => boolean;
+    equals: (a: T, b: T) => boolean;
 
 }

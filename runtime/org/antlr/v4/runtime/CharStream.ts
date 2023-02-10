@@ -12,7 +12,6 @@ import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
 
 /** A source of characters for an ANTLR lexer. */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface CharStream extends IntStream {
     /**
      * This method returns the text for a range of characters within this input
@@ -39,6 +38,5 @@ export namespace CharStream {
      * The value returned by {@link #LA LA()} when the end of the stream is
      * reached.
      */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     export const EOF = IntStream.EOF;
 }

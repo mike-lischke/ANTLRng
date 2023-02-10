@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable no-underscore-dangle, @typescript-eslint/naming-convention */
+/* eslint-disable no-underscore-dangle */
 
 import { java, S } from "jree";
 
@@ -397,6 +397,7 @@ export class ParserATNSimulator extends ATNSimulator {
 
             if (s0 === null) {
                 const fullCtx = false;
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 let s0_closure = this.computeStartState(dfa.atnStartState, ParserRuleContext.EMPTY, fullCtx);
 
                 if (dfa.isPrecedenceDfa()) {
@@ -608,12 +609,12 @@ export class ParserATNSimulator extends ATNSimulator {
         let t = input.LA(1);
 
         while (true) { // while more work
-            let D = this.getExistingTargetState(previousD, t);
-            if (D === null) {
-                D = this.computeTargetState(dfa, previousD, t);
+            let state = this.getExistingTargetState(previousD, t);
+            if (state === null) {
+                state = this.computeTargetState(dfa, previousD, t);
             }
 
-            if (D === ATNSimulator.ERROR) {
+            if (state === ATNSimulator.ERROR) {
                 // if any configs in previous dipped into outer context, that
                 // means that input up to t actually finished entry rule
                 // at least for SLL decision. Full LL doesn't dip into outer
@@ -633,10 +634,10 @@ export class ParserATNSimulator extends ATNSimulator {
                 throw e;
             }
 
-            if (D.requiresFullContext && this.mode !== PredictionMode.SLL) {
+            if (state.requiresFullContext && this.mode !== PredictionMode.SLL) {
                 // IF PREDS, MIGHT RESOLVE TO SINGLE ALT => SLL (or syntax error)
-                let conflictingAlts = D.configs.conflictingAlts;
-                if (D.predicates !== null) {
+                let conflictingAlts = state.configs.conflictingAlts;
+                if (state.predicates !== null) {
                     if (ParserATNSimulator.debug) {
                         java.lang.System.out.println(S`DFA state has preds in DFA sim LL failover`);
                     }
@@ -646,7 +647,7 @@ export class ParserATNSimulator extends ATNSimulator {
                         input.seek(startIndex);
                     }
 
-                    conflictingAlts = this.evalSemanticContext(D.predicates, outerContext, true);
+                    conflictingAlts = this.evalSemanticContext(state.predicates, outerContext, true);
                     if (conflictingAlts.cardinality() === 1) {
                         if (ParserATNSimulator.debug) {
                             java.lang.System.out.println(S`Full LL avoided`);
@@ -663,30 +664,30 @@ export class ParserATNSimulator extends ATNSimulator {
                 }
 
                 if (ParserATNSimulator.dfa_debug) {
-                    java.lang.System.out.println(S`ctx sensitive state${outerContext} in ${D}`);
+                    java.lang.System.out.println(S`ctx sensitive state${outerContext} in ${state}`);
                 }
 
                 const fullCtx = true;
                 const s0_closure = this.computeStartState(dfa.atnStartState, outerContext, fullCtx);
-                this.reportAttemptingFullContext(dfa, conflictingAlts, D.configs, startIndex, input.index());
-                const alt: number = this.execATNWithFullContext(dfa, D, s0_closure,
+                this.reportAttemptingFullContext(dfa, conflictingAlts, state.configs, startIndex, input.index());
+                const alt: number = this.execATNWithFullContext(dfa, state, s0_closure,
                     input, startIndex,
                     outerContext);
 
                 return alt;
             }
 
-            if (D.isAcceptState) {
-                if (D.predicates === null) {
-                    return D.prediction;
+            if (state.isAcceptState) {
+                if (state.predicates === null) {
+                    return state.prediction;
                 }
 
                 const stopIndex: number = input.index();
                 input.seek(startIndex);
-                const alts: java.util.BitSet = this.evalSemanticContext(D.predicates, outerContext, true);
+                const alts: java.util.BitSet = this.evalSemanticContext(state.predicates, outerContext, true);
                 switch (alts.cardinality()) {
                     case 0: {
-                        throw this.noViableAlt(input, outerContext, D.configs, startIndex);
+                        throw this.noViableAlt(input, outerContext, state.configs, startIndex);
                     }
 
                     case 1: {
@@ -696,7 +697,7 @@ export class ParserATNSimulator extends ATNSimulator {
                     default: {
                         // report ambiguity after predicate evaluation to make sure the correct
                         // set of ambig alts is reported.
-                        this.reportAmbiguity(dfa, D, startIndex, stopIndex, false, alts, D.configs);
+                        this.reportAmbiguity(dfa, state, startIndex, stopIndex, false, alts, state.configs);
 
                         return alts.nextSetBit(0);
                     }
@@ -704,7 +705,7 @@ export class ParserATNSimulator extends ATNSimulator {
                 }
             }
 
-            previousD = D;
+            previousD = state;
 
             if (t !== IntStream.EOF) {
                 input.consume();
@@ -815,7 +816,7 @@ export class ParserATNSimulator extends ATNSimulator {
 
     // comes back with reach.uniqueAlt set to a valid alt
     protected execATNWithFullContext = (dfa: DFA,
-        D: DFAState, // how far we got in SLL DFA before failing over
+        state: DFAState, // how far we got in SLL DFA before failing over
         s0: ATNConfigSet,
         input: TokenStream, startIndex: number,
         outerContext: ParserRuleContext): number => {
@@ -928,7 +929,7 @@ export class ParserATNSimulator extends ATNSimulator {
         the fact that we should predict alternative 1.  We just can't say for
         sure that there is an ambiguity without looking further.
         */
-        this.reportAmbiguity(dfa, D, startIndex, input.index(), foundExactAmbig,
+        this.reportAmbiguity(dfa, state, startIndex, input.index(), foundExactAmbig,
             reach.getAlts(), reach);
 
         return predictedAlt;
@@ -1734,6 +1735,7 @@ export class ParserATNSimulator extends ATNSimulator {
      * @param depth tbd
      * @param treatEofAsEpsilon tbd
      */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     protected closure_ = (config: ATNConfig,
         configs: ATNConfigSet,
         closureBusy: java.util.Set<ATNConfig>,
@@ -2213,41 +2215,41 @@ export class ParserATNSimulator extends ATNSimulator {
      * does not change the DFA.</p>
      *
      * @param dfa The dfa
-     * @param D The DFA state to add
+     * @param state The DFA state to add
       @returns The state stored in the DFA. This will be either the existing
      * state if {@code D} is already in the DFA, or {@code D} itself if the
      * state was not already present.
      */
-    protected addDFAState = (dfa: DFA, D: DFAState): DFAState => {
-        if (D === ATNSimulator.ERROR) {
-            return D;
+    protected addDFAState = (dfa: DFA, state: DFAState): DFAState => {
+        if (state === ATNSimulator.ERROR) {
+            return state;
         }
 
 		/* synchronized (dfa.states) */ {
-            const existing = dfa.states.get(D);
+            const existing = dfa.states.get(state);
 
             if (existing !== null) {
                 if (ParserATNSimulator.trace_atn_sim) {
-                    java.lang.System.out.println(S`addDFAState${D} exists`);
+                    java.lang.System.out.println(S`addDFAState${state} exists`);
                 }
 
                 return existing;
             }
 
-            D.stateNumber = dfa.states.size();
+            state.stateNumber = dfa.states.size();
 
-            if (!D.configs.isReadonly()) {
-                D.configs.optimizeConfigs(this);
-                D.configs.setReadonly(true);
+            if (!state.configs.isReadonly()) {
+                state.configs.optimizeConfigs(this);
+                state.configs.setReadonly(true);
             }
 
             if (ParserATNSimulator.trace_atn_sim) {
-                java.lang.System.out.println(S`addDFAState new ${D}`);
+                java.lang.System.out.println(S`addDFAState new ${state}`);
             }
 
-            dfa.states.put(D, D);
+            dfa.states.put(state, state);
 
-            return D;
+            return state;
         }
     };
 
@@ -2283,18 +2285,20 @@ export class ParserATNSimulator extends ATNSimulator {
     };
 
     /**
-     * If context sensitive parsing, we know it's ambiguity not conflict
+     * If context sensitive parsing, we know it's ambiguity not conflict if we reach here. We test by covering
+     * all possible lookahead sets. If we find any conflict, we report ambiguity. If we don't find anything,
+     * we report conflict.
      *
-     * @param dfa tbd
-     * @param D tbd
-     * @param startIndex tbd
-     * @param stopIndex tbd
-     * @param exact tbd
-     * @param ambigAlts tbd
-     * @param configs tbd
+     * @param dfa The decision DFA where the ambiguity was identified during SLL prediction.
+     * @param state The final DFA state identifying the ambiguous alternatives.
+     * @param startIndex The input index where the ambiguity was identified.
+     * @param stopIndex The input index where the ambiguity was identified.
+     * @param exact {@code true} if the ambiguity is exactly known, otherwise {@code false}.
+     * @param ambigAlts The potentially ambiguous alternatives.
+     * @param configs The ATN configuration set where the ambiguity was identified.
      */
     protected reportAmbiguity = (dfa: DFA,
-        D: DFAState | null, // the DFA state from execATN() that had SLL conflicts
+        state: DFAState | null, // the DFA state from execATN() that had SLL conflicts
         startIndex: number, stopIndex: number,
         exact: boolean,
         ambigAlts: java.util.BitSet | null,
@@ -2311,6 +2315,5 @@ export class ParserATNSimulator extends ATNSimulator {
             this.parser.getErrorListenerDispatch().reportAmbiguity(this.parser, dfa, startIndex, stopIndex,
                 exact, ambigAlts, configs);
         }
-
     };
 }

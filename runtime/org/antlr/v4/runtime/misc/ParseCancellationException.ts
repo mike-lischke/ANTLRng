@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java } from "jree";
 
 /**
  * This exception is thrown to cancel a parsing operation. This exception does

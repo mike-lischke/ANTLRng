@@ -15,7 +15,6 @@ import { java, S, JavaObject, MurmurHash } from "jree";
  * @see Recognizer#getVocabulary()
  * @author Sam Harwell
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface Vocabulary {
     /**
      * Returns the highest token type value. It can be used to iterate from

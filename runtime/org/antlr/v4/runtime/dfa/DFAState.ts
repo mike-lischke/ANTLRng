@@ -38,7 +38,6 @@ import { SemanticContext } from "../atn/SemanticContext";
  */
 export class DFAState extends JavaObject {
     /** Map a predicate to a predicted alternative. */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static PredPrediction = class PredPrediction extends JavaObject {
 
         public pred: SemanticContext; // never null; at least SemanticContext.NONE

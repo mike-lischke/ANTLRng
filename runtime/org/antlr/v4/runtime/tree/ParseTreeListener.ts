@@ -22,7 +22,6 @@ import { ParserRuleContext } from "../ParserRuleContext";
  *
  * 		https://github.com/antlr/antlr4/issues/841
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ParseTreeListener {
     visitTerminal: (node: TerminalNode) => void;
     visitErrorNode: (node: ErrorNode) => void;

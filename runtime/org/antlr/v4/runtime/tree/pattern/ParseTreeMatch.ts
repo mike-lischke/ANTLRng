@@ -7,7 +7,7 @@
 
 
 
-import { java,JavaObject,S } from "jree";
+import { java, JavaObject, S } from "jree";
 import { ParseTreePattern } from "./ParseTreePattern";
 import { MultiMap } from "../../misc/MultiMap";
 import { ParseTree } from "../ParseTree";
@@ -22,22 +22,22 @@ export class ParseTreeMatch extends JavaObject {
 	/**
 	 * This is the backing field for {@link #getTree()}.
 	 */
-	private readonly  tree:  ParseTree | null;
+	private readonly tree:  ParseTree | null;
 
 	/**
 	 * This is the backing field for {@link #getPattern()}.
 	 */
-	private readonly  pattern:  ParseTreePattern | null;
+	private readonly pattern:  ParseTreePattern | null;
 
 	/**
 	 * This is the backing field for {@link #getLabels()}.
 	 */
-	private readonly  labels:  MultiMap<java.lang.String, ParseTree> | null;
+	private readonly labels:  MultiMap<java.lang.String, ParseTree> | null;
 
 	/**
 	 * This is the backing field for {@link #getMismatchedNode()}.
 	 */
-	private readonly  mismatchedNode:  ParseTree | null;
+	private readonly mismatchedNode:  ParseTree | null;
 
 	/**
 	 * Constructs a new instance of {@link ParseTreeMatch} from the specified
@@ -92,7 +92,7 @@ if (tree === null) {
 	 */
 
 	public get = (label: java.lang.String| null):  ParseTree | null => {
-		 let  parseTrees: java.util.List<ParseTree> = this.labels.get(label);
+		let  parseTrees: java.util.List<ParseTree> = this.labels.get(label);
 		if ( parseTrees===null || parseTrees.size()===0 ) {
 			return null;
 		}
@@ -125,7 +125,7 @@ if (tree === null) {
 	 */
 
 	public getAll = (label: java.lang.String| null):  java.util.List<ParseTree> | null => {
-		 let  nodes: java.util.List<ParseTree> = this.labels.get(label);
+		let  nodes: java.util.List<ParseTree> = this.labels.get(label);
 		if ( nodes===null ) {
 			return java.util.Collections.emptyList();
 		}

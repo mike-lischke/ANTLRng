@@ -17,7 +17,6 @@ import { ATNSimulator } from "./atn";
 import { Token } from "./Token";
 
 /** How to emit recognition errors. */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ANTLRErrorListener {
     /**
      * Upon syntax error, notify any interested parties. This is not how to

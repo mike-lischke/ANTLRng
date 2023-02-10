@@ -5,7 +5,7 @@
  */
 
 
-import { java,JavaObject } from "jree";
+import { java, JavaObject } from "jree";
 import { ErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
@@ -40,15 +40,15 @@ export abstract class AbstractParseTreeVisitor<T> extends JavaObject implements 
 	 * method to behave properly in respect to the specific algorithm in use.</p>
 	 */
 	public visitChildren = (node: RuleNode| null):  T | null => {
-		 let  result: T = this.defaultResult();
-		 let  n: number = node.getChildCount();
-		for ( let  i: number=0; i<n; i++) {
+		let  result: T = this.defaultResult();
+		let  n: number = node.getChildCount();
+		for (let  i: number=0; i<n; i++) {
 			if (!this.shouldVisitNextChild(node, result)) {
 				break;
 			}
 
-			 let  c: ParseTree = node.getChild(i);
-			 let  childResult: T = c.accept(this);
+			let  c: ParseTree = node.getChild(i);
+			let  childResult: T = c.accept(this);
 			result = this.aggregateResult(result, childResult);
 		}
 

@@ -6,14 +6,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java } from "jree";
 
 /**
  * A generic set of integers.
  *
  * @see IntervalSet
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface IntSet {
     /**
      * Adds the specified value to the current set.

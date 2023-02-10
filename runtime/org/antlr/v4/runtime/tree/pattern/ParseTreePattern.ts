@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject,java } from "jree";
+import { JavaObject, java } from "jree";
 import { ParseTreeMatch } from "./ParseTreeMatch";
 import { ParseTreePatternMatcher } from "./ParseTreePatternMatcher";
 import { ParseTree } from "../ParseTree";
@@ -24,25 +24,25 @@ export class ParseTreePattern extends JavaObject {
 	/**
 	 * This is the backing field for {@link #getPatternRuleIndex()}.
 	 */
-	private readonly  patternRuleIndex:  number;
+	private readonly patternRuleIndex:  number;
 
 	/**
 	 * This is the backing field for {@link #getPattern()}.
 	 */
 
-	private readonly  pattern:  java.lang.String | null;
+	private readonly pattern:  java.lang.String | null;
 
 	/**
 	 * This is the backing field for {@link #getPatternTree()}.
 	 */
 
-	private readonly  patternTree:  ParseTree | null;
+	private readonly patternTree:  ParseTree | null;
 
 	/**
 	 * This is the backing field for {@link #getMatcher()}.
 	 */
 
-	private readonly  matcher:  ParseTreePatternMatcher | null;
+	private readonly matcher:  ParseTreePatternMatcher | null;
 
 	/**
 	 * Construct a new instance of the {@link ParseTreePattern} class.
@@ -101,10 +101,10 @@ this.matcher = matcher;
 	 */
 
 	public findAll = (tree: ParseTree| null, xpath: java.lang.String| null):  java.util.List<ParseTreeMatch> | null => {
-		 let  subtrees: java.util.Collection<ParseTree> = XPath.findAll(tree, xpath, this.matcher.getParser());
-		 let  matches: java.util.List<ParseTreeMatch> = new  java.util.ArrayList<ParseTreeMatch>();
+		let  subtrees: java.util.Collection<ParseTree> = XPath.findAll(tree, xpath, this.matcher.getParser());
+		let  matches: java.util.List<ParseTreeMatch> = new  java.util.ArrayList<ParseTreeMatch>();
 		for (let t of subtrees) {
-			 let  match: ParseTreeMatch = match(t);
+			let  match: ParseTreeMatch = match(t);
 			if ( match.succeeded() ) {
 				matches.add(match);
 			}

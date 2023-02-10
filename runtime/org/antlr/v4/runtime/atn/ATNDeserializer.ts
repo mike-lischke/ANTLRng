@@ -61,7 +61,6 @@ import { Pair } from "../misc/Pair";
  * @author Sam Harwell
  */
 export class ATNDeserializer extends JavaObject {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly SERIALIZED_VERSION = 4;
 
     private readonly deserializationOptions: ATNDeserializationOptions;

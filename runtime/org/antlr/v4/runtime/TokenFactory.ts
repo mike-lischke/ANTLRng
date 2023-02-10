@@ -17,7 +17,6 @@ import { Pair } from "./misc/Pair";
  *  the error handling strategy (to create missing tokens).  Notifying the parser
  *  of a new factory means that it notifies its token source and error strategy.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface TokenFactory<Symbol> {
     /**
      * This is the method used to create tokens in the lexer and in the

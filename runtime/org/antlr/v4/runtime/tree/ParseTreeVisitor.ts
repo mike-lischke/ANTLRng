@@ -19,7 +19,6 @@ import { TerminalNode } from "./TerminalNode";
  * Param <T>: The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ParseTreeVisitor<T> {
 
     /**

@@ -23,7 +23,7 @@ import { ParserRuleContext } from "./ParserRuleContext";
  */
 export class InterpreterRuleContext extends ParserRuleContext {
 	/** This is the backing field for {@link #getRuleIndex}. */
-	protected  ruleIndex:  number = -1;
+	protected ruleIndex:  number = -1;
 
 	public constructor();
 

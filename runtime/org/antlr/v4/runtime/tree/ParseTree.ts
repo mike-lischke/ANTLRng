@@ -20,7 +20,6 @@ import { RuleContext } from "../RuleContext";
  *
  *  <p>The payload is either a {@link Token} or a {@link RuleContext} object.</p>
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ParseTree extends SyntaxTree {
     // the following methods narrow the return type; they are not additional methods
     getParent: () => ParseTree | null;

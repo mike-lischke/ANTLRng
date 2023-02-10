@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java, S } from "jree";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { RuleContext } from "./RuleContext";
@@ -45,7 +45,6 @@ import { ParserATNSimulator } from "./atn";
  *  satisfy the superclass interface.
  */
 export class ParserRuleContext extends RuleContext {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly EMPTY: ParserRuleContext = new ParserRuleContext();
 
     /**

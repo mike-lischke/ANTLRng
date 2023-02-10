@@ -14,7 +14,6 @@ import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
  */
 export class OrderedATNConfigSet extends ATNConfigSet {
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static LexerConfigHashSet = class LexerConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
         public constructor() {
             super(ObjectEqualityComparator.INSTANCE);

@@ -20,7 +20,7 @@ exportclass TextChunk extends Chunk {
 	 * This is the backing field for {@link #getText}.
 	 */
 
-	private readonly  text:  java.lang.String | null;
+	private readonly text:  java.lang.String | null;
 
 	/**
 	 * Constructs a new instance of {@link TextChunk} with the specified text.

@@ -6,7 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface Predicate<T> {
     test: (t: T) => boolean;
 }

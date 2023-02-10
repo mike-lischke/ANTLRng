@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable no-underscore-dangle, @typescript-eslint/naming-convention */
+/* eslint-disable no-underscore-dangle */
 
 import { java } from "jree";
 import { AmbiguityInfo } from "./AmbiguityInfo";
@@ -228,14 +228,15 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         super.reportContextSensitivity(dfa, prediction, configs, startIndex, stopIndex);
     };
 
-    protected reportAmbiguity = (dfa: DFA, D: DFAState | null, startIndex: number, stopIndex: number, exact: boolean,
-        ambigAlts: java.util.BitSet | null, configs: ATNConfigSet): void => {
+    protected reportAmbiguity = (dfa: DFA, state: DFAState | null, startIndex: number, stopIndex: number,
+        exact: boolean, ambigAlts: java.util.BitSet | null, configs: ATNConfigSet): void => {
         let prediction: number;
         if (ambigAlts !== null) {
             prediction = ambigAlts.nextSetBit(0);
         } else {
             prediction = configs.getAlts().nextSetBit(0);
         }
+
         if (configs.fullCtx && prediction !== this.conflictingAltResolvedBySLL) {
             // Even though this is an ambiguity we are reporting, we can
             // still detect some context sensitivities.  Both SLL and LL
@@ -250,7 +251,7 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
             new AmbiguityInfo(this.currentDecision, configs, ambigAlts,
                 this._input, startIndex, stopIndex, configs.fullCtx),
         );
-        super.reportAmbiguity(dfa, D, startIndex, stopIndex, exact, ambigAlts, configs);
+        super.reportAmbiguity(dfa, state, startIndex, stopIndex, exact, ambigAlts, configs);
     };
 
 }

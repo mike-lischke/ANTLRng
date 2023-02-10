@@ -5,7 +5,7 @@
  */
 
 
-import { java,JavaObject } from "jree";
+import { java, JavaObject } from "jree";
 
 
 

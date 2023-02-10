@@ -26,7 +26,6 @@ export class ATNConfig extends JavaObject {
      * {@link #isPrecedenceFilterSuppressed} property as a bit within the
      * existing {@link #reachesIntoOuterContext} field.
      */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     private static readonly SUPPRESS_PRECEDENCE_FILTER: number = 0x40000000;
 
     /** The ATN state associated with this configuration */

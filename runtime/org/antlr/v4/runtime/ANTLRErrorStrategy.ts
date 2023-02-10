@@ -28,7 +28,6 @@ import { Token } from "./Token";
  *
  * <p>TODO: what to do about lexers</p>
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ANTLRErrorStrategy {
     /**
      * Reset the error handler state for the specified {@code recognizer}.

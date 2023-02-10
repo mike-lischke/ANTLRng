@@ -27,7 +27,7 @@ export class XPathWildcardElement extends XPathElement {
  return new  java.util.ArrayList<ParseTree>();
 }
  // !* is weird but valid (empty)
-		 let  kids: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
+		let  kids: java.util.List<ParseTree> = new  java.util.ArrayList<ParseTree>();
 		for (let c of Trees.getChildren(t)) {
 			kids.add(c as ParseTree);
 		}

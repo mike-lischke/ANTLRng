@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable @typescript-eslint/naming-convention */
-
 import { java, JavaObject, S } from "jree";
 
 import { ATN } from "./ATN";

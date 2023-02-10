@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject,S } from "jree";
+import { JavaObject, S } from "jree";
 import { CharStream } from "../../CharStream";
 import { Token } from "../../Token";
 import { TokenSource } from "../../TokenSource";
@@ -24,16 +24,16 @@ export class RuleTagToken extends JavaObject implements Token {
 	/**
 	 * This is the backing field for {@link #getRuleName}.
 	 */
-	private readonly  ruleName:  java.lang.String | null;
+	private readonly ruleName:  java.lang.String | null;
 	/**
 	 * The token type for the current token. This is the token type assigned to
 	 * the bypass alternative for the rule during ATN deserialization.
 	 */
-	private readonly  bypassTokenType:  number;
+	private readonly bypassTokenType:  number;
 	/**
 	 * This is the backing field for {@link #getLabel}.
 	 */
-	private readonly  label:  java.lang.String | null;
+	private readonly label:  java.lang.String | null;
 
 	/**
 	 * Constructs a new instance of {@link RuleTagToken} with the specified rule

@@ -19,7 +19,6 @@ import { JavaObject } from "../../../../../lib/java/lang/Object";
  * @author Sam Harwell
  */
 export class VocabularyImpl extends JavaObject implements Vocabulary {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     private static readonly EMPTY_NAMES: java.lang.String[] = new Array<java.lang.String>(0);
 
     /**

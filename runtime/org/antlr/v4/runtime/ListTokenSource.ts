@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject,java,S } from "jree";
+import { JavaObject, java, S } from "jree";
 import { CharStream } from "./CharStream";
 import { CommonTokenFactory } from "./CommonTokenFactory";
 import { Token } from "./Token";
@@ -30,7 +30,7 @@ export class ListTokenSource extends JavaObject implements TokenSource {
 	/**
 	 * The wrapped collection of {@link Token} objects to return.
 	 */
-	protected readonly  tokens:  java.util.List< Token> | null;
+	protected readonly tokens:  java.util.List< Token> | null;
 
 	/**
 	 * The name of the input source. If this value is {@code null}, a call to
@@ -38,25 +38,25 @@ export class ListTokenSource extends JavaObject implements TokenSource {
 	 * the next token in {@link #tokens} (or the previous token if the end of
 	 * the input has been reached).
 	 */
-	private readonly  sourceName:  java.lang.String | null;
+	private readonly sourceName:  java.lang.String | null;
 
 	/**
 	 * The index into {@link #tokens} of token to return by the next call to
 	 * {@link #nextToken}. The end of the input is indicated by this value
 	 * being greater than or equal to the number of items in {@link #tokens}.
 	 */
-	protected  i:  number;
+	protected i:  number;
 
 	/**
 	 * This field caches the EOF token for the token source.
 	 */
-	protected  eofToken:  Token | null;
+	protected eofToken:  Token | null;
 
 	/**
 	 * This is the backing field for {@link #getTokenFactory} and
 	 * {@link setTokenFactory}.
 	 */
-	private  _factory:  TokenFactory<unknown> | null = CommonTokenFactory.DEFAULT;
+	private _factory:  TokenFactory<unknown> | null = CommonTokenFactory.DEFAULT;
 
 	/**
 	 * Constructs a new {@link ListTokenSource} instance from the specified
@@ -121,10 +121,10 @@ $this(tokens, sourceName);
  if (this.tokens.size() > 0) {
 			// have to calculate the result from the line/column of the previous
 			// token, along with the text of the token.
-			 let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
-			 let  tokenText: java.lang.String = lastToken.getText();
+			let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
+			let  tokenText: java.lang.String = lastToken.getText();
 			if (tokenText !== null) {
-				 let  lastNewLine: number = tokenText.lastIndexOf('\n');
+				let  lastNewLine: number = tokenText.lastIndexOf('\n');
 				if (lastNewLine >= 0) {
 					return tokenText.length() - lastNewLine - 1;
 				}
@@ -147,22 +147,22 @@ $this(tokens, sourceName);
 	public nextToken = ():  Token | null => {
 		if (this.i >= this.tokens.size()) {
 			if (this.eofToken === null) {
-				 let  start: number = -1;
+				let  start: number = -1;
 				if (this.tokens.size() > 0) {
-					 let  previousStop: number = this.tokens.get(this.tokens.size() - 1).getStopIndex();
+					let  previousStop: number = this.tokens.get(this.tokens.size() - 1).getStopIndex();
 					if (previousStop !== -1) {
 						start = previousStop + 1;
 					}
 				}
 
-				 let  stop: number = Math.max(-1, start - 1);
+				let  stop: number = Math.max(-1, start - 1);
 				this.eofToken = this._factory.create(new  Pair<TokenSource, CharStream>(this, this.getInputStream()), Token.EOF, S`EOF`, Token.DEFAULT_CHANNEL, start, stop, this.getLine(), this.getCharPositionInLine());
 			}
 
 			return this.eofToken;
 		}
 
-		 let  t: Token = this.tokens.get(this.i);
+		let  t: Token = this.tokens.get(this.i);
 		if (this.i === this.tokens.size() - 1 && t.getType() === Token.EOF) {
 			this.eofToken = t;
 		}
@@ -185,12 +185,12 @@ $this(tokens, sourceName);
  if (this.tokens.size() > 0) {
 			// have to calculate the result from the line/column of the previous
 			// token, along with the text of the token.
-			 let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
-			 let  line: number = lastToken.getLine();
+			let  lastToken: Token = this.tokens.get(this.tokens.size() - 1);
+			let  line: number = lastToken.getLine();
 
-			 let  tokenText: java.lang.String = lastToken.getText();
+			let  tokenText: java.lang.String = lastToken.getText();
 			if (tokenText !== null) {
-				for ( let  i: number = 0; i < tokenText.length(); i++) {
+				for (let  i: number = 0; i < tokenText.length(); i++) {
 					if (tokenText.charAt(i) === '\n') {
 						line++;
 					}
@@ -240,7 +240,7 @@ $this(tokens, sourceName);
 			return this.sourceName;
 		}
 
-		 let  inputStream: CharStream = this.getInputStream();
+		let  inputStream: CharStream = this.getInputStream();
 		if (inputStream !== null) {
 			return inputStream.getSourceName();
 		}

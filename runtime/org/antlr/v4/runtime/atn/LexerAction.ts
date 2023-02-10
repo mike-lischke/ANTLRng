@@ -19,7 +19,6 @@ import { Lexer } from "../Lexer";
  * @author Sam Harwell
  *
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface LexerAction {
     /**
      * Gets the serialization type of the lexer action.

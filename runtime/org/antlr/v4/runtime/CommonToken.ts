@@ -6,7 +6,7 @@
 
 
 
-import { JavaObject,java,S } from "jree";
+import { JavaObject, java, S } from "jree";
 import { CharStream } from "./CharStream";
 import { Recognizer } from "./Recognizer";
 import { Token } from "./Token";
@@ -23,30 +23,30 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
 	 * An empty {@link Pair} which is used as the default value of
 	 * {@link #source} for tokens that do not have a source.
 	 */
-	protected readonly  EMPTY_SOURCE:  Pair<TokenSource, CharStream> | null =
+	protected static readonly EMPTY_SOURCE:  Pair<TokenSource, CharStream> | null =
 		new  Pair<TokenSource, CharStream>(null, null);
 
 	/**
 	 * This is the backing field for {@link #getType} and {@link #setType}.
 	 */
-	protected  type:  number;
+	protected type:  number;
 
 	/**
 	 * This is the backing field for {@link #getLine} and {@link #setLine}.
 	 */
-	protected  line:  number;
+	protected line:  number;
 
 	/**
 	 * This is the backing field for {@link #getCharPositionInLine} and
 	 * {@link #setCharPositionInLine}.
 	 */
-	protected  charPositionInLine:  number = -1; // set to invalid position
+	protected charPositionInLine:  number = -1; // set to invalid position
 
 	/**
 	 * This is the backing field for {@link #getChannel} and
 	 * {@link #setChannel}.
 	 */
-	protected  channel:  number=Token.DEFAULT_CHANNEL;
+	protected channel:  number=Token.DEFAULT_CHANNEL;
 
 	/**
 	 * This is the backing field for {@link #getTokenSource} and
@@ -59,7 +59,7 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
 	 * {@link Pair} containing these values.</p>
 	 */
 
-	protected  source:  Pair<TokenSource, CharStream> | null;
+	protected source:  Pair<TokenSource, CharStream> | null;
 
 	/**
 	 * This is the backing field for {@link #getText} when the token text is
@@ -67,25 +67,25 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
 	 *
 	 * @see #getText()
 	 */
-	protected  text:  java.lang.String | null;
+	protected text:  java.lang.String | null;
 
 	/**
 	 * This is the backing field for {@link #getTokenIndex} and
 	 * {@link #setTokenIndex}.
 	 */
-	protected  index:  number = -1;
+	protected index:  number = -1;
 
 	/**
 	 * This is the backing field for {@link #getStartIndex} and
 	 * {@link #setStartIndex}.
 	 */
-	protected  start:  number;
+	protected start:  number;
 
 	/**
 	 * This is the backing field for {@link #getStopIndex} and
 	 * {@link #setStopIndex}.
 	 */
-	protected  stop:  number;
+	protected stop:  number;
 
 	/**
 	 * Constructs a new {@link CommonToken} with the specified token type.
@@ -186,12 +186,12 @@ this.source = source;
 			return this.text;
 		}
 
-		 let  input: CharStream = this.getInputStream();
+		let  input: CharStream = this.getInputStream();
 		if ( input===null ) {
  return null;
 }
 
-		 let  n: number = input.size();
+		let  n: number = input.size();
 		if ( this.start<n && this.stop<n) {
 			return input.getText(Interval.of(this.start,this.stop));
 		}
@@ -279,11 +279,11 @@ if (r === undefined) {
 		return this.toString(null);
 	}
  else  {
-		 let  channelStr: java.lang.String = S``;
+		let  channelStr: java.lang.String = S``;
 		if ( this.channel>0 ) {
 			channelStr=S`,channel=`+this.channel;
 		}
-		 let  txt: java.lang.String = this.getText();
+		let  txt: java.lang.String = this.getText();
 		if ( txt!==null ) {
 			txt = txt.replace(S`\n`,S`\\n`);
 			txt = txt.replace(S`\r`,S`\\r`);
@@ -292,7 +292,7 @@ if (r === undefined) {
 		else {
 			txt = S`<no text>`;
 		}
-		 let  typeString: java.lang.String = java.lang.String.valueOf(this.type);
+		let  typeString: java.lang.String = java.lang.String.valueOf(this.type);
 		if ( r!==null ) {
 			typeString = r.getVocabulary().getDisplayName(this.type);
 		}

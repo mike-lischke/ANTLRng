@@ -29,11 +29,11 @@ exportclass TagChunk extends Chunk {
 	/**
 	 * This is the backing field for {@link #getTag}.
 	 */
-	private readonly  tag:  java.lang.String | null;
+	private readonly tag:  java.lang.String | null;
 	/**
 	 * This is the backing field for {@link #getLabel}.
 	 */
-	private readonly  label:  java.lang.String | null;
+	private readonly label:  java.lang.String | null;
 
 	/**
 	 * Construct a new instance of {@link TagChunk} using the specified tag and

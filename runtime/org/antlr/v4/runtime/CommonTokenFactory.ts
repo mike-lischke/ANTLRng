@@ -30,7 +30,7 @@ export class CommonTokenFactory extends JavaObject implements TokenFactory<Commo
 	 * This token factory does not explicitly copy token text when constructing
 	 * tokens.</p>
 	 */
-	public readonly  DEFAULT:  TokenFactory<CommonToken> | null = new  CommonTokenFactory();
+	public static readonly DEFAULT:  TokenFactory<CommonToken> | null = new  CommonTokenFactory();
 
 	/**
 	 * Indicates whether {@link CommonToken#setText} should be called after
@@ -47,7 +47,7 @@ export class CommonTokenFactory extends JavaObject implements TokenFactory<Commo
 	 * The default value is {@code false} to avoid the performance and memory
 	 * overhead of copying text for every token unless explicitly requested.</p>
 	 */
-	protected readonly  copyText:  boolean;
+	protected readonly copyText:  boolean;
 
 	/**
 	 * Constructs a {@link CommonTokenFactory} with the specified value for
@@ -103,7 +103,7 @@ const text = textOrType as java.lang.String;
 	{
 let source = typeOrSource as Pair<TokenSource, CharStream>;
 let type = textOrType as number;
-		 let  t: CommonToken = new  CommonToken(source, type, channel, start, stop);
+		let  t: CommonToken = new  CommonToken(source, type, channel, start, stop);
 		t.setLine(line);
 		t.setCharPositionInLine(charPositionInLine);
 		if ( text!==null ) {

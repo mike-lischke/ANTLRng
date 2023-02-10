@@ -25,7 +25,6 @@ export class LexerSkipAction extends JavaObject implements LexerAction {
     /**
      * Provides a singleton instance of this parameter-less lexer action.
      */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly INSTANCE = new LexerSkipAction();
 
     /**

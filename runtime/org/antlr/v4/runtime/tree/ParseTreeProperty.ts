@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject,java } from "jree";
+import { JavaObject, java } from "jree";
 import { ParseTree } from "./ParseTree";
 
 
@@ -30,7 +30,7 @@ import { ParseTree } from "./ParseTree";
  * in your event methods.
  */
 export class ParseTreeProperty<V> extends JavaObject {
-	protected  annotations:  java.util.Map<ParseTree, V> | null = new  java.util.IdentityHashMap<ParseTree, V>();
+	protected annotations:  java.util.Map<ParseTree, V> | null = new  java.util.IdentityHashMap<ParseTree, V>();
 
 	public get = (node: ParseTree| null):  V | null => { return this.annotations.get(node); }
 	public put = (node: ParseTree| null, value: V| null):  void => { this.annotations.put(node, value); }

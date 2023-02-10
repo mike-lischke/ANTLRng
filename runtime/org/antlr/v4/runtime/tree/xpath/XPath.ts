@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject,S,java } from "jree";
+import { JavaObject, S, java } from "jree";
 import { XPathElement } from "./XPathElement";
 import { XPathLexer } from "./XPathLexer";
 import { XPathLexerErrorListener } from "./XPathLexerErrorListener";
@@ -72,12 +72,12 @@ import { ParseTree } from "../ParseTree";
  * Whitespace is not allowed.</p>
  */
 export class XPath extends JavaObject {
-	public readonly  WILDCARD:  java.lang.String | null = S`*`; // word not operator/separator
-	public readonly  NOT:  java.lang.String | null = S`!`; 	   // word for invert operator
+	public static readonly WILDCARD:  java.lang.String | null = S`*`; // word not operator/separator
+	public static readonly NOT:  java.lang.String | null = S`!`; 	   // word for invert operator
 
-	protected  path:  java.lang.String | null;
-	protected  elements:  XPathElement[] | null;
-	protected  parser:  Parser | null;
+	protected path:  java.lang.String | null;
+	protected elements:  XPathElement[] | null;
+	protected parser:  Parser | null;
 
 	public constructor(parser: Parser| null, path: java.lang.String| null) {
 		super();
@@ -90,7 +90,7 @@ this.parser = parser;
 	// TODO: check for invalid token/rule names, bad syntax
 
 	public split = (path: java.lang.String| null):  XPathElement[] | null => {
-		 let  in: ANTLRInputStream;
+		let  in: ANTLRInputStream;
 		try {
 			in = new  ANTLRInputStream(new  StringReader(path));
 		} catch (ioe) {
@@ -100,45 +100,45 @@ if (ioe instanceof java.io.IOException) {
 	throw ioe;
 	}
 }
-		 let  lexer: XPathLexer = new  class extends XPathLexer {
+		let  lexer: XPathLexer = new  class extends XPathLexer {
 			public recover = (e: LexerNoViableAltException| null):  void => { throw e;	}
 		}(in);
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(new  XPathLexerErrorListener());
-		 let  tokenStream: CommonTokenStream = new  CommonTokenStream(lexer);
+		let  tokenStream: CommonTokenStream = new  CommonTokenStream(lexer);
 		try {
 			tokenStream.fill();
 		} catch (e) {
 if (e instanceof LexerNoViableAltException) {
-			 let  pos: number = lexer.getCharPositionInLine();
-			 let  msg: java.lang.String = S`Invalid tokens or characters at index `+pos+S` in path '`+path+S`'`;
+			let  pos: number = lexer.getCharPositionInLine();
+			let  msg: java.lang.String = S`Invalid tokens or characters at index `+pos+S` in path '`+path+S`'`;
 			throw new  java.lang.IllegalArgumentException(msg, e);
 		} else {
 	throw e;
 	}
 }
 
-		 let  tokens: java.util.List<Token> = tokenStream.getTokens();
+		let  tokens: java.util.List<Token> = tokenStream.getTokens();
 //		System.out.println("path="+path+"=>"+tokens);
-		 let  elements: java.util.List<XPathElement> = new  java.util.ArrayList<XPathElement>();
-		 let  n: number = tokens.size();
-		 let  i: number=0;
+		let  elements: java.util.List<XPathElement> = new  java.util.ArrayList<XPathElement>();
+		let  n: number = tokens.size();
+		let  i: number=0;
 loop:
 		while ( i<n ) {
-			 let  el: Token = tokens.get(i);
-			 let  next: Token = null;
+			let  el: Token = tokens.get(i);
+			let  next: Token = null;
 			switch ( el.getType() ) {
 				case XPathLexer.ROOT :
 				case XPathLexer.ANYWHERE :{
-					 let  anywhere: boolean = el.getType() === XPathLexer.ANYWHERE;
+					let  anywhere: boolean = el.getType() === XPathLexer.ANYWHERE;
 					i++;
 					next = tokens.get(i);
-					 let  invert: boolean = next.getType()===XPathLexer.BANG;
+					let  invert: boolean = next.getType()===XPathLexer.BANG;
 					if ( invert ) {
 						i++;
 						next = tokens.get(i);
 					}
-					 let  pathElement: XPathElement = this.getXPathElement(next, anywhere);
+					let  pathElement: XPathElement = this.getXPathElement(next, anywhere);
 					pathElement.invert = invert;
 					elements.add(pathElement);
 					i++;
@@ -178,9 +178,9 @@ loop:
 		if ( wordToken.getType()===Token.EOF ) {
 			throw new  java.lang.IllegalArgumentException(S`Missing path element at end of path`);
 		}
-		 let  word: java.lang.String = wordToken.getText();
-		 let  ttype: number = this.parser.getTokenType(word);
-		 let  ruleIndex: number = this.parser.getRuleIndex(word);
+		let  word: java.lang.String = wordToken.getText();
+		let  ttype: number = this.parser.getTokenType(word);
+		let  ruleIndex: number = this.parser.getRuleIndex(word);
 		switch ( wordToken.getType() ) {
 			case XPathLexer.WILDCARD :{
 				return anywhere ?
@@ -217,8 +217,8 @@ loop:
 	}
 
 
-	public findAll = (tree: ParseTree| null, xpath: java.lang.String| null, parser: Parser| null):  java.util.Collection<ParseTree> | null => {
-		 let  p: XPath = new  XPath(parser, xpath);
+	public static findAll = (tree: ParseTree| null, xpath: java.lang.String| null, parser: Parser| null):  java.util.Collection<ParseTree> | null => {
+		let  p: XPath = new  XPath(parser, xpath);
 		return p.evaluate(tree);
 	}
 
@@ -228,20 +228,20 @@ loop:
 	 * {@link #evaluate}.
 	 */
 	public evaluate = (/* final */  t: ParseTree| null):  java.util.Collection<ParseTree> | null => {
-		 let  dummyRoot: ParserRuleContext = new  ParserRuleContext();
+		let  dummyRoot: ParserRuleContext = new  ParserRuleContext();
 		dummyRoot.children = java.util.Collections.singletonList(t); // don't set t's parent.
 
-		 let  work: java.util.Collection<ParseTree> = java.util.Collections.<ParseTree>singleton(dummyRoot);
+		let  work: java.util.Collection<ParseTree> = java.util.Collections.<ParseTree>singleton(dummyRoot);
 
-		 let  i: number = 0;
+		let  i: number = 0;
 		while ( i < this.elements.length ) {
-			 let  next: java.util.Collection<ParseTree> = new  LinkedHashSet<ParseTree>();
+			let  next: java.util.Collection<ParseTree> = new  java.util.LinkedHashSet<ParseTree>();
 			for (let node of work) {
 				if ( node.getChildCount()>0 ) {
 					// only try to match next element if it has children
 					// e.g., //func/*/stat might have a token node for which
 					// we can't go looking for stat nodes.
-					 let  matching: java.util.Collection< ParseTree> = this.elements[i].evaluate(node);
+					let  matching: java.util.Collection< ParseTree> = this.elements[i].evaluate(node);
 					next.addAll(matching);
 				}
 			}

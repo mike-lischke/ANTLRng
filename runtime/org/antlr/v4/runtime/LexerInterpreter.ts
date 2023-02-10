@@ -7,7 +7,7 @@
 
 
 
-import { java,S } from "jree";
+import { java, S } from "jree";
 import { CharStream } from "./CharStream";
 import { Lexer } from "./Lexer";
 import { Recognizer } from "./Recognizer";
@@ -24,19 +24,19 @@ import { DFA } from "./dfa/DFA";
 
 
 export class LexerInterpreter extends Lexer {
-	protected readonly  grammarFileName:  java.lang.String | null;
-	protected readonly  atn:  ATN | null;
+	protected readonly grammarFileName:  java.lang.String | null;
+	protected readonly atn:  ATN | null;
 
-	protected readonly  tokenNames:  java.lang.String[] | null;
-	protected readonly  ruleNames:  java.lang.String[] | null;
-	protected readonly  channelNames:  java.lang.String[] | null;
-	protected readonly  modeNames:  java.lang.String[] | null;
+	protected readonly tokenNames:  java.lang.String[] | null;
+	protected readonly ruleNames:  java.lang.String[] | null;
+	protected readonly channelNames:  java.lang.String[] | null;
+	protected readonly modeNames:  java.lang.String[] | null;
 
 
-	private readonly  vocabulary:  Vocabulary | null;
+	private readonly vocabulary:  Vocabulary | null;
 
-	protected readonly  _decisionToDFA:  DFA[] | null;
-	protected readonly  _sharedContextCache:  PredictionContextCache | null =
+	protected readonly _decisionToDFA:  DFA[] | null;
+	protected readonly _sharedContextCache:  PredictionContextCache | null =
 		new  PredictionContextCache();
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */
@@ -75,7 +75,7 @@ let atn = inputOrAtn as ATN;
 		this.grammarFileName = grammarFileName;
 		this.atn = atn;
 		this.tokenNames = new   Array<java.lang.String>(atn.maxTokenType);
-		for ( let  i: number = 0; i < this.tokenNames.length; i++) {
+		for (let  i: number = 0; i < this.tokenNames.length; i++) {
 			this.tokenNames[i] = vocabulary.getDisplayName(i);
 		}
 
@@ -85,7 +85,7 @@ let atn = inputOrAtn as ATN;
 		this.vocabulary = vocabulary;
 
 		this._decisionToDFA = new   Array<DFA>(atn.getNumberOfDecisions());
-		for ( let  i: number = 0; i < this._decisionToDFA.length; i++) {
+		for (let  i: number = 0; i < this._decisionToDFA.length; i++) {
 			this._decisionToDFA[i] = new  DFA(atn.getDecisionState(i), i);
 		}
 		this._interp = new  LexerATNSimulator(this,atn,this._decisionToDFA,this._sharedContextCache);

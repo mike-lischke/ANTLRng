@@ -23,7 +23,6 @@ export class ConsoleErrorListener extends BaseErrorListener {
     /**
      * Provides a default instance of {@link ConsoleErrorListener}.
      */
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly INSTANCE = new ConsoleErrorListener();
 
     /**

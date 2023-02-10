@@ -6,9 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java, I, S, JavaObject, MurmurHash } from "jree";
 
 import { IntegerList } from "./IntegerList";
 import { Interval } from "./Interval";
@@ -16,8 +14,6 @@ import { IntSet } from "./IntSet";
 import { Lexer } from "../Lexer";
 import { Token } from "../Token";
 import { Vocabulary } from "../Vocabulary";
-
-import { I, S } from "../../../../../../lib/templates";
 
 /**
  * This class implements the {@link IntSet} backed by a sorted array of

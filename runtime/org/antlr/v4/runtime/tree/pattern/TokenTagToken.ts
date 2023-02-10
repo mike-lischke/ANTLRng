@@ -23,12 +23,12 @@ export class TokenTagToken extends CommonToken {
 	 * This is the backing field for {@link #getTokenName}.
 	 */
 
-	private readonly  tokenName:  java.lang.String | null;
+	private readonly tokenName:  java.lang.String | null;
 	/**
 	 * This is the backing field for {@link #getLabel}.
 	 */
 
-	private readonly  label:  java.lang.String | null;
+	private readonly label:  java.lang.String | null;
 
 	/**
 	 * Constructs a new instance of {@link TokenTagToken} for an unlabeled tag

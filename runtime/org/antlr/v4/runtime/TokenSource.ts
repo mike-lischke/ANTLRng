@@ -26,7 +26,6 @@ import { TokenFactory } from "./TokenFactory";
  * token. Keep lexing until you get a valid one. Just report errors and keep
  * going, looking for a valid token.</p>
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface TokenSource {
     /**
      * Return a {@link Token} object from your input stream (usually a

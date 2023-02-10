@@ -7,7 +7,7 @@
 
 
 
-import { java,S } from "jree";
+import { java, S } from "jree";
 import { CharStream } from "./CharStream";
 import { Lexer } from "./Lexer";
 import { RecognitionException } from "./RecognitionException";
@@ -20,10 +20,10 @@ import { Utils } from "./misc/Utils";
 
 export class LexerNoViableAltException extends RecognitionException {
 	/** Matching attempted at what input index? */
-	private readonly  startIndex:  number;
+	private readonly startIndex:  number;
 
 	/** Which configurations did we try at input.index() that couldn't match input.LA(1)? */
-	private readonly  deadEndConfigs:  ATNConfigSet | null;
+	private readonly deadEndConfigs:  ATNConfigSet | null;
 
 	public constructor(lexer: Lexer| null,
 									 input: CharStream| null,
@@ -48,7 +48,7 @@ export class LexerNoViableAltException extends RecognitionException {
 	}
 
 	public toString = ():  java.lang.String | null => {
-		 let  symbol: java.lang.String = S``;
+		let  symbol: java.lang.String = S``;
 		if (this.startIndex >= 0 && this.startIndex < this.getInputStream().size()) {
 			symbol = this.getInputStream().getText(Interval.of(this.startIndex,this.startIndex));
 			symbol = Utils.escapeWhitespace(symbol, false);

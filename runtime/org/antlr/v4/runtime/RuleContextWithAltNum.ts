@@ -26,7 +26,7 @@ import { ATN } from "./atn/ATN";
  *  will really every use this.
  */
 export class RuleContextWithAltNum extends ParserRuleContext {
-	public  altNum:  number;
+	public altNum:  number;
 	public constructor();
 
 	public constructor(parent: ParserRuleContext| null, invokingStateNumber: number);

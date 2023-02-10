@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable @typescript-eslint/naming-convention */
-
 import { java, S, MurmurHash } from "jree";
 import { Enum } from "jree/output/src/java/lang/Enum";
 

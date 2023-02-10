@@ -22,7 +22,6 @@ import { Token } from "../Token";
 import { IntervalSet } from "../misc/IntervalSet";
 
 export class ATN extends JavaObject {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     public static readonly INVALID_ALT_NUMBER: number = 0;
 
     public readonly states = new java.util.ArrayList<ATNState | null>();

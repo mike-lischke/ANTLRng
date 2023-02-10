@@ -9,7 +9,6 @@
 import { ParseTree } from "./ParseTree";
 import { Token } from "../Token";
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface TerminalNode extends ParseTree {
     getSymbol: () => Token;
 }

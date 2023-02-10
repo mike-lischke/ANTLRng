@@ -55,7 +55,7 @@ export class BailErrorStrategy extends DefaultErrorStrategy {
 	 *  original {@link RecognitionException}.
      */
     public recover = (recognizer: Parser| null, e: RecognitionException| null):  void => {
-		for ( let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
+		for (let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
 			context.exception = e;
 		}
 
@@ -67,8 +67,8 @@ export class BailErrorStrategy extends DefaultErrorStrategy {
      */
     public recoverInline = (recognizer: Parser| null):  Token | null =>
     {
-		 let  e: InputMismatchException = new  InputMismatchException(recognizer);
-		for ( let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
+		let  e: InputMismatchException = new  InputMismatchException(recognizer);
+		for (let  context: ParserRuleContext = recognizer.getContext(); context !== null; context = context.getParent()) {
 			context.exception = e;
 		}
 

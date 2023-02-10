@@ -26,7 +26,6 @@
     },
     "plugins": [
         "@typescript-eslint",
-        "@typescript-eslint/tslint",
         "jsdoc",
         "prefer-arrow",
         "eslint-plugin-import"
@@ -41,6 +40,7 @@
         "no-explicit-any": "off",
         "no-use-before-define": "off",
         "no-shadow": "off",
+        "no-array-constructor": "off",
         "array-callback-return": [
             "warn"
         ],
@@ -59,17 +59,12 @@
             "smart"
         ],
         "new-parens": "error",
-        "no-array-constructor": [
-            "warn"
-        ],
         "no-caller": "error",
         "no-cond-assign": "error",
         "no-const-assign": [
             "warn"
         ],
-        "no-control-regex": [
-            "warn"
-        ],
+        "no-control-regex": "off",
         "no-delete-var": [
             "warn"
         ],
@@ -201,12 +196,7 @@
         "no-octal-escape": [
             "warn"
         ],
-        "no-redeclare": [
-            "warn",
-            {
-                "builtinGlobals": false
-            }
-        ],
+        "no-redeclare": "off",
         "no-regex-spaces": [
             "warn"
         ],
@@ -466,10 +456,11 @@
             "never"
         ],
         "indent": "off",
+        "@typescript-eslint/no-array-constructor": "error",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             {
-                "args": "after-used",
+                "args": "none",
                 "ignoreRestSiblings": true,
                 "varsIgnorePattern": "^_",
                 "argsIgnorePattern": "^_"
@@ -550,6 +541,7 @@
             }
         ],
         "@typescript-eslint/no-explicit-any": "error",
+        "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/no-parameter-properties": "off",
         "@typescript-eslint/no-use-before-define": "error",
         "@typescript-eslint/no-unsafe-assignment": "off", // TODO: enable
@@ -572,24 +564,7 @@
             "error",
             "always"
         ],
-        "@typescript-eslint/unified-signatures": "error",
-        "@typescript-eslint/tslint/config": [
-            "error",
-            {
-                "rules": {
-                    "import-spacing": true,
-                    "one-line": [
-                        true,
-                        "check-catch",
-                        "check-else",
-                        "check-finally",
-                        "check-open-brace",
-                        "check-whitespace"
-                    ],
-                    "whitespace": true
-                }
-            }
-        ],
+        "@typescript-eslint/unified-signatures": "off",
         "@typescript-eslint/prefer-regexp-exec": "off",
         "@typescript-eslint/naming-convention": [
             "error",
@@ -637,10 +612,18 @@
                 "selector": "interface",
                 "format": [
                     "PascalCase"
-                ],
-                "prefix": [
-                    "I"
                 ]
+            },
+            {
+                "selector": "variable",
+                "modifiers": [
+                    "const"
+                ],
+                "format": null
+            },
+            {
+                "selector": "classProperty",
+                "format": null
             }
         ],
         "@typescript-eslint/restrict-template-expressions": "off",

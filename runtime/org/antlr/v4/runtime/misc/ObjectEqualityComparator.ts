@@ -6,8 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
-
+import { java, JavaObject } from "jree";
 
 import { EqualityComparator } from "./EqualityComparator";
 
@@ -17,8 +16,7 @@ import { EqualityComparator } from "./EqualityComparator";
  *
  * @author Sam Harwell
  */
-export class ObjectEqualityComparator extends EqualityComparator<JavaObject> {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+export class ObjectEqualityComparator implements EqualityComparator<JavaObject> {
     public static readonly INSTANCE = new ObjectEqualityComparator();
 
     /**
