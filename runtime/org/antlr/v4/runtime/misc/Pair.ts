@@ -10,10 +10,10 @@ import { java, S, JavaObject, MurmurHash } from "jree";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 export class Pair<A, B> extends JavaObject implements java.io.Serializable {
-    public readonly a: A;
-    public readonly b: B;
+    public readonly a: A | null;
+    public readonly b: B | null;
 
-    public constructor(a: A, b: B) {
+    public constructor(a: A | null, b: B | null) {
         super();
         this.a = a;
         this.b = b;

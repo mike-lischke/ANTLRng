@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject, S, java } from "jree";
+import { java, JavaObject, S } from "jree";
 import { XPathElement } from "./XPathElement";
 import { XPathLexer } from "./XPathLexer";
 import { XPathLexerErrorListener } from "./XPathLexerErrorListener";
@@ -71,7 +71,7 @@ import { ParseTree } from "../ParseTree";
  * <p>
  * Whitespace is not allowed.</p>
  */
-export class XPath extends JavaObject {
+export  class XPath extends JavaObject {
 	public static readonly WILDCARD:  java.lang.String | null = S`*`; // word not operator/separator
 	public static readonly NOT:  java.lang.String | null = S`!`; 	   // word for invert operator
 

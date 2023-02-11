@@ -6,7 +6,7 @@
 
 
 
-import { JavaObject, S, java } from "jree";
+import { JavaObject, java, S } from "jree";
 import { ANTLRInputStream } from "./ANTLRInputStream";
 import { Token } from "./Token";
 import { TokenStream } from "./TokenStream";
@@ -91,7 +91,7 @@ import { Interval } from "./misc/Interval";
  * If you don't use named rewrite streams, a "default" stream is used as the
  * first example shows.</p>
  */
-export class TokenStreamRewriter extends JavaObject {
+export  class TokenStreamRewriter extends JavaObject {
 	public static readonly DEFAULT_PROGRAM_NAME:  java.lang.String | null = S`default`;
 	public static readonly PROGRAM_INIT_SIZE:  number = 100;
 	public static readonly MIN_TOKEN_INDEX:  number = 0;
@@ -147,7 +147,7 @@ return class InsertBeforeOp extends InsertBeforeOp.RewriteOperation {
 		}
 
 		public execute = (buf: java.lang.StringBuilder| null):  number => {
-			buf.append(text);
+			buf.append(java.text);
 			if ( $outer.tokens.get(ANTLRInputStream.index).getType()!==Token.EOF ) {
 				buf.append($outer.tokens.get(ANTLRInputStream.index).getText());
 			}
@@ -181,18 +181,18 @@ return class ReplaceOp extends ReplaceOp.RewriteOperation {
 			$outer.lastIndex = to;
 		}
 		public execute = (buf: java.lang.StringBuilder| null):  number => {
-			if ( text!==null ) {
-				buf.append(text);
+			if ( java.text!==null ) {
+				buf.append(java.text);
 			}
 			return $outer.lastIndex+1;
 		}
 		public toString = ():  java.lang.String | null => {
-			if ( text===null ) {
+			if ( java.text===null ) {
 				return S`<DeleteOp@`+$outer.tokens.get(ANTLRInputStream.index)+
 						S`..`+$outer.tokens.get($outer.lastIndex)+S`>`;
 			}
 			return S`<ReplaceOp@`+$outer.tokens.get(ANTLRInputStream.index)+
-					S`..`+$outer.tokens.get($outer.lastIndex)+S`:\"`+text+S`\">`;
+					S`..`+$outer.tokens.get($outer.lastIndex)+S`:\"`+java.text+S`\">`;
 		}
 	}
 })(this);

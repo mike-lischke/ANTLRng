@@ -5,7 +5,7 @@
  */
 
 
-import { JavaObject, S } from "jree";
+import { JavaObject, java, S } from "jree";
 
 
 
@@ -39,7 +39,7 @@ import { JavaObject, S } from "jree";
  *
  *
  */
-export class RuntimeMetaData extends JavaObject {
+export  class RuntimeMetaData extends JavaObject {
 	/**
 	 * A compile-time constant containing the current version of the ANTLR 4
 	 * runtime library.

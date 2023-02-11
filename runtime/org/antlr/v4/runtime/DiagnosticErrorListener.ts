@@ -40,7 +40,7 @@ import { Interval } from "./misc/Interval";
  *
  * @author Sam Harwell
  */
-export class DiagnosticErrorListener extends BaseErrorListener {
+export  class DiagnosticErrorListener extends BaseErrorListener {
 	/**
 	 * When `true`, only exactly known ambiguities are reported.
 	 */

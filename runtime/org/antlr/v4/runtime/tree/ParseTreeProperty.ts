@@ -29,7 +29,7 @@ import { ParseTree } from "./ParseTree";
  * You would make one decl (values here) in the listener and use lots of times
  * in your event methods.
  */
-export class ParseTreeProperty<V> extends JavaObject {
+export  class ParseTreeProperty<V> extends JavaObject {
 	protected annotations:  java.util.Map<ParseTree, V> | null = new  java.util.IdentityHashMap<ParseTree, V>();
 
 	public get = (node: ParseTree| null):  V | null => { return this.annotations.get(node); }

@@ -17,7 +17,7 @@ import { Trees } from "../Trees";
 
 
 
-export class XPathRuleElement extends XPathElement {
+export  class XPathRuleElement extends XPathElement {
 	protected ruleIndex:  number;
 	public constructor(ruleName: java.lang.String| null, ruleIndex: number) {
 		super(ruleName);

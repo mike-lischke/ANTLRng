@@ -36,7 +36,7 @@ import { TokenSource } from "./TokenSource";
  * such a rule will not be available as part of the token stream, regardless of
  * channel.</p>we
  */
-export class CommonTokenStream extends BufferedTokenStream {
+export  class CommonTokenStream extends BufferedTokenStream {
 	/**
 	 * Specifies the channel to use for filtering tokens.
 	 *

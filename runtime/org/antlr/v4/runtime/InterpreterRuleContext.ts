@@ -21,7 +21,7 @@ import { ParserRuleContext } from "./ParserRuleContext";
  * parser, this class (with slightly more memory overhead per node) is used to
  * provide equivalent functionality.</p>
  */
-export class InterpreterRuleContext extends ParserRuleContext {
+export  class InterpreterRuleContext extends ParserRuleContext {
 	/** This is the backing field for {@link #getRuleIndex}. */
 	protected ruleIndex:  number = -1;
 

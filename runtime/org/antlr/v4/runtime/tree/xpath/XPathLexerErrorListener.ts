@@ -7,6 +7,7 @@
 
 
 
+import { java } from "jree";
 import { BaseErrorListener } from "../../BaseErrorListener";
 import { RecognitionException } from "../../RecognitionException";
 import { Recognizer } from "../../Recognizer";
@@ -14,7 +15,7 @@ import { Recognizer } from "../../Recognizer";
 
 
 
-export class XPathLexerErrorListener extends BaseErrorListener {
+export  class XPathLexerErrorListener extends BaseErrorListener {
 	public syntaxError = (recognizer: Recognizer<unknown, unknown>| null, offendingSymbol: java.lang.Object| null,
 							line: number, charPositionInLine: number, msg: java.lang.String| null,
 							e: RecognitionException| null):  void =>

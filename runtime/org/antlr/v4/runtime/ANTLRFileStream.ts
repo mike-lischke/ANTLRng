@@ -20,7 +20,7 @@ import { Utils } from "./misc/Utils";
  *
  * @deprecated as of 4.7 Please use {@link CharStreams} interface.
  */
-export class ANTLRFileStream extends ANTLRInputStream {
+export  class ANTLRFileStream extends ANTLRInputStream {
 	protected fileName:  java.lang.String | null;
 
 	/* eslint-disable constructor-super, @typescript-eslint/no-unsafe-call */

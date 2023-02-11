@@ -22,7 +22,7 @@ import { Interval } from "./misc/Interval";
  *
  * @deprecated as of 4.7 Please use {@link CharStreams} interface.
  */
-export class ANTLRInputStream extends JavaObject implements CharStream {
+export  class ANTLRInputStream extends JavaObject implements CharStream {
     public static readonly READ_BUFFER_SIZE:  number = 1024;
    	public static readonly INITIAL_BUFFER_SIZE:  number = 1024;
 

@@ -18,7 +18,7 @@ import { ParserRuleContext } from "../ParserRuleContext";
 
 
 
-export class ParseTreeWalker extends JavaObject {
+export  class ParseTreeWalker extends JavaObject {
     public static readonly DEFAULT:  ParseTreeWalker | null = new  ParseTreeWalker();
 
 

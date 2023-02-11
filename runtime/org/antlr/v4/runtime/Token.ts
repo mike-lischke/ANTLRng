@@ -21,7 +21,7 @@ export interface Token {
     /**
      * Get the text of the token.
      */
-    getText(): java.lang.String;
+    getText(): java.lang.String | null;
 
     /** Get the token type of the token */
     getType(): number;
@@ -70,15 +70,14 @@ export interface Token {
     /**
       Gets the {@link TokenSource} which created this token.
      */
-    getTokenSource(): TokenSource;
+    getTokenSource(): TokenSource | null;
 
     /**
      * Gets the {@link CharStream} from which this token was derived.
      */
-    getInputStream(): CharStream;
+    getInputStream(): CharStream | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace Token {
     export const INVALID_TYPE = 0;
     export const EPSILON = -2;

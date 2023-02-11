@@ -6,7 +6,7 @@
 
 
 
-import { S } from "jree";
+import { java, S } from "jree";
 import { CharStream } from "../../CharStream";
 import { CommonToken } from "../../CommonToken";
 import { Lexer } from "../../Lexer";
@@ -21,7 +21,7 @@ import { Interval } from "../../misc/Interval";
 
 
 /** Mimic the old XPathLexer from .g4 file */
-export class XPathLexer extends Lexer {
+export  class XPathLexer extends Lexer {
 	public static readonly
 		TOKEN_REF:  number=1;
 public static readonly RULE_REF:  number=2;

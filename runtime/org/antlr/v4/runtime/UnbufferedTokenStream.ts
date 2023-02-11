@@ -7,7 +7,7 @@
 
 
 
-import { JavaObject, S, java } from "jree";
+import { JavaObject, java, S } from "jree";
 import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
 import { TokenSource } from "./TokenSource";
@@ -18,7 +18,7 @@ import { Interval } from "./misc/Interval";
 
 
 
-export class UnbufferedTokenStream<T extends Token> extends JavaObject implements TokenStream {
+export  class UnbufferedTokenStream<T extends Token> extends JavaObject implements TokenStream {
 	protected tokenSource:  TokenSource | null;
 
 	/**

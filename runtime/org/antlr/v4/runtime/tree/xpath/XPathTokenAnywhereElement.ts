@@ -15,7 +15,7 @@ import { Trees } from "../Trees";
 
 
 
-export class XPathTokenAnywhereElement extends XPathElement {
+export  class XPathTokenAnywhereElement extends XPathElement {
 	protected tokenType:  number;
 	public constructor(tokenName: java.lang.String| null, tokenType: number) {
 		super(tokenName);

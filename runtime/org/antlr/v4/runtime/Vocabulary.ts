@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java } from "jree";
 
 /**
  * This interface provides information about the vocabulary used by a
@@ -129,3 +129,10 @@ export interface Vocabulary {
      */
     getDisplayName: (tokenType: number) => java.lang.String;
 }
+
+export const isVocabulary = (obj: unknown): obj is Vocabulary => {
+    const candidate = obj as Vocabulary;
+
+    return candidate.getMaxTokenType !== undefined && candidate.getLiteralName !== undefined
+        && candidate.getSymbolicName !== undefined && candidate.getDisplayName !== undefined;
+};

@@ -55,7 +55,7 @@ import { IntStream } from "./IntStream";
  *
  *  @since 4.7
  */
-export readonly class CharStreams extends JavaObject {
+export readonly  class CharStreams extends JavaObject {
 	private static readonly DEFAULT_BUFFER_SIZE:  number = 4096;
 
 	// Utility class; do not construct.

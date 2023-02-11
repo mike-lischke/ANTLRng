@@ -17,5 +17,6 @@ export * from "./OrderedHashSet";
 export * from "./Pair";
 export * from "./ParseCancellationException";
 export * from "./Predicate";
+export * from "./TestRig";
 export * from "./Triple";
 export * from "./Utils";

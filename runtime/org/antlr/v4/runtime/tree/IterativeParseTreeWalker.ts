@@ -24,7 +24,7 @@ import { IntegerStack } from "../misc/IntegerStack";
  * doesn't use the thread stack but heap-based stacks. Makes it possible to
  * process deeply nested parse trees.
  */
-export class IterativeParseTreeWalker extends ParseTreeWalker {
+export  class IterativeParseTreeWalker extends ParseTreeWalker {
 
 	public walk = (listener: ParseTreeListener| null, t: ParseTree| null):  void => {
 

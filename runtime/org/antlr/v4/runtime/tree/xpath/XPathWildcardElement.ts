@@ -17,7 +17,7 @@ import { Trees } from "../Trees";
 
 
 
-export class XPathWildcardElement extends XPathElement {
+export  class XPathWildcardElement extends XPathElement {
 	public constructor() {
 		super(XPath.WILDCARD);
 	}

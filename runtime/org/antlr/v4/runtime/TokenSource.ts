@@ -68,7 +68,7 @@ export interface TokenSource {
      * non-null, non-empty string. If such a name is not known, this method
      * returns {@link IntStream#UNKNOWN_SOURCE_NAME}.
      */
-    getSourceName: () => java.lang.String | null;
+    getSourceName: () => java.lang.String;
 
     /**
      * Set the {@link TokenFactory} this token source should use for creating
@@ -76,7 +76,7 @@ export interface TokenSource {
      *
      * @param factory The {@link TokenFactory} to use for creating tokens.
      */
-    setTokenFactory: (factory: TokenFactory<Token> | null) => void;
+    setTokenFactory: (factory: TokenFactory<Token>) => void;
 
     /**
      * Gets the {@link TokenFactory} this token source is currently using for
@@ -84,5 +84,5 @@ export interface TokenSource {
      *
       @returns The {@link TokenFactory} currently used by this token source.
      */
-    getTokenFactory: () => TokenFactory<Token> | null;
+    getTokenFactory: () => TokenFactory<Token>;
 }

@@ -18,7 +18,7 @@ import { Utils } from "./misc/Utils";
 
 
 
-export class LexerNoViableAltException extends RecognitionException {
+export  class LexerNoViableAltException extends RecognitionException {
 	/** Matching attempted at what input index? */
 	private readonly startIndex:  number;
 

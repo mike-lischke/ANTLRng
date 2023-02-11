@@ -95,7 +95,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * @see #setErrorHandler
      */
 
-    protected _errHandler: ANTLRErrorStrategy | null = new DefaultErrorStrategy();
+    protected _errHandler: ANTLRErrorStrategy = new DefaultErrorStrategy();
 
     /**
      * The input stream.
@@ -207,7 +207,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
             this._errHandler?.reportMatch(this);
             this.consume();
         } else {
-            t = this._errHandler!.recoverInline(this);
+            t = this._errHandler.recoverInline(this);
             if (this._buildParseTrees && t?.getTokenIndex() === -1) {
                 // we must have conjured up a new token during single token insertion
                 // if it's not the current symbol
@@ -242,7 +242,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
             this._errHandler?.reportMatch(this);
             this.consume();
         } else {
-            t = this._errHandler!.recoverInline(this);
+            t = this._errHandler.recoverInline(this);
             if (this._buildParseTrees && t && t.getTokenIndex() === -1) {
                 // we must have conjured up a new token during single token insertion
                 // if it's not the current symbol
@@ -403,8 +403,8 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         return this._syntaxErrors;
     };
 
-    public getTokenFactory = (): TokenFactory<Token> | null => {
-        return this._input?.getTokenSource().getTokenFactory() ?? null;
+    public getTokenFactory = (): TokenFactory<Token> => {
+        return this._input!.getTokenSource().getTokenFactory();
     };
 
     /**
@@ -412,7 +412,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      *
      * @param factory tbd
      */
-    public setTokenFactory = (factory: TokenFactory<Token> | null): void => {
+    public setTokenFactory = (factory: TokenFactory<Token>): void => {
         if (this._input) {
             this._input.getTokenSource().setTokenFactory(factory);
         }
@@ -426,7 +426,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * implement the {@link #getSerializedATN()} method.
      */
 
-    public getATNWithBypassAlts = (): ATN | null => {
+    public getATNWithBypassAlts = (): ATN => {
         const serializedAtn = this.getSerializedATN();
         if (serializedAtn === null) {
             throw new java.lang.UnsupportedOperationException(
@@ -481,11 +481,11 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
     }
 
-    public getErrorHandler = (): ANTLRErrorStrategy | null => {
+    public getErrorHandler = (): ANTLRErrorStrategy => {
         return this._errHandler;
     };
 
-    public setErrorHandler = (handler: ANTLRErrorStrategy | null): void => {
+    public setErrorHandler = (handler: ANTLRErrorStrategy): void => {
         this._errHandler = handler;
     };
 
@@ -506,7 +506,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      *
      * @param input tbd
      */
-    public setTokenStream = (input: TokenStream | null): void => {
+    public setTokenStream = (input: TokenStream): void => {
         this._input = null;
         this.reset();
         this._input = input;
@@ -774,11 +774,11 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         return null;
     };
 
-    public getContext = (): ParserRuleContext | null => {
-        return this._ctx;
+    public getContext = (): ParserRuleContext => {
+        return this._ctx!;
     };
 
-    public setContext = (ctx: ParserRuleContext | null): void => {
+    public setContext = (ctx: ParserRuleContext): void => {
         this._ctx = ctx;
     };
 
@@ -786,7 +786,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         return precedence >= this._precedenceStack!.peek();
     };
 
-    public inContext = (_context: java.lang.String | null): boolean => {
+    public inContext = (_context: java.lang.String): boolean => {
         // TODO: useful in parser?
         return false;
     };

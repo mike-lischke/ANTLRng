@@ -2,7 +2,6 @@
 export * from "./atn";
 export * from "./dfa";
 export * from "./misc";
-export * from "./support";
 export * from "./tree";
 
 export * from "./ANTLRErrorListener";

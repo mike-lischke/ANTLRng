@@ -23,7 +23,7 @@ import { DFA } from "./dfa/DFA";
 
 
 
-export class LexerInterpreter extends Lexer {
+export  class LexerInterpreter extends Lexer {
 	protected readonly grammarFileName:  java.lang.String | null;
 	protected readonly atn:  ATN | null;
 

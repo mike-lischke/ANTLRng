@@ -15,7 +15,7 @@ import { TerminalNode } from "./TerminalNode";
 
 
 
-export abstract class AbstractParseTreeVisitor<T> extends JavaObject implements ParseTreeVisitor<T> {
+export abstract  class AbstractParseTreeVisitor<T> extends JavaObject implements ParseTreeVisitor<T> {
 	/**
 	 *
 	 * <p>The default implementation calls {@link ParseTree#accept} on the

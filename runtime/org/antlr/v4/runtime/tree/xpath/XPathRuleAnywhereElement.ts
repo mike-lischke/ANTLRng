@@ -18,7 +18,7 @@ import { Trees } from "../Trees";
 /**
  * Either {@code ID} at start of path or {@code ...//ID} in middle of path.
  */
-export class XPathRuleAnywhereElement extends XPathElement {
+export  class XPathRuleAnywhereElement extends XPathElement {
 	protected ruleIndex:  number;
 	public constructor(ruleName: java.lang.String| null, ruleIndex: number) {
 		super(ruleName);
