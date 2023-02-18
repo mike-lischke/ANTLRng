@@ -108,7 +108,6 @@ export class ParseTreePatternMatcher extends JavaObject {
         extends java.lang.RuntimeException {
     };
 
-
     /**
      * This is the backing field for {@link #getLexer()}.
      */

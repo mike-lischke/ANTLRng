@@ -9,6 +9,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { I, java, S } from "jree";
+
 import { FailedPredicateException } from "./FailedPredicateException";
 import { InputMismatchException } from "./InputMismatchException";
 import { InterpreterRuleContext } from "./InterpreterRuleContext";
@@ -74,7 +75,7 @@ export class ParserInterpreter extends Parser {
      *  Those values are used to create new recursive rule invocation contexts
      *  associated with left operand of an alt like "expr '*' expr".
      */
-    protected readonly _parentContextStack = new ArrayDeque<Pair<ParserRuleContext, java.lang.Integer>>();
+    protected readonly _parentContextStack = new java.util.ArrayDeque<Pair<ParserRuleContext, java.lang.Integer>>();
 
     /**
      * We need a map from (decision,inputIndex)->forced alt for computing ambiguous
@@ -203,10 +204,11 @@ export class ParserInterpreter extends Parser {
                         this.visitState(p);
                     } catch (e) {
                         if (e instanceof RecognitionException<Token, ParserATNSimulator>) {
+                            const ex = e as RecognitionException<Token, ParserATNSimulator>;
                             this.setState(this.atn.ruleToStopState[p.ruleIndex].stateNumber);
-                            this.getContext().exception = e;
-                            this.getErrorHandler().reportError(this, e);
-                            this.recover(e);
+                            this.getContext().exception = ex;
+                            this.getErrorHandler().reportError(this, ex);
+                            this.recover(ex);
                         } else {
                             throw e;
                         }
@@ -219,12 +221,33 @@ export class ParserInterpreter extends Parser {
         }
     };
 
-    public enterRecursionRule = (localctx: ParserRuleContext, state: number, ruleIndex: number,
-        precedence: number): void => {
+    public enterRecursionRule(localctx: ParserRuleContext, ruleIndex: number): void;
+    public enterRecursionRule(localctx: ParserRuleContext, state: number, ruleIndex: number,
+        precedence: number): void;
+    public enterRecursionRule(...args: unknown[]): void {
+        const localctx = args[0] as ParserRuleContext;
+
+        switch (args.length) {
+            case 2: {
+                const [_, ruleIndex] = args as [ParserRuleContext, number];
+                super.enterRecursionRule(localctx, ruleIndex);
+                break;
+            }
+
+            case 4: {
+                const [_, state, ruleIndex, precedence] = args as [ParserRuleContext, number, number, number];
+                this.enterRecursionRule(localctx, state, ruleIndex, precedence);
+                break;
+            }
+
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+
         const pair = new Pair<ParserRuleContext, java.lang.Integer>(this._ctx, I`${localctx.invokingState}`);
         this._parentContextStack.push(pair);
-        super.enterRecursionRule(localctx, state, ruleIndex, precedence);
-    };
+    }
 
     /**
      * Override this parser interpreters normal decision-making process
@@ -296,7 +319,7 @@ export class ParserInterpreter extends Parser {
         return this.atn.states.get(this.getState());
     };
 
-    protected visitState = (p: ATNState | null): void => {
+    protected visitState = (p: ATNState): void => {
         let predictedAlt = 1;
         if (p instanceof DecisionState) {
             predictedAlt = this.visitDecisionState(p);
@@ -310,12 +333,10 @@ export class ParserInterpreter extends Parser {
                     !(transition.target instanceof LoopEndState)) {
                     // We are at the start of a left recursive rule's (...)* loop
                     // and we're not taking the exit branch of loop.
-                    const localctx = this.createInterpreterRuleContext(this._parentContextStack.peek().a,
-                        this._parentContextStack.peek().b,
-                        this._ctx.getRuleIndex());
+                    const localctx = this.createInterpreterRuleContext(this._parentContextStack.peek()!.a,
+                        this._parentContextStack.peek()!.b!.valueOf(), this._ctx!.getRuleIndex());
                     this.pushNewRecursionContext(localctx,
-                        this.atn.ruleToStartState[p.ruleIndex].stateNumber,
-                        this._ctx.getRuleIndex());
+                        this.atn.ruleToStartState[p.ruleIndex].stateNumber, this._ctx!.getRuleIndex());
                 }
                 break;
             }
@@ -432,12 +453,12 @@ export class ParserInterpreter extends Parser {
         if (ruleStartState.isLeftRecursiveRule) {
             const parentContext = this._parentContextStack.pop();
             this.unrollRecursionContexts(parentContext.a);
-            this.setState(parentContext.b);
+            this.setState(parentContext.b!.valueOf());
         } else {
             this.exitRule();
         }
 
-        const ruleTransition: RuleTransition = this.atn.states.get(this.getState())!.transition(0) as RuleTransition;
+        const ruleTransition = this.atn.states.get(this.getState())!.transition(0) as RuleTransition;
         this.setState(ruleTransition.followState.stateNumber);
     };
 
@@ -446,7 +467,7 @@ export class ParserInterpreter extends Parser {
      *  to recover, add an error node. Otherwise, nothing is seen in the parse
      *  tree.
      *
-     * @param e
+     * @param e The recognition exception
      */
     protected recover = (e: RecognitionException<Token, ParserATNSimulator>): void => {
         const i = this._input!.index();

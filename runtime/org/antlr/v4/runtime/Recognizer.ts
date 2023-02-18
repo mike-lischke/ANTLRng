@@ -157,7 +157,7 @@ export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> ex
      * For debugging and other purposes, might want the grammar name.
      *  Have ANTLR generate an implementation for this method.
      */
-    public abstract getGrammarFileName: () => java.lang.String | null;
+    public abstract getGrammarFileName: () => java.lang.String;
 
     /**
      * Get the {@link ATN} used by the recognizer for prediction.

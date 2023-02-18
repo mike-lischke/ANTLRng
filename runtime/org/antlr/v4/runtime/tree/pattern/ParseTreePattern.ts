@@ -68,7 +68,7 @@ export class ParseTreePattern extends JavaObject {
      * used to determine whether or not the match was successful.
      */
 
-    public match = (tree: ParseTree | null): ParseTreeMatch | null => {
+    public match = (tree: ParseTree): ParseTreeMatch => {
         return this.matcher.match(tree, this);
     };
 
@@ -95,9 +95,9 @@ export class ParseTreePattern extends JavaObject {
      * regardless of the reason for the failure.
      */
 
-    public findAll = (tree: ParseTree | null, xpath: java.lang.String | null): java.util.List<ParseTreeMatch> | null => {
-        const subtrees: java.util.Collection<ParseTree> = XPath.findAll(tree, xpath, this.matcher.getParser());
-        const matches: java.util.List<ParseTreeMatch> = new java.util.ArrayList<ParseTreeMatch>();
+    public findAll = (tree: ParseTree, xpath: java.lang.String): java.util.List<ParseTreeMatch> => {
+        const subtrees = XPath.findAll(tree, xpath, this.matcher.getParser());
+        const matches = new java.util.ArrayList<ParseTreeMatch>();
         for (const t of subtrees) {
             const match: ParseTreeMatch = match(t);
             if (match.succeeded()) {

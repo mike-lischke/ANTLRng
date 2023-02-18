@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java, S, JavaObject } from "jree";
 import { Parser } from "./Parser";
 import { Recognizer } from "./Recognizer";
 import { ATN } from "./atn/ATN";
@@ -15,8 +15,6 @@ import { ParseTree } from "./tree/ParseTree";
 import { ParseTreeVisitor } from "./tree/ParseTreeVisitor";
 import { RuleNode } from "./tree/RuleNode";
 import { Trees } from "./tree/Trees";
-
-import { JavaObject } from "../../../../../lib/java/lang/Object";
 
 import { ATNSimulator } from "./atn";
 import { Token } from "./Token";
@@ -90,7 +88,6 @@ export class RuleContext extends JavaObject implements Omit<RuleNode, "getParent
             this.parent = parent;
             this.invokingState = invokingState ?? -1;
         }
-
     }
 
     public depth = (): number => {

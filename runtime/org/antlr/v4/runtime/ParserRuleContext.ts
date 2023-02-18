@@ -86,7 +86,7 @@ export class ParserRuleContext extends RuleContext {
      */
     public exception: RecognitionException<Token, ParserATNSimulator> | null = null;
 
-    public constructor(parent?: ParserRuleContext, invokingStateNumber?: number) {
+    public constructor(parent?: ParserRuleContext | null, invokingStateNumber?: number) {
         super(parent ?? null, invokingStateNumber);
 
     }

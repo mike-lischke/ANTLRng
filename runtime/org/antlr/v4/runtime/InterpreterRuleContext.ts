@@ -1,13 +1,13 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { java, S } from "jree";
 import { ParserRuleContext } from "./ParserRuleContext";
-
-
-
 
 /**
  * This class extends {@link ParserRuleContext} by allowing the value of
@@ -21,36 +21,38 @@ import { ParserRuleContext } from "./ParserRuleContext";
  * parser, this class (with slightly more memory overhead per node) is used to
  * provide equivalent functionality.</p>
  */
-export  class InterpreterRuleContext extends ParserRuleContext {
-	/** This is the backing field for {@link #getRuleIndex}. */
-	protected ruleIndex:  number = -1;
+export class InterpreterRuleContext extends ParserRuleContext {
+    /** This is the backing field for {@link #getRuleIndex}. */
+    protected ruleIndex: number;
 
-	public constructor();
+    public constructor();
+    /**
+     * Constructs a new {@link InterpreterRuleContext} with the specified
+     * parent, invoking state, and rule index.
+     *
+     * @param parent The parent context.
+     * @param invokingStateNumber The invoking state number.
+     * @param ruleIndex The rule index for the current context.
+     */
+    public constructor(parent: ParserRuleContext | null, invokingStateNumber: number, ruleIndex: number);
+    public constructor(...args: unknown[]) {
+        let parent: ParserRuleContext | null = null;
+        let invokingStateNumber: number | undefined;
+        let ruleIndex = -1;
+        if (args.length === 3) {
+            parent = args[0] as ParserRuleContext;
+            invokingStateNumber = args[1] as number;
+            ruleIndex = args[2] as number;
+        } else {
+            throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+        }
 
-	/**
-	 * Constructs a new {@link InterpreterRuleContext} with the specified
-	 * parent, invoking state, and rule index.
-	 *
-	 * @param parent The parent context.
-	 * @param invokingStateNumber The invoking state number.
-	 * @param ruleIndex The rule index for the current context.
-	 */
-	public constructor(parent: ParserRuleContext| null,
-								  invokingStateNumber: number,
-								  ruleIndex: number);
-public constructor(parent?: ParserRuleContext | null, invokingStateNumber?: number, ruleIndex?: number) {
-if (parent === undefined) { super();
-}
- else 
-	{
-		super(parent, invokingStateNumber);
-		this.ruleIndex = ruleIndex;
-	}
+        super(parent, invokingStateNumber);
+        this.ruleIndex = ruleIndex;
 
-}
+    }
 
-
-	public getRuleIndex = ():  number => {
-		return this.ruleIndex;
-	}
+    public getRuleIndex = (): number => {
+        return this.ruleIndex;
+    };
 }
