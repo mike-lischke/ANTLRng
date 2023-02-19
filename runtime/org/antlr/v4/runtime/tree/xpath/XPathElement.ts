@@ -10,8 +10,8 @@ import { java, JavaObject, S } from "jree";
 import { ParseTree } from "../ParseTree";
 
 export abstract class XPathElement extends JavaObject {
+    public invert = false;
     protected nodeName: java.lang.String | null;
-    protected invert = false;
 
     /**
      * Construct element like {@code /ID} or {@code ID} or {@code /*} etc...
@@ -34,6 +34,6 @@ export abstract class XPathElement extends JavaObject {
      * Given tree rooted at {@code t} return all nodes matched by this path
      * element.
      */
-    public abstract evaluate(t: ParseTree | null): java.util.Collection<ParseTree> | null;
+    public abstract evaluate(t: ParseTree | null): java.util.Collection<ParseTree>;
 
 }

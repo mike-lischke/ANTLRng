@@ -23,7 +23,7 @@ export class ErrorNodeImpl extends TerminalNodeImpl implements ErrorNode {
         super(token);
     }
 
-    public accept = <T>(visitor: ParseTreeVisitor<T>): T => {
+    public accept = <T>(visitor: ParseTreeVisitor<T>): T | null => {
         return visitor.visitErrorNode(this);
     };
 }

@@ -369,7 +369,7 @@ export class ParserATNSimulator extends ATNSimulator {
         if (ParserATNSimulator.debug || ParserATNSimulator.trace_atn_sim) {
             const output = `adaptivePredict decision ` + decision +
                 ` exec LA(1)==` + this.getLookaheadName(input) +
-                ` line ` + input.LT(1).getLine() + `:` + input.LT(1).getCharPositionInLine();
+                ` line ` + input.LT(1)!.getLine() + `:` + input.LT(1)!.getCharPositionInLine();
             java.lang.System.out.println(S`${output}`);
         }
 
@@ -599,7 +599,7 @@ export class ParserATNSimulator extends ATNSimulator {
             const output = "execATN decision" + dfa.decision +
                 ", DFA state" + s0 +
                 ", LA(1) == " + this.getLookaheadName(input) +
-                " line" + input.LT(1).getLine() + ": " + input.LT(1).getCharPositionInLine();
+                " line" + input.LT(1)!.getLine() + ": " + input.LT(1)!.getCharPositionInLine();
 
             java.lang.System.out.println(S`${output}`);
 

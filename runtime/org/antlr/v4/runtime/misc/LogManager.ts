@@ -22,7 +22,7 @@ export class LogManager extends JavaObject {
             this.location = new java.lang.Throwable().getStackTrace()[0];
         }
 
-        public toString = (): java.lang.String | null => {
+        public toString = (): java.lang.String => {
             const buf = new java.lang.StringBuilder();
             buf.append(new java.text.SimpleDateFormat(S`yyyy-MM-dd HH:mm:ss:SSS`)
                 .format(new java.util.Date(this.timestamp)));

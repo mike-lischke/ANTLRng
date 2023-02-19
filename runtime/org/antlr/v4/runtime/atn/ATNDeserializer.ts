@@ -589,9 +589,12 @@ export class ATNDeserializer extends JavaObject {
 
     protected checkCondition(condition: boolean, message?: java.lang.String): void {
         if (!condition) {
-            throw new java.lang.IllegalStateException(message);
+            if (message) {
+                throw new java.lang.IllegalStateException(message);
+            } else {
+                throw new java.lang.IllegalStateException();
+            }
         }
-
     }
 
     protected edgeFactory = (atn: ATN,

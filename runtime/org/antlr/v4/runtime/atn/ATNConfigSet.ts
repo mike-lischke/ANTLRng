@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject } from "jree";
+import { java, S } from "jree";
 
 import { ATN } from "./ATN";
 import { ATNConfig } from "./ATNConfig";
@@ -21,7 +21,7 @@ import { Array2DHashSet, DoubleKeyMap, EqualityComparator } from "../misc";
  * info about the set, with support for combining similar configurations using a
  * graph-structured stack.
  */
-export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNConfig>, "add"> {
+export class ATNConfigSet extends java.util.Set<ATNConfig> {
     public static AbstractConfigHashSet = class AbstractConfigHashSet extends Array2DHashSet<ATNConfig> {
         public constructor(comparator: EqualityComparator<ATNConfig>);
         public constructor(comparator: EqualityComparator<ATNConfig>, initialCapacity: number,
@@ -46,7 +46,6 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
         protected readonly createBucket = (capacity: number): ATNConfig[] => {
             return new Array<ATNConfig>(capacity);
         };
-
     };
 
     /**
@@ -63,12 +62,8 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
     };
 
     public static readonly ConfigEqualityComparator =
-        class ConfigEqualityComparator extends EqualityComparator<ATNConfig> {
+        class ConfigEqualityComparator implements EqualityComparator<ATNConfig> {
             public static readonly INSTANCE = new ConfigEqualityComparator();
-
-            public constructor() {
-                super();
-            }
 
             public hashCode = (o: ATNConfig): number => {
                 let hashCode = 7;
@@ -173,7 +168,7 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
      * @returns tbd
      */
     public add(config: ATNConfig,
-        mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
+        mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
         if (this.readonly || this.configLookup === null) {
             throw new java.lang.IllegalStateException(S`This set is readonly`);
         }
@@ -196,7 +191,7 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
 
         // a previous (s,i,pi,_), merge with it and save result
         const rootIsWildcard = !this.fullCtx;
-        const merged = PredictionContext.merge(existing.context, config.context, rootIsWildcard, mergeCache);
+        const merged = PredictionContext.merge(existing.context, config.context, rootIsWildcard, mergeCache ?? null);
         // no need to check for existing.context, config.context in cache
         // since only way to create new graphs is "call rule" and here. We
         // cache at both places.
@@ -398,15 +393,15 @@ export class ATNConfigSet extends JavaObject implements Omit<java.util.Set<ATNCo
         throw new java.lang.UnsupportedOperationException();
     };
 
-    public containsAll = (_c: java.util.Collection<unknown>): boolean => {
+    public containsAll = (_c: java.util.Collection<ATNConfig>): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 
-    public retainAll = (_c: java.util.Collection<unknown>): boolean => {
+    public retainAll = (_c: java.util.Collection<ATNConfig>): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 
-    public removeAll = (_c: java.util.Collection<unknown>): boolean => {
+    public removeAll = (_c: java.util.Collection<ATNConfig>): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 }

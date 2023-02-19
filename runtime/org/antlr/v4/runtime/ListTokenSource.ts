@@ -113,7 +113,7 @@ export class ListTokenSource extends JavaObject implements TokenSource {
         return 0;
     };
 
-    public nextToken = (): Token | null => {
+    public nextToken = (): Token => {
         if (this.i >= this.tokens.size()) {
             if (this.eofToken === null) {
                 let start = -1;

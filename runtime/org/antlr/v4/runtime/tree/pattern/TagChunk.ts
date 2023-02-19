@@ -27,7 +27,7 @@ export class TagChunk extends Chunk {
     /**
      * This is the backing field for {@link #getTag}.
      */
-    private readonly tag: java.lang.String | null = null;
+    private readonly tag: java.lang.String;
     /**
      * This is the backing field for {@link #getLabel}.
      */
@@ -43,7 +43,7 @@ export class TagChunk extends Chunk {
      * @throws IllegalArgumentException if {@code tag} is {@code null} or
      * empty.
      */
-    public constructor(tag: java.lang.String | null);
+    public constructor(tag: java.lang.String);
     /**
      * Construct a new instance of {@link TagChunk} using the specified label
      * and tag.
@@ -61,11 +61,11 @@ export class TagChunk extends Chunk {
         super();
 
         if (tag === undefined) {
-            this.tag = tagOrLabel;
+            this.tag = tagOrLabel!;
         }
         else {
             const label = tagOrLabel;
-            if (tag === null || tag.isEmpty()) {
+            if (tag.isEmpty()) {
                 throw new java.lang.IllegalArgumentException(S`tag cannot be null or empty`);
             }
 
@@ -80,7 +80,7 @@ export class TagChunk extends Chunk {
      * @returns The tag for the chunk.
      */
 
-    public readonly getTag = (): java.lang.String | null => {
+    public readonly getTag = (): java.lang.String => {
         return this.tag;
     };
 
@@ -102,11 +102,11 @@ export class TagChunk extends Chunk {
      *
      * @returns A text representation of the tag chunk.
      */
-    public toString = (): java.lang.String | null => {
+    public toString = (): java.lang.String => {
         if (this.label !== null) {
             return S`${this.label + ":" + this.tag}`;
         }
 
-        return null;
+        return S``;
     };
 }

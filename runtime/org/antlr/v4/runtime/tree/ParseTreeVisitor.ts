@@ -27,7 +27,7 @@ export interface ParseTreeVisitor<T> {
      * @param tree The {@link ParseTree} to visit.
       @returns The result of visiting the parse tree.
      */
-    visit: (tree: ParseTree) => T;
+    visit: (tree: ParseTree) => T | null;
 
     /**
      * Visit the children of a node, and return a user-defined result of the
@@ -36,7 +36,7 @@ export interface ParseTreeVisitor<T> {
      * @param node The {@link RuleNode} whose children should be visited.
       @returns The result of visiting the children of the node.
      */
-    visitChildren: (node: RuleNode) => T;
+    visitChildren: (node: RuleNode) => T | null;
 
     /**
      * Visit a terminal node, and return a user-defined result of the operation.
@@ -44,7 +44,7 @@ export interface ParseTreeVisitor<T> {
      * @param node The {@link TerminalNode} to visit.
       @returns The result of visiting the node.
      */
-    visitTerminal: (node: TerminalNode) => T;
+    visitTerminal: (node: TerminalNode) => T | null;
 
     /**
      * Visit an error node, and return a user-defined result of the operation.
@@ -52,6 +52,6 @@ export interface ParseTreeVisitor<T> {
      * @param node The {@link ErrorNode} to visit.
       @returns The result of visiting the node.
      */
-    visitErrorNode: (node: ErrorNode) => T;
+    visitErrorNode: (node: ErrorNode) => T | null;
 
 }

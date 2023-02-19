@@ -1,10 +1,12 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
+/* eslint-disable no-underscore-dangle */
 
 import { java, S } from "jree";
 import { CharStream } from "../../CharStream";
@@ -16,184 +18,191 @@ import { Vocabulary } from "../../Vocabulary";
 import { VocabularyImpl } from "../../VocabularyImpl";
 import { ATN } from "../../atn/ATN";
 import { Interval } from "../../misc/Interval";
-
-
-
+import { Recognizer } from "../../Recognizer";
 
 /** Mimic the old XPathLexer from .g4 file */
-export  class XPathLexer extends Lexer {
-	public static readonly
-		TOKEN_REF:  number=1;
-public static readonly RULE_REF:  number=2;
-public static readonly ANYWHERE:  number=3;
-public static readonly ROOT:  number=4;
-public static readonly WILDCARD:  number=5;
-public static readonly BANG:  number=6;
-public static readonly ID:  number=7;
-public static readonly
-		STRING:  number=8;
-	public static readonly modeNames:  java.lang.String[] | null = [
-		S`DEFAULT_MODE`
-	];
+export class XPathLexer extends Lexer {
+    public static readonly TOKEN_REF: number = 1;
+    public static readonly RULE_REF: number = 2;
+    public static readonly ANYWHERE: number = 3;
+    public static readonly ROOT: number = 4;
+    public static readonly WILDCARD: number = 5;
+    public static readonly BANG: number = 6;
+    public static readonly ID: number = 7;
+    public static readonly STRING = 8;
 
-	public static readonly ruleNames:  java.lang.String[] | null = [
-		S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`, S`ID`, S`NameChar`, S`NameStartChar`,
-		S`STRING`
-	];
+    public static readonly modeNames: java.lang.String[] = [
+        S`DEFAULT_MODE`,
+    ];
 
-	private static readonly _LITERAL_NAMES:  java.lang.String[] | null = [
-		null, null, null, S`'//'`, S`'/'`, S`'*'`, S`'!'`
-	];
-	private static readonly _SYMBOLIC_NAMES:  java.lang.String[] | null = [
-		null, S`TOKEN_REF`, S`RULE_REF`, S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`,
-		S`ID`, S`STRING`
-	];
-	public static readonly VOCABULARY:  Vocabulary | null = new  VocabularyImpl(XPathLexer._LITERAL_NAMES, XPathLexer._SYMBOLIC_NAMES);
+    public static readonly ruleNames: java.lang.String[] = [
+        S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`, S`ID`, S`NameChar`, S`NameStartChar`,
+        S`STRING`,
+    ];
 
-	/**
-	 * @deprecated Use {@link #VOCABULARY} instead.
-	 */
-	public static readonly tokenNames:  java.lang.String[] | null;
+    /**
+     * @deprecated Use {@link #VOCABULARY} instead.
+     */
+    public static readonly tokenNames: java.lang.String[];
 
-	public getGrammarFileName = ():  java.lang.String | null => { return S`XPathLexer.g4`; }
+    private static readonly _LITERAL_NAMES: Array<java.lang.String | null> = [
+        null, null, null, S`'//'`, S`'/'`, S`'*'`, S`'!'`,
+    ];
+    private static readonly _SYMBOLIC_NAMES: Array<java.lang.String | null> = [
+        null, S`TOKEN_REF`, S`RULE_REF`, S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`,
+        S`ID`, S`STRING`,
+    ];
 
-	public getRuleNames = ():  java.lang.String[] | null => { return XPathLexer.ruleNames; }
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    public static readonly VOCABULARY = new VocabularyImpl(XPathLexer._LITERAL_NAMES, XPathLexer._SYMBOLIC_NAMES);
 
-	public getModeNames = ():  java.lang.String[] | null => { return XPathLexer.modeNames; }
+    protected line = 1;
+    protected charPositionInLine = 0;
 
-	public getTokenNames = ():  java.lang.String[] | null => {
-		return XPathLexer.tokenNames;
-	}
+    public constructor(input: CharStream) {
+        super(input);
+    }
 
-	public getVocabulary = ():  Vocabulary | null => {
-		return XPathLexer.VOCABULARY;
-	}
+    public getGrammarFileName = (): java.lang.String => {
+        return S`XPathLexer.g4`;
+    };
 
-	public getATN = ():  ATN | null => {
-		return null;
-	}
+    public getRuleNames = (): java.lang.String[] => {
+        return XPathLexer.ruleNames;
+    };
 
-	protected line:  number = 1;
-	protected charPositionInLine:  number = 0;
+    public getModeNames = (): java.lang.String[] => {
+        return XPathLexer.modeNames;
+    };
 
-	public constructor(input: CharStream| null) {
-		super(input);
-	}
+    public getTokenNames = (): java.lang.String[] => {
+        return XPathLexer.tokenNames;
+    };
 
-	public nextToken = ():  Token | null => {
-		this._tokenStartCharIndex = this._input.index();
-		let  t: CommonToken = null;
-		while ( t===null ) {
-			switch ( this._input.LA(1) ) {
-				case '/':{
-					this.consume();
-					if ( this._input.LA(1)==='/' ) {
-						this.consume();
-						t = new  CommonToken(XPathLexer.ANYWHERE, S`//`);
-					}
-					else {
-						t = new  CommonToken(XPathLexer.ROOT, S`/`);
-					}
-					break;
-}
+    public getVocabulary = (): Vocabulary => {
+        return XPathLexer.VOCABULARY;
+    };
 
-				case '*':{
-					this.consume();
-					t = new  CommonToken(XPathLexer.WILDCARD, S`*`);
-					break;
-}
+    public getATN = (): ATN | null => {
+        return null;
+    };
 
-				case '!':{
-					this.consume();
-					t = new  CommonToken(XPathLexer.BANG, S`!`);
-					break;
-}
+    public nextToken = (): Token => {
+        this._tokenStartCharIndex = this._input!.index();
+        let t: CommonToken | null = null;
+        while (t === null) {
+            switch (this._input!.LA(1)) {
+                case 0x2F: { // '/'
+                    this.consume();
+                    if (this._input!.LA(1) === 0x2F) {
+                        this.consume();
+                        t = new CommonToken(XPathLexer.ANYWHERE, S`//`);
+                    }
+                    else {
+                        t = new CommonToken(XPathLexer.ROOT, S`/`);
+                    }
+                    break;
+                }
 
-				case '\'':{
-					let  s: java.lang.String = this.matchString();
-					t = new  CommonToken(XPathLexer.STRING, s);
-					break;
-}
+                case 0x2A: { // '*'
+                    this.consume();
+                    t = new CommonToken(XPathLexer.WILDCARD, S`*`);
+                    break;
+                }
 
-				case CharStream.EOF :{
-					return new  CommonToken(Recognizer.EOF, S`<EOF>`);
-}
+                case 0x21: { // '!'
+                    this.consume();
+                    t = new CommonToken(XPathLexer.BANG, S`!`);
+                    break;
+                }
 
-				default:{
-					if ( this.isNameStartChar(this._input.LA(1)) ) {
-						let  id: java.lang.String = this.matchID();
-						if ( java.lang.Character.isUpperCase(id.charAt(0)) ) {
- t = new  CommonToken(XPathLexer.TOKEN_REF, id);
-}
+                case 0x27: { // "'"
+                    const s = this.matchString();
+                    t = new CommonToken(XPathLexer.STRING, s);
+                    break;
+                }
 
-						else {
- t = new  CommonToken(XPathLexer.RULE_REF, id);
-}
+                case CharStream.EOF: {
+                    return new CommonToken(Recognizer.EOF, S`<EOF>`);
+                }
 
-					}
-					else {
-						throw new  LexerNoViableAltException(this, this._input, this._tokenStartCharIndex, null);
-					}
-					break;
-}
+                default: {
+                    if (this.isNameStartChar(this._input!.LA(1))) {
+                        const id = this.matchID();
+                        if (java.lang.Character.isUpperCase(id.charAt(0))) {
+                            t = new CommonToken(XPathLexer.TOKEN_REF, id);
+                        }
 
-			}
-		}
-		t.setStartIndex(this._tokenStartCharIndex);
-		t.setCharPositionInLine(this._tokenStartCharIndex);
-		t.setLine(this.line);
-		return t;
-	}
+                        else {
+                            t = new CommonToken(XPathLexer.RULE_REF, id);
+                        }
 
-	public consume = ():  void => {
-		let  curChar: number = this._input.LA(1);
-		if ( curChar==='\n' ) {
-			this.line++;
-			this.charPositionInLine=0;
-		}
-		else {
-			this.charPositionInLine++;
-		}
-		this._input.consume();
-	}
+                    }
+                    else {
+                        throw new LexerNoViableAltException(this, this._input, this._tokenStartCharIndex, null);
+                    }
+                    break;
+                }
 
-	public getCharPositionInLine = ():  number => {
-		return this.charPositionInLine;
-	}
+            }
+        }
+        t.setStartIndex(this._tokenStartCharIndex);
+        t.setCharPositionInLine(this._tokenStartCharIndex);
+        t.setLine(this.line);
 
-	public matchID = ():  java.lang.String | null => {
-		let  start: number = this._input.index();
-		this.consume(); // drop start char
-		while ( this.isNameChar(this._input.LA(1)) ) {
-			this.consume();
-		}
-		return this._input.getText(Interval.of(start,this._input.index()-1));
-	}
+        return t;
+    };
 
-	public matchString = ():  java.lang.String | null => {
-		let  start: number = this._input.index();
-		this.consume(); // drop first quote
-		while ( this._input.LA(1)!=='\'' ) {
-			this.consume();
-		}
-		this.consume(); // drop last quote
-		return this._input.getText(Interval.of(start,this._input.index()-1));
-	}
+    public consume = (): void => {
+        const curChar: number = this._input!.LA(1);
+        if (curChar === 0x0A) { // '\n'
+            this.line++;
+            this.charPositionInLine = 0;
+        } else {
+            this.charPositionInLine++;
+        }
+        this._input!.consume();
+    };
 
-	public isNameChar = (c: number):  boolean => { return java.lang.Character.isUnicodeIdentifierPart(c); }
+    public getCharPositionInLine = (): number => {
+        return this.charPositionInLine;
+    };
 
-	public isNameStartChar = (c: number):  boolean => { return java.lang.Character.isUnicodeIdentifierStart(c); }
-	static {
-		XPathLexer.tokenNames = new   Array<java.lang.String>(XPathLexer._SYMBOLIC_NAMES.length);
-		for (let  i: number = 0; i < XPathLexer.tokenNames.length; i++) {
-			XPathLexer.tokenNames[i] = XPathLexer.VOCABULARY.getLiteralName(i);
-			if (XPathLexer.tokenNames[i] === null) {
-				XPathLexer.tokenNames[i] = XPathLexer.VOCABULARY.getSymbolicName(i);
-			}
+    public matchID = (): java.lang.String => {
+        const start: number = this._input!.index();
+        this.consume(); // drop start char
+        while (this.isNameChar(this._input!.LA(1))) {
+            this.consume();
+        }
 
-			if (XPathLexer.tokenNames[i] === null) {
-				XPathLexer.tokenNames[i] = S`<INVALID>`;
-			}
-		}
-	}
+        return this._input!.getText(Interval.of(start, this._input!.index() - 1));
+    };
+
+    public matchString = (): java.lang.String | null => {
+        const start: number = this._input!.index();
+        this.consume(); // drop first quote
+        while (this._input!.LA(1) !== 0x27) { // "'""
+            this.consume();
+        }
+        this.consume(); // drop last quote
+
+        return this._input!.getText(Interval.of(start, this._input!.index() - 1));
+    };
+
+    public isNameChar = (c: number): boolean => {
+        return java.lang.Character.isUnicodeIdentifierPart(c);
+    };
+
+    public isNameStartChar = (c: number): boolean => { return java.lang.Character.isUnicodeIdentifierStart(c); };
+
+    static {
+        // @ts-ignore
+        XPathLexer.tokenNames = new Array<java.lang.String>(XPathLexer._SYMBOLIC_NAMES.length);
+        for (let i = 0; i < XPathLexer.tokenNames.length; i++) {
+            const name = XPathLexer.VOCABULARY.getLiteralName(i) ?? XPathLexer.VOCABULARY.getSymbolicName(i)
+                ?? S`<INVALID>`;
+
+            XPathLexer.tokenNames[i] = name;
+        }
+    }
 }

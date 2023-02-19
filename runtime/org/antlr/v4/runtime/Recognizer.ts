@@ -32,7 +32,7 @@ import { ATNSimulator } from "./atn/ATNSimulator";
 import { ParseInfo } from "./atn/ParseInfo";
 import { Utils } from "./misc/Utils";
 
-export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> extends JavaObject {
+export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> extends JavaObject {
     public static readonly EOF: number = -1;
 
     private static readonly tokenTypeMapCache =
@@ -60,7 +60,7 @@ export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> ex
      *
      * @deprecated Use {@link #getVocabulary()} instead.
      */
-    public abstract getTokenNames: () => java.lang.String[];
+    public abstract getTokenNames: () => java.lang.String[] | null;
 
     public abstract getRuleNames: () => java.lang.String[];
 
@@ -87,7 +87,7 @@ export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> ex
             let result = Recognizer.tokenTypeMapCache.get(vocabulary);
             if (result === null) {
                 const map = new java.util.HashMap<java.lang.String, java.lang.Integer>();
-                const end = this.getATN().maxTokenType;
+                const end = this.getATN()!.maxTokenType;
                 for (let i = 0; i <= end; i++) {
                     const literalName = vocabulary.getLiteralName(i);
                     if (literalName !== null) {
@@ -164,7 +164,7 @@ export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> ex
      *
       @returns The {@link ATN} used by the recognizer for prediction.
      */
-    public abstract getATN: () => ATN;
+    public abstract getATN: () => ATN | null;
 
     /**
      * Get the ATN interpreter used by the recognizer for prediction.
@@ -191,7 +191,7 @@ export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> ex
      * @param interpreter The ATN interpreter used by the recognizer for
      * prediction.
      */
-    public setInterpreter = (interpreter: ATNInterpreter | null): void => {
+    public setInterpreter = (interpreter: ATNInterpreter): void => {
         this._interp = interpreter;
     };
 
@@ -202,7 +202,7 @@ export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> ex
      *
      * @returns tbd
      */
-    public getErrorHeader = (e: RecognitionException<Symbol, ATNInterpreter>): java.lang.String => {
+    public getErrorHeader = (e: RecognitionException): java.lang.String => {
         const line = e.getOffendingToken()?.getLine() ?? 0;
         const charPositionInLine = e.getOffendingToken()?.getCharPositionInLine() ?? 0;
 
@@ -308,6 +308,6 @@ export abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> ex
 
     public abstract getInputStream: () => IntStream | null;
     public abstract setInputStream: (input: IntStream | null) => void;
-    public abstract getTokenFactory: () => TokenFactory<Symbol> | null;
-    public abstract setTokenFactory: (input: TokenFactory<Symbol>) => void;
+    public abstract getTokenFactory: () => TokenFactory<Token>;
+    public abstract setTokenFactory: (input: TokenFactory<Token>) => void;
 }

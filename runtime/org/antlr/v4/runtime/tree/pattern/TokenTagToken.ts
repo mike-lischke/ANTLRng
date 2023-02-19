@@ -78,7 +78,7 @@ export class TokenTagToken extends CommonToken {
      *
      * @returns A {@link String} containing the text of the token tag.
      */
-    public getText = (): java.lang.String | null => {
+    public getText = (): java.lang.String => {
         if (this.label !== null) {
             return S`<${this.label}:${this.tokenName}>`;
         }

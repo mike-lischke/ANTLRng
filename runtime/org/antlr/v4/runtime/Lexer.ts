@@ -30,8 +30,7 @@ import { Pair } from "./misc/Pair";
  *  uses simplified match() and error recovery mechanisms in the interest
  *  of speed.
  */
-export abstract class Lexer<S = java.lang.Integer>
-    extends Recognizer<S, LexerATNSimulator> implements TokenSource {
+export abstract class Lexer extends Recognizer<java.lang.Integer, LexerATNSimulator> implements TokenSource {
     public static DEFAULT_MODE = 0;
     public static MORE = -2;
     public static SKIP = -3;
@@ -91,9 +90,11 @@ export abstract class Lexer<S = java.lang.Integer>
     protected _tokenFactorySourcePair: Pair<TokenSource, CharStream> | null = null;
 
     /** How to create token objects */
-    protected _factory: TokenFactory<Token> | null = CommonTokenFactory.DEFAULT;
+    protected _factory: TokenFactory<Token> = CommonTokenFactory.DEFAULT;
 
-    public constructor(input?: CharStream | null) {
+    public constructor();
+    public constructor(input: CharStream);
+    public constructor(input?: CharStream) {
         super();
         if (input !== undefined) {
             this._input = input;
@@ -122,24 +123,23 @@ export abstract class Lexer<S = java.lang.Integer>
     };
 
     /**
-     * @returns a token from this source; i.e., match a token on the char
-     *  stream.
+     * @returns a token from this source; i.e., match a token on the char stream.
      */
-    public nextToken = (): Token | null => {
+    public nextToken = (): Token => {
         if (this._input === null) {
             throw new java.lang.IllegalStateException(S`nextToken requires a non-null input stream.`);
         }
 
         // Mark start location in char stream so unbuffered streams are
         // guaranteed at least have text of current token
-        const tokenStartMarker: number = this._input.mark();
+        const tokenStartMarker = this._input.mark();
         try {
             outer:
             while (true) {
                 if (this._hitEOF) {
                     this.emitEOF();
 
-                    return this._token;
+                    return this._token!;
                 }
 
                 this._token = null;
@@ -177,7 +177,7 @@ export abstract class Lexer<S = java.lang.Integer>
                     this.emit();
                 }
 
-                return this._token;
+                return this._token!;
             }
         } finally {
             // make sure we release marker after match or
@@ -216,7 +216,7 @@ export abstract class Lexer<S = java.lang.Integer>
 
     public popMode = (): number => {
         if (this._modeStack.isEmpty()) {
-            throw new EmptyStackException();
+            throw new java.util.EmptyStackException();
         }
 
         if (LexerATNSimulator.debug) {
@@ -228,29 +228,29 @@ export abstract class Lexer<S = java.lang.Integer>
         return this._mode;
     };
 
-    public setTokenFactory = (factory: TokenFactory<Token> | null): void => {
+    public setTokenFactory = (factory: TokenFactory<Token>): void => {
         this._factory = factory;
     };
 
-    public getTokenFactory = (): TokenFactory<Token> | null => {
+    public getTokenFactory = (): TokenFactory<Token> => {
         return this._factory;
     };
 
     /**
      * Set the char stream and reset the lexer
      *
-     * @param input
+     * @param input The new input {@link CharStream}
      */
     public setInputStream = (input: IntStream | null): void => {
         this._input = null;
-        this._tokenFactorySourcePair = new Pair<TokenSource, CharStream>(this, this._input);
+        this._tokenFactorySourcePair = new Pair<TokenSource, CharStream>(this, this._input!);
         this.reset();
         this._input = input as CharStream;
         this._tokenFactorySourcePair = new Pair<TokenSource, CharStream>(this, this._input);
     };
 
-    public getSourceName = (): java.lang.String | null => {
-        return this._input?.getSourceName() ?? null;
+    public getSourceName = (): java.lang.String => {
+        return this._input!.getSourceName();
     };
 
     public getInputStream = (): CharStream | null => {
@@ -264,7 +264,7 @@ export abstract class Lexer<S = java.lang.Integer>
      *  use that to set the token's text.  Override this method to emit
      *  custom Token objects or provide a new factory.
      */
-    public emit(): Token | null;
+    public emit(): Token;
     /**
      * By default does not support multiple emits per nextToken invocation
      *  for efficiency reasons.  Subclass and override this method, nextToken,
@@ -272,32 +272,22 @@ export abstract class Lexer<S = java.lang.Integer>
      *  rather than a single variable as this implementation does).
      */
     public emit(token: Token): void;
-    // eslint-disable-next-line jsdoc/require-returns
-    /**
-     * By default does not support multiple emits per nextToken invocation
-     *  for efficiency reasons.  Subclass and override this method, nextToken,
-     *  and getToken (to push tokens into a list and pull from that list
-     *  rather than a single variable as this implementation does).
-     *
-     * @param token tbd
-     */
     public emit(token?: Token): Token | void {
         if (token === undefined) {
-            const t = this._factory!.create(this._tokenFactorySourcePair!, this._type, this._text, this._channel,
+            token = this._factory.create(this._tokenFactorySourcePair!, this._type, this._text, this._channel,
                 this._tokenStartCharIndex, this.getCharIndex() - 1, this._tokenStartLine,
                 this._tokenStartCharPositionInLine);
-            this.emit(t);
-
-            return t;
-        } else {
-            this._token = token;
         }
+
+        this._token = token;
+
+        return token;
     }
 
     public emitEOF = (): Token => {
         const position = this.getCharPositionInLine();
         const line = this.getLine();
-        const eof = this._factory!.create(this._tokenFactorySourcePair!, Token.EOF, null, Token.DEFAULT_CHANNEL,
+        const eof = this._factory.create(this._tokenFactorySourcePair!, Token.EOF, null, Token.DEFAULT_CHANNEL,
             this._input!.index(), this._input!.index() - 1,
             line, position);
         this.emit(eof);
@@ -348,7 +338,7 @@ export abstract class Lexer<S = java.lang.Integer>
      * Set the complete text of this token; it wipes any previous
      *  changes to the text.
      *
-     * @param text
+     * @param text the text of the token
      */
     public setText = (text: java.lang.String | null): void => {
         this._text = text;
@@ -416,15 +406,16 @@ export abstract class Lexer<S = java.lang.Integer>
         return tokens;
     };
 
+    public recover(re: LexerNoViableAltException): void;
     /**
      * Lexers can normally match any char in it's vocabulary after matching
      *  a token, so do the easy thing and just kill a character and hope
      *  it all works out.  You can instead use the rule invocation stack
      *  to do sophisticated error recovery if you are in a fragment rule.
      */
-    public recover(re: RecognitionException<S, LexerATNSimulator> | null): void;
-    public recover(eOrRe: LexerNoViableAltException | RecognitionException<S, LexerATNSimulator> | null): void {
-        if (eOrRe instanceof LexerNoViableAltException) {
+    public recover(e: RecognitionException): void;
+    public recover(e: LexerNoViableAltException | RecognitionException): void {
+        if (e instanceof LexerNoViableAltException) {
             if (this._input?.LA(1) !== IntStream.EOF) {
                 // skip a char and try again
                 this.getInterpreter()?.consume(this._input!);
@@ -436,7 +427,7 @@ export abstract class Lexer<S = java.lang.Integer>
 
     }
 
-    public notifyListeners = (e: LexerNoViableAltException | null): void => {
+    public notifyListeners = (e: LexerNoViableAltException): void => {
         const text = this._input!.getText(Interval.of(this._tokenStartCharIndex, this._input!.index()));
         const msg = S`token recognition error at: '${this.getErrorDisplay(text)}'`;
 

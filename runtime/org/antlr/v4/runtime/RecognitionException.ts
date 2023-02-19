@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "jree";
+import { java, S } from "jree";
 
 import { IntStream } from "./IntStream";
 import { ParserRuleContext } from "./ParserRuleContext";
@@ -23,9 +23,9 @@ import { ATNSimulator } from "./atn";
  *  in the input, where it is in the ATN, the rule invocation stack,
  *  and what kind of problem occurred.
  */
-export class RecognitionException<S, T extends ATNSimulator> extends java.lang.RuntimeException {
+export class RecognitionException extends java.lang.RuntimeException {
     /** The {@link Recognizer} where this exception originated. */
-    private readonly recognizer: Recognizer<S, T> | null;
+    private readonly recognizer: Recognizer<unknown, ATNSimulator> | null;
 
     private readonly ctx: RuleContext | null;
     private readonly input: IntStream | null;
@@ -39,32 +39,45 @@ export class RecognitionException<S, T extends ATNSimulator> extends java.lang.R
 
     private offendingState = -1;
 
-    public constructor(recognizer: Recognizer<S, T> | null, input: IntStream | null, ctx: ParserRuleContext | null);
-    public constructor(message: java.lang.String, recognizer: Recognizer<S, T> | null, input: IntStream | null,
+    public constructor(recognizer: Recognizer<unknown, ATNSimulator> | null, input: IntStream | null,
         ctx: ParserRuleContext | null);
-    public constructor(recognizerOrMessage: Recognizer<S, T> | java.lang.String | null,
-        inputOrRecognizer: IntStream | Recognizer<S, T> | null, ctxOrInput: ParserRuleContext | IntStream | null,
-        ctx?: ParserRuleContext | null) {
+    public constructor(message: java.lang.String, recognizer: Recognizer<unknown, ATNSimulator> | null,
+        input: IntStream | null, ctx: ParserRuleContext | null);
+    public constructor(...args: unknown[]) {
+        let message: java.lang.String | undefined;
+        let recognizer: Recognizer<unknown, ATNSimulator> | null;
+        let input: IntStream | null;
+        let ctx: ParserRuleContext | null;
 
-        super(recognizerOrMessage instanceof java.lang.String ? recognizerOrMessage : undefined);
+        switch (args.length) {
+            case 3: {
+                [recognizer, input, ctx] =
+                    args as [Recognizer<unknown, ATNSimulator> | null, IntStream | null, ParserRuleContext | null];
 
-        let recognizer;
-        let input;
-        if (recognizerOrMessage instanceof Recognizer) {
-            recognizer = recognizerOrMessage;
-            input = inputOrRecognizer as IntStream;
-            ctx = ctxOrInput as ParserRuleContext;
-        } else {
-            recognizer = inputOrRecognizer as Recognizer<S, T>;
-            input = ctxOrInput as IntStream;
+                break;
+            }
+
+            case 4: {
+                [message, recognizer, input, ctx] = args as [java.lang.String, Recognizer<unknown, ATNSimulator> | null,
+                    IntStream | null, ParserRuleContext | null];
+
+                break;
+            }
+
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments: ${args.length}`);
+            }
         }
 
+        // @ts-ignore, no idea why TS complains about this.
+        super(message);
         this.recognizer = recognizer;
         if (recognizer !== null) {
             this.offendingState = recognizer.getState();
         }
         this.input = input;
         this.ctx = ctx!;
+
     }
 
     /**
@@ -138,7 +151,7 @@ export class RecognitionException<S, T extends ATNSimulator> extends java.lang.R
       @returns The recognizer where this exception occurred, or {@code null} if
      * the recognizer is not available.
      */
-    public getRecognizer = (): Recognizer<S, T> | null => {
+    public getRecognizer = (): Recognizer<unknown, ATNSimulator> | null => {
         return this.recognizer;
     };
 

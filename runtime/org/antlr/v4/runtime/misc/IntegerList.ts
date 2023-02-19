@@ -235,7 +235,7 @@ export class IntegerList extends JavaObject {
     /**
      * @returns a string representation of this list.
      */
-    public toString = (): java.lang.String | null => {
+    public toString = (): java.lang.String => {
         return java.util.Arrays.toString(this.toArray());
     };
 

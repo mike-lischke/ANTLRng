@@ -25,19 +25,16 @@ export class ParseTreePattern extends JavaObject {
     /**
      * This is the backing field for {@link #getPattern()}.
      */
-
     private readonly pattern: java.lang.String;
 
     /**
      * This is the backing field for {@link #getPatternTree()}.
      */
-
     private readonly patternTree: ParseTree;
 
     /**
      * This is the backing field for {@link #getMatcher()}.
      */
-
     private readonly matcher: ParseTreePatternMatcher;
 
     /**
@@ -99,7 +96,7 @@ export class ParseTreePattern extends JavaObject {
         const subtrees = XPath.findAll(tree, xpath, this.matcher.getParser());
         const matches = new java.util.ArrayList<ParseTreeMatch>();
         for (const t of subtrees) {
-            const match: ParseTreeMatch = match(t);
+            const match = this.match(t);
             if (match.succeeded()) {
                 matches.add(match);
             }

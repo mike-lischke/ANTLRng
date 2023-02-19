@@ -33,7 +33,7 @@ export class BaseErrorListener extends JavaObject implements ANTLRErrorListener 
         line: number,
         charPositionInLine: number,
         msg: java.lang.String | null,
-        e: RecognitionException<S, T> | null): void => {
+        e: RecognitionException | null): void => {
         //
     };
 

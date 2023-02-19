@@ -203,12 +203,11 @@ export class ParserInterpreter extends Parser {
                     try {
                         this.visitState(p);
                     } catch (e) {
-                        if (e instanceof RecognitionException<Token, ParserATNSimulator>) {
-                            const ex = e as RecognitionException<Token, ParserATNSimulator>;
+                        if (e instanceof RecognitionException) {
                             this.setState(this.atn.ruleToStopState[p.ruleIndex].stateNumber);
-                            this.getContext().exception = ex;
-                            this.getErrorHandler().reportError(this, ex);
-                            this.recover(ex);
+                            this.getContext().exception = e;
+                            this.getErrorHandler().reportError(this, e);
+                            this.recover(e);
                         } else {
                             throw e;
                         }
@@ -245,7 +244,7 @@ export class ParserInterpreter extends Parser {
             }
         }
 
-        const pair = new Pair<ParserRuleContext, java.lang.Integer>(this._ctx, I`${localctx.invokingState}`);
+        const pair = new Pair<ParserRuleContext, java.lang.Integer>(this._ctx!, I`${localctx.invokingState}`);
         this._parentContextStack.push(pair);
     }
 
@@ -334,7 +333,7 @@ export class ParserInterpreter extends Parser {
                     // We are at the start of a left recursive rule's (...)* loop
                     // and we're not taking the exit branch of loop.
                     const localctx = this.createInterpreterRuleContext(this._parentContextStack.peek()!.a,
-                        this._parentContextStack.peek()!.b!.valueOf(), this._ctx!.getRuleIndex());
+                        this._parentContextStack.peek()!.b.valueOf(), this._ctx!.getRuleIndex());
                     this.pushNewRecursionContext(localctx,
                         this.atn.ruleToStartState[p.ruleIndex].stateNumber, this._ctx!.getRuleIndex());
                 }
@@ -453,7 +452,7 @@ export class ParserInterpreter extends Parser {
         if (ruleStartState.isLeftRecursiveRule) {
             const parentContext = this._parentContextStack.pop();
             this.unrollRecursionContexts(parentContext.a);
-            this.setState(parentContext.b!.valueOf());
+            this.setState(parentContext.b.valueOf());
         } else {
             this.exitRule();
         }
@@ -469,7 +468,7 @@ export class ParserInterpreter extends Parser {
      *
      * @param e The recognition exception
      */
-    protected recover = (e: RecognitionException<Token, ParserATNSimulator>): void => {
+    protected recover = (e: RecognitionException): void => {
         const i = this._input!.index();
         this.getErrorHandler().recover(this, e);
         if (this._input!.index() === i) {
@@ -484,8 +483,8 @@ export class ParserInterpreter extends Parser {
 
                 const errToken =
                     this.getTokenFactory().create(
-                        new Pair(tok.getTokenSource(), tok.getTokenSource()!.getInputStream(),
-                        ), expectedTokenType, tok.getText(),
+                        new Pair(tok.getTokenSource()!, tok.getTokenSource()!.getInputStream()!), expectedTokenType,
+                        tok.getText(),
                         Token.DEFAULT_CHANNEL,
                         -1, -1, // invalid start/stop
                         tok.getLine(), tok.getCharPositionInLine());
@@ -495,7 +494,7 @@ export class ParserInterpreter extends Parser {
                 const tok = e.getOffendingToken()!;
                 const errToken =
                     this.getTokenFactory().create(
-                        new Pair(tok.getTokenSource(), tok.getTokenSource()!.getInputStream()),
+                        new Pair(tok.getTokenSource()!, tok.getTokenSource()!.getInputStream()!),
                         Token.INVALID_TYPE, tok.getText(),
                         Token.DEFAULT_CHANNEL,
                         -1, -1, // invalid start/stop

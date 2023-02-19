@@ -33,7 +33,7 @@ export interface TokenSource {
      * on the characters until you get a good one; errors are not passed through
      * to the parser.
      */
-    nextToken: () => Token | null;
+    nextToken: () => Token;
 
     /**
      * Get the line number for the current position in the input stream. The

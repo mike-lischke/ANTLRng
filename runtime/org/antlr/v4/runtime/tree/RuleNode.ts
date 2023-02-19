@@ -12,3 +12,7 @@ import { RuleContext } from "../RuleContext";
 export interface RuleNode extends ParseTree {
     getRuleContext: () => RuleContext | null;
 }
+
+export const isRuleNode = (o: unknown): o is RuleNode => {
+    return typeof (o as RuleNode).getRuleContext === "function";
+};

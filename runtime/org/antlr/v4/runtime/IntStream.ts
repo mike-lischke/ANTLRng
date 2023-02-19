@@ -83,6 +83,7 @@ export interface IntStream {
      * @throws UnsupportedOperationException if the stream does not support
      * retrieving the value of the specified symbol
      */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     LA: (i: number) => number;
 
     /**
@@ -203,7 +204,7 @@ export interface IntStream {
      */
     getSourceName: () => java.lang.String;
 
-    toString: () => java.lang.String;
+    toString: () => java.lang.String | null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare

@@ -96,7 +96,7 @@ export class PredictionMode extends Enum<PredictionMode> {
     };
 
     private static readonly AltAndContextConfigEqualityComparator =
-        class AltAndContextConfigEqualityComparator extends EqualityComparator<ATNConfig> {
+        class AltAndContextConfigEqualityComparator implements EqualityComparator<ATNConfig> {
             public static readonly INSTANCE = new AltAndContextConfigEqualityComparator();
             /**
              * The hash code is only a function of the {@link ATNState#stateNumber}

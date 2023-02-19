@@ -47,7 +47,7 @@ export class Triple<A, B, C> extends JavaObject {
         return MurmurHash.finish(hash, 3);
     };
 
-    public toString = (): java.lang.String | null => {
+    public toString = (): java.lang.String => {
         return java.lang.String.format(S`(%s, %s, %s)`, this.a, this.b, this.c);
     };
 }

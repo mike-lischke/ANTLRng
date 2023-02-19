@@ -1,11 +1,10 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-
-
-
 
 import { java, JavaObject, S } from "jree";
 import { XPathElement } from "./XPathElement";
@@ -24,9 +23,6 @@ import { Parser } from "../../Parser";
 import { ParserRuleContext } from "../../ParserRuleContext";
 import { Token } from "../../Token";
 import { ParseTree } from "../ParseTree";
-
-
-
 
 /**
  * Represent a subset of XPath XML path syntax for use in identifying nodes in
@@ -72,79 +68,87 @@ import { ParseTree } from "../ParseTree";
  * Whitespace is not allowed.</p>
  */
 export class XPath extends JavaObject {
-    public static readonly WILDCARD: java.lang.String | null = S`*`; // word not operator/separator
-    public static readonly NOT: java.lang.String | null = S`!`; 	   // word for invert operator
+    public static readonly WILDCARD: java.lang.String = S`*`; // word not operator/separator
+    public static readonly NOT: java.lang.String = S`!`; 	   // word for invert operator
 
     protected path: java.lang.String | null;
-    protected elements: XPathElement[] | null;
-    protected parser: Parser | null;
+    protected elements: XPathElement[];
+    protected parser: Parser;
 
-    public constructor(parser: Parser | null, path: java.lang.String | null) {
+    public constructor(parser: Parser, path: java.lang.String) {
         super();
         this.parser = parser;
         this.path = path;
         this.elements = this.split(path);
-        //		System.out.println(Arrays.toString(elements));
     }
+
+    public static findAll = (tree: ParseTree, xpath: java.lang.String,
+        parser: Parser): java.util.Collection<ParseTree> => {
+        const p: XPath = new XPath(parser, xpath);
+
+        return p.evaluate(tree);
+    };
 
     // TODO: check for invalid token/rule names, bad syntax
 
-    public split = (path: java.lang.String | null): XPathElement[] | null => {
-        let in: ANTLRInputStream;
+    public split = (path: java.lang.String): XPathElement[] => {
+        let input: ANTLRInputStream;
         try {
-			in = new ANTLRInputStream(new StringReader(path));
+            input = new ANTLRInputStream(new java.io.StringReader(path));
         } catch (ioe) {
             if (ioe instanceof java.io.IOException) {
-                throw new java.lang.IllegalArgumentException(S`Could not read path: ` + path, ioe);
+                throw new java.lang.IllegalArgumentException(S`Could not read path: ${path}`, ioe);
             } else {
                 throw ioe;
             }
         }
-        let lexer: XPathLexer = new class extends XPathLexer {
-            public recover = (e: LexerNoViableAltException | null): void => { throw e; };
-        }(in);
+        const lexer: XPathLexer = new class extends XPathLexer {
+            public recover = (e: LexerNoViableAltException): void => {
+                throw e;
+            };
+        }(input);
+
         lexer.removeErrorListeners();
         lexer.addErrorListener(new XPathLexerErrorListener());
-        let tokenStream: CommonTokenStream = new CommonTokenStream(lexer);
+        const tokenStream: CommonTokenStream = new CommonTokenStream(lexer);
         try {
             tokenStream.fill();
         } catch (e) {
             if (e instanceof LexerNoViableAltException) {
-                let pos: number = lexer.getCharPositionInLine();
-                let msg: java.lang.String = S`Invalid tokens or characters at index ` + pos + S` in path '` + path + S`'`;
+                const pos: number = lexer.getCharPositionInLine();
+                const msg = S`Invalid tokens or characters at index ${pos} in path '${path}'`;
                 throw new java.lang.IllegalArgumentException(msg, e);
             } else {
                 throw e;
             }
         }
 
-        let tokens: java.util.List<Token> = tokenStream.getTokens();
-        //		System.out.println("path="+path+"=>"+tokens);
-        let elements: java.util.List<XPathElement> = new java.util.ArrayList<XPathElement>();
-        let n: number = tokens.size();
-        let i: number = 0;
+        const tokens = tokenStream.getTokens()!;
+        const elements: java.util.List<XPathElement> = new java.util.ArrayList<XPathElement>();
+        const n = tokens.size();
+        let i = 0;
+
         loop:
         while (i < n) {
-            let el: Token = tokens.get(i);
-            let next: Token = null;
+            const el: Token = tokens.get(i);
+            let next: Token | null = null;
             switch (el.getType()) {
                 case XPathLexer.ROOT:
                 case XPathLexer.ANYWHERE: {
-                    let anywhere: boolean = el.getType() === XPathLexer.ANYWHERE;
+                    const anywhere: boolean = el.getType() === XPathLexer.ANYWHERE;
                     i++;
                     next = tokens.get(i);
-                    let invert: boolean = next.getType() === XPathLexer.BANG;
+                    const invert: boolean = next.getType() === XPathLexer.BANG;
                     if (invert) {
                         i++;
                         next = tokens.get(i);
                     }
-                    let pathElement: XPathElement = this.getXPathElement(next, anywhere);
+                    const pathElement = this.getXPathElement(next, anywhere);
                     pathElement.invert = invert;
                     elements.add(pathElement);
                     i++;
                     break;
                 }
-
 
                 case XPathLexer.TOKEN_REF:
                 case XPathLexer.RULE_REF:
@@ -154,33 +158,71 @@ export class XPath extends JavaObject {
                     break;
                 }
 
-
                 case Token.EOF: {
                     break loop;
                 }
 
-
                 default: {
-                    throw new java.lang.IllegalArgumentException(S`Unknowth path element ` + el);
+                    throw new java.lang.IllegalArgumentException(S`Unknown path element ${el}`);
                 }
-
             }
         }
+
         return elements.toArray(new Array<XPathElement>(0));
+    };
+
+    /**
+     * Return a list of all nodes starting at {@code t} as root that satisfy the
+     * path. The root {@code /} is relative to the node passed to
+     * {@link #evaluate}.
+     *
+     * @param t The root node.
+     *
+     * @returns A collection of all nodes starting at {@code t} as root that
+     */
+    public evaluate = (t: ParseTree): java.util.Collection<ParseTree> => {
+        const dummyRoot = new ParserRuleContext();
+        dummyRoot.children = java.util.Collections.singletonList(t); // don't set t's parent.
+
+        let work = java.util.Collections.singleton<ParseTree>(dummyRoot);
+
+        let i = 0;
+        while (i < this.elements.length) {
+            const next = new java.util.LinkedHashSet<ParseTree>();
+            for (const node of work) {
+                if (node.getChildCount() > 0) {
+                    // only try to match next element if it has children
+                    // e.g., //func/*/stat might have a token node for which
+                    // we can't go looking for stat nodes.
+                    const matching = this.elements[i].evaluate(node);
+                    next.addAll(matching);
+                }
+            }
+            i++;
+            work = next;
+        }
+
+        return work;
     };
 
     /**
      * Convert word like {@code *} or {@code ID} or {@code expr} to a path
      * element. {@code anywhere} is `true` if {@code //} precedes the
      * word.
+     *
+     * @param wordToken The token representing an XPath word.
+     * @param anywhere `true` if {@code //} precedes the word.
+     *
+     * @returns The path element corresponding to the specified word.
      */
-    protected getXPathElement = (wordToken: Token | null, anywhere: boolean): XPathElement | null => {
+    protected getXPathElement = (wordToken: Token, anywhere: boolean): XPathElement => {
         if (wordToken.getType() === Token.EOF) {
             throw new java.lang.IllegalArgumentException(S`Missing path element at end of path`);
         }
-        let word: java.lang.String = wordToken.getText();
-        let ttype: number = this.parser.getTokenType(word);
-        let ruleIndex: number = this.parser.getRuleIndex(word);
+
+        const word = wordToken.getText()!;
+        const ttype: number = this.parser.getTokenType(word);
+        const ruleIndex: number = this.parser.getRuleIndex(word);
         switch (wordToken.getType()) {
             case XPathLexer.WILDCARD: {
                 return anywhere ?
@@ -191,11 +233,10 @@ export class XPath extends JavaObject {
             case XPathLexer.TOKEN_REF:
             case XPathLexer.STRING: {
                 if (ttype === Token.INVALID_TYPE) {
-                    throw new java.lang.IllegalArgumentException(word +
-                        S` at index ` +
-                        wordToken.getStartIndex() +
-                        S` isn't a valid token name`);
+                    throw new java.lang.IllegalArgumentException(
+                        S`${word} at index ${wordToken.getStartIndex()} isn't a valid token name`);
                 }
+
                 return anywhere ?
                     new XPathTokenAnywhereElement(word, ttype) :
                     new XPathTokenElement(word, ttype);
@@ -203,54 +244,14 @@ export class XPath extends JavaObject {
 
             default: {
                 if (ruleIndex === -1) {
-                    throw new java.lang.IllegalArgumentException(word +
-                        S` at index ` +
-                        wordToken.getStartIndex() +
-                        S` isn't a valid rule name`);
+                    throw new java.lang.IllegalArgumentException(
+                        S`${word} at index ${wordToken.getStartIndex()} isn't a valid rule name`);
                 }
+
                 return anywhere ?
                     new XPathRuleAnywhereElement(word, ruleIndex) :
                     new XPathRuleElement(word, ruleIndex);
             }
-
         }
-    };
-
-
-    public static findAll = (tree: ParseTree, xpath: java.lang.String,
-        parser: Parser): java.util.Collection<ParseTree> => {
-        let p: XPath = new XPath(parser, xpath);
-
-        return p.evaluate(tree);
-    };
-
-    /**
-     * Return a list of all nodes starting at {@code t} as root that satisfy the
-     * path. The root {@code /} is relative to the node passed to
-     * {@link #evaluate}.
-     */
-    public evaluate = (t: ParseTree): java.util.Collection<ParseTree> => {
-        let dummyRoot = new ParserRuleContext();
-        dummyRoot.children = java.util.Collections.singletonList(t); // don't set t's parent.
-
-        let work: java.util.Collection<ParseTree> = java.util.Collections.< ParseTree > singleton(dummyRoot);
-
-        let i: number = 0;
-        while (i < this.elements.length) {
-            let next: java.util.Collection<ParseTree> = new java.util.LinkedHashSet<ParseTree>();
-            for (let node of work) {
-                if (node.getChildCount() > 0) {
-                    // only try to match next element if it has children
-                    // e.g., //func/*/stat might have a token node for which
-                    // we can't go looking for stat nodes.
-                    let matching: java.util.Collection<ParseTree> = this.elements[i].evaluate(node);
-                    next.addAll(matching);
-                }
-            }
-            i++;
-            work = next;
-        }
-
-        return work;
     };
 }

@@ -20,7 +20,7 @@ export class DoubleKeyMap<Key1, Key2, Value> extends JavaObject {
         let data2 = this.data.get(k1);
         let prev: Value | null = null;
         if (data2 === null) {
-            data2 = new java.util.LinkedHashMap<Key2, Value>();
+            data2 = new java.util.LinkedHashMap<Key2, Value | null>();
             this.data.put(k1, data2);
         } else {
             prev = data2.get(k2);
@@ -30,7 +30,7 @@ export class DoubleKeyMap<Key1, Key2, Value> extends JavaObject {
         return prev;
     };
 
-    public get(k1: Key1): java.util.Map<Key2, Value> | null;
+    public get(k1: Key1): java.util.Map<Key2, Value | null> | null;
     public get(k1: Key1, k2: Key2): Value | null;
     public get(k1: Key1, k2?: Key2): java.util.Map<Key2, Value | null> | null | Value {
         if (k2 === undefined) {
@@ -43,7 +43,6 @@ export class DoubleKeyMap<Key1, Key2, Value> extends JavaObject {
 
             return data2.get(k2);
         }
-
     }
 
     /**

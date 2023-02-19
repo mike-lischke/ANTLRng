@@ -8,8 +8,7 @@
 
 /* eslint-disable no-underscore-dangle */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
-import { JavaObject } from "../../../../../lib/java/lang/Object";
+import { java, JavaObject, S } from "jree";
 
 import { CharStream } from "./CharStream";
 import { FailedPredicateException } from "./FailedPredicateException";
@@ -134,7 +133,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
                     this.reportFailedPredicate(recognizer, e);
                 } else {
                     java.lang.System.err.println(S`unknown recognition error type: ${e.getClass().getName()}`);
-                    recognizer.notifyErrorListeners(e.getOffendingToken(), e.getMessage(), e);
+                    recognizer.notifyErrorListeners(e.getOffendingToken(), e.getMessage()!, e);
                 }
             }
 
@@ -621,7 +620,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
         }
 
         return recognizer.getTokenFactory()!.create(
-            new Pair<TokenSource, CharStream>(current.getTokenSource(), current.getTokenSource().getInputStream()),
+            new Pair<TokenSource, CharStream>(current.getTokenSource(), current.getTokenSource()!.getInputStream()),
             expectedTokenType, tokenText, Token.DEFAULT_CHANNEL,
             -1, -1, current.getLine(), current.getCharPositionInLine());
     };

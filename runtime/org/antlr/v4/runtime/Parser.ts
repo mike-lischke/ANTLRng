@@ -57,7 +57,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
     public TraceListener = (($outer) => {
         return class TraceListener extends JavaObject implements ParseTreeListener {
             public enterEveryRule = (ctx: ParserRuleContext): void => {
-                const lt1Text = $outer._input?.LT(1).getText() ?? "null";
+                const lt1Text = $outer._input?.LT(1)?.getText() ?? "null";
                 const text = `enter    ${$outer.getRuleNames()[ctx.getRuleIndex()]}` +
                     `, LT(1)=` + lt1Text;
 
@@ -73,7 +73,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
             public visitErrorNode = (_node: ErrorNode): void => { /**/ };
 
             public exitEveryRule = (ctx: ParserRuleContext): void => {
-                const lt1Text = $outer._input?.LT(1).getText() ?? "null";
+                const lt1Text = $outer._input?.LT(1)?.getText() ?? "null";
                 const text = `exit    ` + $outer.getRuleNames()[ctx.getRuleIndex()] +
                     `, LT(1)=` + lt1Text;
                 java.lang.System.out.println(S`${text}`);
@@ -519,21 +519,33 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * @returns tbd
      */
     public getCurrentToken = (): Token => {
-        return this._input!.LT(1);
+        return this._input!.LT(1)!;
     };
 
     public notifyErrorListeners(msg: java.lang.String): void;
     public notifyErrorListeners(offendingToken: Token | null, msg: java.lang.String,
-        e: RecognitionException<Token, ParserATNSimulator>): void;
-    public notifyErrorListeners(msgOrOffendingToken: java.lang.String | Token | null, msg?: java.lang.String,
-        e?: RecognitionException<Token, ParserATNSimulator>): void {
+        e: RecognitionException<Token, ParserATNSimulator> | null): void;
+    public notifyErrorListeners(...args: unknown[]): void {
+        let msg: java.lang.String;
+        let offendingToken: Token;
+        let e: RecognitionException<Token, ParserATNSimulator> | null = null;
 
-        let offendingToken: Token | null = null;
-        let message: java.lang.String | null = msg ?? null;
-        if (msgOrOffendingToken instanceof java.lang.String) {
-            message = msgOrOffendingToken;
-        } else {
-            offendingToken = msgOrOffendingToken;
+        switch (args.length) {
+            case 1: {
+                msg = args[0] as java.lang.String;
+                offendingToken = this.getCurrentToken();
+                break;
+            }
+
+            case 3: {
+                [offendingToken, msg, e] =
+                    args as [Token, java.lang.String, RecognitionException<Token, ParserATNSimulator>];
+                break;
+            }
+
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
         }
 
         ++this._syntaxErrors;
@@ -541,7 +553,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         const charPositionInLine = offendingToken?.getCharPositionInLine() ?? -1;
 
         const listener = this.getErrorListenerDispatch();
-        listener.syntaxError(this, offendingToken, line, charPositionInLine, message ?? S``, e ?? null);
+        listener.syntaxError(this, offendingToken, line, charPositionInLine, msg, e);
     }
 
     /**

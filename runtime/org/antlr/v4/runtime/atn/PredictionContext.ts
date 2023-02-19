@@ -721,7 +721,7 @@ export abstract class PredictionContext extends JavaObject {
         }
 
         const result: java.lang.String[] = [];
-        const atn = recognizer.getATN();
+        const atn = recognizer.getATN()!;
 
         outer:
         for (let perm = 0; ; perm++) {

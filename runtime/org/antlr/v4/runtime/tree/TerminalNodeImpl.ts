@@ -6,9 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
-
-
+import { java, S, JavaObject } from "jree";
 
 import { ParseTree } from "./ParseTree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
@@ -61,7 +59,7 @@ export class TerminalNodeImpl extends JavaObject implements TerminalNode {
         return 0;
     };
 
-    public accept = <T>(visitor: ParseTreeVisitor<T>): T => {
+    public accept = <T>(visitor: ParseTreeVisitor<T>): T | null => {
         return visitor.visitTerminal(this);
     };
 

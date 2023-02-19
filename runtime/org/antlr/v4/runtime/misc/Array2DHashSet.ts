@@ -12,7 +12,7 @@ import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 import { EqualityComparator } from "./EqualityComparator";
 
 /** {@link Set} implementation with closed hashing (open addressing). */
-export class Array2DHashSet<T extends JavaObject> extends JavaObject implements java.util.Set<T> {
+export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
     public static readonly INITIAL_CAPACITY = 16; // must be power of 2
     public static readonly INITIAL_BUCKET_CAPACITY = 8;
     public static readonly LOAD_FACTOR: number = 0.75;
@@ -48,7 +48,7 @@ export class Array2DHashSet<T extends JavaObject> extends JavaObject implements 
 
             public next = (): T => {
                 if (!this.hasNext()) {
-                    throw new java.lang.NoSuchElementException();
+                    throw new java.util.NoSuchElementException();
                 }
 
                 this.removed = false;

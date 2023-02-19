@@ -18,7 +18,7 @@ export class TextChunk extends Chunk {
      * This is the backing field for {@link #getText}.
      */
 
-    private readonly text: java.lang.String | null;
+    private readonly text: java.lang.String;
 
     /**
      * Constructs a new instance of {@link TextChunk} with the specified text.
@@ -26,7 +26,7 @@ export class TextChunk extends Chunk {
      * @param text The text of this chunk.
      * @throws IllegalArgumentException if {@code text} is {@code null}.
      */
-    public constructor(text: java.lang.String | null) {
+    public constructor(text: java.lang.String) {
         super();
         if (text === null) {
             throw new java.lang.IllegalArgumentException(S`text cannot be null`);
@@ -41,7 +41,7 @@ export class TextChunk extends Chunk {
      * @returns The text of the chunk.
      */
 
-    public readonly getText = (): java.lang.String | null => {
+    public readonly getText = (): java.lang.String => {
         return this.text;
     };
 

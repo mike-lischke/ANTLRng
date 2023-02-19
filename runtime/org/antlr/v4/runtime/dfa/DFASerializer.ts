@@ -23,9 +23,9 @@ export class DFASerializer extends JavaObject {
         this.vocabulary = vocabulary;
     }
 
-    public toString = (): java.lang.String | null => {
+    public toString = (): java.lang.String => {
         if (this.dfa.s0 === null) {
-            return null;
+            return S``;
         }
 
         const buf = new java.lang.StringBuilder();
@@ -48,7 +48,7 @@ export class DFASerializer extends JavaObject {
 
         const output: java.lang.String = buf.toString();
         if (output.length() === 0) {
-            return null;
+            return S``;
         }
 
         return output;

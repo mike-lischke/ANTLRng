@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java } from "jree";
 import { ParseTreeVisitor } from "./ParseTreeVisitor";
 import { SyntaxTree } from "./SyntaxTree";
 import { Parser } from "../Parser";
@@ -43,7 +43,7 @@ export interface ParseTree extends SyntaxTree {
     setParent: (parent: RuleContext | null) => void;
 
     /** The {@link ParseTreeVisitor} needs a double dispatch method. */
-    accept: <T>(visitor: ParseTreeVisitor<T>) => T;
+    accept: <T>(visitor: ParseTreeVisitor<T>) => T | null;
 
     /**
      * Return the combined text of all leaf nodes. Does not get any

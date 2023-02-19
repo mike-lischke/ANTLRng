@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention, @typescript-eslint/unified-signatures */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java } from "jree";
 import { IntStream } from "./IntStream";
 import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
@@ -28,7 +28,7 @@ export interface TokenStream extends IntStream {
      *
      * @see IntStream#LA
      */
-    LT: (k: number) => Token;
+    LT: (k: number) => Token | null;
 
     /**
      * Gets the {@link Token} at the specified {@code index} in the stream. When
@@ -48,7 +48,7 @@ export interface TokenStream extends IntStream {
      * @throws UnsupportedOperationException if the stream does not support
      * retrieving the token at the specified index
      */
-    get: (index: number) => Token;
+    get: (index: number) => Token | null;
 
     /**
      * Gets the underlying {@link TokenSource} which provides tokens for this

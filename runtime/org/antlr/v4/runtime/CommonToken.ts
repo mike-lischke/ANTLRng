@@ -19,7 +19,7 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
      * An empty {@link Pair} which is used as the default value of
      * {@link #source} for tokens that do not have a source.
      */
-    protected static readonly EMPTY_SOURCE = new Pair<TokenSource, CharStream>(null, null);
+    protected static readonly EMPTY_SOURCE = new Pair<TokenSource | null, CharStream | null>(null, null);
 
     /**
      * This is the backing field for {@link #getType} and {@link #setType}.
@@ -54,7 +54,7 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
      * {@link Pair} containing these values.</p>
      */
 
-    protected source: Pair<TokenSource, CharStream> | null;
+    protected source: Pair<TokenSource | null, CharStream | null> | null;
 
     /**
      * This is the backing field for {@link #getText} when the token text is
@@ -148,7 +148,7 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
                 this.source = oldToken.source;
             } else {
                 this.text = oldToken.getText();
-                this.source = new Pair<TokenSource, CharStream>(oldToken.getTokenSource(), oldToken.getInputStream());
+                this.source = new Pair<TokenSource, CharStream>(oldToken.getTokenSource()!, oldToken.getInputStream()!);
             }
         }
     }

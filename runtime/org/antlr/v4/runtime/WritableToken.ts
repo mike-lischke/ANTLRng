@@ -28,3 +28,9 @@ export interface WritableToken extends Token {
 
     toString(): java.lang.String;
 }
+
+export const isWritableToken = (obj: unknown): obj is WritableToken => {
+    const candidate = obj as WritableToken;
+
+    return (candidate.getChannel !== undefined) && (candidate.setText !== undefined);
+};

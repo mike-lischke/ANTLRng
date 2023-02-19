@@ -175,7 +175,7 @@ export class ParseTreeMatch extends JavaObject {
         return this.tree;
     };
 
-    public toString = (): java.lang.String | null => {
+    public toString = (): java.lang.String => {
         return java.lang.String.format(
             S`Match %s; found %d labels`,
             this.succeeded() ? S`succeeded` : S`failed`,
