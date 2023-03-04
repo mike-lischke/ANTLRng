@@ -43,7 +43,7 @@ export interface ParseTree extends SyntaxTree {
     setParent: (parent: RuleContext | null) => void;
 
     /** The {@link ParseTreeVisitor} needs a double dispatch method. */
-    accept: <T>(visitor: ParseTreeVisitor<T>) => T | null;
+    accept: <T>(visitor: ParseTreeVisitor<T>) => T;
 
     /**
      * Return the combined text of all leaf nodes. Does not get any

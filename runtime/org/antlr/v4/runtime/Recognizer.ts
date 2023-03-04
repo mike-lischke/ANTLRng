@@ -6,14 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
+/* eslint-disable no-underscore-dangle */
 
 import { java, S, I, JavaObject } from "jree";
 
@@ -32,13 +25,16 @@ import { ATNSimulator } from "./atn/ATNSimulator";
 import { ParseInfo } from "./atn/ParseInfo";
 import { Utils } from "./misc/Utils";
 
-export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> extends JavaObject {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends JavaObject {
     public static readonly EOF: number = -1;
 
     private static readonly tokenTypeMapCache =
         new java.util.WeakHashMap<Vocabulary, Readonly<java.util.Map<java.lang.String, java.lang.Integer>>>();
     private static readonly ruleIndexMapCache =
         new java.util.WeakHashMap<java.lang.String[], Readonly<java.util.Map<java.lang.String, java.lang.Integer>>>();
+
+    protected _interp: ATNInterpreter | null = null;
 
     private _listeners: java.util.List<ANTLRErrorListener> =
         new class extends java.util.concurrent.CopyOnWriteArrayList<ANTLRErrorListener> {
@@ -48,8 +44,6 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
                 this.add(ConsoleErrorListener.INSTANCE);
             }
         }();
-
-    protected _interp: ATNInterpreter | null = null;
 
     private _stateNumber = -1;
 
@@ -63,6 +57,24 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
     public abstract getTokenNames: () => java.lang.String[] | null;
 
     public abstract getRuleNames: () => java.lang.String[];
+
+    /**
+     * For debugging and other purposes, might want the grammar name.
+     *  Have ANTLR generate an implementation for this method.
+     */
+    public abstract getGrammarFileName: () => java.lang.String;
+
+    /**
+     * Get the {@link ATN} used by the recognizer for prediction.
+     *
+      @returns The {@link ATN} used by the recognizer for prediction.
+     */
+    public abstract getATN: () => ATN | null;
+
+    public abstract getInputStream: () => IntStream | null;
+    public abstract setInputStream: (input: IntStream | null) => void;
+    public abstract getTokenFactory: () => TokenFactory<Token>;
+    public abstract setTokenFactory: (input: TokenFactory<Token>) => void;
 
     /**
      * Get the vocabulary used by the recognizer.
@@ -119,7 +131,8 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
     public getRuleIndexMap = (): java.util.Map<java.lang.String, java.lang.Integer> => {
         const ruleNames = this.getRuleNames();
         if (ruleNames === null) {
-            throw new java.lang.UnsupportedOperationException(S`The current recognizer does not provide a list of rule names.`);
+            throw new java.lang.UnsupportedOperationException(
+                S`The current recognizer does not provide a list of rule names.`);
         }
 
 		/* synchronized (ruleIndexMapCache) */ {
@@ -154,19 +167,6 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
     };
 
     /**
-     * For debugging and other purposes, might want the grammar name.
-     *  Have ANTLR generate an implementation for this method.
-     */
-    public abstract getGrammarFileName: () => java.lang.String;
-
-    /**
-     * Get the {@link ATN} used by the recognizer for prediction.
-     *
-      @returns The {@link ATN} used by the recognizer for prediction.
-     */
-    public abstract getATN: () => ATN | null;
-
-    /**
      * Get the ATN interpreter used by the recognizer for prediction.
      *
       @returns The ATN interpreter used by the recognizer for prediction.
@@ -191,8 +191,8 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
      * @param interpreter The ATN interpreter used by the recognizer for
      * prediction.
      */
-    public setInterpreter = (interpreter: ATNInterpreter): void => {
-        this._interp = interpreter;
+    public setInterpreter = (interpreter: ATNSimulator): void => {
+        this._interp = interpreter as ATNInterpreter;
     };
 
     /**
@@ -249,7 +249,7 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
 
     /**
      * @param listener tbd
-     * @exception NullPointerException if {@code listener} is {@code null}.
+     * @throws NullPointerException if {@code listener} is {@code null}.
      */
     public addErrorListener = (listener: ANTLRErrorListener | null): void => {
         if (listener === null) {
@@ -286,6 +286,7 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
     };
 
     public action = (_localctx: RuleContext | null, _ruleIndex: number, _actionIndex: number): void => {
+        // intentionally empty
     };
 
     public readonly getState = (): number => {
@@ -305,9 +306,4 @@ export abstract class Recognizer<_Symbol, ATNInterpreter extends ATNSimulator> e
     public readonly setState = (atnState: number): void => {
         this._stateNumber = atnState;
     };
-
-    public abstract getInputStream: () => IntStream | null;
-    public abstract setInputStream: (input: IntStream | null) => void;
-    public abstract getTokenFactory: () => TokenFactory<Token>;
-    public abstract setTokenFactory: (input: TokenFactory<Token>) => void;
 }

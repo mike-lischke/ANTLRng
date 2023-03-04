@@ -14,7 +14,6 @@ import { RecognitionException } from "./RecognitionException";
 import { Token } from "./Token";
 import { TokenStream } from "./TokenStream";
 import { ATNConfigSet } from "./atn/ATNConfigSet";
-import { ParserATNSimulator } from "./atn/ParserATNSimulator";
 
 /**
  * Indicates that the parser could not decide which of two or more paths
@@ -22,7 +21,7 @@ import { ParserATNSimulator } from "./atn/ParserATNSimulator";
  *  of the offending input and also knows where the parser was
  *  in the various paths when the error. Reported by reportNoViableAlternative()
  */
-export class NoViableAltException extends RecognitionException<Token, ParserATNSimulator> {
+export class NoViableAltException extends RecognitionException {
     /** Which configurations did we try at input.index() that couldn't match input.LT(1)? */
 
     private readonly deadEndConfigs: ATNConfigSet | null = null;
@@ -36,7 +35,7 @@ export class NoViableAltException extends RecognitionException<Token, ParserATNS
 
     private readonly startToken: Token | null;
 
-    public constructor(recognizer: Parser | null, input: TokenStream | null, startToken: Token | null,
+    public constructor(recognizer: Parser, input: TokenStream | null, startToken: Token | null,
         offendingToken: Token | null, deadEndConfigs: ATNConfigSet | null, ctx: ParserRuleContext | null) {
         super(recognizer, input ?? recognizer?.getInputStream() ?? null, ctx ?? recognizer?._ctx ?? null);
 

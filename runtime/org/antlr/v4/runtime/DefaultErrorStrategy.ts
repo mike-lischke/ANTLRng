@@ -27,7 +27,6 @@ import { IntervalSet } from "./misc/IntervalSet";
 import { Pair } from "./misc/Pair";
 
 import { ANTLRErrorStrategy } from "./ANTLRErrorStrategy";
-import { ParserATNSimulator } from "./atn";
 
 /**
  * This is the default implementation of {@link ANTLRErrorStrategy} used for
@@ -115,7 +114,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
      * @param recognizer tbd
      * @param e tbd
      */
-    public reportError = (recognizer: Parser, e: RecognitionException<Token, ParserATNSimulator>): void => {
+    public reportError = (recognizer: Parser, e: RecognitionException): void => {
         // if we've already reported an error and have not matched a token
         // yet successfully, don't report any errors.
         if (this.inErrorRecoveryMode(recognizer)) {
@@ -150,7 +149,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
      * @param recognizer tbd
      * @param _e tbd
      */
-    public recover = (recognizer: Parser, _e: RecognitionException<Token, ParserATNSimulator>): void => {
+    public recover = (recognizer: Parser, _e: RecognitionException): void => {
         if (this.lastErrorIndex === recognizer.getInputStream()?.index() &&
             this.lastErrorStates !== null &&
             this.lastErrorStates.contains(recognizer.getState())) {
@@ -229,7 +228,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
         const la = tokens?.LA(1) ?? -1;
 
         // try cheaper subset first; might get lucky. seems to shave a wee bit off
-        const nextTokens: IntervalSet = recognizer.getATN().nextTokens(s);
+        const nextTokens: IntervalSet = recognizer.getATN()!.nextTokens(s);
         if (nextTokens.contains(la)) {
             // We are sure the token matches
             this.nextTokensContext = null;
@@ -620,7 +619,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
         }
 
         return recognizer.getTokenFactory()!.create(
-            new Pair<TokenSource, CharStream>(current.getTokenSource(), current.getTokenSource()!.getInputStream()),
+            new Pair<TokenSource, CharStream>(current.getTokenSource()!, current.getTokenSource()!.getInputStream()!),
             expectedTokenType, tokenText, Token.DEFAULT_CHANNEL,
             -1, -1, current.getLine(), current.getCharPositionInLine());
     };
@@ -660,7 +659,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
     };
 
     protected getSymbolText = (symbol: Token): java.lang.String => {
-        return symbol.getText();
+        return symbol.getText()!;
     };
 
     protected getSymbolType = (symbol: Token): number => {

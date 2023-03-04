@@ -125,7 +125,7 @@ export class ListTokenSource extends JavaObject implements TokenSource {
                 }
 
                 const stop = Math.max(-1, start - 1);
-                this.eofToken = this.factory.create(new Pair<TokenSource, CharStream>(this, this.getInputStream()),
+                this.eofToken = this.factory.create(new Pair<TokenSource, CharStream>(this, this.getInputStream()!),
                     Token.EOF, S`EOF`, Token.DEFAULT_CHANNEL, start, stop, this.getLine(),
                     this.getCharPositionInLine());
             }

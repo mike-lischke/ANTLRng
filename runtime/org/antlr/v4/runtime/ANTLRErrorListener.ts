@@ -51,7 +51,7 @@ export interface ANTLRErrorListener {
      *        the parser was able to recover in line without exiting the
      *        surrounding rule.
      */
-    syntaxError: <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+    syntaxError: <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T>,
         offendingSymbol: S | null,
         line: number,
         charPositionInLine: number,

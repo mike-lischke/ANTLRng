@@ -41,7 +41,7 @@ export class LogManager extends JavaObject {
 
     protected records: java.util.List<LogManager.Record> | null = null;
 
-    public static main = (args: java.lang.String[] | null): void => {
+    public static main = (args: java.lang.String[]): void => {
         const mgr = new LogManager();
         mgr.log(S`atn`, S`test msg`);
         mgr.log(S`dfa`, S`test msg 2`);

@@ -205,7 +205,7 @@ export class ParserInterpreter extends Parser {
                     } catch (e) {
                         if (e instanceof RecognitionException) {
                             this.setState(this.atn.ruleToStopState[p.ruleIndex].stateNumber);
-                            this.getContext().exception = e;
+                            this.getContext()!.exception = e;
                             this.getErrorHandler().reportError(this, e);
                             this.recover(e);
                         } else {
@@ -377,7 +377,7 @@ export class ParserInterpreter extends Parser {
             case Transition.PREDICATE: {
                 const predicateTransition: PredicateTransition = transition as PredicateTransition;
                 if (!this.sempred(this._ctx, predicateTransition.ruleIndex, predicateTransition.predIndex)) {
-                    throw new FailedPredicateException(this);
+                    throw new FailedPredicateException(this, null, null);
                 }
 
                 break;
@@ -392,7 +392,7 @@ export class ParserInterpreter extends Parser {
             case Transition.PRECEDENCE: {
                 if (!this.precpred(this._ctx, (transition as PrecedencePredicateTransition).precedence)) {
                     throw new FailedPredicateException(this, java.lang.String.format(S`precpred(_ctx, %d)`,
-                        (transition as PrecedencePredicateTransition).precedence));
+                        (transition as PrecedencePredicateTransition).precedence), null);
                 }
                 break;
             }

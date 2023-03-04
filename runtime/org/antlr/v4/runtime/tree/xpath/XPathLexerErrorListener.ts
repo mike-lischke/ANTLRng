@@ -14,7 +14,7 @@ import { Recognizer } from "../../Recognizer";
 import { Token } from "../../Token";
 
 export class XPathLexerErrorListener extends BaseErrorListener {
-    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T> | null,
+    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T> | null,
         offendingSymbol: S | null,
         line: number, charPositionInLine: number, msg: java.lang.String | null,
         e: RecognitionException | null): void => {

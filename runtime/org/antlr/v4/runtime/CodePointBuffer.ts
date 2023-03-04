@@ -16,15 +16,12 @@ import { java, JavaObject, S } from "jree";
  */
 export class CodePointBuffer extends JavaObject {
     public static Type = class Type extends java.lang.Enum<Type> {
-        public static readonly BYTE: Type = new class extends Type {
-        }(S`BYTE`, 0);
-        public static readonly CHAR: Type = new class extends Type {
-        }(S`CHAR`, 1);
-        public static readonly INT: Type = new class extends Type {
-        }(S`INT`, 2);
+        public static readonly BYTE: Type = new Type(S`BYTE`, 0);
+        public static readonly CHAR: Type = new Type(S`CHAR`, 1);
+        public static readonly INT: Type = new Type(S`INT`, 2);
     };
 
-    public Builder = ((_$outer) => {
+    public static Builder = ((_$outer) => {
         return class Builder extends JavaObject {
             private type: CodePointBuffer.Type;
             private byteBuffer: java.nio.ByteBuffer | null;
@@ -41,7 +38,7 @@ export class CodePointBuffer extends JavaObject {
                 this.prevHighSurrogate = -1;
             }
 
-            public build = (): CodePointBuffer | null => {
+            public build = (): CodePointBuffer => {
                 switch (this.type) {
                     case CodePointBuffer.Type.BYTE: {
                         this.byteBuffer!.flip();
@@ -329,6 +326,10 @@ export class CodePointBuffer extends JavaObject {
         this.intBuffer = intBuffer;
     }
 
+    public static builder = (initialBufferSize: number): CodePointBuffer.Builder => {
+        return new this.Builder(initialBufferSize);
+    };
+
     public withBytes = (byteBuffer: java.nio.ByteBuffer): CodePointBuffer => {
         return new CodePointBuffer(CodePointBuffer.Type.BYTE, byteBuffer, null, null);
     };
@@ -342,9 +343,7 @@ export class CodePointBuffer extends JavaObject {
     };
 
     public position(): number;
-
     public position(newPosition: number): void;
-
     public position(newPosition?: number): number | void {
         if (newPosition === undefined) {
             switch (this.type) {
@@ -428,10 +427,6 @@ export class CodePointBuffer extends JavaObject {
         throw new java.lang.UnsupportedOperationException(S`Not reached`);
     };
 
-    public builder = (initialBufferSize: number): CodePointBuffer.Builder => {
-        return new this.Builder(initialBufferSize);
-    };
-
     public getType = (): CodePointBuffer.Type | null => {
         return this.type;
     };
@@ -473,5 +468,5 @@ export class CodePointBuffer extends JavaObject {
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace CodePointBuffer {
     export type Type = InstanceType<typeof CodePointBuffer.Type>;
-    export type Builder = InstanceType<CodePointBuffer["Builder"]>;
+    export type Builder = InstanceType<typeof CodePointBuffer.Builder>;
 }

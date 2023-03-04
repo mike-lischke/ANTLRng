@@ -36,9 +36,9 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         this.delegates = delegates;
     }
 
-    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T>,
         offendingSymbol: S | null, line: number, charPositionInLine: number, msg: java.lang.String,
-        e: RecognitionException<S, T> | null): void => {
+        e: RecognitionException | null): void => {
         for (const listener of this.delegates) {
             listener.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
         }

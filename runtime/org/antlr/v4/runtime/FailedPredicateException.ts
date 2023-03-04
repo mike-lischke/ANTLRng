@@ -8,14 +8,11 @@
 
 /* eslint-disable no-underscore-dangle */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java, S } from "jree";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { AbstractPredicateTransition } from "./atn/AbstractPredicateTransition";
 import { PredicateTransition } from "./atn/PredicateTransition";
-
-import { Token } from "./Token";
-import { ParserATNSimulator } from "./atn";
 
 /**
  * A semantic predicate failed during validation.  Validation of predicates
@@ -23,12 +20,12 @@ import { ParserATNSimulator } from "./atn";
  *  Disambiguating predicate evaluation occurs when we test a predicate during
  *  prediction.
  */
-export class FailedPredicateException extends RecognitionException<Token, ParserATNSimulator> {
+export class FailedPredicateException extends RecognitionException {
     private readonly ruleIndex: number = 0;
     private readonly predicateIndex: number = 0;
     private readonly predicate: java.lang.String | null;
 
-    public constructor(recognizer: Parser, predicate?: java.lang.String | null, message?: java.lang.String | null) {
+    public constructor(recognizer: Parser, predicate: java.lang.String | null, message: java.lang.String | null) {
         super(FailedPredicateException.formatMessage(predicate ?? null, message ?? null), recognizer,
             recognizer.getInputStream(), recognizer._ctx);
         const s = recognizer.getInterpreter()!.atn.states.get(recognizer.getState());
@@ -38,7 +35,7 @@ export class FailedPredicateException extends RecognitionException<Token, Parser
             this.predicateIndex = trans.predIndex;
         }
 
-        this.predicate = predicate ?? null;
+        this.predicate = predicate;
         this.setOffendingToken(recognizer.getCurrentToken());
     }
 

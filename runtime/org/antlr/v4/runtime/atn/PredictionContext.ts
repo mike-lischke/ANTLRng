@@ -23,7 +23,6 @@ import { RuleContext } from "../RuleContext";
 import { DoubleKeyMap } from "../misc/DoubleKeyMap";
 
 import { ATNSimulator } from "./ATNSimulator";
-import { Token } from "../Token";
 
 export abstract class PredictionContext extends JavaObject {
     /**
@@ -699,17 +698,15 @@ export abstract class PredictionContext extends JavaObject {
         }
     };
 
-    public toString = <S extends Token, T extends ATNSimulator>(
-        _recog?: Recognizer<S, T> | null): java.lang.String => {
-        return super.toString();
+    public toString = <T extends ATNSimulator>(_recog?: Recognizer<T> | null): java.lang.String => {
+        return S`${super.toString()}`;
     };
 
-    public toStrings<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
+    public toStrings<T extends ATNSimulator>(recognizer: Recognizer<T>, currentState: number): java.lang.String[];
+    public toStrings<T extends ATNSimulator>(recognizer: Recognizer<T>, stop: PredictionContext,
         currentState: number): java.lang.String[];
-    public toStrings<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
-        stop: PredictionContext, currentState: number): java.lang.String[];
-    public toStrings<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T>,
-        currentStateOrStop: number | PredictionContext, currentState?: number): java.lang.String[] {
+    public toStrings<T extends ATNSimulator>(recognizer: Recognizer<T>, currentStateOrStop: number | PredictionContext,
+        currentState?: number): java.lang.String[] {
         let state: number;
         let stop;
         if (currentStateOrStop instanceof PredictionContext) {

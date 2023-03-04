@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { JavaObject, MurmurHash } from "jree";
+import { java, JavaObject, MurmurHash } from "jree";
 
 import { LexerAction } from "./LexerAction";
 import { LexerActionType } from "./LexerActionType";
@@ -118,4 +118,7 @@ export class LexerIndexedCustomAction extends JavaObject implements LexerAction 
             && this.action.equals(obj.action);
     };
 
+    public toString = (): java.lang.String => {
+        return new java.lang.String(super.toString());
+    };
 }

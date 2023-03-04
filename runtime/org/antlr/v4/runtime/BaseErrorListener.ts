@@ -28,7 +28,7 @@ import { Token } from "./Token";
  * @author Sam Harwell
  */
 export class BaseErrorListener extends JavaObject implements ANTLRErrorListener {
-    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T> | null,
+    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T>,
         offendingSymbol: S | null,
         line: number,
         charPositionInLine: number,
@@ -37,27 +37,27 @@ export class BaseErrorListener extends JavaObject implements ANTLRErrorListener 
         //
     };
 
-    public reportAmbiguity = (recognizer: Parser | null,
-        dfa: DFA | null,
+    public reportAmbiguity = (recognizer: Parser,
+        dfa: DFA,
         startIndex: number,
         stopIndex: number,
         exact: boolean,
         ambigAlts: java.util.BitSet | null,
-        configs: ATNConfigSet | null): void => {
+        configs: ATNConfigSet): void => {
         //
     };
 
-    public reportAttemptingFullContext = (recognizer: Parser | null,
-        dfa: DFA | null,
+    public reportAttemptingFullContext = (recognizer: Parser,
+        dfa: DFA,
         startIndex: number,
         stopIndex: number,
         conflictingAlts: java.util.BitSet | null,
-        configs: ATNConfigSet | null): void => {
+        configs: ATNConfigSet): void => {
         //
     };
 
-    public reportContextSensitivity = (recognizer: Parser | null,
-        dfa: DFA | null,
+    public reportContextSensitivity = (recognizer: Parser,
+        dfa: DFA,
         startIndex: number,
         stopIndex: number,
         prediction: number,

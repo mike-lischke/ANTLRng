@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -5,12 +7,12 @@
  */
 
 import { java } from "jree";
-import { ErrorNode } from "./ErrorNode";
+import { isErrorNode } from "./ErrorNode";
 import { ParseTree } from "./ParseTree";
 import { ParseTreeListener } from "./ParseTreeListener";
 import { ParseTreeWalker } from "./ParseTreeWalker";
-import { RuleNode } from "./RuleNode";
-import { TerminalNode } from "./TerminalNode";
+import { isRuleNode, RuleNode } from "./RuleNode";
+import { isTerminalNode } from "./TerminalNode";
 import { IntegerStack } from "../misc/IntegerStack";
 
 /**
@@ -20,26 +22,22 @@ import { IntegerStack } from "../misc/IntegerStack";
  */
 export class IterativeParseTreeWalker extends ParseTreeWalker {
 
-    public walk = (listener: ParseTreeListener | null, t: ParseTree | null): void => {
+    public walk = (listener: ParseTreeListener, t: ParseTree): void => {
+        const nodeStack = new java.util.ArrayDeque<ParseTree>();
+        const indexStack = new IntegerStack();
 
-        const nodeStack: java.util.Deque<ParseTree> = new ArrayDeque<ParseTree>();
-        const indexStack: IntegerStack = new IntegerStack();
-
-        let currentNode: ParseTree = t;
+        let currentNode: ParseTree | null = t;
         let currentIndex = 0;
 
         while (currentNode !== null) {
-
             // pre-order visit
-            if (currentNode instanceof ErrorNode) {
-                listener.visitErrorNode(currentNode as ErrorNode);
-            }
-            else {
-                if (currentNode instanceof TerminalNode) {
-                    listener.visitTerminal(currentNode as TerminalNode);
-                }
-                else {
-                    const r: RuleNode = currentNode as RuleNode;
+            if (isErrorNode(currentNode)) {
+                listener.visitErrorNode(currentNode);
+            } else {
+                if (isTerminalNode(currentNode)) {
+                    listener.visitTerminal(currentNode);
+                } else {
+                    const r = currentNode as RuleNode;
                     this.enterRule(listener, r);
                 }
             }
@@ -49,16 +47,15 @@ export class IterativeParseTreeWalker extends ParseTreeWalker {
                 nodeStack.push(currentNode);
                 indexStack.push(currentIndex);
                 currentIndex = 0;
-                currentNode = currentNode.getChild(0);
+                currentNode = currentNode.getChild(0)!;
                 continue;
             }
 
             // No child nodes, so walk tree
             do {
-
                 // post-order visit
-                if (currentNode instanceof RuleNode) {
-                    this.exitRule(listener, currentNode as RuleNode);
+                if (isRuleNode(currentNode)) {
+                    this.exitRule(listener, currentNode);
                 }
 
                 // No parent, so no siblings
@@ -69,7 +66,7 @@ export class IterativeParseTreeWalker extends ParseTreeWalker {
                 }
 
                 // Move to next sibling if possible
-                currentNode = nodeStack.peek().getChild(++currentIndex);
+                currentNode = nodeStack.peek()!.getChild(++currentIndex);
                 if (currentNode !== null) {
                     break;
                 }

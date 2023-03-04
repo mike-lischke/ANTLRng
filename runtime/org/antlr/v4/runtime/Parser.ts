@@ -39,7 +39,7 @@ import { ParseTreePattern } from "./tree/pattern/ParseTreePattern";
 import { ParseTreePatternMatcher } from "./tree/pattern/ParseTreePatternMatcher";
 
 /** This is all the parsing support code essentially; most of it is error recovery stuff. */
-export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
+export abstract class Parser extends Recognizer<ParserATNSimulator> {
     public static TrimToSizeListener = class TrimToSizeListener extends JavaObject implements ParseTreeListener {
         public static readonly INSTANCE = new Parser.TrimToSizeListener();
 
@@ -524,11 +524,11 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
     public notifyErrorListeners(msg: java.lang.String): void;
     public notifyErrorListeners(offendingToken: Token | null, msg: java.lang.String,
-        e: RecognitionException<Token, ParserATNSimulator> | null): void;
+        e: RecognitionException | null): void;
     public notifyErrorListeners(...args: unknown[]): void {
         let msg: java.lang.String;
         let offendingToken: Token;
-        let e: RecognitionException<Token, ParserATNSimulator> | null = null;
+        let e: RecognitionException | null = null;
 
         switch (args.length) {
             case 1: {
@@ -539,7 +539,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
             case 3: {
                 [offendingToken, msg, e] =
-                    args as [Token, java.lang.String, RecognitionException<Token, ParserATNSimulator>];
+                    args as [Token, java.lang.String, RecognitionException];
                 break;
             }
 
@@ -710,7 +710,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
         let state = ruleIndexOrState;
         if (ruleIndex === undefined) {
-            state = this.getATN().ruleToStartState[ruleIndexOrState].stateNumber;
+            state = this.getATN()!.ruleToStartState[ruleIndexOrState].stateNumber;
             ruleIndex = ruleIndexOrState;
             precedence = 0;
         }
@@ -786,8 +786,8 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         return null;
     };
 
-    public getContext = (): ParserRuleContext => {
-        return this._ctx!;
+    public getContext = (): ParserRuleContext | null => {
+        return this._ctx;
     };
 
     public setContext = (ctx: ParserRuleContext): void => {
@@ -862,7 +862,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
      * @returns tbd
      */
     public getExpectedTokens = (): IntervalSet => {
-        return this.getATN().getExpectedTokens(this.getState(), this.getContext());
+        return this.getATN()!.getExpectedTokens(this.getState(), this.getContext());
     };
 
     public getExpectedTokensWithinCurrentRule = (): IntervalSet | null => {
@@ -1003,7 +1003,7 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         } else {
             if (interp instanceof ProfilingATNSimulator) {
                 const sim =
-                    new ParserATNSimulator(this, this.getATN(), interp.decisionToDFA, interp.getSharedContextCache());
+                    new ParserATNSimulator(this, this.getATN()!, interp.decisionToDFA, interp.getSharedContextCache());
                 this.setInterpreter(sim);
             }
         }

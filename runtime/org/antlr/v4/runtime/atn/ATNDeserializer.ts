@@ -181,7 +181,7 @@ export class ATNDeserializer extends JavaObject {
                     S`Could not deserialize ATN with version %d (expected %d).`, version,
                     ATNDeserializer.SERIALIZED_VERSION);
                 throw new java.lang.UnsupportedOperationException(
-                    new java.io.InvalidClassException(ATN.class.getName(), reason));
+                    new java.io.InvalidClassException(S`ATN`, reason));
             }
 
             const grammarType = Object.values(ATNType)[data[p++]] as ATNType;

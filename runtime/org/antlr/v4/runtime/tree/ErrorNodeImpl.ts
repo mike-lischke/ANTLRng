@@ -19,11 +19,13 @@ import { Token } from "../Token";
  *  upon no viable alternative exceptions.
  */
 export class ErrorNodeImpl extends TerminalNodeImpl implements ErrorNode {
+    public readonly isErrorNode = true;
+
     public constructor(token: Token) {
         super(token);
     }
 
-    public accept = <T>(visitor: ParseTreeVisitor<T>): T | null => {
+    public accept = <T>(visitor: ParseTreeVisitor<T>): T => {
         return visitor.visitErrorNode(this);
     };
 }

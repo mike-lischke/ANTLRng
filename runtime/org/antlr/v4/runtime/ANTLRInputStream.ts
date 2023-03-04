@@ -101,7 +101,7 @@ export class ANTLRInputStream extends JavaObject implements CharStream {
         }
     }
 
-    public load = (r: java.io.Reader | null, size: number, readChunkSize: number): void => {
+    public load(r: java.io.Reader | null, size: number, readChunkSize: number): void {
         if (r === null) {
             return;
         }
@@ -133,7 +133,7 @@ export class ANTLRInputStream extends JavaObject implements CharStream {
         } finally {
             r.close();
         }
-    };
+    }
 
     /**
      * Reset the stream so that it's in the same state it was

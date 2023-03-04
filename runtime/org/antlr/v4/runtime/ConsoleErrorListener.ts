@@ -13,7 +13,6 @@ import { RecognitionException } from "./RecognitionException";
 import { Recognizer } from "./Recognizer";
 
 import { ATNSimulator } from "./atn";
-import { Token } from "./Token";
 
 /**
  *
@@ -43,12 +42,12 @@ export class ConsoleErrorListener extends BaseErrorListener {
      * @param msg tbd
      * @param _e tbd
      */
-    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<S, T> | null,
+    public syntaxError = <T extends ATNSimulator>(recognizer: Recognizer<T> | null,
         offendingSymbol: unknown,
         line: number,
         charPositionInLine: number,
         msg: java.lang.String | null,
-        _e: RecognitionException<S, T> | null): void => {
+        _e: RecognitionException | null): void => {
         java.lang.System.err.println(S`line ${line}:${charPositionInLine} ${msg}`);
     };
 

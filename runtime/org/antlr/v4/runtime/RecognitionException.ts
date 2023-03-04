@@ -25,7 +25,7 @@ import { ATNSimulator } from "./atn";
  */
 export class RecognitionException extends java.lang.RuntimeException {
     /** The {@link Recognizer} where this exception originated. */
-    private readonly recognizer: Recognizer<unknown, ATNSimulator> | null;
+    private readonly recognizer: Recognizer<ATNSimulator> | null;
 
     private readonly ctx: RuleContext | null;
     private readonly input: IntStream | null;
@@ -39,27 +39,25 @@ export class RecognitionException extends java.lang.RuntimeException {
 
     private offendingState = -1;
 
-    public constructor(recognizer: Recognizer<unknown, ATNSimulator> | null, input: IntStream | null,
+    public constructor(recognizer: Recognizer<ATNSimulator>, input: IntStream | null, ctx: ParserRuleContext | null);
+    public constructor(message: java.lang.String, recognizer: Recognizer<ATNSimulator>, input: IntStream | null,
         ctx: ParserRuleContext | null);
-    public constructor(message: java.lang.String, recognizer: Recognizer<unknown, ATNSimulator> | null,
-        input: IntStream | null, ctx: ParserRuleContext | null);
     public constructor(...args: unknown[]) {
         let message: java.lang.String | undefined;
-        let recognizer: Recognizer<unknown, ATNSimulator> | null;
-        let input: IntStream | null;
-        let ctx: ParserRuleContext | null;
+        let recognizer: Recognizer<ATNSimulator>;
+        let input: IntStream;
+        let ctx: ParserRuleContext;
 
         switch (args.length) {
             case 3: {
-                [recognizer, input, ctx] =
-                    args as [Recognizer<unknown, ATNSimulator> | null, IntStream | null, ParserRuleContext | null];
+                [recognizer, input, ctx] = args as [Recognizer<ATNSimulator>, IntStream, ParserRuleContext];
 
                 break;
             }
 
             case 4: {
-                [message, recognizer, input, ctx] = args as [java.lang.String, Recognizer<unknown, ATNSimulator> | null,
-                    IntStream | null, ParserRuleContext | null];
+                [message, recognizer, input, ctx] = args as [java.lang.String, Recognizer<ATNSimulator>,
+                    IntStream, ParserRuleContext];
 
                 break;
             }
@@ -69,15 +67,13 @@ export class RecognitionException extends java.lang.RuntimeException {
             }
         }
 
-        // @ts-ignore, no idea why TS complains about this.
-        super(message);
+        super(message ?? null);
         this.recognizer = recognizer;
         if (recognizer !== null) {
             this.offendingState = recognizer.getState();
         }
         this.input = input;
         this.ctx = ctx!;
-
     }
 
     /**
@@ -107,7 +103,7 @@ export class RecognitionException extends java.lang.RuntimeException {
      */
     public getExpectedTokens = (): IntervalSet | null => {
         if (this.recognizer !== null) {
-            return this.recognizer.getATN().getExpectedTokens(this.offendingState, this.ctx);
+            return this.recognizer.getATN()!.getExpectedTokens(this.offendingState, this.ctx);
         }
 
         return null;
@@ -151,7 +147,7 @@ export class RecognitionException extends java.lang.RuntimeException {
       @returns The recognizer where this exception occurred, or {@code null} if
      * the recognizer is not available.
      */
-    public getRecognizer = (): Recognizer<unknown, ATNSimulator> | null => {
+    public getRecognizer = (): Recognizer<ATNSimulator> | null => {
         return this.recognizer;
     };
 

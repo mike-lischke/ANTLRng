@@ -198,4 +198,8 @@ export class LexerActionExecutor extends JavaObject {
         return this.hashCode === other.hashCode
             && java.util.Arrays.equals(this.lexerActions, other.lexerActions);
     };
+
+    public toString = (): java.lang.String => {
+        return new java.lang.String(super.toString());
+    };
 }

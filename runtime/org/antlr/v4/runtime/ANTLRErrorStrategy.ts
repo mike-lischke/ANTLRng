@@ -6,7 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { ParserATNSimulator } from "./atn";
 import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { Token } from "./Token";
@@ -68,7 +67,7 @@ export interface ANTLRErrorStrategy {
      * @throws RecognitionException if the error strategy could not recover from
      * the recognition exception
      */
-    recover: (recognizer: Parser, e: RecognitionException<Token, ParserATNSimulator>) => void;
+    recover: (recognizer: Parser, e: RecognitionException) => void;
 
     /**
      * This method provides the error handler with an opportunity to handle
@@ -120,5 +119,5 @@ export interface ANTLRErrorStrategy {
      * @param recognizer the parser instance
      * @param e the recognition exception to report
      */
-    reportError: (recognizer: Parser, e: RecognitionException<Token, ParserATNSimulator>) => void;
+    reportError: (recognizer: Parser, e: RecognitionException) => void;
 }

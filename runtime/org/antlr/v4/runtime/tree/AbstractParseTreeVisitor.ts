@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -11,7 +13,7 @@ import { ParseTreeVisitor } from "./ParseTreeVisitor";
 import { RuleNode } from "./RuleNode";
 import { TerminalNode } from "./TerminalNode";
 
-export abstract class AbstractParseTreeVisitor<T> extends JavaObject implements ParseTreeVisitor<T> {
+export abstract class AbstractParseTreeVisitor<T> extends JavaObject implements ParseTreeVisitor<T | null> {
     /**
      *
      * <p>The default implementation calls {@link ParseTree#accept} on the
@@ -45,7 +47,7 @@ export abstract class AbstractParseTreeVisitor<T> extends JavaObject implements 
      */
     public visitChildren = (node: RuleNode): T | null => {
         let result = this.defaultResult();
-        const n: number = node.getChildCount();
+        const n = node.getChildCount();
         for (let i = 0; i < n; i++) {
             if (!this.shouldVisitNextChild(node, result)) {
                 break;

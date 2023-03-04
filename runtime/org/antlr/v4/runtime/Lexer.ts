@@ -30,7 +30,7 @@ import { Pair } from "./misc/Pair";
  *  uses simplified match() and error recovery mechanisms in the interest
  *  of speed.
  */
-export abstract class Lexer extends Recognizer<java.lang.Integer, LexerATNSimulator> implements TokenSource {
+export abstract class Lexer extends Recognizer<LexerATNSimulator> implements TokenSource {
     public static DEFAULT_MODE = 0;
     public static MORE = -2;
     public static SKIP = -3;

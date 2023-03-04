@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -249,8 +251,8 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
     };
 
     public toString(): java.lang.String;
-    public toString(r: Recognizer<Token, ATNSimulator>): java.lang.String;
-    public toString(r?: Recognizer<Token, ATNSimulator>): java.lang.String {
+    public toString(r: Recognizer<ATNSimulator>): java.lang.String;
+    public toString(r?: Recognizer<ATNSimulator>): java.lang.String {
         const channelStr = this.channel > 0 ? S`, channel =${this.channel}` : S``;
 
         let txt = this.getText();

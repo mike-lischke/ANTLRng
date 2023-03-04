@@ -434,6 +434,10 @@ export class BufferedTokenStream extends JavaObject implements TokenStream {
         }
     };
 
+    public toString: () => java.lang.JavaString = () => {
+        return this.getText();
+    };
+
     /**
      * Make sure index {@code i} in tokens has a token.
      *

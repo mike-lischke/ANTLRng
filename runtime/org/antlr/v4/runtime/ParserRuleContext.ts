@@ -19,8 +19,6 @@ import { ParseTreeListener } from "./tree/ParseTreeListener";
 import { isTerminalNode, TerminalNode } from "./tree/TerminalNode";
 import { TerminalNodeImpl } from "./tree/TerminalNodeImpl";
 
-import { ParserATNSimulator } from "./atn";
-
 /**
  * A rule invocation record for parsing.
  *
@@ -84,11 +82,12 @@ export class ParserRuleContext extends RuleContext {
      * The exception that forced this rule to return. If the rule successfully
      * completed, this is {@code null}.
      */
-    public exception: RecognitionException<Token, ParserATNSimulator> | null = null;
+    public exception: RecognitionException | null = null;
 
-    public constructor(parent?: ParserRuleContext | null, invokingStateNumber?: number) {
-        super(parent ?? null, invokingStateNumber);
-
+    public constructor();
+    public constructor(parent: ParserRuleContext | null, invokingStateNumber: number);
+    public constructor(...args: unknown[]) {
+        super(args[0] as ParserRuleContext | null, args[1] as number);
     }
 
     /**

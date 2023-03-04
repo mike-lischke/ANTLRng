@@ -547,7 +547,7 @@ export class ParserATNSimulator extends ATNSimulator {
         outerContext: ParserRuleContext | null,
         configs: ATNConfigSet | null,
         startIndex: number): NoViableAltException => {
-        return new NoViableAltException(this.parser, input,
+        return new NoViableAltException(this.parser!, input,
             input.get(startIndex),
             input.LT(1),
             configs, outerContext);

@@ -6,9 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
-
-
+import { java, S, JavaObject } from "jree";
 
 import { ParseTree } from "./ParseTree";
 import { isTerminalNode } from "./TerminalNode";
@@ -20,10 +18,9 @@ import { ParserRuleContext } from "../ParserRuleContext";
 import { RuleContext } from "../RuleContext";
 import { isToken, Token } from "../Token";
 import { ATN } from "../atn/ATN";
-import { Interval } from "../misc/Interval";
 import { Predicate } from "../misc/Predicate";
 import { Utils } from "../misc/Utils";
-import { ErrorNodeImpl } from "./ErrorNodeImpl";
+import { isErrorNode } from "./ErrorNode";
 
 /** A set of utility routines useful for all kinds of ANTLR trees. */
 export class Trees extends JavaObject {
@@ -98,7 +95,7 @@ export class Trees extends JavaObject {
 
         if (ruleNameList !== null) {
             if (t instanceof RuleContext) {
-                const ruleIndex = t.getRuleContext().getRuleIndex();
+                const ruleIndex = t.getRuleContext()!.getRuleIndex();
                 const ruleName = ruleNameList.get(ruleIndex);
                 const altNumber = (t).getAltNumber();
                 if (altNumber !== ATN.INVALID_ALT_NUMBER) {
@@ -107,15 +104,13 @@ export class Trees extends JavaObject {
 
                 return ruleName;
             } else {
-                if (t instanceof ErrorNodeImpl) {
+                if (isErrorNode(t)) {
                     return t.toString();
                 } else {
                     if (isTerminalNode(t)) {
-                        const symbol: Token = (t).getSymbol();
+                        const symbol = (t).getSymbol();
                         if (symbol !== null) {
-                            const s = symbol.getText();
-
-                            return s;
+                            return symbol.getText()!;
                         }
                     }
                 }
@@ -125,7 +120,7 @@ export class Trees extends JavaObject {
         // no recog for rule names
         const payload = t.getPayload();
         if (isToken(payload)) {
-            return payload.getText();
+            return payload.getText()!;
         }
 
         return S`${payload}`;
@@ -246,8 +241,8 @@ export class Trees extends JavaObject {
 
         }
         if (t instanceof ParserRuleContext) {
-            if (startTokenIndex >= t.getStart().getTokenIndex() && // is range fully contained in t?
-                (t.getStop() === null || stopTokenIndex <= t.getStop().getTokenIndex())) {
+            if (startTokenIndex >= t.getStart()!.getTokenIndex() && // is range fully contained in t?
+                (t.getStop() === null || stopTokenIndex <= t.getStop()!.getTokenIndex())) {
                 // note: r.getStop()==null likely implies that we bailed out of parser and there's nothing to the right
                 return t;
             }
@@ -263,11 +258,10 @@ export class Trees extends JavaObject {
      *
      *  WARNING: destructive to t.
      *
-     * @param t
-     * @param root
-     * @param startIndex
-     * @param stopIndex
-     *  @since 4.5.1
+     * @param t tbd
+     * @param root tbd
+     * @param startIndex tbd
+     * @param stopIndex tbd
      */
     public static stripChildrenOutOfRange = (t: ParserRuleContext | null,
         root: ParserRuleContext | null,
@@ -278,12 +272,12 @@ export class Trees extends JavaObject {
         }
 
         for (let i = 0; i < t.getChildCount(); i++) {
-            const child: ParseTree = t.getChild(i);
-            const range: Interval = child.getSourceInterval();
+            const child = t.getChild(i)!;
+            const range = child.getSourceInterval();
             if (child instanceof ParserRuleContext && (range.b < startIndex || range.a > stopIndex)) {
                 if (Trees.isAncestorOf(child, root)) { // replace only if subtree doesn't have displayed root
                     const abbrev: CommonToken = new CommonToken(Token.INVALID_TYPE, S`...`);
-                    t.children.set(i, new TerminalNodeImpl(abbrev));
+                    t.children!.set(i, new TerminalNodeImpl(abbrev));
                 }
             }
         }
@@ -292,11 +286,12 @@ export class Trees extends JavaObject {
     /**
      * Return first node satisfying the pred
      *
-     * @param t
-     * @param pred
-     *  @since 4.5.1
+     * @param t tbd
+     * @param pred tbd
+     *
+     * @returns tbd
      */
-    public static findNodeSuchThat = (t: Tree | null, pred: Predicate<Tree> | null): Tree | null => {
+    public static findNodeSuchThat = (t: Tree, pred: Predicate<Tree>): Tree | null => {
         if (pred.test(t)) {
             return t;
         }
@@ -307,7 +302,7 @@ export class Trees extends JavaObject {
 
         const n: number = t.getChildCount();
         for (let i = 0; i < n; i++) {
-            const u: Tree = Trees.findNodeSuchThat(t.getChild(i), pred);
+            const u = Trees.findNodeSuchThat(t.getChild(i)!, pred);
             if (u !== null) {
                 return u;
             }
@@ -320,7 +315,7 @@ export class Trees extends JavaObject {
     private static doFindAllNodes = (t: ParseTree, index: number, findTokens: boolean,
         nodes: java.util.List<ParseTree>): void => {
         // check this node (the root) first
-        if (findTokens && this.isTerminalNode(t)) {
+        if (findTokens && isTerminalNode(t)) {
             if (t.getSymbol().getType() === index) {
                 nodes.add(t);
             }

@@ -8,4 +8,12 @@
 
 import { TerminalNode } from "./TerminalNode";
 
-export type ErrorNode = TerminalNode;
+export interface ErrorNode extends TerminalNode {
+    // Not part of the original interface, but we need it to distinguish
+    // ErrorNode from TerminalNode.
+    isErrorNode: true;
+}
+
+export const isErrorNode = (candidate: unknown): candidate is ErrorNode => {
+    return (candidate as ErrorNode).isErrorNode === true;
+};

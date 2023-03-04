@@ -59,12 +59,12 @@ export class TerminalNodeImpl extends JavaObject implements TerminalNode {
         return 0;
     };
 
-    public accept = <T>(visitor: ParseTreeVisitor<T>): T | null => {
+    public accept = <T>(visitor: ParseTreeVisitor<T>): T => {
         return visitor.visitTerminal(this);
     };
 
     public getText = (): java.lang.String => {
-        return this.symbol.getText();
+        return this.symbol.getText()!;
     };
 
     public toStringTree(_parser?: Parser | null): java.lang.String {
@@ -76,6 +76,6 @@ export class TerminalNodeImpl extends JavaObject implements TerminalNode {
             return S`<EOF>`;
         }
 
-        return this.symbol.getText();
+        return this.symbol.getText()!;
     };
 }

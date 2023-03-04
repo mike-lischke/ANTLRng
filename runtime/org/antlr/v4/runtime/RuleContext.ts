@@ -17,7 +17,6 @@ import { RuleNode } from "./tree/RuleNode";
 import { Trees } from "./tree/Trees";
 
 import { ATNSimulator } from "./atn";
-import { Token } from "./Token";
 
 /**
  * A rule context is a record of a single rule invocation.
@@ -82,9 +81,14 @@ export class RuleContext extends JavaObject implements Omit<RuleNode, "getParent
      */
     public invokingState = -1;
 
-    public constructor(parent?: RuleContext | null, invokingState?: number) {
+    public constructor();
+    public constructor(parent: RuleContext | null, invokingState: number);
+    public constructor(...args: unknown[]) {
         super();
-        if (parent !== undefined) {
+
+        const parent = args[0] as RuleContext | null;
+        const invokingState = args[1] as number;
+        if (parent !== null) {
             this.parent = parent;
             this.invokingState = invokingState ?? -1;
         }
@@ -215,12 +219,11 @@ export class RuleContext extends JavaObject implements Omit<RuleNode, "getParent
 
     public toString(ruleNames?: java.util.List<java.lang.String>): java.lang.String;
     // recog null unless ParserRuleContext, in which case we use subclass toString(...)
-    public toString<S extends Token, T extends ATNSimulator>(recog: Recognizer<S, T>,
-        stop?: RuleContext): java.lang.String;
+    public toString<T extends ATNSimulator>(recog: Recognizer<T>, stop?: RuleContext): java.lang.String;
     // eslint-disable-next-line @typescript-eslint/unified-signatures
     public toString(ruleNames: java.util.List<java.lang.String>, stop: RuleContext): java.lang.String;
-    public toString<S extends Token, T extends ATNSimulator>(
-        recogOrRuleNames?: Recognizer<S, T> | java.util.List<java.lang.String>, stop?: RuleContext): java.lang.String {
+    public toString<T extends ATNSimulator>(
+        recogOrRuleNames?: Recognizer<T> | java.util.List<java.lang.String>, stop?: RuleContext): java.lang.String {
         let ruleNamesList;
         if (recogOrRuleNames instanceof Recognizer) {
             const ruleNames = recogOrRuleNames.getRuleNames();

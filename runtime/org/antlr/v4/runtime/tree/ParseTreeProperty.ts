@@ -1,17 +1,13 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-
-
 import { JavaObject, java } from "jree";
 import { ParseTree } from "./ParseTree";
-
-
-
 
 /**
  * Associate a property with a parse tree node. Useful with parse tree listeners
@@ -29,10 +25,18 @@ import { ParseTree } from "./ParseTree";
  * You would make one decl (values here) in the listener and use lots of times
  * in your event methods.
  */
-export  class ParseTreeProperty<V> extends JavaObject {
-	protected annotations:  java.util.Map<ParseTree, V> | null = new  java.util.IdentityHashMap<ParseTree, V>();
+export class ParseTreeProperty<V> extends JavaObject {
+    protected annotations = new java.util.IdentityHashMap<ParseTree, V>();
 
-	public get = (node: ParseTree| null):  V | null => { return this.annotations.get(node); }
-	public put = (node: ParseTree| null, value: V| null):  void => { this.annotations.put(node, value); }
-	public removeFrom = (node: ParseTree| null):  V | null => { return this.annotations.remove(node); }
+    public get = (node: ParseTree): V | null => {
+        return this.annotations.get(node);
+    };
+
+    public put = (node: ParseTree, value: V): void => {
+        this.annotations.put(node, value);
+    };
+
+    public removeFrom = (node: ParseTree): V | null => {
+        return this.annotations.remove(node);
+    };
 }

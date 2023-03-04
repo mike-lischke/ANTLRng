@@ -12,7 +12,6 @@ import { Parser } from "./Parser";
 import { RecognitionException } from "./RecognitionException";
 import { Token } from "./Token";
 import { ParseCancellationException } from "./misc/ParseCancellationException";
-import { ParserATNSimulator } from "./atn";
 
 /**
  * This implementation of {@link ANTLRErrorStrategy} responds to syntax errors
@@ -52,7 +51,7 @@ export class BailErrorStrategy extends DefaultErrorStrategy {
      * @param recognizer the parser instance
      * @param e the recognition exception to report
      */
-    public recover = (recognizer: Parser, e: RecognitionException<Token, ParserATNSimulator>): void => {
+    public recover = (recognizer: Parser, e: RecognitionException): void => {
         for (let context = recognizer.getContext(); context !== null; context = context.getParent()) {
             context.exception = e;
         }

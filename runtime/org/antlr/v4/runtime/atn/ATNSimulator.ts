@@ -6,15 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*
- eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/naming-convention, no-redeclare,
- max-classes-per-file, jsdoc/check-tag-names, @typescript-eslint/no-empty-function,
- @typescript-eslint/restrict-plus-operands, @typescript-eslint/unified-signatures, @typescript-eslint/member-ordering,
- no-underscore-dangle, max-len
-*/
-
-/* cspell: disable */
-
 import { java, S, JavaObject } from "jree";
 
 import { ATN } from "./ATN";
@@ -53,13 +44,13 @@ export abstract class ATNSimulator extends JavaObject {
      */
     public readonly sharedContextCache: PredictionContextCache | null;
 
+    public abstract reset: () => void;
+
     public constructor(atn: ATN, sharedContextCache: PredictionContextCache | null) {
         super();
         this.atn = atn;
         this.sharedContextCache = sharedContextCache;
     }
-
-    public abstract reset: () => void;
 
     /**
      * Clear the DFA cache used by the current instance. Since the DFA cache may
