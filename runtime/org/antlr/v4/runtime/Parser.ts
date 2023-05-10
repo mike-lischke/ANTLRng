@@ -10,55 +10,20 @@
 
 import { java, S, JavaObject } from "jree";
 
-import { ANTLRErrorStrategy } from "./ANTLRErrorStrategy";
-import { DefaultErrorStrategy } from "./DefaultErrorStrategy";
-import { IntStream } from "./IntStream";
-import { Lexer } from "./Lexer";
-import { ParserRuleContext } from "./ParserRuleContext";
-import { RecognitionException } from "./RecognitionException";
-import { Recognizer } from "./Recognizer";
-import { RuleContext } from "./RuleContext";
-import { Token } from "./Token";
-import { TokenFactory } from "./TokenFactory";
-import { TokenStream } from "./TokenStream";
-import { ATN } from "./atn/ATN";
-import { ATNDeserializationOptions } from "./atn/ATNDeserializationOptions";
-import { ATNDeserializer } from "./atn/ATNDeserializer";
-import { ParseInfo } from "./atn/ParseInfo";
-import { ParserATNSimulator } from "./atn/ParserATNSimulator";
-import { ProfilingATNSimulator } from "./atn/ProfilingATNSimulator";
-import { RuleTransition } from "./atn/RuleTransition";
-import { IntegerStack } from "./misc/IntegerStack";
-import { IntervalSet } from "./misc/IntervalSet";
-import { ErrorNode } from "./tree/ErrorNode";
-import { ErrorNodeImpl } from "./tree/ErrorNodeImpl";
-import { ParseTreeListener } from "./tree/ParseTreeListener";
-import { TerminalNode } from "./tree/TerminalNode";
-import { TerminalNodeImpl } from "./tree/TerminalNodeImpl";
-import { ParseTreePattern } from "./tree/pattern/ParseTreePattern";
-import { ParseTreePatternMatcher } from "./tree/pattern/ParseTreePatternMatcher";
+import {
+    ANTLRErrorStrategy, DefaultErrorStrategy, ErrorNode, ErrorNodeImpl, IntStream, IntegerStack, IntervalSet, Lexer,
+    ParseTreeListener, ParseTreePattern, ParseTreePatternMatcher, ParserRuleContext, RecognitionException, Recognizer,
+    RuleContext, TerminalNode, TerminalNodeImpl, Token, TokenFactory, TokenStream,
+    ATN, ATNDeserializationOptions, ATNDeserializer, ParseInfo, ParserATNSimulator, ProfilingATNSimulator, RuleTransition
+} from "./";
 
 /** This is all the parsing support code essentially; most of it is error recovery stuff. */
 export abstract class Parser extends Recognizer<ParserATNSimulator> {
-    public static TrimToSizeListener = class TrimToSizeListener extends JavaObject implements ParseTreeListener {
-        public static readonly INSTANCE = new Parser.TrimToSizeListener();
-
-        public enterEveryRule = (_ctx: ParserRuleContext): void => { /**/ };
-        public visitTerminal = (_node: TerminalNode): void => {  /**/ };
-        public visitErrorNode = (_node: ErrorNode): void => {  /**/ };
-
-        public exitEveryRule = (ctx: ParserRuleContext): void => {
-            if (ctx.children instanceof java.util.ArrayList) {
-                ctx.children.trimToSize();
-            }
-        };
-    };
-
-    public TraceListener = (($outer) => {
+    private TraceListener = (($outer) => {
         return class TraceListener extends JavaObject implements ParseTreeListener {
             public enterEveryRule = (ctx: ParserRuleContext): void => {
                 const lt1Text = $outer._input?.LT(1)?.getText() ?? "null";
-                const text = `enter    ${$outer.getRuleNames()[ctx.getRuleIndex()]}` +
+                const text = `enter    ${$outer.getRuleNames()![ctx.getRuleIndex()]}` +
                     `, LT(1)=` + lt1Text;
 
                 java.lang.System.out.println(S`${text}`);
@@ -66,7 +31,7 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
 
             public visitTerminal = (node: TerminalNode): void => {
                 const text = `consume ` + node.getSymbol() + ` rule ` +
-                    $outer.getRuleNames()[$outer._ctx?.getRuleIndex() ?? 0];
+                    $outer.getRuleNames()![$outer._ctx?.getRuleIndex() ?? 0];
                 java.lang.System.out.println(S`${text}`);
             };
 
@@ -74,7 +39,7 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
 
             public exitEveryRule = (ctx: ParserRuleContext): void => {
                 const lt1Text = $outer._input?.LT(1)?.getText() ?? "null";
-                const text = `exit    ` + $outer.getRuleNames()[ctx.getRuleIndex()] +
+                const text = `exit    ` + $outer.getRuleNames()![ctx.getRuleIndex()] +
                     `, LT(1)=` + lt1Text;
                 java.lang.System.out.println(S`${text}`);
             };
@@ -440,7 +405,7 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
 
         const deserializationOptions = new ATNDeserializationOptions();
         deserializationOptions.setGenerateRuleBypassTransitions(true);
-        this.bypassAltsAtnCache = new ATNDeserializer(deserializationOptions).deserialize(serializedAtn.toCharArray());
+        this.bypassAltsAtnCache = new ATNDeserializer(deserializationOptions).deserialize(serializedAtn);
 
         return this.bypassAltsAtnCache;
     };
@@ -553,11 +518,11 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
         const charPositionInLine = offendingToken?.getCharPositionInLine() ?? -1;
 
         const listener = this.getErrorListenerDispatch();
-        listener.syntaxError(this, offendingToken, line, charPositionInLine, msg, e);
+        listener.syntaxError?.(this, offendingToken, line, charPositionInLine, msg, e);
     }
 
     /**
-     * Consume and return the {@linkplain #getCurrentToken current symbol}.
+     * Consume and return the {@link #getCurrentToken current symbol}.
      *
      * <p>E.g., given the following input with {@code A} being the current
      * lookahead symbol, this function moves the cursor to {@code B} and returns
@@ -794,7 +759,7 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
         this._ctx = ctx;
     };
 
-    public precpred = (localctx: RuleContext | null, precedence: number): boolean => {
+    public override precpred = (localctx: RuleContext | null, precedence: number): boolean => {
         return precedence >= this._precedenceStack!.peek();
     };
 
@@ -880,7 +845,7 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
      * @returns tbd
      */
     public getRuleIndex = (ruleName: java.lang.String): number => {
-        const ruleIndex = this.getRuleIndexMap().get(ruleName);
+        const ruleIndex = this.getRuleIndexMap().get(ruleName.valueOf());
         if (ruleIndex !== null) {
             return +ruleIndex;
         }
@@ -918,15 +883,15 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
         if (p === undefined) {
             return this.getRuleInvocationStack(this._ctx);
         } else {
-            const ruleNames: java.lang.String[] = this.getRuleNames();
-            const stack: java.util.List<java.lang.String> = new java.util.ArrayList<java.lang.String>();
+            const ruleNames = this.getRuleNames()!;
+            const stack = new java.util.ArrayList<java.lang.String>();
             while (p !== null) {
                 // compute what follows who invoked us
                 const ruleIndex: number = p.getRuleIndex();
                 if (ruleIndex < 0) {
                     stack.add(S`n/a`);
                 } else {
-                    stack.add(ruleNames[ruleIndex]);
+                    stack.add(S`${ruleNames[ruleIndex]}`);
                 }
 
                 p = p.parent;
@@ -943,9 +908,9 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
      * @returns tbd
      */
     public getDFAStrings = (): java.util.List<java.lang.String> => {
-        /* synchronized (_interp.decisionToDFA) */
+        /* synchronized (interpreter.decisionToDFA) */
         const s = new java.util.ArrayList<java.lang.String>();
-        for (const dfa of this._interp!.decisionToDFA) {
+        for (const dfa of this.interpreter!.decisionToDFA) {
             s.add(dfa.toString(this.getVocabulary()));
         }
 
@@ -962,9 +927,9 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
      */
     public dumpDFA(dumpStream?: java.io.PrintStream | null): void {
         const stream = dumpStream ?? java.lang.System.out;
-        /* synchronized (_interp.decisionToDFA) */
+        /* synchronized (interpreter.decisionToDFA) */
         let seenOne = false;
-        for (const dfa of this._interp!.decisionToDFA) {
+        for (const dfa of this.interpreter!.decisionToDFA) {
             if (!dfa.states.isEmpty()) {
                 if (seenOne) {
                     stream.println();
@@ -981,10 +946,10 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
         return this._input?.getSourceName() ?? null;
     };
 
-    public getParseInfo = (): ParseInfo | null => {
-        const interp = this.getInterpreter();
-        if (interp instanceof ProfilingATNSimulator) {
-            return new ParseInfo(interp);
+    public override getParseInfo = (): ParseInfo | null => {
+        const interpreter = this.getInterpreter();
+        if (interpreter instanceof ProfilingATNSimulator) {
+            return new ParseInfo(interpreter);
         }
 
         return null;
@@ -994,16 +959,16 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
      * @param profile tbd
      */
     public setProfile = (profile: boolean): void => {
-        const interp = this.getInterpreter();
-        const saveMode = interp!.getPredictionMode();
+        const interpreter = this.getInterpreter();
+        const saveMode = interpreter!.getPredictionMode();
         if (profile) {
-            if (!(interp instanceof ProfilingATNSimulator)) {
+            if (!(interpreter instanceof ProfilingATNSimulator)) {
                 this.setInterpreter(new ProfilingATNSimulator(this));
             }
         } else {
-            if (interp instanceof ProfilingATNSimulator) {
+            if (interpreter instanceof ProfilingATNSimulator) {
                 const sim =
-                    new ParserATNSimulator(this, this.getATN()!, interp.decisionToDFA, interp.getSharedContextCache());
+                    new ParserATNSimulator(this, this.getATN()!, interpreter.decisionToDFA, interpreter.getSharedContextCache());
                 this.setInterpreter(sim);
             }
         }
@@ -1087,5 +1052,26 @@ export abstract class Parser extends Recognizer<ParserATNSimulator> {
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace Parser {
     export type TraceListener = InstanceType<Parser["TraceListener"]>;
-    export type TrimToSizeListener = InstanceType<typeof Parser.TrimToSizeListener>;
+
+    export class TrimToSizeListener extends JavaObject implements ParseTreeListener {
+        static #instance: TrimToSizeListener | undefined;
+
+        public static get INSTANCE() {
+            if (this.#instance === undefined) {
+                this.#instance = new TrimToSizeListener();
+            }
+
+            return this.#instance;
+        }
+
+        public enterEveryRule = (_ctx: ParserRuleContext): void => { /**/ };
+        public visitTerminal = (_node: TerminalNode): void => {  /**/ };
+        public visitErrorNode = (_node: ErrorNode): void => {  /**/ };
+
+        public exitEveryRule = (ctx: ParserRuleContext): void => {
+            if (ctx.children instanceof java.util.ArrayList) {
+                ctx.children.trimToSize();
+            }
+        };
+    };
 }

@@ -6,33 +6,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { JavaObject, java, S, SourceDataType, I } from "jree";
+import { JavaObject, java, S, I, char, int } from "jree";
 
 import { IntegerList } from "./IntegerList";
 import { IntervalSet } from "./IntervalSet";
 
 export class Utils extends JavaObject {
-    // Seriously: why isn't this built in to java? ugh!
-    public static join<T extends SourceDataType>(iter: java.util.Iterator<T>,
-        separator: java.lang.String): java.lang.String;
-    public static join<T extends SourceDataType>(array: T[], separator: java.lang.String): java.lang.String;
-    public static join<T extends SourceDataType>(iterOrArray: java.util.Iterator<T> | T[],
-        separator: java.lang.String): java.lang.String {
-        if (Array.isArray(iterOrArray)) {
-            return S`${iterOrArray.join(`${separator}`)}`;
-        }
-
-        const buf = new java.lang.StringBuilder();
-        while (iterOrArray.hasNext()) {
-            buf.append(iterOrArray.next());
-            if (iterOrArray.hasNext()) {
-                buf.append(separator);
-            }
-        }
-
-        return buf.toString();
-    }
-
     public static numNonnull = (data: java.lang.Object[] | null): number => {
         let n = 0;
         if (data === null) {
@@ -97,7 +76,7 @@ export class Utils extends JavaObject {
     public static writeFile(fileName: java.lang.String, content: java.lang.String, encoding?: java.lang.String): void {
         const f = new java.io.File(fileName);
         const fos = new java.io.FileOutputStream(f);
-        const osw = new java.io.OutputStreamWriter(fos, encoding);
+        const osw = encoding ? new java.io.OutputStreamWriter(fos, encoding) : new java.io.OutputStreamWriter(fos);
 
         try {
             osw.write(content);
@@ -113,7 +92,7 @@ export class Utils extends JavaObject {
         const f = new java.io.File(fileName);
         const size = Number(f.length());
         const fis = new java.io.FileInputStream(fileName);
-        const isr = new java.io.InputStreamReader(fis, encoding);
+        const isr = encoding ? new java.io.InputStreamReader(fis, encoding) : new java.io.InputStreamReader(fis);
         let data = new Uint16Array(size);
         try {
             const n = isr.read(data);
@@ -136,10 +115,10 @@ export class Utils extends JavaObject {
      *
      * @returns The resulting map.
      */
-    public static toMap = (keys: java.lang.String[]): java.util.Map<java.lang.String, java.lang.Integer> => {
-        const m = new java.util.HashMap<java.lang.String, java.lang.Integer>();
+    public static toMap = (keys: string[]): java.util.Map<string, int> => {
+        const m = new java.util.HashMap<string, int>();
         for (let i = 0; i < keys.length; i++) {
-            m.put(keys[i], I`${i}`);
+            m.put(keys[i], i);
         }
 
         return m;
@@ -216,7 +195,7 @@ export class Utils extends JavaObject {
     };
 
     /***/
-    public static count = (s: java.lang.String, x: java.lang.char): number => {
+    public static count = (s: java.lang.String, x: char): number => {
         let n = 0;
         for (let i = 0; i < s.length(); i++) {
             if (s.charAt(i) === x) {

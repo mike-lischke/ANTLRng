@@ -7,10 +7,9 @@
  */
 
 import { JavaObject, java } from "jree";
-import { ParseTreeMatch } from "./ParseTreeMatch";
-import { ParseTreePatternMatcher } from "./ParseTreePatternMatcher";
-import { ParseTree } from "../ParseTree";
-import { XPath } from "../xpath/XPath";
+
+import { ParseTreeMatch, ParseTreePatternMatcher } from "./";
+import { ParseTree, XPath } from "../";
 
 /**
  * A pattern like {@code <ID> = <expr>;} converted to a {@link ParseTree} by

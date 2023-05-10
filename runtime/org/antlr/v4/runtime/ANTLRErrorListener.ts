@@ -51,7 +51,7 @@ export interface ANTLRErrorListener {
      *        the parser was able to recover in line without exiting the
      *        surrounding rule.
      */
-    syntaxError: <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T>,
+    syntaxError?: <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T>,
         offendingSymbol: S | null,
         line: number,
         charPositionInLine: number,
@@ -98,7 +98,7 @@ export interface ANTLRErrorListener {
      * @param configs the ATN configuration set where the ambiguity was
      * identified
      */
-    reportAmbiguity: (recognizer: Parser,
+    reportAmbiguity?: (recognizer: Parser,
         dfa: DFA,
         startIndex: number,
         stopIndex: number,
@@ -129,7 +129,7 @@ export interface ANTLRErrorListener {
      * @param configs the ATN configuration set where the SLL conflict was
      * detected
      */
-    reportAttemptingFullContext: (recognizer: Parser,
+    reportAttemptingFullContext?: (recognizer: Parser,
         dfa: DFA,
         startIndex: number,
         stopIndex: number,
@@ -174,7 +174,7 @@ export interface ANTLRErrorListener {
      * @param configs the ATN configuration set where the unambiguous prediction
      * was determined
      */
-    reportContextSensitivity: (recognizer: Parser,
+    reportContextSensitivity?: (recognizer: Parser,
         dfa: DFA,
         startIndex: number,
         stopIndex: number,

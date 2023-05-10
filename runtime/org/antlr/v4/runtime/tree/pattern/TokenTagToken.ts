@@ -78,7 +78,7 @@ export class TokenTagToken extends CommonToken {
      *
      * @returns A {@link String} containing the text of the token tag.
      */
-    public getText = (): java.lang.String => {
+    public override getText = (): java.lang.String => {
         if (this.label !== null) {
             return S`<${this.label}:${this.tokenName}>`;
         }
@@ -92,7 +92,7 @@ export class TokenTagToken extends CommonToken {
      *
      * @returns A {@link String} containing the token name and type.
      */
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`${this.tokenName}:${this.type}`;
     };
 }

@@ -8,19 +8,8 @@
 
 import { java, S, JavaObject } from "jree";
 
-import { ParseTree } from "./ParseTree";
-import { isTerminalNode } from "./TerminalNode";
-import { TerminalNodeImpl } from "./TerminalNodeImpl";
-import { Tree } from "./Tree";
-import { CommonToken } from "../CommonToken";
-import { Parser } from "../Parser";
-import { ParserRuleContext } from "../ParserRuleContext";
-import { RuleContext } from "../RuleContext";
-import { isToken, Token } from "../Token";
-import { ATN } from "../atn/ATN";
-import { Predicate } from "../misc/Predicate";
-import { Utils } from "../misc/Utils";
-import { isErrorNode } from "./ErrorNode";
+import { ParseTree, TerminalNodeImpl, Tree, isErrorNode, isTerminalNode } from "./";
+import { ATN, CommonToken, Parser, ParserRuleContext, Predicate, RuleContext, Token, Utils, isToken } from "..";
 
 /** A set of utility routines useful for all kinds of ANTLR trees. */
 export class Trees extends JavaObject {
@@ -38,7 +27,7 @@ export class Trees extends JavaObject {
      * Print out a whole tree in LISP form. {@link #getNodeText} is used on the
      *  node payloads to get the text for the nodes.
      */
-    public static toStringTree(t: Tree, ruleNames: java.util.List<java.lang.String> | null): java.lang.String;
+    public static toStringTree(t: Tree, ruleNames: java.util.List<string> | null): java.lang.String;
     /**
      * Print out a whole tree in LISP form. {@link #getNodeText} is used on the
      *  node payloads to get the text for the nodes.  Detect
@@ -50,12 +39,12 @@ export class Trees extends JavaObject {
      * @returns tbd
      */
     public static toStringTree(t: Tree,
-        recogOrRuleNames?: Parser | java.util.List<java.lang.String> | null): java.lang.String {
-        let ruleNameList: java.util.List<java.lang.String> | null;
+        recogOrRuleNames?: Parser | java.util.List<string> | null): java.lang.String {
+        let ruleNameList: java.util.List<string> | null;
 
         if (recogOrRuleNames instanceof Parser) {
             const ruleNames = recogOrRuleNames !== null ? recogOrRuleNames.getRuleNames() : null;
-            ruleNameList = ruleNames !== null ? java.util.Arrays.asList(ruleNames) : null;
+            ruleNameList = ruleNames !== null ? java.util.Arrays.asList(...ruleNames) : null;
         } else {
             ruleNameList = recogOrRuleNames ?? null;
         }
@@ -82,13 +71,12 @@ export class Trees extends JavaObject {
         return buf.toString();
     }
 
-    public static getNodeText(t: Tree,
-        recogOrRuleNames: Parser | java.util.List<java.lang.String> | null): java.lang.String {
-        let ruleNameList: java.util.List<java.lang.String> | null;
+    public static getNodeText(t: Tree, recogOrRuleNames: Parser | java.util.List<string> | null): java.lang.String {
+        let ruleNameList: java.util.List<string> | null;
 
         if (recogOrRuleNames instanceof Parser) {
             const ruleNames = recogOrRuleNames !== null ? recogOrRuleNames.getRuleNames() : null;
-            ruleNameList = ruleNames !== null ? java.util.Arrays.asList(ruleNames) : null;
+            ruleNameList = ruleNames !== null ? java.util.Arrays.asList(...ruleNames) : null;
         } else {
             ruleNameList = recogOrRuleNames ?? null;
         }
@@ -102,7 +90,7 @@ export class Trees extends JavaObject {
                     return S`${ruleName}:${altNumber}`;
                 }
 
-                return ruleName;
+                return S`${ruleName}`;
             } else {
                 if (isErrorNode(t)) {
                     return t.toString();
@@ -221,7 +209,7 @@ export class Trees extends JavaObject {
 
     /**
      * Find smallest subtree of t enclosing range startTokenIndex..stopTokenIndex
-     *  inclusively using postorder traversal.  Recursive depth-first-search.
+     *  inclusively using post order traversal.  Recursive depth-first-search.
      *
      * @param t tbd
      * @param startTokenIndex tbd
@@ -276,7 +264,7 @@ export class Trees extends JavaObject {
             const range = child.getSourceInterval();
             if (child instanceof ParserRuleContext && (range.b < startIndex || range.a > stopIndex)) {
                 if (Trees.isAncestorOf(child, root)) { // replace only if subtree doesn't have displayed root
-                    const abbrev: CommonToken = new CommonToken(Token.INVALID_TYPE, S`...`);
+                    const abbrev = new CommonToken(Token.INVALID_TYPE, S`...`);
                     t.children!.set(i, new TerminalNodeImpl(abbrev));
                 }
             }

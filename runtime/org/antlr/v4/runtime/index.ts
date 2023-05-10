@@ -1,8 +1,4 @@
 // java2typescript: auto generated index file. Disable generation by setting the "addIndexFiles" option to false.
-export * from "./atn";
-export * from "./dfa";
-export * from "./misc";
-export * from "./tree";
 
 export * from "./ANTLRErrorListener";
 export * from "./ANTLRErrorStrategy";
@@ -24,6 +20,7 @@ export * from "./DiagnosticErrorListener";
 export * from "./FailedPredicateException";
 export * from "./InputMismatchException";
 export * from "./IntStream";
+export * from "./Recognizer";
 export * from "./InterpreterRuleContext";
 export * from "./Lexer";
 export * from "./LexerInterpreter";
@@ -35,7 +32,6 @@ export * from "./ParserInterpreter";
 export * from "./ParserRuleContext";
 export * from "./ProxyErrorListener";
 export * from "./RecognitionException";
-export * from "./Recognizer";
 export * from "./RuleContext";
 export * from "./RuleContextWithAltNum";
 export * from "./RuntimeMetaData";
@@ -49,3 +45,8 @@ export * from "./UnbufferedTokenStream";
 export * from "./Vocabulary";
 export * from "./VocabularyImpl";
 export * from "./WritableToken";
+
+export * from "./atn";
+export * from "./dfa";
+export * from "./misc";
+export * from "./tree";

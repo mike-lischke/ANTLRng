@@ -6,15 +6,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { S } from "jree";
-import { Enum } from "jree/output/src/java/lang/Enum";
+import { S, java } from "jree";
 
 /**
  * Represents the type of recognizer an ATN applies to.
  *
  * @author Sam Harwell
  */
-export class ATNType extends Enum<ATNType> {
+export class ATNType extends java.lang.Enum<ATNType> {
 
     /**
      * A lexer grammar.

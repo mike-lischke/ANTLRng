@@ -74,7 +74,7 @@ export class CommonTokenStream extends BufferedTokenStream {
         }
     }
 
-    public LT = (k: number): Token | null => {
+    public override LT = (k: number): Token | null => {
         this.lazyInit();
         if (k === 0) {
             return null;
@@ -121,11 +121,11 @@ export class CommonTokenStream extends BufferedTokenStream {
         return n;
     };
 
-    protected adjustSeekIndex = (i: number): number => {
+    protected override adjustSeekIndex = (i: number): number => {
         return this.nextTokenOnChannel(i, this.channel);
     };
 
-    protected LB = (k: number): Token | null => {
+    protected override LB = (k: number): Token | null => {
         if (k === 0 || (this.p - k) < 0) {
             return null;
         }

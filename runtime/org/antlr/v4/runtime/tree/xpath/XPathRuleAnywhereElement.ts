@@ -7,9 +7,9 @@
  */
 
 import { java } from "jree";
-import { XPathElement } from "./XPathElement";
-import { ParseTree } from "../ParseTree";
-import { Trees } from "../Trees";
+
+import { XPathElement } from "./";
+import { ParseTree, Trees } from "../";
 
 /**
  * Either {@code ID} at start of path or {@code ...//ID} in middle of path.

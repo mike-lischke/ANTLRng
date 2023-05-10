@@ -180,11 +180,11 @@ export class LexerActionExecutor extends JavaObject {
         }
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         return this.#hashCode;
     };
 
-    public equals = (obj: java.lang.Object | null): boolean => {
+    public override equals = (obj: java.lang.Object | null): boolean => {
         if (obj === this) {
             return true;
         } else {
@@ -199,7 +199,7 @@ export class LexerActionExecutor extends JavaObject {
             && java.util.Arrays.equals(this.lexerActions, other.lexerActions);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return new java.lang.String(super.toString());
     };
 }

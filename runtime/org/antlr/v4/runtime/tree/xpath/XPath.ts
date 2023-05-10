@@ -7,22 +7,15 @@
  */
 
 import { java, JavaObject, S } from "jree";
-import { XPathElement } from "./XPathElement";
-import { XPathLexer } from "./XPathLexer";
-import { XPathLexerErrorListener } from "./XPathLexerErrorListener";
-import { XPathRuleAnywhereElement } from "./XPathRuleAnywhereElement";
-import { XPathRuleElement } from "./XPathRuleElement";
-import { XPathTokenAnywhereElement } from "./XPathTokenAnywhereElement";
-import { XPathTokenElement } from "./XPathTokenElement";
-import { XPathWildcardAnywhereElement } from "./XPathWildcardAnywhereElement";
-import { XPathWildcardElement } from "./XPathWildcardElement";
-import { ANTLRInputStream } from "../../ANTLRInputStream";
-import { CommonTokenStream } from "../../CommonTokenStream";
-import { LexerNoViableAltException } from "../../LexerNoViableAltException";
-import { Parser } from "../../Parser";
-import { ParserRuleContext } from "../../ParserRuleContext";
-import { Token } from "../../Token";
-import { ParseTree } from "../ParseTree";
+
+import {
+    XPathElement, XPathLexer, XPathLexerErrorListener, XPathRuleAnywhereElement, XPathRuleElement,
+    XPathTokenAnywhereElement, XPathTokenElement, XPathWildcardAnywhereElement, XPathWildcardElement
+} from "./";
+import {
+    ANTLRInputStream, CommonTokenStream, LexerNoViableAltException, Parser, ParserRuleContext, Token
+} from "../../";
+import { ParseTree } from "../";
 
 /**
  * Represent a subset of XPath XML path syntax for use in identifying nodes in
@@ -103,7 +96,7 @@ export class XPath extends JavaObject {
             }
         }
         const lexer: XPathLexer = new class extends XPathLexer {
-            public recover = (e: LexerNoViableAltException): void => {
+            public override recover = (e: LexerNoViableAltException): void => {
                 throw e;
             };
         }(input);
@@ -221,8 +214,8 @@ export class XPath extends JavaObject {
         }
 
         const word = wordToken.getText()!;
-        const ttype: number = this.parser.getTokenType(word);
-        const ruleIndex: number = this.parser.getRuleIndex(word);
+        const ttype = this.parser.getTokenType(word.valueOf());
+        const ruleIndex = this.parser.getRuleIndex(word);
         switch (wordToken.getType()) {
             case XPathLexer.WILDCARD: {
                 return anywhere ?

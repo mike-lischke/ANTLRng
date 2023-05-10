@@ -8,39 +8,47 @@
 
 import { java, S } from "jree";
 
-import { PredictionContext } from "./PredictionContext";
 import { SingletonPredictionContext } from "./SingletonPredictionContext";
+import { PredictionContext } from "./PredictionContext";
 
 export class EmptyPredictionContext extends SingletonPredictionContext {
+    static #instance: EmptyPredictionContext | null = null;
+
     /**
      * Represents {@code $} in local context prediction, which means wildcard.
      * {@code *+x = *}.
      */
-    public static readonly Instance = new EmptyPredictionContext();
+    public static get Instance(): EmptyPredictionContext {
+        if (this.#instance === null) {
+            this.#instance = new EmptyPredictionContext();
+        }
+
+        return this.#instance;
+    }
 
     private constructor() {
         super(null, PredictionContext.EMPTY_RETURN_STATE);
     }
 
-    public isEmpty = (): boolean => { return true; };
+    public override isEmpty = (): boolean => { return true; };
 
-    public size = (): number => {
+    public override size = (): number => {
         return 1;
     };
 
-    public getParent = (_index: number): PredictionContext | null => {
+    public override getParent = (_index: number): PredictionContext | null => {
         return null;
     };
 
-    public getReturnState = (_index: number): number => {
+    public override getReturnState = (_index: number): number => {
         return this.returnState;
     };
 
-    public equals = (o: unknown): boolean => {
+    public override equals = (o: unknown): boolean => {
         return this === o;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`$`;
     };
 }

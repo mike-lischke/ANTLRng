@@ -71,7 +71,7 @@ export class TerminalNodeImpl extends JavaObject implements TerminalNode {
         return this.toString();
     }
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         if (this.symbol.getType() === Token.EOF) {
             return S`<EOF>`;
         }

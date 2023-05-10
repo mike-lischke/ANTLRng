@@ -282,7 +282,7 @@ export class UnbufferedTokenStream extends JavaObject implements TokenStream {
         return this.tokenSource.getSourceName();
     };
 
-    public toString = (): java.lang.JavaString => {
+    public override toString = (): java.lang.JavaString => {
         return new java.lang.String(super.toString());
     };
 

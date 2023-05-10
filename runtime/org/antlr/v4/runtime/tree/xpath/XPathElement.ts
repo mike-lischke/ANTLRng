@@ -7,7 +7,8 @@
  */
 
 import { java, JavaObject, S } from "jree";
-import { ParseTree } from "../ParseTree";
+
+import { ParseTree } from "../";
 
 export abstract class XPathElement extends JavaObject {
     public invert = false;
@@ -24,7 +25,7 @@ export abstract class XPathElement extends JavaObject {
         this.nodeName = nodeName;
     }
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         const inv = this.invert ? S`!` : S``;
 
         return S`${this.getClass().getSimpleName()}[${inv}${this.nodeName}]`;

@@ -19,22 +19,22 @@ import { PredictionContextCache } from "./atn/PredictionContextCache";
 import { DFA } from "./dfa/DFA";
 
 export class LexerInterpreter extends Lexer {
-    protected readonly grammarFileName: java.lang.String;
+    protected readonly grammarFileName: string;
     protected readonly atn: ATN;
 
-    protected readonly tokenNames: java.lang.String[];
-    protected readonly ruleNames: java.lang.String[];
-    protected readonly channelNames: java.lang.String[];
-    protected readonly modeNames: java.lang.String[];
+    protected readonly tokenNames: string[];
+    protected readonly ruleNames: string[];
+    protected readonly channelNames: string[];
+    protected readonly modeNames: string[];
 
     protected readonly _decisionToDFA: DFA[];
     protected readonly _sharedContextCache: PredictionContextCache = new PredictionContextCache();
 
     private readonly vocabulary: Vocabulary;
 
-    public constructor(grammarFileName: java.lang.String, vocabulary: Vocabulary,
-        ruleNames: java.util.Collection<java.lang.String>, channelNames: java.util.Collection<java.lang.String>,
-        modeNames: java.util.Collection<java.lang.String>, atn: ATN, input: CharStream) {
+    public constructor(grammarFileName: string, vocabulary: Vocabulary,
+        ruleNames: java.util.Collection<string>, channelNames: java.util.Collection<string>,
+        modeNames: java.util.Collection<string>, atn: ATN, input: CharStream) {
         super(input);
 
         if (atn.grammarType !== ATNType.LEXER) {
@@ -45,7 +45,7 @@ export class LexerInterpreter extends Lexer {
         this.atn = atn;
         this.tokenNames = new Array(atn.maxTokenType);
         for (let i = 0; i < atn.maxTokenType; i++) {
-            this.tokenNames[i] = vocabulary.getDisplayName(i);
+            this.tokenNames[i] = vocabulary.getDisplayName(i)!;
         }
 
         this.ruleNames = ruleNames.toArray();
@@ -58,38 +58,34 @@ export class LexerInterpreter extends Lexer {
             this._decisionToDFA[i] = new DFA(atn.getDecisionState(i), i);
         }
 
-        this._interp = new LexerATNSimulator(atn, this._decisionToDFA, this._sharedContextCache);
+        this.interpreter = new LexerATNSimulator(atn, this._decisionToDFA, this._sharedContextCache);
     }
 
-    public getATN = (): ATN | null => {
+    public getATN = (): ATN => {
         return this.atn;
     };
 
-    public getGrammarFileName = (): java.lang.String => {
+    public getGrammarFileName = (): string => {
         return this.grammarFileName;
     };
 
-    public getTokenNames = (): java.lang.String[] => {
+    public override getTokenNames = (): string[] => {
         return this.tokenNames;
     };
 
-    public getRuleNames = (): java.lang.String[] => {
+    public getRuleNames = (): string[] => {
         return this.ruleNames;
     };
 
-    public getChannelNames = (): java.lang.String[] => {
+    public override getChannelNames = (): string[] => {
         return this.channelNames;
     };
 
-    public getModeNames = (): java.lang.String[] => {
+    public override getModeNames = (): string[] => {
         return this.modeNames;
     };
 
-    public getVocabulary = (): Vocabulary => {
-        if (this.vocabulary !== null) {
-            return this.vocabulary;
-        }
-
-        return super.getVocabulary();
+    public override getVocabulary = (): Vocabulary => {
+        return this.vocabulary;
     };
 }

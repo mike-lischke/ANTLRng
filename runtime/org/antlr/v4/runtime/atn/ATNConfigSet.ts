@@ -6,6 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable max-classes-per-file */
+
 import { java, S } from "jree";
 
 import { ATN } from "./ATN";
@@ -21,46 +23,7 @@ import { Array2DHashSet, DoubleKeyMap, EqualityComparator } from "../misc";
  * info about the set, with support for combining similar configurations using a
  * graph-structured stack.
  */
-export class ATNConfigSet extends java.util.Set<ATNConfig> {
-    public static AbstractConfigHashSet = class AbstractConfigHashSet extends Array2DHashSet<ATNConfig> {
-        public constructor(comparator: EqualityComparator<ATNConfig>);
-        public constructor(comparator: EqualityComparator<ATNConfig>, initialCapacity: number,
-            initialBucketCapacity: number);
-        public constructor(comparator: EqualityComparator<ATNConfig>, initialCapacity?: number,
-            initialBucketCapacity?: number) {
-            super(comparator, initialCapacity ?? 16, initialBucketCapacity ?? 2);
-        }
-
-        protected readonly asElementType = (o: unknown): ATNConfig | null => {
-            if (!(o instanceof ATNConfig)) {
-                return null;
-            }
-
-            return o;
-        };
-
-        protected readonly createBuckets = (capacity: number): ATNConfig[][] => {
-            return new Array<ATNConfig[]>(capacity);
-        };
-
-        protected readonly createBucket = (capacity: number): ATNConfig[] => {
-            return new Array<ATNConfig>(capacity);
-        };
-    };
-
-    /**
-     * The reason that we need this is because we don't want the hash map to use
-     * the standard hash code and equals. We need all configurations with the same
-     * {@code (s,i,_,semctx)} to be equal. Unfortunately, this key effectively doubles
-     * the number of objects associated with ATNConfigs. The other solution is to
-     * use a hash table that lets us specify the equals/hash code operation.
-     */
-    public static ConfigHashSet = class ConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
-        public constructor() {
-            super(ATNConfigSet.ConfigEqualityComparator.INSTANCE);
-        }
-    };
-
+export class ATNConfigSet extends java.util.Set<ATNConfig | null> {
     public static readonly ConfigEqualityComparator =
         class ConfigEqualityComparator implements EqualityComparator<ATNConfig> {
             public static readonly INSTANCE = new ConfigEqualityComparator();
@@ -167,13 +130,13 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
      *
      * @returns tbd
      */
-    public add(config: ATNConfig,
+    public override add(config: ATNConfig,
         mergeCache?: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null): boolean {
         if (this.readonly || this.configLookup === null) {
             throw new java.lang.IllegalStateException(S`This set is readonly`);
         }
 
-        if (config.semanticContext !== SemanticContext.Empty.Instance) {
+        if (config.semanticContext !== SemanticContext.Empty) {
             this.hasSemanticContext = true;
         }
 
@@ -240,7 +203,7 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
     public getPredicates = (): java.util.List<SemanticContext> | null => {
         const preds: java.util.List<SemanticContext> = new java.util.ArrayList<SemanticContext>();
         for (const c of this.configs) {
-            if (c.semanticContext !== SemanticContext.Empty.Instance) {
+            if (c.semanticContext !== SemanticContext.Empty) {
                 preds.add(c.semanticContext);
             }
         }
@@ -266,15 +229,15 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         }
     };
 
-    public addAll = (coll: Omit<java.util.Collection<ATNConfig>, "add">): boolean => {
+    public override addAll = (coll: Omit<java.util.Collection<ATNConfig | null>, "add">): boolean => {
         for (const c of coll) {
-            this.add(c, null);
+            this.add(c!, null);
         }
 
         return false;
     };
 
-    public equals = (other: unknown): boolean => {
+    public override equals = (other: unknown): boolean => {
         if (other === this) {
             return true;
         }
@@ -294,7 +257,7 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         return same;
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         if (this.isReadonly()) {
             if (this.cachedHashCode === -1) {
                 this.cachedHashCode = this.configs.hashCode();
@@ -306,15 +269,15 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         return this.configs.hashCode();
     };
 
-    public size = (): number => {
+    public override size = (): number => {
         return this.configs.size();
     };
 
-    public isEmpty = (): boolean => {
+    public override isEmpty = (): boolean => {
         return this.configs.isEmpty();
     };
 
-    public contains = (o: ATNConfig): boolean => {
+    public override contains = (o: ATNConfig): boolean => {
         if (this.configLookup === null) {
             throw new java.lang.UnsupportedOperationException(S`This method is not implemented for readonly sets.`);
         }
@@ -330,7 +293,7 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         return this.configLookup.containsFast(obj);
     };
 
-    public iterator = (): java.util.Iterator<ATNConfig> => {
+    public override iterator = (): java.util.Iterator<ATNConfig> => {
         return this.configs.iterator();
     };
 
@@ -338,7 +301,7 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         yield* this.configs;
     }
 
-    public clear = (): void => {
+    public override clear = (): void => {
         if (this.readonly || this.configLookup === null) {
             throw new java.lang.IllegalStateException(S`This set is readonly`);
         }
@@ -357,7 +320,7 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         this.configLookup = null; // can't mod, no need for lookup cache
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         const buf = new java.lang.StringBuilder();
         buf.append(this.elements().toString() ?? S``);
         if (this.hasSemanticContext) {
@@ -379,9 +342,9 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         return buf.toString();
     };
 
-    public toArray(): ATNConfig[];
-    public toArray<T extends ATNConfig>(a: T[]): T[];
-    public toArray<T extends ATNConfig>(a?: T[]): ATNConfig[] | T[] | null {
+    public override toArray(): Array<ATNConfig | null>;
+    public override toArray<T extends ATNConfig>(a: T[]): T[];
+    public override toArray<T extends ATNConfig>(a?: T[]): Array<ATNConfig | null> | T[] | null {
         if (a === undefined) {
             return this.configLookup?.toArray() ?? null;
         }
@@ -389,26 +352,70 @@ export class ATNConfigSet extends java.util.Set<ATNConfig> {
         return this.configLookup?.toArray(a) ?? null;
     }
 
-    public remove = (_o: java.lang.Object): boolean => {
+    public override remove = (_o: java.lang.Object): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 
-    public containsAll = (_c: java.util.Collection<ATNConfig>): boolean => {
+    public override containsAll = (_c: java.util.Collection<ATNConfig>): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 
-    public retainAll = (_c: java.util.Collection<ATNConfig>): boolean => {
+    public override retainAll = (_c: java.util.Collection<ATNConfig>): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 
-    public removeAll = (_c: java.util.Collection<ATNConfig>): boolean => {
+    public override removeAll = (_c: java.util.Collection<ATNConfig>): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace ATNConfigSet {
-    export type ConfigHashSet = InstanceType<typeof ATNConfigSet.ConfigHashSet>;
     export type ConfigEqualityComparator = InstanceType<typeof ATNConfigSet.ConfigEqualityComparator>;
-    export type AbstractConfigHashSet = InstanceType<typeof ATNConfigSet.AbstractConfigHashSet>;
+
+    export class AbstractConfigHashSet extends Array2DHashSet<ATNConfig> {
+        public constructor(comparator: EqualityComparator<ATNConfig>);
+        public constructor(comparator: EqualityComparator<ATNConfig>, initialCapacity: number,
+            initialBucketCapacity: number);
+        public constructor(comparator: EqualityComparator<ATNConfig>, initialCapacity?: number,
+            initialBucketCapacity?: number) {
+            super(comparator, initialCapacity ?? 16, initialBucketCapacity ?? 2);
+        }
+
+        public override readonly asElementType = (o: unknown): ATNConfig | null => {
+            if (!(o instanceof ATNConfig)) {
+                return null;
+            }
+
+            return o;
+        };
+
+        public override readonly createBuckets = (capacity: number): Array<Array<ATNConfig | null> | null> => {
+            const result = new Array<Array<ATNConfig | null> | null>(capacity);
+            result.fill(null);
+
+            return result;
+        };
+
+        public override readonly createBucket = (capacity: number): Array<ATNConfig | null> => {
+            const result = new Array<ATNConfig | null>(capacity);
+            result.fill(null);
+
+            return result;
+        };
+    }
+
+    /**
+     * The reason that we need this is because we don't want the hash map to use
+     * the standard hash code and equals. We need all configurations with the same
+     * {@code (s,i,_,semctx)} to be equal. Unfortunately, this key effectively doubles
+     * the number of objects associated with ATNConfigs. The other solution is to
+     * use a hash table that lets us specify the equals/hash code operation.
+     */
+    export class ConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
+        public constructor() {
+            super(ATNConfigSet.ConfigEqualityComparator.INSTANCE);
+        }
+    }
+
 }

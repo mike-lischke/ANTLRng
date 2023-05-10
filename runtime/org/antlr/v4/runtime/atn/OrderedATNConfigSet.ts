@@ -6,6 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable max-classes-per-file */
+
 import { ATNConfigSet } from "./ATNConfigSet";
 import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
 
@@ -13,13 +15,6 @@ import { ObjectEqualityComparator } from "../misc/ObjectEqualityComparator";
  * @author Sam Harwell
  */
 export class OrderedATNConfigSet extends ATNConfigSet {
-
-    public static LexerConfigHashSet = class LexerConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
-        public constructor() {
-            super(ObjectEqualityComparator.INSTANCE);
-        }
-    };
-
     public constructor() {
         super();
         this.configLookup = new OrderedATNConfigSet.LexerConfigHashSet();
@@ -28,5 +23,10 @@ export class OrderedATNConfigSet extends ATNConfigSet {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace OrderedATNConfigSet {
-    export type LexerConfigHashSet = InstanceType<typeof OrderedATNConfigSet.LexerConfigHashSet>;
+    export class LexerConfigHashSet extends ATNConfigSet.AbstractConfigHashSet {
+        public constructor() {
+            super(ObjectEqualityComparator.INSTANCE);
+        }
+    }
+
 }

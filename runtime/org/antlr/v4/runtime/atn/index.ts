@@ -1,5 +1,7 @@
 // java2typescript: auto generated index file. Disable generation by setting the "addIndexFiles" option to false.
 
+export * from "./PredictionContext";
+
 export * from "./ATN";
 export * from "./ATNConfig";
 export * from "./ATNConfigSet";
@@ -52,7 +54,6 @@ export * from "./PlusLoopbackState";
 export * from "./PrecedencePredicateTransition";
 export * from "./PredicateEvalInfo";
 export * from "./PredicateTransition";
-export * from "./PredictionContext";
 export * from "./PredictionContextCache";
 export * from "./PredictionMode";
 export * from "./ProfilingATNSimulator";

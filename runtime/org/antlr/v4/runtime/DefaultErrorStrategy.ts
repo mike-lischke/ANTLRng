@@ -436,7 +436,7 @@ export class DefaultErrorStrategy extends JavaObject implements ANTLRErrorStrate
      * @param e the recognition exception
      */
     protected reportFailedPredicate = (recognizer: Parser, e: FailedPredicateException): void => {
-        const ruleName = recognizer.getRuleNames()[recognizer._ctx!.getRuleIndex()];
+        const ruleName = recognizer.getRuleNames()![recognizer._ctx!.getRuleIndex()];
         const msg = S`rule ${ruleName} ${e.getMessage()}`;
         recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
     };

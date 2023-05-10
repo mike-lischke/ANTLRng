@@ -41,11 +41,11 @@ export class LexerNoViableAltException extends RecognitionException {
         return this.deadEndConfigs;
     };
 
-    public getInputStream = (): CharStream | null => {
+    public override getInputStream = (): CharStream | null => {
         return super.getInputStream() as CharStream;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         let symbol: java.lang.String = S``;
         if (this.startIndex >= 0 && this.startIndex < this.getInputStream()!.size()) {
             symbol = this.getInputStream()!.getText(Interval.of(this.startIndex, this.startIndex));

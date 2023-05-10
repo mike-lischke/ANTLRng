@@ -7,16 +7,8 @@
  */
 
 import { java, S, JavaObject } from "jree";
-import { Parser } from "./Parser";
-import { Recognizer } from "./Recognizer";
-import { ATN } from "./atn/ATN";
-import { Interval } from "./misc/Interval";
-import { ParseTree } from "./tree/ParseTree";
-import { ParseTreeVisitor } from "./tree/ParseTreeVisitor";
-import { RuleNode } from "./tree/RuleNode";
-import { Trees } from "./tree/Trees";
 
-import { ATNSimulator } from "./atn";
+import { ATN, ATNSimulator, Interval, ParseTree, ParseTreeVisitor, Parser, Recognizer, RuleNode, Trees } from "./";
 
 /**
  * A rule context is a record of a single rule invocation.
@@ -204,7 +196,7 @@ export class RuleContext extends JavaObject implements Omit<RuleNode, "getParent
      *
      * @returns tbd
      */
-    public toStringTree(recogOrRuleNames?: Parser | java.util.List<java.lang.String>): java.lang.String {
+    public toStringTree(recogOrRuleNames?: Parser | java.util.List<string>): java.lang.String {
         if (!recogOrRuleNames) {
             return Trees.toStringTree(this);
         }
@@ -217,17 +209,17 @@ export class RuleContext extends JavaObject implements Omit<RuleNode, "getParent
         return Trees.toStringTree(this, recogOrRuleNames);
     }
 
-    public toString(ruleNames?: java.util.List<java.lang.String>): java.lang.String;
+    public override toString(ruleNames?: java.util.List<java.lang.String>): java.lang.String;
     // recog null unless ParserRuleContext, in which case we use subclass toString(...)
-    public toString<T extends ATNSimulator>(recog: Recognizer<T>, stop?: RuleContext): java.lang.String;
+    public override toString<T extends ATNSimulator>(recog: Recognizer<T>, stop?: RuleContext): java.lang.String;
     // eslint-disable-next-line @typescript-eslint/unified-signatures
-    public toString(ruleNames: java.util.List<java.lang.String>, stop: RuleContext): java.lang.String;
-    public toString<T extends ATNSimulator>(
+    public override toString(ruleNames: java.util.List<java.lang.String>, stop: RuleContext): java.lang.String;
+    public override toString<T extends ATNSimulator>(
         recogOrRuleNames?: Recognizer<T> | java.util.List<java.lang.String>, stop?: RuleContext): java.lang.String {
         let ruleNamesList;
         if (recogOrRuleNames instanceof Recognizer) {
-            const ruleNames = recogOrRuleNames.getRuleNames();
-            ruleNamesList = java.util.Arrays.asList(ruleNames);
+            const ruleNames = recogOrRuleNames.getRuleNames()!;
+            ruleNamesList = java.util.Arrays.asList(...ruleNames);
         } else {
             ruleNamesList = recogOrRuleNames ?? null;
         }

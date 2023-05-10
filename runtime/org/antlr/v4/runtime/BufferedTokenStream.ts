@@ -434,7 +434,7 @@ export class BufferedTokenStream extends JavaObject implements TokenStream {
         }
     };
 
-    public toString: () => java.lang.JavaString = () => {
+    public override toString: () => java.lang.JavaString = () => {
         return this.getText();
     };
 

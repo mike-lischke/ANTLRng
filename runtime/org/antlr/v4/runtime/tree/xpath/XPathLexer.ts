@@ -9,16 +9,11 @@
 /* eslint-disable no-underscore-dangle */
 
 import { java, S } from "jree";
-import { CharStream } from "../../CharStream";
-import { CommonToken } from "../../CommonToken";
-import { Lexer } from "../../Lexer";
-import { LexerNoViableAltException } from "../../LexerNoViableAltException";
-import { Token } from "../../Token";
-import { Vocabulary } from "../../Vocabulary";
-import { VocabularyImpl } from "../../VocabularyImpl";
-import { ATN } from "../../atn/ATN";
-import { Interval } from "../../misc/Interval";
-import { Recognizer } from "../../Recognizer";
+
+import {
+    ATN, CharStream, CommonToken, Interval, Lexer, LexerNoViableAltException, Recognizer, Token, Vocabulary,
+    VocabularyImpl
+} from "../../";
 
 /** Mimic the old XPathLexer from .g4 file */
 export class XPathLexer extends Lexer {
@@ -31,26 +26,24 @@ export class XPathLexer extends Lexer {
     public static readonly ID: number = 7;
     public static readonly STRING = 8;
 
-    public static readonly modeNames: java.lang.String[] = [
-        S`DEFAULT_MODE`,
+    public static readonly modeNames: string[] = [
+        "DEFAULT_MODE",
     ];
 
-    public static readonly ruleNames: java.lang.String[] = [
-        S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`, S`ID`, S`NameChar`, S`NameStartChar`,
-        S`STRING`,
+    public static readonly ruleNames: string[] = [
+        "ANYWHERE", "ROOT", "WILDCARD", "BANG", "ID", "NameChar", "NameStartChar", "STRING",
     ];
 
     /**
      * @deprecated Use {@link #VOCABULARY} instead.
      */
-    public static readonly tokenNames: java.lang.String[];
+    public static readonly tokenNames: string[];
 
-    private static readonly _LITERAL_NAMES: Array<java.lang.String | null> = [
-        null, null, null, S`'//'`, S`'/'`, S`'*'`, S`'!'`,
+    private static readonly _LITERAL_NAMES: Array<string | null> = [
+        null, null, null, "//", "/", "*", "!",
     ];
-    private static readonly _SYMBOLIC_NAMES: Array<java.lang.String | null> = [
-        null, S`TOKEN_REF`, S`RULE_REF`, S`ANYWHERE`, S`ROOT`, S`WILDCARD`, S`BANG`,
-        S`ID`, S`STRING`,
+    private static readonly _SYMBOLIC_NAMES: Array<string | null> = [
+        null, "TOKEN_REF", "RULE_REF", "ANYWHERE", "ROOT", "WILDCARD", "BANG", "ID", "STRING",
     ];
 
     // eslint-disable-next-line @typescript-eslint/member-ordering
@@ -63,23 +56,23 @@ export class XPathLexer extends Lexer {
         super(input);
     }
 
-    public getGrammarFileName = (): java.lang.String => {
-        return S`XPathLexer.g4`;
+    public getGrammarFileName = (): string => {
+        return "XPathLexer.g4";
     };
 
-    public getRuleNames = (): java.lang.String[] => {
+    public getRuleNames = (): string[] => {
         return XPathLexer.ruleNames;
     };
 
-    public getModeNames = (): java.lang.String[] => {
+    public override getModeNames = (): string[] => {
         return XPathLexer.modeNames;
     };
 
-    public getTokenNames = (): java.lang.String[] => {
+    public override getTokenNames = (): string[] => {
         return XPathLexer.tokenNames;
     };
 
-    public getVocabulary = (): Vocabulary => {
+    public override getVocabulary = (): Vocabulary => {
         return XPathLexer.VOCABULARY;
     };
 
@@ -87,7 +80,7 @@ export class XPathLexer extends Lexer {
         return null;
     };
 
-    public nextToken = (): Token => {
+    public override nextToken = (): Token => {
         this._tokenStartCharIndex = this._input!.index();
         let t: CommonToken | null = null;
         while (t === null) {
@@ -164,7 +157,7 @@ export class XPathLexer extends Lexer {
         this._input!.consume();
     };
 
-    public getCharPositionInLine = (): number => {
+    public override getCharPositionInLine = (): number => {
         return this.charPositionInLine;
     };
 
@@ -197,10 +190,10 @@ export class XPathLexer extends Lexer {
 
     static {
         // @ts-ignore
-        XPathLexer.tokenNames = new Array<java.lang.String>(XPathLexer._SYMBOLIC_NAMES.length);
+        XPathLexer.tokenNames = new Array<string>(XPathLexer._SYMBOLIC_NAMES.length);
         for (let i = 0; i < XPathLexer.tokenNames.length; i++) {
             const name = XPathLexer.VOCABULARY.getLiteralName(i) ?? XPathLexer.VOCABULARY.getSymbolicName(i)
-                ?? S`<INVALID>`;
+                ?? "<INVALID>";
 
             XPathLexer.tokenNames[i] = name;
         }

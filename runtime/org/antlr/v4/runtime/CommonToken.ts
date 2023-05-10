@@ -111,11 +111,11 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
      * @param type The token type.
      * @param text The text of the token.
      */
-    public constructor(type: number, text: java.lang.String | null);
+    public constructor(type: number, text: java.lang.String | string | null);
     public constructor(source: Pair<TokenSource, CharStream>, type: number, channel: number, start: number,
         stop: number);
     public constructor(typeOrOldTokenOrSource: number | Token | Pair<TokenSource, CharStream>,
-        textOrType?: java.lang.String | number | null, channel?: number, start?: number, stop?: number) {
+        textOrType?: java.lang.String | string | number | null, channel?: number, start?: number, stop?: number) {
         super();
         if (typeof typeOrOldTokenOrSource === "number") {
             this.type = typeOrOldTokenOrSource;
@@ -250,9 +250,9 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
         return this.source?.b ?? null;
     };
 
-    public toString(): java.lang.String;
-    public toString(r: Recognizer<ATNSimulator>): java.lang.String;
-    public toString(r?: Recognizer<ATNSimulator>): java.lang.String {
+    public override toString(): java.lang.String;
+    public override toString(r: Recognizer<ATNSimulator>): java.lang.String;
+    public override toString(r?: Recognizer<ATNSimulator>): java.lang.String {
         const channelStr = this.channel > 0 ? S`, channel =${this.channel}` : S``;
 
         let txt = this.getText();
@@ -266,7 +266,7 @@ export class CommonToken extends JavaObject implements WritableToken, java.io.Se
 
         let typeString = java.lang.String.valueOf(this.type);
         if (r) {
-            typeString = r.getVocabulary().getDisplayName(this.type);
+            typeString = S`${r.getVocabulary().getDisplayName(this.type)}`;
         }
 
         const text = "[@" + this.getTokenIndex() + "," + this.start + ":" + this.stop + "='" + txt + "',<" +

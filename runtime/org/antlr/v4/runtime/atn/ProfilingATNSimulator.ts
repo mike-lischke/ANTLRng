@@ -64,7 +64,7 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         }
     }
 
-    public adaptivePredict = (input: TokenStream, decision: number, outerContext: ParserRuleContext): number => {
+    public override adaptivePredict = (input: TokenStream, decision: number, outerContext: ParserRuleContext): number => {
         try {
             this._sllStopIndex = -1;
             this._llStopIndex = -1;
@@ -116,7 +116,7 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         return this.currentState;
     };
 
-    protected getExistingTargetState = (previousD: DFAState | null, t: number): DFAState | null => {
+    protected override getExistingTargetState = (previousD: DFAState | null, t: number): DFAState | null => {
         // this method is called after each time the input position advances
         // during SLL prediction
         this._sllStopIndex = this._input!.index();
@@ -137,14 +137,14 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         return existingTargetState;
     };
 
-    protected computeTargetState = (dfa: DFA, previousD: DFAState, t: number): DFAState => {
+    protected override computeTargetState = (dfa: DFA, previousD: DFAState, t: number): DFAState => {
         const state = super.computeTargetState(dfa, previousD, t);
         this.currentState = state;
 
         return state;
     };
 
-    protected computeReachSet = (closure: ATNConfigSet, t: number, fullCtx: boolean): ATNConfigSet | null => {
+    protected override computeReachSet = (closure: ATNConfigSet, t: number, fullCtx: boolean): ATNConfigSet | null => {
         if (fullCtx) {
             // this method is called after each time the input position advances
             // during full context prediction
@@ -178,11 +178,11 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         return reachConfigs;
     };
 
-    protected evalSemanticContext(predPredictions: DFAState.PredPrediction[], outerContext: ParserRuleContext,
+    protected override evalSemanticContext(predPredictions: DFAState.PredPrediction[], outerContext: ParserRuleContext,
         complete: boolean): java.util.BitSet;
-    protected evalSemanticContext(pred: SemanticContext, parserCallStack: ParserRuleContext, alt: number,
+    protected override evalSemanticContext(pred: SemanticContext, parserCallStack: ParserRuleContext, alt: number,
         fullCtx: boolean): boolean;
-    protected evalSemanticContext(predPredictionsOrPred: DFAState.PredPrediction[] | SemanticContext,
+    protected override evalSemanticContext(predPredictionsOrPred: DFAState.PredPrediction[] | SemanticContext,
         outerContextOrParserCallStack: ParserRuleContext, completeOrAlt: boolean | number,
         fullCtx?: boolean): java.util.BitSet | boolean {
 
@@ -207,7 +207,7 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         return result;
     }
 
-    protected reportAttemptingFullContext = (dfa: DFA, conflictingAlts: java.util.BitSet | null,
+    protected override reportAttemptingFullContext = (dfa: DFA, conflictingAlts: java.util.BitSet | null,
         configs: ATNConfigSet, startIndex: number, stopIndex: number): void => {
         if (conflictingAlts !== null) {
             this.conflictingAltResolvedBySLL = conflictingAlts.nextSetBit(0);
@@ -218,7 +218,7 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         super.reportAttemptingFullContext(dfa, conflictingAlts, configs, startIndex, stopIndex);
     };
 
-    protected reportContextSensitivity = (dfa: DFA, prediction: number, configs: ATNConfigSet, startIndex: number,
+    protected override reportContextSensitivity = (dfa: DFA, prediction: number, configs: ATNConfigSet, startIndex: number,
         stopIndex: number): void => {
         if (prediction !== this.conflictingAltResolvedBySLL) {
             this.decisions[this.currentDecision].contextSensitivities.add(
@@ -228,7 +228,7 @@ export class ProfilingATNSimulator extends ParserATNSimulator {
         super.reportContextSensitivity(dfa, prediction, configs, startIndex, stopIndex);
     };
 
-    protected reportAmbiguity = (dfa: DFA, state: DFAState | null, startIndex: number, stopIndex: number,
+    protected override reportAmbiguity = (dfa: DFA, state: DFAState | null, startIndex: number, stopIndex: number,
         exact: boolean, ambigAlts: java.util.BitSet | null, configs: ATNConfigSet): void => {
         let prediction: number;
         if (ambigAlts !== null) {

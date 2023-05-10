@@ -18,17 +18,17 @@ export class NotSetTransition extends SetTransition {
         super(target, set);
     }
 
-    public getSerializationType = (): number => {
+    public override getSerializationType = (): number => {
         return Transition.NOT_SET;
     };
 
-    public matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
+    public override matches = (symbol: number, minVocabSymbol: number, maxVocabSymbol: number): boolean => {
         return symbol >= minVocabSymbol
             && symbol <= maxVocabSymbol
             && !super.matches(symbol, minVocabSymbol, maxVocabSymbol);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`~${super.toString()}`;
     };
 }

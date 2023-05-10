@@ -120,7 +120,7 @@ export class ParseTreeMatch extends JavaObject {
     };
 
     /**
-     * Return a mapping from label &rarr; [list of nodes].
+     * Return a mapping from label -> [list of nodes].
      *
      * <p>The map includes special entries corresponding to the names of rules and
      * tokens referenced in tags in the original pattern. For additional
@@ -175,7 +175,7 @@ export class ParseTreeMatch extends JavaObject {
         return this.tree;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return java.lang.String.format(
             S`Match %s; found %d labels`,
             this.succeeded() ? S`succeeded` : S`failed`,

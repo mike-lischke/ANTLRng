@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, JavaObject, S } from "jree";
+import { int, java, JavaObject } from "jree";
 import { Token } from "./Token";
 import { Vocabulary } from "./Vocabulary";
 
@@ -17,7 +17,7 @@ import { Vocabulary } from "./Vocabulary";
  * @author Sam Harwell
  */
 export class VocabularyImpl extends JavaObject implements Vocabulary {
-    private static readonly EMPTY_NAMES = new Array<java.lang.String>();
+    private static readonly EMPTY_NAMES = new Array<string>();
 
     /**
      * Gets an empty {@link Vocabulary} instance.
@@ -31,9 +31,9 @@ export class VocabularyImpl extends JavaObject implements Vocabulary {
     public static readonly EMPTY_VOCABULARY = new VocabularyImpl(VocabularyImpl.EMPTY_NAMES, VocabularyImpl.EMPTY_NAMES,
         VocabularyImpl.EMPTY_NAMES);
 
-    private readonly literalNames: Array<java.lang.String | null>;
-    private readonly symbolicNames: Array<java.lang.String | null>;
-    private readonly displayNames: Array<java.lang.String | null> | null = null;
+    private readonly literalNames: Array<string | null>;
+    private readonly symbolicNames: Array<string | null>;
+    private readonly displayNames: Array<string | null> | null = null;
     private readonly maxTokenType: number = 0;
 
     /**
@@ -48,8 +48,7 @@ export class VocabularyImpl extends JavaObject implements Vocabulary {
      * @see #getLiteralName(int)
      * @see #getSymbolicName(int)
      */
-    public constructor(literalNames: Array<java.lang.String | null> | null,
-        symbolicNames: Array<java.lang.String | null> | null);
+    public constructor(literalNames: Array<string | null> | null, symbolicNames: Array<string | null> | null);
     /**
      * Constructs a new instance of {@link VocabularyImpl} from the specified
      * literal, symbolic, and display token names.
@@ -67,19 +66,19 @@ export class VocabularyImpl extends JavaObject implements Vocabulary {
      * @see #getSymbolicName(int)
      * @see #getDisplayName(int)
      */
-    public constructor(literalNames: Array<java.lang.String | null> | null,
-        symbolicNames: Array<java.lang.String | null> | null, displayNames: Array<java.lang.String | null> | null);
+    public constructor(literalNames: Array<string | null> | null, symbolicNames: Array<string | null> | null,
+        displayNames: Array<string | null> | null);
     public constructor(...args: unknown[]) {
         super();
 
-        const literalNames = args[0] as Array<java.lang.String | null>;
-        const symbolicNames = args[1] as Array<java.lang.String | null>;
+        const literalNames = args[0] as Array<string | null>;
+        const symbolicNames = args[1] as Array<string | null>;
         this.literalNames = literalNames ?? VocabularyImpl.EMPTY_NAMES;
         this.symbolicNames = symbolicNames ?? VocabularyImpl.EMPTY_NAMES;
 
         let displayNames = null;
         if (args.length > 2) {
-            displayNames = args[2] as Array<java.lang.String | null>;
+            displayNames = args[2] as Array<string | null>;
         }
         this.displayNames = displayNames ?? VocabularyImpl.EMPTY_NAMES;
 
@@ -101,21 +100,21 @@ export class VocabularyImpl extends JavaObject implements Vocabulary {
      * @returns A {@link Vocabulary} instance which uses {@code tokenNames} for
      * the display names of tokens.
      */
-    public static fromTokenNames = (tokenNames: java.lang.String[] | null): Vocabulary => {
+    public static fromTokenNames = (tokenNames: Array<string | null> | null): Vocabulary => {
         if (tokenNames === null || tokenNames.length === 0) {
             return VocabularyImpl.EMPTY_VOCABULARY;
         }
 
-        const literalNames: Array<java.lang.String | null> = [...tokenNames];
-        const symbolicNames: Array<java.lang.String | null> = [...tokenNames];
+        const literalNames = [...tokenNames];
+        const symbolicNames = [...tokenNames];
         for (let i = 0; i < tokenNames.length; i++) {
             const tokenName = tokenNames[i];
             if (tokenName === null) {
                 continue;
             }
 
-            if (!tokenName.isEmpty()) {
-                const firstChar = tokenName.charAt(0);
+            if (tokenName.length > 0) {
+                const firstChar = tokenName.codePointAt(0)!;
                 if (firstChar === 0x27) { // "'"
                     symbolicNames[i] = null;
                     continue;
@@ -139,7 +138,7 @@ export class VocabularyImpl extends JavaObject implements Vocabulary {
         return this.maxTokenType;
     };
 
-    public getLiteralName = (tokenType: number): java.lang.String | null => {
+    public getLiteralName = (tokenType: int): string | null => {
         if (tokenType >= 0 && tokenType < this.literalNames.length) {
             return this.literalNames[tokenType];
         }
@@ -147,19 +146,19 @@ export class VocabularyImpl extends JavaObject implements Vocabulary {
         return null;
     };
 
-    public getSymbolicName = (tokenType: number): java.lang.String | null => {
+    public getSymbolicName = (tokenType: int): string | null => {
         if (tokenType >= 0 && tokenType < this.symbolicNames.length) {
             return this.symbolicNames[tokenType];
         }
 
         if (tokenType === Token.EOF) {
-            return S`EOF`;
+            return "EOF";
         }
 
         return null;
     };
 
-    public getDisplayName = (tokenType: number): java.lang.String => {
+    public getDisplayName = (tokenType: int): string => {
         if (this.displayNames && tokenType >= 0 && tokenType < this.displayNames.length) {
             const displayName = this.displayNames[tokenType];
             if (displayName !== null) {
@@ -177,20 +176,20 @@ export class VocabularyImpl extends JavaObject implements Vocabulary {
             return symbolicName;
         }
 
-        return java.lang.Integer.toString(tokenType);
+        return java.lang.Integer.toString(tokenType).valueOf();
     };
 
     // Because this is an actual implementation object, we can provide access methods for vocabulary symbols
 
-    public getLiteralNames = (): Array<java.lang.String | null> => {
+    public getLiteralNames = (): Array<string | null> => {
         return this.literalNames;
     };
 
-    public getSymbolicNames = (): Array<java.lang.String | null> => {
+    public getSymbolicNames = (): Array<string | null> => {
         return this.symbolicNames;
     };
 
-    public getDisplayNames = (): Array<java.lang.String | null> | null => {
+    public getDisplayNames = (): Array<string | null> | null => {
         return this.displayNames;
     };
 }

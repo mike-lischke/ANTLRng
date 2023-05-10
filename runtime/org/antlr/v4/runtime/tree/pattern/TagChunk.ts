@@ -102,7 +102,7 @@ export class TagChunk extends Chunk {
      *
      * @returns A text representation of the tag chunk.
      */
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         if (this.label !== null) {
             return S`${this.label + ":" + this.tag}`;
         }

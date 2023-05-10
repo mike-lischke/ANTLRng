@@ -19,7 +19,7 @@ export class Pair<A, B> extends JavaObject implements java.io.Serializable {
         this.b = b;
     }
 
-    public equals = (other: unknown): boolean => {
+    public override equals = (other: unknown): boolean => {
         if (other === this) {
             return true;
         }
@@ -32,7 +32,7 @@ export class Pair<A, B> extends JavaObject implements java.io.Serializable {
             && ObjectEqualityComparator.INSTANCE.equals(this.b, other.b);
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         hash = MurmurHash.update(hash, this.a);
         hash = MurmurHash.update(hash, this.b);
@@ -40,7 +40,7 @@ export class Pair<A, B> extends JavaObject implements java.io.Serializable {
         return MurmurHash.finish(hash, 2);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return java.lang.String.format(S`(%s, %s)`, this.a, this.b);
     };
 }

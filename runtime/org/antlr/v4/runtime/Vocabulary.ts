@@ -60,7 +60,7 @@ export interface Vocabulary {
       @returns The string literal associated with the specified token type, or
      * {@code null} if no string literal is associated with the type.
      */
-    getLiteralName: (tokenType: number) => java.lang.String | null;
+    getLiteralName: (tokenType: number) => string | null;
 
     /**
      * Gets the symbolic name associated with a token type. The string returned
@@ -105,7 +105,7 @@ export interface Vocabulary {
       @returns The symbolic name associated with the specified token type, or
      * {@code null} if no symbolic name is associated with the type.
      */
-    getSymbolicName: (tokenType: number) => java.lang.String | null;
+    getSymbolicName: (tokenType: number) => string | null;
 
     /**
      * Gets the display name of a token type.
@@ -127,7 +127,7 @@ export interface Vocabulary {
       @returns The display name of the token type, for use in error reporting or
      * other user-visible messages which reference specific token types.
      */
-    getDisplayName: (tokenType: number) => java.lang.String;
+    getDisplayName: (tokenType: number) => string | null;
 }
 
 export const isVocabulary = (obj: unknown): obj is Vocabulary => {

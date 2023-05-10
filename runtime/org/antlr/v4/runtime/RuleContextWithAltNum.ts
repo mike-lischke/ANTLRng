@@ -41,6 +41,6 @@ export class RuleContextWithAltNum extends ParserRuleContext {
         }
     }
 
-    public getAltNumber = (): number => { return this.altNum; };
-    public setAltNumber = (altNum: number): void => { this.altNum = altNum; };
+    public override getAltNumber = (): number => { return this.altNum; };
+    public override setAltNumber = (altNum: number): void => { this.altNum = altNum; };
 }

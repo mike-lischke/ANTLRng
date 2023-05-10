@@ -51,7 +51,7 @@ export class TextChunk extends Chunk {
      *
      * @returns A {@link String} containing the text of this chunk.
      */
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`'${this.text}'`;
     };
 }

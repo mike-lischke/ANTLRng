@@ -27,7 +27,7 @@ export class PrecedencePredicateTransition extends AbstractPredicateTransition {
         return Transition.PRECEDENCE;
     };
 
-    public isEpsilon = (): boolean => {
+    public override isEpsilon = (): boolean => {
         return true;
     };
 
@@ -39,7 +39,7 @@ export class PrecedencePredicateTransition extends AbstractPredicateTransition {
         return new SemanticContext.PrecedencePredicate(this.precedence);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`${this.precedence} >= _p`;
     };
 

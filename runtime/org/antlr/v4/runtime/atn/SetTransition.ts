@@ -31,7 +31,7 @@ export class SetTransition extends Transition {
         return Transition.SET;
     };
 
-    public label = (): IntervalSet => {
+    public override label = (): IntervalSet => {
         return this.set;
     };
 
@@ -39,7 +39,7 @@ export class SetTransition extends Transition {
         return this.set.contains(symbol);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return this.set.toString();
     };
 }

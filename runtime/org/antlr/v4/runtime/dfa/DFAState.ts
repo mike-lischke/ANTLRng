@@ -19,7 +19,7 @@ import { SemanticContext } from "../atn/SemanticContext";
  *  input a1a2..an, the DFA is in a state that represents the
  *  subset T of the states of the ATN that are reachable from the
  *  ATN's start state along some path labeled a1a2..an."
- *  In conventional NFA&rarr;DFA conversion, therefore, the subset T
+ *  In conventional NFA->DFA conversion, therefore, the subset T
  *  would be a bitset representing the set of states the
  *  ATN could be in.  We need to track the alt predicted by each
  *  state as well, however.  More importantly, we need to maintain
@@ -37,23 +37,6 @@ import { SemanticContext } from "../atn/SemanticContext";
  *  meaning that state was reached via a different set of rule invocations.</p>
  */
 export class DFAState extends JavaObject {
-    /** Map a predicate to a predicted alternative. */
-    public static PredPrediction = class PredPrediction extends JavaObject {
-
-        public pred: SemanticContext; // never null; at least SemanticContext.NONE
-        public alt: number;
-
-        public constructor(pred: SemanticContext, alt: number) {
-            super();
-            this.alt = alt;
-            this.pred = pred;
-        }
-
-        public toString = (): java.lang.String => {
-            return S`(${this.pred}, ${this.alt})`;
-        };
-    };
-
     public stateNumber = -1;
 
     public configs: ATNConfigSet = new ATNConfigSet();
@@ -63,7 +46,7 @@ export class DFAState extends JavaObject {
      *  {@link Token#EOF} maps to {@code edges[0]}.
      */
 
-    public edges: DFAState[] | null = null;
+    public edges: (DFAState | null)[] | null = null;
 
     public isAcceptState = false;
 
@@ -134,7 +117,7 @@ export class DFAState extends JavaObject {
         return alts;
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize(7);
         hash = MurmurHash.update(hash, this.configs?.hashCode() ?? 0);
         hash = MurmurHash.finish(hash, 1);
@@ -159,7 +142,7 @@ export class DFAState extends JavaObject {
      *
      * @returns tbd
      */
-    public equals = (o: unknown): boolean => {
+    public override equals = (o: unknown): boolean => {
         // compare set of ATN configurations in this set with other
         if (this === o) {
             return true;
@@ -180,7 +163,7 @@ export class DFAState extends JavaObject {
         return this.configs.equals(o.configs);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         const buf = new java.lang.StringBuilder();
         buf.append(this.stateNumber).append(S`:`).append(this.configs ?? "");
         if (this.isAcceptState) {
@@ -198,5 +181,21 @@ export class DFAState extends JavaObject {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace DFAState {
-    export type PredPrediction = InstanceType<typeof DFAState.PredPrediction>;
+    /** Map a predicate to a predicted alternative. */
+    export class PredPrediction extends JavaObject {
+
+        public pred: SemanticContext; // never null; at least SemanticContext.NONE
+        public alt: number;
+
+        public constructor(pred: SemanticContext, alt: number) {
+            super();
+            this.alt = alt;
+            this.pred = pred;
+        }
+
+        public override toString = (): java.lang.String => {
+            return S`(${this.pred}, ${this.alt})`;
+        };
+    };
+
 }

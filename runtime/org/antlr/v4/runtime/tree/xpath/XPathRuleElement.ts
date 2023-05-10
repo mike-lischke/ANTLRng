@@ -7,10 +7,10 @@
  */
 
 import { java } from "jree";
-import { XPathElement } from "./XPathElement";
-import { ParserRuleContext } from "../../ParserRuleContext";
-import { ParseTree } from "../ParseTree";
-import { Trees } from "../Trees";
+
+import { XPathElement } from "./";
+import { ParserRuleContext } from "../../";
+import { ParseTree, Trees } from "../";
 
 export class XPathRuleElement extends XPathElement {
     protected ruleIndex: number;

@@ -190,7 +190,7 @@ export class RuleTagToken extends JavaObject implements Token {
      *
      * @returns A string representing the current {@link RuleTagToken} instance.
      */
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`${this.ruleName}:${this.bypassTokenType}`;
     };
 }

@@ -8,7 +8,7 @@
 
 /* eslint-disable no-underscore-dangle */
 
-import { java, S, I, JavaObject } from "jree";
+import { java, S, JavaObject, int } from "jree";
 
 import { ANTLRErrorListener } from "./ANTLRErrorListener";
 import { ConsoleErrorListener } from "./ConsoleErrorListener";
@@ -19,7 +19,6 @@ import { RuleContext } from "./RuleContext";
 import { Token } from "./Token";
 import { TokenFactory } from "./TokenFactory";
 import { Vocabulary } from "./Vocabulary";
-import { VocabularyImpl } from "./VocabularyImpl";
 import { ATN } from "./atn/ATN";
 import { ATNSimulator } from "./atn/ATNSimulator";
 import { ParseInfo } from "./atn/ParseInfo";
@@ -30,11 +29,11 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
     public static readonly EOF: number = -1;
 
     private static readonly tokenTypeMapCache =
-        new java.util.WeakHashMap<Vocabulary, Readonly<java.util.Map<java.lang.String, java.lang.Integer>>>();
+        new java.util.WeakHashMap<Vocabulary, Readonly<java.util.Map<string, int>>>();
     private static readonly ruleIndexMapCache =
-        new java.util.WeakHashMap<java.lang.String[], Readonly<java.util.Map<java.lang.String, java.lang.Integer>>>();
+        new java.util.WeakHashMap<string[], Readonly<java.util.Map<string, int>>>();
 
-    protected _interp: ATNInterpreter | null = null;
+    protected interpreter: ATNInterpreter | null = null;
 
     private _listeners: java.util.List<ANTLRErrorListener> =
         new class extends java.util.concurrent.CopyOnWriteArrayList<ANTLRErrorListener> {
@@ -48,71 +47,32 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
     private _stateNumber = -1;
 
     /**
-     * Used to print out token names like ID during debugging and
-     *  error reporting.  The generated parsers implement a method
-     *  that overrides this to point to their String[] tokenNames.
-     *
-     * @deprecated Use {@link #getVocabulary()} instead.
-     */
-    public abstract getTokenNames: () => java.lang.String[] | null;
-
-    public abstract getRuleNames: () => java.lang.String[];
-
-    /**
-     * For debugging and other purposes, might want the grammar name.
-     *  Have ANTLR generate an implementation for this method.
-     */
-    public abstract getGrammarFileName: () => java.lang.String;
-
-    /**
-     * Get the {@link ATN} used by the recognizer for prediction.
-     *
-      @returns The {@link ATN} used by the recognizer for prediction.
-     */
-    public abstract getATN: () => ATN | null;
-
-    public abstract getInputStream: () => IntStream | null;
-    public abstract setInputStream: (input: IntStream | null) => void;
-    public abstract getTokenFactory: () => TokenFactory<Token>;
-    public abstract setTokenFactory: (input: TokenFactory<Token>) => void;
-
-    /**
-     * Get the vocabulary used by the recognizer.
-     *
-      @returns A {@link Vocabulary} instance providing information about the
-     * vocabulary used by the grammar.
-     */
-    public getVocabulary = (): Vocabulary => {
-        return VocabularyImpl.fromTokenNames(this.getTokenNames());
-    };
-
-    /**
      * Get a map from token names to token types.
      *
      * Used for XPath and tree pattern compilation.
      *
      * @returns tbd
      */
-    public getTokenTypeMap = (): Readonly<java.util.Map<java.lang.String, java.lang.Integer>> => {
+    public getTokenTypeMap = (): Readonly<java.util.Map<string, int>> => {
         const vocabulary = this.getVocabulary();
 		/* synchronized (tokenTypeMapCache) */ {
             let result = Recognizer.tokenTypeMapCache.get(vocabulary);
             if (result === null) {
-                const map = new java.util.HashMap<java.lang.String, java.lang.Integer>();
+                const map = new java.util.HashMap<string, int>();
                 const end = this.getATN()!.maxTokenType;
                 for (let i = 0; i <= end; i++) {
                     const literalName = vocabulary.getLiteralName(i);
                     if (literalName !== null) {
-                        map.put(literalName, I`${i}`);
+                        map.put(literalName, i);
                     }
 
                     const symbolicName = vocabulary.getSymbolicName(i);
                     if (symbolicName !== null) {
-                        map.put(symbolicName, I`${i}`);
+                        map.put(symbolicName, i);
                     }
                 }
 
-                map.put(S`EOF`, I`${Token.EOF}`);
+                map.put("EOF", Token.EOF);
                 result = java.util.Collections.unmodifiableMap(map);
                 Recognizer.tokenTypeMapCache.put(vocabulary, result);
             }
@@ -128,7 +88,7 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
      *
      * @returns tbd
      */
-    public getRuleIndexMap = (): java.util.Map<java.lang.String, java.lang.Integer> => {
+    public getRuleIndexMap = (): java.util.Map<string, int> => {
         const ruleNames = this.getRuleNames();
         if (ruleNames === null) {
             throw new java.lang.UnsupportedOperationException(
@@ -146,7 +106,7 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
         }
     };
 
-    public getTokenType = (tokenName: java.lang.String): number => {
+    public getTokenType = (tokenName: string): number => {
         const ttype = this.getTokenTypeMap().get(tokenName);
         if (ttype !== null) {
             return ttype.valueOf();
@@ -162,7 +122,7 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
      * <p>For interpreters, we don't know their serialized ATN despite having
      * created the interpreter from it.</p>
      */
-    public getSerializedATN = (): java.lang.String | null => {
+    public getSerializedATN = (): Int32Array | null => {
         throw new java.lang.UnsupportedOperationException(S`there is no serialized ATN`);
     };
 
@@ -172,7 +132,7 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
       @returns The ATN interpreter used by the recognizer for prediction.
      */
     public getInterpreter = (): ATNInterpreter | null => {
-        return this._interp;
+        return this.interpreter;
     };
 
     /**
@@ -192,7 +152,7 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
      * prediction.
      */
     public setInterpreter = (interpreter: ATNSimulator): void => {
-        this._interp = interpreter as ATNInterpreter;
+        this.interpreter = interpreter as ATNInterpreter;
     };
 
     /**
@@ -276,7 +236,7 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
     };
 
     // subclass needs to override these if there are sempreds or actions
-    // that the ATN interp needs to execute
+    // that the ATN interpreter needs to execute
     public sempred = (_localctx: RuleContext | null, _ruleIndex: number, _actionIndex: number): boolean => {
         return true;
     };
@@ -306,4 +266,33 @@ export abstract class Recognizer<ATNInterpreter extends ATNSimulator> extends Ja
     public readonly setState = (atnState: number): void => {
         this._stateNumber = atnState;
     };
+
+    public abstract getRuleNames(): string[] | null;
+
+    /**
+     * For debugging and other purposes, might want the grammar name.
+     *  Have ANTLR generate an implementation for this method.
+     */
+    public abstract getGrammarFileName(): string;
+
+    /**
+     * Get the {@link ATN} used by the recognizer for prediction.
+     *
+      @returns The {@link ATN} used by the recognizer for prediction.
+     */
+    public abstract getATN(): ATN | null;
+
+    public abstract getInputStream(): IntStream | null;
+    public abstract setInputStream(input: IntStream | null): void;
+    public abstract getTokenFactory(): TokenFactory<Token>;
+    public abstract setTokenFactory(input: TokenFactory<Token>): void;
+
+    /**
+     * Get the vocabulary used by the recognizer.
+     *
+      @returns A {@link Vocabulary} instance providing information about the
+     * vocabulary used by the grammar.
+     */
+    public abstract getVocabulary(): Vocabulary;
+
 }

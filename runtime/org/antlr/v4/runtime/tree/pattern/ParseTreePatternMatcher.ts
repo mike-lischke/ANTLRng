@@ -7,28 +7,13 @@
  */
 
 import { java, JavaObject, S } from "jree";
-import { Chunk } from "./Chunk";
-import { ParseTreeMatch } from "./ParseTreeMatch";
-import { ParseTreePattern } from "./ParseTreePattern";
-import { RuleTagToken } from "./RuleTagToken";
-import { TagChunk } from "./TagChunk";
-import { TextChunk } from "./TextChunk";
-import { TokenTagToken } from "./TokenTagToken";
-import { ANTLRInputStream } from "../../ANTLRInputStream";
-import { BailErrorStrategy } from "../../BailErrorStrategy";
-import { CommonTokenStream } from "../../CommonTokenStream";
-import { Lexer } from "../../Lexer";
-import { ListTokenSource } from "../../ListTokenSource";
-import { Parser } from "../../Parser";
-import { ParserInterpreter } from "../../ParserInterpreter";
-import { ParserRuleContext } from "../../ParserRuleContext";
-import { RecognitionException } from "../../RecognitionException";
-import { Token } from "../../Token";
-import { MultiMap } from "../../misc/MultiMap";
-import { ParseCancellationException } from "../../misc/ParseCancellationException";
-import { ParseTree } from "../ParseTree";
-import { isRuleNode } from "../RuleNode";
-import { isTerminalNode, TerminalNode } from "../TerminalNode";
+
+import { Chunk, ParseTreeMatch, ParseTreePattern, RuleTagToken, TagChunk, TextChunk, TokenTagToken } from "./";
+import {
+    ANTLRInputStream, BailErrorStrategy, CommonTokenStream, Lexer, ListTokenSource, MultiMap,
+    ParseCancellationException, Parser, ParserInterpreter, ParserRuleContext, RecognitionException, Token
+} from "../../";
+import { isRuleNode, isTerminalNode, ParseTree, TerminalNode } from "../";
 
 /**
  * A tree pattern matching mechanism for ANTLR {@link ParseTree}s.
@@ -88,7 +73,7 @@ import { isTerminalNode, TerminalNode } from "../TerminalNode";
  * {@code \<} and {@code \>}.</p>
  */
 export class ParseTreePatternMatcher extends JavaObject {
-    public static CannotInvokeStartRule = class CannotInvokeStartRule extends java.lang.RuntimeException {
+    private static CannotInvokeStartRule = class CannotInvokeStartRule extends java.lang.RuntimeException {
         public constructor(e: java.lang.Throwable) {
             super(e);
         }
@@ -96,7 +81,7 @@ export class ParseTreePatternMatcher extends JavaObject {
 
     // Fixes https://github.com/antlr/antlr4/issues/413
     // "Tree pattern compilation doesn't check for a complete parse"
-    public static StartRuleDoesNotConsumeFullPattern = class StartRuleDoesNotConsumeFullPattern
+    private static StartRuleDoesNotConsumeFullPattern = class StartRuleDoesNotConsumeFullPattern
         extends java.lang.RuntimeException {
     };
 
@@ -218,16 +203,16 @@ export class ParseTreePatternMatcher extends JavaObject {
         const tokenSrc = new ListTokenSource(tokenList);
         const tokens = new CommonTokenStream(tokenSrc);
 
-        const parserInterp = new ParserInterpreter(this.parser.getGrammarFileName(),
+        const parserInterpreter = new ParserInterpreter(this.parser.getGrammarFileName(),
             this.parser.getVocabulary(),
-            java.util.Arrays.asList(this.parser.getRuleNames()),
+            java.util.Arrays.asList(...this.parser.getRuleNames()!),
             this.parser.getATNWithBypassAlts(),
             tokens);
 
         let tree;
         try {
-            parserInterp.setErrorHandler(new BailErrorStrategy());
-            tree = parserInterp.parse(patternRuleIndex);
+            parserInterpreter.setErrorHandler(new BailErrorStrategy());
+            tree = parserInterpreter.parse(patternRuleIndex);
         } catch (e) {
             if (e instanceof ParseCancellationException) {
                 throw e.getCause();
@@ -274,10 +259,10 @@ export class ParseTreePatternMatcher extends JavaObject {
         const tokens: java.util.List<Token> = new java.util.ArrayList<Token>();
         for (const chunk of chunks) {
             if (chunk instanceof TagChunk) {
-                const tagChunk: TagChunk = chunk;
+                const tagChunk = chunk;
                 // add special rule token or conjure up new token from name
                 if (java.lang.Character.isUpperCase(tagChunk.getTag()!.charAt(0))) {
-                    const ttype = this.parser.getTokenType(tagChunk.getTag());
+                    const ttype = this.parser.getTokenType(tagChunk.getTag().valueOf());
                     if (ttype === Token.INVALID_TYPE) {
                         throw new java.lang.IllegalArgumentException(
                             S`Unknown token ${tagChunk.getTag()} in pattern: ${pattern}`);
@@ -287,7 +272,7 @@ export class ParseTreePatternMatcher extends JavaObject {
                     tokens.add(t);
                 } else {
                     if (java.lang.Character.isLowerCase(tagChunk.getTag().charAt(0))) {
-                        const ruleIndex: number = this.parser.getRuleIndex(tagChunk.getTag());
+                        const ruleIndex = this.parser.getRuleIndex(tagChunk.getTag());
                         if (ruleIndex === -1) {
                             throw new java.lang.IllegalArgumentException(
                                 S`Unknown rule ${tagChunk.getTag()} in pattern: ${pattern}`);
@@ -547,11 +532,4 @@ export class ParseTreePatternMatcher extends JavaObject {
         return null;
     };
 
-}
-
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
-export namespace ParseTreePatternMatcher {
-    export type CannotInvokeStartRule = InstanceType<typeof ParseTreePatternMatcher.CannotInvokeStartRule>;
-    export type StartRuleDoesNotConsumeFullPattern =
-        InstanceType<typeof ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern>;
 }

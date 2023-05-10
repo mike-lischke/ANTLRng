@@ -35,8 +35,9 @@ export class NoViableAltException extends RecognitionException {
 
     private readonly startToken: Token | null;
 
-    public constructor(recognizer: Parser, input: TokenStream | null, startToken: Token | null,
-        offendingToken: Token | null, deadEndConfigs: ATNConfigSet | null, ctx: ParserRuleContext | null) {
+    public constructor(recognizer: Parser, input: TokenStream | null = null, startToken: Token | null = null,
+        offendingToken: Token | null = null, deadEndConfigs: ATNConfigSet | null = null,
+        ctx: ParserRuleContext | null = null) {
         super(recognizer, input ?? recognizer?.getInputStream() ?? null, ctx ?? recognizer?._ctx ?? null);
 
         this.deadEndConfigs = deadEndConfigs ?? null;

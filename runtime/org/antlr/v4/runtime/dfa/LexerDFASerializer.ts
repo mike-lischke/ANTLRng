@@ -16,7 +16,7 @@ export class LexerDFASerializer extends DFASerializer {
         super(dfa, VocabularyImpl.EMPTY_VOCABULARY);
     }
 
-    protected getEdgeLabel = (i: number): java.lang.String => {
+    protected override getEdgeLabel = (i: number): java.lang.String => {
         return new java.lang.StringBuilder(S`'`)
             .appendCodePoint(i)
             .append(S`'`)

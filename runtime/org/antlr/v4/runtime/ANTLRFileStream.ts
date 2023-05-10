@@ -48,9 +48,9 @@ export class ANTLRFileStream extends ANTLRInputStream {
         }
     }
 
-    public load(fileName: java.lang.String, encoding: java.lang.String | null): void;
-    public load(r: java.io.Reader | null, size: number, readChunkSize: number): void;
-    public load(...args: unknown[]): void {
+    public override load(fileName: java.lang.String, encoding: java.lang.String | null): void;
+    public override load(r: java.io.Reader | null, size: number, readChunkSize: number): void;
+    public override load(...args: unknown[]): void {
         if (args.length === 2) {
             const [fileName, encoding] = args as [java.lang.String, java.lang.String];
             this.data = Utils.readFile(fileName, encoding);
@@ -61,7 +61,7 @@ export class ANTLRFileStream extends ANTLRInputStream {
         }
     }
 
-    public getSourceName = (): java.lang.String => {
+    public override getSourceName = (): java.lang.String => {
         return this.fileName;
     };
 }

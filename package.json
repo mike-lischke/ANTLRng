@@ -11,25 +11,24 @@
     "author": "Mike Lischke",
     "license": "MIT",
     "dependencies": {
-        "immutable": "4.1.0",
-        "jree": "1.0.2",
+        "immutable": "4.3.0",
+        "jree": "1.2.2",
         "printf": "0.6.1",
         "unicode-properties": "1.4.1"
     },
     "devDependencies": {
-        "@types/jest": "29.2.4",
-        "@types/node": "18.11.15",
-        "@typescript-eslint/eslint-plugin": "5.46.1",
-        "@typescript-eslint/eslint-plugin-tslint": "5.46.1",
-        "@typescript-eslint/parser": "5.46.1",
-        "eslint": "8.29.0",
-        "eslint-plugin-import": "2.26.0",
-        "eslint-plugin-jsdoc": "39.6.4",
+        "@types/jest": "29.5.1",
+        "@types/node": "20.1.2",
+        "@typescript-eslint/eslint-plugin": "5.59.5",
+        "@typescript-eslint/eslint-plugin-tslint": "5.59.5",
+        "@typescript-eslint/parser": "5.59.5",
+        "eslint": "8.40.0",
+        "eslint-plugin-import": "2.27.5",
+        "eslint-plugin-jsdoc": "44.2.1",
         "eslint-plugin-prefer-arrow": "1.2.3",
-        "jest": "29.3.1",
-        "prettier": "2.8.1",
-        "ts-jest": "29.0.3",
-        "typescript": "4.9.4"
+        "jest": "29.5.0",
+        "ts-jest": "29.1.0",
+        "typescript": "5.0.4"
     },
     "scripts": {
         "build": "tsc --watch",

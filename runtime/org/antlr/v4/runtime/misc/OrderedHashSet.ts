@@ -40,9 +40,9 @@ export class OrderedHashSet<T> extends java.util.LinkedHashSet<T> {
         return oldElement;
     };
 
-    public remove(i: number): boolean;
-    public remove(o: T): boolean;
-    public remove(iOrO: number | T): boolean {
+    public override remove(i: number): boolean;
+    public override remove(o: T): boolean;
+    public override remove(iOrO: number | T): boolean {
         if (typeof iOrO === "number") {
             const o = this.#elements.remove(iOrO);
 
@@ -62,7 +62,7 @@ export class OrderedHashSet<T> extends java.util.LinkedHashSet<T> {
      *
      * @returns `true` if the set did not already contain the specified element.
      */
-    public add = (value: T): boolean => {
+    public override add = (value: T): boolean => {
         const result: boolean = super.add(value);
         if (result) {  // only track if new element not in set
             this.#elements.add(value);
@@ -71,16 +71,16 @@ export class OrderedHashSet<T> extends java.util.LinkedHashSet<T> {
         return result;
     };
 
-    public clear = (): void => {
+    public override clear = (): void => {
         this.#elements.clear();
         super.clear();
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         return this.#elements.hashCode();
     };
 
-    public equals = (o: java.lang.Object | null): boolean => {
+    public override equals = (o: java.lang.Object | null): boolean => {
         if (!(o instanceof OrderedHashSet<unknown>)) {
             return false;
         }
@@ -90,7 +90,7 @@ export class OrderedHashSet<T> extends java.util.LinkedHashSet<T> {
         return same;
     };
 
-    public iterator = (): java.util.Iterator<T> => {
+    public override iterator = (): java.util.Iterator<T> => {
         return this.#elements.iterator();
     };
 
@@ -105,18 +105,18 @@ export class OrderedHashSet<T> extends java.util.LinkedHashSet<T> {
         return this.#elements;
     };
 
-    public clone = (): OrderedHashSet<T> => {
+    public override clone = (): OrderedHashSet<T> => {
         const dup = super.clone() as OrderedHashSet<T>;
         dup.#elements = new java.util.ArrayList<T>(this.#elements);
 
         return dup;
     };
 
-    public toArray = (): T[] => {
+    public override toArray = (): T[] => {
         return this.#elements?.toArray() ?? [];
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return this.#elements?.toString() ?? S``;
     };
 }

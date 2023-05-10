@@ -43,7 +43,7 @@ export class ArrayPredictionContext extends PredictionContext {
         this.returnStates = states;
     }
 
-    public isEmpty = (): boolean => {
+    public override isEmpty = (): boolean => {
         // since EMPTY_RETURN_STATE can only appear in the last position, we
         // don't need to verify that size==1
         return this.returnStates[0] === PredictionContext.EMPTY_RETURN_STATE;
@@ -78,7 +78,7 @@ export class ArrayPredictionContext extends PredictionContext {
             java.util.Arrays.equals(this.parents ?? [], o.parents ?? []);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         if (this.isEmpty()) {
             return S`[]`;
         }

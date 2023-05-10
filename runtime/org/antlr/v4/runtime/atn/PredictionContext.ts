@@ -10,17 +10,11 @@
 
 import { java, S, JavaObject, MurmurHash } from "jree";
 
-import { ArrayPredictionContext } from "./ArrayPredictionContext";
-import { ATN } from "./ATN";
-import { EmptyPredictionContext } from "./EmptyPredictionContext";
-import { ParserATNSimulator } from "./ParserATNSimulator";
-import { PredictionContextCache } from "./PredictionContextCache";
-import { RuleTransition } from "./RuleTransition";
-import { SingletonPredictionContext } from "./SingletonPredictionContext";
-import { ParserRuleContext } from "../ParserRuleContext";
-import { Recognizer } from "../Recognizer";
-import { RuleContext } from "../RuleContext";
-import { DoubleKeyMap } from "../misc/DoubleKeyMap";
+import {
+    ATN, ArrayPredictionContext, EmptyPredictionContext, ParserATNSimulator, PredictionContextCache, RuleTransition,
+    SingletonPredictionContext,
+} from "./index";
+import { DoubleKeyMap, ParserRuleContext, Recognizer, RuleContext } from "../";
 
 import { ATNSimulator } from "./ATNSimulator";
 
@@ -64,7 +58,7 @@ export abstract class PredictionContext extends JavaObject {
     public abstract getParent: (index: number) => PredictionContext | null;
     public abstract getReturnState: (index: number) => number;
 
-    public abstract equals: (obj: unknown) => boolean;
+    public abstract override equals: (obj: unknown) => boolean;
 
     protected constructor(cachedHashCode: number) {
         super();
@@ -488,7 +482,8 @@ export abstract class PredictionContext extends JavaObject {
         buf.append(S`rankdir=LR;\n`);
 
         const nodes = PredictionContext.getAllContextNodes(context);
-        java.util.Collections.sort(nodes, new class implements java.util.Comparator<PredictionContext> {
+        java.util.Collections.sort(nodes, new class extends java.lang.Object
+            implements java.util.Comparator<PredictionContext> {
             public compare = (o1: PredictionContext, o2: PredictionContext): number => {
                 return o1.id - o2.id;
             };
@@ -698,7 +693,7 @@ export abstract class PredictionContext extends JavaObject {
         }
     };
 
-    public toString = <T extends ATNSimulator>(_recog?: Recognizer<T> | null): java.lang.String => {
+    public override toString = <T extends ATNSimulator>(_recog?: Recognizer<T> | null): java.lang.String => {
         return S`${super.toString()}`;
     };
 
@@ -753,7 +748,7 @@ export abstract class PredictionContext extends JavaObject {
                     }
 
                     const s = atn.states.get(stateNumber);
-                    const ruleName = recognizer.getRuleNames()[s!.ruleIndex];
+                    const ruleName = recognizer.getRuleNames()![s!.ruleIndex];
                     localBuffer.append(ruleName);
                 } else {
                     if (p.getReturnState(index) !== PredictionContext.EMPTY_RETURN_STATE) {
@@ -797,7 +792,7 @@ export abstract class PredictionContext extends JavaObject {
         return this.getReturnState(this.size() - 1) === PredictionContext.EMPTY_RETURN_STATE;
     };
 
-    public readonly hashCode = (): number => {
+    public override readonly hashCode = (): number => {
         return this.cachedHashCode;
     };
 

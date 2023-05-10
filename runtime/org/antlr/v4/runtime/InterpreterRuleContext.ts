@@ -52,7 +52,7 @@ export class InterpreterRuleContext extends ParserRuleContext {
 
     }
 
-    public getRuleIndex = (): number => {
+    public override getRuleIndex = (): number => {
         return this.ruleIndex;
     };
 }

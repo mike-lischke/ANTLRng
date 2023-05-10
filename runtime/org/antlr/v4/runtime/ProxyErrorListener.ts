@@ -40,7 +40,7 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         offendingSymbol: S | null, line: number, charPositionInLine: number, msg: java.lang.String,
         e: RecognitionException | null): void => {
         for (const listener of this.delegates) {
-            listener.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+            listener.syntaxError?.(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
         }
     };
 
@@ -52,7 +52,7 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         ambigAlts: java.util.BitSet | null,
         configs: ATNConfigSet): void => {
         for (const listener of this.delegates) {
-            listener.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs);
+            listener.reportAmbiguity?.(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs);
         }
     };
 
@@ -63,7 +63,7 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         conflictingAlts: java.util.BitSet | null,
         configs: ATNConfigSet): void => {
         for (const listener of this.delegates) {
-            listener.reportAttemptingFullContext(recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs);
+            listener.reportAttemptingFullContext?.(recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs);
         }
     };
 
@@ -74,7 +74,7 @@ export class ProxyErrorListener extends JavaObject implements ANTLRErrorListener
         prediction: number,
         configs: ATNConfigSet): void => {
         for (const listener of this.delegates) {
-            listener.reportContextSensitivity(recognizer, dfa, startIndex, stopIndex, prediction, configs);
+            listener.reportContextSensitivity?.(recognizer, dfa, startIndex, stopIndex, prediction, configs);
         }
     };
 }

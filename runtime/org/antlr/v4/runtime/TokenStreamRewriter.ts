@@ -94,7 +94,7 @@ export class TokenStreamRewriter extends JavaObject {
 
     // Define the rewrite operation hierarchy
 
-    public RewriteOperation = (($outer) => {
+    private RewriteOperation = (($outer) => {
         return class RewriteOperation extends JavaObject {
             /** What index into rewrites List are we? */
             public instructionIndex = 0;
@@ -143,7 +143,7 @@ export class TokenStreamRewriter extends JavaObject {
                 return this.index;
             };
 
-            public toString = (): java.lang.String => {
+            public override toString = (): java.lang.String => {
                 let opName = this.getClass().getName();
                 const $index = opName.indexOf("$");
                 opName = opName.substring($index + 1, opName.length);
@@ -153,13 +153,13 @@ export class TokenStreamRewriter extends JavaObject {
         };
     })(this);
 
-    public InsertBeforeOp = (($outer) => {
+    private InsertBeforeOp = (($outer) => {
         return class InsertBeforeOp extends $outer.RewriteOperation {
             public constructor(index: number, text: java.lang.String | null) {
                 super(index, text);
             }
 
-            public execute = (buf: java.lang.StringBuilder): number => {
+            public override execute = (buf: java.lang.StringBuilder): number => {
                 buf.append(this.text);
                 if ($outer.tokens.get(this.index)!.getType() !== Token.EOF) {
                     buf.append($outer.tokens.get(this.index)!.getText());
@@ -175,7 +175,7 @@ export class TokenStreamRewriter extends JavaObject {
      *  first and then the "insert before" at same index. Implementation
      *  of "insert after" is "insert before index+1".
      */
-    public InsertAfterOp = (($outer) => {
+    private InsertAfterOp = (($outer) => {
         return class InsertAfterOp extends $outer.InsertBeforeOp {
             public constructor(index: number, text: java.lang.String | null) {
                 super(index + 1, text); // insert after is insert before index+1
@@ -187,7 +187,7 @@ export class TokenStreamRewriter extends JavaObject {
      * I'm going to try replacing range from x..y with (y-x)+1 ReplaceOp
      *  instructions.
      */
-    public ReplaceOp = (($outer) => {
+    private ReplaceOp = (($outer) => {
         return class ReplaceOp extends $outer.RewriteOperation {
             public lastIndex: number;
 
@@ -196,7 +196,7 @@ export class TokenStreamRewriter extends JavaObject {
                 this.lastIndex = to;
             }
 
-            public execute = (buf: java.lang.StringBuilder): number => {
+            public override execute = (buf: java.lang.StringBuilder): number => {
                 if (this.text !== null) {
                     buf.append(this.text);
                 }
@@ -204,7 +204,7 @@ export class TokenStreamRewriter extends JavaObject {
                 return this.lastIndex + 1;
             };
 
-            public toString = (): java.lang.String => {
+            public override toString = (): java.lang.String => {
                 if (this.text === null) {
                     return S`<DeleteOp@${$outer.tokens.get(this.index)}..${$outer.tokens.get(this.lastIndex)}>`;
                 }
@@ -846,7 +846,7 @@ export class TokenStreamRewriter extends JavaObject {
      *
      * @returns A list of operations.
      */
-    protected getKindOfOps = <T extends TokenStreamRewriter.RewriteOperation>(
+    private getKindOfOps = <T extends TokenStreamRewriter.RewriteOperation>(
         rewrites: java.util.List<TokenStreamRewriter.RewriteOperation | null>,
         kind: new (...args: never[]) => T, before: number): java.util.List<T> => {
         const ops = new java.util.ArrayList<T>();

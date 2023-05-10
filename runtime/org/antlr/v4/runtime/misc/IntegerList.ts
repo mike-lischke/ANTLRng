@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention, no-underscore-dangle */
 
-import { codePointsToString, java, JavaObject } from "jree";
+import { java, JavaObject, convertUTF32ToUTF16, int } from "jree";
 
 /**
  * @author Sam Harwell
@@ -16,48 +16,37 @@ import { codePointsToString, java, JavaObject } from "jree";
 export class IntegerList extends JavaObject {
 
     private static readonly EMPTY_DATA = new Int32Array();
-
-    private static readonly INITIAL_SIZE: number = 4;
-    private static readonly MAX_ARRAY_SIZE: number = java.lang.Integer.MAX_VALUE - 8;
+    private static readonly INITIAL_SIZE: int = 4;
+    private static readonly MAX_ARRAY_SIZE: int = java.lang.Integer.MAX_VALUE - 8;
 
     private _data: Int32Array;
+    private _size: int = 0;
 
-    private _size: number;
+    public constructor(capacityOrList?: int | IntegerList | java.util.Collection<java.lang.Integer>) {
+        super();
 
-    public constructor(capacityOrList?: number | IntegerList | java.util.Collection<java.lang.Integer>) {
-        let data: Int32Array;
-        let size = 0;
         if (capacityOrList === undefined) {
-            data = IntegerList.EMPTY_DATA;
+            this._data = IntegerList.EMPTY_DATA;
         } else if (typeof capacityOrList === "number") {
             if (capacityOrList < 0) {
                 throw new java.lang.IllegalArgumentException();
             }
 
             if (capacityOrList === 0) {
-                data = IntegerList.EMPTY_DATA;
+                this._data = IntegerList.EMPTY_DATA;
             } else {
-                data = new Int32Array(capacityOrList);
-                size = capacityOrList;
+                this._data = new Int32Array(capacityOrList);
             }
         } else if (capacityOrList instanceof IntegerList) {
-            data = capacityOrList._data.slice();
-            size = capacityOrList._size;
+            this._data = capacityOrList._data.slice();
+            this._size = capacityOrList._size;
         } else {
-            data = new Int32Array(capacityOrList.size());
-            let i = 0;
-            for (const value of capacityOrList) {
-                data[i++] = value.intValue();
-            }
+            this._data = Int32Array.from(capacityOrList.toArray().map((x) => { return x.intValue(); }));
+            this._size = this._data.length;
         }
-
-        super();
-        this._data = data;
-        this._size = size;
-
     }
 
-    public readonly add = (value: number): void => {
+    public readonly add = (value: int): void => {
         if (this._data.length === this._size) {
             this.ensureCapacity(this._size + 1);
         }
@@ -86,7 +75,7 @@ export class IntegerList extends JavaObject {
         }
     }
 
-    public readonly get = (index: number): number => {
+    public readonly get = (index: int): int => {
         if (index < 0 || index >= this._size) {
             throw new java.lang.IndexOutOfBoundsException();
         }
@@ -94,7 +83,7 @@ export class IntegerList extends JavaObject {
         return this._data[index];
     };
 
-    public readonly contains = (value: number): boolean => {
+    public readonly contains = (value: int): boolean => {
         for (let i = 0; i < this._size; i++) {
             if (this._data[i] === value) {
                 return true;
@@ -104,18 +93,18 @@ export class IntegerList extends JavaObject {
         return false;
     };
 
-    public readonly set = (index: number, value: number): number => {
+    public readonly set = (index: int, value: int): int => {
         if (index < 0 || index >= this._size) {
             throw new java.lang.IndexOutOfBoundsException();
         }
 
-        const previous: number = this._data[index];
+        const previous: int = this._data[index];
         this._data[index] = value;
 
         return previous;
     };
 
-    public readonly removeAt = (index: number): number => {
+    public readonly removeAt = (index: int): int => {
         const value = this.get(index);
         this._data.copyWithin(index, index + 1);
         this._data[this._size - 1] = 0;
@@ -124,7 +113,7 @@ export class IntegerList extends JavaObject {
         return value;
     };
 
-    public readonly removeRange = (fromIndex: number, toIndex: number): void => {
+    public readonly removeRange = (fromIndex: int, toIndex: int): void => {
         if (fromIndex < 0 || toIndex < 0 || fromIndex > this._size || toIndex > this._size) {
             throw new java.lang.IndexOutOfBoundsException();
         }
@@ -144,7 +133,7 @@ export class IntegerList extends JavaObject {
         return this._size === 0;
     };
 
-    public readonly size = (): number => {
+    public readonly size = (): int => {
         return this._size;
     };
 
@@ -191,7 +180,7 @@ export class IntegerList extends JavaObject {
      * @param o the object to be compared for equality with this list
      * @returns `true` if the specified object is equal to this list
      */
-    public equals = (o: java.lang.Object | null): boolean => {
+    public override equals = (o: java.lang.Object | null): boolean => {
         if (o === this) {
             return true;
         }
@@ -223,7 +212,7 @@ export class IntegerList extends JavaObject {
      *
      * @returns the hash code value for this list
      */
-    public hashCode = (): number => {
+    public override hashCode = (): int => {
         let hashCode = 1;
         for (let i = 0; i < this._size; i++) {
             hashCode = 31 * hashCode + this._data[i];
@@ -235,13 +224,13 @@ export class IntegerList extends JavaObject {
     /**
      * @returns a string representation of this list.
      */
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return java.util.Arrays.toString(this.toArray());
     };
 
-    public binarySearch(key: number): number;
-    public binarySearch(fromIndex: number, toIndex: number, key: number): number;
-    public binarySearch(keyOrFromIndex: number, toIndex?: number, key?: number): number {
+    public binarySearch(key: int): int;
+    public binarySearch(fromIndex: int, toIndex: int, key: int): int;
+    public binarySearch(keyOrFromIndex: int, toIndex?: int, key?: int): int {
         if (toIndex === undefined) {
             return java.util.Arrays.binarySearch(this._data, 0, this._size, keyOrFromIndex);
         } else {
@@ -269,21 +258,15 @@ export class IntegerList extends JavaObject {
      * @returns tbd
      */
     public readonly toCharArray = (): Uint16Array => {
-        const s = codePointsToString(new Uint32Array(this._data));
-        const result = new Uint16Array(s.length);
-        for (let i = 0; i < s.length; ++i) {
-            result[i] = s.charCodeAt(i);
-        }
-
-        return result;
+        return convertUTF32ToUTF16(this._data);
     };
 
-    private ensureCapacity = (capacity: number): void => {
+    private ensureCapacity = (capacity: int): void => {
         if (capacity < 0 || capacity > IntegerList.MAX_ARRAY_SIZE) {
             throw new java.lang.OutOfMemoryError();
         }
 
-        let newLength: number;
+        let newLength: int;
         if (this._data.length === 0) {
             newLength = IntegerList.INITIAL_SIZE;
         } else {

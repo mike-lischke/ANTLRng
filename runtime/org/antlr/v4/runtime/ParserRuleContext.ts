@@ -19,6 +19,9 @@ import { ParseTreeListener } from "./tree/ParseTreeListener";
 import { isTerminalNode, TerminalNode } from "./tree/TerminalNode";
 import { TerminalNodeImpl } from "./tree/TerminalNodeImpl";
 
+type ContextConstructor<T extends ParserRuleContext> = new (...args: unknown[]) => T;
+type ParseTreeConstructor<T extends ParseTree> = new (...args: unknown[]) => T;
+
 /**
  * A rule invocation record for parsing.
  *
@@ -216,13 +219,13 @@ export class ParserRuleContext extends RuleContext {
         this.children?.remove(this.children.size() - 1);
     };
 
-    public getParent = (): this | null => {
+    public override getParent = (): this | null => {
         return super.getParent() as this;
     };
 
-    public getChild(i: number): ParseTree | null;
-    public getChild<T extends ParseTree>(ctxType: new (...args: unknown[]) => T, i: number): T | null;
-    public getChild<T extends ParseTree>(iOrCtxType: number | (new (...args: unknown[]) => T),
+    public override getChild(i: number): ParseTree | null;
+    public override getChild<T extends ParseTree>(ctxType: ParseTreeConstructor<T>, i: number): T | null;
+    public override getChild<T extends ParseTree>(iOrCtxType: number | (ParseTreeConstructor<T>),
         i?: number): ParseTree | T | null {
         if (typeof iOrCtxType === "number") {
             const i = iOrCtxType;
@@ -293,9 +296,9 @@ export class ParserRuleContext extends RuleContext {
         return tokens;
     };
 
-    public getRuleContext(): RuleContext | null;
-    public getRuleContext<T extends ParserRuleContext>(ctxType: new (...args: unknown[]) => T, i: number): T | null;
-    public getRuleContext<T extends ParserRuleContext>(ctxType?: new (...args: unknown[]) => T,
+    public override getRuleContext(): RuleContext | null;
+    public override getRuleContext<T extends ParserRuleContext>(ctxType: ContextConstructor<T>, i: number): T | null;
+    public override getRuleContext<T extends ParserRuleContext>(ctxType?: ContextConstructor<T>,
         i?: number): RuleContext | T | null {
         if (!ctxType) {
             return super.getRuleContext();
@@ -304,19 +307,19 @@ export class ParserRuleContext extends RuleContext {
         return this.getChild(ctxType, i ?? 0);
     }
 
-    public getRuleContexts = <T extends ParserRuleContext>(ctxType: java.lang.Class<T>): java.util.List<T> | null => {
+    public getRuleContexts<T extends ParserRuleContext>(ctxType: ContextConstructor<T>): java.util.List<T> | null {
         if (this.children === null) {
             return java.util.Collections.emptyList();
         }
 
         let contexts: java.util.List<T> | null = null;
         for (const o of this.children) {
-            if (ctxType.isInstance(o)) {
+            if (o instanceof ctxType) {
                 if (contexts === null) {
                     contexts = new java.util.ArrayList<T>();
                 }
 
-                contexts.add(ctxType.cast(o));
+                contexts.add(o);
             }
         }
 
@@ -325,11 +328,11 @@ export class ParserRuleContext extends RuleContext {
         }
 
         return contexts;
-    };
+    }
 
-    public getChildCount = (): number => { return this.children !== null ? this.children.size() : 0; };
+    public override getChildCount = (): number => { return this.children !== null ? this.children.size() : 0; };
 
-    public getSourceInterval = (): Interval => {
+    public override getSourceInterval = (): Interval => {
         if (this.start === null) {
             return Interval.INVALID;
         }

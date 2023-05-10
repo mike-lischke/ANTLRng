@@ -20,21 +20,6 @@ export class FlexibleHashMap<K extends JavaObject, V> extends JavaObject impleme
     public static readonly INITIAL_BUCKET_CAPACITY: number = 8;
     public static readonly LOAD_FACTOR: number = 0.75;
 
-    public static Entry = class Entry<K, V> extends JavaObject {
-        public readonly key: K;
-        public value: V;
-
-        public constructor(key: K, value: V) {
-            super();
-            this.key = key;
-            this.value = value;
-        }
-
-        public toString = (): java.lang.String => {
-            return S`${this.key}:${this.value}`;
-        };
-    };
-
     protected readonly comparator: EqualityComparator<K>;
 
     protected buckets: Array<java.util.LinkedList<FlexibleHashMap.Entry<K, V>>>;
@@ -159,7 +144,7 @@ export class FlexibleHashMap<K extends JavaObject, V> extends JavaObject impleme
         throw new java.lang.UnsupportedOperationException();
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         for (const bucket of this.buckets) {
             if (bucket === null) {
@@ -180,7 +165,7 @@ export class FlexibleHashMap<K extends JavaObject, V> extends JavaObject impleme
         return hash;
     };
 
-    public equals = (_o: unknown): boolean => {
+    public override equals = (_o: unknown): boolean => {
         throw new java.lang.UnsupportedOperationException();
     };
 
@@ -198,7 +183,7 @@ export class FlexibleHashMap<K extends JavaObject, V> extends JavaObject impleme
         this.threshold = Number(Math.floor(this.initialCapacity * FlexibleHashMap.LOAD_FACTOR));
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         if (this.size() === 0) {
             return S`{}`;
         }
@@ -297,5 +282,19 @@ export class FlexibleHashMap<K extends JavaObject, V> extends JavaObject impleme
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace FlexibleHashMap {
-    export type Entry<K, V> = InstanceType<typeof FlexibleHashMap.Entry<K, V>>;
+    export class Entry<K, V> extends JavaObject {
+        public readonly key: K;
+        public value: V;
+
+        public constructor(key: K, value: V) {
+            super();
+            this.key = key;
+            this.value = value;
+        }
+
+        public override toString = (): java.lang.String => {
+            return S`${this.key}:${this.value}`;
+        };
+    };
+
 }

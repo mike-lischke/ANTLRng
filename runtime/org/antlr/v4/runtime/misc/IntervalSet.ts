@@ -28,11 +28,31 @@ import { Vocabulary } from "../Vocabulary";
  * (inclusive).</p>
  */
 export class IntervalSet extends JavaObject implements IntSet {
-    public static readonly COMPLETE_CHAR_SET = IntervalSet.of(Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE);
-    public static readonly EMPTY_SET = new IntervalSet();
-
     /** The list of sorted, disjoint intervals. */
     protected intervals: java.util.List<Interval>;
+
+    static #completeCharset: IntervalSet | undefined;
+    static #emptySet: IntervalSet | undefined;
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static get COMPLETE_CHAR_SET(): IntervalSet {
+        if (!this.#completeCharset) {
+            this.#completeCharset = IntervalSet.of(Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE);
+            this.#completeCharset.setReadonly(true);
+        }
+
+        return this.#completeCharset;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public static get EMPTY_SET(): IntervalSet {
+        if (!this.#emptySet) {
+            this.#emptySet = new IntervalSet();
+            this.#emptySet.setReadonly(true);
+        }
+
+        return this.#emptySet;
+    }
 
     #readOnly = false;
 
@@ -407,10 +427,10 @@ export class IntervalSet extends JavaObject implements IntSet {
         // Binary search for the element in the (sorted,
         // disjoint) array of intervals.
         while (l <= r) {
-            const m: number = (l + r) / 2;
-            const I: Interval = this.intervals.get(m);
-            const a: number = I.a;
-            const b: number = I.b;
+            const m = Math.floor((l + r) / 2);
+            const I = this.intervals.get(m);
+            const a = I.a;
+            const b = I.b;
             if (b < el) {
                 l = m + 1;
             } else {
@@ -464,7 +484,7 @@ export class IntervalSet extends JavaObject implements IntSet {
         return this.intervals;
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         for (const I of this.intervals) {
             hash = MurmurHash.update(hash, I.a);
@@ -486,7 +506,7 @@ export class IntervalSet extends JavaObject implements IntSet {
      *
      * @returns tbd
      */
-    public equals = (obj: unknown): boolean => {
+    public override equals = (obj: unknown): boolean => {
         if (obj === null || !(obj instanceof IntervalSet)) {
             return false;
         }
@@ -495,9 +515,9 @@ export class IntervalSet extends JavaObject implements IntSet {
         return this.intervals.equals(other.intervals);
     };
 
-    public toString(elemAreChar?: boolean): java.lang.String;
-    public toString(vocabulary: Vocabulary): java.lang.String;
-    public toString(elemAreCharOrVocabulary?: boolean | Vocabulary): java.lang.String {
+    public override toString(elemAreChar?: boolean): java.lang.String;
+    public override toString(vocabulary: Vocabulary): java.lang.String;
+    public override toString(elemAreCharOrVocabulary?: boolean | Vocabulary): java.lang.String {
         if (elemAreCharOrVocabulary === undefined || typeof elemAreCharOrVocabulary === "boolean") {
             const elemAreChar = elemAreCharOrVocabulary ?? false;
             if (this.intervals === null || this.intervals.isEmpty()) {
@@ -731,13 +751,10 @@ export class IntervalSet extends JavaObject implements IntSet {
             if (a === Token.EPSILON) {
                 return S`<EPSILON>`;
             } else {
-                return vocabulary.getDisplayName(a) ?? S`null`;
+                const temp = vocabulary.getDisplayName(a);
+
+                return temp ? S`${temp}` : S`null`;
             }
         }
-    }
-
-    static {
-        IntervalSet.COMPLETE_CHAR_SET.setReadonly(true);
-        IntervalSet.EMPTY_SET.setReadonly(true);
     }
 }

@@ -6,6 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable max-classes-per-file */
+
 import { java, S, JavaObject } from "jree";
 
 import { ActionTransition } from "./ActionTransition";
@@ -42,39 +44,9 @@ export class LexerATNSimulator extends ATNSimulator {
     public static readonly MIN_DFA_EDGE: number = 0;
     public static readonly MAX_DFA_EDGE: number = 127; // forces unicode to stay in ATN
 
-    /**
-     * When we hit an accept state in either the DFA or the ATN, we
-     *  have to notify the character stream to start buffering characters
-     *  via {@link IntStream#mark} and record the current state. The current sim state
-     *  includes the current index into the input, the current line,
-     *  and current character position in that line. Note that the Lexer is
-     *  tracking the starting line and characterization of the token. These
-     *  variables track the "state" of the simulator when it hits an accept state.
-     *
-     *  <p>We track these variables separately for the DFA and ATN simulation
-     *  because the DFA simulation often has to fail over to the ATN
-     *  simulation. If the ATN simulation fails, we need the DFA to fall
-     *  back to its previously accepted state, if any. If the ATN succeeds,
-     *  then the ATN does the accept and the DFA simulator that invoked it
-     *  can simply return the predicted token type.</p>
-     */
-    protected static SimState = class SimState extends JavaObject {
-        public index = -1;
-        public line = 0;
-        public charPos = -1;
-        public dfaState: DFAState | null = null;
-
-        public reset = (): void => {
-            this.index = -1;
-            this.line = 0;
-            this.charPos = -1;
-            this.dfaState = null;
-        };
-    };
-
     public readonly decisionToDFA: DFA[];
 
-    protected readonly recog: Lexer | null = null;
+    public readonly recog: Lexer | null = null;
 
     /**
      * The current token's starting index into the character stream.
@@ -122,6 +94,10 @@ export class LexerATNSimulator extends ATNSimulator {
         this.recog = recognizer;
     }
 
+    public override clone(): LexerATNSimulator {
+        return super.clone() as LexerATNSimulator;
+    }
+
     public copyState = (simulator: LexerATNSimulator): void => {
         this.charPositionInLine = simulator.charPositionInLine;
         this.line = simulator.line;
@@ -154,7 +130,7 @@ export class LexerATNSimulator extends ATNSimulator {
         this.mode = Lexer.DEFAULT_MODE;
     };
 
-    public clearDFA = (): void => {
+    public override clearDFA = (): void => {
         for (let d = 0; d < this.decisionToDFA.length; d++) {
             this.decisionToDFA[d] = new DFA(this.atn.getDecisionState(d), d);
         }
@@ -323,7 +299,7 @@ export class LexerATNSimulator extends ATNSimulator {
             return null;
         }
 
-        const target: DFAState = s.edges[t - LexerATNSimulator.MIN_DFA_EDGE];
+        const target = s.edges[t - LexerATNSimulator.MIN_DFA_EDGE];
         if (LexerATNSimulator.debug && target !== null) {
             java.lang.System.out.println(S`reuse state ${s.stateNumber} edge to ${target.stateNumber}`);
         }
@@ -498,7 +474,7 @@ export class LexerATNSimulator extends ATNSimulator {
             if (LexerATNSimulator.debug) {
                 if (this.recog !== null) {
                     java.lang.System.out.format(java.util.Locale.getDefault(), S`closure at %s rule stop %s\n`,
-                        this.recog.getRuleNames()[config.state.ruleIndex], config);
+                        this.recog.getRuleNames()![config.state.ruleIndex], config);
                 } else {
                     java.lang.System.out.format(java.util.Locale.getDefault(), S`closure at rule stop %s\n`, config);
                 }
@@ -752,6 +728,7 @@ export class LexerATNSimulator extends ATNSimulator {
             if (p.edges === null) {
                 //  make room for tokens 1..n and -1 masquerading as index 0
                 p.edges = new Array<DFAState>(LexerATNSimulator.MAX_DFA_EDGE - LexerATNSimulator.MIN_DFA_EDGE + 1);
+                p.edges.fill(null);
             }
             p.edges[t - LexerATNSimulator.MIN_DFA_EDGE] = q; // connect
         }
@@ -807,6 +784,34 @@ export class LexerATNSimulator extends ATNSimulator {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace LexerATNSimulator {
-    // @ts-expect-error, because of protected inner class.
-    export type SimState = InstanceType<typeof LexerATNSimulator.SimState>;
+    /**
+     * When we hit an accept state in either the DFA or the ATN, we
+     *  have to notify the character stream to start buffering characters
+     *  via {@link IntStream#mark} and record the current state. The current sim state
+     *  includes the current index into the input, the current line,
+     *  and current character position in that line. Note that the Lexer is
+     *  tracking the starting line and characterization of the token. These
+     *  variables track the "state" of the simulator when it hits an accept state.
+     *
+     *  <p>We track these variables separately for the DFA and ATN simulation
+     *  because the DFA simulation often has to fail over to the ATN
+     *  simulation. If the ATN simulation fails, we need the DFA to fall
+     *  back to its previously accepted state, if any. If the ATN succeeds,
+     *  then the ATN does the accept and the DFA simulator that invoked it
+     *  can simply return the predicted token type.</p>
+     */
+    export class SimState extends JavaObject {
+        public index = -1;
+        public line = 0;
+        public charPos = -1;
+        public dfaState: DFAState | null = null;
+
+        public reset = (): void => {
+            this.index = -1;
+            this.line = 0;
+            this.charPos = -1;
+            this.dfaState = null;
+        };
+    }
+
 }

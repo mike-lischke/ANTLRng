@@ -394,30 +394,32 @@ export class CharStreams extends JavaObject {
     /**
      * Creates a {@link CharStream} given a {@link String}.
      */
-    public static fromString(s: java.lang.String): CodePointCharStream;
+    public static fromString(s: java.lang.String | string): CodePointCharStream;
     /**
      * Creates a {@link CharStream} given a {@link String} and the {@code sourceName}
      * from which it came.
      */
-    public static fromString(s: java.lang.String, sourceName: java.lang.String): CodePointCharStream;
+    public static fromString(s: java.lang.String | string, sourceName: java.lang.String): CodePointCharStream;
     public static fromString(...args: unknown[]): CodePointCharStream | null {
         switch (args.length) {
             case 1: {
-                const [s] = args as [java.lang.String];
+                const [s] = args as [java.lang.String | string];
 
                 return CharStreams.fromString(s, IntStream.UNKNOWN_SOURCE_NAME);
             }
 
             case 2: {
-                const [s, sourceName] = args as [java.lang.String, java.lang.String];
+                const [s, sourceName] = args as [java.lang.String | string, java.lang.String];
+
+                const length = s instanceof java.lang.String ? s.length() : s.length;
 
                 // Initial guess assumes no code points > U+FFFF: one code
                 // point for each code unit in the string
-                const codePointBufferBuilder: CodePointBuffer.Builder = CodePointBuffer.builder(s.length());
+                const codePointBufferBuilder: CodePointBuffer.Builder = CodePointBuffer.builder(length);
 
                 // TODO: CharBuffer.wrap(String) rightfully returns a read-only buffer
                 // which doesn't expose its array, so we make a copy.
-                const cb = java.nio.CharBuffer.allocate(s.length());
+                const cb = java.nio.CharBuffer.allocate(length);
                 cb.put(s);
                 cb.flip();
                 codePointBufferBuilder.append(cb);

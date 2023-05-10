@@ -23,7 +23,7 @@ export class DFASerializer extends JavaObject {
         this.vocabulary = vocabulary;
     }
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         if (this.dfa.s0 === null) {
             return S``;
         }
@@ -55,7 +55,12 @@ export class DFASerializer extends JavaObject {
     };
 
     protected getEdgeLabel = (i: number): java.lang.String => {
-        return this.vocabulary.getDisplayName(i - 1) ?? S`null`;
+        const name = this.vocabulary.getDisplayName(i - 1);
+        if (name !== null) {
+            return S`null`;
+        }
+
+        return S`${name}`;
     };
 
     protected getStateString = (s: DFAState): java.lang.String => {

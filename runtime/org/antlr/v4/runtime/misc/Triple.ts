@@ -21,7 +21,7 @@ export class Triple<A, B, C> extends JavaObject {
         this.c = c;
     }
 
-    public equals = (obj: java.lang.Object | null): boolean => {
+    public override equals = (obj: java.lang.Object | null): boolean => {
         if (obj === this) {
             return true;
         }
@@ -38,7 +38,7 @@ export class Triple<A, B, C> extends JavaObject {
             && ObjectEqualityComparator.INSTANCE.equals(this.c, other.c);
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         hash = MurmurHash.update(hash, this.a);
         hash = MurmurHash.update(hash, this.b);
@@ -47,7 +47,7 @@ export class Triple<A, B, C> extends JavaObject {
         return MurmurHash.finish(hash, 3);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return java.lang.String.format(S`(%s, %s, %s)`, this.a, this.b, this.c);
     };
 }

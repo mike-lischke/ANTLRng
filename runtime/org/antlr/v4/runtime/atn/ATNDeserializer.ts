@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject } from "jree";
+import { java, S, JavaObject, char } from "jree";
 
 import { ActionTransition } from "./ActionTransition";
 import { ATN } from "./ATN";
@@ -127,7 +127,7 @@ export class ATNDeserializer extends JavaObject {
      *
      * @returns tbd
      */
-    public static decodeIntsEncodedAs16BitWords(data16: Uint16Array, trimToSize?: boolean): Int32Array {
+    public static decodeIntsEncodedAs16BitWords(data16: Int16Array, trimToSize?: boolean): Int32Array {
         if (trimToSize === undefined) {
             return ATNDeserializer.decodeIntsEncodedAs16BitWords(data16, false);
         } else {
@@ -140,11 +140,11 @@ export class ATNDeserializer extends JavaObject {
                 if ((v & 0x8000) === 0) { // hi bit not set? Implies 1-word value
                     data[i2++] = v; // 7 bit int
                 } else { // hi bit set. Implies 2-word value
-                    const vnext = data16[i++];
-                    if (v === 0xFFFF && vnext === 0xFFFF) { // is it -1?
+                    const nextValue = data16[i++];
+                    if (v === 0xFFFF && nextValue === 0xFFFF) { // is it -1?
                         data[i2++] = -1;
                     } else { // 31-bit int
-                        data[i2++] = ((v & 0x7FFF) << 16) | (vnext & 0xFFFF);
+                        data[i2++] = ((v & 0x7FFF) << 16) | (nextValue & 0xFFFF);
                     }
                 }
             }
@@ -158,20 +158,20 @@ export class ATNDeserializer extends JavaObject {
 
     }
 
-    protected static toInt = (c: java.lang.char): number => {
+    protected static toInt = (c: char): number => {
         return c;
     };
 
-    protected static toInt32(data: Uint16Array | Int32Array, offset: number): number {
-        if (data instanceof Uint16Array) {
+    protected static toInt32(data: Int16Array | Int32Array, offset: number): number {
+        if (data instanceof Int16Array) {
             return Number(data[offset]) | (Number(data[offset + 1]) << 16);
         } else {
             return data[offset] | (data[offset + 1] << 16);
         }
     }
 
-    public deserialize(data: Uint16Array | Int32Array): ATN {
-        if (data instanceof Uint16Array) {
+    public deserialize(data: Int16Array | Int32Array): ATN {
+        if (data instanceof Int16Array) {
             return this.deserialize(ATNDeserializer.decodeIntsEncodedAs16BitWords(data));
         } else {
             let p = 0;
@@ -193,18 +193,18 @@ export class ATNDeserializer extends JavaObject {
             //
             const loopBackStateNumbers = new java.util.ArrayList<Pair<LoopEndState, number>>();
             const endStateNumbers = new java.util.ArrayList<Pair<BlockStartState, number>>();
-            const nstates = data[p++];
-            for (let i = 0; i < nstates; i++) {
-                const stype = data[p++];
+            const stateCount = data[p++];
+            for (let i = 0; i < stateCount; i++) {
+                const stateType = data[p++];
                 // ignore bad type of states
-                if (stype === ATNState.INVALID_TYPE) {
+                if (stateType === ATNState.INVALID_TYPE) {
                     atn.addState(null);
                     continue;
                 }
 
                 const ruleIndex: number = data[p++];
-                const s = this.stateFactory(stype, ruleIndex);
-                if (stype === ATNState.LOOP_END) { // special case
+                const s = this.stateFactory(stateType, ruleIndex);
+                if (stateType === ATNState.LOOP_END) { // special case
                     const loopBackStateNumber: number = data[p++];
                     loopBackStateNumbers.add(new Pair(s as LoopEndState, loopBackStateNumber));
                 } else {
@@ -242,13 +242,13 @@ export class ATNDeserializer extends JavaObject {
             //
             // RULES
             //
-            const nrules = data[p++];
+            const ruleCount = data[p++];
             if (atn.grammarType === ATNType.LEXER) {
-                atn.ruleToTokenType = new Int32Array(nrules);
+                atn.ruleToTokenType = new Int32Array(ruleCount);
             }
 
-            atn.ruleToStartState = new Array<RuleStartState>(nrules);
-            for (let i = 0; i < nrules; i++) {
+            atn.ruleToStartState = new Array<RuleStartState>(ruleCount);
+            for (let i = 0; i < ruleCount; i++) {
                 const s: number = data[p++];
                 const startState: RuleStartState = atn.states.get(s) as RuleStartState;
                 atn.ruleToStartState[i] = startState;
@@ -258,7 +258,7 @@ export class ATNDeserializer extends JavaObject {
                 }
             }
 
-            atn.ruleToStopState = new Array<RuleStopState>(nrules);
+            atn.ruleToStopState = new Array<RuleStopState>(ruleCount);
             for (const state of atn.states) {
                 if (!(state instanceof RuleStopState)) {
                     continue;
@@ -272,8 +272,8 @@ export class ATNDeserializer extends JavaObject {
             //
             // MODES
             //
-            const nmodes = data[p++];
-            for (let i = 0; i < nmodes; i++) {
+            const modeCount = data[p++];
+            for (let i = 0; i < modeCount; i++) {
                 const s: number = data[p++];
                 atn.modeToStartState.add(atn.states.get(s) as TokensStartState);
             }
@@ -287,8 +287,8 @@ export class ATNDeserializer extends JavaObject {
             //
             // EDGES
             //
-            const nedges: number = data[p++];
-            for (let i = 0; i < nedges; i++) {
+            const edgeCount: number = data[p++];
+            for (let i = 0; i < edgeCount; i++) {
                 const src: number = data[p];
                 const trg: number = data[p + 1];
                 const ttype: number = data[p + 2];
@@ -367,8 +367,8 @@ export class ATNDeserializer extends JavaObject {
             //
             // DECISIONS
             //
-            const ndecisions: number = data[p++];
-            for (let i = 1; i <= ndecisions; i++) {
+            const decisionCount: number = data[p++];
+            for (let i = 1; i <= decisionCount; i++) {
                 const s: number = data[p++];
                 const decState: DecisionState = atn.states.get(s) as DecisionState;
                 atn.decisionToState.add(decState);
@@ -782,9 +782,9 @@ export class ATNDeserializer extends JavaObject {
     };
 
     private deserializeSets = (data: Int32Array, p: number, sets: java.util.List<IntervalSet>): number => {
-        const nsets = data[p++];
-        for (let i = 0; i < nsets; i++) {
-            const nintervals = data[p];
+        const setCount = data[p++];
+        for (let i = 0; i < setCount; i++) {
+            const intervalCount = data[p];
             p++;
 
             const set = new IntervalSet();
@@ -795,7 +795,7 @@ export class ATNDeserializer extends JavaObject {
                 set.add(-1);
             }
 
-            for (let j = 0; j < nintervals; j++) {
+            for (let j = 0; j < intervalCount; j++) {
                 const a: number = data[p++];
                 const b: number = data[p++];
                 set.add(a, b);

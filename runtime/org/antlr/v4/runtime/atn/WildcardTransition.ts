@@ -24,7 +24,7 @@ export class WildcardTransition extends Transition {
         return symbol >= minVocabSymbol && symbol <= maxVocabSymbol;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`.`;
     };
 }

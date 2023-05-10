@@ -9,36 +9,6 @@
 import { java, JavaObject, S } from "jree";
 
 export class LogManager extends JavaObject {
-    public static Record = class Record extends JavaObject {
-        public component: java.lang.String | null = null;
-        public msg: java.lang.String | null = null;
-
-        protected timestamp: bigint;
-        protected location: java.lang.StackTraceElement | null;
-
-        public constructor() {
-            super();
-            this.timestamp = java.lang.System.currentTimeMillis();
-            this.location = new java.lang.Throwable().getStackTrace()[0];
-        }
-
-        public toString = (): java.lang.String => {
-            const buf = new java.lang.StringBuilder();
-            buf.append(new java.text.SimpleDateFormat(S`yyyy-MM-dd HH:mm:ss:SSS`)
-                .format(new java.util.Date(this.timestamp)));
-            buf.append(S` `);
-            buf.append(this.component);
-            buf.append(S` `);
-            buf.append(this.location?.getFileName());
-            buf.append(S`:`);
-            buf.append(this.location?.getLineNumber());
-            buf.append(S` `);
-            buf.append(this.msg);
-
-            return buf.toString();
-        };
-    };
-
     protected records: java.util.List<LogManager.Record> | null = null;
 
     public static main = (args: java.lang.String[]): void => {
@@ -84,7 +54,7 @@ export class LogManager extends JavaObject {
 
     }
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         if (this.records === null) {
             return S``;
         }
@@ -102,5 +72,38 @@ export class LogManager extends JavaObject {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace LogManager {
-    export type Record = InstanceType<typeof LogManager.Record>;
+    export class Record extends JavaObject {
+        public component: java.lang.String | null = null;
+        public msg: java.lang.String | null = null;
+
+        protected timestamp: bigint;
+        protected location: java.lang.StackTraceElement | null;
+
+        public constructor() {
+            super();
+            this.timestamp = java.lang.System.currentTimeMillis();
+            this.location = new java.lang.Throwable().getStackTrace()[0];
+        }
+
+        public override toString = (): java.lang.String => {
+            const buf = new java.lang.StringBuilder();
+            buf.append(new java.text.SimpleDateFormat(S`yyyy-MM-dd HH:mm:ss:SSS`)
+                .format(new java.util.Date(this.timestamp)));
+            buf.append(S` `);
+            buf.append(this.component);
+            buf.append(S` `);
+            if (this.location) {
+                buf.append(this.location.getFileName());
+            }
+            buf.append(S`:`);
+            if (this.location) {
+                buf.append(this.location.getLineNumber());
+            }
+            buf.append(S` `);
+            buf.append(this.msg);
+
+            return buf.toString();
+        };
+    };
+
 }

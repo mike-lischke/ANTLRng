@@ -88,7 +88,7 @@ export class ATNConfig extends JavaObject {
             this.state = cOrState;
             this.alt = semanticContextOrStateOrAlt as number;
             this.context = semanticContextOrContext as PredictionContext;
-            this.semanticContext = semanticContext ?? SemanticContext.Empty.Instance;
+            this.semanticContext = semanticContext ?? SemanticContext.Empty;
         } else {
             this.alt = cOrState.alt;
             this.reachesIntoOuterContext = cOrState.reachesIntoOuterContext;
@@ -142,7 +142,7 @@ export class ATNConfig extends JavaObject {
      *
      * @returns tbd
      */
-    public equals(other: unknown): boolean {
+    public override equals(other: unknown): boolean {
         if (this === other) {
             return true;
         }
@@ -158,7 +158,7 @@ export class ATNConfig extends JavaObject {
             && this.isPrecedenceFilterSuppressed() === other.isPrecedenceFilterSuppressed();
     }
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hashCode: number = MurmurHash.initialize(7);
         hashCode = MurmurHash.update(hashCode, this.state.stateNumber);
         hashCode = MurmurHash.update(hashCode, this.alt);
@@ -169,7 +169,7 @@ export class ATNConfig extends JavaObject {
         return hashCode;
     };
 
-    public toString(showAlt = true): java.lang.String {
+    public override toString(showAlt = true): java.lang.String {
         const buf = new java.lang.StringBuilder();
         buf.append(S`(`);
         buf.append(this.state);
@@ -182,7 +182,7 @@ export class ATNConfig extends JavaObject {
         buf.append(this.context.toString());
         buf.append(S`]`);
 
-        if (this.semanticContext !== null && this.semanticContext !== SemanticContext.Empty.Instance) {
+        if (this.semanticContext !== null && this.semanticContext !== SemanticContext.Empty) {
             buf.append(S`,`);
             buf.append(this.semanticContext);
         }

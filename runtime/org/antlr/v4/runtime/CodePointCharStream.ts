@@ -6,6 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import { java, JavaObject, S } from "jree";
 
 import { CharStream } from "./CharStream";
@@ -24,10 +26,10 @@ import { Interval } from "./misc/Interval";
 export abstract class CodePointCharStream extends JavaObject implements CharStream {
     // 8-bit storage for code points <= U+00FF.
     public static readonly CodePoint8BitCharStream = class CodePoint8BitCharStream extends CodePointCharStream {
-        private readonly byteArray: Uint8Array;
+        public readonly byteArray: Int8Array;
 
         public constructor(position: number, remaining: number, name: java.lang.String | null,
-            byteArray: Uint8Array, _arrayOffset: number) {
+            byteArray: Int8Array, _arrayOffset: number) {
             super(position, remaining, name);
             this.byteArray = byteArray;
         }
@@ -82,14 +84,14 @@ export abstract class CodePointCharStream extends JavaObject implements CharStre
             throw new java.lang.UnsupportedOperationException(S`Not reached`);
         };
 
-        protected getInternalStorage = (): Uint8Array => {
+        public getInternalStorage = (): Int8Array => {
             return this.byteArray;
         };
     };
 
     // 16-bit internal storage for code points between U+0100 and U+FFFF.
     public static readonly CodePoint16BitCharStream = class CodePoint16BitCharStream extends CodePointCharStream {
-        private readonly charArray: Uint16Array;
+        public readonly charArray: Uint16Array;
 
         public constructor(position: number, remaining: number, name: java.lang.String | null,
             charArray: Uint16Array, _arrayOffset: number) {
@@ -149,17 +151,17 @@ export abstract class CodePointCharStream extends JavaObject implements CharStre
             throw new java.lang.UnsupportedOperationException(S`Not reached`);
         };
 
-        protected getInternalStorage = (): Uint16Array => {
+        public getInternalStorage = (): Uint16Array => {
             return this.charArray;
         };
     };
 
     // 32-bit internal storage for code points between U+10000 and U+10FFFF.
     public static readonly CodePoint32BitCharStream = class CodePoint32BitCharStream extends CodePointCharStream {
-        private readonly intArray: Uint32Array;
+        public readonly intArray: Int32Array;
 
         public constructor(position: number, remaining: number, name: java.lang.String | null,
-            intArray: Uint32Array, _arrayOffset: number) {
+            intArray: Int32Array, _arrayOffset: number) {
             super(position, remaining, name);
             this.intArray = intArray;
         }
@@ -212,23 +214,23 @@ export abstract class CodePointCharStream extends JavaObject implements CharStre
             throw new java.lang.UnsupportedOperationException(S`Not reached`);
         };
 
-        protected getInternalStorage = (): Uint32Array => {
+        public getInternalStorage = (): Int32Array => {
             return this.intArray;
         };
     };
 
-    protected readonly name: java.lang.String | null;
+    public readonly name: java.lang.String | null;
 
     // To avoid lots of virtual method calls, we directly access
     // the state of the underlying code points in the
     // CodePointBuffer.
-    protected position: number;
+    public position: number;
 
     public abstract getText: (_interval: Interval) => java.lang.String;
     public abstract LA: (i: number) => number;
 
     // Visible for testing.
-    protected abstract getInternalStorage: () => Uint8Array | Uint16Array | Uint32Array;
+    public abstract getInternalStorage: () => Int8Array | Uint16Array | Int32Array;
 
     readonly #size: number;
 
@@ -288,7 +290,7 @@ export abstract class CodePointCharStream extends JavaObject implements CharStre
                     codePointBuffer.position(),
                     codePointBuffer.remaining(),
                     name,
-                    new Uint32Array(codePointBuffer.intArray()),
+                    new Int32Array(codePointBuffer.intArray()),
                     codePointBuffer.arrayOffset());
             }
 
@@ -339,10 +341,17 @@ export abstract class CodePointCharStream extends JavaObject implements CharStre
         return this.name;
     };
 
-    public toString(): java.lang.String {
+    public override toString(): java.lang.String {
         return this.getText(Interval.of(0, this.#size - 1));
     }
 
+    public override clone(): CodePointCharStream {
+        throw new java.lang.UnsupportedOperationException(S`Not supported`);
+    }
+
+    public [Symbol.toPrimitive](_hint: string): bigint | number | boolean | string | null {
+        return this.getText(Interval.of(0, this.#size - 1)).valueOf();
+    }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare

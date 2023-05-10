@@ -35,7 +35,7 @@ export class LexerATNConfig extends ATNConfig {
         let state;
         let alt;
         let context: PredictionContext | null;
-        let semanticContext: SemanticContext | null = SemanticContext.Empty.Instance;
+        let semanticContext: SemanticContext | null = SemanticContext.Empty;
         let executor: LexerActionExecutor | null = null;
         let flag = false;
 
@@ -89,7 +89,7 @@ export class LexerATNConfig extends ATNConfig {
         return this.passedThroughNonGreedyDecision;
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hashCode: number = MurmurHash.initialize(7);
         hashCode = MurmurHash.update(hashCode, this.state.stateNumber);
         hashCode = MurmurHash.update(hashCode, this.alt);
@@ -102,7 +102,7 @@ export class LexerATNConfig extends ATNConfig {
         return hashCode;
     };
 
-    public equals = (other: unknown): boolean => {
+    public override equals = (other: unknown): boolean => {
         if (this === other) {
             return true;
         }

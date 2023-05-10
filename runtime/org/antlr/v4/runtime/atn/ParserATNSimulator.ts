@@ -10,45 +10,17 @@
 
 import { java, S } from "jree";
 
-import { ActionTransition } from "./ActionTransition";
-import { ATN } from "./ATN";
-import { ATNConfig } from "./ATNConfig";
-import { ATNConfigSet } from "./ATNConfigSet";
-import { ATNSimulator } from "./ATNSimulator";
-import { ATNState } from "./ATNState";
-import { AtomTransition } from "./AtomTransition";
-import { BlockEndState } from "./BlockEndState";
-import { BlockStartState } from "./BlockStartState";
-import { DecisionState } from "./DecisionState";
-import { EmptyPredictionContext } from "./EmptyPredictionContext";
-import { EpsilonTransition } from "./EpsilonTransition";
-import { NotSetTransition } from "./NotSetTransition";
-import { PrecedencePredicateTransition } from "./PrecedencePredicateTransition";
-import { PredicateTransition } from "./PredicateTransition";
-import { PredictionContext } from "./PredictionContext";
-import { PredictionContextCache } from "./PredictionContextCache";
-import { PredictionMode } from "./PredictionMode";
-import { RuleStopState } from "./RuleStopState";
-import { RuleTransition } from "./RuleTransition";
-import { SemanticContext } from "./SemanticContext";
-import { SetTransition } from "./SetTransition";
-import { SingletonPredictionContext } from "./SingletonPredictionContext";
-import { StarLoopEntryState } from "./StarLoopEntryState";
-import { Transition } from "./Transition";
-import { IntStream } from "../IntStream";
-import { NoViableAltException } from "../NoViableAltException";
-import { Parser } from "../Parser";
-import { ParserRuleContext } from "../ParserRuleContext";
-import { RuleContext } from "../RuleContext";
-import { Token } from "../Token";
-import { TokenStream } from "../TokenStream";
-import { VocabularyImpl } from "../VocabularyImpl";
-import { DFA } from "../dfa/DFA";
-import { DFAState } from "../dfa/DFAState";
-import { DoubleKeyMap } from "../misc/DoubleKeyMap";
-import { Interval } from "../misc/Interval";
-import { IntervalSet } from "../misc/IntervalSet";
-import { Pair } from "../misc/Pair";
+import {
+    ActionTransition, ATN, ATNConfig, ATNConfigSet, ATNSimulator, ATNState, AtomTransition, BlockEndState,
+    BlockStartState, DecisionState, EmptyPredictionContext, EpsilonTransition, NotSetTransition,
+    PrecedencePredicateTransition, PredicateTransition, PredictionContext, PredictionContextCache, PredictionMode,
+    RuleStopState, RuleTransition, SemanticContext, SetTransition, SingletonPredictionContext, StarLoopEntryState,
+    Transition
+} from "./";
+import {
+    DFA, DFAState, DoubleKeyMap, Interval, IntervalSet, IntStream, NoViableAltException, Pair, Parser,
+    ParserRuleContext, RuleContext, Token, TokenStream, VocabularyImpl
+} from "../";
 
 /**
  * The embodiment of the adaptive LL(*), ALL(*), parsing strategy.
@@ -293,8 +265,8 @@ export class ParserATNSimulator extends ATNSimulator {
      *  Don't keep around as it wastes huge amounts of memory. DoubleKeyMap
      *  isn't synchronized but we're ok since two threads shouldn't reuse same
      *  parser/atn sim object because it can only handle one input at a time.
-     *  This maps graphs a and b to merged result c. (a,b)&rarr;c. We can avoid
-     *  the merge if we ever see a and b again.  Note that (b,a)&rarr;c should
+     *  This maps graphs a and b to merged result c. (a,b) -> c. We can avoid
+     *  the merge if we ever see a and b again.  Note that (b,a) -> c should
      *  also be examined during cache lookup.
      */
     protected mergeCache: DoubleKeyMap<PredictionContext, PredictionContext, PredictionContext> | null = null;
@@ -358,7 +330,7 @@ export class ParserATNSimulator extends ATNSimulator {
         //
     };
 
-    public clearDFA = (): void => {
+    public override clearDFA = (): void => {
         for (let d = 0; d < this.decisionToDFA.length; d++) {
             this.decisionToDFA[d] = new DFA(this.atn.getDecisionState(d), d);
         }
@@ -433,7 +405,7 @@ export class ParserATNSimulator extends ATNSimulator {
 
     public getRuleName = (index: number): java.lang.String => {
         if (this.parser !== null && index >= 0) {
-            return this.parser.getRuleNames()[index];
+            return S`${this.parser.getRuleNames()![index]}`;
         }
 
         return S`< rule${index} > `;
@@ -489,8 +461,8 @@ export class ParserATNSimulator extends ATNSimulator {
 
         const vocabulary = this.parser !== null ? this.parser.getVocabulary() : VocabularyImpl.EMPTY_VOCABULARY;
         const displayName = vocabulary.getDisplayName(t);
-        if (displayName.equals(java.lang.Integer.toString(t))) {
-            return displayName;
+        if (displayName === String(t)) {
+            return S`${displayName}`;
         }
 
         return S`${displayName}<${t}>`;
@@ -505,12 +477,12 @@ export class ParserATNSimulator extends ATNSimulator {
      *  it out for clarity now that alg. works well. We can leave this
      *  "dead" code for a bit.
      *
-     * @param nvae tbd
+     * @param e tbd
      */
-    public dumpDeadEndConfigs = (nvae: NoViableAltException): void => {
+    public dumpDeadEndConfigs = (e: NoViableAltException): void => {
         java.lang.System.err.println(S`dead end configs: `);
 
-        const configs = nvae.getDeadEndConfigs();
+        const configs = e.getDeadEndConfigs();
         if (configs) {
             for (const c of configs) {
                 let trans = `no edges`;
@@ -1230,7 +1202,7 @@ export class ParserATNSimulator extends ATNSimulator {
 
         [(11,1,[$]), (14,1,[$]), (5,2,[$],up=1)],dipsIntoOuterContext
 
-        This filters because {3>=prec}? evals to true and collapses
+        This filters because {3>=prec}? evaluates to true and collapses
         (11,1,[$],{3>=prec}?) and (11,2,[$],up=1) since early conflict
         resolution based upon rules of operator precedence fits with
         our usual match first alt upon conflict.
@@ -1388,15 +1360,15 @@ export class ParserATNSimulator extends ATNSimulator {
         let nPredAlts = 0;
         for (let i = 1; i <= altCount; i++) {
             if (altToPred[i] === null) {
-                altToPred[i] = SemanticContext.Empty.Instance;
+                altToPred[i] = SemanticContext.Empty;
             } else {
-                if (altToPred[i] !== SemanticContext.Empty.Instance) {
+                if (altToPred[i] !== SemanticContext.Empty) {
                     nPredAlts++;
                 }
             }
         }
 
-        // nonambig alts are null in altToPred
+        // non ambig alts are null in altToPred
         if (nPredAlts === 0) {
             altToPred = null;
         }
@@ -1421,7 +1393,7 @@ export class ParserATNSimulator extends ATNSimulator {
             if (ambigAlts !== null && ambigAlts.get(i)) {
                 pairs.add(new DFAState.PredPrediction(pred, i));
             }
-            if (pred !== SemanticContext.Empty.Instance) {
+            if (pred !== SemanticContext.Empty) {
                 containsPredicate = true;
             }
 
@@ -1536,7 +1508,7 @@ export class ParserATNSimulator extends ATNSimulator {
         const succeeded = new ATNConfigSet(configs.fullCtx);
         const failed = new ATNConfigSet(configs.fullCtx);
         for (const c of configs) {
-            if (c.semanticContext !== SemanticContext.Empty.Instance) {
+            if (c.semanticContext !== SemanticContext.Empty) {
                 const predicateEvaluationResult =
                     this.evalSemanticContext(c.semanticContext, outerContext, c.alt, configs.fullCtx);
                 if (predicateEvaluationResult) {
@@ -1601,7 +1573,7 @@ export class ParserATNSimulator extends ATNSimulator {
             const complete = completeOrAlt as boolean;
             const predictions = new java.util.BitSet();
             for (const pair of predPredictionsOrPred) {
-                if (pair.pred === SemanticContext.Empty.Instance) {
+                if (pair.pred === SemanticContext.Empty) {
                     predictions.set(pair.alt);
                     if (!complete) {
                         break;
@@ -2125,7 +2097,7 @@ export class ParserATNSimulator extends ATNSimulator {
      * we don't consider any conflicts that include alternative 2. So, we
      * ignore the conflict between alts 1 and 2. We ignore a set of
      * conflicting alts when there is an intersection with an alternative
-     * associated with a single alt state in the state&rarr;config-list map.
+     * associated with a single alt state in the state -> config-list map.
      *
      * It's also the case that we might have two conflicting configurations but
      * also a 3rd nonconflicting configuration for a different alternative:
@@ -2193,6 +2165,7 @@ export class ParserATNSimulator extends ATNSimulator {
         /* synchronized (from) */
         if (from.edges === null) {
             from.edges = new Array<DFAState>(this.atn.maxTokenType + 1 + 1);
+            from.edges.fill(null);
         }
 
         from.edges[t + 1] = to; // connect
@@ -2264,7 +2237,7 @@ export class ParserATNSimulator extends ATNSimulator {
 
         if (this.parser !== null) {
             this.parser.getErrorListenerDispatch()
-                .reportAttemptingFullContext(this.parser, dfa, startIndex, stopIndex, conflictingAlts, configs);
+                .reportAttemptingFullContext?.(this.parser, dfa, startIndex, stopIndex, conflictingAlts, configs);
         }
 
     };
@@ -2279,7 +2252,7 @@ export class ParserATNSimulator extends ATNSimulator {
         }
 
         if (this.parser !== null) {
-            this.parser.getErrorListenerDispatch().reportContextSensitivity(this.parser, dfa, startIndex, stopIndex,
+            this.parser.getErrorListenerDispatch().reportContextSensitivity?.(this.parser, dfa, startIndex, stopIndex,
                 prediction, configs);
         }
     };
@@ -2312,7 +2285,7 @@ export class ParserATNSimulator extends ATNSimulator {
         }
 
         if (this.parser !== null) {
-            this.parser.getErrorListenerDispatch().reportAmbiguity(this.parser, dfa, startIndex, stopIndex,
+            this.parser.getErrorListenerDispatch().reportAmbiguity?.(this.parser, dfa, startIndex, stopIndex,
                 exact, ambigAlts, configs);
         }
     };

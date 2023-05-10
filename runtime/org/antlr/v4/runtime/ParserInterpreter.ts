@@ -52,14 +52,14 @@ import { Pair } from "./misc/Pair";
  *  See TestParserInterpreter for examples.
  */
 export class ParserInterpreter extends Parser {
-    protected readonly grammarFileName: java.lang.String;
+    protected readonly grammarFileName: string;
     protected readonly atn: ATN;
 
     protected readonly decisionToDFA: DFA[]; // not shared like it is for generated parsers
     protected readonly sharedContextCache: PredictionContextCache | null = new PredictionContextCache();
 
-    protected readonly tokenNames: java.lang.String[];
-    protected readonly ruleNames: java.lang.String[];
+    protected readonly tokenNames: Array<string>;
+    protected readonly ruleNames: string[];
 
     /**
      * This stack corresponds to the _parentctx, _parentState pair of locals
@@ -100,26 +100,25 @@ export class ParserInterpreter extends Parser {
     /**
      * @deprecated Use {@link #ParserInterpreter(String, Vocabulary, Collection, ATN, TokenStream)} instead.
      */
-    public constructor(grammarFileName: java.lang.String, tokenNames: java.util.Collection<java.lang.String>,
-        ruleNames: java.util.Collection<java.lang.String>, atn: ATN, input: TokenStream);
-    public constructor(grammarFileName: java.lang.String, vocabulary: Vocabulary,
-        ruleNames: java.util.Collection<java.lang.String>, atn: ATN, input: TokenStream);
-    public constructor(grammarFileName: java.lang.String,
-        tokenNamesOrVocabulary: java.util.Collection<java.lang.String> | Vocabulary,
-        ruleNames: java.util.Collection<java.lang.String>, atn: ATN, input: TokenStream) {
+    public constructor(grammarFileName: string, tokenNames: java.util.Collection<string>,
+        ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream);
+    public constructor(grammarFileName: string, vocabulary: Vocabulary,
+        ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream);
+    public constructor(grammarFileName: string, tokenNamesOrVocabulary: java.util.Collection<string> | Vocabulary,
+        ruleNames: java.util.Collection<string>, atn: ATN, input: TokenStream) {
         super(input);
 
         this.vocabulary = isVocabulary(tokenNamesOrVocabulary)
             ? tokenNamesOrVocabulary
-            : VocabularyImpl.fromTokenNames(tokenNamesOrVocabulary.toArray());
-        this.grammarFileName = grammarFileName;
+            : VocabularyImpl.fromTokenNames(tokenNamesOrVocabulary.toArray().map((s) => s.valueOf()));
+        this.grammarFileName = grammarFileName.valueOf();
         this.atn = atn;
-        this.tokenNames = new Array<java.lang.String>(atn.maxTokenType);
+        this.tokenNames = new Array<string>(atn.maxTokenType);
         for (let i = 0; i < this.tokenNames.length; i++) {
-            this.tokenNames[i] = this.vocabulary.getDisplayName(i);
+            this.tokenNames[i] = this.vocabulary.getDisplayName(i)!;
         }
 
-        this.ruleNames = ruleNames.toArray(new Array<java.lang.String>(0));
+        this.ruleNames = ruleNames.toArray().map((s) => s.valueOf());
 
         // init decision DFA
         const numberOfDecisions = atn.getNumberOfDecisions();
@@ -133,7 +132,7 @@ export class ParserInterpreter extends Parser {
         this.setInterpreter(new ParserATNSimulator(this, atn, this.decisionToDFA, this.sharedContextCache));
     }
 
-    public reset = (): void => {
+    public override reset = (): void => {
         super.reset();
         this.overrideDecisionReached = false;
         this.overrideDecisionRoot = null;
@@ -143,19 +142,19 @@ export class ParserInterpreter extends Parser {
         return this.atn;
     };
 
-    public getTokenNames = (): java.lang.String[] => {
+    public getTokenNames = (): string[] => {
         return this.tokenNames;
     };
 
-    public getVocabulary = (): Vocabulary => {
+    public override getVocabulary = (): Vocabulary => {
         return this.vocabulary;
     };
 
-    public getRuleNames = (): java.lang.String[] => {
+    public getRuleNames = (): string[] => {
         return this.ruleNames;
     };
 
-    public getGrammarFileName = (): java.lang.String => {
+    public getGrammarFileName = (): string => {
         return this.grammarFileName;
     };
 
@@ -220,10 +219,10 @@ export class ParserInterpreter extends Parser {
         }
     };
 
-    public enterRecursionRule(localctx: ParserRuleContext, ruleIndex: number): void;
-    public enterRecursionRule(localctx: ParserRuleContext, state: number, ruleIndex: number,
+    public override enterRecursionRule(localctx: ParserRuleContext, ruleIndex: number): void;
+    public override enterRecursionRule(localctx: ParserRuleContext, state: number, ruleIndex: number,
         precedence: number): void;
-    public enterRecursionRule(...args: unknown[]): void {
+    public override enterRecursionRule(...args: unknown[]): void {
         const localctx = args[0] as ParserRuleContext;
 
         switch (args.length) {

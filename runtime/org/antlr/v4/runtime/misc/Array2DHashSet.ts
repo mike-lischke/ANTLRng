@@ -6,20 +6,20 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, S, JavaObject, MurmurHash } from "jree";
+import { java, S, MurmurHash, int } from "jree";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
 import { EqualityComparator } from "./EqualityComparator";
 
 /** {@link Set} implementation with closed hashing (open addressing). */
-export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
+export class Array2DHashSet<T extends java.lang.Object> extends java.util.Set<T | null> {
     public static readonly INITIAL_CAPACITY = 16; // must be power of 2
     public static readonly INITIAL_BUCKET_CAPACITY = 8;
     public static readonly LOAD_FACTOR: number = 0.75;
 
     protected readonly comparator: EqualityComparator<T>;
 
-    protected buckets: Array<Array<T | null>>;
+    protected buckets: Array<Array<T | null> | null>;
 
     /** How many elements in set */
     protected n = 0;
@@ -32,12 +32,12 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
     protected readonly initialBucketCapacity: number;
 
     protected SetIterator = (($outer) => {
-        return class SetIterator extends JavaObject implements java.util.Iterator<T> {
-            protected readonly data: T[];
-            protected nextIndex = 0;
-            protected removed = true;
+        return class SetIterator extends java.lang.Object implements java.util.Iterator<T | null> {
+            public readonly data: Array<T | null>;
+            public nextIndex = 0;
+            public removed = true;
 
-            public constructor(data: T[]) {
+            public constructor(data: Array<T | null>) {
                 super();
                 this.data = data;
             }
@@ -46,7 +46,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
                 return this.nextIndex < this.data.length;
             };
 
-            public next = (): T => {
+            public next = (): T | null => {
                 if (!this.hasNext()) {
                     throw new java.util.NoSuchElementException();
                 }
@@ -64,6 +64,14 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
                 $outer.remove(this.data[this.nextIndex - 1]);
                 this.removed = true;
             };
+
+            public override clone(): java.lang.Object {
+                return new SetIterator(this.data);
+            }
+
+            public override[Symbol.toPrimitive](hint: string): string | number | null {
+                return "SetIterator";
+            }
         };
     })(this);
 
@@ -78,7 +86,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         this.threshold = Number(Math.floor(this.initialCapacity * Array2DHashSet.LOAD_FACTOR));
     }
 
-    public *[Symbol.iterator](): IterableIterator<T> {
+    public *[Symbol.iterator](): IterableIterator<T | null> {
         yield* this.toArray();
     }
 
@@ -126,7 +134,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return null;
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         for (const bucket of this.buckets) {
             if (bucket === null) {
@@ -147,7 +155,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return hash;
     };
 
-    public equals = (o: unknown): boolean => {
+    public override equals = (o: unknown): boolean => {
         if (o === this) {
             return true;
         }
@@ -163,21 +171,21 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return this.containsAll(o);
     };
 
-    public readonly add = (t: T): boolean => {
+    public override readonly add = (t: T): boolean => {
         const existing = this.getOrAdd(t);
 
         return existing === t;
     };
 
-    public readonly size = (): number => {
+    public override readonly size = (): number => {
         return this.n;
     };
 
-    public readonly isEmpty = (): boolean => {
+    public override readonly isEmpty = (): boolean => {
         return this.n === 0;
     };
 
-    public readonly contains = (o: T): boolean => {
+    public override readonly contains = (o: T): boolean => {
         return this.containsFast(this.asElementType(o));
     };
 
@@ -189,13 +197,13 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return this.get(obj) !== null;
     };
 
-    public iterator = (): java.util.Iterator<T> => {
+    public override iterator = (): java.util.Iterator<T | null> => {
         return new this.SetIterator(this.toArray());
     };
 
-    public toArray(): T[];
-    public toArray<U extends T>(a: U[]): U[];
-    public toArray<U extends T>(a?: U[]): T[] | U[] {
+    public override toArray(): Array<T | null>;
+    public override toArray<U extends T>(a: U[]): U[];
+    public override toArray<U extends T>(a?: U[]): Array<T | null> | U[] {
         if (a === undefined) {
             const a = this.createBucket(this.size());
             let i = 0;
@@ -239,7 +247,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         }
     }
 
-    public readonly remove = (o: java.lang.Object): boolean => {
+    public override readonly remove = (o: java.lang.Object | null): boolean => {
         return this.removeFast(this.asElementType(o));
     };
 
@@ -275,7 +283,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return false;
     };
 
-    public containsAll = (collection: java.util.Collection<T>): boolean => {
+    public override containsAll = (collection: java.util.Collection<T>): boolean => {
         if (collection instanceof Array2DHashSet) {
             const s = collection as Array2DHashSet<T>;
             for (const bucket of s.buckets) {
@@ -306,7 +314,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return true;
     };
 
-    public addAll = (c: java.util.Collection<T>): boolean => {
+    public override addAll = (c: java.util.Collection<T>): boolean => {
         let changed = false;
         for (const o of c) {
             const existing: T = this.getOrAdd(o);
@@ -319,7 +327,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return changed;
     };
 
-    public retainAll = (c: java.util.Collection<T>): boolean => {
+    public override retainAll = (c: java.util.Collection<T>): boolean => {
         let newSize = 0;
         for (const bucket of this.buckets) {
             if (bucket === null) {
@@ -361,7 +369,7 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return changed;
     };
 
-    public removeAll = (c: java.util.Collection<T>): boolean => {
+    public override removeAll = (c: java.util.Collection<T>): boolean => {
         let changed = false;
         for (const o of c) {
             changed ||= this.removeFast(this.asElementType(o));
@@ -370,13 +378,13 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
         return changed;
     };
 
-    public clear = (): void => {
+    public override clear = (): void => {
         this.n = 0;
         this.buckets = this.createBuckets(this.initialCapacity);
         this.threshold = Number(Math.floor(this.initialCapacity * Array2DHashSet.LOAD_FACTOR));
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         if (this.size() === 0) {
             return S`{}`;
         }
@@ -448,9 +456,10 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
     protected expand = (): void => {
         const old = this.buckets;
         this.currentPrime += 4;
-        const newCapacity: number = this.buckets.length * 2;
-        const newTable: T[][] = this.createBuckets(newCapacity);
-        const newBucketLengths = new Array<number>(newTable.length);
+        const newCapacity = this.buckets.length * 2;
+        const newTable = this.createBuckets(newCapacity);
+        const newBucketLengths = new Array<int>(newTable.length);
+        newBucketLengths.fill(0);
         this.buckets = newTable;
         this.threshold = newCapacity * Array2DHashSet.LOAD_FACTOR;
 
@@ -467,13 +476,13 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
 
                 const b = this.getBucket(o);
                 const bucketLength = newBucketLengths[b];
-                let newBucket: T[];
+                let newBucket: Array<T | null>;
                 if (bucketLength === 0) {
                     // new bucket
                     newBucket = this.createBucket(this.initialBucketCapacity);
                     newTable[b] = newBucket;
                 } else {
-                    newBucket = newTable[b];
+                    newBucket = newTable[b]!;
                     if (bucketLength === newBucket.length) {
                         // expand
                         newBucket = java.util.Arrays.copyOf(newBucket, newBucket.length * 2);
@@ -549,8 +558,11 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
      * @param capacity the length of the array to return
       @returns the newly constructed array
      */
-    protected createBuckets = (capacity: number): T[][] => {
-        return new Array<T[]>(capacity);
+    protected createBuckets = (capacity: number): Array<Array<T | null> | null> => {
+        const result = new Array<Array<T | null> | null>(capacity);
+        result.fill(null);
+
+        return result;
     };
 
     /**
@@ -559,8 +571,11 @@ export class Array2DHashSet<T extends JavaObject> extends java.util.Set<T> {
      * @param capacity the length of the array to return
       @returns the newly constructed array
      */
-    protected createBucket = (capacity: number): T[] => {
-        return new Array<T>(capacity);
+    protected createBucket = (capacity: number): Array<T | null> => {
+        const result = new Array<T | null>(capacity);
+        result.fill(null);
+
+        return result;
     };
 
 }

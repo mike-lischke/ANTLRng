@@ -250,7 +250,7 @@ export class ANTLRInputStream extends JavaObject implements CharStream {
         return this.name;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return new java.lang.String(this.data);
     };
 }

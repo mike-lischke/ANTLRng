@@ -7,7 +7,6 @@
  */
 
 import { java, S, MurmurHash } from "jree";
-import { Enum } from "jree/output/src/java/lang/Enum";
 
 import { ATN } from "./ATN";
 import { ATNConfig } from "./ATNConfig";
@@ -24,7 +23,7 @@ import { EqualityComparator } from "../misc/EqualityComparator";
  * utility methods for analyzing configuration sets for conflicts and/or
  * ambiguities.
  */
-export class PredictionMode extends Enum<PredictionMode> {
+export class PredictionMode extends java.lang.Enum<PredictionMode> {
     /**
      * The SLL(*) prediction mode. This prediction mode ignores the current
      * parser context when making predictions. This is the fastest prediction
@@ -46,8 +45,7 @@ export class PredictionMode extends Enum<PredictionMode> {
      * This prediction mode does not provide any guarantees for prediction
      * behavior for syntactically-incorrect inputs.</p>
      */
-    public static readonly SLL: PredictionMode = new class extends PredictionMode {
-    }(S`SLL`, 0);
+    public static readonly SLL = new PredictionMode(S`SLL`, 0);
     /**
      * The LL(*) prediction mode. This prediction mode allows the current parser
      * context to be used for resolving SLL conflicts that occur during
@@ -66,8 +64,7 @@ export class PredictionMode extends Enum<PredictionMode> {
      * This prediction mode does not provide any guarantees for prediction
      * behavior for syntactically-incorrect inputs.</p>
      */
-    public static readonly LL: PredictionMode = new class extends PredictionMode {
-    }(S`LL`, 1);
+    public static readonly LL = new PredictionMode(S`LL`, 1);
     /**
      * The LL(*) prediction mode with exact ambiguity detection. In addition to
      * the correctness guarantees provided by the {@link #LL} prediction mode,
@@ -85,49 +82,7 @@ export class PredictionMode extends Enum<PredictionMode> {
      * This prediction mode does not provide any guarantees for prediction
      * behavior for syntactically-incorrect inputs.</p>
      */
-    public static readonly LL_EXACT_AMBIG_DETECTION: PredictionMode = new class extends PredictionMode {
-    }(S`LL_EXACT_AMBIG_DETECTION`, 2);
-
-    /** A Map that uses just the state and the stack context as the key. */
-    protected static AltAndContextMap = class AltAndContextMap extends FlexibleHashMap<ATNConfig, java.util.BitSet> {
-        public constructor() {
-            super(PredictionMode.AltAndContextConfigEqualityComparator.INSTANCE);
-        }
-    };
-
-    private static readonly AltAndContextConfigEqualityComparator =
-        class AltAndContextConfigEqualityComparator implements EqualityComparator<ATNConfig> {
-            public static readonly INSTANCE = new AltAndContextConfigEqualityComparator();
-            /**
-             * The hash code is only a function of the {@link ATNState#stateNumber}
-             * and {@link ATNConfig#context}.
-             *
-             * @param o tbd
-             *
-             * @returns tbd
-             */
-            public hashCode = (o: ATNConfig): number => {
-                let hashCode = MurmurHash.initialize(7);
-                hashCode = MurmurHash.update(hashCode, o.state.stateNumber);
-                hashCode = MurmurHash.update(hashCode, o.context);
-                hashCode = MurmurHash.finish(hashCode, 2);
-
-                return hashCode;
-            };
-
-            public equals = (a: ATNConfig | null, b: ATNConfig | null): boolean => {
-                if (a === b) {
-                    return true;
-                }
-
-                if (!a || !b) {
-                    return false;
-                }
-
-                return a.state.stateNumber === b.state.stateNumber
-                    && (a.context?.equals(b.context) ?? true);
-            };
-        };
+    public static readonly LL_EXACT_AMBIG_DETECTION = new PredictionMode(S`LL_EXACT_AMBIG_DETECTION`, 2);
 
     /**
      * Computes the SLL prediction termination condition.
@@ -245,12 +200,12 @@ export class PredictionMode extends Enum<PredictionMode> {
                 // dup configs, tossing out semantic predicates
                 const dup = new ATNConfigSet();
                 for (let c of configs) {
-                    c = new ATNConfig(c, SemanticContext.Empty.Instance);
+                    c = new ATNConfig(c, SemanticContext.Empty);
                     dup.add(c, null);
                 }
                 configs = dup;
             }
-            // now we have combined contexts for configs with dissimilar preds
+            // now we have combined contexts for configs with dissimilar predicates
         }
 
         // pure SLL or combined SLL+LL mode parsing
@@ -647,9 +602,44 @@ export class PredictionMode extends Enum<PredictionMode> {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace PredictionMode {
-    // @ts-expect-error, because of protected inner class.
-    export type AltAndContextMap = InstanceType<typeof PredictionMode.AltAndContextMap>;
-    export type AltAndContextConfigEqualityComparator =
-        // @ts-expect-error, because of protected inner class.
-        InstanceType<typeof PredictionMode.AltAndContextConfigEqualityComparator>;
+    /** A Map that uses just the state and the stack context as the key. */
+    export class AltAndContextMap extends FlexibleHashMap<ATNConfig, java.util.BitSet> {
+        public constructor() {
+            super(PredictionMode.AltAndContextConfigEqualityComparator.INSTANCE);
+        }
+    };
+
+    export class AltAndContextConfigEqualityComparator implements EqualityComparator<ATNConfig> {
+        public static readonly INSTANCE = new AltAndContextConfigEqualityComparator();
+        /**
+         * The hash code is only a function of the {@link ATNState#stateNumber}
+         * and {@link ATNConfig#context}.
+         *
+         * @param o tbd
+         *
+         * @returns tbd
+         */
+        public hashCode = (o: ATNConfig): number => {
+            let hashCode = MurmurHash.initialize(7);
+            hashCode = MurmurHash.update(hashCode, o.state.stateNumber);
+            hashCode = MurmurHash.update(hashCode, o.context);
+            hashCode = MurmurHash.finish(hashCode, 2);
+
+            return hashCode;
+        };
+
+        public equals = (a: ATNConfig | null, b: ATNConfig | null): boolean => {
+            if (a === b) {
+                return true;
+            }
+
+            if (!a || !b) {
+                return false;
+            }
+
+            return a.state.stateNumber === b.state.stateNumber
+                && (a.context?.equals(b.context) ?? true);
+        };
+    };
+
 }

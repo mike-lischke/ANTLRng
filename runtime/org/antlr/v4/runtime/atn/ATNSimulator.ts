@@ -17,7 +17,16 @@ import { DFAState } from "../dfa/DFAState";
 export abstract class ATNSimulator extends JavaObject {
     /** Must distinguish between missing edge and edge we know leads nowhere */
 
-    public static readonly ERROR: DFAState;
+    static #error: DFAState | undefined;
+
+    public static get ERROR(): DFAState {
+        if (!this.#error) {
+            this.#error = new DFAState(new ATNConfigSet());
+            this.#error.stateNumber = java.lang.Integer.MAX_VALUE;
+        }
+
+        return this.#error;
+    }
 
     public readonly atn: ATN;
 
@@ -84,10 +93,4 @@ export abstract class ATNSimulator extends JavaObject {
                 visited);
         }
     };
-
-    static {
-        // @ts-ignore
-        ATNSimulator.ERROR = new DFAState(new ATNConfigSet());
-        ATNSimulator.ERROR.stateNumber = java.lang.Integer.MAX_VALUE;
-    }
 }

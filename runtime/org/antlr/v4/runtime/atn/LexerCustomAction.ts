@@ -96,7 +96,7 @@ export class LexerCustomAction extends JavaObject implements LexerAction {
         lexer.action(null, this.ruleIndex, this.actionIndex);
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         hash = MurmurHash.update(hash, this.getActionType());
         hash = MurmurHash.update(hash, this.ruleIndex);
@@ -105,7 +105,7 @@ export class LexerCustomAction extends JavaObject implements LexerAction {
         return MurmurHash.finish(hash, 3);
     };
 
-    public equals = (obj: unknown): boolean => {
+    public override equals = (obj: unknown): boolean => {
         if (obj === this) {
             return true;
         }
@@ -118,7 +118,7 @@ export class LexerCustomAction extends JavaObject implements LexerAction {
             && this.actionIndex === obj.actionIndex;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`custom`;
     };
 }

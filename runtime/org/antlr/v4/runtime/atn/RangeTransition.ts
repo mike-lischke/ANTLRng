@@ -26,7 +26,7 @@ export class RangeTransition extends Transition {
         return Transition.RANGE;
     };
 
-    public label = (): IntervalSet => {
+    public override label = (): IntervalSet => {
         return IntervalSet.of(this.from, this.to);
     };
 
@@ -34,7 +34,7 @@ export class RangeTransition extends Transition {
         return symbol >= this.from && symbol <= this.to;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return new java.lang.StringBuilder(S`'`)
             .appendCodePoint(this.from)
             .append(S`'..'`)

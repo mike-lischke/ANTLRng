@@ -15,14 +15,6 @@ import { ATNDeserializer } from "../atn/ATNDeserializer";
 /** A class to read plain text interpreter data produced by ANTLR. */
 export class InterpreterDataReader extends JavaObject {
 
-    public static InterpreterData = class InterpreterData extends JavaObject {
-        public atn: ATN | null = null;
-        public vocabulary: Vocabulary | null = null;
-        public ruleNames: java.util.List<java.lang.String> | null = null;
-        public channels: java.util.List<java.lang.String> | null = null; // Only valid for lexer grammars.
-        public modes: java.util.List<java.lang.String> | null = null; // ditto
-    };
-
     /**
      * The structure of the data file is very simple. Everything is line based with empty lines
      * separating the different parts. For lexers the layout is:
@@ -61,11 +53,11 @@ export class InterpreterDataReader extends JavaObject {
             const br = new java.io.BufferedReader(new java.io.FileReader(fileName));
             try {
                 try {
-                    let line: java.lang.String;
-                    const literalNames = new java.util.ArrayList<java.lang.String>();
-                    const symbolicNames = new java.util.ArrayList<java.lang.String>();
+                    let line: java.lang.String | null;
+                    const literalNames: string[] = [];
+                    const symbolicNames: string[] = [];
 
-                    line = br.readLine();
+                    line = br.readLine()!;
                     if (!line.equals(S`token literal names:`)) {
                         throw new java.lang.RuntimeException(S`Unexpected data entry`);
                     }
@@ -74,10 +66,12 @@ export class InterpreterDataReader extends JavaObject {
                         if (line.isEmpty()) {
                             break;
                         }
-                        literalNames.add(line.equals(S`null`) ? S`` : line);
+
+                        const temp = line.valueOf();
+                        literalNames.push(temp === "null" ? "" : temp);
                     }
 
-                    line = br.readLine();
+                    line = br.readLine()!;
                     if (!line.equals(S`token symbolic names:`)) {
                         throw new java.lang.RuntimeException(S`Unexpected data entry`);
                     }
@@ -86,13 +80,13 @@ export class InterpreterDataReader extends JavaObject {
                         if (line.isEmpty()) {
                             break;
                         }
-                        symbolicNames.add(line.equals(S`null`) ? S`` : line);
+                        const temp = line.valueOf();
+                        symbolicNames.push(temp === "null" ? "" : temp);
                     }
 
-                    result.vocabulary = new VocabularyImpl(literalNames.toArray(),
-                        symbolicNames.toArray(new Array<java.lang.String>(0)));
+                    result.vocabulary = new VocabularyImpl(literalNames, symbolicNames);
 
-                    line = br.readLine();
+                    line = br.readLine()!;
                     if (!line.equals(S`rule names:`)) {
                         throw new java.lang.RuntimeException(S`Unexpected data entry`);
                     }
@@ -104,7 +98,7 @@ export class InterpreterDataReader extends JavaObject {
                         result.ruleNames.add(line);
                     }
 
-                    line = br.readLine();
+                    line = br.readLine()!;
                     if (line.equals(S`channel names:`)) { // Additional lexer data.
                         result.channels = new java.util.ArrayList<java.lang.String>();
                         while ((line = br.readLine()) !== null) {
@@ -114,7 +108,7 @@ export class InterpreterDataReader extends JavaObject {
                             result.channels.add(line);
                         }
 
-                        line = br.readLine();
+                        line = br.readLine()!;
                         if (!line.equals(S`mode names:`)) {
                             throw new java.lang.RuntimeException(S`Unexpected data entry`);
                         }
@@ -128,12 +122,12 @@ export class InterpreterDataReader extends JavaObject {
                         }
                     }
 
-                    line = br.readLine();
+                    line = br.readLine()!;
                     if (!line.equals(S`atn:`)) {
                         throw new java.lang.RuntimeException(S`Unexpected data entry`);
                     }
 
-                    line = br.readLine();
+                    line = br.readLine()!;
                     const elements: java.lang.String[] = line.substring(1, line.length() - 1).split(S`,`);
                     const serializedATN = new Int32Array(elements.length);
 
@@ -166,5 +160,12 @@ export class InterpreterDataReader extends JavaObject {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace InterpreterDataReader {
-    export type InterpreterData = InstanceType<typeof InterpreterDataReader.InterpreterData>;
+    export class InterpreterData extends JavaObject {
+        public atn: ATN | null = null;
+        public vocabulary: Vocabulary | null = null;
+        public ruleNames: java.util.List<java.lang.String> | null = null;
+        public channels: java.util.List<java.lang.String> | null = null; // Only valid for lexer grammars.
+        public modes: java.util.List<java.lang.String> | null = null; // ditto
+    };
+
 }

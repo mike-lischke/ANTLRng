@@ -36,7 +36,7 @@ export class PredicateTransition extends AbstractPredicateTransition {
         return Transition.PREDICATE;
     };
 
-    public isEpsilon = (): boolean => { return true; };
+    public override isEpsilon = (): boolean => { return true; };
 
     public matches = (_symbol: number, _minVocabSymbol: number, _maxVocabSymbol: number): boolean => {
         return false;
@@ -46,7 +46,7 @@ export class PredicateTransition extends AbstractPredicateTransition {
         return new SemanticContext.Predicate(this.ruleIndex, this.predIndex, this.isCtxDependent);
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`pred_${this.ruleIndex}: ${this.predIndex}`;
     };
 

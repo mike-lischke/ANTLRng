@@ -22,7 +22,7 @@ import { IntegerStack } from "../misc/IntegerStack";
  */
 export class IterativeParseTreeWalker extends ParseTreeWalker {
 
-    public walk = (listener: ParseTreeListener, t: ParseTree): void => {
+    public override walk = (listener: ParseTreeListener, t: ParseTree): void => {
         const nodeStack = new java.util.ArrayDeque<ParseTree>();
         const indexStack = new IntegerStack();
 

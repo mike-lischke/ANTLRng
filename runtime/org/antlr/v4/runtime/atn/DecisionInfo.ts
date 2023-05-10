@@ -232,7 +232,7 @@ export class DecisionInfo extends JavaObject {
         this.decision = decision;
     }
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return new java.lang.String(`{` +
             `decision=` + this.decision +
             `, contextSensitivities=` + this.contextSensitivities.size() +

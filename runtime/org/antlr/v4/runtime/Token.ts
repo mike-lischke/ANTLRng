@@ -82,7 +82,7 @@ export namespace Token {
     export const INVALID_TYPE = 0;
     export const EPSILON = -2;
     export const MIN_USER_TOKEN_TYPE = 1;
-    export const EOF: number = IntStream.EOF;
+    export const EOF = -1;
     export const DEFAULT_CHANNEL = 0;
     export const HIDDEN_CHANNEL = 1;
     export const MIN_USER_CHANNEL_VALUE = 2;

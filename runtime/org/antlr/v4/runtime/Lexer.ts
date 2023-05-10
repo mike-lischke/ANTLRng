@@ -19,7 +19,7 @@ import { Recognizer } from "./Recognizer";
 import { Token } from "./Token";
 import { TokenFactory } from "./TokenFactory";
 import { TokenSource } from "./TokenSource";
-import { LexerATNSimulator } from "./atn/LexerATNSimulator";
+import { LexerATNSimulator } from "./atn/index";
 import { IntegerStack } from "./misc/IntegerStack";
 import { Interval } from "./misc/Interval";
 import { Pair } from "./misc/Pair";
@@ -374,9 +374,9 @@ export abstract class Lexer extends Recognizer<LexerATNSimulator> implements Tok
         return this._channel;
     };
 
-    public getChannelNames = (): java.lang.String[] | null => { return null; };
+    public getChannelNames = (): string[] | null => { return null; };
 
-    public getModeNames = (): java.lang.String[] | null => {
+    public getModeNames = (): string[] | null => {
         return null;
     };
 
@@ -387,7 +387,7 @@ export abstract class Lexer extends Recognizer<LexerATNSimulator> implements Tok
      *
      * @returns tbd
      */
-    public getTokenNames = (): java.lang.String[] | null => {
+    public getTokenNames = (): string[] | null => {
         return null;
     };
 
@@ -432,10 +432,10 @@ export abstract class Lexer extends Recognizer<LexerATNSimulator> implements Tok
         const msg = S`token recognition error at: '${this.getErrorDisplay(text)}'`;
 
         const listener = this.getErrorListenerDispatch();
-        listener.syntaxError(this, null, this._tokenStartLine, this._tokenStartCharPositionInLine, msg, e);
+        listener.syntaxError?.(this, null, this._tokenStartLine, this._tokenStartCharPositionInLine, msg, e);
     };
 
-    public getErrorDisplay(sOrC: java.lang.String | number | null): java.lang.String {
+    public getErrorDisplay(sOrC: java.lang.String | number): java.lang.String {
         if (sOrC instanceof java.lang.String) {
             const s = sOrC;
             const buf: java.lang.StringBuilder = new java.lang.StringBuilder();
@@ -445,7 +445,7 @@ export abstract class Lexer extends Recognizer<LexerATNSimulator> implements Tok
 
             return buf.toString();
         } else {
-            const c = sOrC as number;
+            const c = sOrC;
             let s;
             switch (c) {
                 case Token.EOF: {
@@ -469,7 +469,7 @@ export abstract class Lexer extends Recognizer<LexerATNSimulator> implements Tok
                 }
 
                 default: {
-                    s = java.lang.String.valueOf(c);
+                    s = java.lang.String.fromCharCode(c);
 
                     break;
                 }

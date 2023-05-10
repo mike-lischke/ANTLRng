@@ -43,7 +43,7 @@ export class RuleTransition extends Transition {
         return Transition.RULE;
     };
 
-    public isEpsilon = (): boolean => { return true; };
+    public override isEpsilon = (): boolean => { return true; };
 
     public matches = (_symbol: number, _minVocabSymbol: number, _maxVocabSymbol: number): boolean => {
         return false;

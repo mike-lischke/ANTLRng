@@ -63,7 +63,7 @@ export class SingletonPredictionContext extends PredictionContext {
             (this.parent !== null && this.parent.equals(s.parent));
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         const up = this.parent !== null ? this.parent.toString() : S``;
         if (up.length() === 0) {
             if (this.returnState === PredictionContext.EMPTY_RETURN_STATE) {

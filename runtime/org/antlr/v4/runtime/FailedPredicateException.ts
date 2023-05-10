@@ -25,7 +25,8 @@ export class FailedPredicateException extends RecognitionException {
     private readonly predicateIndex: number = 0;
     private readonly predicate: java.lang.String | null;
 
-    public constructor(recognizer: Parser, predicate: java.lang.String | null, message: java.lang.String | null) {
+    public constructor(recognizer: Parser, predicate: java.lang.String | string | null,
+        message: java.lang.String | string | null) {
         super(FailedPredicateException.formatMessage(predicate ?? null, message ?? null), recognizer,
             recognizer.getInputStream(), recognizer._ctx);
         const s = recognizer.getInterpreter()!.atn.states.get(recognizer.getState());
@@ -35,14 +36,14 @@ export class FailedPredicateException extends RecognitionException {
             this.predicateIndex = trans.predIndex;
         }
 
-        this.predicate = predicate;
+        this.predicate = predicate ? new java.lang.String(predicate) : null;
         this.setOffendingToken(recognizer.getCurrentToken());
     }
 
-    private static formatMessage = (predicate: java.lang.String | null,
-        message: java.lang.String | null): java.lang.String => {
+    private static formatMessage = (predicate: java.lang.String | string | null,
+        message: java.lang.String | string | null): java.lang.String => {
         if (message !== null) {
-            return message;
+            return new java.lang.String(message);
         }
 
         return java.lang.String.format(java.util.Locale.getDefault(), S`failed predicate: {%s}?`, predicate);

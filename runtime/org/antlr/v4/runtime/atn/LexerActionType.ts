@@ -6,8 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { S } from "jree";
-import { Enum } from "jree/output/src/java/lang/Enum";
+import { S, java } from "jree";
 
 /**
  * Represents the serialization type of a {@link LexerAction}.
@@ -15,7 +14,7 @@ import { Enum } from "jree/output/src/java/lang/Enum";
  * @author Sam Harwell
  *
  */
-export class LexerActionType extends Enum<LexerActionType> {
+export class LexerActionType extends java.lang.Enum<LexerActionType> {
     /**
      * The type of a {@link LexerChannelAction} action.
      */

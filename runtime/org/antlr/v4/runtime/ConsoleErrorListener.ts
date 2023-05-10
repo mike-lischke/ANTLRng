@@ -42,7 +42,7 @@ export class ConsoleErrorListener extends BaseErrorListener {
      * @param msg tbd
      * @param _e tbd
      */
-    public syntaxError = <T extends ATNSimulator>(recognizer: Recognizer<T> | null,
+    public override syntaxError = <T extends ATNSimulator>(recognizer: Recognizer<T> | null,
         offendingSymbol: unknown,
         line: number,
         charPositionInLine: number,

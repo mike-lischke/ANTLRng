@@ -58,18 +58,18 @@ export class LexerMoreAction extends JavaObject implements LexerAction {
         lexer.more();
     };
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         let hash: number = MurmurHash.initialize();
         hash = MurmurHash.update(hash, this.getActionType());
 
         return MurmurHash.finish(hash, 1);
     };
 
-    public equals = (obj: unknown): boolean => {
+    public override equals = (obj: unknown): boolean => {
         return obj === this;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`more`;
     };
 }

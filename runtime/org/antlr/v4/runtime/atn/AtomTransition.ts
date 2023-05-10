@@ -26,7 +26,7 @@ export class AtomTransition extends Transition {
         return Transition.ATOM;
     };
 
-    public label = (): IntervalSet => {
+    public override label = (): IntervalSet => {
         return IntervalSet.of(this.labelValue);
     };
 
@@ -34,7 +34,7 @@ export class AtomTransition extends Transition {
         return this.labelValue === symbol;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return java.lang.String.valueOf(this.label);
     };
 }

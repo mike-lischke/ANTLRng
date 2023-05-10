@@ -125,11 +125,11 @@ export abstract class ATNState extends JavaObject {
 
     public abstract getStateType: () => number;
 
-    public hashCode = (): number => {
+    public override hashCode = (): number => {
         return this.stateNumber;
     };
 
-    public equals = (o: java.lang.Object | null): boolean => {
+    public override equals = (o: java.lang.Object | null): boolean => {
         // are these states same object?
         if (o instanceof ATNState) {
             return this.stateNumber === (o).stateNumber;
@@ -142,7 +142,7 @@ export abstract class ATNState extends JavaObject {
         return false;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return java.lang.String.valueOf(this.stateNumber);
     };
 

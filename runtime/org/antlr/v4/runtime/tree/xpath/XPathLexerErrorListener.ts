@@ -7,14 +7,11 @@
  */
 
 import { java } from "jree";
-import { ATNSimulator } from "../../atn";
-import { BaseErrorListener } from "../../BaseErrorListener";
-import { RecognitionException } from "../../RecognitionException";
-import { Recognizer } from "../../Recognizer";
-import { Token } from "../../Token";
+
+import { ATNSimulator, BaseErrorListener, RecognitionException, Recognizer, Token } from "../../";
 
 export class XPathLexerErrorListener extends BaseErrorListener {
-    public syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T> | null,
+    public override syntaxError = <S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T> | null,
         offendingSymbol: S | null,
         line: number, charPositionInLine: number, msg: java.lang.String | null,
         e: RecognitionException | null): void => {

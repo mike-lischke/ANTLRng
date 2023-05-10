@@ -36,13 +36,13 @@ export class EpsilonTransition extends Transition {
         return Transition.EPSILON;
     };
 
-    public isEpsilon = (): boolean => { return true; };
+    public override isEpsilon = (): boolean => { return true; };
 
     public matches = (_symbol: number, _minVocabSymbol: number, _maxVocabSymbol: number): boolean => {
         return false;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`epsilon`;
     };
 }

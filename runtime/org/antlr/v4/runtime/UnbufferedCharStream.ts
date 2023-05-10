@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, JavaObject, S } from "jree";
+import { char, java, JavaObject, S } from "jree";
 import { CharStream } from "./CharStream";
 import { IntStream } from "./IntStream";
 import { Interval } from "./misc/Interval";
@@ -32,7 +32,7 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
      * we keep adding to buffer. Otherwise, {@link #consume consume()} resets so
      * we start filling at index 0 again.
      */
-    protected data: Uint32Array;
+    protected data: Int32Array;
 
     /**
      * The number of characters currently in {@link #data data}.
@@ -42,7 +42,7 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
     protected n = 0;
 
     /**
-     * 0..n-1 index into {@link #data data} of next character.
+     * 0..n-1 index into {@link #data data} of next java.lang.Character.
      *
      * <p>The {@code LA(1)} character is {@code data[p]}. If {@code p == n}, we are
      * out of buffered characters.</p>
@@ -92,7 +92,7 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
         switch (args.length) {
             case 0: {
                 this.n = 0;
-                this.data = new Uint32Array(256);
+                this.data = new Int32Array(256);
 
                 break;
             }
@@ -100,15 +100,15 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
             case 1: {
                 if (typeof args[0] === "number") {
                     this.n = 0;
-                    this.data = new Uint32Array(args[0]);
+                    this.data = new Int32Array(args[0]);
                 } else if (args[0] instanceof java.io.InputStream) {
                     const [input] = args as [java.io.InputStream];
-                    this.data = new Uint32Array(256);
+                    this.data = new Int32Array(256);
                     this.input = new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8);
                     this.fill(1); // prime
                 } else {
                     const [input] = args as [java.io.Reader];
-                    this.data = new Uint32Array(256);
+                    this.data = new Int32Array(256);
                     this.input = input;
                     this.fill(1); // prime
                 }
@@ -119,12 +119,12 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
             case 2: {
                 if (args[0] instanceof java.io.InputStream) {
                     const [input, bufferSize] = args as [java.io.InputStream, number];
-                    this.data = new Uint32Array(bufferSize);
+                    this.data = new Int32Array(bufferSize);
                     this.input = new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8);
                     this.fill(1); // prime
                 } else {
                     const [input, bufferSize] = args as [java.io.Reader, number];
-                    this.data = new Uint32Array(bufferSize);
+                    this.data = new Int32Array(bufferSize);
                     this.input = input;
                     this.fill(1); // prime
                 }
@@ -134,7 +134,7 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
             case 3: {
                 const [input, bufferSize, charset] = args as [java.io.InputStream, number, java.nio.charset.Charset];
 
-                this.data = new Uint32Array(bufferSize);
+                this.data = new Int32Array(bufferSize);
                 this.input = new java.io.InputStreamReader(input, charset);
                 this.fill(1); // prime
 
@@ -305,7 +305,7 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
         return new java.lang.String(this.data, i, interval.length());
     };
 
-    public toString: () => java.lang.JavaString = () => {
+    public override toString: () => java.lang.JavaString = () => {
         return new java.lang.String(super.toString());
     };
 
@@ -344,7 +344,7 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
                 if (c > java.lang.Character.MAX_VALUE || c === IntStream.EOF) {
                     this.add(c);
                 } else {
-                    const ch: java.lang.char = c;
+                    const ch: char = c;
                     if (java.lang.Character.isLowSurrogate(ch)) {
                         throw new java.lang.RuntimeException(
                             S`Invalid UTF - 16(low surrogate with no preceding high surrogate)`);
@@ -359,7 +359,7 @@ export class UnbufferedCharStream extends JavaObject implements CharStream {
                                     throw new java.lang.RuntimeException(
                                         S`Invalid UTF - 16(dangling high surrogate at end of file)`);
                                 } else {
-                                    const lowSurrogateChar: java.lang.char = lowSurrogate;
+                                    const lowSurrogateChar: char = lowSurrogate;
                                     if (java.lang.Character.isLowSurrogate(lowSurrogateChar)) {
                                         this.add(java.lang.Character.toCodePoint(ch, lowSurrogateChar));
                                     } else {

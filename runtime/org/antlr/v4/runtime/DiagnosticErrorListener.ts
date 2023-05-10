@@ -58,7 +58,7 @@ export class DiagnosticErrorListener extends BaseErrorListener {
         this.exactOnly = exactOnly ?? true;
     }
 
-    public reportAmbiguity = (recognizer: Parser,
+    public override reportAmbiguity = (recognizer: Parser,
         dfa: DFA,
         startIndex: number,
         stopIndex: number,
@@ -77,7 +77,7 @@ export class DiagnosticErrorListener extends BaseErrorListener {
         recognizer.notifyErrorListeners(message);
     };
 
-    public reportAttemptingFullContext = (recognizer: Parser,
+    public override reportAttemptingFullContext = (recognizer: Parser,
         dfa: DFA,
         startIndex: number,
         stopIndex: number,
@@ -90,7 +90,7 @@ export class DiagnosticErrorListener extends BaseErrorListener {
         recognizer.notifyErrorListeners(message);
     };
 
-    public reportContextSensitivity = (recognizer: Parser,
+    public override reportContextSensitivity = (recognizer: Parser,
         dfa: DFA,
         startIndex: number,
         stopIndex: number,
@@ -107,13 +107,13 @@ export class DiagnosticErrorListener extends BaseErrorListener {
         const decision = dfa.decision;
         const ruleIndex = dfa.atnStartState!.ruleIndex;
 
-        const ruleNames = recognizer.getRuleNames();
+        const ruleNames = recognizer.getRuleNames()!;
         if (ruleIndex < 0 || ruleIndex >= ruleNames.length) {
             return java.lang.String.valueOf(decision);
         }
 
-        const ruleName: java.lang.String = ruleNames[ruleIndex];
-        if (ruleName === null || ruleName.isEmpty()) {
+        const ruleName = ruleNames[ruleIndex];
+        if (ruleName.length === 0) {
             return java.lang.String.valueOf(decision);
         }
 

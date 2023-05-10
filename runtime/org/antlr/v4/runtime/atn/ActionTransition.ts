@@ -29,7 +29,7 @@ export class ActionTransition extends Transition {
         return Transition.ACTION;
     };
 
-    public isEpsilon = (): boolean => {
+    public override isEpsilon = (): boolean => {
         return true; // we are to be ignored by analysis except for predicates
     };
 
@@ -37,7 +37,7 @@ export class ActionTransition extends Transition {
         return false;
     };
 
-    public toString = (): java.lang.String => {
+    public override toString = (): java.lang.String => {
         return S`action_${this.ruleIndex}:${this.actionIndex}`;
     };
 }
