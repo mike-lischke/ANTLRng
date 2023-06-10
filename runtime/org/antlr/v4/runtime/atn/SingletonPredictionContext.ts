@@ -57,10 +57,8 @@ export class SingletonPredictionContext extends PredictionContext {
             return false; // can't be same if hash is different
         }
 
-        const s: SingletonPredictionContext = o;
-
-        return this.returnState === s.returnState &&
-            (this.parent !== null && this.parent.equals(s.parent));
+        return this.returnState === o.returnState &&
+            (this.parent !== null && this.parent.equals(o.parent));
     };
 
     public override toString = (): java.lang.String => {

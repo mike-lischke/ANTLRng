@@ -42,6 +42,12 @@ export class Array2DHashSet<T extends java.lang.Object> extends java.util.Set<T 
                 this.data = data;
             }
 
+            public forEachRemaining(action: java.util.function.Consumer<T | null>): void {
+                while (this.hasNext()) {
+                    action(this.next());
+                }
+            }
+
             public hasNext = (): boolean => {
                 return this.nextIndex < this.data.length;
             };

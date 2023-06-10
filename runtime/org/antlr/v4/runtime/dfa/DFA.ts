@@ -148,11 +148,9 @@ export class DFA extends JavaObject {
      */
     public getStates = (): java.util.List<DFAState> => {
         const result = new java.util.ArrayList<DFAState>(this.states.keySet());
-        java.util.Collections.sort(result, new class extends java.lang.Object implements java.util.Comparator<DFAState> {
-            public compare = (o1: DFAState, o2: DFAState): number => {
-                return o1.stateNumber - o2.stateNumber;
-            };
-        }());
+        java.util.Collections.sort<DFAState>(result, (o1: DFAState, o2: DFAState): number => {
+            return o1.stateNumber - o2.stateNumber;
+        });
 
         return result;
     };

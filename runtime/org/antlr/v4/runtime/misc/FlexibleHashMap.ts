@@ -6,6 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable max-classes-per-file */
+
 import { java, S, JavaObject, MurmurHash } from "jree";
 import { ObjectEqualityComparator } from "./ObjectEqualityComparator";
 
@@ -22,7 +24,7 @@ export class FlexibleHashMap<K extends JavaObject, V> extends JavaObject impleme
 
     protected readonly comparator: EqualityComparator<K>;
 
-    protected buckets: Array<java.util.LinkedList<FlexibleHashMap.Entry<K, V>>>;
+    protected buckets: Array<java.util.LinkedList<FlexibleHashMap.Entry<K, V>> | null>;
 
     /** How many elements in set */
     protected n = 0;
@@ -45,9 +47,10 @@ export class FlexibleHashMap<K extends JavaObject, V> extends JavaObject impleme
     }
 
     private static createEntryListArray =
-        <K, V>(length: number): Array<java.util.LinkedList<FlexibleHashMap.Entry<K, V>>> => {
+        <K, V>(length: number): Array<java.util.LinkedList<FlexibleHashMap.Entry<K, V>> | null> => {
             /* @SuppressWarnings("unchecked") */
-            const result = new Array<java.util.LinkedList<FlexibleHashMap.Entry<K, V>>>(length);
+            const result = new Array<java.util.LinkedList<FlexibleHashMap.Entry<K, V>> | null>(length);
+            result.fill(null);
 
             return result;
         };
@@ -295,6 +298,6 @@ export namespace FlexibleHashMap {
         public override toString = (): java.lang.String => {
             return S`${this.key}:${this.value}`;
         };
-    };
+    }
 
 }

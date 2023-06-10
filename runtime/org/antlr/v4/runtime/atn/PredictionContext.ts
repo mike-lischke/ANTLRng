@@ -482,12 +482,9 @@ export abstract class PredictionContext extends JavaObject {
         buf.append(S`rankdir=LR;\n`);
 
         const nodes = PredictionContext.getAllContextNodes(context);
-        java.util.Collections.sort(nodes, new class extends java.lang.Object
-            implements java.util.Comparator<PredictionContext> {
-            public compare = (o1: PredictionContext, o2: PredictionContext): number => {
-                return o1.id - o2.id;
-            };
-        }());
+        java.util.Collections.sort(nodes, (o1: PredictionContext, o2: PredictionContext): number => {
+            return o1.id - o2.id;
+        });
 
         for (const current of nodes) {
             if (current instanceof SingletonPredictionContext) {
