@@ -2,6 +2,7 @@
     "version": "0.2",
     "words": [
         "antlr",
+        "ANTLRng",
         "Appendable",
         "Charsets",
         "Cloneable",
@@ -14,6 +15,7 @@
         "Mersenne",
         "misformatted",
         "nauseum",
+        "runtimes",
         "signum",
         "subclassing",
         "subfolders",

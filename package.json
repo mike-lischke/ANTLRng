@@ -1,13 +1,12 @@
 {
-    "name": "a4tstool",
+    "name": "ANTLRng",
     "version": "0.1.0",
-    "description": "ANTLR4 Typescript Port",
+    "description": "Next generation ANTLR Tool",
     "keywords": [
-        "Java",
         "Typescript",
-        "ANTLR4"
+        "ANTLR"
     ],
-    "type": "commonjs",
+    "type": "module",
     "author": "Mike Lischke",
     "license": "MIT",
     "dependencies": {
