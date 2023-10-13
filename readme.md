@@ -1,6 +1,9 @@
 [![CircleCI](https://circleci.com/gh/mike-lischke/a4tstool/tree/master.svg?style=svg)](https://circleci.com/gh/mike-lischke/a4tstool/tree/master)
 
-# **ANTLRng**
+<img src="https://raw.githubusercontent.com/mike-lischke/mike-lischke/master/images/ANTLRng2.svg" title="ANTLR Next Generation" alt="ANTLRng" width="96" height="96"/><label style="font-size: 70%">Part of the Next Generation ANTLR Project</label>
+
+
+# ANTLRng 
 
 This project is a TypeScript port of the ANTLR tool, which is written in Java. And it will not only be a simple port, but a real next-generation tool.
 
