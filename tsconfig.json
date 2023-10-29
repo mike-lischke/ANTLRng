@@ -14,10 +14,8 @@
         "strictPropertyInitialization": true,
     },
     "include": [
-        "runtime/**/*.ts",
-        "lib/**/*.ts",
-        "lib/Decorators.ts",
-        "test"
+        "tool/*.ts",
+        "tool/**/*.ts",
     ],
     "exclude": [
         "node_modules/**/*.*",

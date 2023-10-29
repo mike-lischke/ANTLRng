@@ -10,8 +10,7 @@
     "author": "Mike Lischke",
     "license": "MIT",
     "dependencies": {
-        "immutable": "4.3.0",
-        "jree": "1.2.2",
+        "antlr4ng": "1.1.7",
         "printf": "0.6.1",
         "unicode-properties": "1.4.1"
     },
@@ -30,7 +29,7 @@
         "typescript": "5.0.4"
     },
     "scripts": {
-        "build": "tsc --watch",
+        "build": "tsc",
         "lint": "eslint \"./runtime/**/*.ts\"",
         "lint:fix": "eslint \"./runtime/**/*.ts\" --fix",
         "test": "tsc"
