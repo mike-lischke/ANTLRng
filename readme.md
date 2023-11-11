@@ -1,7 +1,7 @@
 <img src="https://raw.githubusercontent.com/mike-lischke/mike-lischke/master/images/ANTLRng2.svg" title="ANTLR Next Generation" alt="ANTLRng" width="96" height="96"/><label style="font-size: 70%">Part of the Next Generation ANTLR Project</label>
 
 
-# ANTLRng 
+# ANTLRng
 
 This project is (actually: will be) a TypeScript port of the ANTLR tool, which is written in Java. And it will not only be a simple port, but a real next-generation tool. Currently this repository is rather a placeholder until important conditions are met, one of them being to have a full TypeScript runtime for the latest ANTLR4 version.
 
@@ -19,7 +19,8 @@ This project is (actually: will be) a TypeScript port of the ANTLR tool, which i
 - Rework the import feature. Allow paths for the imports and allow to override imported rules. Make diamond imports working properly.
 - Export rules as ATN network and railroad diagram SVG files.
 - Save/load state to lower cold start time.
-- Code optimisations (like converting recursions to iterations in the prediction code path).
+- Code optimizations (like converting recursions to iterations in the prediction code path).
+- Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
 - ...
 
 
