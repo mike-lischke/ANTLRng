@@ -9,7 +9,6 @@
 
 import { java, JavaObject } from "jree";
 import { Vocabulary, VocabularyImpl, ATN, ATNDeserializer, ATNSerializer, IntegerList, InterpreterDataReader } from "antlr4ng";
-import { junit } from "junit.ts";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -26,6 +25,7 @@ const Class = java.lang.Class;
 type ArrayList<E> = java.util.ArrayList<E>;
 const ArrayList = java.util.ArrayList;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 /** This file represents a simple sanity checks on the parsing of the .interp file
@@ -75,7 +75,7 @@ public  testParseFile():  void {
         let  channels = this.castList(channelsField.get(interpreterData), String.class);
         let  modes = this.castList(modesField.get(interpreterData), String.class);
 
-		org.junit.jupiter.api.Assert.assertEquals(6, vocabulary.getMaxTokenType());
+		assertEquals(6, vocabulary.getMaxTokenType());
 		assertArrayEquals( ["s","expr"], ruleNames.toArray());
 		assertArrayEquals( ["", "", "'*'", "'/'", "'+'", "'-'", ""], literalNames);
 		assertArrayEquals( ["", "INT", "MUL", "DIV", "ADD", "SUB", "WS"], symbolicNames);
@@ -83,7 +83,7 @@ public  testParseFile():  void {
 		assertNull(modes);
 
 		let  serialized = ATNSerializer.getSerialized(atn);
-		org.junit.jupiter.api.Assert.assertEquals(ATNDeserializer.SERIALIZED_VERSION, serialized.get(0));
+		assertEquals(ATNDeserializer.SERIALIZED_VERSION, serialized.get(0));
     }
 
     private  castList <T>(obj: java.lang.Object, clazz: Class<T>):  List<T> {

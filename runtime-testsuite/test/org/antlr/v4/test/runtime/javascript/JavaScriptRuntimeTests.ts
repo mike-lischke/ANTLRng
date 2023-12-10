@@ -11,6 +11,7 @@ import { NodeRunner } from "./NodeRunner";
 import { RuntimeRunner } from "../RuntimeRunner";
 import { RuntimeTests } from "../RuntimeTests";
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class JavaScriptRuntimeTests extends RuntimeTests {

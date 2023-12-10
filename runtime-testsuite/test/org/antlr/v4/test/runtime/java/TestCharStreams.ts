@@ -9,7 +9,6 @@
 
 import { java, JavaObject, closeResources, handleResourceError, throwResourceError, type byte } from "jree";
 import { CharStream, CharStreams } from "antlr4ng";
-import { junit } from "junit.ts";
 
 type Path = java.nio.file.Path;
 type File = java.io.File;
@@ -30,24 +29,25 @@ const Reader = java.io.Reader;
 type Charset = java.nio.charset.Charset;
 const Charset = java.nio.charset.Charset;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class TestCharStreams extends JavaObject {
 	@Test
 public  fromBMPStringHasExpectedSize():  void {
 		let  s = CharStreams.fromString("hello");
-		org.junit.jupiter.api.Assert.assertEquals(5, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello", s.toString());
+		assertEquals(5, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello", s.toString());
 	}
 
 	@Test
 public  fromSMPStringHasExpectedSize():  void {
 		let  s = CharStreams.fromString(
 				"hello \uD83C\uDF0E");
-		org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
+		assertEquals(7, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello \uD83C\uDF0E", s.toString());
 	}
 
 	@Test
@@ -55,10 +55,10 @@ public  fromBMPUTF8PathHasExpectedSize(/* @TempDir */  tempDir: Path):  void {
 		let  test = new  File(tempDir.toString(), "test").toPath();
 		Files.write(test, "hello".getBytes(StandardCharsets.UTF_8));
 		let  s = CharStreams.fromPath(test);
-		org.junit.jupiter.api.Assert.assertEquals(5, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello", s.toString());
-		org.junit.jupiter.api.Assert.assertEquals(test.toString(), s.getSourceName());
+		assertEquals(5, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello", s.toString());
+		assertEquals(test.toString(), s.getSourceName());
 	}
 
 	@Test
@@ -66,10 +66,10 @@ public  fromSMPUTF8PathHasExpectedSize(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(StandardCharsets.UTF_8));
 		let  s = CharStreams.fromPath(p);
-		org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
-		org.junit.jupiter.api.Assert.assertEquals(p.toString(), s.getSourceName());
+		assertEquals(7, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello \uD83C\uDF0E", s.toString());
+		assertEquals(p.toString(), s.getSourceName());
 	}
 
 	@Test
@@ -84,9 +84,9 @@ let error: java.lang.Throwable | undefined;
 try {
 	try  {
 			let  s = CharStreams.fromStream(CharStreams.fromStream.is);
-			org.junit.jupiter.api.Assert.assertEquals(5, s.size());
-			org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-			org.junit.jupiter.api.Assert.assertEquals("hello", s.toString());
+			assertEquals(5, s.size());
+			assertEquals(0, s.index());
+			assertEquals("hello", s.toString());
 		}
 	finally {
 	error = closeResources([is]);
@@ -112,9 +112,9 @@ let error: java.lang.Throwable | undefined;
 try {
 	try  {
 			let  s = CharStreams.fromStream(CharStreams.fromStream.is);
-			org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-			org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-			org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
+			assertEquals(7, s.size());
+			assertEquals(0, s.index());
+			assertEquals("hello \uD83C\uDF0E", s.toString());
 		}
 	finally {
 	error = closeResources([is]);
@@ -141,10 +141,10 @@ try {
 	try  {
 			let  s = CharStreams.fromChannel(
 					c, 4096, CodingErrorAction.REPLACE, "foo");
-			org.junit.jupiter.api.Assert.assertEquals(5, s.size());
-			org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-			org.junit.jupiter.api.Assert.assertEquals("hello", s.toString());
-			org.junit.jupiter.api.Assert.assertEquals("foo", s.getSourceName());
+			assertEquals(5, s.size());
+			assertEquals(0, s.index());
+			assertEquals("hello", s.toString());
+			assertEquals("foo", s.getSourceName());
 		}
 	finally {
 	error = closeResources([c]);
@@ -171,10 +171,10 @@ try {
 	try  {
 			let  s = CharStreams.fromChannel(
 					c, 4096, CodingErrorAction.REPLACE, "foo");
-			org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-			org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-			org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
-			org.junit.jupiter.api.Assert.assertEquals("foo", s.getSourceName());
+			assertEquals(7, s.size());
+			assertEquals(0, s.index());
+			assertEquals("hello \uD83C\uDF0E", s.toString());
+			assertEquals("foo", s.getSourceName());
 		}
 	finally {
 	error = closeResources([c]);
@@ -202,9 +202,9 @@ try {
 	try  {
 			let  s = CharStreams.fromChannel(
 					c, 4096, CodingErrorAction.REPLACE, "foo");
-			org.junit.jupiter.api.Assert.assertEquals(4, s.size());
-			org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-			org.junit.jupiter.api.Assert.assertEquals("\uFFFD\uFFFD\uFFFD\uFFFD", s.toString());
+			assertEquals(4, s.size());
+			assertEquals(0, s.index());
+			assertEquals("\uFFFD\uFFFD\uFFFD\uFFFD", s.toString());
 		}
 	finally {
 	error = closeResources([c]);
@@ -265,9 +265,9 @@ try {
 					8,
 					CodingErrorAction.REPLACE,
 					"foo");
-			org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-			org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-			org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
+			assertEquals(7, s.size());
+			assertEquals(0, s.index());
+			assertEquals("hello \uD83C\uDF0E", s.toString());
 		}
 	finally {
 	error = closeResources([c]);
@@ -286,10 +286,10 @@ public  fromFileName(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(StandardCharsets.UTF_8));
 		let  s = CharStreams.fromFileName(p.toString());
-		org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
-		org.junit.jupiter.api.Assert.assertEquals(p.toString(), s.getSourceName());
+		assertEquals(7, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello \uD83C\uDF0E", s.toString());
+		assertEquals(p.toString(), s.getSourceName());
 
 	}
 
@@ -298,10 +298,10 @@ public  fromFileNameWithLatin1(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \u00CA\u00FE".getBytes(StandardCharsets.ISO_8859_1));
 		let  s = CharStreams.fromFileName(p.toString(), StandardCharsets.ISO_8859_1);
-		org.junit.jupiter.api.Assert.assertEquals(8, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello \u00CA\u00FE", s.toString());
-		org.junit.jupiter.api.Assert.assertEquals(p.toString(), s.getSourceName());
+		assertEquals(8, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello \u00CA\u00FE", s.toString());
+		assertEquals(p.toString(), s.getSourceName());
 	}
 
 	@Test
@@ -316,9 +316,9 @@ let error: java.lang.Throwable | undefined;
 try {
 	try  {
 			let  s = CharStreams.fromReader(CharStreams.fromReader.r);
-			org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-			org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-			org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
+			assertEquals(7, s.size());
+			assertEquals(0, s.index());
+			assertEquals("hello \uD83C\uDF0E", s.toString());
 		}
 	finally {
 	error = closeResources([r]);
@@ -337,10 +337,10 @@ public  fromSMPUTF16LEPathSMPHasExpectedSize(/* @TempDir */  tempDir: Path):  vo
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(StandardCharsets.UTF_16LE));
 		let  s = CharStreams.fromPath(p, StandardCharsets.UTF_16LE);
-		org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
-		org.junit.jupiter.api.Assert.assertEquals(p.toString(), s.getSourceName());
+		assertEquals(7, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello \uD83C\uDF0E", s.toString());
+		assertEquals(p.toString(), s.getSourceName());
 	}
 
 	@Test
@@ -350,10 +350,10 @@ public  fromSMPUTF32LEPathSMPHasExpectedSize(/* @TempDir */  tempDir: Path):  vo
 		let  c = Charset.forName("UTF-32LE");
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(c));
 		let  s = CharStreams.fromPath(p, c);
-		org.junit.jupiter.api.Assert.assertEquals(7, s.size());
-		org.junit.jupiter.api.Assert.assertEquals(0, s.index());
-		org.junit.jupiter.api.Assert.assertEquals("hello \uD83C\uDF0E", s.toString());
-		org.junit.jupiter.api.Assert.assertEquals(p.toString(), s.getSourceName());
+		assertEquals(7, s.size());
+		assertEquals(0, s.index());
+		assertEquals("hello \uD83C\uDF0E", s.toString());
+		assertEquals(p.toString(), s.getSourceName());
 	}
 
 	private  getTestFile(dir: Path):  Path {

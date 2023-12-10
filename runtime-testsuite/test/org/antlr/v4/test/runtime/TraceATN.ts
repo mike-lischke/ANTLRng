@@ -11,6 +11,7 @@ import { FileUtils } from "./FileUtils";
 import { PredictionMode } from "antlr4ng";
 import { JavaRunner } from "./java/JavaRunner";
 import { ExecutedState } from "./states/ExecutedState";
+import { assertEquals, assertThrows } from "../../../../../../junit.js";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -23,6 +24,7 @@ const Paths = java.nio.file.Paths;
 type Class<T> = java.lang.Class<T>;
 const Class = java.lang.Class;
 
+import { Test, Override } from "../../../../../../decorators.js";
 
 
 /** Run a lexer/parser and dump ATN debug/trace information

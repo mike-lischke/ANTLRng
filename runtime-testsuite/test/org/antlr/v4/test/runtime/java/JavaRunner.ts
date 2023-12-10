@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+
+
 import { java, type int, JavaObject, S } from "jree";
 import { ParserRuleContext, Parser, Lexer, DiagnosticErrorListener, CommonTokenStream, ParserATNSimulator, ProfilingATNSimulator, ParseTree, ParseTreeWalker } from "antlr4ng";
 import { StreamReader } from "../StreamReader";
@@ -48,264 +50,270 @@ const Method = java.lang.reflect.Method;
 type NoSuchMethodException = java.lang.NoSuchMethodException;
 const NoSuchMethodException = java.lang.NoSuchMethodException;
 
-export class JavaRunner extends RuntimeRunner {
+import { Test, Override } from "../../../../../../../decorators.js";
 
-    public static readonly classPath = System.getProperty("java.class.path");
 
-    public static readonly runtimeTestLexerName = "org.antlr.v4.test.runtime.java.helpers.RuntimeTestLexer";
-    public static readonly runtimeTestParserName = "org.antlr.v4.test.runtime.java.helpers.RuntimeTestParser";
+export  class JavaRunner extends RuntimeRunner {
 
-    public static readonly runtimeHelpersPath = Paths.get(RuntimeTestUtils.runtimeTestsuitePath.toString(),
-        "test", "org", "antlr", "v4", "test", "runtime", "java", "helpers").toString();
+	public static readonly  classPath = System.getProperty("java.class.path");
 
-    public static InMemoryStreamHelper = class InMemoryStreamHelper extends JavaObject {
-        private readonly pipedOutputStream;
-        private readonly streamReader;
+	public static readonly  runtimeTestLexerName = "org.antlr.v4.test.runtime.java.helpers.RuntimeTestLexer";
+	public static readonly  runtimeTestParserName = "org.antlr.v4.test.runtime.java.helpers.RuntimeTestParser";
 
-        private constructor(pipedOutputStream: java.io.PipedOutputStream, streamReader: StreamReader) {
-            super();
-            this.pipedOutputStream = pipedOutputStream;
-            this.streamReader = streamReader;
-        }
+	public static readonly  runtimeHelpersPath = Paths.get(RuntimeTestUtils.runtimeTestsuitePath.toString(),
+		"test", "org", "antlr", "v4", "test", "runtime", "java", "helpers").toString();
 
-        public static initialize(): InMemoryStreamHelper {
-            const pipedInputStream = new java.io.PipedInputStream();
-            const pipedOutputStream = new java.io.PipedOutputStream(pipedInputStream);
-            const stdoutReader = new StreamReader(pipedInputStream);
-            stdoutReader.start();
+	public static InMemoryStreamHelper =  class InMemoryStreamHelper extends JavaObject {
+		private readonly  pipedOutputStream;
+		private readonly  streamReader;
 
-            return new InMemoryStreamHelper(pipedOutputStream, stdoutReader);
-        }
+		private  constructor(pipedOutputStream: java.io.PipedOutputStream, streamReader: StreamReader) {
+			super();
+this.pipedOutputStream = pipedOutputStream;
+			this.streamReader = streamReader;
+		}
 
-        public override  close(): String {
-            this.pipedOutputStream.close();
-            this.streamReader.join();
+		public static  initialize():  InMemoryStreamHelper {
+			let  pipedInputStream = new  java.io.PipedInputStream();
+			let  pipedOutputStream = new  java.io.PipedOutputStream(pipedInputStream);
+			let  stdoutReader = new  StreamReader(pipedInputStream);
+			stdoutReader.start();
+			return new  InMemoryStreamHelper(pipedOutputStream, stdoutReader);
+		}
 
-            return this.streamReader.toString();
-        }
-    };
+		public override  close():  String {
+			this.pipedOutputStream.close();
+			this.streamReader.join();
+			return this.streamReader.toString();
+		}
+	};
 
-    private static compiler;
 
-    private static readonly DiagnosticErrorListenerInstance = new DiagnosticErrorListener();
+	private static  compiler;
 
-    public constructor();
+	private static readonly  DiagnosticErrorListenerInstance = new  DiagnosticErrorListener();
 
-    public constructor(tempDir: Path, saveTestDir: boolean);
+	public  constructor();
+
+	public  constructor(tempDir: Path, saveTestDir: boolean);
     public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 0: {
+		switch (args.length) {
+			case 0: {
 
-                super();
+		super();
+	
 
-                break;
-            }
+				break;
+			}
 
-            case 2: {
-                const [tempDir, saveTestDir] = args as [Path, boolean];
+			case 2: {
+				const [tempDir, saveTestDir] = args as [Path, boolean];
 
-                super(tempDir, saveTestDir);
 
-                break;
-            }
+		super(tempDir, saveTestDir);
+	
 
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
-    }
+				break;
+			}
 
-    @Override
-    public override  getLanguage(): String {
-        return "Java";
-    }
+			default: {
+				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+			}
+		}
+	}
 
-    @Override
-    protected override  initRuntime(runOptions: RunOptions): void {
-        JavaRunner.compiler = java.util.spi.ToolProvider.getSystemJavaCompiler();
-    }
+	@Override
+public override  getLanguage():  String {
+		return "Java";
+	}
 
-    @Override
-    protected override  getCompilerName(): String {
-        return "javac";
-    }
+	@Override
+protected override  initRuntime(runOptions: RunOptions):  void {
+		JavaRunner.compiler = java.util.spi.ToolProvider.getSystemJavaCompiler();
+	}
 
-    @Override
-    protected override  writeInputFile(runOptions: RunOptions): void { }
+	@Override
+protected override  getCompilerName():  String {
+		return "javac";
+	}
 
-    @Override
-    protected override  writeRecognizerFile(runOptions: RunOptions): void { }
+	@Override
+protected override  writeInputFile(runOptions: RunOptions):  void {}
 
-    @Override
-    protected override  compile(runOptions: RunOptions, generatedState: GeneratedState): JavaCompiledState {
-        const tempTestDir = this.getTempDirPath();
+	@Override
+protected override  writeRecognizerFile(runOptions: RunOptions):  void {}
 
-        const generatedFiles = generatedState.generatedFiles;
-        const firstFile = generatedFiles.get(0);
+	@Override
+protected override  compile(runOptions: RunOptions, generatedState: GeneratedState):  JavaCompiledState {
+		let  tempTestDir = this.getTempDirPath();
 
-        if (!firstFile.isParser) {
-            try {
-                // superClass for combined grammar generates the same extends base class for Lexer and Parser
-                // So, for lexer it should be replaced on correct base lexer class
-                FileUtils.replaceInFile(Paths.get(this.getTempDirPath(), firstFile.name),
-                    "extends " + JavaRunner.runtimeTestParserName + " {",
-                    "extends " + JavaRunner.runtimeTestLexerName + " {");
-            } catch (e) {
-                if (e instanceof java.io.IOException) {
-                    return new JavaCompiledState(generatedState, null, null, null, e);
-                } else {
-                    throw e;
-                }
-            }
-        }
+		let  generatedFiles = generatedState.generatedFiles;
+		let  firstFile = generatedFiles.get(0);
 
-        let loader = null;
-        let lexer = null;
-        let parser = null;
-        let exception = null;
+		if (!firstFile.isParser) {
+			try {
+				// superClass for combined grammar generates the same extends base class for Lexer and Parser
+				// So, for lexer it should be replaced on correct base lexer class
+				FileUtils.replaceInFile(Paths.get(this.getTempDirPath(), firstFile.name),
+						"extends " + JavaRunner.runtimeTestParserName + " {",
+						"extends " + JavaRunner.runtimeTestLexerName + " {");
+			} catch (e) {
+if (e instanceof java.io.IOException) {
+				return new  JavaCompiledState(generatedState, null, null, null, e);
+			} else {
+	throw e;
+	}
+}
+		}
 
-        try {
-            const fileManager = JavaRunner.compiler.getStandardFileManager(null, null, null);
+		let  loader = null;
+		let  lexer = null;
+		let  parser = null;
+		let  exception = null;
 
-            const systemClassLoader = ClassLoader.getSystemClassLoader();
+		try {
+			let  fileManager = JavaRunner.compiler.getStandardFileManager(null, null, null);
 
-            const files = new ArrayList();
-            if (runOptions.lexerName !== null) {
-                files.add(new java.io.File(tempTestDir, runOptions.lexerName + ".java"));
-            }
-            if (runOptions.parserName !== null) {
-                files.add(new java.io.File(tempTestDir, runOptions.parserName + ".java"));
-            }
+			let  systemClassLoader = ClassLoader.getSystemClassLoader();
 
-            const compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
+			let  files = new  ArrayList();
+			if (runOptions.lexerName !== null) {
+				files.add(new  java.io.File(tempTestDir, runOptions.lexerName + ".java"));
+			}
+			if (runOptions.parserName !== null) {
+				files.add(new  java.io.File(tempTestDir, runOptions.parserName + ".java"));
+			}
 
-            const compileOptions =
-                Arrays.asList("-g", "-source", "1.8", "-target", "1.8", "-implicit:class", "-Xlint:-options", "-d",
-                    tempTestDir, "-cp", tempTestDir + RuntimeTestUtils.PathSeparator + JavaRunner.runtimeHelpersPath + RuntimeTestUtils.PathSeparator + JavaRunner.classPath);
+			let  compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
 
-            const task =
-                JavaRunner.compiler.getTask(null, fileManager, null, compileOptions, null,
-                    compilationUnits);
-            task.call();
+			let  compileOptions =
+					Arrays.asList("-g", "-source", "1.8", "-target", "1.8", "-implicit:class", "-Xlint:-options", "-d",
+							tempTestDir, "-cp", tempTestDir + RuntimeTestUtils.PathSeparator + JavaRunner.runtimeHelpersPath + RuntimeTestUtils.PathSeparator + JavaRunner.classPath);
 
-            loader = new URLClassLoader([new java.io.File(tempTestDir).toURI().toURL()], systemClassLoader);
-            if (runOptions.lexerName !== null) {
-                lexer = loader.loadClass(runOptions.lexerName).asSubclass(Lexer.class);
-            }
-            if (runOptions.parserName !== null) {
-                parser = loader.loadClass(runOptions.parserName).asSubclass(Parser.class);
-            }
-        } catch (ex) {
-            if (ex instanceof Exception) {
-                exception = ex;
-            } else {
-                throw ex;
-            }
-        }
+			let  task =
+					JavaRunner.compiler.getTask(null, fileManager, null, compileOptions, null,
+							compilationUnits);
+			task.call();
 
-        return new JavaCompiledState(generatedState, loader, lexer, parser, exception);
-    }
+			loader = new  URLClassLoader( [new  java.io.File(tempTestDir).toURI().toURL()], systemClassLoader);
+			if (runOptions.lexerName !== null) {
+				lexer = loader.loadClass(runOptions.lexerName).asSubclass(Lexer.class);
+			}
+			if (runOptions.parserName !== null) {
+				parser = loader.loadClass(runOptions.parserName).asSubclass(Parser.class);
+			}
+		} catch (ex) {
+if (ex instanceof Exception) {
+			exception = ex;
+		} else {
+	throw ex;
+	}
+}
 
-    @Override
-    protected override  execute(runOptions: RunOptions, compiledState: CompiledState): ExecutedState {
-        const javaCompiledState = compiledState as JavaCompiledState;
-        let output = null;
-        let errors = null;
-        let parseTree = null;
-        let exception = null;
+		return new  JavaCompiledState(generatedState, loader, lexer, parser, exception);
+	}
 
-        try {
-            const outputStreamHelper = JavaRunner.InMemoryStreamHelper.initialize();
-            const errorsStreamHelper = JavaRunner.InMemoryStreamHelper.initialize();
+	@Override
+protected override  execute(runOptions: RunOptions, compiledState: CompiledState):  ExecutedState {
+		let  javaCompiledState =  compiledState as JavaCompiledState;
+		let  output = null;
+		let  errors = null;
+		let  parseTree = null;
+		let  exception = null;
 
-            const outStream = new java.io.PrintStream(outputStreamHelper.pipedOutputStream);
-            const errorListener = new CustomStreamErrorListener(new java.io.PrintStream(errorsStreamHelper.pipedOutputStream));
+		try {
+			let  outputStreamHelper = JavaRunner.InMemoryStreamHelper.initialize();
+			let  errorsStreamHelper = JavaRunner.InMemoryStreamHelper.initialize();
 
-            let tokenStream;
-            let lexer;
-            if (runOptions.lexerName !== null) {
-                lexer = javaCompiledState.initializeLexer(runOptions.input) as RuntimeTestLexer;
-                lexer.setOutStream(outStream);
-                lexer.removeErrorListeners();
-                lexer.addErrorListener(errorListener);
-                tokenStream = new CommonTokenStream(lexer);
-            } else {
-                lexer = null;
-                tokenStream = null;
-            }
+			let  outStream = new  java.io.PrintStream(outputStreamHelper.pipedOutputStream);
+			let  errorListener = new  CustomStreamErrorListener(new  java.io.PrintStream(errorsStreamHelper.pipedOutputStream));
 
-            if (runOptions.parserName !== null) {
-                const parser = javaCompiledState.initializeParser(tokenStream) as RuntimeTestParser;
-                parser.setOutStream(outStream);
-                parser.removeErrorListeners();
-                parser.addErrorListener(errorListener);
+			let  tokenStream;
+			let  lexer;
+			if (runOptions.lexerName !== null) {
+				lexer =  javaCompiledState.initializeLexer(runOptions.input) as RuntimeTestLexer;
+				lexer.setOutStream(outStream);
+				lexer.removeErrorListeners();
+				lexer.addErrorListener(errorListener);
+				tokenStream = new  CommonTokenStream(lexer);
+			} else {
+				lexer = null;
+				tokenStream = null;
+			}
 
-                if (runOptions.showDiagnosticErrors) {
-                    parser.addErrorListener(JavaRunner.DiagnosticErrorListenerInstance);
-                }
+			if (runOptions.parserName !== null) {
+				let  parser =  javaCompiledState.initializeParser(tokenStream) as RuntimeTestParser;
+				parser.setOutStream(outStream);
+				parser.removeErrorListeners();
+				parser.addErrorListener(errorListener);
 
-                if (runOptions.traceATN) {
-                    // Setting trace_atn_sim isn't thread-safe,
-                    // But it's used only in helper TraceATN that is not integrated into tests infrastructure
-                    ParserATNSimulator.trace_atn_sim = true;
-                }
+				if (runOptions.showDiagnosticErrors) {
+					parser.addErrorListener(JavaRunner.DiagnosticErrorListenerInstance);
+				}
 
-                let profiler = null;
-                if (runOptions.profile) {
-                    profiler = new ProfilingATNSimulator(parser);
-                    parser.setInterpreter(profiler);
-                }
-                parser.getInterpreter().setPredictionMode(runOptions.predictionMode);
-                parser.setBuildParseTree(runOptions.buildParseTree);
+				if (runOptions.traceATN) {
+					// Setting trace_atn_sim isn't thread-safe,
+					// But it's used only in helper TraceATN that is not integrated into tests infrastructure
+					ParserATNSimulator.trace_atn_sim = true;
+				}
 
-                let startRule;
-                let args = null;
-                try {
-                    startRule = javaCompiledState.parser.getMethod(runOptions.startRuleName);
-                } catch (noSuchMethodException) {
-                    if (noSuchMethodException instanceof NoSuchMethodException) {
-                        // try with int _p arg for recursive func
-                        startRule = javaCompiledState.parser.getMethod(runOptions.startRuleName, int.class);
-                        args = [0];
-                    } else {
-                        throw noSuchMethodException;
-                    }
-                }
+				let  profiler = null;
+				if (runOptions.profile) {
+					profiler = new  ProfilingATNSimulator(parser);
+					parser.setInterpreter(profiler);
+				}
+				parser.getInterpreter().setPredictionMode(runOptions.predictionMode);
+				parser.setBuildParseTree(runOptions.buildParseTree);
 
-                parseTree = startRule.invoke(parser, args) as ParserRuleContext;
+				let  startRule;
+				let  args = null;
+				try {
+					startRule = javaCompiledState.parser.getMethod(runOptions.startRuleName);
+				} catch (noSuchMethodException) {
+if (noSuchMethodException instanceof NoSuchMethodException) {
+					// try with int _p arg for recursive func
+					startRule = javaCompiledState.parser.getMethod(runOptions.startRuleName, int.class);
+					args =  [0];
+				} else {
+	throw noSuchMethodException;
+	}
+}
 
-                if (runOptions.profile) {
-                    outStream.println(Arrays.toString(profiler.getDecisionInfo()));
-                }
+				parseTree =  startRule.invoke(parser, args) as ParserRuleContext;
 
-                ParseTreeWalker.DEFAULT.walk(TreeShapeListener.INSTANCE, parseTree);
-            }
-            else {
-                /* assert tokenStream != null; */
-                tokenStream.fill();
-                for (const t of tokenStream.getTokens()) {
-                    outStream.println(t);
-                }
-                if (runOptions.showDFA) {
-                    outStream.print(lexer.getInterpreter().getDFA(Lexer.DEFAULT_MODE).toLexerString());
-                }
-            }
+				if (runOptions.profile) {
+					outStream.println(Arrays.toString(profiler.getDecisionInfo()));
+				}
 
-            output = outputStreamHelper.close();
-            errors = errorsStreamHelper.close();
-        } catch (ex) {
-            if (ex instanceof Exception) {
-                exception = ex;
-            } else {
-                throw ex;
-            }
-        }
+				ParseTreeWalker.DEFAULT.walk(TreeShapeListener.INSTANCE, parseTree);
+			}
+			else {
+				/* assert tokenStream != null; */ 
+				tokenStream.fill();
+				for (let t of tokenStream.getTokens()) {
+					outStream.println(t);
+				}
+				if (runOptions.showDFA) {
+					outStream.print(lexer.getInterpreter().getDFA(Lexer.DEFAULT_MODE).toLexerString());
+				}
+			}
 
-        return new JavaExecutedState(javaCompiledState, output, errors, parseTree, exception);
-    }
+			output = outputStreamHelper.close();
+			errors = errorsStreamHelper.close();
+		} catch (ex) {
+if (ex instanceof Exception) {
+			exception = ex;
+		} else {
+	throw ex;
+	}
+}
+		return new  JavaExecutedState(javaCompiledState, output, errors, parseTree, exception);
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace JavaRunner {
-    export type InMemoryStreamHelper = InstanceType<typeof JavaRunner.InMemoryStreamHelper>;
+	export type InMemoryStreamHelper = InstanceType<typeof JavaRunner.InMemoryStreamHelper>;
 }
+
+

@@ -23,6 +23,7 @@ const Paths = java.nio.file.Paths;
 type IOException = java.io.IOException;
 const IOException = java.io.IOException;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class NodeRunner extends RuntimeRunner {

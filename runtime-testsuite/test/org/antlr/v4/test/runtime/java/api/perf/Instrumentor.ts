@@ -13,6 +13,7 @@ type Instrumentation = java.lang.instrument.Instrumentation;
 type String = java.lang.String;
 const String = java.lang.String;
 
+import { Test, Override } from "../../../../../../../../../decorators.js";
 
 
 /** Just a hook so we can call {@link java.lang.instrument.Instrumentation}

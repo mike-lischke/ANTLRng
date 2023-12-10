@@ -12,6 +12,7 @@ import { Python3Runner } from "./Python3Runner";
 import { RuntimeTests } from "../RuntimeTests";
 import { RuntimeRunner } from "../RuntimeRunner";
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class Python3RuntimeTests extends RuntimeTests {

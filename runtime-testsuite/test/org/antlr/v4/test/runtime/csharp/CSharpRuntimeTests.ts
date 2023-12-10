@@ -12,6 +12,7 @@ import { CSharpRunner } from "./CSharpRunner";
 import { RuntimeTests } from "../RuntimeTests";
 import { RuntimeRunner } from "../RuntimeRunner";
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class CSharpRuntimeTests extends RuntimeTests {

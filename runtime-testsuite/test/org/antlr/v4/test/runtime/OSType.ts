@@ -10,6 +10,7 @@ import { java, S } from "jree";
 type Enum<E extends Enum<E>> = java.lang.Enum<E extends Enum<E>>;
 const Enum = java.lang.Enum;
 
+import { Test, Override } from "../../../../../../decorators.js";
  class  OSType extends java.lang.Enum<OSType> {
 	public static readonly Windows: OSType = new class extends OSType {
 }(S`Windows`, 0);

@@ -4,12 +4,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+
+
 import { java, JavaObject, type int } from "jree";
-import {
-    ANTLRInputStream, BaseErrorListener, CommonTokenStream, RecognitionException, Recognizer,
-    AbstractParseTreeVisitor, ErrorNode, RuleNode, TerminalNode,
-} from "antlr4ng";
-import { junit } from "junit.ts";
+import { ANTLRInputStream, BaseErrorListener, CommonTokenStream, RecognitionException, Recognizer, AbstractParseTreeVisitor, ErrorNode, RuleNode, TerminalNode } from "antlr4ng";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -21,220 +19,223 @@ const RuntimeException = java.lang.RuntimeException;
 type Integer = java.lang.Integer;
 const Integer = java.lang.Integer;
 
-export class TestVisitors extends JavaObject {
+import { Test, Override } from "../../../../../../../../decorators.js";
 
-    /**
-     * This test verifies the basic behavior of visitors, with an emphasis on
-     * {@link AbstractParseTreeVisitor#visitTerminal}.
-     */
-    @Test
-    public testVisitTerminalNode(): void {
-        const input = "A";
-        const lexer = new VisitorBasicLexer(new ANTLRInputStream(input));
-        const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
 
-        const context = parser.s();
-        org.junit.jupiter.api.Assert.assertEquals("(s A <EOF>)", context.toStringTree(parser));
+export  class TestVisitors extends JavaObject {
 
-        const listener = new class extends VisitorBasicBaseVisitor<String> {
-            @Override
-            public visitTerminal(node: TerminalNode): String {
-                return node.getSymbol().toString() + "\n";
-            }
+	/**
+	 * This test verifies the basic behavior of visitors, with an emphasis on
+	 * {@link AbstractParseTreeVisitor#visitTerminal}.
+	 */
+	@Test
+public  testVisitTerminalNode():  void {
+		let  input = "A";
+		let  lexer = new  VisitorBasicLexer(new  ANTLRInputStream(input));
+		let  parser = new  VisitorBasicParser(new  CommonTokenStream(lexer));
 
-            @Override
-            protected defaultResult(): String {
-                return "";
-            }
+		let  context = parser.s();
+		assertEquals("(s A <EOF>)", context.toStringTree(parser));
 
-            @Override
-            protected aggregateResult(aggregate: String, nextResult: String): String {
-                return aggregate + nextResult;
-            }
-        }();
+		let  listener = new  class extends VisitorBasicBaseVisitor<String> {
+			@Override
+public  visitTerminal(node: TerminalNode):  String {
+				return node.getSymbol().toString() + "\n";
+			}
 
-        const result = listener.visit(context);
-        const expected =
-            "[@0,0:0='A',<1>,1:0]\n" +
-            "[@1,1:0='<EOF>',<-1>,1:1]\n";
-        org.junit.jupiter.api.Assert.assertEquals(expected, result);
-    }
+			@Override
+protected  defaultResult():  String {
+				return "";
+			}
 
-    /**
-     * This test verifies the basic behavior of visitors, with an emphasis on
-     * {@link AbstractParseTreeVisitor#visitErrorNode}.
-     */
-    @Test
-    public testVisitErrorNode(): void {
-        const input = "";
-        const lexer = new VisitorBasicLexer(new ANTLRInputStream(input));
-        const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
+			@Override
+protected  aggregateResult(aggregate: String, nextResult: String):  String {
+				return aggregate + nextResult;
+			}
+		}();
 
-        const errors = new ArrayList();
-        parser.removeErrorListeners();
-        parser.addErrorListener(new class extends BaseErrorListener {
-            @Override
-            public syntaxError(recognizer: Recognizer<unknown, unknown>, offendingSymbol: java.lang.Object, line: int, charPositionInLine: int, msg: String, e: RecognitionException): void {
-                errors.add("line " + line + ":" + charPositionInLine + " " + msg);
-            }
-        }());
+		let  result = listener.visit(context);
+		let  expected =
+			"[@0,0:0='A',<1>,1:0]\n" +
+			"[@1,1:0='<EOF>',<-1>,1:1]\n";
+		assertEquals(expected, result);
+	}
 
-        const context = parser.s();
-        org.junit.jupiter.api.Assert.assertEquals("(s <missing 'A'> <EOF>)", context.toStringTree(parser));
-        org.junit.jupiter.api.Assert.assertEquals(1, errors.size());
-        org.junit.jupiter.api.Assert.assertEquals("line 1:0 missing 'A' at '<EOF>'", errors.get(0));
+	/**
+	 * This test verifies the basic behavior of visitors, with an emphasis on
+	 * {@link AbstractParseTreeVisitor#visitErrorNode}.
+	 */
+	@Test
+public  testVisitErrorNode():  void {
+		let  input = "";
+		let  lexer = new  VisitorBasicLexer(new  ANTLRInputStream(input));
+		let  parser = new  VisitorBasicParser(new  CommonTokenStream(lexer));
 
-        const listener = new class extends VisitorBasicBaseVisitor<String> {
-            @Override
-            public visitErrorNode(node: ErrorNode): String {
-                return "Error encountered: " + node.getSymbol();
-            }
+		 let  errors = new  ArrayList();
+		parser.removeErrorListeners();
+		parser.addErrorListener(new  class extends BaseErrorListener {
+			@Override
+public  syntaxError(recognizer: Recognizer<unknown, unknown>, offendingSymbol: java.lang.Object, line: int, charPositionInLine: int, msg: String, e: RecognitionException):  void {
+				errors.add("line " + line + ":" + charPositionInLine + " " + msg);
+			}
+		}());
 
-            @Override
-            protected defaultResult(): String {
-                return "";
-            }
+		let  context = parser.s();
+		assertEquals("(s <missing 'A'> <EOF>)", context.toStringTree(parser));
+		assertEquals(1, errors.size());
+		assertEquals("line 1:0 missing 'A' at '<EOF>'", errors.get(0));
 
-            @Override
-            protected aggregateResult(aggregate: String, nextResult: String): String {
-                return aggregate + nextResult;
-            }
-        }();
+		let  listener = new  class extends VisitorBasicBaseVisitor<String> {
+			@Override
+public  visitErrorNode(node: ErrorNode):  String {
+				return "Error encountered: " + node.getSymbol();
+			}
 
-        const result = listener.visit(context);
-        const expected = "Error encountered: [@-1,-1:-1='<missing 'A'>',<1>,1:0]";
-        org.junit.jupiter.api.Assert.assertEquals(expected, result);
-    }
+			@Override
+protected  defaultResult():  String {
+				return "";
+			}
 
-    /**
-     * This test verifies that {@link AbstractParseTreeVisitor#visitChildren} does not call
-     * {@link org.antlr.v4.runtime.tree.ParseTreeVisitor#visit} after
-     * {@link org.antlr.v4.runtime.tree.AbstractParseTreeVisitor#shouldVisitNextChild} returns
-     * {@code false}.
-     */
-    @Test
-    public testShouldNotVisitEOF(): void {
-        const input = "A";
-        const lexer = new VisitorBasicLexer(new ANTLRInputStream(input));
-        const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
+			@Override
+protected  aggregateResult(aggregate: String, nextResult: String):  String {
+				return aggregate + nextResult;
+			}
+		}();
 
-        const context = parser.s();
-        org.junit.jupiter.api.Assert.assertEquals("(s A <EOF>)", context.toStringTree(parser));
+		let  result = listener.visit(context);
+		let  expected = "Error encountered: [@-1,-1:-1='<missing 'A'>',<1>,1:0]";
+		assertEquals(expected, result);
+	}
 
-        const listener = new class extends VisitorBasicBaseVisitor<String> {
-            @Override
-            public visitTerminal(node: TerminalNode): String {
-                return node.getSymbol().toString() + "\n";
-            }
+	/**
+	 * This test verifies that {@link AbstractParseTreeVisitor#visitChildren} does not call
+	 * {@link org.antlr.v4.runtime.tree.ParseTreeVisitor#visit} after
+	 * {@link org.antlr.v4.runtime.tree.AbstractParseTreeVisitor#shouldVisitNextChild} returns
+	 * {@code false}.
+	 */
+	@Test
+public  testShouldNotVisitEOF():  void {
+		let  input = "A";
+		let  lexer = new  VisitorBasicLexer(new  ANTLRInputStream(input));
+		let  parser = new  VisitorBasicParser(new  CommonTokenStream(lexer));
 
-            @Override
-            protected shouldVisitNextChild(node: RuleNode, currentResult: String): boolean {
-                return currentResult === null || currentResult.isEmpty();
-            }
-        }();
+		let  context = parser.s();
+		assertEquals("(s A <EOF>)", context.toStringTree(parser));
 
-        const result = listener.visit(context);
-        const expected = "[@0,0:0='A',<1>,1:0]\n";
-        org.junit.jupiter.api.Assert.assertEquals(expected, result);
-    }
+		let  listener = new  class extends VisitorBasicBaseVisitor<String> {
+			@Override
+public  visitTerminal(node: TerminalNode):  String {
+				return node.getSymbol().toString() + "\n";
+			}
 
-    /**
-     * This test verifies that {@link AbstractParseTreeVisitor#shouldVisitNextChild} is called before visiting the first
-     * child. It also verifies that {@link AbstractParseTreeVisitor#defaultResult} provides the default return value for
-     * visiting a tree.
-     */
-    @Test
-    public testShouldNotVisitTerminal(): void {
-        const input = "A";
-        const lexer = new VisitorBasicLexer(new ANTLRInputStream(input));
-        const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
+			@Override
+protected  shouldVisitNextChild(node: RuleNode, currentResult: String):  boolean {
+				return currentResult === null || currentResult.isEmpty();
+			}
+		}();
 
-        const context = parser.s();
-        org.junit.jupiter.api.Assert.assertEquals("(s A <EOF>)", context.toStringTree(parser));
+		let  result = listener.visit(context);
+		let  expected = "[@0,0:0='A',<1>,1:0]\n";
+		assertEquals(expected, result);
+	}
 
-        const listener = new class extends VisitorBasicBaseVisitor<String> {
-            @Override
-            public visitTerminal(node: TerminalNode): String {
-                throw new RuntimeException("Should not be reachable");
-            }
+	/**
+	 * This test verifies that {@link AbstractParseTreeVisitor#shouldVisitNextChild} is called before visiting the first
+	 * child. It also verifies that {@link AbstractParseTreeVisitor#defaultResult} provides the default return value for
+	 * visiting a tree.
+	 */
+	@Test
+public  testShouldNotVisitTerminal():  void {
+		let  input = "A";
+		let  lexer = new  VisitorBasicLexer(new  ANTLRInputStream(input));
+		let  parser = new  VisitorBasicParser(new  CommonTokenStream(lexer));
 
-            @Override
-            protected defaultResult(): String {
-                return "default result";
-            }
+		let  context = parser.s();
+		assertEquals("(s A <EOF>)", context.toStringTree(parser));
 
-            @Override
-            protected shouldVisitNextChild(node: RuleNode, currentResult: String): boolean {
-                return false;
-            }
-        }();
+		let  listener = new  class extends VisitorBasicBaseVisitor<String> {
+			@Override
+public  visitTerminal(node: TerminalNode):  String {
+				throw new  RuntimeException("Should not be reachable");
+			}
 
-        const result = listener.visit(context);
-        const expected = "default result";
-        org.junit.jupiter.api.Assert.assertEquals(expected, result);
-    }
+			@Override
+protected  defaultResult():  String {
+				return "default result";
+			}
 
-    /**
-     * This test verifies that the visitor correctly dispatches calls for labeled outer alternatives.
-     */
-    @Test
-    public testCalculatorVisitor(): void {
-        const input = "2 + 8 / 2";
-        const lexer = new VisitorCalcLexer(new ANTLRInputStream(input));
-        const parser = new VisitorCalcParser(new CommonTokenStream(lexer));
+			@Override
+protected  shouldVisitNextChild(node: RuleNode, currentResult: String):  boolean {
+				return false;
+			}
+		}();
 
-        const context = parser.s();
-        org.junit.jupiter.api.Assert.assertEquals("(s (expr (expr 2) + (expr (expr 8) / (expr 2))) <EOF>)", context.toStringTree(parser));
+		let  result = listener.visit(context);
+		let  expected = "default result";
+		assertEquals(expected, result);
+	}
 
-        const listener = new class extends VisitorCalcBaseVisitor<Integer> {
-            @Override
-            public visitS(ctx: VisitorCalcParser.SContext): Integer {
-                return AbstractParseTreeVisitor.visit(ctx.expr());
-            }
+	/**
+	 * This test verifies that the visitor correctly dispatches calls for labeled outer alternatives.
+	 */
+	@Test
+public  testCalculatorVisitor():  void {
+		let  input = "2 + 8 / 2";
+		let  lexer = new  VisitorCalcLexer(new  ANTLRInputStream(input));
+		let  parser = new  VisitorCalcParser(new  CommonTokenStream(lexer));
 
-            @Override
-            public visitNumber(ctx: VisitorCalcParser.NumberContext): Integer {
-                return Integer.valueOf(ctx.INT().getText());
-            }
+		let  context = parser.s();
+		assertEquals("(s (expr (expr 2) + (expr (expr 8) / (expr 2))) <EOF>)", context.toStringTree(parser));
 
-            @Override
-            public visitMultiply(ctx: VisitorCalcParser.MultiplyContext): Integer {
-                const left = AbstractParseTreeVisitor.visit(ctx.expr(0));
-                const right = AbstractParseTreeVisitor.visit(ctx.expr(1));
-                if (ctx.MUL() !== null) {
-                    return left * right;
-                }
-                else {
-                    return left / right;
-                }
-            }
+		let  listener = new  class extends VisitorCalcBaseVisitor<Integer> {
+			@Override
+public  visitS(ctx: VisitorCalcParser.SContext):  Integer {
+				return AbstractParseTreeVisitor.visit(ctx.expr());
+			}
 
-            @Override
-            public visitAdd(ctx: VisitorCalcParser.AddContext): Integer {
-                const left = AbstractParseTreeVisitor.visit(ctx.expr(0));
-                const right = AbstractParseTreeVisitor.visit(ctx.expr(1));
-                if (ctx.ADD() !== null) {
-                    return left + right;
-                }
-                else {
-                    return left - right;
-                }
-            }
+			@Override
+public  visitNumber(ctx: VisitorCalcParser.NumberContext):  Integer {
+				return Integer.valueOf(ctx.INT().getText());
+			}
 
-            @Override
-            protected defaultResult(): Integer {
-                throw new RuntimeException("Should not be reachable");
-            }
+			@Override
+public  visitMultiply(ctx: VisitorCalcParser.MultiplyContext):  Integer {
+				let  left = AbstractParseTreeVisitor.visit(ctx.expr(0));
+				let  right = AbstractParseTreeVisitor.visit(ctx.expr(1));
+				if (ctx.MUL() !== null) {
+					return left * right;
+				}
+				else {
+					return left / right;
+				}
+			}
 
-            @Override
-            protected aggregateResult(aggregate: Integer, nextResult: Integer): Integer {
-                throw new RuntimeException("Should not be reachable");
-            }
-        }();
+			@Override
+public  visitAdd(ctx: VisitorCalcParser.AddContext):  Integer {
+				let  left = AbstractParseTreeVisitor.visit(ctx.expr(0));
+				let  right = AbstractParseTreeVisitor.visit(ctx.expr(1));
+				if (ctx.ADD() !== null) {
+					return left + right;
+				}
+				else {
+					return left - right;
+				}
+			}
 
-        const result = listener.visit(context);
-        const expected = 6;
-        org.junit.jupiter.api.Assert.assertEquals(expected, result);
-    }
+			@Override
+protected  defaultResult():  Integer {
+				throw new  RuntimeException("Should not be reachable");
+			}
+
+			@Override
+protected  aggregateResult(aggregate: Integer, nextResult: Integer):  Integer {
+				throw new  RuntimeException("Should not be reachable");
+			}
+		}();
+
+		let  result = listener.visit(context);
+		let  expected = 6;
+		assertEquals(expected, result);
+	}
 
 }

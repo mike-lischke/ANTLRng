@@ -12,6 +12,7 @@ import { TsNodeRunner } from "./TsNodeRunner";
 import { RuntimeRunner } from "../RuntimeRunner";
 import { RuntimeTests } from "../RuntimeTests";
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class TypeScriptRuntimeTests extends RuntimeTests {

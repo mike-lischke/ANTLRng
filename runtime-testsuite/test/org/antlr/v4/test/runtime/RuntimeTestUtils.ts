@@ -11,7 +11,6 @@ import { java, JavaObject } from "jree";
 import { TraceATN } from "./TraceATN";
 import { OSType } from "./OSType";
 import { ATNState } from "antlr4ng";
-import { junit } from "junit.ts";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -36,6 +35,7 @@ const RuntimeException = java.lang.RuntimeException;
 type StringBuilder = java.lang.StringBuilder;
 const StringBuilder = java.lang.StringBuilder;
 
+import { Test, Override } from "../../../../../../decorators.js";
 
 
 export abstract  class RuntimeTestUtils extends JavaObject {
@@ -109,7 +109,7 @@ if (ex instanceof Exception) {
 		let  serializer = new  ATNPrinter(g, startState);
 		let  result = serializer.asString();
 
-		org.junit.jupiter.api.Assert.assertEquals(expecting, result);
+		assertEquals(expecting, result);
 	}
 
 	public static  joinLines(...args: java.lang.Object[]):  String {

@@ -31,6 +31,7 @@ type LinkOption = java.nio.file.LinkOption;
 const LinkOption = java.nio.file.LinkOption;
 type DosFileAttributes = java.nio.file.attribute.DosFileAttributes;
 
+import { Test, Override } from "../../../../../../decorators.js";
 
 
 export  class FileUtils extends JavaObject {

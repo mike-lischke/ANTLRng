@@ -21,6 +21,7 @@ const Paths = java.nio.file.Paths;
 type Exception = java.lang.Exception;
 const Exception = java.lang.Exception;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class CSharpRunner extends RuntimeRunner {

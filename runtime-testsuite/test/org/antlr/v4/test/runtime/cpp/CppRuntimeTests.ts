@@ -12,6 +12,7 @@ import { CppRunner } from "./CppRunner";
 import { RuntimeTests } from "../RuntimeTests";
 import { RuntimeRunner } from "../RuntimeRunner";
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class CppRuntimeTests extends RuntimeTests {

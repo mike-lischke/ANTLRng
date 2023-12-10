@@ -17,6 +17,7 @@ const HashMap = java.util.HashMap;
 type Paths = java.nio.file.Paths;
 const Paths = java.nio.file.Paths;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class Python3Runner extends PythonRunner {

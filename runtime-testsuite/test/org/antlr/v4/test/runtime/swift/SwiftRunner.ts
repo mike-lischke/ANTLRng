@@ -35,6 +35,7 @@ type Collectors = java.util.stream.Collectors;
 const Collectors = java.util.stream.Collectors;
 type FilenameFilter = java.io.FilenameFilter;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class SwiftRunner extends RuntimeRunner {

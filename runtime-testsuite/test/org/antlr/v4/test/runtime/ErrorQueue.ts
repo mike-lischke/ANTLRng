@@ -19,6 +19,7 @@ const IllegalStateException = java.lang.IllegalStateException;
 type StringBuilder = java.lang.StringBuilder;
 const StringBuilder = java.lang.StringBuilder;
 
+import { Test, Override } from "../../../../../../decorators.js";
 
 
 export  class ErrorQueue extends JavaObject implements ANTLRToolListener {

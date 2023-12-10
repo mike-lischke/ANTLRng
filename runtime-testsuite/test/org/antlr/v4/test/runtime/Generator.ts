@@ -21,6 +21,7 @@ const Collections = java.util.Collections;
 type File = java.io.File;
 const File = java.io.File;
 
+import { Test, Override } from "../../../../../../decorators.js";
 
 
 export  class Generator extends JavaObject {

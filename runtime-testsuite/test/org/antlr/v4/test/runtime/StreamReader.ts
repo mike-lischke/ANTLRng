@@ -29,6 +29,7 @@ const System = java.lang.System;
 type String = java.lang.String;
 const String = java.lang.String;
 
+import { Test, Override } from "../../../../../../decorators.js";
 
 
 export  class StreamReader extends JavaObject implements Runnable {

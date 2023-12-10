@@ -16,6 +16,7 @@ const String = java.lang.String;
 type Exception = java.lang.Exception;
 const Exception = java.lang.Exception;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class ExecutedState extends ExecutedState.State {

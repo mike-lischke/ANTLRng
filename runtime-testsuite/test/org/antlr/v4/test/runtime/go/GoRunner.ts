@@ -24,6 +24,7 @@ const Exception = java.lang.Exception;
 type InterruptedException = java.lang.InterruptedException;
 const InterruptedException = java.lang.InterruptedException;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class GoRunner extends RuntimeRunner {

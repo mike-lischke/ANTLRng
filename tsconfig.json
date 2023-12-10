@@ -10,6 +10,7 @@
         "moduleResolution": "Node16",
         "strict": true,
         "noImplicitAny": true,
+        "noImplicitOverride": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": true,
     },

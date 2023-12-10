@@ -14,6 +14,7 @@ import { Stage } from "../Stage";
 type Exception = java.lang.Exception;
 const Exception = java.lang.Exception;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class CompiledState extends CompiledState.State {

@@ -16,6 +16,7 @@ const String = java.lang.String;
 type HashMap<K,​V> = java.util.HashMap<K,​V>;
 const HashMap = java.util.HashMap;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class PHPRunner extends RuntimeRunner {

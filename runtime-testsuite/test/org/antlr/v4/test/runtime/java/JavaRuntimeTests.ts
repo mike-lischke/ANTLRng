@@ -11,6 +11,7 @@ import { JavaRunner } from "./JavaRunner";
 import { RuntimeTests } from "../RuntimeTests";
 import { RuntimeRunner } from "../RuntimeRunner";
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class JavaRuntimeTests extends RuntimeTests {

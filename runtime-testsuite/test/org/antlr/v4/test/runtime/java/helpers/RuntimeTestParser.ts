@@ -7,6 +7,7 @@ import { Parser, TokenStream } from "antlr4ng";
 type System = java.lang.System;
 const System = java.lang.System;
 
+import { Test, Override } from "../../../../../../../../decorators.js";
 
 
 export abstract  class RuntimeTestParser extends Parser {

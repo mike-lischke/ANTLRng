@@ -9,6 +9,7 @@ const PrintStream = java.io.PrintStream;
 type String = java.lang.String;
 const String = java.lang.String;
 
+import { Test, Override } from "../../../../../../../../decorators.js";
 
 
 export  class CustomStreamErrorListener extends BaseErrorListener {

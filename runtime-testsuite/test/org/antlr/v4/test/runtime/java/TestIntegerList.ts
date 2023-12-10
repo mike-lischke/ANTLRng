@@ -9,11 +9,11 @@
 
 import { JavaObject, java } from "jree";
 import { IntegerList } from "antlr4ng";
-import { junit } from "junit.ts";
 
 type IllegalArgumentException = java.lang.IllegalArgumentException;
 const IllegalArgumentException = java.lang.IllegalArgumentException;
 
+import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class TestIntegerList extends JavaObject {

@@ -48,6 +48,7 @@ type Path = java.nio.file.Path;
 type Paths = java.nio.file.Paths;
 const Paths = java.nio.file.Paths;
 
+import { Test, Override } from "../../../../../../../../../decorators.js";
 
 
 /** Test how fast we can lex Java and some unicode graphemes using old and

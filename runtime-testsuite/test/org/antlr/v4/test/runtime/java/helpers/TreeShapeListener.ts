@@ -7,6 +7,7 @@ import { ParserRuleContext, TerminalNode, RuleNode, ParseTreeListener, ParseTree
 type IllegalStateException = java.lang.IllegalStateException;
 const IllegalStateException = java.lang.IllegalStateException;
 
+import { Test, Override } from "../../../../../../../../decorators.js";
 
 
 export  class TreeShapeListener extends JavaObject implements ParseTreeListener {
