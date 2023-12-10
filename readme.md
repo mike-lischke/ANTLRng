@@ -5,6 +5,10 @@
 
 This project is (actually: will be) a TypeScript port of the ANTLR tool, which is written in Java. And it will not only be a simple port, but a real next-generation tool. Currently this repository is rather a placeholder until important conditions are met, one of them being to have a full TypeScript runtime for the latest ANTLR4 version.
 
+## Status
+
+See the [current milestone](https://github.com/mike-lischke/ANTLRng/issues/9) for the current status and the plan.
+
 ## Design Goals
 
 - Strict separation of the tool and its runtimes, which simplifies the maintenance and releases of the tool a lot.
