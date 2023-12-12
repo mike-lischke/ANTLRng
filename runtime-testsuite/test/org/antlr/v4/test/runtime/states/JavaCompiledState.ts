@@ -8,10 +8,10 @@
 
 
 import { java } from "jree";
-import { GeneratedState } from "./GeneratedState";
-import { CompiledState } from "./CompiledState";
+import { GeneratedState } from "./GeneratedState.js";
+import { CompiledState } from "./CompiledState.js";
 import { TokenStream, Parser, Lexer, CommonTokenStream, CharStreams, CharStream, Pair } from "antlr4ng";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 type ClassLoader = java.lang.ClassLoader;
 const ClassLoader = java.lang.ClassLoader;
@@ -26,9 +26,9 @@ import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class JavaCompiledState extends CompiledState {
-	public readonly  loader;
-	public readonly  lexer;
-	public readonly  parser;
+	public readonly  loader:  ClassLoader;
+	public readonly  lexer:  Class< Lexer>;
+	public readonly  parser:  Class< Parser>;
 
 	public  constructor(previousState: GeneratedState,
 							 loader: ClassLoader,

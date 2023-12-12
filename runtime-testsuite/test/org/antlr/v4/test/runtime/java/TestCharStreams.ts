@@ -76,7 +76,7 @@ public  fromSMPUTF8PathHasExpectedSize(/* @TempDir */  tempDir: Path):  void {
 public  fromBMPUTF8InputStreamHasExpectedSize(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello".getBytes(StandardCharsets.UTF_8));
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -104,7 +104,7 @@ try {
 public  fromSMPUTF8InputStreamHasExpectedSize(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(StandardCharsets.UTF_8));
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -132,7 +132,7 @@ try {
 public  fromBMPUTF8ChannelHasExpectedSize(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello".getBytes(StandardCharsets.UTF_8));
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -162,7 +162,7 @@ try {
 public  fromSMPUTF8ChannelHasExpectedSize(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(StandardCharsets.UTF_8));
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -193,7 +193,7 @@ public  fromInvalidUTF8BytesChannelReplacesWithSubstCharInReplaceMode(/* @TempDi
 		let  p = this.getTestFile(tempDir);
 		let  toWrite =  [ 0xCA as byte, 0xFE as byte, 0xFE as byte, 0xED as byte ];
 		Files.write(p, toWrite);
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -223,7 +223,7 @@ public  fromInvalidUTF8BytesThrowsInReportMode(/* @TempDir */  tempDir: Path):  
 		let  p = this.getTestFile(tempDir);
 		let  toWrite =  [ 0xCA as byte, 0xFE as byte ];
 		Files.write(p, toWrite);
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -251,7 +251,7 @@ try {
 public  fromSMPUTF8SequenceStraddlingBufferBoundary(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(StandardCharsets.UTF_8));
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -308,7 +308,7 @@ public  fromFileNameWithLatin1(/* @TempDir */  tempDir: Path):  void {
 public  fromReader(/* @TempDir */  tempDir: Path):  void {
 		let  p = this.getTestFile(tempDir);
 		Files.write(p, "hello \uD83C\uDF0E".getBytes(StandardCharsets.UTF_8));
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 

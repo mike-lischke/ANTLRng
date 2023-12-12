@@ -8,9 +8,9 @@
 
 
 import { java } from "jree";
-import { GoRunner } from "./GoRunner";
-import { RuntimeTests } from "../RuntimeTests";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { GoRunner } from "./GoRunner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

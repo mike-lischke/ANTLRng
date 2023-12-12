@@ -7,12 +7,12 @@
 
 
 import { java } from "jree";
-import { RuntimeTestUtils } from "../RuntimeTestUtils";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RunOptions } from "../RunOptions";
-import { FileUtils } from "../FileUtils";
-import { CompiledState } from "../states/CompiledState";
-import { GeneratedState } from "../states/GeneratedState";
+import { RuntimeTestUtils } from "../RuntimeTestUtils.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RunOptions } from "../RunOptions.js";
+import { FileUtils } from "../FileUtils.js";
+import { CompiledState } from "../states/CompiledState.js";
+import { GeneratedState } from "../states/GeneratedState.js";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -30,7 +30,7 @@ export  class CSharpRunner extends RuntimeRunner {
 	private static readonly  cSharpAntlrRuntimeDllName =
 			Paths.get(this.getCachePath("CSharp"), "Antlr4.Runtime.Standard.dll").toString();
 
-	private static readonly  cSharpTestProjectContent;
+	private static readonly  cSharpTestProjectContent:  String;
 	@Override
 public override  getLanguage():  String { return "CSharp"; }
 

@@ -1,147 +1,111 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import path from "path";
+import os from "os";
+import { existsSync, readFileSync } from "fs";
 
+import { OSType } from "./OSType.js";
+import { ATNPrinter, Grammar } from "../../../../../../temp.js";
+import { assertEquals } from "../../../../../../junit.js";
 
+export abstract class RuntimeTestUtils {
+    public static readonly NewLine = os.EOL;
+    public static readonly PathSeparator = path.delimiter;
+    public static readonly FileSeparator = path.sep;
+    public static readonly TempDirectory = os.tmpdir();
 
-import { java, JavaObject } from "jree";
-import { TraceATN } from "./TraceATN";
-import { OSType } from "./OSType";
-import { ATNState } from "antlr4ng";
+    public static readonly runtimePath: string;
+    public static readonly runtimeTestsuitePath: string;
+    public static readonly resourcePath: string;
 
-type String = java.lang.String;
-const String = java.lang.String;
-type System = java.lang.System;
-const System = java.lang.System;
-type Path = java.nio.file.Path;
-type Map<K,​V> = java.util.Map<K,​V>;
-type HashMap<K,​V> = java.util.HashMap<K,​V>;
-const HashMap = java.util.HashMap;
-type Boolean = java.lang.Boolean;
-const Boolean = java.lang.Boolean;
-type Paths = java.nio.file.Paths;
-const Paths = java.nio.file.Paths;
-type Files = java.nio.file.Files;
-const Files = java.nio.file.Files;
-type Locale = java.util.Locale;
-const Locale = java.util.Locale;
-type Exception = java.lang.Exception;
-const Exception = java.lang.Exception;
-type RuntimeException = java.lang.RuntimeException;
-const RuntimeException = java.lang.RuntimeException;
-type StringBuilder = java.lang.StringBuilder;
-const StringBuilder = java.lang.StringBuilder;
+    private static readonly resourceCache = new Map<string, string>();
+    private static detectedOS: OSType = OSType.Invalid;
 
-import { Test, Override } from "../../../../../../decorators.js";
+    public static isWindows(): boolean {
+        return RuntimeTestUtils.getOS() === OSType.Windows;
+    }
 
+    public static getOS(): OSType {
+        if (RuntimeTestUtils.detectedOS === OSType.Invalid) {
+            switch (os.type()) {
+                case "Windows_NT":
+                    RuntimeTestUtils.detectedOS = OSType.Windows;
+                    break;
 
-export abstract  class RuntimeTestUtils extends JavaObject {
-	public static readonly  NewLine = System.getProperty("line.separator");
-	public static readonly  PathSeparator = System.getProperty("path.separator");
-	public static readonly  FileSeparator = System.getProperty("file.separator");
-	public static readonly  TempDirectory = System.getProperty("java.io.tmpdir");
+                case "Linux":
+                    RuntimeTestUtils.detectedOS = OSType.Linux;
+                    break;
 
-	public static readonly  runtimePath;
-	public static readonly  runtimeTestsuitePath;
-	public static readonly  resourcePath;
+                case "Darwin":
+                    RuntimeTestUtils.detectedOS = OSType.Mac;
+                    break;
 
-	private static readonly  resourceCache = new  HashMap();
-	private static  detectedOS;
-	private static  isWindows;
+                default:
+                    RuntimeTestUtils.detectedOS = OSType.Unknown;
+                    break;
+            }
+        }
 
-	public static  isWindows():  boolean {
-		if (RuntimeTestUtils.isWindows === null) {
-			RuntimeTestUtils.isWindows = RuntimeTestUtils.getOS() === OSType.Windows;
-		}
+        return RuntimeTestUtils.detectedOS;
+    }
 
-		return RuntimeTestUtils.isWindows;
-	}
+    public static getTextFromResource(name: string): string {
+        let text = RuntimeTestUtils.resourceCache.get(name);
+        if (!text) {
+            const resPath = path.join(RuntimeTestUtils.resourcePath, name);
+            text = readFileSync(resPath, "utf8");
+            RuntimeTestUtils.resourceCache.set(name, text);
+        }
 
-	public static  getOS():  OSType {
-		if (RuntimeTestUtils.detectedOS === null) {
-			let  os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-			if (os.contains("mac") || os.contains("darwin")) {
-				RuntimeTestUtils.detectedOS = OSType.Mac;
-			}
-			else {
- if (os.contains("win")) {
-				RuntimeTestUtils.detectedOS = OSType.Windows;
-			}
-			else {
- if (os.contains("nux")) {
-				RuntimeTestUtils.detectedOS = OSType.Linux;
-			}
-			else {
-				RuntimeTestUtils.detectedOS = OSType.Unknown;
-			}
-}
+        return text;
+    }
 
-}
+    public static checkRuleATN(g: Grammar, ruleName: string, expecting: string): void {
+        const r = g.getRule(ruleName);
+        const startState = g.getATN().ruleToStartState[r.index];
+        const serializer = new ATNPrinter(g, startState);
+        const result = serializer.asString();
 
-		}
-		return RuntimeTestUtils.detectedOS;
-	}
+        assertEquals(expecting, result);
+    }
 
-	public static  getTextFromResource(name: String):  String {
-		try {
-			let  text = RuntimeTestUtils.resourceCache.get(name);
-			if (text === null) {
-				let  path = Paths.get(RuntimeTestUtils.resourcePath.toString(), name);
-				text = new  String(Files.readAllBytes(path));
-				RuntimeTestUtils.resourceCache.put(name, text);
-			}
-			return text;
-		} catch (ex) {
-if (ex instanceof Exception) {
-			throw new  RuntimeException(ex);
-		} else {
-	throw ex;
-	}
-}
-	}
+    public static joinLines(...args: string[]): string {
+        let result = "";
+        for (const arg of args) {
+            result += arg;
+            if (!arg.endsWith("\n")) {
+                result += "\n";
+            }
+        }
 
-	public static  checkRuleATN(g: Grammar, ruleName: String, expecting: String):  void {
-		let  r = g.getRule(ruleName);
-		let  startState = g.getATN().ruleToStartState[r.index];
-		let  serializer = new  ATNPrinter(g, startState);
-		let  result = serializer.asString();
+        return result;
+    }
 
-		assertEquals(expecting, result);
-	}
+    static {
+        let locationPath = process.cwd();
+        if (RuntimeTestUtils.isWindows()) {
+            locationPath = locationPath.replace("/", "");
+        }
+        const potentialRuntimeTestsuitePath = path.join(locationPath, "..", "..");
+        const potentialResourcePath = path.join(potentialRuntimeTestsuitePath, "resources");
 
-	public static  joinLines(...args: java.lang.Object[]):  String {
-		let  result = new  StringBuilder();
-		for (let arg of TraceATN.TraceATN.args) {
-			let  str = arg.toString();
-			result.append(str);
-			if (!str.endsWith("\n")) {
+        if (existsSync(potentialResourcePath)) {
+            // @ts-expect-error
+            RuntimeTestUtils.runtimeTestsuitePath = potentialRuntimeTestsuitePath;
+        } else {
+            // @ts-expect-error
+            RuntimeTestUtils.runtimeTestsuitePath = path.join("..", "runtime-testsuite");
+        }
 
-				result.append("\n");
-}
-
-		}
-		return result.toString();
-	}
-
-	 static {
-		let  locationPath = RuntimeTestUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-		if (RuntimeTestUtils.isWindows()) {
-			locationPath = locationPath.replaceFirst("/", "");
-		}
-		let  potentialRuntimeTestsuitePath = Paths.get(locationPath, "..", "..").normalize().toAbsolutePath();
-		let  potentialResourcePath = Paths.get(potentialRuntimeTestsuitePath.toString(), "resources");
-
-		if (Files.exists(potentialResourcePath)) {
-			RuntimeTestUtils.runtimeTestsuitePath = potentialRuntimeTestsuitePath;
-		}
-		else {
-			RuntimeTestUtils.runtimeTestsuitePath = Paths.get("..", "runtime-testsuite").normalize().toAbsolutePath();
-		}
-
-		RuntimeTestUtils.runtimePath = Paths.get(RuntimeTestUtils.runtimeTestsuitePath.toString(), "..", "runtime").normalize().toAbsolutePath();
-		RuntimeTestUtils.resourcePath = Paths.get(RuntimeTestUtils.runtimeTestsuitePath.toString(), "resources");
-	}
+        // @ts-expect-error
+        RuntimeTestUtils.runtimePath = path.join(RuntimeTestUtils.runtimeTestsuitePath, "..", "runtime");
+        // @ts-expect-error
+        RuntimeTestUtils.resourcePath = path.join(RuntimeTestUtils.runtimeTestsuitePath, "resources");
+    }
 }

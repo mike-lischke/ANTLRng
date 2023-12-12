@@ -8,8 +8,8 @@
 
 
 import { java } from "jree";
-import { CompiledState } from "./CompiledState";
-import { Stage } from "../Stage";
+import { CompiledState } from "./CompiledState.js";
+import { Stage } from "../Stage.js";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -21,9 +21,9 @@ import { Test, Override } from "../../../../../../../decorators.js";
 
 export  class ExecutedState extends ExecutedState.State {
 
-	public readonly  output;
+	public readonly  output:  String;
 
-	public readonly  errors;
+	public readonly  errors:  String;
 
 	public  constructor(previousState: CompiledState, output: String, errors: String, exception: Exception) {
 		super(previousState, exception);

@@ -8,9 +8,9 @@
 
 
 import { java } from "jree";
-import { CppRunner } from "./CppRunner";
-import { RuntimeTests } from "../RuntimeTests";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { CppRunner } from "./CppRunner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

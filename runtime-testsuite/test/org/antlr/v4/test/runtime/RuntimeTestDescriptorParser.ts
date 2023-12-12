@@ -8,8 +8,8 @@
 
 
 import { java, JavaObject, type int } from "jree";
-import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor";
-import { GrammarType } from "./GrammarType";
+import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
+import { GrammarType } from "./GrammarType.js";
 import { PredictionMode, Pair } from "antlr4ng";
 
 type String = java.lang.String;
@@ -18,7 +18,6 @@ type URI = java.net.URI;
 const URI = java.net.URI;
 type StringBuilder = java.lang.StringBuilder;
 const StringBuilder = java.lang.StringBuilder;
-type Enum<E extends Enum<E>> = java.lang.Enum<E extends Enum<E>>;
 const Enum = java.lang.Enum;
 type RuntimeException = java.lang.RuntimeException;
 const RuntimeException = java.lang.RuntimeException;

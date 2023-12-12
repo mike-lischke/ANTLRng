@@ -7,12 +7,12 @@
 
 
 import { java } from "jree";
-import { RuntimeTestUtils } from "../RuntimeTestUtils";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RunOptions } from "../RunOptions";
-import { FileUtils } from "../FileUtils";
-import { CompiledState } from "../states/CompiledState";
-import { GeneratedState } from "../states/GeneratedState";
+import { RuntimeTestUtils } from "../RuntimeTestUtils.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RunOptions } from "../RunOptions.js";
+import { FileUtils } from "../FileUtils.js";
+import { CompiledState } from "../states/CompiledState.js";
+import { GeneratedState } from "../states/GeneratedState.js";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -31,10 +31,10 @@ export  class GoRunner extends RuntimeRunner {
 
 	private static readonly  GoRuntimeImportPath = "github.com/antlr4-go/antlr/v4";
 
-	private static readonly  environment;
+	private static readonly  environment:  java.util.Map<String, String>;
 
-	private static  cachedGoMod;
-	private static  cachedGoSum;
+	private static  cachedGoMod:  String;
+	private static  cachedGoSum:  String;
 	private static  options = new  java.util.ArrayList();
 	@Override
 public override  getLanguage():  String {

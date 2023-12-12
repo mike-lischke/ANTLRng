@@ -8,8 +8,8 @@
 
 import { java, type int } from "jree";
 import { ParserRuleContext, ATN, IntervalSet } from "antlr4ng";
-import { RuntimeTestUtils } from "../../RuntimeTestUtils";
-import { JavaRunner } from "../JavaRunner";
+import { RuntimeTestUtils } from "../../RuntimeTestUtils.js";
+import { JavaRunner } from "../JavaRunner.js";
 
 type String = java.lang.String;
 const String = java.lang.String;

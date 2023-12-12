@@ -7,9 +7,9 @@
 
 
 
-import { JavaRunner } from "./JavaRunner";
-import { RuntimeTests } from "../RuntimeTests";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { JavaRunner } from "./JavaRunner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

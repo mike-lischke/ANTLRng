@@ -7,7 +7,7 @@
 
 
 import { java } from "jree";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 type String = java.lang.String;
 const String = java.lang.String;

@@ -8,12 +8,12 @@
 
 
 import { java } from "jree";
-import { RuntimeTestUtils } from "../RuntimeTestUtils";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RunOptions } from "../RunOptions";
-import { FileUtils } from "../FileUtils";
-import { CompiledState } from "../states/CompiledState";
-import { GeneratedState } from "../states/GeneratedState";
+import { RuntimeTestUtils } from "../RuntimeTestUtils.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RunOptions } from "../RunOptions.js";
+import { FileUtils } from "../FileUtils.js";
+import { CompiledState } from "../states/CompiledState.js";
+import { GeneratedState } from "../states/GeneratedState.js";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -23,7 +23,7 @@ import { Test, Override } from "../../../../../../../decorators.js";
 
 export  class DartRunner extends RuntimeRunner {
 
-	private static  cacheDartPackageConfig;
+	private static  cacheDartPackageConfig:  String;
 	@Override
 public override  getLanguage():  String {
 		return "Dart";

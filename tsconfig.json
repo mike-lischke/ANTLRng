@@ -13,6 +13,9 @@
         "noImplicitOverride": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": true,
+        "lib": [
+            "ESNext",
+        ],
     },
     "include": [
         "tool/*.ts",

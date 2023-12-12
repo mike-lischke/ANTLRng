@@ -34,8 +34,8 @@ import { Test, Override } from "../../../../../../decorators.js";
 
 export  class StreamReader extends JavaObject implements Runnable {
 	private readonly  buffer = new  StringBuilder();
-	private readonly  in;
-	private readonly  worker;
+	private readonly  in:  BufferedReader;
+	private readonly  worker:  Thread;
 
 	public  constructor(in: InputStream) {
 		super();

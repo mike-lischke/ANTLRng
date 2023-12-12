@@ -8,8 +8,8 @@
 
 
 import { java } from "jree";
-import { JavaCompiledState } from "./JavaCompiledState";
-import { ExecutedState } from "./ExecutedState";
+import { JavaCompiledState } from "./JavaCompiledState.js";
+import { ExecutedState } from "./ExecutedState.js";
 import { ParseTree } from "antlr4ng";
 
 type String = java.lang.String;
@@ -21,7 +21,7 @@ import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class JavaExecutedState extends ExecutedState {
-	public readonly  parseTree;
+	public readonly  parseTree:  ParseTree;
 
 	public  constructor(previousState: JavaCompiledState, output: String, errors: String, parseTree: ParseTree,
 							 exception: Exception) {

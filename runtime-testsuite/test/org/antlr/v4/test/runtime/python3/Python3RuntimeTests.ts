@@ -8,9 +8,9 @@
 
 
 import { java } from "jree";
-import { Python3Runner } from "./Python3Runner";
-import { RuntimeTests } from "../RuntimeTests";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { Python3Runner } from "./Python3Runner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

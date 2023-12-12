@@ -7,13 +7,13 @@
 
 
 import { java } from "jree";
-import { RuntimeTestUtils } from "../RuntimeTestUtils";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RunOptions } from "../RunOptions";
-import { GeneratedFile } from "../GeneratedFile";
-import { FileUtils } from "../FileUtils";
-import { CompiledState } from "../states/CompiledState";
-import { GeneratedState } from "../states/GeneratedState";
+import { RuntimeTestUtils } from "../RuntimeTestUtils.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RunOptions } from "../RunOptions.js";
+import { GeneratedFile } from "../GeneratedFile.js";
+import { FileUtils } from "../FileUtils.js";
+import { CompiledState } from "../states/CompiledState.js";
+import { GeneratedState } from "../states/GeneratedState.js";
 
 type String = java.lang.String;
 const String = java.lang.String;

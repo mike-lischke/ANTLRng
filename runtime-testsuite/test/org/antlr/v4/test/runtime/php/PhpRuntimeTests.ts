@@ -8,9 +8,9 @@
 
 
 import { java } from "jree";
-import { PHPRunner } from "./PHPRunner";
-import { RuntimeTests } from "../RuntimeTests";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { PHPRunner } from "./PHPRunner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

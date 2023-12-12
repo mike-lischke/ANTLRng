@@ -8,7 +8,7 @@
 
 
 import { java, JavaObject, closeResources, handleResourceError, throwResourceError, S } from "jree";
-import { RuntimeTestUtils } from "./RuntimeTestUtils";
+import { RuntimeTestUtils } from "./RuntimeTestUtils.js";
 import { Utils } from "antlr4ng";
 
 type String = java.lang.String;
@@ -83,7 +83,7 @@ public static replaceInFile(...args: unknown[]):  void {
 
 		let  content = new  String(Files.readAllBytes(sourcePath), StandardCharsets.UTF_8);
 		let  newContent = content.replace(target, replacement);
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 

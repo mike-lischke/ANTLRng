@@ -7,7 +7,7 @@
 
 
 import { java } from "jree";
-import { PythonRunner } from "../python/PythonRunner";
+import { PythonRunner } from "../python/PythonRunner.js";
 
 type Map<K,​V> = java.util.Map<K,​V>;
 type String = java.lang.String;
@@ -21,7 +21,7 @@ import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class Python3Runner extends PythonRunner {
-	public static readonly  environment;
+	public static readonly  environment:  Map<String, String>;
 
 	@Override
 public override  getLanguage():  String {

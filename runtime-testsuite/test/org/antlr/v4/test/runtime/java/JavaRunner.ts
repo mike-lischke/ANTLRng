@@ -8,21 +8,21 @@
 
 import { java, type int, JavaObject, S } from "jree";
 import { ParserRuleContext, Parser, Lexer, DiagnosticErrorListener, CommonTokenStream, ParserATNSimulator, ProfilingATNSimulator, ParseTree, ParseTreeWalker } from "antlr4ng";
-import { StreamReader } from "../StreamReader";
-import { RuntimeTestUtils } from "../RuntimeTestUtils";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RunOptions } from "../RunOptions";
-import { GeneratedFile } from "../GeneratedFile";
-import { FileUtils } from "../FileUtils";
-import { CustomStreamErrorListener } from "./helpers/CustomStreamErrorListener";
-import { RuntimeTestLexer } from "./helpers/RuntimeTestLexer";
-import { RuntimeTestParser } from "./helpers/RuntimeTestParser";
-import { TreeShapeListener } from "./helpers/TreeShapeListener";
-import { JavaExecutedState } from "../states/JavaExecutedState";
-import { JavaCompiledState } from "../states/JavaCompiledState";
-import { GeneratedState } from "../states/GeneratedState";
-import { ExecutedState } from "../states/ExecutedState";
-import { CompiledState } from "../states/CompiledState";
+import { StreamReader } from "../StreamReader.js";
+import { RuntimeTestUtils } from "../RuntimeTestUtils.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RunOptions } from "../RunOptions.js";
+import { GeneratedFile } from "../GeneratedFile.js";
+import { FileUtils } from "../FileUtils.js";
+import { CustomStreamErrorListener } from "./helpers/CustomStreamErrorListener.js";
+import { RuntimeTestLexer } from "./helpers/RuntimeTestLexer.js";
+import { RuntimeTestParser } from "./helpers/RuntimeTestParser.js";
+import { TreeShapeListener } from "./helpers/TreeShapeListener.js";
+import { JavaExecutedState } from "../states/JavaExecutedState.js";
+import { JavaCompiledState } from "../states/JavaCompiledState.js";
+import { GeneratedState } from "../states/GeneratedState.js";
+import { ExecutedState } from "../states/ExecutedState.js";
+import { CompiledState } from "../states/CompiledState.js";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -64,8 +64,8 @@ export  class JavaRunner extends RuntimeRunner {
 		"test", "org", "antlr", "v4", "test", "runtime", "java", "helpers").toString();
 
 	public static InMemoryStreamHelper =  class InMemoryStreamHelper extends JavaObject {
-		private readonly  pipedOutputStream;
-		private readonly  streamReader;
+		private readonly  pipedOutputStream:  java.io.PipedOutputStream;
+		private readonly  streamReader:  StreamReader;
 
 		private  constructor(pipedOutputStream: java.io.PipedOutputStream, streamReader: StreamReader) {
 			super();
@@ -89,7 +89,7 @@ this.pipedOutputStream = pipedOutputStream;
 	};
 
 
-	private static  compiler;
+	private static  compiler:  JavaCompiler;
 
 	private static readonly  DiagnosticErrorListenerInstance = new  DiagnosticErrorListener();
 
@@ -228,8 +228,8 @@ protected override  execute(runOptions: RunOptions, compiledState: CompiledState
 			let  outStream = new  java.io.PrintStream(outputStreamHelper.pipedOutputStream);
 			let  errorListener = new  CustomStreamErrorListener(new  java.io.PrintStream(errorsStreamHelper.pipedOutputStream));
 
-			let  tokenStream;
-			let  lexer;
+			let  tokenStream: CommonTokenStream;
+			let  lexer: RuntimeTestLexer;
 			if (runOptions.lexerName !== null) {
 				lexer =  javaCompiledState.initializeLexer(runOptions.input) as RuntimeTestLexer;
 				lexer.setOutStream(outStream);
@@ -265,7 +265,7 @@ protected override  execute(runOptions: RunOptions, compiledState: CompiledState
 				parser.getInterpreter().setPredictionMode(runOptions.predictionMode);
 				parser.setBuildParseTree(runOptions.buildParseTree);
 
-				let  startRule;
+				let  startRule: Method;
 				let  args = null;
 				try {
 					startRule = javaCompiledState.parser.getMethod(runOptions.startRuleName);

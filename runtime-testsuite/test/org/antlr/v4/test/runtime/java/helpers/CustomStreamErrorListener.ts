@@ -13,7 +13,7 @@ import { Test, Override } from "../../../../../../../../decorators.js";
 
 
 export  class CustomStreamErrorListener extends BaseErrorListener {
-	private readonly  printStream;
+	private readonly  printStream:  PrintStream;
 
 	public  constructor(printStream: PrintStream){
 		super();

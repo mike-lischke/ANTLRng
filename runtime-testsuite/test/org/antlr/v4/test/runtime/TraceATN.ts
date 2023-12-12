@@ -2,15 +2,15 @@
 
 
 import { java, JavaObject, type int } from "jree";
-import { Stage } from "./Stage";
-import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor";
-import { RuntimeRunner } from "./RuntimeRunner";
-import { RunOptions } from "./RunOptions";
-import { GrammarType } from "./GrammarType";
-import { FileUtils } from "./FileUtils";
+import { Stage } from "./Stage.js";
+import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
+import { RuntimeRunner } from "./RuntimeRunner.js";
+import { RunOptions } from "./RunOptions.js";
+import { GrammarType } from "./GrammarType.js";
+import { FileUtils } from "./FileUtils.js";
 import { PredictionMode } from "antlr4ng";
-import { JavaRunner } from "./java/JavaRunner";
-import { ExecutedState } from "./states/ExecutedState";
+import { JavaRunner } from "./java/JavaRunner.js";
+import { ExecutedState } from "./states/ExecutedState.js";
 import { assertEquals, assertThrows } from "../../../../../../junit.js";
 
 type String = java.lang.String;
@@ -66,13 +66,13 @@ public  importTokensFromTokensFile():  void {
 	};
 
 
-	protected  grammarFileName;
-	protected  parserGrammarFileName;
-	protected  lexerGrammarFileName;
-	protected  startRuleName;
-	protected  inputFileName;
+	protected  grammarFileName:  String;
+	protected  parserGrammarFileName:  String;
+	protected  lexerGrammarFileName:  String;
+	protected  startRuleName:  String;
+	protected  inputFileName:  String;
 	protected  targetName = "Java";
-	protected  encoding;
+	protected  encoding:  String;
 
 	public  constructor(args: String[]) {
 		super();
@@ -147,10 +147,10 @@ if ( args.length < 2 ) {
 		let  grammarName = descriptor.grammarName;
 		let  grammar = descriptor.grammar;
 
-		let  lexerName;
-let  parserName;
-		let  useListenerOrVisitor;
-		let  superClass;
+		let  lexerName: String;
+let  parserName: String;
+		let  useListenerOrVisitor: boolean;
+		let  superClass: String;
 		if (descriptor.testType === GrammarType.Parser || descriptor.testType === GrammarType.CompositeParser) {
 			lexerName = grammarName + "Lexer";
 			parserName = grammarName + "Parser";
@@ -195,7 +195,7 @@ let  parserName;
 
 		let  result = runner.run(runOptions);
 
-		let  executedState;
+		let  executedState: ExecutedState;
 		if (result instanceof ExecutedState) {
 			executedState = result as ExecutedState;
 			if (executedState.exception !== null) {

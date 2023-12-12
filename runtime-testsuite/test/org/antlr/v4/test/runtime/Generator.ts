@@ -8,8 +8,8 @@
 
 
 import { java, JavaObject, type int, S } from "jree";
-import { FileUtils } from "./FileUtils";
-import { ErrorQueue } from "./ErrorQueue";
+import { FileUtils } from "./FileUtils.js";
+import { ErrorQueue } from "./ErrorQueue.js";
 
 type String = java.lang.String;
 const String = java.lang.String;

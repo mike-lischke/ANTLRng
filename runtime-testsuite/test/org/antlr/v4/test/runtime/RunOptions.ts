@@ -8,7 +8,7 @@
 
 
 import { JavaObject, java } from "jree";
-import { Stage } from "./Stage";
+import { Stage } from "./Stage.js";
 import { PredictionMode } from "antlr4ng";
 
 type String = java.lang.String;
@@ -18,23 +18,23 @@ import { Test, Override } from "../../../../../../decorators.js";
 
 
 export  class RunOptions extends JavaObject {
-	public readonly  grammarFileName;
-	public readonly  grammarStr;
-	public readonly  parserName;
-	public readonly  lexerName;
-	public readonly  grammarName;
-	public readonly  useListener;
-	public readonly  useVisitor;
-	public readonly  startRuleName;
-	public readonly  input;
-	public readonly  profile;
-	public readonly  showDiagnosticErrors;
-	public readonly  traceATN;
-	public readonly  showDFA;
-	public readonly  endStage;
-	public readonly  superClass;
-	public readonly  predictionMode;
-	public readonly  buildParseTree;
+	public readonly  grammarFileName:  String;
+	public readonly  grammarStr:  String;
+	public readonly  parserName:  String;
+	public readonly  lexerName:  String;
+	public readonly  grammarName:  String;
+	public readonly  useListener:  boolean;
+	public readonly  useVisitor:  boolean;
+	public readonly  startRuleName:  String;
+	public readonly  input:  String;
+	public readonly  profile:  boolean;
+	public readonly  showDiagnosticErrors:  boolean;
+	public readonly  traceATN:  boolean;
+	public readonly  showDFA:  boolean;
+	public readonly  endStage:  Stage;
+	public readonly  superClass:  String;
+	public readonly  predictionMode:  PredictionMode;
+	public readonly  buildParseTree:  boolean;
 
 	public  constructor(grammarFileName: String, grammarStr: String, parserName: String, lexerName: String,
 					  useListener: boolean, useVisitor: boolean, startRuleName: String,

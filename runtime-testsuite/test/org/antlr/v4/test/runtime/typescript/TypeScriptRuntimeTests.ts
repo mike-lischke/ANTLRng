@@ -8,9 +8,9 @@
 
 
 import { java } from "jree";
-import { TsNodeRunner } from "./TsNodeRunner";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RuntimeTests } from "../RuntimeTests";
+import { TsNodeRunner } from "./TsNodeRunner.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

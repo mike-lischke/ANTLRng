@@ -386,7 +386,7 @@ public static dirname(...args: unknown[]):  String {
 		}
 		let  start = System.nanoTime(); // track only time to suck data out of stream
 		for (let  i = 0; i<n; i++) {
-			try {
+			 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -433,7 +433,7 @@ try {
 		}
 		let  start = System.nanoTime(); // track only time to suck data out of stream
 		for (let  i = 0; i<n; i++) {
-			try {
+			 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -484,7 +484,7 @@ try {
 		let  streamLength = TimeLexerSpeed.getResourceSize(loader, resourceName);
 		let  start = System.nanoTime(); // track only time to suck data out of stream
 		for (let  i = 0; i<n; i++) {
-			try {
+			 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -523,7 +523,7 @@ try {
 	}
 
 	public  lex_legacy_java_utf8(n: int, clearLexerDFACache: boolean):  void {
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -560,7 +560,7 @@ try {
 
 	public  lex_new_java_utf8(n: int, clearLexerDFACache: boolean):  void {
 		let  loader = TimeLexerSpeed.class.getClassLoader();
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -595,7 +595,7 @@ try {
 	}
 
 	public  lex_legacy_grapheme_utf8(fileName: String, n: int, clearLexerDFACache: boolean):  void {
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -634,7 +634,7 @@ try {
 	public  lex_new_grapheme_utf8(fileName: String, n: int, clearLexerDFACache: boolean):  void {
 		let  resourceName = TimeLexerSpeed.PerfDir+"/"+fileName;
 		let  loader = TimeLexerSpeed.class.getClassLoader();
-		try {
+		 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 

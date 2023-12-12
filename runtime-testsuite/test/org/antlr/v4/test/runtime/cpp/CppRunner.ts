@@ -4,40 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-
-import { java } from "jree";
-import { RuntimeTestUtils } from "../RuntimeTestUtils";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RunOptions } from "../RunOptions";
-import { OSType } from "../OSType";
-import { FileUtils } from "../FileUtils";
-import { CompiledState } from "../states/CompiledState";
-import { GeneratedState } from "../states/GeneratedState";
-
-type String = java.lang.String;
-const String = java.lang.String;
-type Map<K,​V> = java.util.Map<K,​V>;
-type Paths = java.nio.file.Paths;
-const Paths = java.nio.file.Paths;
-type HashMap<K,​V> = java.util.HashMap<K,​V>;
-const HashMap = java.util.HashMap;
-type System = java.lang.System;
-const System = java.lang.System;
-type Integer = java.lang.Integer;
-const Integer = java.lang.Integer;
-type Runtime = java.lang.Runtime;
-const Runtime = java.lang.Runtime;
-type Exception = java.lang.Exception;
-const Exception = java.lang.Exception;
-type List<E> = java.util.List<E>;
-type ArrayList<E> = java.util.ArrayList<E>;
-const ArrayList = java.util.ArrayList;
-type Collectors = java.util.stream.Collectors;
-const Collectors = java.util.stream.Collectors;
-
-import { Test, Override } from "../../../../../../../decorators.js";
-
+import { RuntimeTestUtils } from "../RuntimeTestUtils.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RunOptions } from "../RunOptions.js";
+import { OSType } from "../OSType.js";
+import { FileUtils } from "../FileUtils.js";
+import { CompiledState } from "../states/CompiledState.js";
+import { GeneratedState } from "../states/GeneratedState.js";
 
 /**
  * For my own information on I'm recording what I needed to do to get a unit test to compile and run in C++ on the Mac.
@@ -58,154 +31,147 @@ import { Test, Override } from "../../../../../../../decorators.js";
  * ... crash ...
  * (lldb) thread backtrace
  */
-export  class CppRunner extends RuntimeRunner {
+export class CppRunner extends RuntimeRunner {
 
-	private static readonly  runtimeSourcePath;
-	private static readonly  runtimeBinaryPath;
-	private static readonly  runtimeLibraryFileName;
-	private static  compilerName;
-	private static readonly  visualStudioProjectContent;
-	private static readonly  environment;
-	@Override
-public override  getLanguage():  String {
-		return "Cpp";
-	}
+    private static readonly runtimeSourcePath: string;
+    private static readonly runtimeBinaryPath: string;
+    private static readonly runtimeLibraryFileName: string;
+    private static compilerName: string;
+    private static readonly visualStudioProjectContent: string;
+    private static readonly environment: Map<String, String>;
 
-	@Override
-public override  getTitleName():  String { return "C++"; }
+    public override  getLanguage(): string {
+        return "Cpp";
+    }
 
-	@Override
-public override  getRuntimeToolName():  String {
-		return null;
-	}
+    public override  getTitleName(): string { return "C++"; }
 
-	@Override
-public override  getExecFileName():  String {
-		return Paths.get(this.getTempDirPath(), this.getTestFileName() + "." + (RuntimeTestUtils.isWindows() ? "exe" : "out")).toString();
-	}
+    public override  getRuntimeToolName(): string {
+        return null;
+    }
 
-	@Override
-public override  getExecEnvironment():  Map<String, String> {
-		return CppRunner.environment;
-	}
+    public override  getExecFileName(): string {
+        return Paths.get(this.getTempDirPath(), this.getTestFileName() + "." + (RuntimeTestUtils.isWindows() ? "exe" : "out")).toString();
+    }
 
-	@Override
-protected override  getCompilerName():  String {
-		if (CppRunner.compilerName === null) {
-			if (RuntimeTestUtils.isWindows()) {
-				CppRunner.compilerName = "MSBuild";
-			}
-			else {
-				CppRunner.compilerName = "clang++";
-			}
-		}
+    public override  getExecEnvironment(): Map<String, String> {
+        return CppRunner.environment;
+    }
 
-		return CppRunner.compilerName;
-	}
+    protected override  getCompilerName(): string {
+        if (CppRunner.compilerName === null) {
+            if (RuntimeTestUtils.isWindows()) {
+                CppRunner.compilerName = "MSBuild";
+            }
+            else {
+                CppRunner.compilerName = "clang++";
+            }
+        }
 
-	@Override
-protected override  initRuntime(runOptions: RunOptions):  void {
-		let  runtimePath = this.getRuntimePath();
+        return CppRunner.compilerName;
+    }
 
-		if (RuntimeTestUtils.isWindows()) {
-			let  command = [
-				this.getCompilerPath(), "antlr4cpp-vs2022.vcxproj", "/p:configuration=Release DLL", "/p:platform=x64"
-			];
+    protected override  initRuntime(runOptions: RunOptions): void {
+        const runtimePath = this.getRuntimePath();
 
-			this.runCommand(command, runtimePath + "\\runtime","build c++ ANTLR runtime using MSBuild");
-		}
-		else {
-			// cmake ignores default of OFF and must explicitly say yes or no on tracing arg. grrr...
-			let  trace = "-DTRACE_ATN="+(runOptions.traceATN?"ON":"OFF");
-			let  command = ["cmake", ".", trace, "-DCMAKE_BUILD_TYPE=Release"];
-			this.runCommand(command, runtimePath, "run cmake on antlr c++ runtime");
+        if (RuntimeTestUtils.isWindows()) {
+            const command = [
+                this.getCompilerPath(), "antlr4cpp-vs2022.vcxproj", "/p:configuration=Release DLL", "/p:platform=x64",
+            ];
 
-			command =  ["make", "-j", Integer.toString(Runtime.getRuntime().availableProcessors())];
-			this.runCommand(command, runtimePath, "run make on antlr c++ runtime");
-		}
-	}
+            this.runCommand(command, runtimePath + "\\runtime", "build c++ ANTLR runtime using MSBuild");
+        }
+        else {
+            // cmake ignores default of OFF and must explicitly say yes or no on tracing arg. grrr...
+            const trace = "-DTRACE_ATN=" + (runOptions.traceATN ? "ON" : "OFF");
+            let command = ["cmake", ".", trace, "-DCMAKE_BUILD_TYPE=Release"];
+            this.runCommand(command, runtimePath, "run cmake on antlr c++ runtime");
 
-	@Override
-protected override  compile(runOptions: RunOptions, generatedState: GeneratedState):  CompiledState {
-		if (RuntimeTestUtils.isWindows()) {
-			this.writeVisualStudioProjectFile(runOptions.grammarName, runOptions.lexerName, runOptions.parserName,
-					runOptions.useListener, runOptions.useVisitor);
-		}
+            command = ["make", "-j", Integer.toString(Runtime.getRuntime().availableProcessors())];
+            this.runCommand(command, runtimePath, "run make on antlr c++ runtime");
+        }
+    }
 
-		let  exception = null;
-		try {
-			if (!RuntimeTestUtils.isWindows()) {
-				let  linkCommand =  ["ln", "-s", CppRunner.runtimeLibraryFileName];
-				this.runCommand(linkCommand, this.getTempDirPath(), "sym link C++ runtime");
-			}
+    protected override  compile(runOptions: RunOptions, generatedState: GeneratedState): CompiledState {
+        if (RuntimeTestUtils.isWindows()) {
+            this.writeVisualStudioProjectFile(runOptions.grammarName, runOptions.lexerName, runOptions.parserName,
+                runOptions.useListener, runOptions.useVisitor);
+        }
 
-			let  buildCommand = new  ArrayList();
-			buildCommand.add(this.getCompilerPath());
-			if (RuntimeTestUtils.isWindows()) {
-				buildCommand.add(this.getTestFileName() + ".vcxproj");
-				buildCommand.add("/p:configuration=Release");
-				buildCommand.add("/p:platform=x64");
-			}
-			else {
-				buildCommand.add("-std=c++17");
-				buildCommand.add("-I");
-				buildCommand.add(CppRunner.runtimeSourcePath);
-				buildCommand.add("-L.");
-				buildCommand.add("-lantlr4-runtime");
-				buildCommand.add("-pthread");
-				buildCommand.add("-o");
-				buildCommand.add(this.getTestFileName() + ".out");
-				buildCommand.add(this.getTestFileWithExt());
-				buildCommand.addAll(generatedState.generatedFiles.stream().map(file => java.lang.ProcessBuilder.Redirect.file.name).collect(Collectors.toList()));
-			}
+        let exception = null;
+        try {
+            if (!RuntimeTestUtils.isWindows()) {
+                const linkCommand = ["ln", "-s", CppRunner.runtimeLibraryFileName];
+                this.runCommand(linkCommand, this.getTempDirPath(), "sym link C++ runtime");
+            }
 
-			this.runCommand(buildCommand.toArray(new  Array<String>(0)), this.getTempDirPath(), "build test c++ binary");
-		} catch (ex) {
-if (ex instanceof Exception) {
-			exception = ex;
-		} else {
-	throw ex;
-	}
+            const buildCommand = new ArrayList();
+            buildCommand.add(this.getCompilerPath());
+            if (RuntimeTestUtils.isWindows()) {
+                buildCommand.add(this.getTestFileName() + ".vcxproj");
+                buildCommand.add("/p:configuration=Release");
+                buildCommand.add("/p:platform=x64");
+            }
+            else {
+                buildCommand.add("-std=c++17");
+                buildCommand.add("-I");
+                buildCommand.add(CppRunner.runtimeSourcePath);
+                buildCommand.add("-L.");
+                buildCommand.add("-lantlr4-runtime");
+                buildCommand.add("-pthread");
+                buildCommand.add("-o");
+                buildCommand.add(this.getTestFileName() + ".out");
+                buildCommand.add(this.getTestFileWithExt());
+                buildCommand.addAll(generatedState.generatedFiles.stream().map((file) => { return java.lang.ProcessBuilder.Redirect.file.name; }).collect(Collectors.toList()));
+            }
+
+            this.runCommand(buildCommand.toArray(new Array<String>(0)), this.getTempDirPath(), "build test c++ binary");
+        } catch (ex) {
+            if (ex instanceof Exception) {
+                exception = ex;
+            } else {
+                throw ex;
+            }
+        }
+
+        return new CompiledState(generatedState, exception);
+    }
+
+    private writeVisualStudioProjectFile(grammarName: string, lexerName: string, parserName: string,
+        useListener: boolean, useVisitor: boolean): void {
+        const projectFileST = new ST(CppRunner.visualStudioProjectContent);
+        projectFileST.add("runtimeSourcePath", CppRunner.runtimeSourcePath);
+        projectFileST.add("runtimeBinaryPath", CppRunner.runtimeBinaryPath);
+        projectFileST.add("grammarName", grammarName);
+        projectFileST.add("lexerName", lexerName);
+        projectFileST.add("parserName", parserName);
+        projectFileST.add("useListener", useListener);
+        projectFileST.add("useVisitor", useVisitor);
+        FileUtils.writeFile(this.getTempDirPath(), "Test.vcxproj", projectFileST.render());
+    }
+
+    static {
+        const runtimePath = this.getRuntimePath("Cpp");
+        CppRunner.runtimeSourcePath = Paths.get(runtimePath, "runtime", "src").toString();
+
+        CppRunner.environment = new HashMap();
+        if (RuntimeTestUtils.isWindows()) {
+            CppRunner.runtimeBinaryPath = Paths.get(runtimePath, "runtime", "bin", "vs-2022", "x64", "Release DLL").toString();
+            CppRunner.runtimeLibraryFileName = Paths.get(CppRunner.runtimeBinaryPath, "antlr4-runtime.dll").toString();
+            const path = System.getenv("PATH");
+            CppRunner.environment.put("PATH", path === null ? CppRunner.runtimeBinaryPath : path + ";" + CppRunner.runtimeBinaryPath);
+        }
+        else {
+            CppRunner.runtimeBinaryPath = Paths.get(runtimePath, "dist").toString();
+            CppRunner.runtimeLibraryFileName = Paths.get(CppRunner.runtimeBinaryPath,
+                "libantlr4-runtime." + (RuntimeTestUtils.getOS() === OSType.Mac ? "dylib" : "so")).toString();
+            CppRunner.environment.put("LD_PRELOAD", CppRunner.runtimeLibraryFileName);
+        }
+
+        if (RuntimeTestUtils.isWindows()) {
+            CppRunner.visualStudioProjectContent = RuntimeTestUtils.getTextFromResource("org/antlr/v4/test/runtime/helpers/Test.vcxproj.stg");
+        } else {
+            CppRunner.visualStudioProjectContent = null;
+        }
+    }
 }
-		return new  CompiledState(generatedState, exception);
-	}
-
-	private  writeVisualStudioProjectFile(grammarName: String, lexerName: String, parserName: String,
-											  useListener: boolean, useVisitor: boolean):  void {
-		let  projectFileST = new  ST(CppRunner.visualStudioProjectContent);
-		projectFileST.add("runtimeSourcePath", CppRunner.runtimeSourcePath);
-		projectFileST.add("runtimeBinaryPath", CppRunner.runtimeBinaryPath);
-		projectFileST.add("grammarName", grammarName);
-		projectFileST.add("lexerName", lexerName);
-		projectFileST.add("parserName", parserName);
-		projectFileST.add("useListener", useListener);
-		projectFileST.add("useVisitor", useVisitor);
-		FileUtils.writeFile(this.getTempDirPath(), "Test.vcxproj", projectFileST.render());
-	}
-
-	 static {
-		let  runtimePath = this.getRuntimePath("Cpp");
-		CppRunner.runtimeSourcePath = Paths.get(runtimePath, "runtime", "src").toString();
-
-		CppRunner.environment = new  HashMap();
-		if (RuntimeTestUtils.isWindows()) {
-			CppRunner.runtimeBinaryPath = Paths.get(runtimePath, "runtime", "bin", "vs-2022", "x64", "Release DLL").toString();
-			CppRunner.runtimeLibraryFileName = Paths.get(CppRunner.runtimeBinaryPath, "antlr4-runtime.dll").toString();
-			let  path = System.getenv("PATH");
-			CppRunner.environment.put("PATH", path === null ? CppRunner.runtimeBinaryPath : path + ";" + CppRunner.runtimeBinaryPath);
-		}
-		else {
-			CppRunner.runtimeBinaryPath = Paths.get(runtimePath, "dist").toString();
-			CppRunner.runtimeLibraryFileName = Paths.get(CppRunner.runtimeBinaryPath,
-					"libantlr4-runtime." + (RuntimeTestUtils.getOS() === OSType.Mac ? "dylib" : "so")).toString();
-			CppRunner.environment.put("LD_PRELOAD", CppRunner.runtimeLibraryFileName);
-		}
-
-		if (RuntimeTestUtils.isWindows()) {
-			CppRunner.visualStudioProjectContent = RuntimeTestUtils.getTextFromResource("org/antlr/v4/test/runtime/helpers/Test.vcxproj.stg");
-		} else {
-			CppRunner.visualStudioProjectContent = null;
-		}
-	}
-}
-

@@ -7,9 +7,9 @@
 
 
 
-import { NodeRunner } from "./NodeRunner";
-import { RuntimeRunner } from "../RuntimeRunner";
-import { RuntimeTests } from "../RuntimeTests";
+import { NodeRunner } from "./NodeRunner.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

@@ -8,9 +8,9 @@
 
 
 import { java } from "jree";
-import { DartRunner } from "./DartRunner";
-import { RuntimeTests } from "../RuntimeTests";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { DartRunner } from "./DartRunner.js";
+import { RuntimeTests } from "../RuntimeTests.js";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 import { Test, Override } from "../../../../../../../decorators.js";
 

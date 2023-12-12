@@ -8,19 +8,19 @@
 
 
 import { java, JavaObject, closeResources, handleResourceError, throwResourceError } from "jree";
-import { TraceATN } from "./TraceATN";
-import { Stage } from "./Stage";
-import { RuntimeTestUtils } from "./RuntimeTestUtils";
-import { RuntimeTestDescriptorParser } from "./RuntimeTestDescriptorParser";
-import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor";
-import { RuntimeRunner } from "./RuntimeRunner";
-import { RunOptions } from "./RunOptions";
-import { GrammarType } from "./GrammarType";
-import { FileUtils } from "./FileUtils";
-import { CustomDescriptors } from "./CustomDescriptors";
+import { TraceATN } from "./TraceATN.js";
+import { Stage } from "./Stage.js";
+import { RuntimeTestUtils } from "./RuntimeTestUtils.js";
+import { RuntimeTestDescriptorParser } from "./RuntimeTestDescriptorParser.js";
+import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
+import { RuntimeRunner } from "./RuntimeRunner.js";
+import { RunOptions } from "./RunOptions.js";
+import { GrammarType } from "./GrammarType.js";
+import { FileUtils } from "./FileUtils.js";
+import { CustomDescriptors } from "./CustomDescriptors.js";
 import { Pair } from "antlr4ng";
-import { JavaRunner } from "./java/JavaRunner";
-import { ExecutedState } from "./states/ExecutedState";
+import { JavaRunner } from "./java/JavaRunner.js";
+import { ExecutedState } from "./states/ExecutedState.js";
 
 type String = java.lang.String;
 const String = java.lang.String;
@@ -59,7 +59,7 @@ export abstract  class RuntimeTests extends JavaObject {
 	private static readonly  rendered = new  StringRenderer();
 
 	public static  assertCorrectOutput(descriptor: RuntimeTestDescriptor, targetName: String, state: java.lang.Thread.State):  String {
-		let  executedState;
+		let  executedState: ExecutedState;
 		if (state instanceof ExecutedState) {
 			executedState = state as ExecutedState;
 			if (executedState.exception !== null) {
@@ -75,7 +75,7 @@ export abstract  class RuntimeTests extends JavaObject {
 
 		let  doesOutputEqualToExpected = executedState.output.equals(expectedOutput);
 		if (!doesOutputEqualToExpected || !executedState.errors.equals(expectedParseErrors)) {
-			let  message;
+			let  message: String;
 			if (doesOutputEqualToExpected) {
 				message = "Parse output is as expected, but errors are not: ";
 			}
@@ -105,10 +105,10 @@ export abstract  class RuntimeTests extends JavaObject {
 		let  grammarName = descriptor.grammarName;
 		let  grammar = RuntimeTests.prepareGrammars(descriptor, runner);
 
-		let  lexerName;
-let  parserName;
-		let  useListenerOrVisitor;
-		let  superClass;
+		let  lexerName: String;
+let  parserName: String;
+		let  useListenerOrVisitor: boolean;
+		let  superClass: String;
 		if (descriptor.testType === GrammarType.Parser || descriptor.testType === GrammarType.CompositeParser) {
 			lexerName = grammarName + "Lexer";
 			parserName = grammarName + "Parser";
@@ -159,7 +159,7 @@ let  parserName;
 	private static  prepareGrammars(descriptor: RuntimeTestDescriptor, runner: RuntimeRunner):  String {
 		let  targetName = runner.getLanguage();
 
-		let  targetTemplates;
+		let  targetTemplates: STGroup;
 		/* synchronized (cachedTargetTemplates) { */
 			targetTemplates = RuntimeTests.cachedTargetTemplates.get(targetName);
 			if (targetTemplates === null) {
@@ -203,7 +203,7 @@ public  runtimeTests():  java.util.List<DynamicNode> {
 			let  descriptors = RuntimeTests.testDescriptors.get(group);
 			for (let descriptor of descriptors) {
 				descriptorTests.add(dynamicTest(descriptor.name, descriptor.uri, () => {
-					try {
+					 {
 // This holds the final error to throw (if any).
 let error: java.lang.Throwable | undefined;
 
@@ -257,7 +257,7 @@ try {
 					continue;
 				}
 
-				let  text;
+				let  text: String;
 				try {
 					text = new  String(Files.readAllBytes(descriptorFile.toPath()));
 				} catch (e) {

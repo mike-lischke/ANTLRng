@@ -24,7 +24,7 @@ import { Test, Override } from "../../../../../../../../../decorators.js";
  *  I'm not using at moment but I'm adding in case.
  */
 export  class Instrumentor extends JavaObject {
-	public static  instrumentation;
+	public static  instrumentation:  Instrumentation;
 
 	public static  premain(args: String, I: Instrumentation):  void {
 		Instrumentor.instrumentation = I;

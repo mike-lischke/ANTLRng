@@ -8,7 +8,7 @@
 
 
 import { java } from "jree";
-import { RuntimeRunner } from "../RuntimeRunner";
+import { RuntimeRunner } from "../RuntimeRunner.js";
 
 type Map<K,​V> = java.util.Map<K,​V>;
 type String = java.lang.String;
@@ -20,7 +20,7 @@ import { Test, Override } from "../../../../../../../decorators.js";
 
 
 export  class PHPRunner extends RuntimeRunner {
-	private static readonly  environment;
+	private static readonly  environment:  Map<String, String>;
 
 	@Override
 public override  getLanguage():  String {
