@@ -26,6 +26,3 @@ See the [milestone 2](https://github.com/mike-lischke/ANTLRng/issues/9) for the 
 - Code optimizations (like converting recursions to iterations in the prediction code path).
 - Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
 - ...
-
-
-There is currently no code to compile. Once the initial TypeScript runtime is available this repo will start off by providing a TS port of the ANTLR4 runtime tests.
