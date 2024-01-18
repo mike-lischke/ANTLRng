@@ -6,6 +6,7 @@
 /* eslint-disable max-classes-per-file */
 
 import { ATN, RuleStartState } from "antlr4ng";
+import { ST } from "stringtemplate4ts";
 
 /**
  * Skeleton implementations for classes from the ANTLR tool.
@@ -53,10 +54,11 @@ export interface ANTLRToolListener {
 }
 
 export class ErrorManager {
-    public getMessageTemplate(msg: ANTLRMessage): ST {
+    public getMessageTemplate(msg: ANTLRMessage): ST | undefined {
+        return undefined;
     }
 }
 
 export class Tool {
-    public errMgr: ErrorManager;
+    public errMgr!: ErrorManager;
 }

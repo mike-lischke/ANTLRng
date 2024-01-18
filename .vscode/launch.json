@@ -40,5 +40,20 @@
             ],
             "console": "integratedTerminal",
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Lexer Benchmark",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeArgs": [
+                "--no-warnings=ExperimentalWarning",
+                "--loader",
+                "ts-node/esm",
+                "runtime-testsuite/test/java/api/perf/TestLexerSpeed.ts",
+            ],
+            "sourceMaps": true,
+        }
     ]
 }
