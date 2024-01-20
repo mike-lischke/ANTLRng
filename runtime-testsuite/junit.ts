@@ -1,16 +1,12 @@
 /*
  * Copyright (c) Mike Lischke. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
+ * Licensed under the MIT License. See License-MIT.txt in the project root for license information.
  */
 
-import { java } from "jree";
-
-type Throwable = java.lang.Throwable;
+type Throwable = Error;
 
 export const assertEquals = <T>(expected: T | null, actual: T | null): void => {
-    if (expected !== actual) {
-        throw new Error(`Expected ${expected} but got ${actual}`);
-    }
+    expect(actual).toEqual(expected);
 };
 
 export const assertThrows = <T extends Throwable>(expected: new (message: string) => T, func: () => void): T => {
@@ -26,7 +22,17 @@ export const assertThrows = <T extends Throwable>(expected: new (message: string
 };
 
 export const assertTrue = (value: boolean): void => {
-    if (!value) {
-        throw new Error(`Expected true but got false`);
-    }
+    expect(value).toBe(true);
+};
+
+export const assertNull = <T>(value: T | null): void => {
+    expect(value).toBeNull();
+};
+
+export const assertNotNull = <T>(value: T | null): void => {
+    expect(value).not.toBeNull();
+};
+
+export const assertArrayEquals = <T>(expected: T[], actual: T[]): void => {
+    expect(actual).toEqual(expected);
 };

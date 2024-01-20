@@ -6,9 +6,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { StreamReader } from "./StreamReader.js";
 import { RuntimeTestUtils } from "./RuntimeTestUtils.js";
 import { ProcessorResult } from "./ProcessorResult.js";
+import { ProcessEnvOptions, spawn } from "child_process";
 
 export class Processor {
     /** Turn this on to see executed commands. */
@@ -28,43 +28,48 @@ export class Processor {
     }
 
     public static run(args: string[], workingDirectory: string,
-        environmentVariables?: Map<string, string>): ProcessorResult {
+        environmentVariables?: Map<string, string>): Promise<ProcessorResult> {
         environmentVariables ??= new Map<string, string>();
 
         return new Processor(args, workingDirectory, environmentVariables, true).start();
     }
 
-    public start(): ProcessorResult {
-        if (Processor.WATCH_COMMANDS_EXEC) {
-            console.log("RUNNING " + this.args + " in " + this.workingDirectory);
-        }
-
-        const builder = new ProcessBuilder(this.args);
-        builder.directory(this.workingDirectory);
-
-        if (this.environmentVariables.size > 0) {
-            const environment = builder.environment();
-            for (const key of this.environmentVariables.keys()) {
-                environment.set(key, this.environmentVariables.get(key));
+    public start(): Promise<ProcessorResult> {
+        return new Promise<ProcessorResult>((resolve, reject) => {
+            if (Processor.WATCH_COMMANDS_EXEC) {
+                console.log("RUNNING " + this.args + " in " + this.workingDirectory);
             }
-        }
 
-        const process = builder.start();
-        const stdoutReader = new StreamReader(process.getInputStream());
-        const stderrReader = new StreamReader(process.getErrorStream());
-        stdoutReader.start();
-        stderrReader.start();
-        process.waitFor();
-        stdoutReader.join();
-        stderrReader.join();
+            const spawnOptions: ProcessEnvOptions = { cwd: this.workingDirectory };
+            if (this.environmentVariables.size > 0) {
+                spawnOptions.env = {};
+                this.environmentVariables.forEach((value, key) => {
+                    spawnOptions.env![key] = value;
+                });
+            }
+            const java = spawn("java", this.args, spawnOptions);
 
-        const output = stdoutReader.toString();
-        const errors = stderrReader.toString();
-        if (this.throwOnNonZeroErrorCode && process.exitValue() !== 0) {
-            throw new Error("Exit code " + process.exitValue() + " with output:\n" +
-                RuntimeTestUtils.joinLines(output, errors));
-        }
+            const out: string[] = [];
+            const err: string[] = [];
 
-        return new ProcessorResult(process.exitValue(), output, errors);
+            java.stderr.on("data", (data: Buffer) => {
+                err.push(data.toString());
+            });
+
+            java.stdout.on("data", (data: Buffer) => {
+                out.push(data.toString());
+            });
+
+            java.on("exit", (code: number | null, signal: string | null) => {
+                const output = out.join("");
+                const errors = err.join("");
+                if (this.throwOnNonZeroErrorCode && java.exitCode !== 0) {
+                    throw new Error("Exit code " + java.exitCode + " with output:\n" +
+                        RuntimeTestUtils.joinLines(output, errors));
+                }
+
+                resolve(new ProcessorResult(java.exitCode, output, errors));
+            });
+        });
     }
 }

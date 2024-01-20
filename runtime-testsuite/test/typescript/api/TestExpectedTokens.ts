@@ -1,26 +1,26 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, type int } from "jree";
-import { ParserRuleContext, ATN, IntervalSet } from "antlr4ng";
+import { ParserRuleContext } from "antlr4ng";
+
 import { RuntimeTestUtils } from "../../RuntimeTestUtils.js";
-import { JavaRunner } from "../JavaRunner.js";
 
-type String = java.lang.String;
-const String = java.lang.String;
+import { Test } from "../../../decorators.js";
+import { Grammar } from "../../../temp.js";
+import { assertEquals } from "../../../junit.js";
 
-import { Test, Override } from "../../../decorators.js";
-
-export class TestExpectedTokens extends JavaRunner {
+export class TestExpectedTokens {
     @Test
     public testEpsilonAltSubrule(): void {
-        const gtext =
+        const grammarText =
             "parser grammar T;\n" +
             "a : A (B | ) C ;\n";
-        const g = new Grammar(gtext);
+        const g = new Grammar(grammarText);
         const atnText =
             "RuleStart_a_0->s2\n" +
             "s2-A->BlockStart_5\n" +
@@ -42,10 +42,10 @@ export class TestExpectedTokens extends JavaRunner {
 
     @Test
     public testOptionalSubrule(): void {
-        const gtext =
+        const grammarText =
             "parser grammar T;\n" +
             "a : A B? C ;\n";
-        const g = new Grammar(gtext);
+        const g = new Grammar(grammarText);
         const atnText =
             "RuleStart_a_0->s2\n" +
             "s2-A->BlockStart_4\n" +
@@ -66,11 +66,11 @@ export class TestExpectedTokens extends JavaRunner {
 
     @Test
     public testFollowIncluded(): void {
-        const gtext =
+        const grammarText =
             "parser grammar T;\n" +
             "a : b A ;\n" +
             "b : B | ;";
-        const g = new Grammar(gtext);
+        const g = new Grammar(grammarText);
         let atnText =
             "RuleStart_a_0->s4\n" +
             "s4-b->RuleStart_b_2\n" +
@@ -104,14 +104,14 @@ export class TestExpectedTokens extends JavaRunner {
     // can't reproduce
     @Test
     public testFollowIncludedInLeftRecursiveRule(): void {
-        const gtext =
+        const grammarText =
             "grammar T;\n" +
             "s : expr EOF ;\n" +
             "expr : L expr R\n" +
             "     | expr PLUS expr\n" +
             "     | ID\n" +
             "     ;\n";
-        const g = new Grammar(gtext);
+        const g = new Grammar(grammarText);
         const atnText =
             "RuleStart_expr_2->BlockStart_13\n" +
             "BlockStart_13->s7\n" +
@@ -139,20 +139,16 @@ export class TestExpectedTokens extends JavaRunner {
 
         const atn = g.getATN();
 
-        //		DOTGenerator gen = new DOTGenerator(g);
-        //		String dot = gen.getDOT(atn.states.get(2), g.getRuleNames(), false);
-        //		console.log(dot);
-
         // Simulate call stack after input '(x' from rule s
         const callStackFrom_s = new ParserRuleContext(null, 4);
-        let callStackFrom_expr = new ParserRuleContext(callStackFrom_s, 9);
+        let callStackFromExpr = new ParserRuleContext(callStackFrom_s, 9);
         const afterID = 14;
-        let tokens = atn.getExpectedTokens(afterID, callStackFrom_expr);
+        let tokens = atn.getExpectedTokens(afterID, callStackFromExpr);
         assertEquals("{R, PLUS}", tokens.toString(g.getTokenNames()));
 
         // Simulate call stack after input '(x' from within rule expr
-        callStackFrom_expr = new ParserRuleContext(null, 9);
-        tokens = atn.getExpectedTokens(afterID, callStackFrom_expr);
+        callStackFromExpr = new ParserRuleContext(null, 9);
+        tokens = atn.getExpectedTokens(afterID, callStackFromExpr);
         assertEquals("{R, PLUS}", tokens.toString(g.getTokenNames()));
     }
 }

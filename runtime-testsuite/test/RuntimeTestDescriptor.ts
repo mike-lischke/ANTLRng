@@ -37,12 +37,12 @@ export class RuntimeTestDescriptor {
     public readonly errors: string;
 
     /** The rule at which parsing should start */
-    public readonly startRule: string;
+    public readonly startRule: string | null;
     public readonly grammarName: string;
 
     public readonly grammar: string;
     /** List of grammars imported into the grammar */
-    public readonly slaveGrammars: Array<[string, string]>;
+    public readonly slaveGrammars: Array<[string, string]> | null;
 
     /** For lexical tests, dump the DFA of the default lexer mode to stdout */
     public readonly showDFA: boolean;
@@ -58,14 +58,14 @@ export class RuntimeTestDescriptor {
 
     public readonly skipTargets: string[];
 
-    public readonly uri: URI;
+    public readonly path: string | null;
 
     public constructor(testType: GrammarType, name: string, notes: string,
         input: string, output: string, errors: string,
-        startRule: string,
-        grammarName: string, grammar: string, slaveGrammars: Array<[string, string]>,
+        startRule: string | null,
+        grammarName: string, grammar: string, slaveGrammars: Array<[string, string]> | null,
         showDiagnosticErrors: boolean, traceATN: boolean, showDFA: boolean, predictionMode: PredictionMode,
-        buildParseTree: boolean, skipTargets: string[], uri: java.net.URI) {
+        buildParseTree: boolean, skipTargets: string[] | null, path: string | null) {
         this.testType = testType;
         this.name = name;
         this.notes = notes;
@@ -82,7 +82,7 @@ export class RuntimeTestDescriptor {
         this.predictionMode = predictionMode;
         this.buildParseTree = buildParseTree;
         this.skipTargets = skipTargets !== null ? skipTargets : new Array<string>(0);
-        this.uri = uri;
+        this.path = path;
     }
 
     /**

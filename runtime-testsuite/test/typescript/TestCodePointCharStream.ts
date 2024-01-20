@@ -6,24 +6,34 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, JavaObject } from "jree";
 import { CharStreams, Interval, IntStream } from "antlr4ng";
 import { assertEquals, assertThrows } from "../../junit.js";
 
-type IllegalStateException = java.lang.IllegalStateException;
-const IllegalStateException = java.lang.IllegalStateException;
-type StringBuilder = java.lang.StringBuilder;
-const StringBuilder = java.lang.StringBuilder;
-
 import { Test } from "../../decorators.js";
 
-export class TestCodePointCharStream extends JavaObject {
+export class TestCodePointCharStream {
     @Test
     public emptyBytesHasSize0(): void {
         const s = CharStreams.fromString("");
         assertEquals(0, s.size);
         assertEquals(0, s.index);
         assertEquals("", s.toString());
+    }
+
+    @Test
+    public fromBMPStringHasExpectedSize(): void {
+        const s = CharStreams.fromString("hello");
+        assertEquals(5, s.size);
+        assertEquals(0, s.index);
+        assertEquals("hello", s.toString());
+    }
+
+    @Test
+    public fromSMPStringHasExpectedSize(): void {
+        const s = CharStreams.fromString("hello \uD83C\uDF0E");
+        assertEquals(7, s.size);
+        assertEquals(0, s.index);
+        assertEquals("hello \uD83C\uDF0E", s.toString());
     }
 
     @Test
@@ -36,8 +46,8 @@ export class TestCodePointCharStream extends JavaObject {
     @Test
     public consumingEmptyStreamShouldThrow(): void {
         const s = CharStreams.fromString("");
-        const illegalStateException = assertThrows(IllegalStateException, () => { s.consume(); });
-        assertEquals("cannot consume EOF", `${illegalStateException.getMessage()}`);
+        const error = assertThrows(Error, () => { s.consume(); });
+        assertEquals("cannot consume EOF", error.message);
     }
 
     @Test
@@ -58,8 +68,8 @@ export class TestCodePointCharStream extends JavaObject {
     public consumingPastSingleLatinCodePointShouldThrow(): void {
         const s = CharStreams.fromString("X");
         s.consume();
-        const illegalStateException = assertThrows(IllegalStateException, () => { s.consume(); });
-        assertEquals("cannot consume EOF", `${illegalStateException.getMessage()}`);
+        const error = assertThrows(Error, () => { s.consume(); });
+        assertEquals("cannot consume EOF", `${error.message}`);
     }
 
     @Test
@@ -105,8 +115,8 @@ export class TestCodePointCharStream extends JavaObject {
     public consumingPastSingleCJKCodePointShouldThrow(): void {
         const s = CharStreams.fromString("\u611B");
         s.consume();
-        const illegalStateException = assertThrows(IllegalStateException, () => { s.consume(); });
-        assertEquals("cannot consume EOF", `${illegalStateException.getMessage()}`);
+        const error = assertThrows(Error, () => { s.consume(); });
+        assertEquals("cannot consume EOF", error.message);
     }
 
     @Test
@@ -125,14 +135,14 @@ export class TestCodePointCharStream extends JavaObject {
 
     @Test
     public singleEmojiCodePointHasSize1(): void {
-        const s = CharStreams.fromString(`${new StringBuilder().appendCodePoint(0x1F4A9)}`);
+        const s = CharStreams.fromString(String.fromCodePoint(0x1F4A9));
         assertEquals(1, s.size);
         assertEquals(0, s.index);
     }
 
     @Test
     public consumingSingleEmojiCodePointShouldMoveIndex(): void {
-        const s = CharStreams.fromString(`${new StringBuilder().appendCodePoint(0x1F4A9)}`);
+        const s = CharStreams.fromString(String.fromCodePoint(0x1F4A9));
         assertEquals(0, s.index);
         s.consume();
         assertEquals(1, s.index);
@@ -140,24 +150,24 @@ export class TestCodePointCharStream extends JavaObject {
 
     @Test
     public consumingPastEndOfEmojiCodePointWithShouldThrow(): void {
-        const s = CharStreams.fromString(`${new StringBuilder().appendCodePoint(0x1F4A9)}`);
+        const s = CharStreams.fromString(String.fromCodePoint(0x1F4A9));
         assertEquals(0, s.index);
         s.consume();
         assertEquals(1, s.index);
-        const illegalStateException = assertThrows(IllegalStateException, () => { s.consume(); });
-        assertEquals("cannot consume EOF", `${illegalStateException.getMessage()}`);
+        const error = assertThrows(Error, () => { s.consume(); });
+        assertEquals("cannot consume EOF", error.message);
     }
 
     @Test
     public singleEmojiCodePointLookAheadShouldReturnCodePoint(): void {
-        const s = CharStreams.fromString(`${new StringBuilder().appendCodePoint(0x1F4A9)}`);
+        const s = CharStreams.fromString(String.fromCodePoint(0x1F4A9));
         assertEquals(0x1F4A9, s.LA(1));
         assertEquals(0, s.index);
     }
 
     @Test
     public singleEmojiCodePointLookAheadPastEndShouldReturnEOF(): void {
-        const s = CharStreams.fromString(`${new StringBuilder().appendCodePoint(0x1F4A9)}`);
+        const s = CharStreams.fromString(String.fromCodePoint(0x1F4A9));
         assertEquals(IntStream.EOF, s.LA(2));
         assertEquals(0, s.index);
     }
@@ -176,7 +186,8 @@ export class TestCodePointCharStream extends JavaObject {
 
     @Test
     public getTextWithEmoji(): void {
-        const s = CharStreams.fromString(`${new StringBuilder("01234").appendCodePoint(0x1F522).append("6789")}`);
+        const emoji = String.fromCodePoint(0x1F522);
+        const s = CharStreams.fromString("01234" + emoji + "6789");
         assertEquals("34\uD83D\uDD2267", s.getText(Interval.of(3, 7)));
     }
 
@@ -194,7 +205,8 @@ export class TestCodePointCharStream extends JavaObject {
 
     @Test
     public toStringWithEmoji(): void {
-        const s = CharStreams.fromString(`${new StringBuilder("01234").appendCodePoint(0x1F522).append("6789")}`);
+        const emoji = String.fromCodePoint(0x1F522);
+        const s = CharStreams.fromString("01234" + emoji + "6789");
         assertEquals("01234\uD83D\uDD226789", s.toString());
     }
 
@@ -212,7 +224,8 @@ export class TestCodePointCharStream extends JavaObject {
 
     @Test
     public lookAheadWithEmoji(): void {
-        const s = CharStreams.fromString(`${new StringBuilder("01234").appendCodePoint(0x1F522).append("6789")}`);
+        const emoji = String.fromCodePoint(0x1F522);
+        const s = CharStreams.fromString("01234" + emoji + "6789");
         assertEquals(0x1F522, s.LA(6));
     }
 
@@ -232,7 +245,8 @@ export class TestCodePointCharStream extends JavaObject {
 
     @Test
     public seekWithEmoji(): void {
-        const s = CharStreams.fromString(`${new StringBuilder("01234").appendCodePoint(0x1F522).append("6789")}`);
+        const emoji = String.fromCodePoint(0x1F522);
+        const s = CharStreams.fromString("01234" + emoji + "6789");
         s.seek(5);
         assertEquals(0x1F522, s.LA(1));
     }
@@ -253,7 +267,8 @@ export class TestCodePointCharStream extends JavaObject {
 
     @Test
     public lookBehindWithEmoji(): void {
-        const s = CharStreams.fromString(`${new StringBuilder("01234").appendCodePoint(0x1F522).append("6789")}`);
+        const emoji = String.fromCodePoint(0x1F522);
+        const s = CharStreams.fromString("01234" + emoji + "6789");
         s.seek(6);
         assertEquals(0x1F522, s.LA(-1));
     }

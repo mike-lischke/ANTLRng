@@ -9,10 +9,10 @@
 import { Stage } from "../Stage.js";
 
 export abstract class State {
-    public readonly previousState?: State;
-    public readonly exception?: Error;
+    public readonly previousState: State | null;
+    public readonly exception: Error | null;
 
-    public constructor(previousState?: State, exception?: Error) {
+    public constructor(previousState: State | null, exception: Error | null) {
         this.previousState = previousState;
         this.exception = exception;
     }

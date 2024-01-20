@@ -6,21 +6,18 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { JavaObject, type int, java } from "jree";
+export class ProcessorResult {
+    public readonly exitCode: number | null;
+    public readonly output: string;
+    public readonly errors: string;
 
-export class ProcessorResult extends JavaObject {
-    public readonly exitCode: int;
-    public readonly output: java.lang.String;
-    public readonly errors: java.lang.String;
-
-    public constructor(exitCode: int, output: java.lang.String, errors: java.lang.String) {
-        super();
+    public constructor(exitCode: number | null, output: string, errors: string) {
         this.exitCode = exitCode;
         this.output = output;
         this.errors = errors;
     }
 
     public isSuccess(): boolean {
-        return this.exitCode === 0;
+        return this.exitCode === null || this.exitCode === 0;
     }
 }

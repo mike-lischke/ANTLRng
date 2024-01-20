@@ -12,7 +12,7 @@ import { State } from "./State.js";
 
 export class CompiledState extends State {
 
-    public constructor(previousState: GeneratedState, exception?: Error) {
+    public constructor(previousState: GeneratedState, exception: Error | null) {
         super(previousState, exception);
     }
 

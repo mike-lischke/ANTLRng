@@ -6,7 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "jree";
 import { RuntimeTestUtils } from "../RuntimeTestUtils.js";
 import { RuntimeRunner } from "../RuntimeRunner.js";
 import { RunOptions } from "../RunOptions.js";
@@ -32,7 +31,7 @@ export class TsNodeRunner extends RuntimeRunner {
 
     public override getBaseVisitorSuffix(): string | null { return null; }
 
-    public override getRuntimeToolName(): java.lang.String {
+    public override getRuntimeToolName(): string {
         return "npx" + (RuntimeTestUtils.isWindows() ? ".cmd" : "");
     }
 
@@ -41,9 +40,9 @@ export class TsNodeRunner extends RuntimeRunner {
         this.npmLinkRuntime();
     }
 
-    protected override getExecFileName(): java.lang.String { return this.getTestFileName() + ".ts"; }
+    protected override getExecFileName(): string { return this.getTestFileName() + ".ts"; }
 
-    protected override getExtraRunArgs(): java.lang.String[] { return ["tsx"]; }
+    protected override getExtraRunArgs(): string[] { return ["tsx"]; }
 
     protected override compile(runOptions: RunOptions, generatedState: GeneratedState): CompiledState {
 
@@ -61,7 +60,7 @@ export class TsNodeRunner extends RuntimeRunner {
             return new CompiledState(generatedState, null);
 
         } catch (e) {
-            if (e instanceof java.lang.Exception) {
+            if (e instanceof Error) {
                 return new CompiledState(generatedState, e);
             } else {
                 throw e;
@@ -79,12 +78,11 @@ export class TsNodeRunner extends RuntimeRunner {
     }
 
     private npmInstall(): void {
-        java.util.concurrent.Flow.Processor.run([TsNodeRunner.NPM_EXEC, "--silent", "install"], this.getTempDirPath());
+        //run([TsNodeRunner.NPM_EXEC, "--silent", "install"], this.getTempDirPath());
     }
 
     private npmLinkAntlr4(): void {
-        java.util.concurrent.Flow.Processor.run([TsNodeRunner.NPM_EXEC, "--silent", "link", "antlr4"],
-            this.getTempDirPath());
+        // run([TsNodeRunner.NPM_EXEC, "--silent", "link", "antlr4"], this.getTempDirPath());
     }
 
 }

@@ -1,32 +1,27 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java } from "jree";
 import { CompiledState } from "./CompiledState.js";
 import { Stage } from "../Stage.js";
+import { State } from "./State.js";
 
-type String = java.lang.String;
-const String = java.lang.String;
-type Exception = java.lang.Exception;
-const Exception = java.lang.Exception;
+export class ExecutedState extends State {
 
-import { Test, Override } from "../../decorators.js";
+    public readonly output: string;
+    public readonly errors: string;
 
-export class ExecutedState extends ExecutedState.State {
-
-    public readonly output: String;
-
-    public readonly errors: String;
-
-    public constructor(previousState: CompiledState, output: String, errors: String, exception: Exception) {
+    public constructor(previousState: CompiledState, output: string | null, errors: string | null,
+        exception: Error | null) {
         super(previousState, exception);
-        this.output = output !== null ? output : "";
-        this.errors = errors !== null ? errors : "";
+        this.output = output ?? "";
+        this.errors = errors ?? "";
     }
-    @Override
+
     public getStage(): Stage {
         return Stage.Execute;
     }

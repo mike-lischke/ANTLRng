@@ -26,6 +26,7 @@
     "ignoreWords": [
         "Approximator",
         "COLONCOLON",
+        "Dlanguage",
         "Dsuper",
         "Evals",
         "Grosch",
@@ -34,6 +35,7 @@
         "LLATN",
         "LPAREN",
         "Millis",
+        "NONSPACING",
         "Nonnull",
         "RBRACK",
         "RPAREN",
@@ -85,7 +87,8 @@
         "ttype",
         "unpredicated",
         "uxxxx",
-        "vnext"
+        "vnext",
+        "workdir"
     ],
     "ignorePaths": [
         ".eslintrc.json"

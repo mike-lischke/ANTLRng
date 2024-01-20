@@ -6,28 +6,27 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { java, JavaObject, type int } from "jree";
-import { RuntimeTestUtils } from "./RuntimeTestUtils.js";
 import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
 import { GrammarType } from "./GrammarType.js";
 import { PredictionMode } from "antlr4ng";
+import { padZero } from "../temp.js";
 
-export class CustomDescriptors extends JavaObject {
-    public static readonly descriptors = new java.util.HashMap<java.lang.String, RuntimeTestDescriptor[]>();
-    private static readonly uri: java.net.URI;
+export class CustomDescriptors {
+    public static readonly descriptors = new Map<string, RuntimeTestDescriptor[]>();
+    private static readonly path: string;
 
     static {
-        CustomDescriptors.uri = java.nio.file.Paths.get(RuntimeTestUtils.runtimeTestsuitePath.toString(),
-            "test", "org", "antlr", "v4", "test", "runtime", "CustomDescriptors.java").toUri();
+        /*CustomDescriptors.path = RuntimeTestUtils.runtimeTestsuitePath,
+            "test", "org", "antlr", "v4", "test", "runtime", "CustomDescriptors.java").toUri();*/
 
-        CustomDescriptors.descriptors.put("LexerExec",
+        CustomDescriptors.descriptors.set("LexerExec",
             [
                 CustomDescriptors.getLineSeparatorLfDescriptor(),
                 CustomDescriptors.getLineSeparatorCrLfDescriptor(),
                 CustomDescriptors.getLargeLexerDescriptor(),
                 CustomDescriptors.getAtnStatesSizeMoreThan65535Descriptor(),
             ]);
-        CustomDescriptors.descriptors.put("ParserExec",
+        CustomDescriptors.descriptors.set("ParserExec",
             [
                 CustomDescriptors.getMultiTokenAlternativeDescriptor(),
             ]);
@@ -51,7 +50,7 @@ export class CustomDescriptors extends JavaObject {
             "lexer grammar L;\n" +
             "T: ~'\\n'+;\n" +
             "SEPARATOR: '\\n';",
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.uri);
+            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
     }
 
     private static getLineSeparatorCrLfDescriptor(): RuntimeTestDescriptor {
@@ -72,18 +71,18 @@ export class CustomDescriptors extends JavaObject {
             "lexer grammar L;\n" +
             "T: ~'\\r'+;\n" +
             "SEPARATOR: '\\r\\n';",
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.uri);
+            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
     }
 
     private static getLargeLexerDescriptor(): RuntimeTestDescriptor {
         const tokensCount = 4000;
         const grammarName = "L";
 
-        const grammar = new java.lang.StringBuilder();
-        grammar.append("lexer grammar ").append(grammarName).append(";\n");
-        grammar.append("WS: [ \\t\\r\\n]+ -> skip;\n");
+        let grammar = "";
+        grammar += "lexer grammar " + grammarName + ";\n";
+        grammar += "WS: [ \\t\\r\\n]+ -> skip;\n";
         for (let i = 0; i < tokensCount; i++) {
-            grammar.append("KW").append(i).append(" : 'KW' '").append(i).append("';\n");
+            grammar += "KW" + i + " : 'KW' '" + i + "';\n";
         }
 
         return new RuntimeTestDescriptor(
@@ -99,44 +98,43 @@ export class CustomDescriptors extends JavaObject {
             "",
             grammarName,
             grammar.toString(),
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.uri);
+            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
     }
 
     private static getAtnStatesSizeMoreThan65535Descriptor(): RuntimeTestDescriptor {
         // I tried playing around with different sizes, and I think 1002 works for Go but 1003 does not;
-        // the executing lexer gets a token syntax error for T208 or something like that
+        // the executing lexer gets a token syntax error for T208 or something like that.
         const tokensCount = 1024;
-        const suffix = java.lang.String.join("", java.util.Collections.nCopies(70, "_"));
+        const suffix = "_".repeat(70);
 
         const grammarName = "L";
-        const grammar = new java.lang.StringBuilder();
-        grammar.append("lexer grammar ").append(grammarName).append(";\n");
-        grammar.append("\n");
-        const input = new java.lang.StringBuilder();
-        const output = new java.lang.StringBuilder();
-        let startOffset: int;
+        let grammar = "";
+        grammar += "lexer grammar " + grammarName + ";\n";
+        grammar += "\n";
+        let input = "";
+        let output = "";
+        let startOffset: number;
         let stopOffset = -2;
         for (let i = 0; i < tokensCount; i++) {
-            const ruleName = java.lang.String.format("T_%06d", i);
+            const ruleName = `T_${padZero(i, 6)}`;
             const value = ruleName + suffix;
-            grammar.append(ruleName).append(": '").append(value).append("';\n");
-            input.append(value).append("\n");
+            grammar += ruleName + ": '" + value + "';\n";
+            input += value + "\n";
 
             startOffset = stopOffset + 2;
-            stopOffset += value.length() + 1;
+            stopOffset += value.length + 1;
 
-            output.append("[@").append(i).append(",").append(startOffset).append(":").append(stopOffset)
-                .append("='").append(value).append("',<").append(i + 1).append(">,").append(i + 1)
-                .append(":0]\n");
+            output += "[@" + i + "," + startOffset + ":" + stopOffset + "='" + value + "',<" + (i + 1) + ">," + (i + 1)
+                + ":0]\n";
         }
 
-        grammar.append("\n");
-        grammar.append("WS: [ \\t\\r\\n]+ -> skip;\n");
+        grammar += "\n";
+        grammar += "WS: [ \\t\\r\\n]+ -> skip;\n";
 
         startOffset = stopOffset + 2;
         stopOffset = startOffset - 1;
-        output.append("[@").append(tokensCount).append(",").append(startOffset).append(":").append(stopOffset)
-            .append("='<EOF>',<-1>,").append(tokensCount + 1).append(":0]\n");
+        output += "[@" + tokensCount + "," + startOffset + ":" + stopOffset + "='<EOF>',<-1>," + (tokensCount + 1) +
+            ":0]\n";
 
         return new RuntimeTestDescriptor(
             GrammarType.Lexer,
@@ -150,33 +148,34 @@ export class CustomDescriptors extends JavaObject {
             grammar.toString(),
             null, false, false, false, PredictionMode.LL, true,
             ["CSharp", "Python3", "Go", "PHP", "Swift", "JavaScript", "TypeScript", "Dart"],
-            CustomDescriptors.uri);
+            CustomDescriptors.path);
     }
 
     private static getMultiTokenAlternativeDescriptor(): RuntimeTestDescriptor {
         const tokensCount = 64;
 
-        const rule = new java.lang.StringBuilder("r1: ");
-        const tokens = new java.lang.StringBuilder();
-        const input = new java.lang.StringBuilder();
-        const output = new java.lang.StringBuilder();
+        let rule = "r1: ";
+        let tokens = "";
+        let input = "";
+        let output = "";
 
         for (let i = 0; i < tokensCount; i++) {
             const currentToken = "T" + i;
-            rule.append(currentToken);
+            rule += currentToken;
             if (i < tokensCount - 1) {
-                rule.append(" | ");
+                rule += " | ";
             } else {
-                rule.append(";");
+                rule += ";";
             }
-            tokens.append(currentToken).append(": '").append(currentToken).append("';\n");
-            input.append(currentToken).append(" ");
-            output.append(currentToken);
+            tokens += currentToken + ": '" + currentToken + "';\n";
+            input += currentToken + " ";
+            output += currentToken;
         }
+
         const currentToken = "T" + tokensCount;
-        tokens.append(currentToken).append(": '").append(currentToken).append("';\n");
-        input.append(currentToken).append(" ");
-        output.append(currentToken);
+        tokens += currentToken + ": '" + currentToken + "';\n";
+        input + currentToken + " ";
+        output += currentToken;
 
         const grammar = "grammar P;\n" +
             "r: (r1 | T" + tokensCount + ")+ EOF {<writeln(\"$text\")>};\n" +
@@ -194,6 +193,6 @@ export class CustomDescriptors extends JavaObject {
             "r",
             "P",
             grammar,
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.uri);
+            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
     }
 }

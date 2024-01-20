@@ -7,6 +7,8 @@
  */
 
 import * as os from "os";
+import path from "path";
+import fs from "fs";
 
 import { Stage } from "./Stage.js";
 import { RuntimeTestUtils } from "./RuntimeTestUtils.js";
@@ -18,63 +20,41 @@ import { FileUtils } from "./FileUtils.js";
 import { CompiledState } from "./states/CompiledState.js";
 import { ExecutedState } from "./states/ExecutedState.js";
 import { GeneratedState } from "./states/GeneratedState.js";
+import { ST } from "stringtemplate4ts";
+import { Processor } from "./Processor.js";
+import { State } from "./states/State.js";
 
 export abstract class RuntimeRunner {
     public static readonly InputFileName = "input";
     public static readonly cacheDirectory = os.tmpdir();
 
-    public static InitializationStatus = class InitializationStatus {
-        public isInitialized = false;
-    };
-
     private static runtimeToolPath = "";
     private static compilerPath = "";
 
-    private static readonly runtimeInitializationStatuses = new Map();
+    private static readonly runtimeInitializationStatuses =
+        new Map<string, { isInitialized?: boolean; exception?: Error; }>();
 
     protected readonly tempTestDir: string;
 
     private saveTestDir: boolean;
 
-    protected constructor();
-    protected constructor(tempDir: string, saveTestDir: boolean);
-    protected constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 0: {
-
-                this(null, false);
-
-                break;
-            }
-
-            case 2: {
-                const [tempDir, saveTestDir] = args as [Path, boolean];
-
-                super();
-                if (tempDir === null) {
-                    const dirName = this.getClass().getSimpleName() + "-" + Thread.currentThread().getName() + "-" + System.currentTimeMillis();
-                    this.tempTestDir = Paths.get(RuntimeTestUtils.TempDirectory, dirName);
-                }
-                else {
-                    this.tempTestDir = tempDir;
-                }
-                this.saveTestDir = saveTestDir;
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+    public constructor(tempDir?: string, saveTestDir?: boolean) {
+        if (!tempDir) {
+            const dirName = this.constructor.name + "-" + new Date().getTime();
+            this.tempTestDir = path.join(RuntimeTestUtils.TempDirectory, dirName);
         }
+        else {
+            this.tempTestDir = tempDir;
+        }
+        this.saveTestDir = saveTestDir ?? false;
     }
 
     public static getCachePath(language: string): string {
-        return RuntimeRunner.cacheDirectory + RuntimeTestUtils.FileSeparator + language;
+        return path.join(RuntimeRunner.cacheDirectory, language);
     }
 
     public static getRuntimePath(language: string): string {
-        return RuntimeTestUtils.runtimePath.toString() + RuntimeTestUtils.FileSeparator + language;
+        return path.join(RuntimeTestUtils.runtimePath, language);
     }
 
     public getTempDirPath(): string {
@@ -89,12 +69,12 @@ export abstract class RuntimeRunner {
         this.removeTempTestDirIfRequired();
     }
 
-    public run(runOptions: RunOptions): java.lang.Thread.State {
+    public run(runOptions: RunOptions): Promise<State> {
         const options: string[] = [];
         if (runOptions.useVisitor) {
             options.push("-visitor");
         }
-        if (runOptions.superClass !== null && runOptions.superClass.length() > 0) {
+        if (runOptions.superClass !== null && runOptions.superClass.length > 0) {
             options.push("-DsuperClass=" + runOptions.superClass);
         }
 
@@ -111,13 +91,13 @@ export abstract class RuntimeRunner {
         const generatedState = new GeneratedState(errorQueue, generatedFiles, null);
 
         if (generatedState.containsErrors() || runOptions.endStage === Stage.Generate) {
-            return generatedState;
+            return Promise.resolve(generatedState);
         }
 
         if (!this.initAntlrRuntimeIfRequired(runOptions)) {
             // Do not repeat ANTLR runtime initialization error
-            return new CompiledState(generatedState,
-                new Error(this.getTitleName() + " ANTLR runtime is not initialized"));
+            return Promise.resolve(new CompiledState(generatedState,
+                new Error(this.getTitleName() + " ANTLR runtime is not initialized")));
         }
 
         this.writeRecognizerFile(runOptions);
@@ -125,7 +105,7 @@ export abstract class RuntimeRunner {
         const compiledState = this.compile(runOptions, generatedState);
 
         if (compiledState.containsErrors() || runOptions.endStage === Stage.Compile) {
-            return compiledState;
+            return Promise.resolve(compiledState);
         }
 
         this.writeInputFile(runOptions);
@@ -143,15 +123,15 @@ export abstract class RuntimeRunner {
 
     protected getParserSuffix(): string { return "Parser"; }
 
-    protected getBaseListenerSuffix(): string { return "BaseListener"; }
+    protected getBaseListenerSuffix(): string | null { return "BaseListener"; }
 
     protected getListenerSuffix(): string { return "Listener"; }
 
-    protected getBaseVisitorSuffix(): string { return "BaseVisitor"; }
+    protected getBaseVisitorSuffix(): string | null { return "BaseVisitor"; }
 
     protected getVisitorSuffix(): string { return "Visitor"; }
 
-    protected grammarNameToFileName(grammarName: string): string { return grammarName; }
+    protected grammarNameToFileName(grammarName: string | null): string { return String(grammarName); }
 
     protected getCompilerPath(): string {
         if (RuntimeRunner.compilerPath.length === 0) {
@@ -197,43 +177,39 @@ export abstract class RuntimeRunner {
         return "antlr-" + this.getLanguage().toLowerCase();
     }
 
-    protected getCachePath(): string {
-        return this.getCachePath(this.getLanguage());
-    }
-
-    protected getRuntimePath(): string {
-        return this.getRuntimePath(this.getLanguage());
-    }
-
     // Allows any target to add additional options for the antlr tool such as the location of the output files
     // which is useful for the Go target for instance to avoid having to move them before running the test
     //
-    protected getTargetToolOptions(ro: RunOptions): java.util.List<String> {
+    protected getTargetToolOptions(ro: RunOptions): string[] | null {
         return null;
     }
 
-    protected getGeneratedFiles(runOptions: RunOptions): java.util.List<GeneratedFile> {
-        const files = new java.util.ArrayList();
+    protected getGeneratedFiles(runOptions: RunOptions): GeneratedFile[] {
+        const files: GeneratedFile[] = [];
         const extensionWithDot = "." + this.getExtension();
         const fileGrammarName = this.grammarNameToFileName(runOptions.grammarName);
-        const isCombinedGrammarOrGo = runOptions.lexerName !== null && runOptions.parserName !== null || this.getLanguage().equals("Go");
+        const isCombinedGrammarOrGo = (runOptions.lexerName !== null && runOptions.parserName !== null)
+            || this.getLanguage() === "Go";
         if (runOptions.lexerName !== null) {
-            files.add(new GeneratedFile(fileGrammarName + (isCombinedGrammarOrGo ? this.getLexerSuffix() : "") + extensionWithDot, false));
+            files.push(new GeneratedFile(fileGrammarName + (isCombinedGrammarOrGo ? this.getLexerSuffix() : "") +
+                extensionWithDot, false));
         }
+
         if (runOptions.parserName !== null) {
-            files.add(new GeneratedFile(fileGrammarName + (isCombinedGrammarOrGo ? this.getParserSuffix() : "") + extensionWithDot, true));
+            files.push(new GeneratedFile(fileGrammarName + (isCombinedGrammarOrGo ? this.getParserSuffix() : "") +
+                extensionWithDot, true));
             if (runOptions.useListener) {
-                files.add(new GeneratedFile(fileGrammarName + this.getListenerSuffix() + extensionWithDot, true));
+                files.push(new GeneratedFile(fileGrammarName + this.getListenerSuffix() + extensionWithDot, true));
                 const baseListenerSuffix = this.getBaseListenerSuffix();
                 if (baseListenerSuffix !== null) {
-                    files.add(new GeneratedFile(fileGrammarName + baseListenerSuffix + extensionWithDot, true));
+                    files.push(new GeneratedFile(fileGrammarName + baseListenerSuffix + extensionWithDot, true));
                 }
             }
             if (runOptions.useVisitor) {
-                files.add(new GeneratedFile(fileGrammarName + this.getVisitorSuffix() + extensionWithDot, true));
+                files.push(new GeneratedFile(fileGrammarName + this.getVisitorSuffix() + extensionWithDot, true));
                 const baseVisitorSuffix = this.getBaseVisitorSuffix();
                 if (baseVisitorSuffix !== null) {
-                    files.add(new GeneratedFile(fileGrammarName + baseVisitorSuffix + extensionWithDot, true));
+                    files.push(new GeneratedFile(fileGrammarName + baseVisitorSuffix + extensionWithDot, true));
                 }
             }
         }
@@ -242,12 +218,13 @@ export abstract class RuntimeRunner {
     }
 
     protected writeRecognizerFile(runOptions: RunOptions): void {
-        const text = RuntimeTestUtils.getTextFromResource("org/antlr/v4/test/runtime/helpers/" + this.getTestFileWithExt() + ".stg");
+        const text = RuntimeTestUtils.getTextFromResource("runtime-testsuite/test/runtime/helpers/" +
+            this.getTestFileWithExt() + ".stg");
         const outputFileST = new ST(text);
         outputFileST.add("grammarName", runOptions.grammarName);
         outputFileST.add("lexerName", runOptions.lexerName);
         outputFileST.add("parserName", runOptions.parserName);
-        outputFileST.add("parserStartRuleName", this.grammarParseRuleToRecognizerName(runOptions.startRuleName));
+        outputFileST.add("parserStartRuleName", this.grammarParseRuleToRecognizerName(runOptions.startRuleName ?? ""));
         outputFileST.add("showDiagnosticErrors", runOptions.showDiagnosticErrors);
         outputFileST.add("traceATN", runOptions.traceATN);
         outputFileST.add("profile", runOptions.profile);
@@ -278,27 +255,35 @@ export abstract class RuntimeRunner {
         FileUtils.writeFile(this.getTempDirPath(), RuntimeRunner.InputFileName, runOptions.input);
     }
 
-    protected execute(runOptions: RunOptions, compiledState: CompiledState): ExecutedState {
+    protected async execute(runOptions: RunOptions, compiledState: CompiledState): Promise<ExecutedState> {
         let output = null;
         let errors = null;
-        let exception = null;
+        let exception: Error | null = null;
         try {
-            const args = new java.util.ArrayList();
+            const args: string[] = [];
             const runtimeToolPath = this.getRuntimeToolPath();
             if (runtimeToolPath !== null) {
-                args.add(runtimeToolPath);
+                args.push(runtimeToolPath);
             }
             const extraRunArgs = this.getExtraRunArgs();
             if (extraRunArgs !== null) {
-                args.addAll(java.util.Arrays.asList(extraRunArgs));
+                args.push(...extraRunArgs);
             }
-            args.add(this.getExecFileName());
-            args.add(RuntimeRunner.InputFileName);
-            const result = java.util.concurrent.Flow.Processor.run(args.toArray(new Array<String>(0)), this.getTempDirPath(), this.getExecEnvironment());
+
+            args.push(this.getExecFileName());
+            args.push(RuntimeRunner.InputFileName);
+
+            const result = await Processor.run(args, this.getTempDirPath(), this.getExecEnvironment());
             output = result.output;
             errors = result.errors;
         } catch (e) {
-            if (e instanceof InterruptedException || e instanceof IOException) {
+            // Tricky: we don't get these exceptions in TS, so when should we throw?
+            /*if (e instanceof InterruptedException || e instanceof IOException) {
+                exception = e;
+            } else {
+                throw e;
+            }*/
+            if (e instanceof Error) {
                 exception = e;
             } else {
                 throw e;
@@ -308,71 +293,46 @@ export abstract class RuntimeRunner {
         return new ExecutedState(compiledState, output, errors, exception);
     }
 
-    protected runCommand(command: string[], workPath: string): ProcessorResult;
-
-    protected runCommand(command: string[], workPath: string, description: string): ProcessorResult;
-    protected runCommand(...args: unknown[]): ProcessorResult {
-        switch (args.length) {
-            case 2: {
-                const [command, workPath] = args as [String[], String];
-
-                return this.runCommand(command, workPath, null);
-
-                break;
-            }
-
-            case 3: {
-                const [command, workPath, description] = args as [String[], String, String];
-
-                const cmd = String.join(" ", command);
-                try {
-                    return java.util.concurrent.Flow.Processor.run(command, workPath);
-                } catch (e) {
-                    if (e instanceof InterruptedException || e instanceof IOException) {
-                        let msg = "command \"" + cmd + "\"\n  in " + workPath + " failed";
-                        if (description !== null) {
-                            msg += ":\n  can't " + description;
-                        }
-                        throw new Exception(msg, e);
-                    } else {
-                        throw e;
-                    }
+    protected async runCommand(command: string[], workPath: string, description?: string): Promise<ProcessorResult> {
+        const cmd = command.join(" ");
+        try {
+            return await Processor.run(command, workPath);
+        } catch (e) {
+            if (e instanceof Error) {
+                // if (e instanceof InterruptedException || e instanceof IOException) {
+                let msg = "command \"" + cmd + "\"\n  in " + workPath + " failed";
+                if (description !== null) {
+                    msg += ":\n  can't " + description;
                 }
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+                throw new Error(msg, e);
+            } else {
+                throw e;
             }
         }
     }
 
     private initAntlrRuntimeIfRequired(runOptions: RunOptions): boolean {
         const language = this.getLanguage();
-        let status: RuntimeRunner.InitializationStatus;
 
         // Create initialization status for every runtime with lock object
-        /* synchronized (runtimeInitializationStatuses) { */
-        status = RuntimeRunner.runtimeInitializationStatuses.get(language);
-        if (status === null) {
-            status = new RuntimeRunner.InitializationStatus();
-            RuntimeRunner.runtimeInitializationStatuses.put(language, status);
+        let status = RuntimeRunner.runtimeInitializationStatuses.get(language);
+        if (!status) {
+            status = {};
+            RuntimeRunner.runtimeInitializationStatuses.set(language, status);
         }
-        /* } */
 
-        if (status.isInitialized !== null) {
+        if (status.isInitialized != null) {
             return status.isInitialized;
         }
 
-        if (status.isInitialized === null) {
-            let exception = null;
+        if (status.isInitialized == null) {
+            let exception: Error | undefined;
             try {
                 this.initRuntime(runOptions);
             } catch (e) {
-                if (e instanceof Exception) {
+                if (e instanceof Error) {
                     exception = e;
-                    e.printStackTrace();
+                    console.error(e.stack);
                 } else {
                     throw e;
                 }
@@ -386,18 +346,7 @@ export abstract class RuntimeRunner {
 
     private removeTempTestDirIfRequired(): void {
         if (!this.saveTestDir) {
-            const dirFile = this.tempTestDir.toFile();
-            if (dirFile.exists()) {
-                try {
-                    java.nio.file.SecureDirectoryStream.deleteDirectory(dirFile);
-                } catch (e) {
-                    if (e instanceof IOException) {
-                        e.printStackTrace();
-                    } else {
-                        throw e;
-                    }
-                }
-            }
+            fs.rmdirSync(this.tempTestDir, { recursive: true });
         }
     }
 

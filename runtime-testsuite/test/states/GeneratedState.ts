@@ -17,8 +17,8 @@ export class GeneratedState extends State {
     public readonly errorQueue: ErrorQueue;
     public readonly generatedFiles: GeneratedFile[];
 
-    public constructor(errorQueue: ErrorQueue, generatedFiles: GeneratedFile[], exception?: Error) {
-        super(undefined, exception);
+    public constructor(errorQueue: ErrorQueue, generatedFiles: GeneratedFile[], exception: Error | null) {
+        super(null, exception);
         this.errorQueue = errorQueue;
         this.generatedFiles = generatedFiles;
     }

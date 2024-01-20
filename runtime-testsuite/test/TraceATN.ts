@@ -1,5 +1,9 @@
+/* java2ts: keep */
 
-import { java, JavaObject, type int } from "jree";
+// cspell: disable
+
+import fs from "fs";
+
 import { Stage } from "./Stage.js";
 import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
 import { RuntimeRunner } from "./RuntimeRunner.js";
@@ -7,28 +11,12 @@ import { RunOptions } from "./RunOptions.js";
 import { GrammarType } from "./GrammarType.js";
 import { FileUtils } from "./FileUtils.js";
 import { PredictionMode } from "antlr4ng";
-import { JavaRunner } from "./java/JavaRunner.js";
 import { ExecutedState } from "./states/ExecutedState.js";
-import { assertEquals, assertThrows } from "../junit.js";
-
-type String = java.lang.String;
-const String = java.lang.String;
-type System = java.lang.System;
-const System = java.lang.System;
-type Files = java.nio.file.Files;
-const Files = java.nio.file.Files;
-type Paths = java.nio.file.Paths;
-const Paths = java.nio.file.Paths;
-type Class<T> = java.lang.Class<T>;
-const Class = java.lang.Class;
-
-import { Test, Override } from "../decorators.js";
 
 /**
  * Run a lexer/parser and dump ATN debug/trace information
  *
- *  java org.antlr.v4.test.runtime.TraceATN [X.g4|XParser.g4 XLexer.g4] startRuleName -target [Java|Cpp|...] inputFileName
- *
+ *  TraceATN [X.g4|XParser.g4 XLexer.g4] startRuleName -target [Java|Cpp|...] inputFileName
  *
  * In preparation, run this so we get right jars before trying this script:
  *
@@ -44,44 +32,32 @@ import { Test, Override } from "../decorators.js";
  * Here is scripts/traceatn.sh:
  *
  * export ANTLRJAR=/Users/parrt/.m2/repository/org/antlr/antlr4/4.11.2-SNAPSHOT/antlr4-4.11.2-SNAPSHOT-complete.jar
- * export TESTJAR=/Users/parrt/.m2/repository/org/antlr/antlr4-runtime-testsuite/4.11.2-SNAPSHOT/antlr4-runtime-testsuite-4.11.2-SNAPSHOT-tests.jar
+ * export TESTJAR=/Users/parrt/.m2/repository/org/antlr/antlr4-runtime-testsuite/4.11.2-SNAPSHOT/\
+ *      antlr4-runtime-testsuite-4.11.2-SNAPSHOT-tests.jar
  * java -classpath $ANTLRJAR:$TESTJAR org.antlr.v4.test.runtime.TraceATN $@
  */
-export class TraceATN extends JavaObject {
-    public static IgnoreTokenVocabGrammar = class IgnoreTokenVocabGrammar extends Grammar {
-        public constructor(fileName: String,
-            grammarText: String,
-            tokenVocabSource: Grammar,
-            listener: ANTLRToolListener) {
-            super(fileName, grammarText, tokenVocabSource, listener);
-        }
-
-        @Override
-        public importTokensFromTokensFile(): void {
-            // don't try to import tokens files; must give me both grammars if split
-        }
-    };
-
-    protected grammarFileName: String;
-    protected parserGrammarFileName: String;
-    protected lexerGrammarFileName: String;
-    protected startRuleName: String;
-    protected inputFileName: String;
+export class TraceATN {
+    protected grammarFileName: string | null = null;
+    protected parserGrammarFileName: string | null = null;
+    protected lexerGrammarFileName: string | null = null;
+    protected startRuleName: string | null = null;
+    protected inputFileName: string | null = null;
     protected targetName = "Java";
-    protected encoding: String;
+    protected encoding: string | null = null;
 
-    public constructor(args: String[]) {
-        super();
+    public constructor(args: string[]) {
         if (args.length < 2) {
-            System.err.println("java org.antlr.v4.test.runtime.TraceATN [X.g4|XParser.g4 XLexer.g4] startRuleName\n" +
-                "    [-encoding encodingname] -target (Java|Cpp|...) input-filename");
-            System.err.println("Omitting input-filename makes program read from stdin.");
+            console.error("TraceATN [X.g4|XParser.g4 XLexer.g4] startRuleName\n" +
+                "    [-encoding encodingName] -target (Java|Cpp|...) input-filename");
+            console.error("Omitting input-filename makes program read from stdin.");
 
-            return;
+            throw new Error("Invalid arguments");
         }
+
         let i = 0;
         this.grammarFileName = args[i];
         i++;
+
         if (args[i].endsWith(".g4")) {
             this.parserGrammarFileName = this.grammarFileName;
             this.lexerGrammarFileName = args[i];
@@ -94,6 +70,7 @@ export class TraceATN extends JavaObject {
                 this.lexerGrammarFileName = save;
             }
         }
+
         this.startRuleName = args[i];
         i++;
         while (i < args.length) {
@@ -101,77 +78,61 @@ export class TraceATN extends JavaObject {
             i++;
             if (arg.charAt(0) !== "-") { // input file name
                 this.inputFileName = arg;
-            }
-            else {
-                if (arg.equals("-encoding")) {
+            } else {
+                if (arg === "-encoding") {
                     if (i >= args.length) {
-                        System.err.println("missing encoding on -encoding");
-
-                        return;
+                        throw new Error("missing encoding on -encoding");
                     }
+
                     this.encoding = args[i];
                     i++;
-                }
-                else {
-                    if (arg.equals("-target")) {
+                } else {
+                    if (arg === "-target") {
                         if (i >= args.length) {
-                            System.err.println("missing name on -target");
-
-                            return;
+                            throw new Error("missing name on -target");
                         }
+
                         this.targetName = args[i];
                         i++;
                     }
                 }
-
             }
-
         }
     }
 
-    public static getRunner(targetName: String): RuntimeRunner {
-        const cl = Class.forName("org.antlr.v4.test.runtime." +
-            targetName.toLowerCase() + "." + targetName + "Runner");
+    public static async getRunner(targetName: string): Promise<RuntimeRunner> {
+        const module = await import("runtime-testsuite/test/" + targetName.toLowerCase() + "/" + targetName +
+            "Runner") as { [K in typeof targetName]: typeof RuntimeRunner };
+        const TargetNameRunner = module[targetName + "Runner"];
 
-        return cl.newInstance() as RuntimeRunner;
+        return Reflect.construct(TargetNameRunner, []) as RuntimeRunner;
     }
 
-    public static main(args: String[]): void {
-        const I = new TraceATN(args);
-        I.execParse();
+    public static async main(args: string[]): Promise<void> {
+        const instance = new TraceATN(args);
+        await instance.execParse();
     }
 
-    public test(descriptor: RuntimeTestDescriptor, runner: RuntimeRunner, targetName: String): String {
+    public async test(descriptor: RuntimeTestDescriptor, runner: RuntimeRunner, targetName: string): Promise<string> {
         FileUtils.mkdir(runner.getTempDirPath());
 
         const grammarName = descriptor.grammarName;
         const grammar = descriptor.grammar;
 
-        let lexerName: String;
-        let parserName: String;
+        let lexerName: string;
+        let parserName: string | null;
         let useListenerOrVisitor: boolean;
-        let superClass: String;
+        let superClass: string | null;
         if (descriptor.testType === GrammarType.Parser || descriptor.testType === GrammarType.CompositeParser) {
             lexerName = grammarName + "Lexer";
             parserName = grammarName + "Parser";
             useListenerOrVisitor = true;
-            if (targetName !== null && targetName.equals("Java")) {
-                superClass = JavaRunner.runtimeTestParserName;
-            }
-            else {
-                superClass = null;
-            }
-        }
-        else {
+            superClass = null;
+        } else {
             lexerName = grammarName;
             parserName = null;
             useListenerOrVisitor = false;
-            if (targetName.equals("Java")) {
-                superClass = JavaRunner.runtimeTestLexerName;
-            }
-            else {
-                superClass = null;
-            }
+            superClass = null;
         }
 
         const runOptions = new RunOptions(grammarName + ".g4",
@@ -193,7 +154,7 @@ export class TraceATN extends JavaObject {
             true,
         );
 
-        const result = runner.run(runOptions);
+        const result = await runner.run(runOptions);
 
         let executedState: ExecutedState;
         if (result instanceof ExecutedState) {
@@ -203,32 +164,27 @@ export class TraceATN extends JavaObject {
             }
 
             return executedState.output;
-        }
-        else {
+        } else {
             return result.getErrorMessage();
         }
     }
 
-    protected execParse(): void {
-        if (this.grammarFileName === null && (this.parserGrammarFileName === null && this.lexerGrammarFileName === null)) {
-            System.err.println("No grammar specified");
-
-            return;
+    protected async execParse(): Promise<void> {
+        if (this.grammarFileName === null && (this.parserGrammarFileName === null
+            && this.lexerGrammarFileName === null)) {
+            throw new Error("No grammar specified");
         }
 
         if (this.inputFileName === null) {
-            System.err.println("No input file specified");
-
-            return;
+            throw new Error("No input file specified");
         }
 
-        let grammarName =
-            this.grammarFileName.substring(this.grammarFileName.lastIndexOf("/") + 1, this.grammarFileName.length());
+        let grammarName = this.grammarFileName!.substring(this.grammarFileName!.lastIndexOf("/") + 1,
+            this.grammarFileName!.length);
         grammarName = grammarName.substring(0, grammarName.indexOf(".g4"));
         if (this.grammarFileName !== null) {
-            const grammar = new String(Files.readAllBytes(Paths.get(this.grammarFileName)));
-
-            const input = new String(Files.readAllBytes(Paths.get(this.inputFileName)));
+            const grammar = fs.readFileSync(this.grammarFileName, { encoding: "utf-8" });
+            const input = fs.readFileSync(this.inputFileName, { encoding: "utf-8" });
 
             const descriptor = new RuntimeTestDescriptor(
                 GrammarType.CompositeParser,
@@ -249,15 +205,10 @@ export class TraceATN extends JavaObject {
                 null,
                 null);
 
-            const runner = TraceATN.getRunner(this.targetName);
+            const runner = await TraceATN.getRunner(this.targetName);
 
             const result = this.test(descriptor, runner, this.targetName);
             console.log(result);
         }
     }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
-export namespace TraceATN {
-    export type IgnoreTokenVocabGrammar = InstanceType<typeof TraceATN.IgnoreTokenVocabGrammar>;
 }
