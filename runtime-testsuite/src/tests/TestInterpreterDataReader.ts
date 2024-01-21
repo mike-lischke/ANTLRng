@@ -10,8 +10,8 @@ import fs from "fs";
 
 import { InterpreterDataReader } from "antlr4ng";
 
-import { Test } from "../../decorators.js";
-import { assertEquals, assertNull } from "../../junit.js";
+import { Test } from "../../utils/decorators.js";
+import { assertEquals, assertNull } from "../../utils/junit.js";
 
 /**
  * This file represents a simple sanity checks on the parsing of the .interp file

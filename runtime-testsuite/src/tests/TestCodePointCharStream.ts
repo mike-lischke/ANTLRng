@@ -7,9 +7,9 @@
  */
 
 import { CharStreams, Interval, IntStream } from "antlr4ng";
-import { assertEquals, assertThrows } from "../../junit.js";
+import { assertEquals, assertThrows } from "../../utils/junit.js";
 
-import { Test } from "../../decorators.js";
+import { Test } from "../../utils/decorators.js";
 
 export class TestCodePointCharStream {
     @Test

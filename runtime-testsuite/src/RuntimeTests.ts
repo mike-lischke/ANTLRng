@@ -21,7 +21,7 @@ import { FileUtils } from "./FileUtils.js";
 import { CustomDescriptors } from "./CustomDescriptors.js";
 import { ExecutedState } from "./states/ExecutedState.js";
 import { State } from "./states/State.js";
-import { Test } from "../decorators.js";
+import { Test } from "../utils/decorators.js";
 import path from "path";
 
 /**

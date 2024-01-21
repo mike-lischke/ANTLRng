@@ -12,11 +12,15 @@
         "plugin:jsdoc/recommended"
     ],
     "ignorePatterns": [
-        "**/generated/*"
+        "**/generated/*",
+        "jest.config.ts"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "tsconfig.json",
+        "project": [
+            "tsconfig.json",
+            "runtime-testsuite/tsconfig.json"
+        ],
         "sourceType": "module",
         "implicitStrict": true,
         "ecmaFeatures": {
@@ -504,9 +508,6 @@
                     "public-static-field",
                     "protected-static-field",
                     "private-static-field",
-                    "public-decorated-field",
-                    "protected-decorated-field",
-                    "private-decorated-field",
                     "public-instance-field",
                     "protected-instance-field",
                     "private-instance-field",
@@ -529,12 +530,9 @@
                     "public-static-method",
                     "protected-static-method",
                     "private-static-method",
-                    "public-decorated-method",
-                    "protected-decorated-method",
-                    "private-decorated-method",
-                    "public-instance-method",
-                    "protected-instance-method",
-                    "private-instance-method",
+                    "public-method",
+                    "protected-method",
+                    "private-method",
                     "public-abstract-method",
                     "protected-abstract-method"
                 ]
@@ -544,7 +542,7 @@
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/no-parameter-properties": "off",
         "@typescript-eslint/no-use-before-define": "error",
-        "@typescript-eslint/no-unsafe-assignment": "error",
+        "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/no-unsafe-member-access": "error",
         "@typescript-eslint/no-unsafe-call": "error",
         "@typescript-eslint/no-unsafe-return": "error",
@@ -636,6 +634,7 @@
         "jsdoc/tag-lines": [
             // Have to switch this off, as it is not good enough to be used.
             "off"
-        ]
+        ],
+        "jsdoc/no-undefined-types": "off"
     }
 }

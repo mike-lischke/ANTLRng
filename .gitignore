@@ -2,3 +2,4 @@ node_modules
 output
 coverage
 runtime-testsuite/generated
+/dist

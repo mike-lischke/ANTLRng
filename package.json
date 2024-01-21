@@ -10,7 +10,7 @@
     "author": "Mike Lischke",
     "license": "MIT",
     "dependencies": {
-        "antlr4ng": "2.0.7",
+        "antlr4ng": "2.0.8",
         "fast-printf": "1.6.9",
         "stringtemplate4ts": "1.0.1"
     },
@@ -32,10 +32,10 @@
         "unicode-properties": "^1.4.1"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "npm run generate-test-parsers && tsc",
         "lint": "eslint \"./runtime/**/*.ts\"",
         "lint:fix": "eslint \"./runtime/**/*.ts\" --fix",
-        "test": "tsc",
+        "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage",
         "generate-test-parsers": "./build/generate-test-parsers.sh"
     }
 }

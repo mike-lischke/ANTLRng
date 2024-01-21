@@ -12,7 +12,7 @@ import { existsSync, readFileSync } from "fs";
 
 import { OSType } from "./OSType.js";
 import { ATNPrinter, Grammar } from "../temp.js";
-import { assertEquals } from "../junit.js";
+import { assertEquals } from "../utils/junit.js";
 
 export abstract class RuntimeTestUtils {
     public static readonly NewLine = os.EOL;

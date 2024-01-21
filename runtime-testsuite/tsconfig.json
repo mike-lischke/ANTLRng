@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "Node16",
+        "target": "ES2022",
+        "module": "Node16",
+        "noEmit": true,
+        "declaration": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "noImplicitAny": true,
+        "noImplicitOverride": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "removeComments": false
+    },
+    "include": [
+        "**/*.ts",
+        "../jest.config.ts"
+    ],
+    "exclude": [],
+}

@@ -5,9 +5,8 @@
 
 /* eslint-disable max-classes-per-file */
 
-import { ATN, CharStream, Lexer, LexerATNSimulator, LexerInterpreter, RuleStartState, Vocabulary } from "antlr4ng";
+import { ATN, RuleStartState, Vocabulary } from "antlr4ng";
 import { ST } from "stringtemplate4ts";
-import { GrammarType } from "./test/GrammarType.js";
 
 /**
  * Skeleton implementations for classes from the ANTLR tool.
@@ -32,12 +31,6 @@ export class Grammar {
 
     public getTokenNames(): Vocabulary {
         return new Vocabulary([], []);
-    }
-}
-
-export class LexerGrammar extends Grammar {
-    public createLexerInterpreter(input: CharStream): Lexer {
-        return new LexerInterpreter("", new Vocabulary([], []), [], [], [], new ATN(GrammarType.Lexer, 0), input);
     }
 }
 

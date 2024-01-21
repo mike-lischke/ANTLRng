@@ -11,11 +11,11 @@ import {
     TerminalNode, CharStreams, Token, ATNSimulator, RuleContext,
 } from "antlr4ng";
 
-import { Test } from "../../../decorators.js";
+import { Test } from "../../../utils/decorators.js";
 import { VisitorBasicLexer } from "../../../generated/VisitorBasicLexer.js";
 import { VisitorBasicParser } from "../../../generated/VisitorBasicParser.js";
 import { VisitorBasicVisitor } from "../../../generated/VisitorBasicVisitor.js";
-import { assertEquals } from "../../../junit.js";
+import { assertEquals } from "../../../utils/junit.js";
 import { VisitorCalcLexer } from "../../../generated/VisitorCalcLexer.js";
 import {
     AddContext, MultiplyContext, NumberContext, SContext, VisitorCalcParser,

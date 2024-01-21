@@ -43,6 +43,31 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Run api.spec.ts",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--experimental-vm-modules",
+                "--no-warnings",
+                "--loader",
+                "ts-node/esm",
+                "${workspaceRoot}/node_modules/.bin/jest",
+                "api.spec.ts",
+                "--no-coverage",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "smartStep": true,
+            "trace": false,
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Lexer Benchmark",
             "skipFiles": [
                 "<node_internals>/**"

@@ -10,9 +10,9 @@ import { ParserRuleContext } from "antlr4ng";
 
 import { RuntimeTestUtils } from "../../RuntimeTestUtils.js";
 
-import { Test } from "../../../decorators.js";
+import { Test } from "../../../utils/decorators.js";
 import { Grammar } from "../../../temp.js";
-import { assertEquals } from "../../../junit.js";
+import { assertEquals } from "../../../utils/junit.js";
 
 export class TestExpectedTokens {
     @Test
