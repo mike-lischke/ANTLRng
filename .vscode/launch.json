@@ -76,7 +76,7 @@
                 "--no-warnings=ExperimentalWarning",
                 "--loader",
                 "ts-node/esm",
-                "runtime-testsuite/test/java/api/perf/TestLexerSpeed.ts",
+                "runtime-testsuite/src/tests/api/perf/TimeLexerSpeed.ts",
             ],
             "sourceMaps": true,
         }

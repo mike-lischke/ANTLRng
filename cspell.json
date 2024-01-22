@@ -88,7 +88,8 @@
         "unpredicated",
         "uxxxx",
         "vnext",
-        "workdir"
+        "workdir",
+        "xdescribe"
     ],
     "ignorePaths": [
         ".eslintrc.json"

@@ -8,7 +8,7 @@
 
 import path from "path";
 import os from "os";
-import { existsSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 
 import { OSType } from "./OSType.js";
 import { ATNPrinter, Grammar } from "../temp.js";
@@ -20,9 +20,9 @@ export abstract class RuntimeTestUtils {
     public static readonly FileSeparator = path.sep;
     public static readonly TempDirectory = os.tmpdir();
 
-    public static readonly runtimePath: string;
-    public static readonly runtimeTestsuitePath: string;
-    public static readonly resourcePath: string;
+    public static readonly runtimePath = "runtime/";
+    public static readonly runtimeTestsuitePath = "runtime-testsuite";
+    public static readonly resourcePath = "runtime-testsuite/resources";
 
     private static readonly resourceCache = new Map<string, string>();
     private static detectedOS: OSType = OSType.Invalid;
@@ -85,27 +85,5 @@ export abstract class RuntimeTestUtils {
         }
 
         return result;
-    }
-
-    static {
-        let locationPath = process.cwd();
-        if (RuntimeTestUtils.isWindows()) {
-            locationPath = locationPath.replace("/", "");
-        }
-        const potentialRuntimeTestsuitePath = path.join(locationPath, "..", "..");
-        const potentialResourcePath = path.join(potentialRuntimeTestsuitePath, "resources");
-
-        if (existsSync(potentialResourcePath)) {
-            // @ts-expect-error
-            RuntimeTestUtils.runtimeTestsuitePath = potentialRuntimeTestsuitePath;
-        } else {
-            // @ts-expect-error
-            RuntimeTestUtils.runtimeTestsuitePath = path.join("..", "runtime-testsuite");
-        }
-
-        // @ts-expect-error
-        RuntimeTestUtils.runtimePath = path.join(RuntimeTestUtils.runtimeTestsuitePath, "..", "runtime");
-        // @ts-expect-error
-        RuntimeTestUtils.resourcePath = path.join(RuntimeTestUtils.runtimeTestsuitePath, "resources");
     }
 }
