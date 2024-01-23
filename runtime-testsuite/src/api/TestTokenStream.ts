@@ -6,11 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { BufferedTokenStream, CharStreams, Token, type TokenStream } from "antlr4ng";
+import { BufferedTokenStream, CharStreams, Token } from "antlr4ng";
 
-import { Test } from "../../../utils/decorators.js";
-import { VisitorBasicLexer } from "../../../generated/VisitorBasicLexer.js";
-import { assertEquals } from "../../../utils/junit.js";
+import { Test } from "../../utils/decorators.js";
+import { VisitorBasicLexer } from "../../generated/VisitorBasicLexer.js";
+import { assertEquals } from "../../utils/junit.js";
 
 /**
  * This class contains tests for specific API functionality in {@link TokenStream} and derived types.

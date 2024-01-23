@@ -10,8 +10,8 @@ import { basename } from "path";
 import { CharStream, CharStreams, CommonTokenStream, Lexer } from "antlr4ng";
 import { printf } from "fast-printf";
 
-import { JavaLexer } from "../../../../generated/JavaLexer.js";
-import { graphemesLexer } from "../../../../generated/graphemesLexer.js";
+import { JavaLexer } from "../../../generated/JavaLexer.js";
+import { graphemesLexer } from "../../../generated/graphemesLexer.js";
 
 // cspell: ignore udhr
 

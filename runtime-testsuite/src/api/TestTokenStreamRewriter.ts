@@ -10,12 +10,12 @@
 
 import { CommonTokenStream, TokenStreamRewriter, Interval, CharStreams, Lexer, CharStream } from "antlr4ng";
 
-import { Test } from "../../../utils/decorators.js";
-import { assertEquals, assertNotNull } from "../../../utils/junit.js";
+import { Test } from "../../utils/decorators.js";
+import { assertEquals, assertNotNull } from "../../utils/junit.js";
 
-import { T1 } from "../../../generated/T1.js";
-import { T2 } from "../../../generated/T2.js";
-import { T3 } from "../../../generated/T3.js";
+import { T1 } from "../../generated/T1.js";
+import { T2 } from "../../generated/T2.js";
+import { T3 } from "../../generated/T3.js";
 
 /**
  * @param lexerClass The lexer class to use.

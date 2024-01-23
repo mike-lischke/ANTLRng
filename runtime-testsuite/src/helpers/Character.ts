@@ -417,6 +417,10 @@ export class Character {
         return isUpperCase(c);
     }
 
+    public static isISOControl(c: number): boolean {
+        return c <= 0x1F || (c >= 0x7F && c <= 0x9F);
+    }
+
     /**
      * Converts the specified surrogate pair to its supplementary code point value.
      *
