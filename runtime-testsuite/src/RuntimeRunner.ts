@@ -8,7 +8,9 @@
 
 import * as os from "os";
 import path from "path";
-import fs from "fs";
+import { execSync } from "child_process";
+import { mkdirSync, rmdirSync } from "fs";
+import { ST, STGroup, STGroupFile, StringRenderer } from "stringtemplate4ts";
 
 import { Stage } from "./Stage.js";
 import { RuntimeTestUtils } from "./RuntimeTestUtils.js";
@@ -20,11 +22,13 @@ import { FileUtils } from "./FileUtils.js";
 import { CompiledState } from "./states/CompiledState.js";
 import { ExecutedState } from "./states/ExecutedState.js";
 import { GeneratedState } from "./states/GeneratedState.js";
-import { ST } from "stringtemplate4ts";
 import { Processor } from "./Processor.js";
 import { State } from "./states/State.js";
+import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
+import { RuntimeTests } from "./RuntimeTests.js";
+import { GrammarType } from "./GrammarType.js";
 
-export abstract class RuntimeRunner {
+export class RuntimeRunner {
     public static readonly InputFileName = "input";
     public static readonly cacheDirectory = os.tmpdir();
 
@@ -34,19 +38,19 @@ export abstract class RuntimeRunner {
     private static readonly runtimeInitializationStatuses =
         new Map<string, { isInitialized?: boolean; exception?: Error; }>();
 
-    protected readonly tempTestDir: string;
+    private static readonly stringRenderer = new StringRenderer();
 
-    private saveTestDir: boolean;
+    public keepTargetDir = false;
 
-    public constructor(tempDir?: string, saveTestDir?: boolean) {
-        if (!tempDir) {
-            const dirName = this.constructor.name + "-" + new Date().getTime();
-            this.tempTestDir = path.join(RuntimeTestUtils.TempDirectory, dirName);
-        }
-        else {
-            this.tempTestDir = tempDir;
-        }
-        this.saveTestDir = saveTestDir ?? false;
+    // The work directory for a group of tests.
+    readonly #groupDir: string;
+
+    // The relative path for this test run.
+    readonly #testDir: string;
+
+    public constructor(groupDir: string, testDir: string) {
+        this.#groupDir = groupDir;
+        this.#testDir = testDir;
     }
 
     public static getCachePath(language: string): string {
@@ -57,23 +61,81 @@ export abstract class RuntimeRunner {
         return path.join(RuntimeTestUtils.runtimePath, language);
     }
 
-    public getTempDirPath(): string {
-        return this.tempTestDir.toString();
+    public get targetPath(): string {
+        return path.join(this.#groupDir, this.#testDir);
     }
 
-    public setSaveTestDir(saveTestDir: boolean): void {
-        this.saveTestDir = saveTestDir;
+    public test(descriptor: RuntimeTestDescriptor): string | null {
+        // Ensure that the target directory exists.
+        mkdirSync(this.targetPath, { recursive: true });
+
+        const targetName = this.getLanguage();
+        if (descriptor.ignore(targetName)) {
+            console.log("Ignore " + descriptor);
+
+            return null;
+        }
+
+        const grammarName = descriptor.grammarName;
+        const grammar = this.prepareGrammars(descriptor);
+
+        let lexerName: string | null;
+        let parserName: string | null;
+        let useListenerOrVisitor: boolean;
+        let superClass: string | null;
+        if (descriptor.testType === GrammarType.Parser || descriptor.testType === GrammarType.CompositeParser) {
+            lexerName = grammarName + "Lexer";
+            parserName = grammarName + "Parser";
+            useListenerOrVisitor = true;
+            superClass = null;
+        } else {
+            lexerName = grammarName;
+            parserName = null;
+            useListenerOrVisitor = false;
+            superClass = null;
+        }
+
+        const runOptions = new RunOptions(grammarName + ".g4",
+            grammar,
+            parserName,
+            lexerName,
+            useListenerOrVisitor,
+            useListenerOrVisitor,
+            descriptor.startRule,
+            descriptor.input,
+            false,
+            descriptor.showDiagnosticErrors,
+            descriptor.traceATN,
+            descriptor.showDFA,
+            Stage.Execute,
+            targetName,
+            superClass,
+            descriptor.predictionMode,
+            descriptor.buildParseTree,
+        );
+
+        const state = this.run(runOptions);
+
+        const result = RuntimeTests.assertCorrectOutput(descriptor, targetName, state);
+
+        if (result !== null) {
+            this.keepTargetDir = true;
+        }
+
+        if (!this.keepTargetDir) {
+            rmdirSync(this.targetPath, { recursive: true });
+        }
+
+        return result;
+
     }
 
-    public close(): void {
-        this.removeTempTestDirIfRequired();
-    }
-
-    public run(runOptions: RunOptions): Promise<State> {
+    public run(runOptions: RunOptions): State {
         const options: string[] = [];
         if (runOptions.useVisitor) {
             options.push("-visitor");
         }
+
         if (runOptions.superClass !== null && runOptions.superClass.length > 0) {
             options.push("-DsuperClass=" + runOptions.superClass);
         }
@@ -84,20 +146,20 @@ export abstract class RuntimeRunner {
             options.push(...targetOpts);
         }
 
-        const errorQueue = Generator.antlrOnString(this.getTempDirPath(), this.getLanguage(),
+        const errorQueue = Generator.generateANTLRFilesInTempDir(this.targetPath, this.getLanguage(),
             runOptions.grammarFileName, runOptions.grammarStr, false, options);
 
         const generatedFiles = this.getGeneratedFiles(runOptions);
         const generatedState = new GeneratedState(errorQueue, generatedFiles, null);
 
         if (generatedState.containsErrors() || runOptions.endStage === Stage.Generate) {
-            return Promise.resolve(generatedState);
+            return generatedState;
         }
 
         if (!this.initAntlrRuntimeIfRequired(runOptions)) {
             // Do not repeat ANTLR runtime initialization error
-            return Promise.resolve(new CompiledState(generatedState,
-                new Error(this.getTitleName() + " ANTLR runtime is not initialized")));
+            return new CompiledState(generatedState,
+                new Error(this.getTitleName() + " ANTLR runtime is not initialized"));
         }
 
         this.writeRecognizerFile(runOptions);
@@ -105,15 +167,18 @@ export abstract class RuntimeRunner {
         const compiledState = this.compile(runOptions, generatedState);
 
         if (compiledState.containsErrors() || runOptions.endStage === Stage.Compile) {
-            return Promise.resolve(compiledState);
+            return compiledState;
         }
 
-        this.writeInputFile(runOptions);
+        FileUtils.writeFile(this.targetPath, RuntimeRunner.InputFileName, runOptions.input);
 
         return this.execute(runOptions, compiledState);
     }
 
-    protected getExtension(): string { return this.getLanguage().toLowerCase(); }
+    public getLanguage(): string {
+        return "TypeScript";
+    }
+    protected getExtension(): string { return "ts"; }
 
     protected getTitleName(): string { return this.getLanguage(); }
 
@@ -161,17 +226,19 @@ export abstract class RuntimeRunner {
         return RuntimeRunner.runtimeToolPath;
     }
 
-    protected getCompilerName(): string { return ""; }
+    protected getCompilerName(): string { return "tsc"; }
 
-    protected getRuntimeToolName(): string { return this.getLanguage().toLowerCase(); }
+    protected getRuntimeToolName(): string { return ""; }
 
     protected getTestFileWithExt(): string { return this.getTestFileName() + "." + this.getExtension(); }
 
     protected getExecFileName(): string { return this.getTestFileWithExt(); }
 
-    protected getExtraRunArgs(): string[] { return []; }
+    protected getExtraRunArgs(): string[] {
+        return ["--experimental-vm-modules", "--no-warnings", "--loader", "ts-node/esm"];
+    }
 
-    protected getExecEnvironment(): Map<string, string> { return new Map(); }
+    protected getExecEnvironment(): Map<string, string | undefined> { return new Map(Object.entries(process.env)); }
 
     protected getPropertyPrefix(): string {
         return "antlr-" + this.getLanguage().toLowerCase();
@@ -218,8 +285,7 @@ export abstract class RuntimeRunner {
     }
 
     protected writeRecognizerFile(runOptions: RunOptions): void {
-        const text = RuntimeTestUtils.getTextFromResource("runtime-testsuite/test/runtime/helpers/" +
-            this.getTestFileWithExt() + ".stg");
+        const text = RuntimeTestUtils.getTextFromResource("helpers/" + this.getTestFileWithExt() + ".stg");
         const outputFileST = new ST(text);
         outputFileST.add("grammarName", runOptions.grammarName);
         outputFileST.add("lexerName", runOptions.lexerName);
@@ -234,7 +300,7 @@ export abstract class RuntimeRunner {
         outputFileST.add("predictionMode", runOptions.predictionMode);
         outputFileST.add("buildParseTree", runOptions.buildParseTree);
         this.addExtraRecognizerParameters(outputFileST);
-        FileUtils.writeFile(this.getTempDirPath(), this.getTestFileWithExt(), outputFileST.render());
+        FileUtils.writeFile(this.targetPath, this.getTestFileWithExt(), outputFileST.render());
     }
 
     protected grammarParseRuleToRecognizerName(startRuleName: string): string {
@@ -248,16 +314,18 @@ export abstract class RuntimeRunner {
     }
 
     protected compile(runOptions: RunOptions, generatedState: GeneratedState): CompiledState {
-        return new CompiledState(generatedState, null);
+        try {
+            // TypeScript does not need to compile anything.
+
+            return new CompiledState(generatedState, null);
+        } catch (e) {
+            return new CompiledState(generatedState, e as Error);
+        }
     }
 
-    protected writeInputFile(runOptions: RunOptions): void {
-        FileUtils.writeFile(this.getTempDirPath(), RuntimeRunner.InputFileName, runOptions.input);
-    }
-
-    protected async execute(runOptions: RunOptions, compiledState: CompiledState): Promise<ExecutedState> {
+    protected execute(runOptions: RunOptions, compiledState: CompiledState): ExecutedState {
         let output = null;
-        let errors = null;
+        const errors = null;
         let exception: Error | null = null;
         try {
             const args: string[] = [];
@@ -273,21 +341,9 @@ export abstract class RuntimeRunner {
             args.push(this.getExecFileName());
             args.push(RuntimeRunner.InputFileName);
 
-            const result = await Processor.run(args, this.getTempDirPath(), this.getExecEnvironment());
-            output = result.output;
-            errors = result.errors;
+            output = execSync("node " + args.join(" "), { encoding: "utf-8", cwd: this.targetPath, env: {} });
         } catch (e) {
-            // Tricky: we don't get these exceptions in TS, so when should we throw?
-            /*if (e instanceof InterruptedException || e instanceof IOException) {
-                exception = e;
-            } else {
-                throw e;
-            }*/
-            if (e instanceof Error) {
-                exception = e;
-            } else {
-                throw e;
-            }
+            exception = e;
         }
 
         return new ExecutedState(compiledState, output, errors, exception);
@@ -337,18 +393,43 @@ export abstract class RuntimeRunner {
                     throw e;
                 }
             }
-            status.isInitialized = exception === null;
+            status.isInitialized = exception == null;
             status.exception = exception;
         }
 
         return status.isInitialized;
     }
 
-    private removeTempTestDirIfRequired(): void {
-        if (!this.saveTestDir) {
-            fs.rmdirSync(this.tempTestDir, { recursive: true });
+    private prepareGrammars(descriptor: RuntimeTestDescriptor): string {
+        const targetName = this.getLanguage();
+
+        let targetTemplates = RuntimeTests.cachedTargetTemplates.get(targetName);
+        if (!targetTemplates) {
+            const templateDir = path.join(RuntimeTestUtils.resourcePath, "templates");
+
+            targetTemplates = new STGroupFile(path.join(templateDir, targetName + ".test.stg"), "utf-8", "<", ">");
+            targetTemplates.registerRenderer(String, RuntimeRunner.stringRenderer);
+            RuntimeTests.cachedTargetTemplates.set(targetName, targetTemplates);
         }
+
+        // write out any slave grammars
+        const slaveGrammars = descriptor.slaveGrammars;
+        if (slaveGrammars !== null) {
+            for (const pair of slaveGrammars) {
+                const group = new STGroup("<", ">");
+                group.registerRenderer(String, RuntimeRunner.stringRenderer);
+                group.importTemplates(targetTemplates);
+                const grammarST = new ST(group, pair[1]);
+                FileUtils.writeFile(this.targetPath, pair[0] + ".g4", grammarST.render());
+            }
+        }
+
+        const group = new STGroup("<", ">");
+        group.importTemplates(targetTemplates);
+        group.registerRenderer(String, RuntimeRunner.stringRenderer);
+        const grammarST = new ST(group, descriptor.grammar);
+
+        return grammarST.render();
     }
 
-    public abstract getLanguage(): string;
 }

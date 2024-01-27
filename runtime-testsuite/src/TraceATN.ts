@@ -10,7 +10,6 @@ import { RuntimeRunner } from "./RuntimeRunner.js";
 import { RunOptions } from "./RunOptions.js";
 import { GrammarType } from "./GrammarType.js";
 import { FileUtils } from "./FileUtils.js";
-import { PredictionMode } from "antlr4ng";
 import { ExecutedState } from "./states/ExecutedState.js";
 
 /**
@@ -113,8 +112,8 @@ export class TraceATN {
         await instance.execParse();
     }
 
-    public async test(descriptor: RuntimeTestDescriptor, runner: RuntimeRunner, targetName: string): Promise<string> {
-        FileUtils.mkdir(runner.getTempDirPath());
+    public test(descriptor: RuntimeTestDescriptor, runner: RuntimeRunner, targetName: string): string {
+        FileUtils.mkdir(runner.targetPath);
 
         const grammarName = descriptor.grammarName;
         const grammar = descriptor.grammar;
@@ -150,11 +149,11 @@ export class TraceATN {
             Stage.Execute,
             targetName,
             superClass,
-            PredictionMode.LL,
+            "LL",
             true,
         );
 
-        const result = await runner.run(runOptions);
+        const result = runner.run(runOptions);
 
         let executedState: ExecutedState;
         if (result instanceof ExecutedState) {
@@ -200,7 +199,7 @@ export class TraceATN {
                 false,
                 true,
                 false,
-                PredictionMode.LL,
+                "LL",
                 true,
                 null,
                 null);

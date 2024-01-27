@@ -18,31 +18,6 @@ export class Rule {
     public readonly index = 0;
 }
 
-export class Grammar {
-    public constructor(public grammarText: string) {
-    }
-    public getRule(name: string): Rule {
-        return new Rule();
-    }
-
-    public getATN(): ATN {
-        return new ATN(0, 0);
-    }
-
-    public getTokenNames(): Vocabulary {
-        return new Vocabulary([], []);
-    }
-}
-
-export class ATNPrinter {
-    public constructor(grammar: Grammar, startState: RuleStartState | null) {
-    }
-
-    public asString(): string {
-        return "";
-    }
-}
-
 export class ANTLRMessage {
     public toString(): string {
         return "";

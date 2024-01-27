@@ -6,12 +6,18 @@
 import { TestException } from "./TestException.js";
 
 export type Constructor<T> = (new () => T);
-export type TestFunction = Function & { isTest: boolean; enabled?: boolean; };
+export type TestFunction = ((() => void) | (() => Promise<void>)) & { isTest?: boolean; enabled?: boolean; };
+
+export type TestFunctionList = Array<[string, TestFunction]>;
+export type TestFunctionGroup = Array<[string, Array<[string, TestFunction]>]>;
+export type TestFactory = () => TestFunctionGroup;
 
 interface IPropertyDescriptorParams {
     isTest?: boolean;
     description?: string;
-    dataProvider?: string;
+    isDataProvider?: string;
+    isTestFactory?: boolean;
+
     expectedExceptions?: Array<typeof Error>;
     enabled?: boolean;
     timeout?: number;
@@ -62,7 +68,8 @@ export class TestNG {
 
         const instance = new testClass();
 
-        const testMethods = Object.entries(descriptors).filter(([, descriptor]) => {
+        const testFactories: TestFactory[] = [];
+        const singleTestMethods = Object.entries(descriptors).filter(([, descriptor]) => {
             const value = descriptor.value as IPropertyDescriptorParams;
             if (value?.isBeforeAll || value?.isBeforeEach || value?.isAfterAll || value?.isAfterEach) {
                 // This adds a beforeAll/beforeEach etc. hook to the current test case.
@@ -72,10 +79,19 @@ export class TestNG {
                 return false;
             }
 
+            if (value?.isTestFactory) {
+                // This adds a test factory to the current test case.
+                const func = descriptor.value as TestFactory;
+                testFactories.push(func);
+
+                return false;
+            }
+
             return value?.isTest;
         });
 
-        testMethods.forEach(([entry, descriptor]) => {
+        // Each of these methods runs a single test. The method calls `it()` to register the test.
+        singleTestMethods.forEach(([entry, descriptor]) => {
             try {
                 const method = descriptor.value as TestFunction;
                 if (method.isTest && method.enabled !== false) {
@@ -94,6 +110,19 @@ export class TestNG {
                     throw error;
                 }
             }
+        });
+
+        // Test factories generate groups of methods to call `it()` for each test.
+        testFactories.forEach((factory) => {
+            factory().forEach((group) => {
+                describe(group[0], () => {
+                    group[1].forEach((test) => {
+                        it(test[0], async () => {
+                            await test[1].call(instance);
+                        });
+                    });
+                });
+            });
         });
     }
 }

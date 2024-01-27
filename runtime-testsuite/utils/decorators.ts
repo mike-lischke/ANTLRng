@@ -3,6 +3,8 @@
  * Licensed under the MIT License. See License-MIT.txt in the project root for license information.
  */
 
+import { TestFunction, TestFunctionGroup } from "./TestNG.js";
+
 /* eslint-disable @typescript-eslint/naming-convention */
 
 /**
@@ -42,6 +44,9 @@ export interface IDataProviderParameters {
 
 /** A definition of the target function for a function decorator. */
 export type DecoratorTargetFunction<This, Args extends unknown[], Return> = (this: This, ...args: Args) => Return;
+
+/** A definition of the target function for a test factory decorator. */
+export type DecoratorFactoryFunction<This, Args extends unknown[]> = (this: This, ...args: Args) => TestFunction[];
 
 /**
  * Marks a method as overriding an inherited method.
@@ -160,6 +165,23 @@ export function DataProvider<This, Args extends unknown[], Return>(
 }
 
 /**
+ * Marks a method as a test factory.
+ *
+ * @param target The target method.
+ * @param context The context of the decorator.
+ *
+ * @returns a method decorator.
+ */
+export const TestFactory = <This, Args extends unknown[]>(
+    target: DecoratorTargetFunction<This, Args, TestFunctionGroup>,
+    context: ClassMethodDecoratorContext<This, DecoratorTargetFunction<This, Args, TestFunctionGroup>>,
+): DecoratorTargetFunction<This, Args, TestFunctionGroup> => {
+    Object.defineProperty(target, "isTestFactory", { value: true });
+
+    return target;
+};
+
+/**
  * Decorator function for the Test annotation.
  *
  * @param target The target method.
@@ -236,7 +258,7 @@ export function Test<T extends ITestParameters, This, Args extends unknown[], Re
                                 `Use the @DataProvider decorator to mark it as data provider.`);
                         }
 
-                        // Call the provider method to get a list of test cases.
+                        // Call the provider method to get a set of records for tests.
                         const list = provider.call(this);
                         /*let cases: Iterator<unknown[]>;
                         if ("iterator" in list && typeof list.iterator === "function") {
@@ -286,8 +308,8 @@ export function Test<T extends ITestParameters, This, Args extends unknown[], Re
             ClassMethodDecoratorContext<This, DecoratorTargetFunction<This, Args, Return>>];
 
         const result = function (this: This, ...args: Args): Return {
-            it(target.name, () => {
-                target.call(this, ...args);
+            it(target.name, async () => {
+                await target.call(this, ...args);
             });
 
             return void 0 as Return;

@@ -11,8 +11,6 @@ import os from "os";
 import { readFileSync } from "fs";
 
 import { OSType } from "./OSType.js";
-import { ATNPrinter, Grammar } from "../temp.js";
-import { assertEquals } from "../utils/junit.js";
 
 export abstract class RuntimeTestUtils {
     public static readonly NewLine = os.EOL;
@@ -64,15 +62,6 @@ export abstract class RuntimeTestUtils {
         }
 
         return text;
-    }
-
-    public static checkRuleATN(g: Grammar, ruleName: string, expecting: string): void {
-        const r = g.getRule(ruleName);
-        const startState = g.getATN().ruleToStartState[r.index];
-        const serializer = new ATNPrinter(g, startState);
-        const result = serializer.asString();
-
-        assertEquals(expecting, result);
     }
 
     public static joinLines(...args: string[]): string {

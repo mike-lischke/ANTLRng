@@ -43,7 +43,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Run api.spec.ts",
+            "name": "Run runtime.spec.ts",
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--experimental-vm-modules",
@@ -51,7 +51,7 @@
                 "--loader",
                 "ts-node/esm",
                 "${workspaceRoot}/node_modules/.bin/jest",
-                "api.spec.ts",
+                "runtime.spec.ts",
                 "--no-coverage",
                 "--runInBand"
             ],

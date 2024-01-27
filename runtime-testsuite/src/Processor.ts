@@ -16,10 +16,10 @@ export class Processor {
 
     public readonly args: string[];
     public readonly workingDirectory: string;
-    public readonly environmentVariables: Map<string, string>;
+    public readonly environmentVariables: Map<string, string | undefined>;
     public readonly throwOnNonZeroErrorCode: boolean;
 
-    public constructor(args: string[], workingDirectory: string, environmentVariables: Map<string, string>,
+    public constructor(args: string[], workingDirectory: string, environmentVariables: Map<string, string | undefined>,
         throwOnNonZeroErrorCode: boolean) {
         this.args = args;
         this.workingDirectory = workingDirectory;
@@ -28,7 +28,7 @@ export class Processor {
     }
 
     public static run(args: string[], workingDirectory: string,
-        environmentVariables?: Map<string, string>): Promise<ProcessorResult> {
+        environmentVariables?: Map<string, string | undefined>): Promise<ProcessorResult> {
         environmentVariables ??= new Map<string, string>();
 
         return new Processor(args, workingDirectory, environmentVariables, true).start();
@@ -40,35 +40,36 @@ export class Processor {
                 console.log("RUNNING " + this.args + " in " + this.workingDirectory);
             }
 
-            const spawnOptions: ProcessEnvOptions = { cwd: this.workingDirectory };
-            if (this.environmentVariables.size > 0) {
+            const spawnOptions: ProcessEnvOptions = { cwd: this.workingDirectory, env: {} };
+            /*if (this.environmentVariables.size > 0) {
                 spawnOptions.env = {};
                 this.environmentVariables.forEach((value, key) => {
                     spawnOptions.env![key] = value;
                 });
-            }
-            const java = spawn("java", this.args, spawnOptions);
+            }*/
+            const node = spawn("node", this.args, spawnOptions);
 
             const out: string[] = [];
             const err: string[] = [];
 
-            java.stderr.on("data", (data: Buffer) => {
+            node.stderr.on("data", (data: Buffer) => {
                 err.push(data.toString());
+                reject(err.join(""));
             });
 
-            java.stdout.on("data", (data: Buffer) => {
+            node.stdout.on("data", (data: Buffer) => {
                 out.push(data.toString());
             });
 
-            java.on("exit", (code: number | null, signal: string | null) => {
+            node.on("exit", (code: number | null, signal: string | null) => {
                 const output = out.join("");
                 const errors = err.join("");
-                if (this.throwOnNonZeroErrorCode && java.exitCode !== 0) {
-                    throw new Error("Exit code " + java.exitCode + " with output:\n" +
+                if (this.throwOnNonZeroErrorCode && node.exitCode !== 0) {
+                    throw new Error("Exit code " + node.exitCode + " with output:\n" +
                         RuntimeTestUtils.joinLines(output, errors));
                 }
 
-                resolve(new ProcessorResult(java.exitCode, output, errors));
+                resolve(new ProcessorResult(node.exitCode, output, errors));
             });
         });
     }

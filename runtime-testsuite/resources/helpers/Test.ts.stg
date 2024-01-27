@@ -61,8 +61,9 @@ function main(argv: string[]): void {
     ParseTreeWalker.DEFAULT.walk(new TreeShapeListener(), tree);
 <else>
     stream.fill();
-    for(let i=0; i\<stream.tokens.length; i++) {
-        console.log(stream.tokens[i].toString());
+    const tokens = stream.getTokens();
+    for(let i=0; i\<tokens.length; i++) {
+        console.log(tokens[i].toString());
     }
 <if(showDFA)>
     process.stdout.write(lexer.interpreter.decisionToDFA[Lexer.DEFAULT_MODE].toLexerString());

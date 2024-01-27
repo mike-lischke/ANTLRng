@@ -6,7 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { PredictionMode } from "antlr4ng";
 import { GrammarType } from "./GrammarType.js";
 
 /**
@@ -52,7 +51,7 @@ export class RuntimeTestDescriptor {
 
     public readonly traceATN: boolean;
 
-    public readonly predictionMode: PredictionMode;
+    public readonly predictionMode: string;
 
     public readonly buildParseTree: boolean;
 
@@ -64,7 +63,7 @@ export class RuntimeTestDescriptor {
         input: string, output: string, errors: string,
         startRule: string | null,
         grammarName: string, grammar: string, slaveGrammars: Array<[string, string]> | null,
-        showDiagnosticErrors: boolean, traceATN: boolean, showDFA: boolean, predictionMode: PredictionMode,
+        showDiagnosticErrors: boolean, traceATN: boolean, showDFA: boolean, predictionMode: string,
         buildParseTree: boolean, skipTargets: string[] | null, path: string | null) {
         this.testType = testType;
         this.name = name;

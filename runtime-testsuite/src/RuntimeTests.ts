@@ -7,22 +7,21 @@
  */
 
 import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
 
-import { ST, STGroup, STGroupFile, StringRenderer } from "stringtemplate4ts";
+import { STGroup } from "stringtemplate4ts";
 
-import { Stage } from "./Stage.js";
 import { RuntimeTestUtils } from "./RuntimeTestUtils.js";
 import { RuntimeTestDescriptorParser } from "./RuntimeTestDescriptorParser.js";
 import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
 import { RuntimeRunner } from "./RuntimeRunner.js";
-import { RunOptions } from "./RunOptions.js";
-import { GrammarType } from "./GrammarType.js";
 import { FileUtils } from "./FileUtils.js";
 import { CustomDescriptors } from "./CustomDescriptors.js";
 import { ExecutedState } from "./states/ExecutedState.js";
 import { State } from "./states/State.js";
-import { Test } from "../utils/decorators.js";
-import path from "path";
+import { AfterAll, BeforeAll, TestFactory } from "../utils/decorators.js";
+import { TestFunctionGroup, TestFunctionList } from "../utils/TestNG.js";
 
 /**
  * This class represents runtime tests for specified runtime.
@@ -30,11 +29,14 @@ import path from "path";
  *  The only functionality needed to execute a test is defined in {@link RuntimeRunner}.
  *  All the various test rig classes derived from this one.
  */
-export abstract class RuntimeTests {
+export class RuntimeTests {
+    public static readonly cachedTargetTemplates = new Map<string, STGroup>();
 
     private static readonly testDescriptors = new Map<string, RuntimeTestDescriptor[]>();
-    private static readonly cachedTargetTemplates = new Map<string, STGroup>();
-    private static readonly rendered = new StringRenderer();
+
+    static #tempTestDir = "";
+    static #keepTestDir = false;
+    static #currentDir = "";
 
     public static assertCorrectOutput(descriptor: RuntimeTestDescriptor, targetName: string,
         state: State): string | null {
@@ -51,7 +53,10 @@ export abstract class RuntimeTests {
         const expectedOutput = descriptor.output;
         const expectedParseErrors = descriptor.errors;
 
-        const doesOutputEqualToExpected = executedState.output === expectedOutput;
+        expect(executedState.output).toEqual(expectedOutput);
+        expect(executedState.errors).toEqual(expectedParseErrors);
+
+        /*const doesOutputEqualToExpected = executedState.output === expectedOutput;
         if (!doesOutputEqualToExpected || executedState.errors !== expectedParseErrors) {
             let message: String;
             if (doesOutputEqualToExpected) {
@@ -65,117 +70,86 @@ export abstract class RuntimeTests {
                 message +
                 "expectedParseErrors:<" + expectedParseErrors + ">;" +
                 "actualParseErrors:<" + executedState.errors + ">.";
-        }
+        }*/
 
         return null;
     }
 
-    private static async test(descriptor: RuntimeTestDescriptor, runner: RuntimeRunner): Promise<string | null> {
-        const targetName = runner.getLanguage();
-        if (descriptor.ignore(targetName)) {
-            console.log("Ignore " + descriptor);
+    @BeforeAll
+    public beforeAll(): void {
+        RuntimeTests.#currentDir = process.cwd();
 
-            return null;
-        }
+        // We use one single temp directory for all tests.
+        FileUtils.mkdir(RuntimeTests.#tempTestDir);
 
-        FileUtils.mkdir(runner.getTempDirPath());
+        // Copy the package.json and tsconfig.json files to the temp directory.
+        let source = path.join(RuntimeTestUtils.resourcePath, "helpers", "package.txt");
+        FileUtils.copyFileOrFolder(source, path.join(RuntimeTests.#tempTestDir, "package.json"));
 
-        const grammarName = descriptor.grammarName;
-        const grammar = RuntimeTests.prepareGrammars(descriptor, runner);
+        source = path.join(RuntimeTestUtils.resourcePath, "helpers", "tsconfig.txt");
+        FileUtils.copyFileOrFolder(source, path.join(RuntimeTests.#tempTestDir, "tsconfig.json"));
 
-        let lexerName: string | null;
-        let parserName: string | null;
-        let useListenerOrVisitor: boolean;
-        let superClass: string | null;
-        if (descriptor.testType === GrammarType.Parser || descriptor.testType === GrammarType.CompositeParser) {
-            lexerName = grammarName + "Lexer";
-            parserName = grammarName + "Parser";
-            useListenerOrVisitor = true;
-            superClass = null;
-        } else {
-            lexerName = grammarName;
-            parserName = null;
-            useListenerOrVisitor = false;
-            superClass = null;
-        }
+        // Install the dependencies. This may throw an error if the installation fails, which stops the tests.
+        execSync("npm run install-deps", { encoding: "utf-8", cwd: RuntimeTests.#tempTestDir });
 
-        const runOptions = new RunOptions(grammarName + ".g4",
-            grammar,
-            parserName,
-            lexerName,
-            useListenerOrVisitor,
-            useListenerOrVisitor,
-            descriptor.startRule,
-            descriptor.input,
-            false,
-            descriptor.showDiagnosticErrors,
-            descriptor.traceATN,
-            descriptor.showDFA,
-            Stage.Execute,
-            targetName,
-            superClass,
-            descriptor.predictionMode,
-            descriptor.buildParseTree,
-        );
-
-        const result = await runner.run(runOptions);
-
-        return RuntimeTests.assertCorrectOutput(descriptor, targetName, result);
+        //process.chdir(RuntimeTests.#tempTestDir);
     }
 
-    private static prepareGrammars(descriptor: RuntimeTestDescriptor, runner: RuntimeRunner): string {
-        const targetName = runner.getLanguage();
+    @AfterAll
+    public afterAll(): void {
+        //process.chdir(RuntimeTests.#currentDir);
 
-        let targetTemplates = RuntimeTests.cachedTargetTemplates.get(targetName);
-        if (!targetTemplates) {
-            const templates = fs.readFileSync("runtime-testsuite/test/templates/" + targetName + ".test.stg",
-                { encoding: "utf-8" });
-            targetTemplates = new STGroupFile(templates, "UTF-8", "<", ">");
-            targetTemplates.registerRenderer(String, RuntimeTests.rendered);
-            RuntimeTests.cachedTargetTemplates.set(targetName, targetTemplates);
+        if (!RuntimeTests.#keepTestDir) {
+            FileUtils.deleteDirectory(RuntimeTests.#tempTestDir);
         }
-
-        // write out any slave grammars
-        const slaveGrammars = descriptor.slaveGrammars;
-        if (slaveGrammars !== null) {
-            for (const pair of slaveGrammars) {
-                const g = new STGroup("<", ">");
-                g.registerRenderer(String, RuntimeTests.rendered);
-                g.importTemplates(targetTemplates);
-                const grammarST = new ST(g, pair[1]);
-                FileUtils.writeFile(runner.getTempDirPath(), pair[0] + ".g4", grammarST.render());
-            }
-        }
-
-        const g = new STGroup("<", ">");
-        g.importTemplates(targetTemplates);
-        g.registerRenderer(String, RuntimeTests.rendered);
-        const grammarST = new ST(g, descriptor.grammar);
-
-        return grammarST.render();
     }
 
-    @Test
-    public runtimeTests(): void {
-        for (const [, descriptors] of RuntimeTests.testDescriptors) {
+    @TestFactory
+    public runtimeTests(): TestFunctionGroup {
+        const result: TestFunctionGroup = [];
+
+        const start = 0;
+        const end = 10000;
+        let counter = 0;
+        for (const [caption, descriptors] of RuntimeTests.testDescriptors) {
+            const list: TestFunctionList = [];
+            const groupPath = path.join(RuntimeTests.#tempTestDir, caption);
             for (const descriptor of descriptors) {
-                const runner = this.createRuntimeRunner();
-                const errorMessage = RuntimeTests.test(descriptor, runner);
-                if (errorMessage !== null) {
-                    runner.setSaveTestDir(true);
-                    fail(RuntimeTestUtils.joinLines("Test: " + descriptor.name + "; " + errorMessage,
-                        "Test directory: " + runner.getTempDirPath()));
+                if (counter >= start && counter <= end) {
+                    list.push([descriptor.name, () => {
+                        const runner = new RuntimeRunner(groupPath, descriptor.name);
+                        //runner.keepTargetDir = true;
+
+                        try {
+                            const errorMessage = runner.test(descriptor);
+                            if (runner.keepTargetDir) {
+                                RuntimeTests.#keepTestDir = true;
+                            }
+
+                            expect(errorMessage).toBeNull();
+                            /*if (errorMessage) {
+                                fail(RuntimeTestUtils.joinLines("Test: " + descriptor.name + "; " + errorMessage,
+                                    "Test directory: " + groupPath));
+                            }*/
+                        } catch (error) {
+                            RuntimeTests.#keepTestDir = true;
+                            throw error;
+                        }
+
+                    }]);
                 }
+
+                ++counter;
             }
 
-            // let descriptorGroupPath = path.join(RuntimeTestUtils.resourcePath, "descriptors", group);
+            result.push([caption, list]);
         }
-    }
 
-    protected abstract createRuntimeRunner(): RuntimeRunner;
+        return result;
+    }
 
     static {
-        const descriptorsDir = path.join(RuntimeTestUtils.resourcePath, "runtime-testsuite/test/descriptors");
+        const descriptorsDir = path.join(RuntimeTestUtils.resourcePath, "descriptors");
         fs.readdirSync(descriptorsDir).forEach((entry) => {
             const stat = fs.statSync(path.join(descriptorsDir, entry));
             if (stat.isDirectory()) {
@@ -204,5 +178,10 @@ export abstract class RuntimeTests {
                 RuntimeTests.testDescriptors.get(key)!.push(...descriptors);
             }
         }
+    }
+
+    static {
+        const dirName = "antlrng-runtime-tests-" + new Date().getTime();
+        RuntimeTests.#tempTestDir = path.join(RuntimeTestUtils.TempDirectory, dirName);
     }
 }

@@ -7,7 +7,6 @@
  */
 
 import { Stage } from "./Stage.js";
-import { PredictionMode } from "antlr4ng";
 
 export class RunOptions {
     public readonly grammarFileName: string;
@@ -25,14 +24,14 @@ export class RunOptions {
     public readonly showDFA: boolean;
     public readonly endStage: Stage;
     public readonly superClass: string | null;
-    public readonly predictionMode: PredictionMode;
+    public readonly predictionMode: string;
     public readonly buildParseTree: boolean;
 
     public constructor(grammarFileName: string, grammarStr: string, parserName: string | null, lexerName: string | null,
         useListener: boolean, useVisitor: boolean, startRuleName: string | null,
         input: string, profile: boolean, showDiagnosticErrors: boolean,
         traceATN: boolean, showDFA: boolean, endStage: Stage,
-        language: string, superClass: string | null, predictionMode: PredictionMode, buildParseTree: boolean) {
+        language: string, superClass: string | null, predictionMode: string, buildParseTree: boolean) {
         this.grammarFileName = grammarFileName;
         this.grammarStr = grammarStr;
         this.parserName = parserName;

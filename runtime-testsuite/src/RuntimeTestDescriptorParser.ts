@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { PredictionMode } from "antlr4ng";
-
 import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
 import { GrammarType } from "./GrammarType.js";
 
@@ -75,7 +73,7 @@ export class RuntimeTestDescriptorParser {
         let currentValue = "";
 
         const pairs: Array<[string, string | null]> = [];
-        const lines = text.split("\r?\n");
+        const lines = text.split(/\r?\n/);
 
         for (const line of lines) {
             let newSection = false;
@@ -109,7 +107,7 @@ export class RuntimeTestDescriptorParser {
         let showDFA = false;
         let showDiagnosticErrors = false;
         let traceATN = false;
-        let predictionMode = PredictionMode.LL;
+        let predictionMode = "LL";
         let buildParseTree = true;
         let skipTargets: string[] = [];
         for (const p of pairs) {
@@ -119,7 +117,7 @@ export class RuntimeTestDescriptorParser {
                 value = p[1].trim();
             }
             if (value.startsWith("\"\"\"")) {
-                value = value.replace("\"\"\"", "");
+                value = value.replace(/"""/g, "");
             } else {
                 if (value.indexOf("\n") >= 0) {
                     value = value + "\n"; // if multi line and not quoted, leave \n on end.
@@ -190,15 +188,7 @@ export class RuntimeTestDescriptorParser {
                             }
 
                             case "predictionMode": {
-                                if (parts[1] === "LL") {
-                                    predictionMode = PredictionMode.LL;
-                                    break;
-                                } else if (parts[1] === "SLL") {
-                                    predictionMode = PredictionMode.SLL;
-                                    break;
-                                }
-
-                                predictionMode = PredictionMode.LL_EXACT_AMBIG_DETECTION;
+                                predictionMode = parts[1];
                                 break;
                             }
 

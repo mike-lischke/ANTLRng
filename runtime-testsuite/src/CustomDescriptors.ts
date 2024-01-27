@@ -8,7 +8,6 @@
 
 import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
 import { GrammarType } from "./GrammarType.js";
-import { PredictionMode } from "antlr4ng";
 import { padZero } from "../temp.js";
 
 export class CustomDescriptors {
@@ -50,7 +49,7 @@ export class CustomDescriptors {
             "lexer grammar L;\n" +
             "T: ~'\\n'+;\n" +
             "SEPARATOR: '\\n';",
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
+            null, false, false, false, "LL", true, null, CustomDescriptors.path);
     }
 
     private static getLineSeparatorCrLfDescriptor(): RuntimeTestDescriptor {
@@ -71,7 +70,7 @@ export class CustomDescriptors {
             "lexer grammar L;\n" +
             "T: ~'\\r'+;\n" +
             "SEPARATOR: '\\r\\n';",
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
+            null, false, false, false, "LL", true, null, CustomDescriptors.path);
     }
 
     private static getLargeLexerDescriptor(): RuntimeTestDescriptor {
@@ -98,7 +97,7 @@ export class CustomDescriptors {
             "",
             grammarName,
             grammar.toString(),
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
+            null, false, false, false, "LL", true, null, CustomDescriptors.path);
     }
 
     private static getAtnStatesSizeMoreThan65535Descriptor(): RuntimeTestDescriptor {
@@ -146,7 +145,7 @@ export class CustomDescriptors {
             "",
             grammarName,
             grammar.toString(),
-            null, false, false, false, PredictionMode.LL, true,
+            null, false, false, false, "LL", true,
             ["CSharp", "Python3", "Go", "PHP", "Swift", "JavaScript", "TypeScript", "Dart"],
             CustomDescriptors.path);
     }
@@ -193,6 +192,6 @@ export class CustomDescriptors {
             "r",
             "P",
             grammar,
-            null, false, false, false, PredictionMode.LL, true, null, CustomDescriptors.path);
+            null, false, false, false, "LL", true, null, CustomDescriptors.path);
     }
 }

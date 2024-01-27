@@ -72,7 +72,7 @@ export class FileUtils {
 
     public static deleteDirectory(f: string): void {
         const stat = fs.statSync(f);
-        if (stat.isDirectory() && !stat.isSymbolicLink) {
+        if (stat.isDirectory() && !stat.isSymbolicLink()) {
             fs.rmdirSync(f, { recursive: true });
         } else {
             fs.unlinkSync(f);
@@ -84,6 +84,18 @@ export class FileUtils {
             return fs.lstatSync(path).isSymbolicLink();
         } catch (e) {
             return false;
+        }
+    }
+
+    public static copyFileOrFolder(from: string, to: string): void {
+        const stat = fs.statSync(from);
+        if (stat.isDirectory()) {
+            fs.mkdirSync(to, { recursive: true });
+            fs.readdirSync(from).forEach((f) => {
+                FileUtils.copyFileOrFolder(path.join(from, f), path.join(to, f));
+            });
+        } else {
+            fs.copyFileSync(from, to);
         }
     }
 }

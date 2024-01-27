@@ -18,7 +18,7 @@ export abstract class State {
     }
 
     public containsErrors(): boolean {
-        return this.exception !== undefined;
+        return this.exception != null;
     }
 
     public getErrorMessage(): string {
