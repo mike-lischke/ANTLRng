@@ -10,8 +10,7 @@
 
 import { IntervalSet, Lexer } from "antlr4ng";
 import { printf } from "fast-printf";
-
-import { Character } from "../../../../../../runtime-testsuite/src/helpers/Character.js";
+import { Character } from "../support/Character.js";
 
 export class CharSupport {
     /**
