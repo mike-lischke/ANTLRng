@@ -173,7 +173,7 @@ export class CustomDescriptors {
 
         const currentToken = "T" + tokensCount;
         tokens += currentToken + ": '" + currentToken + "';\n";
-        input + currentToken + " ";
+        input += currentToken + " ";
         output += currentToken;
 
         const grammar = "grammar P;\n" +

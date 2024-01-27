@@ -18,8 +18,6 @@ import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
 import { RuntimeRunner } from "./RuntimeRunner.js";
 import { FileUtils } from "./FileUtils.js";
 import { CustomDescriptors } from "./CustomDescriptors.js";
-import { ExecutedState } from "./states/ExecutedState.js";
-import { State } from "./states/State.js";
 import { AfterAll, BeforeAll, TestFactory } from "../utils/decorators.js";
 import { TestFunctionGroup, TestFunctionList } from "../utils/TestNG.js";
 
@@ -37,43 +35,6 @@ export class RuntimeTests {
     static #tempTestDir = "";
     static #keepTestDir = false;
     static #currentDir = "";
-
-    public static assertCorrectOutput(descriptor: RuntimeTestDescriptor, targetName: string,
-        state: State): string | null {
-        let executedState: ExecutedState;
-        if (state instanceof ExecutedState) {
-            executedState = state;
-            if (executedState.exception !== null) {
-                return state.getErrorMessage();
-            }
-        } else {
-            return state.getErrorMessage();
-        }
-
-        const expectedOutput = descriptor.output;
-        const expectedParseErrors = descriptor.errors;
-
-        expect(executedState.output).toEqual(expectedOutput);
-        expect(executedState.errors).toEqual(expectedParseErrors);
-
-        /*const doesOutputEqualToExpected = executedState.output === expectedOutput;
-        if (!doesOutputEqualToExpected || executedState.errors !== expectedParseErrors) {
-            let message: String;
-            if (doesOutputEqualToExpected) {
-                message = "Parse output is as expected, but errors are not: ";
-            } else {
-                message = "Parse output is incorrect: " +
-                    "expectedOutput:<" + expectedOutput + ">; actualOutput:<" + executedState.output + ">; ";
-            }
-
-            return "[" + targetName + ":" + descriptor.name + "] " +
-                message +
-                "expectedParseErrors:<" + expectedParseErrors + ">;" +
-                "actualParseErrors:<" + executedState.errors + ">.";
-        }*/
-
-        return null;
-    }
 
     @BeforeAll
     public beforeAll(): void {
@@ -108,38 +69,36 @@ export class RuntimeTests {
     public runtimeTests(): TestFunctionGroup {
         const result: TestFunctionGroup = [];
 
-        const start = 0;
-        const end = 10000;
-        let counter = 0;
+        const includedGroups: string[] = [];
+        const includedTests: string[] = [];
+
         for (const [caption, descriptors] of RuntimeTests.testDescriptors) {
+            if (includedGroups.length > 0 && !includedGroups.includes(caption)) {
+                continue;
+            }
+
             const list: TestFunctionList = [];
             const groupPath = path.join(RuntimeTests.#tempTestDir, caption);
             for (const descriptor of descriptors) {
-                if (counter >= start && counter <= end) {
-                    list.push([descriptor.name, () => {
-                        const runner = new RuntimeRunner(groupPath, descriptor.name);
-                        //runner.keepTargetDir = true;
-
-                        try {
-                            const errorMessage = runner.test(descriptor);
-                            if (runner.keepTargetDir) {
-                                RuntimeTests.#keepTestDir = true;
-                            }
-
-                            expect(errorMessage).toBeNull();
-                            /*if (errorMessage) {
-                                fail(RuntimeTestUtils.joinLines("Test: " + descriptor.name + "; " + errorMessage,
-                                    "Test directory: " + groupPath));
-                            }*/
-                        } catch (error) {
-                            RuntimeTests.#keepTestDir = true;
-                            throw error;
-                        }
-
-                    }]);
+                if (includedTests.length > 0 && !includedTests.includes(descriptor.name)) {
+                    continue;
                 }
 
-                ++counter;
+                list.push([descriptor.name, () => {
+                    const runner = new RuntimeRunner(groupPath, descriptor.name);
+                    //runner.keepTargetDir = true;
+
+                    try {
+                        runner.test(descriptor);
+                        if (runner.keepTargetDir) {
+                            RuntimeTests.#keepTestDir = true;
+                        }
+                    } catch (error) {
+                        RuntimeTests.#keepTestDir = true;
+                        throw error;
+                    }
+
+                }]);
             }
 
             result.push([caption, list]);

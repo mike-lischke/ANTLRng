@@ -1,7 +1,7 @@
 {
   "type": "module",
   "devDependencies": {
-    "antlr4ng": "2.0.8",
+    "antlr4ng": "2.0.9",
     "antlr4ng-cli": "1.0.7",
     "ts-node": "10.9.2"
   },

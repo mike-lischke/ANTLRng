@@ -76,7 +76,7 @@ TokenStartColumnEquals(i) ::= <%this._tokenStartColumn === <i>%>
 
 ImportListener(X) ::= ""
 
-GetExpectedTokenNames() ::= "this.getExpectedTokens().toString(this.literalNames)"
+GetExpectedTokenNames() ::= "this.getExpectedTokens().toString(this.vocabulary)"
 
 ImportRuleInvocationStack() ::= <<
 @parser::header {
@@ -288,7 +288,7 @@ class LeafListener extends <X>Listener {
 
 DeclareContextListGettersFunction() ::= <<
 	foo() {
-		var s = new SContext();
+		var s = new SContext(null, 0);
 	    var a = s.a();
 	    var b = s.b();
     };

@@ -7,7 +7,7 @@
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
 import path from "path";
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 
 import { FileUtils } from "./FileUtils.js";
 import { ErrorQueue } from "./ErrorQueue.js";
@@ -46,7 +46,6 @@ export class Generator {
         if (defaultListener) {
             antlr.addListener(new DefaultToolListener(antlr));
         }
-        //antlr.processGrammarsOnCommandLine();
 
         const errors: string[] = [];
 
@@ -57,17 +56,45 @@ export class Generator {
             }
         }
 
-        /*if (!defaultListener && errorQueue.warnings.length > 0) {
-            for (let i = 0; i < errorQueue.warnings.length; i++) {
-                const msg = errorQueue.warnings[i];
-                // antlrToolErrors.append(msg); warnings are hushed
-            }
-        }*/
-
         // Generate test parsers, lexers and listeners.
-        /*execSync(`npm run generate -- ${this.targetPath}/*.g4 -o ${this.targetPath}`,
-            { encoding: "utf-8", cwd: this.targetPath });*/
-        execSync(`npm run generate -- ${options.join(" ")}`, { encoding: "utf-8", cwd: workdir });
+        const output = spawnSync("npm", ["run", "generate", "--", ...options], {
+            encoding: "utf-8",
+            cwd: workdir,
+            stdio: ["ignore", "pipe", "pipe"],
+        });
+
+        if (output.status !== 0) {
+            errorQueue.error(`Generation of ${grammarFileName} failed:\n${output.stderr}`);
+        } else {
+            // Consider stderr output as warnings if the process exited successfully.
+            if (output.stderr.length > 0) {
+                const lines = output.stderr.split("\n");
+
+                // Remove debugger attached and waiting for debugger messages.
+                const filteredLines = lines.filter((line) => {
+                    if (line.length === 0) {
+                        return false;
+                    }
+
+                    return !line.startsWith("Debugger attached.")
+                        && !line.startsWith("Waiting for the debugger to disconnect...");
+                });
+
+                filteredLines.forEach((line) => {
+                    errorQueue.warning(line);
+                });
+            }
+
+            // Add stdout output as info messages.
+            if (output.stdout.length > 0) {
+                const lines = output.stdout.split("\n");
+                lines.forEach((line) => {
+                    if (line.length > 0) {
+                        errorQueue.info(line);
+                    }
+                });
+            }
+        }
 
         return errorQueue;
     }

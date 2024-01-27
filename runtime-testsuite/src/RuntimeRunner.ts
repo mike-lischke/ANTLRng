@@ -8,8 +8,9 @@
 
 import * as os from "os";
 import path from "path";
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import { mkdirSync, rmdirSync } from "fs";
+
 import { ST, STGroup, STGroupFile, StringRenderer } from "stringtemplate4ts";
 
 import { Stage } from "./Stage.js";
@@ -42,6 +43,8 @@ export class RuntimeRunner {
 
     public keepTargetDir = false;
 
+    static #ansiEscapeCodeRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
+
     // The work directory for a group of tests.
     readonly #groupDir: string;
 
@@ -65,7 +68,7 @@ export class RuntimeRunner {
         return path.join(this.#groupDir, this.#testDir);
     }
 
-    public test(descriptor: RuntimeTestDescriptor): string | null {
+    public test(descriptor: RuntimeTestDescriptor): void {
         // Ensure that the target directory exists.
         mkdirSync(this.targetPath, { recursive: true });
 
@@ -73,7 +76,7 @@ export class RuntimeRunner {
         if (descriptor.ignore(targetName)) {
             console.log("Ignore " + descriptor);
 
-            return null;
+            return;
         }
 
         const grammarName = descriptor.grammarName;
@@ -116,18 +119,16 @@ export class RuntimeRunner {
 
         const state = this.run(runOptions);
 
-        const result = RuntimeTests.assertCorrectOutput(descriptor, targetName, state);
-
-        if (result !== null) {
+        try {
+            this.assertCorrectOutput(descriptor, state);
+            if (!this.keepTargetDir) {
+                rmdirSync(this.targetPath, { recursive: true });
+            }
+        } catch (e) {
             this.keepTargetDir = true;
+
+            throw e;
         }
-
-        if (!this.keepTargetDir) {
-            rmdirSync(this.targetPath, { recursive: true });
-        }
-
-        return result;
-
     }
 
     public run(runOptions: RunOptions): State {
@@ -325,12 +326,12 @@ export class RuntimeRunner {
 
     protected execute(runOptions: RunOptions, compiledState: CompiledState): ExecutedState {
         let output = null;
-        const errors = null;
+        let errors = null;
         let exception: Error | null = null;
         try {
             const args: string[] = [];
             const runtimeToolPath = this.getRuntimeToolPath();
-            if (runtimeToolPath !== null) {
+            if (runtimeToolPath.length > 0) {
                 args.push(runtimeToolPath);
             }
             const extraRunArgs = this.getExtraRunArgs();
@@ -341,7 +342,33 @@ export class RuntimeRunner {
             args.push(this.getExecFileName());
             args.push(RuntimeRunner.InputFileName);
 
-            output = execSync("node " + args.join(" "), { encoding: "utf-8", cwd: this.targetPath, env: {} });
+            //output = execSync("node " + args.join(" "), { encoding: "utf-8", cwd: this.targetPath, env: {} });
+            const processOutput = spawnSync("node", args, {
+                encoding: "utf-8",
+                cwd: this.targetPath,
+                stdio: [0, "pipe", "pipe", "pipe"],
+            });
+
+            output = processOutput.stdout.replace(RuntimeRunner.#ansiEscapeCodeRegex, "");
+
+            if (processOutput.stderr.length > 0) {
+                const lines = processOutput.stderr.split("\n");
+
+                // Remove debugger attached and waiting for debugger messages.
+                const filteredLines = lines.filter((line) => {
+                    if (line.length === 0) {
+                        return false;
+                    }
+
+                    return !line.startsWith("Debugger attached.")
+                        && !line.startsWith("Waiting for the debugger to disconnect...");
+                });
+
+                if (filteredLines.length > 0) {
+                    errors = filteredLines.join("\n") + "\n";
+                }
+            }
+
         } catch (e) {
             exception = e;
         }
@@ -430,6 +457,18 @@ export class RuntimeRunner {
         const grammarST = new ST(group, descriptor.grammar);
 
         return grammarST.render();
+    }
+
+    private assertCorrectOutput(descriptor: RuntimeTestDescriptor, state: State): void {
+        if (state instanceof ExecutedState) {
+            expect(state.output).toEqual(descriptor.output);
+            expect(state.errors).toEqual(descriptor.errors);
+            if (state.exception !== null) {
+                expect(state.getErrorMessage()).toBe("");
+            }
+        } else {
+            expect(state.getErrorMessage()).toBe("");
+        }
     }
 
 }
