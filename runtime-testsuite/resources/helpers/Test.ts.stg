@@ -1,4 +1,4 @@
-import fs from "fs";
+import { readFileSync } from "fs";
 import {
 	CharStreams,
 	CommonTokenStream,
@@ -39,8 +39,8 @@ class TreeShapeListener implements ParseTreeListener {
 }
 <endif>
 
-function main(argv: string[]): void {
-    const text = fs.readFileSync(argv[2], { encoding: "utf-8" });
+export const main = (argv: string[]): void => {
+    const text = readFileSync(argv[2], { encoding: "utf-8" });
     const input = CharStreams.fromString(text);
     const lexer = new <lexerName>(input);
     const stream = new CommonTokenStream(lexer);
@@ -71,4 +71,6 @@ function main(argv: string[]): void {
 <endif>
 }
 
+<if(!hideMainInvocation)>
 main(process.argv);
+<endif>

@@ -400,6 +400,7 @@ export const AfterEach = <This, Args extends unknown[], Return>(
 
     return result;
 };
+
 /**
  * Decorator function for the AfterAll annotation.
  *

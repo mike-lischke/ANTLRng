@@ -63,9 +63,9 @@ import { graphemesLexer } from "../../../generated/graphemesLexer.js";
  *
  */
 export class TimeLexerSpeed {
-    public static readonly parserJavaFile = "runtime-testsuite/src/tests/api/perf/Parser.java";
-    public static readonly ruleContextJavaFile = "runtime-testsuite/src/tests/api/perf/RuleContext.java";
-    public static readonly perfDir = "runtime-testsuite/src/tests/api/perf";
+    public static readonly parserJavaFile = "runtime-testsuite/src/api/perf/Parser.java";
+    public static readonly ruleContextJavaFile = "runtime-testsuite/src/api/perf/RuleContext.java";
+    public static readonly perfDir = "runtime-testsuite/src/api/perf";
 
     public output = true;
 

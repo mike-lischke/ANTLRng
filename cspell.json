@@ -65,6 +65,7 @@
         "nintervals",
         "nmodes",
         "nonambig",
+        "nqry",
         "nrules",
         "nsets",
         "nstates",

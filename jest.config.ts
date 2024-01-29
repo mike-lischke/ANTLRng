@@ -211,7 +211,7 @@ const config: Config = {
     // A map from regular expressions to paths to transformers
     transform: {
         "^.+\\.ts$": ["ts-jest", {
-            tsconfig: "./runtime-testsuite/tsconfig.json",
+            tsconfig: "./runtime-testsuite/generated/tsconfig.json",
             useESM: true,
         }],
     },

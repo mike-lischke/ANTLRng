@@ -32,11 +32,13 @@
         "unicode-properties": "1.4.1"
     },
     "scripts": {
-        "build": "npm run generate-test-parsers && tsc",
+        "build": "npm run generate-test-parsers && npm run generate-test-cases && tsc",
         "lint": "eslint \"./runtime/**/*.ts\"",
         "lint:fix": "eslint \"./runtime/**/*.ts\" --fix",
         "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage",
+        "generate": "antlr4ng -Xexact-output-dir",
         "generate-test-parsers": "./build/generate-test-parsers.sh",
-        "time-lexer-speed": "node --no-warnings --experimental-vm-modules --loader ts-node/esm runtime-testsuite/src/tests/api/perf/TimeLexerSpeed.ts"
+        "generate-test-cases": "node --no-warnings --experimental-vm-modules --loader ts-node/esm runtime-testsuite/utils/generateTestCases.ts",
+        "time-lexer-speed": "node --no-warnings --experimental-vm-modules --loader ts-node/esm runtime-testsuite/src/api/perf/TimeLexerSpeed.ts"
     }
 }

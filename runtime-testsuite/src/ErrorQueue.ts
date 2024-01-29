@@ -6,9 +6,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { ANTLRMessage, ANTLRToolListener, Tool } from "../temp.js";
+import { ANTLRMessage, Tool } from "../temp.js";
 
-export class ErrorQueue implements ANTLRToolListener {
+export class ErrorQueue {
     public readonly tool?: Tool;
     public readonly infos: string[] = [];
     public readonly errors: ANTLRMessage[] = [];

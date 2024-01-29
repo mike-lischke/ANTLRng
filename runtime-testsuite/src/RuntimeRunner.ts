@@ -300,6 +300,7 @@ export class RuntimeRunner {
         outputFileST.add("useVisitor", runOptions.useVisitor);
         outputFileST.add("predictionMode", runOptions.predictionMode);
         outputFileST.add("buildParseTree", runOptions.buildParseTree);
+        outputFileST.add("hideMainInvocation", false);
         this.addExtraRecognizerParameters(outputFileST);
         FileUtils.writeFile(this.targetPath, this.getTestFileWithExt(), outputFileST.render());
     }

@@ -63,28 +63,30 @@ export class Generator {
             stdio: ["ignore", "pipe", "pipe"],
         });
 
-        if (output.status !== 0) {
-            errorQueue.error(`Generation of ${grammarFileName} failed:\n${output.stderr}`);
-        } else {
-            // Consider stderr output as warnings if the process exited successfully.
-            if (output.stderr.length > 0) {
-                const lines = output.stderr.split("\n");
+        // Consider stderr output as warnings if the process exited successfully.
+        if (output.stderr.length > 0) {
+            const lines = output.stderr.split("\n");
 
-                // Remove debugger attached and waiting for debugger messages.
-                const filteredLines = lines.filter((line) => {
-                    if (line.length === 0) {
-                        return false;
-                    }
+            // Remove debugger attached and waiting for debugger messages.
+            const filteredLines = lines.filter((line) => {
+                if (line.length === 0) {
+                    return false;
+                }
 
-                    return !line.startsWith("Debugger attached.")
-                        && !line.startsWith("Waiting for the debugger to disconnect...");
-                });
+                return !line.startsWith("Debugger attached.")
+                    && !line.startsWith("Waiting for the debugger to disconnect...");
+            });
 
-                filteredLines.forEach((line) => {
+            filteredLines.forEach((line) => {
+                if (output.status === 0) {
                     errorQueue.warning(line);
-                });
-            }
+                } else {
+                    errorQueue.error(line);
+                }
+            });
+        }
 
+        if (output.status === 0) {
             // Add stdout output as info messages.
             if (output.stdout.length > 0) {
                 const lines = output.stdout.split("\n");

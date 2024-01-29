@@ -5,18 +5,7 @@
 
 /* eslint-disable max-classes-per-file */
 
-import { ATN, RuleStartState, Vocabulary } from "antlr4ng";
 import { ST } from "stringtemplate4ts";
-
-/**
- * Skeleton implementations for classes from the ANTLR tool.
- * Because we want to make the runtime tests independent from the tool we need to provide separate/duplicate
- * implementations for some of the tool classes.
- */
-
-export class Rule {
-    public readonly index = 0;
-}
 
 export class ANTLRMessage {
     public toString(): string {

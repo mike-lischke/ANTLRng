@@ -68,6 +68,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Generate Test Cases",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeArgs": [
+                "--no-warnings=ExperimentalWarning",
+                "--loader",
+                "ts-node/esm",
+                "runtime-testsuite/utils/generateTestCases.ts",
+            ],
+            "sourceMaps": true,
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Lexer Benchmark",
             "skipFiles": [
                 "<node_internals>/**"

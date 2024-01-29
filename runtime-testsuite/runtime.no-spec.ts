@@ -6,7 +6,7 @@
 import { RuntimeTests } from "./src/RuntimeTests.js";
 import { TestNG } from "./utils/TestNG.js";
 
-describe("RuntimeTests", () => {
+xdescribe("RuntimeTests", () => {
     const testNG = new TestNG();
     testNG.run(RuntimeTests);
 });
