@@ -6,8 +6,8 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import path from "path";
 import { spawnSync } from "child_process";
+import { join } from "path";
 
 import { FileUtils } from "./FileUtils.js";
 import { ErrorQueue } from "./ErrorQueue.js";
@@ -38,7 +38,7 @@ export class Generator {
             options.push("-encoding");
             options.push("UTF-8");
         }
-        options.push(path.join(workdir, grammarFileName));
+        options.push(join(workdir, grammarFileName));
 
         const antlr = new Tool(options);
         const errorQueue = new ErrorQueue(antlr);

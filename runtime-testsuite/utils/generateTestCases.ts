@@ -5,16 +5,17 @@
 
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
+import { ST, STGroup, STGroupFile, StringRenderer } from "stringtemplate4ts";
+
+import { CustomDescriptors } from "../src/CustomDescriptors.js";
+import { GeneratedFile } from "../src/GeneratedFile.js";
+import { Generator } from "../src/Generator.js";
+import { GrammarType } from "../src/GrammarType.js";
+import { RunOptions } from "../src/RunOptions.js";
 import { RuntimeTestDescriptor } from "../src/RuntimeTestDescriptor.js";
 import { RuntimeTestDescriptorParser } from "../src/RuntimeTestDescriptorParser.js";
-import { CustomDescriptors } from "../src/CustomDescriptors.js";
-import { ST, STGroup, STGroupFile, StringRenderer } from "stringtemplate4ts";
-import { RunOptions } from "../src/RunOptions.js";
-import { Generator } from "../src/Generator.js";
-import { GeneratedState } from "../src/states/GeneratedState.js";
-import { GeneratedFile } from "../src/GeneratedFile.js";
 import { Stage } from "../src/Stage.js";
-import { GrammarType } from "../src/GrammarType.js";
+import { GeneratedState } from "../src/states/GeneratedState.js";
 
 /**
  * This file generates the test cases for the runtime testsuite. It uses the test descriptors files
@@ -170,7 +171,8 @@ for (const [caption, descriptors] of testDescriptors) {
         }
 
         ++currentTest;
-        const message = `Processing (${Math.ceil(100 * currentTest / totalTests)}%): ${caption} > ${descriptor.name}`;
+        const message = `Processing (${Math.round(10000 * currentTest / totalTests) / 100}%): ` +
+            `${caption} > ${descriptor.name}`;
         process.stdout.write(`\r${message.padEnd(120)}`);
 
         const testPath = join(groupPath, descriptor.name);
@@ -296,4 +298,4 @@ const tsconfig = `{
 }`;
 writeFileSync(join(targetPath, "tsconfig.json"), tsconfig, { encoding: "utf-8" });
 
-console.log(`\nDone (${Math.ceil(performance.now() - start)}ms).`);
+console.log(`\nDone (${Math.round(performance.now() - start) / 1000}s).`);

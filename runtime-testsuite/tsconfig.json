@@ -1,10 +1,11 @@
 {
+    "extends": "../tsconfig.json",
     "compilerOptions": {
         "moduleResolution": "Node16",
         "target": "ES2022",
         "module": "Node16",
         "noEmit": true,
-        "declaration": true,
+        "emitDeclarationOnly": false,
         "sourceMap": true,
         "esModuleInterop": true,
         "isolatedModules": true,
@@ -12,11 +13,14 @@
         "noImplicitOverride": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": true,
-        "removeComments": false
+        "removeComments": false,
+        "skipLibCheck": true,
     },
     "include": [
         "**/*.ts",
         "../jest.config.ts",
     ],
-    "exclude": [],
+    "exclude": [
+        "generated/**/*.ts",
+    ],
 }
