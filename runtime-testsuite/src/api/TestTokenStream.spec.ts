@@ -8,34 +8,30 @@
 
 import { BufferedTokenStream, CharStreams, Token } from "antlr4ng";
 
-import { Test } from "../../utils/decorators.js";
 import { VisitorBasicLexer } from "../../generated/VisitorBasicLexer.js";
-import { assertEquals } from "../../utils/junit.js";
 
 /**
  * This class contains tests for specific API functionality in {@link TokenStream} and derived types.
  */
-export class TestTokenStream {
-
+describe("TestTokenStream", () => {
     /**
      * This is a targeted regression test for antlr/antlr4#1584 ({@link BufferedTokenStream}
      * cannot be reused after EOF).
      */
-    @Test
-    public testBufferedTokenStreamReuseAfterFill(): void {
+    it("testBufferedTokenStreamReuseAfterFill", () => {
         const firstInput = CharStreams.fromString("A");
         const tokenStream = new BufferedTokenStream(new VisitorBasicLexer(firstInput));
         tokenStream.fill();
-        assertEquals(2, tokenStream.size);
-        assertEquals(VisitorBasicLexer.A, tokenStream.get(0).type);
-        assertEquals(Token.EOF, tokenStream.get(1).type);
+        expect(tokenStream.size).toBe(2);
+        expect(tokenStream.get(0).type).toBe(VisitorBasicLexer.A);
+        expect(tokenStream.get(1).type).toBe(Token.EOF);
 
         const secondInput = CharStreams.fromString("AA");
         tokenStream.setTokenSource(new VisitorBasicLexer(secondInput));
         tokenStream.fill();
-        assertEquals(3, tokenStream.size);
-        assertEquals(VisitorBasicLexer.A, tokenStream.get(0).type);
-        assertEquals(VisitorBasicLexer.A, tokenStream.get(1).type);
-        assertEquals(Token.EOF, tokenStream.get(2).type);
-    }
-}
+        expect(tokenStream.size).toBe(3);
+        expect(tokenStream.get(0).type).toBe(VisitorBasicLexer.A);
+        expect(tokenStream.get(1).type).toBe(VisitorBasicLexer.A);
+        expect(tokenStream.get(2).type).toBe(Token.EOF);
+    });
+});

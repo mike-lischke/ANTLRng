@@ -11,31 +11,28 @@ import {
     TerminalNode, CharStreams, Token, ATNSimulator, RuleContext,
 } from "antlr4ng";
 
-import { Test } from "../../utils/decorators.js";
 import { VisitorBasicLexer } from "../../generated/VisitorBasicLexer.js";
 import { VisitorBasicParser } from "../../generated/VisitorBasicParser.js";
 import { VisitorBasicVisitor } from "../../generated/VisitorBasicVisitor.js";
-import { assertEquals } from "../../utils/junit.js";
 import { VisitorCalcLexer } from "../../generated/VisitorCalcLexer.js";
 import {
     AddContext, MultiplyContext, NumberContext, SContext, VisitorCalcParser,
 } from "../../generated/VisitorCalcParser.js";
 import { VisitorCalcVisitor } from "../../generated/VisitorCalcVisitor.js";
 
-export class TestVisitors {
+describe("TestVisitors", () => {
 
     /**
      * This test verifies the basic behavior of visitors, with an emphasis on
      * {@link AbstractParseTreeVisitor#visitTerminal}.
      */
-    @Test
-    public testVisitTerminalNode(): void {
+    it("testVisitTerminalNode", () => {
         const input = "A";
         const lexer = new VisitorBasicLexer(CharStreams.fromString(input));
         const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
 
         const context = parser.s();
-        assertEquals("(s A <EOF>)", context.toStringTree(parser));
+        expect(context.toStringTree(parser)).toBe("(s A <EOF>)");
 
         const listener = new class extends VisitorBasicVisitor<string> {
             public override visitTerminal(node: TerminalNode): string {
@@ -55,15 +52,14 @@ export class TestVisitors {
         const expected =
             "[@0,0:0='A',<1>,1:0]\n" +
             "[@1,1:0='<EOF>',<-1>,1:1]\n";
-        assertEquals(expected, result);
-    }
+        expect(result).toBe(expected);
+    });
 
     /**
      * This test verifies the basic behavior of visitors, with an emphasis on
      * {@link AbstractParseTreeVisitor#visitErrorNode}.
      */
-    @Test
-    public testVisitErrorNode(): void {
+    it("testVisitErrorNode", () => {
         const input = "";
         const lexer = new VisitorBasicLexer(CharStreams.fromString(input));
         const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
@@ -79,9 +75,9 @@ export class TestVisitors {
         }());
 
         const context = parser.s();
-        assertEquals("(s <missing 'A'> <EOF>)", context.toStringTree(parser));
-        assertEquals(1, errors.length);
-        assertEquals("line 1:0 missing 'A' at '<EOF>'", errors[0]);
+        expect(context.toStringTree(parser)).toBe("(s <missing 'A'> <EOF>)");
+        expect(errors.length).toBe(1);
+        expect(errors[0]).toBe("line 1:0 missing 'A' at '<EOF>'");
 
         const listener = new class extends VisitorBasicVisitor<String> {
             public override visitErrorNode(node: ErrorNode): string {
@@ -99,8 +95,8 @@ export class TestVisitors {
 
         const result = listener.visit(context);
         const expected = "Error encountered: [@-1,-1:-1='<missing 'A'>',<1>,1:0]";
-        assertEquals(expected, result);
-    }
+        expect(result).toBe(expected);
+    });
 
     /**
      * This test verifies that {@link AbstractParseTreeVisitor#visitChildren} does not call
@@ -108,14 +104,13 @@ export class TestVisitors {
      * {@link org.antlr.v4.runtime.tree.AbstractParseTreeVisitor#shouldVisitNextChild} returns
      * {@code false}.
      */
-    @Test
-    public testShouldNotVisitEOF(): void {
+    it("testShouldNotVisitEOF", () => {
         const input = "A";
         const lexer = new VisitorBasicLexer(CharStreams.fromString(input));
         const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
 
         const context = parser.s();
-        assertEquals("(s A <EOF>)", context.toStringTree(parser));
+        expect(context.toStringTree(parser)).toBe("(s A <EOF>)");
 
         const listener = new class extends VisitorBasicVisitor<String> {
             public override visitTerminal(node: TerminalNode): string {
@@ -129,22 +124,21 @@ export class TestVisitors {
 
         const result = listener.visit(context);
         const expected = "[@0,0:0='A',<1>,1:0]\n";
-        assertEquals(expected, result);
-    }
+        expect(result).toBe(expected);
+    });
 
     /**
      * This test verifies that {@link AbstractParseTreeVisitor#shouldVisitNextChild} is called before visiting the first
      * child. It also verifies that {@link AbstractParseTreeVisitor#defaultResult} provides the default return value for
      * visiting a tree.
      */
-    @Test
-    public testShouldNotVisitTerminal(): void {
+    it("testShouldNotVisitTerminal", () => {
         const input = "A";
         const lexer = new VisitorBasicLexer(CharStreams.fromString(input));
         const parser = new VisitorBasicParser(new CommonTokenStream(lexer));
 
         const context = parser.s();
-        assertEquals("(s A <EOF>)", context.toStringTree(parser));
+        expect(context.toStringTree(parser)).toBe("(s A <EOF>)");
 
         const listener = new class extends VisitorBasicVisitor<String> {
             public override visitTerminal(node: TerminalNode): string {
@@ -162,20 +156,19 @@ export class TestVisitors {
 
         const result = listener.visit(context);
         const expected = "default result";
-        assertEquals(expected, result);
-    }
+        expect(result).toBe(expected);
+    });
 
     /**
      * This test verifies that the visitor correctly dispatches calls for labeled outer alternatives.
      */
-    @Test
-    public testCalculatorVisitor(): void {
+    it("testCalculatorVisitor", () => {
         const input = "2 + 8 / 2";
         const lexer = new VisitorCalcLexer(CharStreams.fromString(input));
         const parser = new VisitorCalcParser(new CommonTokenStream(lexer));
 
         const context = parser.s();
-        assertEquals("(s (expr (expr 2) + (expr (expr 8) / (expr 2))) <EOF>)", context.toStringTree(parser));
+        expect(context.toStringTree(parser)).toBe("(s (expr (expr 2) + (expr (expr 8) / (expr 2))) <EOF>)");
 
         const listener = new class extends VisitorCalcVisitor<number | null> {
             public override visitS = (ctx: SContext): number | null => {
@@ -219,7 +212,6 @@ export class TestVisitors {
 
         const result = listener.visit(context);
         const expected = 6;
-        assertEquals(expected, result);
-    }
-
-}
+        expect(result).toBe(expected);
+    });
+});

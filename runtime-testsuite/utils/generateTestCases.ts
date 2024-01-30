@@ -8,14 +8,12 @@ import { join } from "path";
 import { ST, STGroup, STGroupFile, StringRenderer } from "stringtemplate4ts";
 
 import { CustomDescriptors } from "../src/CustomDescriptors.js";
-import { GeneratedFile } from "../src/GeneratedFile.js";
 import { Generator } from "../src/Generator.js";
 import { GrammarType } from "../src/GrammarType.js";
-import { RunOptions } from "../src/RunOptions.js";
-import { RuntimeTestDescriptor } from "../src/RuntimeTestDescriptor.js";
+import { IRunOptions } from "../src/RunOptions.js";
+import { IRuntimeTestDescriptor } from "../src/IRuntimeTestDescriptor.js";
 import { RuntimeTestDescriptorParser } from "../src/RuntimeTestDescriptorParser.js";
 import { Stage } from "../src/Stage.js";
-import { GeneratedState } from "../src/states/GeneratedState.js";
 
 /**
  * This file generates the test cases for the runtime testsuite. It uses the test descriptors files
@@ -27,7 +25,7 @@ const descriptorsPath = "runtime-testsuite/resources/descriptors";
 const templatePath = "runtime-testsuite/resources/templates";
 const helpersPath = "runtime-testsuite/resources/helpers";
 
-const testDescriptors = new Map<string, RuntimeTestDescriptor[]>();
+const testDescriptors = new Map<string, IRuntimeTestDescriptor[]>();
 const stringRenderer = new StringRenderer();
 
 const consolidate = (text: string): string => {
@@ -44,7 +42,7 @@ const consolidate = (text: string): string => {
  * @param targetPath The path to the test file.
  * @param runOptions Details for the generation.
  */
-const writeTestFile = (targetPath: string, runOptions: RunOptions): void => {
+const writeTestFile = (targetPath: string, runOptions: IRunOptions): void => {
     const text = readFileSync(join(helpersPath, "Test.ts.stg"), { encoding: "utf-8" });
     const outputFileST = new ST(text);
     outputFileST.add("grammarName", runOptions.grammarName);
@@ -69,7 +67,7 @@ const writeTestFile = (targetPath: string, runOptions: RunOptions): void => {
  * @param targetPath The folder for this particular test.
  * @param runOptions Details for the generation.
  */
-const generateParserFiles = (targetPath: string, runOptions: RunOptions): void => {
+const generateParserFiles = (targetPath: string, runOptions: IRunOptions): void => {
     const options: string[] = [];
     if (runOptions.useVisitor) {
         options.push("-visitor");
@@ -82,10 +80,7 @@ const generateParserFiles = (targetPath: string, runOptions: RunOptions): void =
     const errorQueue = Generator.generateANTLRFilesInTempDir(targetPath, "TypeScript",
         runOptions.grammarFileName, runOptions.grammarStr, false, options);
 
-    const generatedFiles: GeneratedFile[] = []; //this.getGeneratedFiles(runOptions);
-    const generatedState = new GeneratedState(errorQueue, generatedFiles, null);
-
-    if (generatedState.containsErrors() || runOptions.endStage === Stage.Generate) {
+    if (errorQueue.errors.length > 0) {
         errorQueue.errors.forEach((error) => {
             console.error(error);
         });
@@ -106,7 +101,7 @@ readdirSync(descriptorsPath).forEach((entry) => {
     if (stat.isDirectory()) {
         const groupName = entry;
         if (!groupName.startsWith(".")) { // Ignore hidden entries.
-            const descriptors: RuntimeTestDescriptor[] = [];
+            const descriptors: IRuntimeTestDescriptor[] = [];
 
             const groupDir = join(descriptorsPath, groupName);
             readdirSync(groupDir).forEach((descriptorFile) => {
@@ -200,40 +195,61 @@ for (const [caption, descriptors] of testDescriptors) {
         const grammarST = new ST(group, descriptor.grammar);
         const grammar = grammarST.render();
 
-        let lexerName: string | null;
-        let parserName: string | null;
+        let lexerName: string | undefined;
+        let parserName: string | undefined;
         let useListenerOrVisitor: boolean;
-        let superClass: string | null;
+        let superClass: string | undefined;
         if (descriptor.testType === GrammarType.Parser || descriptor.testType === GrammarType.CompositeParser) {
             lexerName = descriptor.grammarName + "Lexer";
             parserName = descriptor.grammarName + "Parser";
             useListenerOrVisitor = true;
-            superClass = null;
         } else {
             lexerName = descriptor.grammarName;
-            parserName = null;
             useListenerOrVisitor = false;
-            superClass = null;
         }
 
-        const runOptions = new RunOptions(descriptor.grammarName + ".g4",
-            grammar,
+        let grammarName;
+
+        const isCombinedGrammar = lexerName && parserName;
+        if (isCombinedGrammar) {
+            if (parserName) {
+                grammarName = parserName.endsWith("Parser")
+                    ? parserName.substring(0, parserName.length - "Parser".length)
+                    : parserName;
+            } else {
+                if (lexerName) {
+                    grammarName = lexerName.endsWith("Lexer")
+                        ? lexerName.substring(0, lexerName.length - "Lexer".length)
+                        : lexerName;
+                }
+            }
+        } else {
+            if (parserName !== null) {
+                grammarName = parserName;
+            } else {
+                grammarName = lexerName;
+            }
+        }
+
+        const runOptions: IRunOptions = {
+            grammarFileName: descriptor.grammarName + ".g4",
+            grammarStr: grammar,
+            grammarName,
             parserName,
             lexerName,
-            useListenerOrVisitor,
-            useListenerOrVisitor,
-            descriptor.startRule,
-            descriptor.input,
-            false,
-            descriptor.showDiagnosticErrors,
-            descriptor.traceATN,
-            descriptor.showDFA,
-            Stage.Execute,
-            "TypeScript",
+            useListener: useListenerOrVisitor,
+            useVisitor: useListenerOrVisitor,
+            startRuleName: descriptor.startRule,
+            input: descriptor.input,
+            profile: false,
+            showDiagnosticErrors: descriptor.showDiagnosticErrors,
+            traceATN: descriptor.traceATN,
+            showDFA: descriptor.showDFA,
+            endStage: Stage.Execute,
             superClass,
-            descriptor.predictionMode,
-            descriptor.buildParseTree,
-        );
+            predictionMode: descriptor.predictionMode,
+            buildParseTree: descriptor.buildParseTree,
+        };
 
         generateParserFiles(testPath, runOptions);
     };
@@ -260,7 +276,7 @@ for (const [caption, descriptors] of testDescriptors) {
         const output = consolidate(descriptor.output);
         const errors = consolidate(descriptor.errors);
 
-        const command = descriptor.skipTargets.includes("TypeScript") ? "xit" : "it";
+        const command = descriptor.skipTargets?.has("TypeScript") ? "xit" : "it";
         const testDescribe = `${command}("${descriptor.name}", async () => {\n` +
             `${descriptor.notes.replace(/^/gm, "    // ")}\n` +
             `    const expectedOutput = "${output}";\n` +

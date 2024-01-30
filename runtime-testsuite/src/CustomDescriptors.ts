@@ -6,18 +6,15 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
+import { IRuntimeTestDescriptor } from "./IRuntimeTestDescriptor.js";
 import { GrammarType } from "./GrammarType.js";
 import { padZero } from "../temp.js";
 
 export class CustomDescriptors {
-    public static readonly descriptors = new Map<string, RuntimeTestDescriptor[]>();
+    public static readonly descriptors = new Map<string, IRuntimeTestDescriptor[]>();
     private static readonly path: string;
 
     static {
-        /*CustomDescriptors.path = RuntimeTestUtils.runtimeTestsuitePath,
-            "test", "org", "antlr", "v4", "test", "runtime", "CustomDescriptors.java").toUri();*/
-
         CustomDescriptors.descriptors.set("LexerExec",
             [
                 CustomDescriptors.getLineSeparatorLfDescriptor(),
@@ -31,49 +28,58 @@ export class CustomDescriptors {
             ]);
     }
 
-    private static getLineSeparatorLfDescriptor(): RuntimeTestDescriptor {
-        return new RuntimeTestDescriptor(
-            GrammarType.Lexer,
-            "LineSeparatorLf",
-            "",
-            "1\n2\n3",
-            "[@0,0:0='1',<1>,1:0]\n" +
-            "[@1,1:1='\\n',<2>,1:1]\n" +
-            "[@2,2:2='2',<1>,2:0]\n" +
-            "[@3,3:3='\\n',<2>,2:1]\n" +
-            "[@4,4:4='3',<1>,3:0]\n" +
-            "[@5,5:4='<EOF>',<-1>,3:1]\n",
-            "",
-            null,
-            "L",
-            "lexer grammar L;\n" +
-            "T: ~'\\n'+;\n" +
-            "SEPARATOR: '\\n';",
-            null, false, false, false, "LL", true, null, CustomDescriptors.path);
+    private static getLineSeparatorLfDescriptor(): IRuntimeTestDescriptor {
+        return {
+            testType: GrammarType.Lexer,
+            name: "LineSeparatorLf",
+            notes: "",
+            input: "1\n2\n3",
+            output: "[@0,0:0='1',<1>,1:0]\n" +
+                "[@1,1:1='\\n',<2>,1:1]\n" +
+                "[@2,2:2='2',<1>,2:0]\n" +
+                "[@3,3:3='\\n',<2>,2:1]\n" +
+                "[@4,4:4='3',<1>,3:0]\n" +
+                "[@5,5:4='<EOF>',<-1>,3:1]\n",
+            errors: "",
+            grammarName: "L",
+            grammar: "lexer grammar L;\n" +
+                "T: ~'\\n'+;\n" +
+                "SEPARATOR: '\\n';",
+            showDFA: false,
+            showDiagnosticErrors: false,
+            traceATN: false,
+            predictionMode: "LL",
+            buildParseTree: true,
+            path: CustomDescriptors.path,
+        };
     }
 
-    private static getLineSeparatorCrLfDescriptor(): RuntimeTestDescriptor {
-        return new RuntimeTestDescriptor(
-            GrammarType.Lexer,
-            "LineSeparatorCrLf",
-            "",
-            "1\r\n2\r\n3",
-            "[@0,0:0='1',<1>,1:0]\n" +
-            "[@1,1:2='\\r\\n',<2>,1:1]\n" +
-            "[@2,3:3='2',<1>,2:0]\n" +
-            "[@3,4:5='\\r\\n',<2>,2:1]\n" +
-            "[@4,6:6='3',<1>,3:0]\n" +
-            "[@5,7:6='<EOF>',<-1>,3:1]\n",
-            "",
-            "",
-            "L",
-            "lexer grammar L;\n" +
-            "T: ~'\\r'+;\n" +
-            "SEPARATOR: '\\r\\n';",
-            null, false, false, false, "LL", true, null, CustomDescriptors.path);
+    private static getLineSeparatorCrLfDescriptor(): IRuntimeTestDescriptor {
+        return {
+            testType: GrammarType.Lexer,
+            name: "LineSeparatorCrLf",
+            notes: "",
+            input: "1\r\n2\r\n3",
+            output: "[@0,0:0='1',<1>,1:0]\n" +
+                "[@1,1:2='\\r\\n',<2>,1:1]\n" +
+                "[@2,3:3='2',<1>,2:0]\n" +
+                "[@3,4:5='\\r\\n',<2>,2:1]\n" +
+                "[@4,6:6='3',<1>,3:0]\n" +
+                "[@5,7:6='<EOF>',<-1>,3:1]\n",
+            errors: "",
+            grammarName: "L",
+            grammar: "lexer grammar L;\n" +
+                "T: ~'\\r'+;\n" +
+                "SEPARATOR: '\\r\\n';",
+            showDFA: false,
+            showDiagnosticErrors: false,
+            traceATN: false,
+            predictionMode: "LL",
+            buildParseTree: true, path: CustomDescriptors.path,
+        };
     }
 
-    private static getLargeLexerDescriptor(): RuntimeTestDescriptor {
+    private static getLargeLexerDescriptor(): IRuntimeTestDescriptor {
         const tokensCount = 4000;
         const grammarName = "L";
 
@@ -84,23 +90,28 @@ export class CustomDescriptors {
             grammar += "KW" + i + " : 'KW' '" + i + "';\n";
         }
 
-        return new RuntimeTestDescriptor(
-            GrammarType.Lexer,
-            "LargeLexer",
-            "This is a regression test for antlr/antlr4#76 \"Serialized ATN strings\n" +
-            "should be split when longer than 2^16 bytes (class file limitation)\"\n" +
-            "https://github.com/antlr/antlr4/issues/76",
-            "KW400",
-            "[@0,0:4='KW400',<402>,1:0]\n" +
-            "[@1,5:4='<EOF>',<-1>,1:5]\n",
-            "",
-            "",
+        return {
+            testType: GrammarType.Lexer,
+            name: "LargeLexer",
+            notes: "This is a regression test for antlr/antlr4#76 \"Serialized ATN strings\n" +
+                "should be split when longer than 2^16 bytes (class file limitation)\"\n" +
+                "https://github.com/antlr/antlr4/issues/76",
+            input: "KW400",
+            output: "[@0,0:4='KW400',<402>,1:0]\n" +
+                "[@1,5:4='<EOF>',<-1>,1:5]\n",
+            errors: "",
             grammarName,
-            grammar.toString(),
-            null, false, false, false, "LL", true, null, CustomDescriptors.path);
+            grammar: grammar.toString(),
+            showDFA: false,
+            showDiagnosticErrors: false,
+            traceATN: false,
+            predictionMode: "LL",
+            buildParseTree: true,
+            path: CustomDescriptors.path,
+        };
     }
 
-    private static getAtnStatesSizeMoreThan65535Descriptor(): RuntimeTestDescriptor {
+    private static getAtnStatesSizeMoreThan65535Descriptor(): IRuntimeTestDescriptor {
         // I tried playing around with different sizes, and I think 1002 works for Go but 1003 does not;
         // the executing lexer gets a token syntax error for T208 or something like that.
         const tokensCount = 1024;
@@ -135,22 +146,26 @@ export class CustomDescriptors {
         output += "[@" + tokensCount + "," + startOffset + ":" + stopOffset + "='<EOF>',<-1>," + (tokensCount + 1) +
             ":0]\n";
 
-        return new RuntimeTestDescriptor(
-            GrammarType.Lexer,
-            "AtnStatesSizeMoreThan65535",
-            "Regression for https://github.com/antlr/antlr4/issues/1863",
-            input.toString(),
-            output.toString(),
-            "",
-            "",
+        return {
+            testType: GrammarType.Lexer,
+            name: "AtnStatesSizeMoreThan65535",
+            notes: "Regression for https://github.com/antlr/antlr4/issues/1863",
+            input: input.toString(),
+            output: output.toString(),
+            errors: "",
             grammarName,
-            grammar.toString(),
-            null, false, false, false, "LL", true,
-            ["CSharp", "Python3", "Go", "PHP", "Swift", "JavaScript", "TypeScript", "Dart"],
-            CustomDescriptors.path);
+            grammar: grammar.toString(),
+            showDFA: false,
+            showDiagnosticErrors: false,
+            traceATN: false,
+            predictionMode: "LL",
+            buildParseTree: true,
+            skipTargets: new Set(["CSharp", "Python3", "Go", "PHP", "Swift", "JavaScript", "TypeScript", "Dart"]),
+            path: CustomDescriptors.path,
+        };
     }
 
-    private static getMultiTokenAlternativeDescriptor(): RuntimeTestDescriptor {
+    private static getMultiTokenAlternativeDescriptor(): IRuntimeTestDescriptor {
         const tokensCount = 64;
 
         let rule = "r1: ";
@@ -174,7 +189,7 @@ export class CustomDescriptors {
         const currentToken = "T" + tokensCount;
         tokens += currentToken + ": '" + currentToken + "';\n";
         input += currentToken + " ";
-        output += currentToken;
+        output += currentToken + "\n";
 
         const grammar = "grammar P;\n" +
             "r: (r1 | T" + tokensCount + ")+ EOF {<writeln(\"$text\")>};\n" +
@@ -182,16 +197,22 @@ export class CustomDescriptors {
             tokens + "\n" +
             "WS: [ ]+ -> skip;";
 
-        return new RuntimeTestDescriptor(
-            GrammarType.Parser,
-            "MultiTokenAlternative",
-            "https://github.com/antlr/antlr4/issues/3698, https://github.com/antlr/antlr4/issues/3703",
-            input.toString(),
-            output + "\n",
-            "",
-            "r",
-            "P",
+        return {
+            testType: GrammarType.Parser,
+            name: "MultiTokenAlternative",
+            notes: "https://github.com/antlr/antlr4/issues/3698, https://github.com/antlr/antlr4/issues/3703",
+            input: input.toString(),
+            output,
+            errors: "",
+            startRule: "r",
+            grammarName: "P",
             grammar,
-            null, false, false, false, "LL", true, null, CustomDescriptors.path);
+            showDFA: false,
+            showDiagnosticErrors: false,
+            traceATN: false,
+            predictionMode: "LL",
+            buildParseTree: true,
+            path: CustomDescriptors.path,
+        };
     }
 }

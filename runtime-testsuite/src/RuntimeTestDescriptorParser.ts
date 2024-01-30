@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuntimeTestDescriptor } from "./RuntimeTestDescriptor.js";
+import { IRuntimeTestDescriptor } from "./IRuntimeTestDescriptor.js";
 import { GrammarType } from "./GrammarType.js";
 
 export class RuntimeTestDescriptorParser {
@@ -68,7 +68,7 @@ export class RuntimeTestDescriptorParser {
      *
      * @returns The new RuntimeTestDescriptor.
      */
-    public static parse(name: string, text: string, path: string): RuntimeTestDescriptor {
+    public static parse(name: string, text: string, path: string): IRuntimeTestDescriptor {
         let currentField = null;
         let currentValue = "";
 
@@ -109,7 +109,7 @@ export class RuntimeTestDescriptorParser {
         let traceATN = false;
         let predictionMode = "LL";
         let buildParseTree = true;
-        let skipTargets: string[] = [];
+        let skipTargets: Set<string> | undefined;
         for (const p of pairs) {
             const section = p[0];
             let value = "";
@@ -205,7 +205,7 @@ export class RuntimeTestDescriptorParser {
                 }
 
                 case "skip": {
-                    skipTargets = value.split("\n");
+                    skipTargets = new Set(value.split("\n"));
                     break;
                 }
 
@@ -216,8 +216,10 @@ export class RuntimeTestDescriptorParser {
             }
         }
 
-        return new RuntimeTestDescriptor(testType, name, notes, input, output, errors, startRule, grammarName, grammar,
-            slaveGrammars, showDiagnosticErrors, traceATN, showDFA, predictionMode, buildParseTree, skipTargets, path);
+        return {
+            testType, name, notes, input, output, errors, startRule, grammarName, grammar,
+            slaveGrammars, showDiagnosticErrors, traceATN, showDFA, predictionMode, buildParseTree, skipTargets, path,
+        };
     }
 
     /**

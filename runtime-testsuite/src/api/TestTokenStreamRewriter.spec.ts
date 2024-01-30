@@ -10,9 +10,6 @@
 
 import { CommonTokenStream, TokenStreamRewriter, Interval, CharStreams, Lexer, CharStream } from "antlr4ng";
 
-import { Test } from "../../utils/decorators.js";
-import { assertEquals, assertNotNull } from "../../utils/junit.js";
-
 import { T1 } from "../../generated/T1.js";
 import { T2 } from "../../generated/T2.js";
 import { T3 } from "../../generated/T3.js";
@@ -33,65 +30,57 @@ const createRewriter = <T extends Lexer>(lexerClass: new (input: CharStream) => 
     return new TokenStreamRewriter(tokens);
 };
 
-export class TestTokenStreamRewriter {
-
-    @Test
-    public testInsertBeforeIndex0(): void {
+describe("TestTokenStreamRewriter", () => {
+    it("testInsertBeforeIndex0", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(0, "0");
         const result = tokens.getText();
         const expecting = "0abc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testInsertAfterLastIndex(): void {
+    it("testInsertAfterLastIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertAfter(2, "x");
         const result = tokens.getText();
         const expecting = "abcx";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public test2InsertBeforeAfterMiddleIndex(): void {
+    it("test2InsertBeforeAfterMiddleIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(1, "x");
         tokens.insertAfter(1, "x");
         const result = tokens.getText();
         const expecting = "axbxc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceIndex0(): void {
+    it("testReplaceIndex0", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.replaceSingle(0, "x");
         const result = tokens.getText();
         const expecting = "xbc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceLastIndex(): void {
+    it("testReplaceLastIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.replaceSingle(2, "x");
         const result = tokens.getText();
         const expecting = "abx";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceMiddleIndex(): void {
+    it("testReplaceMiddleIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.replaceSingle(1, "x");
         const result = tokens.getText();
         const expecting = "axc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testToStringStartStop(): void {
+    it("testToStringStartStop", () => {
         const tokens = createRewriter(T2, "x = 3 * 0;");
         tokens.replace(4, 8, "0");
 
@@ -101,28 +90,27 @@ export class TestTokenStreamRewriter {
         // replace 3 * 0 with 0
         let result = stream.getText();
         let expecting = "x = 3 * 0;";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText();
         expecting = "x = 0;";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText(Interval.of(0, 9));
         expecting = "x = 0;";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText(Interval.of(4, 8));
         expecting = "0";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testToStringStartStop2(): void {
+    it("testToStringStartStop2", () => {
         const tokens = createRewriter(T3, "x = 3 * 0 + 2 * 0;");
 
         let result = tokens.getTokenStream().getText();
         let expecting = "x = 3 * 0 + 2 * 0;";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         tokens.replace(4, 8, "0");
 
@@ -132,71 +120,67 @@ export class TestTokenStreamRewriter {
         // replace 3 * 0 with 0
         result = tokens.getText();
         expecting = "x = 0 + 2 * 0;";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText(Interval.of(0, 17));
         expecting = "x = 0 + 2 * 0;";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText(Interval.of(4, 8));
         expecting = "0";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText(Interval.of(0, 8));
         expecting = "x = 0";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText(Interval.of(12, 16));
         expecting = "2 * 0";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         tokens.insertAfter(17, "// comment");
         result = tokens.getText(Interval.of(12, 18));
         expecting = "2 * 0;// comment";
-        assertEquals(expecting, result);
+        expect(result).toBe(expecting);
 
         result = tokens.getText(Interval.of(0, 8));
         stream.fill();
 
         // try again after insert at end
         expecting = "x = 0";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public test2ReplaceMiddleIndex(): void {
+    it("test2ReplaceMiddleIndex", () => {
         const tokens = createRewriter(T1, "abc");
 
         tokens.replaceSingle(1, "x");
         tokens.replaceSingle(1, "y");
         const result = tokens.getText();
         const expecting = "ayc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public test2ReplaceMiddleIndex1InsertBefore(): void {
+    it("test2ReplaceMiddleIndex1InsertBefore", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(0, "_");
         tokens.replaceSingle(1, "x");
         tokens.replaceSingle(1, "y");
         const result = tokens.getText();
         const expecting = "_ayc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceThenDeleteMiddleIndex(): void {
+    it("testReplaceThenDeleteMiddleIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.replaceSingle(1, "x");
         tokens.delete(1);
         const result = tokens.getText();
         const expecting = "ac";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testInsertInPriorReplace(): void {
+    it("testInsertInPriorReplace", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.replace(0, 2, "x");
         tokens.insertBefore(1, "0");
@@ -212,12 +196,11 @@ export class TestTokenStreamRewriter {
         }
         const expecting = "insert op <InsertBeforeOp@[@1,1:1='b',<2>,1:1]:\"0\"> within boundaries of previous " +
             "<ReplaceOp@[@0,0:0='a',<1>,1:0]..[@2,2:2='c',<3>,1:2]:\"x\">";
-        assertNotNull(exc);
-        assertEquals(expecting, exc?.message);
-    }
+        expect(exc).not.toBeNull();
+        expect(exc?.message).toBe(expecting);
+    });
 
-    @Test
-    public testInsertThenReplaceSameIndex(): void {
+    it("testInsertThenReplaceSameIndex", () => {
         const tokens = createRewriter(T1, "abc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
 
@@ -228,72 +211,65 @@ export class TestTokenStreamRewriter {
         // supercedes insert at 0
         const result = tokens.getText();
         const expecting = "0xbc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public test2InsertMiddleIndex(): void {
+    it("test2InsertMiddleIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(1, "x");
         tokens.insertBefore(1, "y");
         const result = tokens.getText();
         const expecting = "ayxbc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public test2InsertThenReplaceIndex0(): void {
+    it("test2InsertThenReplaceIndex0", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(0, "x");
         tokens.insertBefore(0, "y");
         tokens.replaceSingle(0, "z");
         const result = tokens.getText();
         const expecting = "yxzbc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceThenInsertBeforeLastIndex(): void {
+    it("testReplaceThenInsertBeforeLastIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.replaceSingle(2, "x");
         tokens.insertBefore(2, "y");
         const result = tokens.getText();
         const expecting = "abyx";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testInsertThenReplaceLastIndex(): void {
+    it("testInsertThenReplaceLastIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(2, "y");
         tokens.replaceSingle(2, "x");
         const result = tokens.getText();
         const expecting = "abyx";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceThenInsertAfterLastIndex(): void {
+    it("testReplaceThenInsertAfterLastIndex", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.replaceSingle(2, "x");
         tokens.insertAfter(2, "y");
         const result = tokens.getText();
         const expecting = "abxy";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceRangeThenInsertAtLeftEdge(): void {
+    it("testReplaceRangeThenInsertAtLeftEdge", () => {
         const tokens = createRewriter(T1, "abcccba");
         tokens.replace(2, 4, "x");
         tokens.insertBefore(2, "y");
         const result = tokens.getText();
         const expecting = "abyxba";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceRangeThenInsertAtRightEdge(): void {
+    it("testReplaceRangeThenInsertAtRightEdge", () => {
         const tokens = createRewriter(T1, "abcccba");
         const stream = tokens.getTokenStream() as CommonTokenStream;
 
@@ -312,40 +288,36 @@ export class TestTokenStreamRewriter {
         }
         const expecting = "insert op <InsertBeforeOp@[@4,4:4='c',<3>,1:4]:\"y\"> within boundaries of previous " +
             "<ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"x\">";
-        assertNotNull(exc);
-        assertEquals(expecting, exc?.message);
-    }
+        expect(exc).not.toBeNull();
+        expect(exc?.message).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceRangeThenInsertAfterRightEdge(): void {
+    it("testReplaceRangeThenInsertAfterRightEdge", () => {
         const tokens = createRewriter(T1, "abcccba");
         tokens.replace(2, 4, "x");
         tokens.insertAfter(4, "y");
         const result = tokens.getText();
         const expecting = "abxyba";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceAll(): void {
+    it("testReplaceAll", () => {
         const tokens = createRewriter(T1, "abcccba");
         tokens.replace(0, 6, "x");
         const result = tokens.getText();
         const expecting = "x";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceSubsetThenFetch(): void {
+    it("testReplaceSubsetThenFetch", () => {
         const tokens = createRewriter(T1, "abcccba");
         tokens.replace(2, 4, "xyz");
         const result = tokens.getText(Interval.of(0, 6));
         const expecting = "abxyzba";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceThenReplaceSuperset(): void {
+    it("testReplaceThenReplaceSuperset", () => {
         const tokens = createRewriter(T1, "abcccba");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(2, 4, "xyz");
@@ -365,12 +337,11 @@ export class TestTokenStreamRewriter {
         }
         const expecting = "replace op boundaries of <ReplaceOp@[@3,3:3='c',<3>,1:3]..[@5,5:5='b',<2>,1:5]:\"foo\"> " +
             "overlap with previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"xyz\">";
-        assertNotNull(exc);
-        assertEquals(expecting, exc?.message);
-    }
+        expect(exc).not.toBeNull();
+        expect(exc?.message).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceThenReplaceLowerIndexedSuperset(): void {
+    it("testReplaceThenReplaceLowerIndexedSuperset", () => {
         const tokens = createRewriter(T1, "abcccba");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(2, 4, "xyz");
@@ -390,43 +361,39 @@ export class TestTokenStreamRewriter {
         }
         const expecting = "replace op boundaries of <ReplaceOp@[@1,1:1='b',<2>,1:1]..[@3,3:3='c',<3>,1:3]:\"foo\"> " +
             "overlap with previous <ReplaceOp@[@2,2:2='c',<3>,1:2]..[@4,4:4='c',<3>,1:4]:\"xyz\">";
-        assertNotNull(exc);
-        assertEquals(expecting, exc?.message);
-    }
+        expect(exc).not.toBeNull();
+        expect(exc?.message).toBe(expecting);
+    });
 
-    @Test
-    public testReplaceSingleMiddleThenOverlappingSuperset(): void {
+    it("testReplaceSingleMiddleThenOverlappingSuperset", () => {
         const tokens = createRewriter(T1, "abcba");
         tokens.replace(2, 2, "xyz");
         tokens.replace(0, 3, "foo");
         const result = tokens.getText();
         const expecting = "fooa";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testCombineInserts(): void {
+    it("testCombineInserts", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(0, "x");
         tokens.insertBefore(0, "y");
         const result = tokens.getText();
         const expecting = "yxabc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testCombine3Inserts(): void {
+    it("testCombine3Inserts", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(1, "x");
         tokens.insertBefore(0, "y");
         tokens.insertBefore(1, "z");
         const result = tokens.getText();
         const expecting = "yazxbc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testCombineInsertOnLeftWithReplace(): void {
+    it("testCombineInsertOnLeftWithReplace", () => {
         const tokens = createRewriter(T1, "abc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(0, 2, "foo");
@@ -436,11 +403,10 @@ export class TestTokenStreamRewriter {
         // combine with left edge of rewrite
         const result = tokens.getText();
         const expecting = "zfoo";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testCombineInsertOnLeftWithDelete(): void {
+    it("testCombineInsertOnLeftWithDelete", () => {
         const tokens = createRewriter(T1, "abc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.delete(0, 2);
@@ -453,22 +419,20 @@ export class TestTokenStreamRewriter {
         stream.fill();
 
         // make sure combo is not znull
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testDisjointInserts(): void {
+    it("testDisjointInserts", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(1, "x");
         tokens.insertBefore(2, "y");
         tokens.insertBefore(0, "z");
         const result = tokens.getText();
         const expecting = "zaxbyc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testOverlappingReplace(): void {
+    it("testOverlappingReplace", () => {
         const tokens = createRewriter(T1, "abc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(1, 2, "foo");
@@ -478,11 +442,10 @@ export class TestTokenStreamRewriter {
         // wipes prior nested replace
         const result = tokens.getText();
         const expecting = "bar";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testOverlappingReplace2(): void {
+    it("testOverlappingReplace2", () => {
         const tokens = createRewriter(T1, "abcc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(0, 3, "bar");
@@ -502,12 +465,11 @@ export class TestTokenStreamRewriter {
         }
         const expecting = "replace op boundaries of <ReplaceOp@[@1,1:1='b',<2>,1:1]..[@2,2:2='c',<3>,1:2]:\"foo\"> " +
             "overlap with previous <ReplaceOp@[@0,0:0='a',<1>,1:0]..[@3,3:3='c',<3>,1:3]:\"bar\">";
-        assertNotNull(exc);
-        assertEquals(expecting, exc?.message);
-    }
+        expect(exc).not.toBeNull();
+        expect(exc?.message).toBe(expecting);
+    });
 
-    @Test
-    public testOverlappingReplace3(): void {
+    it("testOverlappingReplace3", () => {
         const tokens = createRewriter(T1, "abcc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(1, 2, "foo");
@@ -517,11 +479,10 @@ export class TestTokenStreamRewriter {
         // wipes prior nested replace
         const result = tokens.getText();
         const expecting = "barc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testOverlappingReplace4(): void {
+    it("testOverlappingReplace4", () => {
         const tokens = createRewriter(T1, "abcc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(1, 2, "foo");
@@ -531,11 +492,10 @@ export class TestTokenStreamRewriter {
         // wipes prior nested replace
         const result = tokens.getText();
         const expecting = "abar";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testDropIdenticalReplace(): void {
+    it("testDropIdenticalReplace", () => {
         const tokens = createRewriter(T1, "abcc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.replace(1, 2, "foo");
@@ -545,11 +505,10 @@ export class TestTokenStreamRewriter {
         // drop previous, identical
         const result = tokens.getText();
         const expecting = "afooc";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testDropPrevCoveredInsert(): void {
+    it("testDropPrevCoveredInsert", () => {
         const tokens = createRewriter(T1, "abc");
         const stream = tokens.getTokenStream() as CommonTokenStream;
         tokens.insertBefore(1, "foo");
@@ -559,42 +518,38 @@ export class TestTokenStreamRewriter {
         // kill prev insert
         const result = tokens.getText();
         const expecting = "afoofoo";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testLeaveAloneDisjointInsert(): void {
+    it("testLeaveAloneDisjointInsert", () => {
         const tokens = createRewriter(T1, "abcc");
         tokens.insertBefore(1, "x");
         tokens.replace(2, 3, "foo");
         const result = tokens.getText();
         const expecting = "axbfoo";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testLeaveAloneDisjointInsert2(): void {
+    it("testLeaveAloneDisjointInsert2", () => {
         const tokens = createRewriter(T1, "abcc");
         tokens.replace(2, 3, "foo");
         tokens.insertBefore(1, "x");
         const result = tokens.getText();
         const expecting = "axbfoo";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testInsertBeforeTokenThenDeleteThatToken(): void {
+    it("testInsertBeforeTokenThenDeleteThatToken", () => {
         const tokens = createRewriter(T1, "abc");
         tokens.insertBefore(2, "y");
         tokens.delete(2);
         const result = tokens.getText();
         const expecting = "aby";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
     // Test Fix for https://github.com/antlr/antlr4/issues/550
-    @Test
-    public testDistinguishBetweenInsertAfterAndInsertBeforeToPreserverOrder(): void {
+    it("testDistinguishBetweenInsertAfterAndInsertBeforeToPreserverOrder", () => {
         const tokens = createRewriter(T1, "aa");
         tokens.insertBefore(0, "<b>");
         tokens.insertAfter(0, "</b>");
@@ -602,11 +557,10 @@ export class TestTokenStreamRewriter {
         tokens.insertAfter(1, "</b>");
         const result = tokens.getText();
         const expecting = "<b>a</b><b>a</b>"; // fails with <b>a<b></b>a</b>"
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-    @Test
-    public testDistinguishBetweenInsertAfterAndInsertBeforeToPreserverOrder2(): void {
+    it("testDistinguishBetweenInsertAfterAndInsertBeforeToPreserverOrder2", () => {
         const tokens = createRewriter(T1, "aa");
         tokens.insertBefore(0, "<p>");
         tokens.insertBefore(0, "<b>");
@@ -616,12 +570,11 @@ export class TestTokenStreamRewriter {
         tokens.insertAfter(1, "</b>");
         const result = tokens.getText();
         const expecting = "<b><p>a</p></b><b>a</b>";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
     // Test Fix for https://github.com/antlr/antlr4/issues/550
-    @Test
-    public testPreservesOrderOfContiguousInserts(): void {
+    it("testPreservesOrderOfContiguousInserts", () => {
         const tokens = createRewriter(T1, "ab");
         tokens.insertBefore(0, "<p>");
         tokens.insertBefore(0, "<b>");
@@ -632,7 +585,7 @@ export class TestTokenStreamRewriter {
         tokens.insertBefore(1, "!");
         const result = tokens.getText();
         const expecting = "<div><b><p>a</p></b></div>!b";
-        assertEquals(expecting, result);
-    }
+        expect(result).toBe(expecting);
+    });
 
-}
+});
