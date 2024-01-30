@@ -11,7 +11,6 @@ import { join } from "path";
 
 import { FileUtils } from "./FileUtils.js";
 import { ErrorQueue } from "./ErrorQueue.js";
-import { DefaultToolListener, Tool } from "../temp.js";
 
 export class Generator {
 
@@ -40,21 +39,7 @@ export class Generator {
         }
         options.push(join(workdir, grammarFileName));
 
-        const antlr = new Tool(options);
-        const errorQueue = new ErrorQueue(antlr);
-        antlr.addListener(errorQueue);
-        if (defaultListener) {
-            antlr.addListener(new DefaultToolListener(antlr));
-        }
-
-        const errors: string[] = [];
-
-        if (!defaultListener && errorQueue.errors.length > 0) {
-            for (const msg of errorQueue.errors) {
-                const msgST = antlr.errMgr.getMessageTemplate(msg);
-                errors.push(msgST!.render());
-            }
-        }
+        const errorQueue = new ErrorQueue();
 
         // Generate test parsers, lexers and listeners.
         const output = spawnSync("npm", ["run", "generate", "--", ...options], {

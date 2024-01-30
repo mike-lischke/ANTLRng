@@ -1,12 +1,28 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { GrammarType } from "./GrammarType.js";
+export interface IRunOptions {
+    grammarFileName: string;
+    grammarStr: string;
+    parserName?: string;
+    lexerName?: string;
+    grammarName?: string;
+    useListener: boolean;
+    useVisitor: boolean;
+    startRuleName?: string;
+    input: string;
+    profile: boolean;
+    showDiagnosticErrors: boolean;
+    traceATN: boolean;
+    showDFA: boolean;
+    superClass?: string;
+    predictionMode: string;
+    buildParseTree: boolean;
+
+}
 
 /**
  * This interface represents all the information we need about a single test and is the
@@ -55,4 +71,11 @@ export interface IRuntimeTestDescriptor {
     buildParseTree: boolean;
     skipTargets?: Set<string>;
     path?: string;
+}
+
+export enum GrammarType {
+    Lexer,
+    Parser,
+    CompositeLexer,
+    CompositeParser,
 }

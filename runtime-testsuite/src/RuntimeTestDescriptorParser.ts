@@ -6,8 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { IRuntimeTestDescriptor } from "./IRuntimeTestDescriptor.js";
-import { GrammarType } from "./GrammarType.js";
+import { IRuntimeTestDescriptor, GrammarType } from "./types.js";
 
 export class RuntimeTestDescriptorParser {
     private static readonly sections = new Set([

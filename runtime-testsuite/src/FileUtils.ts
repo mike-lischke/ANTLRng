@@ -36,36 +36,6 @@ export class FileUtils {
         return null;
     }
 
-    public static replaceInFile(sourcePath: string, target: string, replacement: string): void;
-    public static replaceInFile(sourcePath: string, destPath: string, target: string, replacement: string): void;
-    public static replaceInFile(...args: unknown[]): void {
-        switch (args.length) {
-            case 3: {
-                const [sourcePath, target, replacement] = args as [string, string, string];
-
-                FileUtils.replaceInFile(sourcePath, sourcePath, target, replacement);
-
-                break;
-            }
-
-            case 4: {
-                const [sourcePath, destPath, target, replacement] = args as [string, string, string, string];
-
-                const content = this.readFile("", sourcePath);
-                if (content !== null) {
-                    const newContent = content.replace(target, replacement);
-                    this.writeFile("", destPath, newContent);
-                }
-
-                break;
-            }
-
-            default: {
-                throw new Error("Invalid number of arguments");
-            }
-        }
-    }
-
     public static mkdir(dir: string): void {
         fs.mkdirSync(dir, { recursive: true });
     }

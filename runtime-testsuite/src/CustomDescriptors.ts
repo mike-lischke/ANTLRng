@@ -6,9 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { IRuntimeTestDescriptor } from "./IRuntimeTestDescriptor.js";
-import { GrammarType } from "./GrammarType.js";
-import { padZero } from "../temp.js";
+import { IRuntimeTestDescriptor, GrammarType } from "./types.js";
 
 export class CustomDescriptors {
     public static readonly descriptors = new Map<string, IRuntimeTestDescriptor[]>();
@@ -126,7 +124,7 @@ export class CustomDescriptors {
         let startOffset: number;
         let stopOffset = -2;
         for (let i = 0; i < tokensCount; i++) {
-            const ruleName = `T_${padZero(i, 6)}`;
+            const ruleName = `T_${this.padZero(i, 6)}`;
             const value = ruleName + suffix;
             grammar += ruleName + ": '" + value + "';\n";
             input += value + "\n";
@@ -215,4 +213,9 @@ export class CustomDescriptors {
             path: CustomDescriptors.path,
         };
     }
+
+    private static padZero(num: number, len: number): string {
+        return num.toString().padStart(len, "0");
+    };
+
 }

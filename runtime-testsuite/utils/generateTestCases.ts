@@ -9,11 +9,8 @@ import { ST, STGroup, STGroupFile, StringRenderer } from "stringtemplate4ts";
 
 import { CustomDescriptors } from "../src/CustomDescriptors.js";
 import { Generator } from "../src/Generator.js";
-import { GrammarType } from "../src/GrammarType.js";
-import { IRunOptions } from "../src/RunOptions.js";
-import { IRuntimeTestDescriptor } from "../src/IRuntimeTestDescriptor.js";
+import { GrammarType, IRunOptions, IRuntimeTestDescriptor } from "../src/types.js";
 import { RuntimeTestDescriptorParser } from "../src/RuntimeTestDescriptorParser.js";
-import { Stage } from "../src/Stage.js";
 
 /**
  * This file generates the test cases for the runtime testsuite. It uses the test descriptors files
@@ -245,7 +242,6 @@ for (const [caption, descriptors] of testDescriptors) {
             showDiagnosticErrors: descriptor.showDiagnosticErrors,
             traceATN: descriptor.traceATN,
             showDFA: descriptor.showDFA,
-            endStage: Stage.Execute,
             superClass,
             predictionMode: descriptor.predictionMode,
             buildParseTree: descriptor.buildParseTree,
