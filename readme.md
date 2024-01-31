@@ -20,11 +20,13 @@ See the [milestone 2](https://github.com/mike-lischke/ANTLRng/issues/9) for the 
 - Remove dependency on ANTLR3.
 - Replace the rather generic string template system by a type safe template engine, which provides inline code hints, to simplify writing target language mappers.
 
-## Other Ideas
+## Feature Ideas
 
 - Rework the import feature. Allow paths for the imports and allow to override imported rules. Make diamond imports working properly.
 - Export rules as ATN network and railroad diagram SVG files.
 - Save/load state to lower cold start time.
 - Code optimizations (like converting recursions to iterations in the prediction code path).
 - Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
+- Allow specifying a config file for tool runs, instead only individual command line parameters.
+- Allow generating files for multiple grammars in their own target folders (good for mass production like needed in the runtime tests).
 - ...
