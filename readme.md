@@ -29,4 +29,5 @@ See the [milestone 2](https://github.com/mike-lischke/ANTLRng/issues/9) for the 
 - Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
 - Allow specifying a config file for tool runs, instead only individual command line parameters.
 - Allow generating files for multiple grammars in their own target folders (good for mass production like needed in the runtime tests).
+- Allow specifying user defined prefixes/postfixes for generated methods (from parser/lexer rules) or allow a complete own pattern.
 - ...
