@@ -22,12 +22,22 @@ See the [milestone 2](https://github.com/mike-lischke/ANTLRng/issues/9) for the 
 
 ## Feature Ideas
 
+### Grammars
+
 - Rework the import feature. Allow paths for the imports and allow to override imported rules. Make diamond imports working properly.
-- Export rules as ATN network and railroad diagram SVG files.
-- Save/load state to lower cold start time.
-- Code optimizations (like converting recursions to iterations in the prediction code path).
-- Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
 - Allow specifying a config file for tool runs, instead only individual command line parameters.
 - Allow generating files for multiple grammars in their own target folders (good for mass production like needed in the runtime tests).
 - Allow specifying user defined prefixes/postfixes for generated methods (from parser/lexer rules) or allow a complete own pattern.
-- ...
+
+### Optimizations
+
+- Save/load state to lower cold start time.
+- Code optimizations (like converting recursions to iterations in the prediction code path).
+- Remove token classes/interfaces (Token, CommonToken, WritableToken) and introduce a compact representation as a series of uin32 numbers, that save space and can be shared more easily (e.g. in web workers or WebAssembly). Put custom token text in a string pool. Introduce helper methods which create the expected string representation of a token.
+- Convert all pure data holder classes to interfaces (e.g. SimState).
+- Make classes that are often used in hash sets/maps immutable, so we can cache hash codes for them (examples: Interval(Set), ATNConfig, ATNConfigSet).
+
+### Target Specific Ideas
+
+- Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
+- Allow target authors to define new named actions, to avoid situations like for the current C++ target, with it's ugly action names.
