@@ -41,3 +41,7 @@ See the [milestone 2](https://github.com/mike-lischke/ANTLRng/issues/9) for the 
 
 - Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
 - Allow target authors to define new named actions, to avoid situations like for the current C++ target, with it's ugly action names.
+
+### New Stuff
+
+- Provide a language server framework, which allows creating a language server for any ANTLR grammar. This could specifically provide required highlighter information for VS Code (syntactic and semantic highlighers).
