@@ -48,4 +48,4 @@ See the [milestone 2](https://github.com/mike-lischke/ANTLRng/issues/9) for the 
 
 ### Learn From Others
 
-What can we learn from other parser generators? For example (tree-sitter)[https://tree-sitter.github.io/tree-sitter/] has a concept of editing a parse tree, which internally will re-parse only the changed part (which is as close to incremental parsing as you can get). It also uses WebAssembly packages as loadable modules that fully handle a language. There's nothing like the ANTLR runtime in this concept. Debugging the parser could be tricky with that approach, however.
+What can we learn from other parser generators? For example [tree-sitter](https://tree-sitter.github.io/tree-sitter/) has a concept of editing a parse tree, which internally will re-parse only the changed part (which is as close to incremental parsing as you can get). It also uses WebAssembly packages as loadable modules that fully handle a language. There's nothing like the ANTLR runtime in this concept. Debugging the parser could be tricky with that approach, however.
