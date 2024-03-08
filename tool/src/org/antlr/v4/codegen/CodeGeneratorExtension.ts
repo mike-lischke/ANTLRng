@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD 3-clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
+
+
+/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
+
+
+
+import { OutputModelFactory } from "./OutputModelFactory.js";
+import { Choice } from "./model/Choice.js";
+import { CodeBlockForAlt } from "./model/CodeBlockForAlt.js";
+import { LabeledOp } from "./model/LabeledOp.js";
+import { Lexer } from "./model/Lexer.js";
+import { LexerFile } from "./model/LexerFile.js";
+import { Parser } from "./model/Parser.js";
+import { ParserFile } from "./model/ParserFile.js";
+import { RuleFunction } from "./model/RuleFunction.js";
+import { SrcOp } from "./model/SrcOp.js";
+import { GrammarAST } from "../tool/ast/GrammarAST.js";
+
+
+
+/** Filter list of SrcOps and return; default is pass-through filter */
+export  class CodeGeneratorExtension {
+	public  factory:  OutputModelFactory;
+
+	public  constructor(factory: OutputModelFactory) {
+		this.factory = factory;
+	}
+
+	public  parserFile(f: ParserFile):  ParserFile { return f; }
+
+	public  parser(p: Parser):  Parser { return p; }
+
+	public  lexerFile(f: LexerFile):  LexerFile { return f; }
+
+	public  lexer(l: Lexer):  Lexer { return l; }
+
+	public  rule(rf: RuleFunction):  RuleFunction { return rf; }
+
+	public  rulePostamble(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	public  alternative(blk: CodeBlockForAlt, outerMost: boolean):  CodeBlockForAlt { return blk; }
+
+	public  finishAlternative(blk: CodeBlockForAlt, outerMost: boolean):  CodeBlockForAlt { return blk; }
+
+	public  epsilon(blk: CodeBlockForAlt):  CodeBlockForAlt { return blk; }
+
+	public  ruleRef(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	public  tokenRef(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	public  set(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	public  stringRef(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	public  wildcard(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	// ACTIONS
+
+	public  action(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	public  sempred(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+
+	// BLOCKS
+
+	public  getChoiceBlock(c: Choice):  Choice { return c; }
+
+	public  getEBNFBlock(c: Choice):  Choice { return c; }
+
+	public  needsImplicitLabel(ID: GrammarAST, op: LabeledOp):  boolean { return false; }
+}

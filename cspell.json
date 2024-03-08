@@ -79,6 +79,7 @@
         "rankdir",
         "rarr",
         "recog",
+        "retvals",
         "semctx",
         "sempred",
         "stringbuilder",
