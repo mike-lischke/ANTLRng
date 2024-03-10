@@ -28,7 +28,7 @@ const config: Config = {
     // An array of glob patterns indicating a set of files for which coverage information should be collected
     collectCoverageFrom: [
         "src/**/*.ts",
-        "!runtime-testsuite/**",
+        "!tests/**",
         "!**/node_modules/**",
     ],
 
@@ -154,7 +154,7 @@ const config: Config = {
 
     // A list of paths to directories that Jest should use to search for files in
     roots: [
-        "./runtime-testsuite",
+        "./tests",
     ],
 
     // Allows you to use a custom runner instead of Jest's default test runner
@@ -187,7 +187,7 @@ const config: Config = {
 
     // The glob patterns Jest uses to detect test files
     testMatch: [
-        "**/runtime-testsuite/**/*.spec.ts",
+        "**/tests/**/*.spec.ts",
     ],
 
     // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
@@ -211,7 +211,6 @@ const config: Config = {
     // A map from regular expressions to paths to transformers
     transform: {
         "^.+\\.ts$": ["ts-jest", {
-            tsconfig: "./runtime-testsuite/generated/tsconfig.json",
             useESM: true,
         }],
     },

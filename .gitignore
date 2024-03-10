@@ -3,3 +3,4 @@ output
 coverage
 runtime-testsuite/generated
 /dist
+src/generated

@@ -26,10 +26,11 @@
     "include": [
         "tool/*.ts",
         "tool/**/*.ts",
+        "src/**/*.ts",
     ],
     "exclude": [
         "node_modules",
         "dist",
-        "runtime-testsuite/**/*.ts",
+        "tests/**/*.ts",
     ],
 }

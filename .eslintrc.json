@@ -18,8 +18,7 @@
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "project": [
-            "tsconfig.json",
-            "runtime-testsuite/tsconfig.json"
+            "tsconfig.json"
         ],
         "sourceType": "module",
         "implicitStrict": true,
