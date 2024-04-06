@@ -1,430 +1,327 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
+import { ErrorBuffer, STGroup, STGroupFile } from "stringtemplate4ts";
 
-import { ToolMessage } from "./ToolMessage.js";
-import { Rule } from "./Rule.js";
-import { LeftRecursionCyclesMessage } from "./LeftRecursionCyclesMessage.js";
-import { GrammarSyntaxMessage } from "./GrammarSyntaxMessage.js";
-import { GrammarSemanticsMessage } from "./GrammarSemanticsMessage.js";
-import { ErrorType } from "./ErrorType.js";
-import { ErrorSeverity } from "./ErrorSeverity.js";
-import { ANTLRMessage } from "./ANTLRMessage.js";
+import type { Token } from "antlr4ng";
+import { basename } from "path";
+import { existsSync } from "fs";
+
+import type { IST } from "stringtemplate4ts/dist/compiler/common.js";
 import { Tool } from "../Tool.js";
-import { HashMap } from "antlr4ng";
+import { ANTLRMessage } from "./ANTLRMessage.js";
+import { ErrorSeverity } from "./ErrorSeverity.js";
+import { ErrorType } from "./ErrorType.js";
+import { GrammarSemanticsMessage } from "./GrammarSemanticsMessage.js";
+import { GrammarSyntaxMessage } from "./GrammarSyntaxMessage.js";
+import { LeftRecursionCyclesMessage } from "./LeftRecursionCyclesMessage.js";
+import { Rule } from "./Rule.js";
+import { ToolMessage } from "./ToolMessage.js";
 
+export class ErrorManager {
 
+    public static readonly FORMATS_DIR = "org/antlr/v4/tool/templates/messages/formats/";
+    private static readonly loadedFormats = new Map<string, STGroupFile>();
 
-export  class ErrorManager {
+    public tool: Tool;
+    public errors: number;
+    public warnings: number;
 
-	public static readonly  FORMATS_DIR = "org/antlr/v4/tool/templates/messages/formats/";
-	private static readonly  loadedFormats = new  HashMap();
-
-	public  tool:  Tool;
-	public  errors:  number;
-	public  warnings:  number;
-
-	/** All errors that have been generated */
-	public  errorTypes = java.util.EnumSet.noneOf(ErrorType.class);
+    /** All errors that have been generated */
+    public errorTypes = new Set<ErrorType>();
 
     /** The group of templates that represent the current message format. */
-    protected  format: STGroup;
+    protected format: STGroup;
 
-    protected  formatName: string;
+    protected formatName: string;
 
-    protected  initSTListener = new  ErrorBuffer();
+    protected initSTListener = new ErrorBuffer();
 
-	public  constructor(tool: Tool) {
-		this.tool = tool;
-	}
+    public constructor(tool: Tool) {
+        this.tool = tool;
+    }
 
-	public static  fatalInternalError(error: string, e: Throwable):  void {
-		ErrorManager.internalError(error, e);
-		throw new  RuntimeException(error, e);
-	}
+    public static fatalInternalError(error: string, e: Error): void {
+        ErrorManager.internalError(error, e);
+        throw new Error(error, { cause: e });
+    }
 
-    public static  internalError(error: string):  void;
+    public static internalError(error: string, e?: Error): void {
+        if (e) {
+            const location = ErrorManager.getLastNonErrorManagerCodeLocation(e);
+            ErrorManager.internalError("Exception " + e + "@" + location + ": " + error);
+        } else {
+            const location = ErrorManager.getLastNonErrorManagerCodeLocation(new Error());
+            const msg = location + ": " + error;
+            console.error("internal error: " + msg);
+        }
+    }
 
-	public static  internalError(error: string, e: Throwable):  void;
-public static internalError(...args: unknown[]):  void {
-		switch (args.length) {
-			case 1: {
-				const [error] = args as [string];
+    public static panic(msg?: string): never {
+        if (msg) {
+            ErrorManager.rawError(msg);
+        }
 
+        throw new Error("ANTLR ErrorManager panic");
+    }
 
-        let  location =
-            ErrorManager.getLastNonErrorManagerCodeLocation(new  Exception());
-        let  msg = location+": "+error;
-        System.err.println("internal error: "+msg);
-    
-
-				break;
-			}
-
-			case 2: {
-				const [error, e] = args as [string, Throwable];
-
-
-        let  location = ErrorManager.getLastNonErrorManagerCodeLocation(e);
-		ErrorManager.internalError("Exception "+e+"@"+location+": "+error);
-    
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-    public static  panic():  void;
-
-	public static  panic(msg: string):  void;
-public static panic(...args: unknown[]):  void {
-		switch (args.length) {
-			case 0: {
-
-        // can't call tool.panic since there may be multiple tools; just
-        // one error manager
-        throw new  Error("ANTLR ErrorManager panic");
-    
-
-				break;
-			}
-
-			case 1: {
-				const [msg] = args as [string];
-
-
-		ErrorManager.rawError(msg);
-		this.panic();
-	
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-    /** If there are errors during ErrorManager init, we have no choice
-     *  but to go to System.err.
+    /**
+     * If there are errors during ErrorManager init, we have no choice but to go to System.err.
      */
-    protected static  rawError(msg: string):  void;
+    protected static rawError(msg: string, e?: Error): void {
+        if (e) {
+            ErrorManager.rawError(msg);
+            console.error(e.stack);
+        } else {
+            console.error(msg);
+        }
+    }
 
-    protected static  rawError(msg: string, e: Throwable):  void;
-protected static rawError(...args: unknown[]):  void {
-		switch (args.length) {
-			case 1: {
-				const [msg] = args as [string];
-
-
-        System.err.println(msg);
-    
-
-				break;
-			}
-
-			case 2: {
-				const [msg, e] = args as [string, Throwable];
-
-
-        ErrorManager.rawError(msg);
-        e.printStackTrace(System.err);
-    
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-    /** Return first non ErrorManager code location for generating messages */
-    private static  getLastNonErrorManagerCodeLocation(e: Throwable):  StackTraceElement {
-        let  stack = e.getStackTrace();
-        let  i = 0;
-        for (; i < stack.length; i++) {
-            let  t = stack[i];
-            if (!t.toString().contains("ErrorManager")) {
+    /** @returns The first non ErrorManager code location for generating messages. */
+    private static getLastNonErrorManagerCodeLocation(e: Error): string {
+        const stack = e.stack!.split("\n");
+        let entry = "";
+        for (entry of stack) {
+            if (!entry.includes("ErrorManager")) {
                 break;
             }
         }
-        let  location = stack[i];
-        return location;
+
+        return entry;
     }
 
-	public  resetErrorState():  void {
-		this.errors = 0;
-		this.warnings = 0;
-	}
+    public resetErrorState(): void {
+        this.errors = 0;
+        this.warnings = 0;
+    }
 
-	public  getMessageTemplate(msg: ANTLRMessage):  ST {
-		let  messageST = msg.getMessageTemplate(this.tool.longMessages);
-		let  locationST = this.getLocationFormat();
-		let  reportST = this.getReportFormat(msg.getErrorType().severity);
-		let  messageFormatST = this.getMessageFormat();
+    public getMessageTemplate(msg: ANTLRMessage): IST | null {
+        const messageST = msg.getMessageTemplate(this.tool.longMessages);
+        const locationST = this.getLocationFormat();
+        const reportST = this.getReportFormat(msg.getErrorType().severity);
+        const messageFormatST = this.getMessageFormat();
 
-		let  locationValid = false;
-		if (msg.line !== -1) {
-			locationST.add("line", msg.line);
-			locationValid = true;
-		}
-		if (msg.charPosition !== -1) {
-			locationST.add("column", msg.charPosition);
-			locationValid = true;
-		}
-		if (msg.fileName !== null) {
-			let  displayFileName = msg.fileName;
-			if (this.formatName.equals("antlr")) {
-				// Don't show path to file in messages in ANTLR format;
-				// they're too long.
-				let  f = new  File(msg.fileName);
-				if ( f.exists() ) {
-					displayFileName = f.getName();
-				}
-			}
-			else {
-				// For other message formats, use the full filename in the
-				// message.  This assumes that these formats are intended to
-				// be parsed by IDEs, and so they need the full path to
-				// resolve correctly.
-			}
-			locationST.add("file", displayFileName);
-			locationValid = true;
-		}
+        let locationValid = false;
+        if (msg.line !== -1) {
+            locationST.add("line", msg.line);
+            locationValid = true;
+        }
 
-		messageFormatST.add("id", msg.getErrorType().code);
-		messageFormatST.add("text", messageST);
+        if (msg.charPosition !== -1) {
+            locationST.add("column", msg.charPosition);
+            locationValid = true;
+        }
 
-		if (locationValid) {
- reportST.add("location", locationST);
-}
+        if (msg.fileName !== null) {
+            let displayFileName = msg.fileName;
+            if (this.formatName === "antlr") {
+                // Don't show path to file in messages in ANTLR format, they're too long.
+                displayFileName = basename(msg.fileName);
+            } else {
+                // For other message formats, use the full filename in the
+                // message. This assumes that these formats are intended to
+                // be parsed by IDEs, and so they need the full path to
+                // resolve correctly.
+            }
+            locationST.add("file", displayFileName);
+            locationValid = true;
+        }
 
-		reportST.add("message", messageFormatST);
-		//((DebugST)reportST).inspect();
-//		reportST.impl.dump();
-		return reportST;
-	}
+        messageFormatST.add("id", msg.getErrorType().code);
+        messageFormatST.add("text", messageST);
 
-    /** Return a StringTemplate that refers to the current format used for
+        if (locationValid) {
+            reportST?.add("location", locationST);
+        }
+
+        reportST?.add("message", messageFormatST);
+
+        return reportST;
+    }
+
+    /**
+     * Return a StringTemplate that refers to the current format used for
      * emitting messages.
      */
-    public  getLocationFormat():  ST {
-        return this.format.getInstanceOf("location");
+    public getLocationFormat(): IST {
+        return this.format.getInstanceOf("location")!;
     }
 
-    public  getReportFormat(severity: ErrorSeverity):  ST {
-        let  st = this.format.getInstanceOf("report");
-        st.add("type", severity.getText());
+    public getReportFormat(severity: ErrorSeverity): IST | null {
+        const st = this.format.getInstanceOf("report");
+        st?.add("type", severity.toString());
+
         return st;
     }
 
-    public  getMessageFormat():  ST {
-        return this.format.getInstanceOf("message");
-    }
-    public  formatWantsSingleLineMessage():  boolean {
-        return this.format.getInstanceOf("wantsSingleLineMessage").render().equals("true");
+    public getMessageFormat(): IST {
+        return this.format.getInstanceOf("message")!;
     }
 
-	public  info(msg: string):  void { this.tool.info(msg); }
+    public formatWantsSingleLineMessage(): boolean {
+        return this.format.getInstanceOf("wantsSingleLineMessage")?.render() === "true" ?? false;
+    }
 
-	public  syntaxError(etype: ErrorType,
-								   fileName: string,
-								   token: org.antlr.runtime.Token,
-								   antlrException: org.antlr.runtime.RecognitionException,...
-								   args: Object[]):  void
-	{
-		let  msg = new  GrammarSyntaxMessage(etype,fileName,token,antlrException,Rule.args);
-		this.emit(etype, msg);
-	}
+    public info(msg: string): void {
+        this.tool.info(msg);
+    }
+
+    public syntaxError(errorType: ErrorType, fileName: string, token: Token, antlrException: Error,
+        ...args: Object[]): void {
+        const msg = new GrammarSyntaxMessage(errorType, fileName, token, antlrException, args);
+        this.emit(errorType, msg);
+    }
 
     /**
      * Raise a predefined message with some number of parameters for the StringTemplate but for which there
      * is no location information possible.
+     *
      * @param errorType The Message Descriptor
      * @param args The arguments to pass to the StringTemplate
      */
-	public  toolError(errorType: ErrorType,... args: Object[]):  void;
+    public toolError(errorType: ErrorType, ...args: Object[]): void;
+    public toolError(errorType: ErrorType, e: Error, ...args: Object[]): void;
+    public toolError(...allArgs: unknown[]): void {
+        let msg: ToolMessage;
 
-	public  toolError(errorType: ErrorType, e: Throwable,... args: Object[]):  void;
-public toolError(...args: unknown[]):  void {
-		switch (args.length) {
-			case 2: {
-				const [errorType, args] = args as [ErrorType, Object[]];
+        if (allArgs.length < 1) {
+            throw new Error("Invalid number of arguments");
+        }
 
+        const errorType = allArgs[0] as ErrorType;
 
-		this.toolError(errorType, null, Rule.args);
-	
+        if (allArgs.length > 1) {
+            const [errorType, e, args] = allArgs as [ErrorType, Error, unknown[]];
+            msg = new ToolMessage(errorType, e, args);
+        } else {
+            msg = new ToolMessage(allArgs[0] as ErrorType);
+        }
 
-				break;
-			}
+        this.emit(errorType, msg);
+    }
 
-			case 3: {
-				const [errorType, e, args] = args as [ErrorType, Throwable, Object[]];
+    public grammarError(errorType: ErrorType, fileName: string, token: Token, ...args: Object[]): void {
+        const msg = new GrammarSemanticsMessage(errorType, fileName, token, args);
+        this.emit(errorType, msg);
+    }
 
+    public leftRecursionCycles(fileName: string, cycles: Rule[][]): void {
+        this.errors++;
+        const msg = new LeftRecursionCyclesMessage(fileName, cycles);
+        this.tool.error(msg);
+    }
 
-		let  msg = new  ToolMessage(errorType, e, Rule.args);
-		this.emit(errorType, msg);
-	
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-    public  grammarError(etype: ErrorType,
-							 fileName: string,
-							 token: org.antlr.runtime.Token,...
-							 args: Object[]):  void
-	{
-        let  msg = new  GrammarSemanticsMessage(etype,fileName,token,Rule.args);
-		this.emit(etype, msg);
-
-	}
-
-	public  leftRecursionCycles(fileName: string, cycles: java.util.Collection< java.util.Collection<Rule>>):  void {
-		this.errors++;
-		let  msg = new  LeftRecursionCyclesMessage(fileName, cycles);
-		this.tool.error(msg);
-	}
-
-    public  getNumErrors():  number {
+    public getNumErrors(): number {
         return this.errors;
     }
 
     // S U P P O R T  C O D E
 
-	@SuppressWarnings("fallthrough")
-public  emit(etype: ErrorType, msg: ANTLRMessage):  void {
-		switch ( etype.severity ) {
-			case ErrorSeverity.WARNING_ONE_OFF:{
-				if ( this.errorTypes.contains(etype) ) {
- break;
-}
+    public emit(errorType: ErrorType, msg: ANTLRMessage): void {
+        switch (errorType.severity) {
+            case ErrorSeverity.WarningOneOff: {
+                if (this.errorTypes.has(errorType)) {
+                    break;
+                }
 
-}
+                // [fall-through]
+            }
 
-				// fall thru
-			case java.util.logging.Level.WARNING:{
-				this.warnings++;
-				this.tool.warning(msg);
-				break;
-}
+            case ErrorSeverity.Warning: {
+                this.warnings++;
+                this.tool.warning(msg);
 
-			case ErrorSeverity.ERROR_ONE_OFF:{
-				if ( this.errorTypes.contains(etype) ) {
- break;
-}
+                break;
+            }
 
-}
+            case ErrorSeverity.ErrorOneOff: {
+                if (this.errorTypes.has(errorType)) {
+                    break;
+                }
 
-				// fall thru
-			case java.util.jar.Pack200.Packer.ERROR:{
-				this.errors++;
-				this.tool.error(msg);
-				break;
-}
+                // [fall-through]
+            }
 
-      default:{
-        break;
-}
+            case ErrorSeverity.Error: {
+                this.errors++;
+                this.tool.error(msg);
+                break;
+            }
 
-		}
-		this.errorTypes.add(etype);
-	}
+            default:
+        }
 
-    /** The format gets reset either from the Tool if the user supplied a command line option to that effect
-     *  Otherwise we just use the default "antlr".
+        this.errorTypes.add(errorType);
+    }
+
+    /**
+     * The format gets reset either from the Tool if the user supplied a command line option to that effect.
+     * Otherwise we just use the default "antlr".
      */
-    public  setFormat(formatName: string):  void {
-		let  loadedFormat: STGroupFile;
+    public setFormat(formatName: string): void {
+        let loadedFormat = ErrorManager.loadedFormats.get(formatName);
+        if (!loadedFormat) {
+            const fileName = ErrorManager.FORMATS_DIR + formatName + STGroup.GROUP_FILE_EXTENSION;
+            if (!existsSync(fileName)) {
+                if (formatName === "antlr") {
+                    ErrorManager.rawError("Cannot find ANTLR messages format file " + fileName);
+                    ErrorManager.panic();
+                }
 
-		/* synchronized (loadedFormats) { */
-			loadedFormat = ErrorManager.loadedFormats.get(formatName);
-			if (loadedFormat === null) {
-				let  fileName = ErrorManager.FORMATS_DIR + formatName + STGroup.GROUP_FILE_EXTENSION;
-				let  cl = Thread.currentThread().getContextClassLoader();
-				let  url = cl.getResource(fileName);
-				if (url === null) {
-					cl = ErrorManager.class.getClassLoader();
-					url = cl.getResource(fileName);
-				}
-				if (url === null && formatName.equals("antlr")) {
-					ErrorManager.rawError("ANTLR installation corrupted; cannot find ANTLR messages format file " + fileName);
-					this.panic();
-				}
-				else {
- if (url === null) {
-					ErrorManager.rawError("no such message format file " + fileName + " retrying with default ANTLR format");
-					this.setFormat("antlr"); // recurse on this rule, trying the default message format
-					return;
-				}
-}
+                this.setFormat("antlr"); // recurse on this rule, trying the default message format
+            }
 
-				loadedFormat = new  STGroupFile(url, "UTF-8", '<', '>');
-				loadedFormat.load();
+            loadedFormat = new STGroupFile(fileName, "UTF-8", "<", ">");
+            loadedFormat.load();
 
-				ErrorManager.loadedFormats.put(formatName, loadedFormat);
-			}
-		/* } */ 
+            ErrorManager.loadedFormats.set(formatName, loadedFormat);
+        }
 
-		this.formatName = formatName;
-		this.format = loadedFormat;
+        this.formatName = formatName;
+        this.format = loadedFormat;
 
-		if (!this.initSTListener.errors.isEmpty()) {
-			ErrorManager.rawError("ANTLR installation corrupted; can't load messages format file:\n" +
-					this.initSTListener.toString());
-			this.panic();
-		}
+        if (this.initSTListener.size > 0) {
+            ErrorManager.rawError("Can't load messages format file:\n" + this.initSTListener.toString());
+            ErrorManager.panic();
+        }
 
-		let  formatOK = this.verifyFormat();
-		if (!formatOK && formatName.equals("antlr")) {
-			ErrorManager.rawError("ANTLR installation corrupted; ANTLR messages format file " + formatName + ".stg incomplete");
-			this.panic();
-		}
-		else {
- if (!formatOK) {
-			this.setFormat("antlr"); // recurse on this rule, trying the default message format
-		}
-}
+        const formatOK = this.verifyFormat();
+        if (!formatOK && formatName === "antlr") {
+            ErrorManager.rawError("ANTLR messages format file " + formatName + ".stg incomplete");
+            ErrorManager.panic();
+        } else {
+            if (!formatOK) {
+                this.setFormat("antlr"); // recurse on this rule, trying the default message format
+            }
+        }
 
-	}
+    }
 
     /** Verify the message format template group */
-    protected  verifyFormat():  boolean {
-        let  ok = true;
+    protected verifyFormat(): boolean {
+        let ok = true;
         if (!this.format.isDefined("location")) {
-            System.err.println("Format template 'location' not found in " + this.formatName);
+            console.error("Format template 'location' not found in " + this.formatName);
             ok = false;
         }
+
         if (!this.format.isDefined("message")) {
-            System.err.println("Format template 'message' not found in " + this.formatName);
+            console.error("Format template 'message' not found in " + this.formatName);
             ok = false;
         }
+
         if (!this.format.isDefined("report")) {
-            System.err.println("Format template 'report' not found in " + this.formatName);
+            console.error("Format template 'report' not found in " + this.formatName);
             ok = false;
         }
+
         return ok;
     }
 }

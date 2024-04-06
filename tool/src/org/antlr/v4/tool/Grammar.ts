@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -143,14 +145,14 @@ export  class Grammar implements AttributeResolver {
 	 * Map token like {@code ID} (but not literals like {@code 'while'}) to its
 	 * token type.
 	 */
-	public readonly  tokenNameToTypeMap = new  LinkedHashMap<string, number>();
+	public readonly  tokenNameToTypeMap = new  Map<string, number>();
 
 	/**
 	 * Map token literals like {@code 'while'} to its token type. It may be that
 	 * {@code WHILE="while"=35}, in which case both {@link #tokenNameToTypeMap}
 	 * and this field will have entries both mapped to 35.
 	 */
-	public readonly  stringLiteralToTypeMap = new  LinkedHashMap<string, number>();
+	public readonly  stringLiteralToTypeMap = new  Map<string, number>();
 
 	/**
 	 * Reverse index for {@link #stringLiteralToTypeMap}. Indexed with raw token
@@ -241,7 +243,7 @@ export  class Grammar implements AttributeResolver {
 
 
 		this(Grammar.GRAMMAR_FROM_STRING_NAME, grammarText, null);
-	
+
 
 				break;
 			}
@@ -265,7 +267,7 @@ export  class Grammar implements AttributeResolver {
 		this.originalTokenStream = this.tokenStream;
 
 		this.initTokenSymbolTables();
-    
+
 
 				break;
 			}
@@ -275,7 +277,7 @@ export  class Grammar implements AttributeResolver {
 
 
 		this(Grammar.GRAMMAR_FROM_STRING_NAME, grammarText, tokenVocabSource, null);
-	
+
 
 				break;
 			}
@@ -285,7 +287,7 @@ export  class Grammar implements AttributeResolver {
 
 
 		this(Grammar.GRAMMAR_FROM_STRING_NAME, grammarText, listener);
-	
+
 
 				break;
 			}
@@ -295,7 +297,7 @@ export  class Grammar implements AttributeResolver {
 
 
 		this(fileName, grammarText, null);
-	
+
 
 				break;
 			}
@@ -305,7 +307,7 @@ export  class Grammar implements AttributeResolver {
 
 
 		this(fileName, grammarText, null, listener);
-	
+
 
 				break;
 			}
@@ -358,7 +360,7 @@ public  post(t: Object):  Object { return t; }
 		}
 
 		this.tool.process(this, false);
-    
+
 
 				break;
 			}
@@ -538,7 +540,7 @@ public loadImportedGrammars(...args: unknown[]):  void {
 			case 0: {
 
 		this.loadImportedGrammars(new  HashSet());
-	
+
 
 				break;
 			}
@@ -598,7 +600,7 @@ if (ioe instanceof IOException) {
 			this.importedGrammars.add(g);
 			g.loadImportedGrammars(visited); // recursively pursue any imports in this import
         }
-    
+
 
 				break;
 			}
@@ -666,12 +668,12 @@ if (ioe instanceof IOException) {
 			return false;
 		}
 
-		/* assert rules.get(r.name) == r; */ 
+		/* assert rules.get(r.name) == r; */
 
 		this.rules.remove(r.name);
 		this.indexToRule.remove(r.index);
 		for (let  i = r.index; i < this.indexToRule.size(); i++) {
-			/* assert indexToRule.get(i).index == i + 1; */ 
+			/* assert indexToRule.get(i).index == i + 1; */
 			this.indexToRule.get(i).index--;
 		}
 
@@ -714,7 +716,7 @@ public getRule(...args: unknown[]):  Rule {
 		}
 		return null;
 		*/
-	
+
 
 				break;
 			}
@@ -722,7 +724,7 @@ public getRule(...args: unknown[]):  Rule {
 			case 1: {
 				const [index] = args as [number];
 
- return this.indexToRule.get(index); 
+ return this.indexToRule.get(index);
 
 				break;
 			}
@@ -739,7 +741,7 @@ public getRule(...args: unknown[]):  Rule {
 			return g.rules.get(ruleName);
 		}
 		return this.getRule(ruleName);
-	
+
 
 				break;
 			}
@@ -905,7 +907,7 @@ public getTokenName(...args: unknown[]):  string {
 			grammar = grammar.parent;
 		}
 		return null;
-	
+
 
 				break;
 			}
@@ -930,7 +932,7 @@ public getTokenName(...args: unknown[]):  string {
 		}
 
 		return Grammar.INVALID_TOKEN_NAME;
-	
+
 
 				break;
 			}
@@ -1255,7 +1257,7 @@ public defineTokenName(...args: unknown[]):  number {
 }
 
 		return prev;
-	
+
 
 				break;
 			}
@@ -1273,7 +1275,7 @@ public defineTokenName(...args: unknown[]):  number {
 		this.setTokenForType(ttype, name);
 		this.maxTokenType = Math.max(this.maxTokenType, ttype);
 		return ttype;
-	
+
 
 				break;
 			}
@@ -1299,7 +1301,7 @@ public defineStringLiteral(...args: unknown[]):  number {
 		}
 		return this.defineStringLiteral(lit, this.getNewTokenType());
 
-	
+
 
 				break;
 			}
@@ -1320,7 +1322,7 @@ public defineStringLiteral(...args: unknown[]):  number {
 			return ttype;
 		}
 		return Token.INVALID_TYPE;
-	
+
 
 				break;
 			}
@@ -1390,7 +1392,7 @@ public defineChannelName(...args: unknown[]):  number {
 		}
 
 		return prev;
-	
+
 
 				break;
 			}
@@ -1408,7 +1410,7 @@ public defineChannelName(...args: unknown[]):  number {
 		this.setChannelNameForValue(value, name);
 		this.maxChannelType = Math.max(this.maxChannelType, value);
 		return value;
-	
+
 
 				break;
 			}
@@ -1455,7 +1457,7 @@ public resolveToAttribute(...args: unknown[]):  java.security.KeyStore.Entry.Att
 
 
 		return null;
-	
+
 
 				break;
 			}
@@ -1465,7 +1467,7 @@ public resolveToAttribute(...args: unknown[]):  java.security.KeyStore.Entry.Att
 
 
 		return null;
-	
+
 
 				break;
 			}

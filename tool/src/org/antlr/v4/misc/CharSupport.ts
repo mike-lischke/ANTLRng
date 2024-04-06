@@ -8,8 +8,8 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { IntervalSet, Lexer } from "antlr4ng";
-import { printf } from "fast-printf";
+import { IntervalSet } from "antlr4ng";
+
 import { Character } from "../support/Character.js";
 
 export class CharSupport {
@@ -32,7 +32,7 @@ export class CharSupport {
      */
     public static getANTLRCharLiteralForChar(c: number): string {
         let result: string;
-        if (c < Lexer.MIN_CHAR_VALUE) {
+        if (c < 0) {
             result = "<INVALID>";
         } else {
             const charValueEscape = c < CharSupport.ANTLRLiteralCharValueEscape.length
@@ -53,14 +53,14 @@ export class CharSupport {
                     }
                 } else {
                     if (c <= 0xFFFF) {
-                        result = printf("\\u%04X", c);
+                        // Unicode escape sequence with 4 characters.
+                        result = "\\u" + ("0000" + c.toString(16).toUpperCase()).slice(-4);
                     } else {
-                        result = printf("\\u{%06X}", c);
+                        // Codepoint escape sequence with 6 characters.
+                        result = "\\u{" + ("000000" + c.toString(16).toUpperCase()).slice(-6) + "}";
                     }
                 }
-
             }
-
         }
 
         return "'" + result + "'";

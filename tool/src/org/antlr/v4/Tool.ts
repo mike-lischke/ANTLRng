@@ -36,6 +36,7 @@ import { GrammarAST } from "./tool/ast/GrammarAST.js";
 import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
 import { RuleAST } from "./tool/ast/RuleAST.js";
+import { StringWriter, type Writer } from "stringtemplate4ts";
 
 
 

@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -13,8 +15,8 @@ export const INVALID_TOKEN_NAME = "<INVALID>";
 
 /**
  * Given a token type, get a meaningful name for it such as the ID
- *  or string literal.  If this is a lexer and the ttype is in the
- *  char vocabulary, compute an ANTLR-valid (possibly escaped) char literal.
+ * or string literal.  If this is a lexer and the ttype is in the
+ * char vocabulary, compute an ANTLR-valid (possibly escaped) char literal.
  */
 export const getTokenDisplayName = (ttype: number, vocabulary: Vocabulary, isLexer: boolean): string => {
     // inside any target's char range and is lexer grammar?

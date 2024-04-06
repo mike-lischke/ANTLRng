@@ -4,16 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { ErrorType } from "./ErrorType.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 
-
-
-/** A generic message from the tool such as "file not found" type errors; there
+/**
+ * A generic message from the tool such as "file not found" type errors; there
  *  is no reason to create a special object for each error unlike the grammar
  *  errors, which may be rather complex.
  *
@@ -21,46 +18,40 @@ import { ANTLRMessage } from "./ANTLRMessage.js";
  *  Allow a generic object to be passed in and the string template can deal
  *  with just printing it or pulling a property out of it.
  */
-export  class ToolMessage extends ANTLRMessage {
-	public  constructor(errorType: ErrorType);
-    public  constructor(errorType: ErrorType,... args: Object[]);
-    public  constructor(errorType: ErrorType, e: Throwable,... args: Object[]);
+export class ToolMessage extends ANTLRMessage {
+    public constructor(errorType: ErrorType);
+    public constructor(errorType: ErrorType, ...args: Object[]);
+    public constructor(errorType: ErrorType, e: Throwable, ...args: Object[]);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 1: {
-				const [errorType] = args as [ErrorType];
+        switch (args.length) {
+            case 1: {
+                const [errorType] = args as [ErrorType];
 
+                super(errorType);
 
-		super(errorType);
-	
+                break;
+            }
 
-				break;
-			}
+            case 2: {
+                const [errorType, args] = args as [ErrorType, Object[]];
 
-			case 2: {
-				const [errorType, args] = args as [ErrorType, Object[]];
+                super(errorType, null, Token.INVALID_TOKEN, this.args);
 
+                break;
+            }
 
-        super(errorType, null, Token.INVALID_TOKEN, this.args);
-    
+            case 3: {
+                const [errorType, e, args] = args as [ErrorType, Throwable, Object[]];
 
-				break;
-			}
+                super(errorType, e, Token.INVALID_TOKEN, this.args);
 
-			case 3: {
-				const [errorType, e, args] = args as [ErrorType, Throwable, Object[]];
+                break;
+            }
 
-
-        super(errorType, e, Token.INVALID_TOKEN, this.args);
-    
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
 }

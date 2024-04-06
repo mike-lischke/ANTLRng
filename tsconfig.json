@@ -19,7 +19,7 @@
         "noImplicitOverride": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
-        "noFallthroughCasesInSwitch": true,
+        "noFallthroughCasesInSwitch": false,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
     },
