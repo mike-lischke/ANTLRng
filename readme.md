@@ -7,7 +7,7 @@ This project is (actually: will be) a TypeScript port of the ANTLR tool, which i
 
 ## Status
 
-See the [milestone 2](https://github.com/mike-lischke/ANTLRng/issues/9) for the current status and the plan.
+See the [milestone 3](https://github.com/mike-lischke/ANTLRng/issues/10) for the current status and the plan.
 
 ## Design Goals
 
