@@ -1,16 +1,21 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { Grammar } from "./Grammar.js";
+import type { Token } from "antlr4ng";
+import { ST } from "stringtemplate4ts";
+
 import { ErrorType } from "./ErrorType.js";
+import { Grammar } from "./Grammar.js";
 
 export class ANTLRMessage {
-    private static readonly EMPTY_ARGS = new Array<Object>(0);
+    private static readonly EMPTY_ARGS = new Array<unknown>();
 
     // used for location template
     public fileName: string;
@@ -22,19 +27,17 @@ export class ANTLRMessage {
      * Most of the time, we'll have a token such as an undefined rule ref
      *  and so this will be set.
      */
-    public offendingToken: Token;
+    public offendingToken: Token | null;
 
     private readonly errorType: ErrorType;
 
-    private readonly args: Object[];
+    private readonly args: unknown[] | null = null;
 
-    private readonly e: Throwable;
+    private readonly e: Error;
 
     public constructor(errorType: ErrorType);
-
-    public constructor(errorType: ErrorType, offendingToken: Token, ...args: Object[]);
-
-    public constructor(errorType: ErrorType, e: Throwable, offendingToken: Token, ...args: Object[]);
+    public constructor(errorType: ErrorType, offendingToken: Token | null, ...args: Object[]);
+    public constructor(errorType: ErrorType, e: Error, offendingToken: Token, ...args: Object[]);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 1: {
@@ -74,7 +77,7 @@ export class ANTLRMessage {
         return this.errorType;
     }
 
-    public getArgs(): Object[] {
+    public getArgs(): unknown[] {
         if (this.args === null) {
             return ANTLRMessage.EMPTY_ARGS;
         }
@@ -84,7 +87,7 @@ export class ANTLRMessage {
 
     public getMessageTemplate(verbose: boolean): ST {
         const messageST = new ST(this.getErrorType().msg);
-        messageST.impl.name = this.errorType.name();
+        messageST.impl!.name = this.errorType.name();
 
         messageST.add("verbose", verbose);
         const args = this.getArgs();
@@ -104,9 +107,8 @@ export class ANTLRMessage {
         const cause = this.getCause();
         if (cause !== null) {
             messageST.add("exception", cause);
-            messageST.add("stackTrace", cause.getStackTrace());
-        }
-        else {
+            messageST.add("stackTrace", cause.stack);
+        } else {
             messageST.add("exception", null); // avoid ST error msg
             messageST.add("stackTrace", null);
         }
@@ -114,15 +116,14 @@ export class ANTLRMessage {
         return messageST;
     }
 
-    public getCause(): Throwable {
+    public getCause(): Error {
         return this.e;
     }
 
-    @Override
-    public override  toString(): string {
+    public toString(): string {
         return "Message{" +
             "errorType=" + this.getErrorType() +
-            ", args=" + Arrays.asList(this.getArgs()) +
+            ", args=" + this.getArgs() +
             ", e=" + this.getCause() +
             ", fileName='" + this.fileName + "'" +
             ", line=" + this.line +

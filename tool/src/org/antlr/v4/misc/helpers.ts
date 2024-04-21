@@ -8,7 +8,7 @@
 
 /* eslint-disable jsdoc/require-returns , jsdoc/require-param */
 
-import { Lexer, Token, Vocabulary } from "antlr4ng";
+import { Token, Vocabulary } from "antlr4ng";
 import { CharSupport } from "./CharSupport.js";
 
 export const INVALID_TOKEN_NAME = "<INVALID>";
@@ -19,8 +19,9 @@ export const INVALID_TOKEN_NAME = "<INVALID>";
  * char vocabulary, compute an ANTLR-valid (possibly escaped) char literal.
  */
 export const getTokenDisplayName = (ttype: number, vocabulary: Vocabulary, isLexer: boolean): string => {
-    // inside any target's char range and is lexer grammar?
-    if (isLexer && ttype >= Lexer.MIN_CHAR_VALUE && ttype <= Lexer.MAX_CHAR_VALUE) {
+    // Inside any target's char range and is lexer grammar?
+    // TODO: the char range is now dynamically configurable and we need access to a lexer instance here.
+    if (isLexer /*&& ttype >= Lexer.MIN_CHAR_VALUE && ttype <= Lexer.MAX_CHAR_VALUE*/) {
         return CharSupport.getANTLRCharLiteralForChar(ttype);
     }
 

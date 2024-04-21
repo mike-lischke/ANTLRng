@@ -1,18 +1,18 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
+import type { Attribute } from "./Attribute.js";
 import { ActionAST } from "./ast/ActionAST.js";
 
-
-
-/** Grammars, rules, and alternatives all have symbols visible to
+/**
+ * Grammars, rules, and alternatives all have symbols visible to
  *  actions.  To evaluate attr exprs, ask action for its resolver
  *  then ask resolver to look up various symbols. Depending on the context,
  *  some symbols are available at some aren't.
@@ -41,11 +41,11 @@ import { ActionAST } from "./ast/ActionAST.js";
  *  $s		AttributeDict: s is a global scope
  *  $s::y	Attribute: s is a global scope; y is prop within
  */
- interface AttributeResolver {
-	  resolvesToListLabel(x: string, node: ActionAST): boolean;
-	  resolvesToLabel(x: string, node: ActionAST): boolean;
-	  resolvesToAttributeDict(x: string, node: ActionAST): boolean;
-	  resolvesToToken(x: string, node: ActionAST): boolean;
-	  resolveToAttribute(x: string, node: ActionAST): java.security.KeyStore.Entry.Attribute;
-	  resolveToAttribute(x: string, y: string, node: ActionAST): java.security.KeyStore.Entry.Attribute;
+export interface AttributeResolver {
+    resolvesToListLabel(x: string, node: ActionAST): boolean;
+    resolvesToLabel(x: string, node: ActionAST): boolean;
+    resolvesToAttributeDict(x: string, node: ActionAST): boolean;
+    resolvesToToken(x: string, node: ActionAST): boolean;
+    resolveToAttribute(x: string, node: ActionAST): Attribute;
+    resolveToAttribute(x: string, y: string, node: ActionAST): Attribute;
 }

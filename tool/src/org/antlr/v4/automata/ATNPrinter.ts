@@ -40,7 +40,7 @@ export class ATNPrinter {
         let buffer = "";
         while (this.work.length > 0) {
             const s = this.work.shift();
-            if (!s || this.marked.has(s)) {
+            if (!s || this.marked.contains(s)) {
                 continue;
             }
 
@@ -67,11 +67,11 @@ export class ATNPrinter {
                         } else {
                             if (t instanceof SetTransition) {
                                 const not = t instanceof NotSetTransition;
-                                if (this.atn.grammarType === 0) { // ATNType.LEXER
+                                if (this.atn.grammarType === ATN.LEXER) {
                                     buffer += "-" + (not ? "~" : "") + t.toString() + "->" +
                                         this.getStateString(t.target) + "\n";
                                 } else {
-                                    buffer += "-" + (not ? "~" : "") + t.label.toString(this.vocabulary) +
+                                    buffer += "-" + (not ? "~" : "") + t.label.toStringWithVocabulary(this.vocabulary) +
                                         "->" + this.getStateString(t.target) + "\n";
                                 }
                             } else {
