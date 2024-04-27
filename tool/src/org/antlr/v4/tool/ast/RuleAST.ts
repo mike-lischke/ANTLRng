@@ -1,90 +1,64 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
+import type { Token } from "antlr4ng";
 
-import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
-import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
-import { GrammarAST } from "./GrammarAST.js";
-import { ActionAST } from "./ActionAST.js";
 import { Grammar } from "../Grammar.js";
+import { ActionAST } from "./ActionAST.js";
+import { GrammarAST } from "./GrammarAST.js";
+import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
+import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
+import { ANTLRv4Parser } from "../../../../../../../src/generated/ANTLRv4Parser.js";
 
+export class RuleAST extends GrammarASTWithOptions {
+    public constructor(nodeOrTokenOrType: RuleAST | Token | number) {
+        if (typeof nodeOrTokenOrType === "number") {
+            super(nodeOrTokenOrType);
+        } else {
+            super(nodeOrTokenOrType);
+        }
+    }
 
+    public isLexerRule(): boolean {
+        const name = this.getRuleName();
 
-export  class RuleAST extends GrammarASTWithOptions {
-	public  constructor(node: RuleAST);
+        return name !== null && Grammar.isTokenName(name);
+    }
 
-	public  constructor(t: Token);
-    public  constructor(type: number);
-    public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 1: {
-				const [node] = args as [RuleAST];
+    public getRuleName(): string | null {
+        const nameNode = this.getChild(0) as GrammarAST;
+        if (nameNode !== null) {
+            return nameNode.getText();
+        }
 
+        return null;
+    }
 
-		super(node);
-	
+    public override dupNode(): RuleAST {
+        return new RuleAST(this);
+    }
 
-				break;
-			}
+    public getLexerAction(): ActionAST | null {
+        const blk = this.getFirstChildWithType(ANTLRv4Parser.LPAREN);
+        if (blk?.getChildCount() === 1) {
+            const onlyAlt = blk.getChild(0);
+            const lastChild = onlyAlt?.getChild(onlyAlt.getChildCount() - 1);
+            if (lastChild?.getType() === ANTLRv4Parser.RBRACE) {
+                return lastChild as ActionAST;
+            }
+        }
 
-			case 1: {
-				const [t] = args as [Token];
+        return null;
+    }
 
- super(t); 
-
-				break;
-			}
-
-			case 1: {
-				const [type] = args as [number];
-
- super(type); 
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-	public  isLexerRule():  boolean {
-		let  name = this.getRuleName();
-		return name!==null && Grammar.isTokenName(name);
-	}
-
-	public  getRuleName():  string {
-		let  nameNode = java.util.prefs.AbstractPreferences.getChild(0) as GrammarAST;
-		if ( nameNode!==null ) {
- return nameNode.getText();
-}
-
-		return null;
-	}
-
-	@Override
-public override  dupNode():  RuleAST { return new  RuleAST(this); }
-
-	public  getLexerAction():  ActionAST {
-		let  blk = getFirstChildWithType(ANTLRParser.BLOCK);
-		if ( blk.getChildCount()===1 ) {
-			let  onlyAlt = blk.getChild(0);
-			let  lastChild = onlyAlt.getChild(onlyAlt.getChildCount()-1);
-			if ( lastChild.getType()===ANTLRParser.ACTION ) {
-				return lastChild as ActionAST;
-			}
-		}
-		return null;
-	}
-
-	@Override
-public override  visit(v: GrammarASTVisitor):  Object { return v.visit(this); }
+    public override  visit<T>(v: GrammarASTVisitor<T>): T {
+        return v.visit(this);
+    }
 }

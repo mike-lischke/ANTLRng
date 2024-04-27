@@ -33,18 +33,17 @@ export class BlockAST extends GrammarASTWithOptions implements RuleElementAST {
             } else {
                 super(args[0] as Token); // or number, but that doesn't matter here.
             }
+        } else {
+            const [type, t, text] = args as [number, Token | undefined, string | undefined];
+            super(type, t, text);
         }
-
-        const [type, t, text] = args as [number, Token | undefined, string | undefined];
-        super(type, t, text);
-
     }
 
-    public override  dupNode(): BlockAST {
+    public override dupNode(): BlockAST {
         return new BlockAST(this);
     }
 
-    public override  visit(v: GrammarASTVisitor): unknown {
+    public override visit<T>(v: GrammarASTVisitor<T>): T {
         return v.visit(this);
     }
 }

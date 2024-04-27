@@ -1,65 +1,60 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
+import type { Token } from "antlr4ng";
 
-import { RuleElementAST } from "./RuleElementAST.js";
-import { QuantifierAST } from "./QuantifierAST.js";
-import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarAST } from "./GrammarAST.js";
+import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
+import { QuantifierAST } from "./QuantifierAST.js";
+import { RuleElementAST } from "./RuleElementAST.js";
 
+export class PlusBlockAST extends GrammarAST implements RuleElementAST, QuantifierAST {
+    private readonly _greedy: boolean;
 
-
-export  class PlusBlockAST extends GrammarAST implements RuleElementAST, QuantifierAST {
-	private readonly  _greedy:  boolean;
-
-	public  constructor(node: PlusBlockAST);
-
-	public  constructor(type: number, t: Token, nongreedy: Token);
+    public constructor(node: PlusBlockAST);
+    public constructor(type: number, t: Token, nonGreedy: Token);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 1: {
-				const [node] = args as [PlusBlockAST];
+        switch (args.length) {
+            case 1: {
+                const [node] = args as [PlusBlockAST];
 
+                super(node);
+                this._greedy = node._greedy;
 
-		super(node);
-		this._greedy = node._greedy;
-	
+                break;
+            }
 
-				break;
-			}
+            case 3: {
+                const [type, t, nonGreedy] = args as [number, Token, Token];
 
-			case 3: {
-				const [type, t, nongreedy] = args as [number, Token, Token];
+                super(type, t);
+                this._greedy = nonGreedy === null;
 
+                break;
+            }
 
-		super(type, t);
-		this._greedy = nongreedy === null;
-	
+            default: {
+                throw new Error("Invalid number of arguments");
+            }
+        }
+    }
 
-				break;
-			}
+    public isGreedy(): boolean {
+        return this._greedy;
+    }
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+    public override dupNode(): PlusBlockAST {
+        return new PlusBlockAST(this);
+    }
 
-
-	@Override
-public  isGreedy():  boolean {
-		return this._greedy;
-	}
-
-	@Override
-public override  dupNode():  PlusBlockAST { return new  PlusBlockAST(this); }
-
-	@Override
-public override  visit(v: GrammarASTVisitor):  Object { return v.visit(this); }
+    public override visit<T>(v: GrammarASTVisitor<T>): T {
+        return v.visit(this);
+    }
 }
