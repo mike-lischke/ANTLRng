@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { SrcOp } from "./SrcOp.js";
 import { ModelElement } from "./ModelElement.js";
@@ -14,20 +12,18 @@ import { Action } from "./Action.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 
-
-
 export  class ExceptionClause extends SrcOp {
-	@ModelElement
-public  catchArg:  Action;
-	@ModelElement
-public  catchAction:  Action;
+    @ModelElement
+    public  catchArg:  Action;
+    @ModelElement
+    public  catchAction:  Action;
 
-	public  constructor(factory: OutputModelFactory,
+    public  constructor(factory: OutputModelFactory,
 						   catchArg: ActionAST,
 						   catchAction: ActionAST)
-	{
-		super(factory, catchArg);
-		this.catchArg = new  Action(factory, catchArg);
-		this.catchAction = new  Action(factory, catchAction);
-	}
+    {
+        super(factory, catchArg);
+        this.catchArg = new  Action(factory, catchArg);
+        this.catchAction = new  Action(factory, catchAction);
+    }
 }

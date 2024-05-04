@@ -4,19 +4,15 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { SymbolRefChunk } from "./SymbolRefChunk.js";
 import { ActionChunk } from "./ActionChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-
-
 /** */
 export  class TokenRef extends SymbolRefChunk {
-	public  constructor(ctx: StructDecl, name: string, escapedName: string) {
-		super(ctx, name, escapedName);
-	}
+    public  constructor(ctx: StructDecl, name: string, escapedName: string) {
+        super(ctx, name, escapedName);
+    }
 }

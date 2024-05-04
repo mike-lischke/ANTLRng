@@ -6,14 +6,11 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
 import { ListenerFile } from "./ListenerFile.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-
-
 export  class BaseListenerFile extends ListenerFile {
-	public  constructor(factory: OutputModelFactory, fileName: string) {
-		super(factory, fileName);
-	}
+    public  constructor(factory: OutputModelFactory, fileName: string) {
+        super(factory, fileName);
+    }
 }

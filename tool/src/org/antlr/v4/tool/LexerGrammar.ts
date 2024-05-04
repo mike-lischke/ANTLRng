@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Rule } from "./Rule.js";
 import { Grammar } from "./Grammar.js";
@@ -16,96 +14,87 @@ import { Tool } from "../Tool.js";
 import { MultiMap } from "antlr4ng";
 import { GrammarRootAST } from "./ast/GrammarRootAST.js";
 
-
-
 /** */
 export  class LexerGrammar extends Grammar {
-	public static readonly  DEFAULT_MODE_NAME = "DEFAULT_MODE";
+    public static readonly  DEFAULT_MODE_NAME = "DEFAULT_MODE";
 
 	/** The grammar from which this lexer grammar was derived (if implicit) */
     public  implicitLexerOwner:  Grammar;
 
 	/** DEFAULT_MODE rules are added first due to grammar syntax order */
-	public  modes:  MultiMap<string, Rule>;
+    public  modes:  MultiMap<string, Rule>;
 
-	public  constructor(grammarText: string);
+    public  constructor(grammarText: string);
 
-	public  constructor(tool: Tool, ast: GrammarRootAST);
+    public  constructor(tool: Tool, ast: GrammarRootAST);
 
-	public  constructor(grammarText: string, listener: ANTLRToolListener);
+    public  constructor(grammarText: string, listener: ANTLRToolListener);
 
-	public  constructor(fileName: string, grammarText: string, listener: ANTLRToolListener);
+    public  constructor(fileName: string, grammarText: string, listener: ANTLRToolListener);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 1: {
-				const [grammarText] = args as [string];
+        switch (args.length) {
+            case 1: {
+                const [grammarText] = args as [string];
 
+                super(grammarText);
 
-		super(grammarText);
-	
+                break;
+            }
 
-				break;
-			}
+            case 2: {
+                const [tool, ast] = args as [Tool, GrammarRootAST];
 
-			case 2: {
-				const [tool, ast] = args as [Tool, GrammarRootAST];
+                super(tool, ast);
 
+                break;
+            }
 
-		super(tool, ast);
-	
+            case 2: {
+                const [grammarText, listener] = args as [string, ANTLRToolListener];
 
-				break;
-			}
+                super(grammarText, listener);
 
-			case 2: {
-				const [grammarText, listener] = args as [string, ANTLRToolListener];
+                break;
+            }
 
+            case 3: {
+                const [fileName, grammarText, listener] = args as [string, string, ANTLRToolListener];
 
-		super(grammarText, listener);
-	
+                super(fileName, grammarText, listener);
 
-				break;
-			}
+                break;
+            }
 
-			case 3: {
-				const [fileName, grammarText, listener] = args as [string, string, ANTLRToolListener];
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
+    @Override
+    public override  defineRule(r: Rule):  boolean {
+        if (!super.defineRule(r)) {
+            return false;
+        }
 
-		super(fileName, grammarText, listener);
-	
+        if ( this.modes===null ) {
+            this.modes = new  MultiMap<string, Rule>();
+        }
 
-				break;
-			}
+        this.modes.map(r.mode, r);
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+        return true;
+    }
 
+    @Override
+    public override  undefineRule(r: Rule):  boolean {
+        if (!super.undefineRule(r)) {
+            return false;
+        }
 
-	@Override
-public override  defineRule(r: Rule):  boolean {
-		if (!super.defineRule(r)) {
-			return false;
-		}
+        const  removed = this.modes.get(r.mode).remove(r);
 
-		if ( this.modes===null ) {
- this.modes = new  MultiMap<string, Rule>();
-}
-
-		this.modes.map(r.mode, r);
-		return true;
-	}
-
-	@Override
-public override  undefineRule(r: Rule):  boolean {
-		if (!super.undefineRule(r)) {
-			return false;
-		}
-
-		let  removed = this.modes.get(r.mode).remove(r);
-		/* assert removed; */ 
-		return true;
-	}
+		/* assert removed; */
+        return true;
+    }
 }

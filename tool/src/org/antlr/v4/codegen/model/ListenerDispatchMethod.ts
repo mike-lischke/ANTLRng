@@ -6,17 +6,14 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
 import { DispatchMethod } from "./DispatchMethod.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-
-
 export  class ListenerDispatchMethod extends DispatchMethod {
-	public  isEnter:  boolean;
+    public  isEnter:  boolean;
 
-	public  constructor(factory: OutputModelFactory, isEnter: boolean) {
-		super(factory);
-		this.isEnter = isEnter;
-	}
+    public  constructor(factory: OutputModelFactory, isEnter: boolean) {
+        super(factory);
+        this.isEnter = isEnter;
+    }
 }

@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { RuleFunction } from "./RuleFunction.js";
 import { RuleElement } from "./RuleElement.js";
@@ -19,8 +17,6 @@ import { ActionChunk } from "./chunk/ActionChunk.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-
-
 /** */
 export  class SemPred extends Action {
 	/**
@@ -30,11 +26,11 @@ export  class SemPred extends Action {
 	 * <p>
 	 * {@code {pred}?<fail='message'>}</p>
 	 */
-	public  msg:  string;
+    public  msg:  string;
 	/**
 	 * The predicate string with <code>{</code> and <code>}?</code> stripped from the ends.
 	 */
-	public  predicate:  string;
+    public  predicate:  string;
 
 	/**
 	 * The translated chunks of the user-specified terminal option {@code fail},
@@ -43,41 +39,40 @@ export  class SemPred extends Action {
 	 * <p>
 	 * {@code {pred}?<fail={"Java literal"}>}</p>
 	 */
-	@ModelElement
-public  failChunks:  Array<ActionChunk>;
+    @ModelElement
+    public  failChunks:  ActionChunk[];
 
-	public  constructor(factory: OutputModelFactory, ast: ActionAST) {
-		super(factory,ast);
+    public  constructor(factory: OutputModelFactory, ast: ActionAST) {
+        super(factory,ast);
 
 		/* assert ast.atnState != null
 			&& ast.atnState.getNumberOfTransitions() == 1
-			&& ast.atnState.transition(0) instanceof AbstractPredicateTransition; */ 
+			&& ast.atnState.transition(0) instanceof AbstractPredicateTransition; */
 
-		let  failNode = ast.getOptionAST("fail");
-		let  gen = factory.getGenerator();
-		this.predicate = ast.getText();
-		if (this.predicate.startsWith("{") && this.predicate.endsWith("}?")) {
-			this.predicate = this.predicate.substring(1, this.predicate.length() - 2);
-		}
-		this.predicate = gen.getTarget().getTargetStringLiteralFromString(this.predicate);
+        const  failNode = ast.getOptionAST("fail");
+        const  gen = factory.getGenerator();
+        this.predicate = ast.getText();
+        if (this.predicate.startsWith("{") && this.predicate.endsWith("}?")) {
+            this.predicate = this.predicate.substring(1, this.predicate.length() - 2);
+        }
+        this.predicate = gen.getTarget().getTargetStringLiteralFromString(this.predicate);
 
-		if ( failNode===null ) {
- return;
-}
+        if ( failNode===null ) {
+            return;
+        }
 
-
-		if ( failNode instanceof ActionAST ) {
-			let  failActionNode = failNode as ActionAST;
-			let  rf = factory.getCurrentRuleFunction();
-			this.failChunks = ActionTranslator.translateAction(factory, rf,
+        if ( failNode instanceof ActionAST ) {
+            const  failActionNode = failNode;
+            const  rf = factory.getCurrentRuleFunction();
+            this.failChunks = ActionTranslator.translateAction(factory, rf,
 														  failActionNode.token,
 														  failActionNode);
-		}
-		else {
-			this.msg = gen.getTarget().getTargetStringLiteralFromANTLRStringLiteral(gen,
+        }
+        else {
+            this.msg = gen.getTarget().getTargetStringLiteralFromANTLRStringLiteral(gen,
 																		  failNode.getText(),
 																		  true,
 																		  true);
-		}
-	}
+        }
+    }
 }

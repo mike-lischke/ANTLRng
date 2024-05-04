@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { UseDefAnalyzer } from "./UseDefAnalyzer.js";
 import { SymbolCollector } from "./SymbolCollector.js";
@@ -23,9 +21,8 @@ import { LexerGrammar } from "../tool/LexerGrammar.js";
 import { Rule } from "../tool/Rule.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 
-
-
-/** Do as much semantic checking as we can and fill in grammar
+/**
+ * Do as much semantic checking as we can and fill in grammar
  *  with rules, actions, and token definitions.
  *  The only side effects are in the grammar passed to process().
  *  We consume a bunch of memory here while we build up data structures
@@ -49,223 +46,219 @@ import { GrammarAST } from "../tool/ast/GrammarAST.js";
  *  tokens and rules from the imported grammars into a single collection.
  */
 export  class SemanticPipeline {
-	public  g:  Grammar;
+    public  g:  Grammar;
 
-	public  constructor(g: Grammar) {
-		this.g = g;
-	}
+    public  constructor(g: Grammar) {
+        this.g = g;
+    }
 
-	public  process():  void {
-		if ( this.g.ast===null ) {
- return;
-}
-
+    public  process():  void {
+        if ( this.g.ast===null ) {
+            return;
+        }
 
 		// COLLECT RULE OBJECTS
-		let  ruleCollector = new  RuleCollector(this.g);
-		ruleCollector.process(this.g.ast);
+        const  ruleCollector = new  RuleCollector(this.g);
+        ruleCollector.process(this.g.ast);
 
 		// DO BASIC / EASY SEMANTIC CHECKS
-		let  prevErrors = this.g.tool.errMgr.getNumErrors();
-		let  basics = new  BasicSemanticChecks(this.g, ruleCollector);
-		basics.process();
-		if ( this.g.tool.errMgr.getNumErrors()>prevErrors ) {
- return;
-}
-
+        let  prevErrors = this.g.tool.errMgr.getNumErrors();
+        const  basics = new  BasicSemanticChecks(this.g, ruleCollector);
+        basics.process();
+        if ( this.g.tool.errMgr.getNumErrors()>prevErrors ) {
+            return;
+        }
 
 		// TRANSFORM LEFT-RECURSIVE RULES
-		prevErrors = this.g.tool.errMgr.getNumErrors();
-		let  lrtrans =
+        prevErrors = this.g.tool.errMgr.getNumErrors();
+        const  lrtrans =
 			new  LeftRecursiveRuleTransformer(this.g.ast, ruleCollector.rules.values(), this.g);
-		lrtrans.translateLeftRecursiveRules();
+        lrtrans.translateLeftRecursiveRules();
 
 		// don't continue if we got errors during left-recursion elimination
-		if ( this.g.tool.errMgr.getNumErrors()>prevErrors ) {
- return;
-}
-
+        if ( this.g.tool.errMgr.getNumErrors()>prevErrors ) {
+            return;
+        }
 
 		// STORE RULES IN GRAMMAR
-		for (let r of ruleCollector.rules.values()) {
-			this.g.defineRule(r);
-		}
+        for (const r of ruleCollector.rules.values()) {
+            this.g.defineRule(r);
+        }
 
 		// COLLECT SYMBOLS: RULES, ACTIONS, TERMINALS, ...
-		let  collector = new  SymbolCollector(this.g);
-		collector.process(this.g.ast);
+        const  collector = new  SymbolCollector(this.g);
+        collector.process(this.g.ast);
 
 		// CHECK FOR SYMBOL COLLISIONS
-		let  symcheck = new  SymbolChecks(this.g, collector);
-		symcheck.process(); // side-effect: strip away redef'd rules.
+        const  symcheck = new  SymbolChecks(this.g, collector);
+        symcheck.process(); // side-effect: strip away redef'd rules.
 
-		for (let a of collector.namedActions) {
-			this.g.defineAction(a);
-		}
+        for (const a of collector.namedActions) {
+            this.g.defineAction(a);
+        }
 
 		// LINK (outermost) ALT NODES WITH Alternatives
-		for (let r of this.g.rules.values()) {
-			for (let  i=1; i<=r.numberOfAlts; i++) {
-				r.alt[i].ast.alt = r.alt[i];
-			}
-		}
+        for (const r of this.g.rules.values()) {
+            for (let  i=1; i<=r.numberOfAlts; i++) {
+                r.alt[i].ast.alt = r.alt[i];
+            }
+        }
 
 		// ASSIGN TOKEN TYPES
-		this.g.importTokensFromTokensFile();
-		if ( this.g.isLexer() ) {
-			this.assignLexerTokenTypes(this.g, collector.tokensDefs);
-		}
-		else {
-			this.assignTokenTypes(this.g, collector.tokensDefs,
+        this.g.importTokensFromTokensFile();
+        if ( this.g.isLexer() ) {
+            this.assignLexerTokenTypes(this.g, collector.tokensDefs);
+        }
+        else {
+            this.assignTokenTypes(this.g, collector.tokensDefs,
 							 collector.tokenIDRefs, collector.terminals);
-		}
+        }
 
-		symcheck.checkForModeConflicts(this.g);
-		symcheck.checkForUnreachableTokens(this.g);
+        symcheck.checkForModeConflicts(this.g);
+        symcheck.checkForUnreachableTokens(this.g);
 
-		this.assignChannelTypes(this.g, collector.channelDefs);
+        this.assignChannelTypes(this.g, collector.channelDefs);
 
 		// CHECK RULE REFS NOW (that we've defined rules in grammar)
-		symcheck.checkRuleArgs(this.g, collector.rulerefs);
-		this.identifyStartRules(collector);
-		symcheck.checkForQualifiedRuleIssues(this.g, collector.qualifiedRulerefs);
+        symcheck.checkRuleArgs(this.g, collector.rulerefs);
+        this.identifyStartRules(collector);
+        symcheck.checkForQualifiedRuleIssues(this.g, collector.qualifiedRulerefs);
 
 		// don't continue if we got symbol errors
-		if ( this.g.tool.getNumErrors()>0 ) {
- return;
-}
-
+        if ( this.g.tool.getNumErrors()>0 ) {
+            return;
+        }
 
 		// CHECK ATTRIBUTE EXPRESSIONS FOR SEMANTIC VALIDITY
-		AttributeChecks.checkAllAttributeExpressions(this.g);
+        AttributeChecks.checkAllAttributeExpressions(this.g);
 
-		UseDefAnalyzer.trackTokenRuleRefsInActions(this.g);
-	}
+        UseDefAnalyzer.trackTokenRuleRefsInActions(this.g);
+    }
 
-	protected  identifyStartRules(collector: SymbolCollector): void {
-		for (let ref of collector.rulerefs) {
-			let  ruleName = ref.getText();
-			let  r = this.g.getRule(ruleName);
-			if ( r!==null ) {
- r.isStartRule = false;
-}
+    protected  identifyStartRules(collector: SymbolCollector): void {
+        for (const ref of collector.rulerefs) {
+            const  ruleName = ref.getText();
+            const  r = this.g.getRule(ruleName);
+            if ( r!==null ) {
+                r.isStartRule = false;
+            }
 
-		}
-	}
+        }
+    }
 
-	protected  assignLexerTokenTypes(g: Grammar, tokensDefs: Array<GrammarAST>): void {
-		let  G = g.getOutermostGrammar(); // put in root, even if imported
-		for (let def of tokensDefs) {
+    protected  assignLexerTokenTypes(g: Grammar, tokensDefs: GrammarAST[]): void {
+        const  G = g.getOutermostGrammar(); // put in root, even if imported
+        for (const def of tokensDefs) {
 			// tokens { id (',' id)* } so must check IDs not TOKEN_REF
-			if ( Grammar.isTokenName(def.getText()) ) {
-				G.defineTokenName(def.getText());
-			}
-		}
+            if ( Grammar.isTokenName(def.getText()) ) {
+                G.defineTokenName(def.getText());
+            }
+        }
 
 		/* Define token types for nonfragment rules which do not include a 'type(...)'
 		 * or 'more' lexer command.
 		 */
-		for (let r of g.rules.values()) {
-			if ( !r.isFragment() && !this.hasTypeOrMoreCommand(r) ) {
-				G.defineTokenName(r.name);
-			}
-		}
+        for (const r of g.rules.values()) {
+            if ( !r.isFragment() && !this.hasTypeOrMoreCommand(r) ) {
+                G.defineTokenName(r.name);
+            }
+        }
 
 		// FOR ALL X : 'xxx'; RULES, DEFINE 'xxx' AS TYPE X
-		let  litAliases =
+        const  litAliases =
 			Grammar.getStringLiteralAliasesFromLexerRules(g.ast);
-		let  conflictingLiterals = new  HashSet<string>();
-		if ( litAliases!==null ) {
-			for (let pair of litAliases) {
-				let  nameAST = pair.a;
-				let  litAST = pair.b;
-				if ( !G.stringLiteralToTypeMap.containsKey(litAST.getText()) ) {
-					G.defineTokenAlias(nameAST.getText(), litAST.getText());
-				}
-				else {
+        const  conflictingLiterals = new  HashSet<string>();
+        if ( litAliases!==null ) {
+            for (const pair of litAliases) {
+                const  nameAST = pair.a;
+                const  litAST = pair.b;
+                if ( !G.stringLiteralToTypeMap.containsKey(litAST.getText()) ) {
+                    G.defineTokenAlias(nameAST.getText(), litAST.getText());
+                }
+                else {
 					// oops two literal defs in two rules (within or across modes).
-					conflictingLiterals.add(litAST.getText());
-				}
-			}
-			for (let lit of conflictingLiterals) {
+                    conflictingLiterals.add(litAST.getText());
+                }
+            }
+            for (const lit of conflictingLiterals) {
 				// Remove literal if repeated across rules so it's not
 				// found by parser grammar.
-				let  value = G.stringLiteralToTypeMap.remove(lit);
-				if (value !== null && value > 0 && value < G.typeToStringLiteralList.size() && lit.equals(G.typeToStringLiteralList.get(value))) {
-					G.typeToStringLiteralList.set(value, null);
-				}
-			}
-		}
-	}
+                const  value = G.stringLiteralToTypeMap.remove(lit);
+                if (value !== null && value > 0 && value < G.typeToStringLiteralList.size() && lit.equals(G.typeToStringLiteralList.get(value))) {
+                    G.typeToStringLiteralList.set(value, null);
+                }
+            }
+        }
+    }
 
-	protected  hasTypeOrMoreCommand(r: Rule): boolean {
-		let  ast = r.ast;
-		if (ast === null) {
-			return false;
-		}
+    protected  hasTypeOrMoreCommand(r: Rule): boolean {
+        const  ast = r.ast;
+        if (ast === null) {
+            return false;
+        }
 
-		let  altActionAst = ast.getFirstDescendantWithType(ANTLRParser.LEXER_ALT_ACTION) as GrammarAST;
-		if (altActionAst === null) {
+        const  altActionAst = ast.getFirstDescendantWithType(ANTLRParser.LEXER_ALT_ACTION) as GrammarAST;
+        if (altActionAst === null) {
 			// the rule isn't followed by any commands
-			return false;
-		}
+            return false;
+        }
 
 		// first child is the alt itself, subsequent are the actions
-		for (let  i = 1; i < altActionAst.getChildCount(); i++) {
-			let  node = altActionAst.getChild(i) as GrammarAST;
-			if (node.getType() === ANTLRParser.LEXER_ACTION_CALL) {
-				if ("type".equals(node.getChild(0).getText())) {
-					return true;
-				}
-			}
-			else {
- if ("more".equals(node.getText())) {
-				return true;
-			}
-}
+        for (let  i = 1; i < altActionAst.getChildCount(); i++) {
+            const  node = altActionAst.getChild(i) as GrammarAST;
+            if (node.getType() === ANTLRParser.LEXER_ACTION_CALL) {
+                if ("type".equals(node.getChild(0).getText())) {
+                    return true;
+                }
+            }
+            else {
+                if ("more".equals(node.getText())) {
+                    return true;
+                }
+            }
 
-		}
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	protected  assignTokenTypes(g: Grammar, tokensDefs: Array<GrammarAST>,
-						  tokenIDs: Array<GrammarAST>, terminals: Array<GrammarAST>): void
-	{
+    protected  assignTokenTypes(g: Grammar, tokensDefs: GrammarAST[],
+						  tokenIDs: GrammarAST[], terminals: GrammarAST[]): void
+    {
 		//Grammar G = g.getOutermostGrammar(); // put in root, even if imported
 
 		// create token types for tokens { A, B, C } ALIASES
-		for (let alias of tokensDefs) {
-			if (g.getTokenType(alias.getText()) !== Token.INVALID_TYPE) {
-				g.tool.errMgr.grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token, alias.getText());
-			}
+        for (const alias of tokensDefs) {
+            if (g.getTokenType(alias.getText()) !== Token.INVALID_TYPE) {
+                g.tool.errMgr.grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token, alias.getText());
+            }
 
-			g.defineTokenName(alias.getText());
-		}
+            g.defineTokenName(alias.getText());
+        }
 
 		// DEFINE TOKEN TYPES FOR TOKEN REFS LIKE ID, INT
-		for (let idAST of tokenIDs) {
-			if (g.getTokenType(idAST.getText()) === Token.INVALID_TYPE) {
-				g.tool.errMgr.grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token, idAST.getText());
-			}
+        for (const idAST of tokenIDs) {
+            if (g.getTokenType(idAST.getText()) === Token.INVALID_TYPE) {
+                g.tool.errMgr.grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token, idAST.getText());
+            }
 
-			g.defineTokenName(idAST.getText());
-		}
+            g.defineTokenName(idAST.getText());
+        }
 
 		// VERIFY TOKEN TYPES FOR STRING LITERAL REFS LIKE 'while', ';'
-		for (let termAST of terminals) {
-			if (termAST.getType() !== ANTLRParser.STRING_LITERAL) {
-				continue;
-			}
+        for (const termAST of terminals) {
+            if (termAST.getType() !== ANTLRParser.STRING_LITERAL) {
+                continue;
+            }
 
-			if (g.getTokenType(termAST.getText()) === Token.INVALID_TYPE) {
-				g.tool.errMgr.grammarError(ErrorType.IMPLICIT_STRING_DEFINITION, g.fileName, termAST.token, termAST.getText());
-			}
-		}
+            if (g.getTokenType(termAST.getText()) === Token.INVALID_TYPE) {
+                g.tool.errMgr.grammarError(ErrorType.IMPLICIT_STRING_DEFINITION, g.fileName, termAST.token, termAST.getText());
+            }
+        }
 
-		g.tool.log("semantics", "tokens="+g.tokenNameToTypeMap);
+        g.tool.log("semantics", "tokens="+g.tokenNameToTypeMap);
         g.tool.log("semantics", "strings="+g.stringLiteralToTypeMap);
-	}
+    }
 
 	/**
 	 * Assign constant values to custom channels defined in a grammar.
@@ -274,10 +267,10 @@ export  class SemanticPipeline {
 	 * @param channelDefs A collection of AST nodes defining individual channels
 	 * within a {@code channels{}} block in the grammar.
 	 */
-	protected  assignChannelTypes(g: Grammar, channelDefs: Array<GrammarAST>): void {
-		let  outermost = g.getOutermostGrammar();
-		for (let channel of channelDefs) {
-			let  channelName = channel.getText();
+    protected  assignChannelTypes(g: Grammar, channelDefs: GrammarAST[]): void {
+        const  outermost = g.getOutermostGrammar();
+        for (const channel of channelDefs) {
+            const  channelName = channel.getText();
 
 			// Channel names can't alias tokens or modes, because constant
 			// values are also assigned to them and the ->channel(NAME) lexer
@@ -286,22 +279,22 @@ export  class SemanticPipeline {
 			// alias rules, because rule names are not associated with constant
 			// values in ANTLR grammar semantics.
 
-			if (g.getTokenType(channelName) !== Token.INVALID_TYPE) {
-				g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_TOKEN, g.fileName, channel.token, channelName);
-			}
+            if (g.getTokenType(channelName) !== Token.INVALID_TYPE) {
+                g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_TOKEN, g.fileName, channel.token, channelName);
+            }
 
-			if (LexerATNFactory.COMMON_CONSTANTS.containsKey(channelName)) {
-				g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, channel.token, channelName);
-			}
+            if (LexerATNFactory.COMMON_CONSTANTS.containsKey(channelName)) {
+                g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, channel.token, channelName);
+            }
 
-			if (outermost instanceof LexerGrammar) {
-				let  lexerGrammar = outermost as LexerGrammar;
-				if (lexerGrammar.modes.containsKey(channelName)) {
-					g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_MODE, g.fileName, channel.token, channelName);
-				}
-			}
+            if (outermost instanceof LexerGrammar) {
+                const  lexerGrammar = outermost;
+                if (lexerGrammar.modes.containsKey(channelName)) {
+                    g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_MODE, g.fileName, channel.token, channelName);
+                }
+            }
 
-			outermost.defineChannelName(channel.getText());
-		}
-	}
+            outermost.defineChannelName(channel.getText());
+        }
+    }
 }

@@ -4,185 +4,173 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Grammar } from "./Grammar.js";
 import { Utils } from "../misc/Utils.js";
 import { ATNConfig, ATNState, AbstractPredicateTransition, ActionTransition, AtomTransition, BlockEndState, BlockStartState, DecisionState, NotSetTransition, PlusBlockStartState, PlusLoopbackState, RangeTransition, RuleStartState, RuleStopState, RuleTransition, SetTransition, StarBlockStartState, StarLoopEntryState, StarLoopbackState, Transition, DFA, DFAState, IntegerList, HashSet } from "antlr4ng";
 
-
-
 /** The DOT (part of graphviz) generation aspect. */
 export  class DOTGenerator {
-	public static readonly  STRIP_NONREDUCED_STATES = false;
+    public static readonly  STRIP_NONREDUCED_STATES = false;
 
 	/** Library of output templates; use {@code <attrname>} format. */
     public static readonly  stlib = new  STGroupFile("org/antlr/v4/tool/templates/dot/graphs.stg");
 
-	protected  arrowhead="normal";
-	protected  rankdir="LR";
+    protected  arrowhead="normal";
+    protected  rankdir="LR";
 
     protected  grammar:  Grammar;
 
     /** This aspect is associated with a grammar */
-	public  constructor(grammar: Grammar) {
-		this.grammar = grammar;
-	}
+    public  constructor(grammar: Grammar) {
+        this.grammar = grammar;
+    }
 
-	public  getDOT(startState: ATNState):  string;
+    public  getDOT(startState: ATNState):  string;
 
-	public  getDOT(dfa: DFA, isLexer: boolean):  string;
+    public  getDOT(dfa: DFA, isLexer: boolean):  string;
 
-	public  getDOT(startState: ATNState, isLexer: boolean):  string;
+    public  getDOT(startState: ATNState, isLexer: boolean):  string;
 
-    /** Return a String containing a DOT description that, when displayed,
+    /**
+     * Return a String containing a DOT description that, when displayed,
      *  will show the incoming state machine visually.  All nodes reachable
      *  from startState will be included.
      */
-	public  getDOT(startState: ATNState, ruleNames: string[], isLexer: boolean):  string;
-public getDOT(...args: unknown[]):  string {
-		switch (args.length) {
-			case 1: {
-				const [startState] = args as [ATNState];
+    public  getDOT(startState: ATNState, ruleNames: string[], isLexer: boolean):  string;
+    public getDOT(...args: unknown[]):  string {
+        switch (args.length) {
+            case 1: {
+                const [startState] = args as [ATNState];
 
+                return this.getDOT(startState, false);
 
-		return this.getDOT(startState, false);
-	
+                break;
+            }
 
-				break;
-			}
+            case 2: {
+                const [dfa, isLexer] = args as [DFA, boolean];
 
-			case 2: {
-				const [dfa, isLexer] = args as [DFA, boolean];
+                if ( dfa.s0===null ) {
+                    return null;
+                }
 
-
-		if ( dfa.s0===null ) {
-	return null;
-}
-
-
-		let  dot = DOTGenerator.stlib.getInstanceOf("dfa");
-		dot.add("name", "DFA"+dfa.decision);
-		dot.add("startState", dfa.s0.stateNumber);
+                const  dot = DOTGenerator.stlib.getInstanceOf("dfa");
+                dot.add("name", "DFA"+dfa.decision);
+                dot.add("startState", dfa.s0.stateNumber);
 //		dot.add("useBox", Tool.internalOption_ShowATNConfigsInDFA);
-		dot.add("rankdir", this.rankdir);
+                dot.add("rankdir", this.rankdir);
 
 		// define stop states first; seems to be a bug in DOT where doublecircle
-		for (let d of dfa.states.keySet()) {
-			if ( !d.isAcceptState ) {
- continue;
-}
+                for (const d of dfa.states.keySet()) {
+                    if ( !d.isAcceptState ) {
+                        continue;
+                    }
 
-			let  st = DOTGenerator.stlib.getInstanceOf("stopstate");
-			st.add("name", "s"+d.stateNumber);
-			st.add("label", this.getStateLabel(d));
-			dot.add("states", st);
-		}
+                    const  st = DOTGenerator.stlib.getInstanceOf("stopstate");
+                    st.add("name", "s"+d.stateNumber);
+                    st.add("label", this.getStateLabel(d));
+                    dot.add("states", st);
+                }
 
-		for (let d of dfa.states.keySet()) {
-			if ( d.isAcceptState ) {
- continue;
-}
+                for (const d of dfa.states.keySet()) {
+                    if ( d.isAcceptState ) {
+                        continue;
+                    }
 
-			if ( d.stateNumber === number.MAX_VALUE ) {
- continue;
-}
+                    if ( d.stateNumber === number.MAX_VALUE ) {
+                        continue;
+                    }
 
-			let  st = DOTGenerator.stlib.getInstanceOf("state");
-			st.add("name", "s"+d.stateNumber);
-			st.add("label", this.getStateLabel(d));
-			dot.add("states", st);
-		}
+                    const  st = DOTGenerator.stlib.getInstanceOf("state");
+                    st.add("name", "s"+d.stateNumber);
+                    st.add("label", this.getStateLabel(d));
+                    dot.add("states", st);
+                }
 
-		for (let d of dfa.states.keySet()) {
-			if ( d.edges!==null ) {
-				for (let  i = 0; i < d.edges.length; i++) {
-					let  target = d.edges[i];
-					if ( target===null) {
- continue;
-}
+                for (const d of dfa.states.keySet()) {
+                    if ( d.edges!==null ) {
+                        for (let  i = 0; i < d.edges.length; i++) {
+                            const  target = d.edges[i];
+                            if ( target===null) {
+                                continue;
+                            }
 
-					if ( target.stateNumber === number.MAX_VALUE ) {
- continue;
-}
+                            if ( target.stateNumber === number.MAX_VALUE ) {
+                                continue;
+                            }
 
-					let  ttype = i-1; // we shift up for EOF as -1 for parser
-					let  label = string.valueOf(ttype);
-					if ( isLexer ) {
- label = "'"+this.getEdgeLabel(new  StringBuilder().appendCodePoint(i).toString())+"'";
-}
+                            const  ttype = i-1; // we shift up for EOF as -1 for parser
+                            let  label = string.valueOf(ttype);
+                            if ( isLexer ) {
+                                label = "'"+this.getEdgeLabel(new  StringBuilder().appendCodePoint(i).toString())+"'";
+                            }
 
-					else {
- if ( this.grammar!==null ) {
- label = this.grammar.getTokenDisplayName(ttype);
-}
+                            else {
+                                if ( this.grammar!==null ) {
+                                    label = this.grammar.getTokenDisplayName(ttype);
+                                }
 
-}
+                            }
 
-					let  st = DOTGenerator.stlib.getInstanceOf("edge");
-					st.add("label", label);
-					st.add("src", "s"+d.stateNumber);
-					st.add("target", "s"+target.stateNumber);
-					st.add("arrowhead", this.arrowhead);
-					dot.add("edges", st);
-				}
-			}
-		}
+                            const  st = DOTGenerator.stlib.getInstanceOf("edge");
+                            st.add("label", label);
+                            st.add("src", "s"+d.stateNumber);
+                            st.add("target", "s"+target.stateNumber);
+                            st.add("arrowhead", this.arrowhead);
+                            dot.add("edges", st);
+                        }
+                    }
+                }
 
-		let  output = dot.render();
-		return Utils.sortLinesInString(output);
-	
+                const  output = dot.render();
 
-				break;
-			}
+                return Utils.sortLinesInString(output);
 
-			case 2: {
-				const [startState, isLexer] = args as [ATNState, boolean];
+                break;
+            }
 
+            case 2: {
+                const [startState, isLexer] = args as [ATNState, boolean];
 
-		let  ruleNames = this.grammar.rules.keySet();
-		let  names = new  Array<string>(ruleNames.size()+1);
-		let  i = 0;
-		for (let s of ruleNames) {
- names[i++] = s;
-}
+                const  ruleNames = this.grammar.rules.keySet();
+                const  names = new  Array<string>(ruleNames.size()+1);
+                let  i = 0;
+                for (const s of ruleNames) {
+                    names[i++] = s;
+                }
 
-		return this.getDOT(startState, names, isLexer);
-	
+                return this.getDOT(startState, names, isLexer);
 
-				break;
-			}
+                break;
+            }
 
-			case 3: {
-				const [startState, ruleNames, isLexer] = args as [ATNState, string[], boolean];
+            case 3: {
+                const [startState, ruleNames, isLexer] = args as [ATNState, string[], boolean];
 
-
-		if ( startState===null ) {
-	return null;
-}
-
+                if ( startState===null ) {
+                    return null;
+                }
 
 		// The output DOT graph for visualization
-		let  markedStates = new  HashSet<ATNState>();
-		let  dot = DOTGenerator.stlib.getInstanceOf("atn");
-		dot.add("startState", startState.stateNumber);
-		dot.add("rankdir", this.rankdir);
+                const  markedStates = new  HashSet<ATNState>();
+                const  dot = DOTGenerator.stlib.getInstanceOf("atn");
+                dot.add("startState", startState.stateNumber);
+                dot.add("rankdir", this.rankdir);
 
-		let  work = new  LinkedList<ATNState>();
+                const  work = new  LinkedList<ATNState>();
 
-		work.add(startState);
-		while ( !work.isEmpty() ) {
-			let  s = work.get(0);
-			if ( markedStates.contains(s) ) { work.remove(0); continue; }
-			markedStates.add(s);
+                work.add(startState);
+                while ( !work.isEmpty() ) {
+                    const  s = work.get(0);
+                    if ( markedStates.contains(s) ) { work.remove(0); continue; }
+                    markedStates.add(s);
 
 			// don't go past end of rule node to the follow states
-			if ( s instanceof RuleStopState) {
- continue;
-}
-
+                    if ( s instanceof RuleStopState) {
+                        continue;
+                    }
 
 			// special case: if decision point, then line up the alt start states
 			// unless it's an end of block
@@ -199,138 +187,138 @@ public getDOT(...args: unknown[]):  string {
 //			}
 
 			// make a DOT edge for each transition
-			let  edgeST: ST;
-			for (let  i = 0; i < s.getNumberOfTransitions(); i++) {
-				let  edge = s.transition(i);
-				if ( edge instanceof RuleTransition ) {
-					let  rr = (edge as RuleTransition);
+                    let  edgeST: ST;
+                    for (let  i = 0; i < s.getNumberOfTransitions(); i++) {
+                        const  edge = s.transition(i);
+                        if ( edge instanceof RuleTransition ) {
+                            const  rr = (edge);
 					// don't jump to other rules, but display edge to follow node
-					edgeST = DOTGenerator.stlib.getInstanceOf("edge");
+                            edgeST = DOTGenerator.stlib.getInstanceOf("edge");
 
-					let  label = "<" + ruleNames[rr.ruleIndex];
-					if ((rr.target as RuleStartState).isLeftRecursiveRule) {
-						label += "[" + rr.precedence + "]";
-					}
-					label += ">";
+                            let  label = "<" + ruleNames[rr.ruleIndex];
+                            if ((rr.target as RuleStartState).isLeftRecursiveRule) {
+                                label += "[" + rr.precedence + "]";
+                            }
+                            label += ">";
 
-					edgeST.add("label", label);
-					edgeST.add("src", "s"+s.stateNumber);
-					edgeST.add("target", "s"+rr.followState.stateNumber);
-					edgeST.add("arrowhead", this.arrowhead);
-					dot.add("edges", edgeST);
-					work.add(rr.followState);
-					continue;
-				}
-				if ( edge instanceof ActionTransition) {
-					edgeST = DOTGenerator.stlib.getInstanceOf("action-edge");
-					edgeST.add("label", this.getEdgeLabel(edge.toString()));
-				}
-				else {
- if ( edge instanceof AbstractPredicateTransition ) {
-					edgeST = DOTGenerator.stlib.getInstanceOf("edge");
-					edgeST.add("label", this.getEdgeLabel(edge.toString()));
-				}
-				else {
- if ( edge.isEpsilon() ) {
-					edgeST = DOTGenerator.stlib.getInstanceOf("epsilon-edge");
-					edgeST.add("label", this.getEdgeLabel(edge.toString()));
-					let  loopback = false;
-					if (edge.target instanceof PlusBlockStartState) {
-						loopback = s.equals((edge.target as PlusBlockStartState).loopBackState);
-					}
-					else {
- if (edge.target instanceof StarLoopEntryState) {
-						loopback = s.equals((edge.target as StarLoopEntryState).loopBackState);
-					}
-}
+                            edgeST.add("label", label);
+                            edgeST.add("src", "s"+s.stateNumber);
+                            edgeST.add("target", "s"+rr.followState.stateNumber);
+                            edgeST.add("arrowhead", this.arrowhead);
+                            dot.add("edges", edgeST);
+                            work.add(rr.followState);
+                            continue;
+                        }
+                        if ( edge instanceof ActionTransition) {
+                            edgeST = DOTGenerator.stlib.getInstanceOf("action-edge");
+                            edgeST.add("label", this.getEdgeLabel(edge.toString()));
+                        }
+                        else {
+                            if ( edge instanceof AbstractPredicateTransition ) {
+                                edgeST = DOTGenerator.stlib.getInstanceOf("edge");
+                                edgeST.add("label", this.getEdgeLabel(edge.toString()));
+                            }
+                            else {
+                                if ( edge.isEpsilon() ) {
+                                    edgeST = DOTGenerator.stlib.getInstanceOf("epsilon-edge");
+                                    edgeST.add("label", this.getEdgeLabel(edge.toString()));
+                                    let  loopback = false;
+                                    if (edge.target instanceof PlusBlockStartState) {
+                                        loopback = s.equals((edge.target as PlusBlockStartState).loopBackState);
+                                    }
+                                    else {
+                                        if (edge.target instanceof StarLoopEntryState) {
+                                            loopback = s.equals((edge.target as StarLoopEntryState).loopBackState);
+                                        }
+                                    }
 
-					edgeST.add("loopback", loopback);
-				}
-				else {
- if ( edge instanceof AtomTransition ) {
-					edgeST = DOTGenerator.stlib.getInstanceOf("edge");
-					let  atom = edge as AtomTransition;
-					let  label = string.valueOf(atom.label);
-					if ( isLexer ) {
- label = "'"+this.getEdgeLabel(new  StringBuilder().appendCodePoint(atom.label).toString())+"'";
-}
+                                    edgeST.add("loopback", loopback);
+                                }
+                                else {
+                                    if ( edge instanceof AtomTransition ) {
+                                        edgeST = DOTGenerator.stlib.getInstanceOf("edge");
+                                        const  atom = edge;
+                                        let  label = string.valueOf(atom.label);
+                                        if ( isLexer ) {
+                                            label = "'"+this.getEdgeLabel(new  StringBuilder().appendCodePoint(atom.label).toString())+"'";
+                                        }
 
-					else {
- if ( this.grammar!==null ) {
- label = this.grammar.getTokenDisplayName(atom.label);
-}
+                                        else {
+                                            if ( this.grammar!==null ) {
+                                                label = this.grammar.getTokenDisplayName(atom.label);
+                                            }
 
-}
+                                        }
 
-					edgeST.add("label", this.getEdgeLabel(label));
-				}
-				else {
- if ( edge instanceof SetTransition ) {
-					edgeST = DOTGenerator.stlib.getInstanceOf("edge");
-					let  set = edge as SetTransition;
-					let  label = set.label().toString();
-					if ( isLexer ) {
- label = set.label().toString(true);
-}
+                                        edgeST.add("label", this.getEdgeLabel(label));
+                                    }
+                                    else {
+                                        if ( edge instanceof SetTransition ) {
+                                            edgeST = DOTGenerator.stlib.getInstanceOf("edge");
+                                            const  set = edge;
+                                            let  label = set.label().toString();
+                                            if ( isLexer ) {
+                                                label = set.label().toString(true);
+                                            }
 
-					else {
- if ( this.grammar!==null ) {
- label = set.label().toString(this.grammar.getVocabulary());
-}
+                                            else {
+                                                if ( this.grammar!==null ) {
+                                                    label = set.label().toString(this.grammar.getVocabulary());
+                                                }
 
-}
+                                            }
 
-					if ( edge instanceof NotSetTransition ) {
- label = "~"+label;
-}
+                                            if ( edge instanceof NotSetTransition ) {
+                                                label = "~"+label;
+                                            }
 
-					edgeST.add("label", this.getEdgeLabel(label));
-				}
-				else {
- if ( edge instanceof RangeTransition ) {
-					edgeST = DOTGenerator.stlib.getInstanceOf("edge");
-					let  range = edge as RangeTransition;
-					let  label = range.label().toString();
-					if ( isLexer ) {
- label = range.toString();
-}
+                                            edgeST.add("label", this.getEdgeLabel(label));
+                                        }
+                                        else {
+                                            if ( edge instanceof RangeTransition ) {
+                                                edgeST = DOTGenerator.stlib.getInstanceOf("edge");
+                                                const  range = edge;
+                                                let  label = range.label().toString();
+                                                if ( isLexer ) {
+                                                    label = range.toString();
+                                                }
 
-					else {
- if ( this.grammar!==null ) {
- label = range.label().toString(this.grammar.getVocabulary());
-}
+                                                else {
+                                                    if ( this.grammar!==null ) {
+                                                        label = range.label().toString(this.grammar.getVocabulary());
+                                                    }
 
-}
+                                                }
 
-					edgeST.add("label", this.getEdgeLabel(label));
-				}
-				else {
-					edgeST = DOTGenerator.stlib.getInstanceOf("edge");
-					edgeST.add("label", this.getEdgeLabel(edge.toString()));
-				}
-}
+                                                edgeST.add("label", this.getEdgeLabel(label));
+                                            }
+                                            else {
+                                                edgeST = DOTGenerator.stlib.getInstanceOf("edge");
+                                                edgeST.add("label", this.getEdgeLabel(edge.toString()));
+                                            }
+                                        }
 
-}
+                                    }
 
-}
+                                }
 
-}
+                            }
 
-}
+                        }
 
-				edgeST.add("src", "s"+s.stateNumber);
-				edgeST.add("target", "s"+edge.target.stateNumber);
-				edgeST.add("arrowhead", this.arrowhead);
-				if (s.getNumberOfTransitions() > 1) {
-					edgeST.add("transitionIndex", i);
-				}
-				else {
-					edgeST.add("transitionIndex", false);
-				}
-				dot.add("edges", edgeST);
-				work.add(edge.target);
-			}
-		}
+                        edgeST.add("src", "s"+s.stateNumber);
+                        edgeST.add("target", "s"+edge.target.stateNumber);
+                        edgeST.add("arrowhead", this.arrowhead);
+                        if (s.getNumberOfTransitions() > 1) {
+                            edgeST.add("transitionIndex", i);
+                        }
+                        else {
+                            edgeST.add("transitionIndex", false);
+                        }
+                        dot.add("edges", edgeST);
+                        work.add(edge.target);
+                    }
+                }
 
 		// define nodes we visited (they will appear first in DOT output)
 		// this is an example of ST's lazy eval :)
@@ -343,164 +331,156 @@ public getDOT(...args: unknown[]):  string {
 //			st.add("label", getStateLabel(stopState));
 //			dot.add("states", st);
 //		}
-		for (let s of markedStates) {
-			if ( !(s instanceof RuleStopState) ) {
- continue;
-}
+                for (const s of markedStates) {
+                    if ( !(s instanceof RuleStopState) ) {
+                        continue;
+                    }
 
-			let  st = DOTGenerator.stlib.getInstanceOf("stopstate");
-			st.add("name", "s"+s.stateNumber);
-			st.add("label", this.getStateLabel(s));
-			dot.add("states", st);
-		}
+                    const  st = DOTGenerator.stlib.getInstanceOf("stopstate");
+                    st.add("name", "s"+s.stateNumber);
+                    st.add("label", this.getStateLabel(s));
+                    dot.add("states", st);
+                }
 
-		for (let s of markedStates) {
-			if ( s instanceof RuleStopState ) {
- continue;
-}
+                for (const s of markedStates) {
+                    if ( s instanceof RuleStopState ) {
+                        continue;
+                    }
 
-			let  st = DOTGenerator.stlib.getInstanceOf("state");
-			st.add("name", "s"+s.stateNumber);
-			st.add("label", this.getStateLabel(s));
-			st.add("transitions", s.getTransitions());
-			dot.add("states", st);
-		}
+                    const  st = DOTGenerator.stlib.getInstanceOf("state");
+                    st.add("name", "s"+s.stateNumber);
+                    st.add("label", this.getStateLabel(s));
+                    st.add("transitions", s.getTransitions());
+                    dot.add("states", st);
+                }
 
-		return dot.render();
-	
+                return dot.render();
 
-				break;
-			}
+                break;
+            }
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
+    protected  getStateLabel(s: DFAState):  string;
 
-	protected  getStateLabel(s: DFAState):  string;
+    protected  getStateLabel(s: ATNState):  string;
+    protected getStateLabel(...args: unknown[]):  string {
+        switch (args.length) {
+            case 1: {
+                const [s] = args as [DFAState];
 
-	protected  getStateLabel(s: ATNState):  string;
-protected getStateLabel(...args: unknown[]):  string {
-		switch (args.length) {
-			case 1: {
-				const [s] = args as [DFAState];
+                if ( s===null ) {
+                    return "null";
+                }
 
-
-		if ( s===null ) {
- return "null";
-}
-
-		let  buf = new  StringBuilder(250);
-		buf.append('s');
-		buf.append(s.stateNumber);
-		if ( s.isAcceptState ) {
-			buf.append("=>").append(s.prediction);
-		}
-		if ( s.requiresFullContext) {
-			buf.append("^");
-		}
-		if ( this.grammar!==null ) {
-			let  alts = s.getAltSet();
-			if ( alts!==null ) {
-				buf.append("\\n");
+                const  buf = new  StringBuilder(250);
+                buf.append("s");
+                buf.append(s.stateNumber);
+                if ( s.isAcceptState ) {
+                    buf.append("=>").append(s.prediction);
+                }
+                if ( s.requiresFullContext) {
+                    buf.append("^");
+                }
+                if ( this.grammar!==null ) {
+                    const  alts = s.getAltSet();
+                    if ( alts!==null ) {
+                        buf.append("\\n");
 				// separate alts
-				let  altList = new  IntegerList();
-				altList.addAll(alts);
-				altList.sort();
-				let  configurations = s.configs;
-				for (let  altIndex = 0; altIndex < altList.size(); altIndex++) {
-					let  alt = altList.get(altIndex);
-					if ( altIndex>0 ) {
-						buf.append("\\n");
-					}
-					buf.append("alt");
-					buf.append(alt);
-					buf.append(':');
+                        const  altList = new  IntegerList();
+                        altList.addAll(alts);
+                        altList.sort();
+                        const  configurations = s.configs;
+                        for (let  altIndex = 0; altIndex < altList.size(); altIndex++) {
+                            const  alt = altList.get(altIndex);
+                            if ( altIndex>0 ) {
+                                buf.append("\\n");
+                            }
+                            buf.append("alt");
+                            buf.append(alt);
+                            buf.append(":");
 					// get a list of configs for just this alt
 					// it will help us print better later
-					let  configsInAlt = new  Array<ATNConfig>();
-					for (let c of configurations) {
-						if (c.alt !== alt) {
- continue;
-}
+                            const  configsInAlt = new  Array<ATNConfig>();
+                            for (const c of configurations) {
+                                if (c.alt !== alt) {
+                                    continue;
+                                }
 
-						configsInAlt.add(c);
-					}
-					let  n = 0;
-					for (let  cIndex = 0; cIndex < configsInAlt.size(); cIndex++) {
-						let  c = configsInAlt.get(cIndex);
-						n++;
-						buf.append(c.toString(null, false));
-						if ( (cIndex+1)<configsInAlt.size() ) {
-							buf.append(", ");
-						}
-						if ( n%5===0 && (configsInAlt.size()-cIndex)>3 ) {
-							buf.append("\\n");
-						}
-					}
-				}
-			}
-		}
-		let  stateLabel = buf.toString();
-        return stateLabel;
-    
+                                configsInAlt.add(c);
+                            }
+                            let  n = 0;
+                            for (let  cIndex = 0; cIndex < configsInAlt.size(); cIndex++) {
+                                const  c = configsInAlt.get(cIndex);
+                                n++;
+                                buf.append(c.toString(null, false));
+                                if ( (cIndex+1)<configsInAlt.size() ) {
+                                    buf.append(", ");
+                                }
+                                if ( n%5===0 && (configsInAlt.size()-cIndex)>3 ) {
+                                    buf.append("\\n");
+                                }
+                            }
+                        }
+                    }
+                }
+                const  stateLabel = buf.toString();
 
-				break;
-			}
+                return stateLabel;
 
-			case 1: {
-				const [s] = args as [ATNState];
+                break;
+            }
 
+            case 1: {
+                const [s] = args as [ATNState];
 
-		if ( s===null ) {
- return "null";
-}
+                if ( s===null ) {
+                    return "null";
+                }
 
-		let  stateLabel = "";
+                let  stateLabel = "";
 
-		if (s instanceof BlockStartState) {
-			stateLabel += "&rarr;\\n";
-		}
-		else {
- if (s instanceof BlockEndState) {
-			stateLabel += "&larr;\\n";
-		}
-}
+                if (s instanceof BlockStartState) {
+                    stateLabel += "&rarr;\\n";
+                }
+                else {
+                    if (s instanceof BlockEndState) {
+                        stateLabel += "&larr;\\n";
+                    }
+                }
 
+                stateLabel += string.valueOf(s.stateNumber);
 
-		stateLabel += string.valueOf(s.stateNumber);
+                if (s instanceof PlusBlockStartState || s instanceof PlusLoopbackState) {
+                    stateLabel += "+";
+                }
+                else {
+                    if (s instanceof StarBlockStartState || s instanceof StarLoopEntryState || s instanceof StarLoopbackState) {
+                        stateLabel += "*";
+                    }
+                }
 
-		if (s instanceof PlusBlockStartState || s instanceof PlusLoopbackState) {
-			stateLabel += "+";
-		}
-		else {
- if (s instanceof StarBlockStartState || s instanceof StarLoopEntryState || s instanceof StarLoopbackState) {
-			stateLabel += "*";
-		}
-}
+                if ( s instanceof DecisionState && (s).decision>=0 ) {
+                    stateLabel = stateLabel+"\\nd="+(s).decision;
+                }
 
+                return stateLabel;
 
-		if ( s instanceof DecisionState && (s as DecisionState).decision>=0 ) {
-			stateLabel = stateLabel+"\\nd="+(s as DecisionState).decision;
-		}
+                break;
+            }
 
-		return stateLabel;
-	
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-
-    /** Do a depth-first walk of the state machine graph and
+    /**
+     * Do a depth-first walk of the state machine graph and
      *  fill a DOT description template.  Keep filling the
      *  states and edges attributes.  We know this is an ATN
      *  for a rule so don't traverse edges to other rules and
@@ -592,14 +572,16 @@ protected getStateLabel(...args: unknown[]):  string {
 //        }
 //    }
 
-    /** Fix edge strings so they print out in DOT properly;
-	 *  generate any gated predicates on edge too.
-	 */
+    /**
+     * Fix edge strings so they print out in DOT properly;
+     *  generate any gated predicates on edge too.
+     */
     protected  getEdgeLabel(label: string):  string {
-		label = label.replace("\\", "\\\\");
-		label = label.replace("\"", "\\\"");
-		label = label.replace("\n", "\\\\n");
-		label = label.replace("\r", "");
+        label = label.replace("\\", "\\\\");
+        label = label.replace("\"", "\\\"");
+        label = label.replace("\n", "\\\\n");
+        label = label.replace("\r", "");
+
         return label;
     }
 

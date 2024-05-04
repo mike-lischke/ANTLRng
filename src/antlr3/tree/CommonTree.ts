@@ -27,7 +27,7 @@ export class CommonTree extends BaseTree {
     public token: Token | null = null;
 
     /** Who is the parent node of this node; if null, implies node is root */
-    public parent: CommonTree;
+    public parent: CommonTree | null = null;
 
     /** What index is this node in the child list? Range: 0..n-1 */
     public childIndex = -1;
@@ -161,7 +161,7 @@ export class CommonTree extends BaseTree {
         return this.childIndex;
     }
 
-    public override getParent(): Tree {
+    public override getParent(): Tree | null {
         return this.parent;
     }
 

@@ -4,15 +4,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Decl } from "./decl/Decl.js";
 
-
-
 /** All the rule elements we can label like tokens, rules, sets, wildcard. */
- interface LabeledOp {
-	  getLabels(): Array<Decl>;
+interface LabeledOp {
+	  getLabels(): Decl[];
 }

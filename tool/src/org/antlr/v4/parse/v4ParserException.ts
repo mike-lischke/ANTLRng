@@ -4,44 +4,35 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
-
-
-
 
 /** */
 export  class v4ParserException extends RecognitionException {
-	public  msg:  string;
+    public  msg:  string;
 	/** Used for remote debugger deserialization */
-	public  constructor();
+    public  constructor();
 
-	public  constructor(msg: string, input: java.util.stream.IntStream);
+    public  constructor(msg: string, input: java.util.stream.IntStream);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 0: {
+        switch (args.length) {
+            case 0: {
 
+                break;
+            }
 
-				break;
-			}
+            case 2: {
+                const [msg, input] = args as [string, java.util.stream.IntStream];
 
-			case 2: {
-				const [msg, input] = args as [string, java.util.stream.IntStream];
+                super(input);
+                this.msg = msg;
 
+                break;
+            }
 
-		super(input);
-		this.msg = msg;
-	
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
 }

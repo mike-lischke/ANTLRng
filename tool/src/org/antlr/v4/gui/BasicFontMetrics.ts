@@ -4,12 +4,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
-
-/** Font metrics.  The only way to generate accurate images
+/**
+ * Font metrics.  The only way to generate accurate images
  *  in any format that contain text is to know the font metrics.
  *  Specifically, we need to know the width of every character and the
  *  maximum height (since we want all characters to fit within same line height).
@@ -51,51 +49,48 @@
  *	Units are 1000th of an 'em'.
  */
 export abstract  class BasicFontMetrics {
-	public static readonly  MAX_CHAR = '\u00FF';
-	protected  maxCharHeight:  number;
-	protected  widths = new  Int32Array(BasicFontMetrics.MAX_CHAR+1);
+    public static readonly  MAX_CHAR = "\u00FF";
+    protected  maxCharHeight:  number;
+    protected  widths = new  Int32Array(BasicFontMetrics.MAX_CHAR+1);
 
-	public  getWidth(s: string, fontSize: number):  number;
+    public  getWidth(s: string, fontSize: number):  number;
 
-	public  getWidth(c: number, fontSize: number):  number;
-public getWidth(...args: unknown[]):  number {
-		switch (args.length) {
-			case 2: {
-				const [s, fontSize] = args as [string, number];
+    public  getWidth(c: number, fontSize: number):  number;
+    public getWidth(...args: unknown[]):  number {
+        switch (args.length) {
+            case 2: {
+                const [s, fontSize] = args as [string, number];
 
+                let  w = 0;
+                for (const c of s.toCharArray()) {
+                    w += this.getWidth(c, fontSize);
+                }
 
-		let  w = 0;
-		for (let c of s.toCharArray()) {
-			w += this.getWidth(c, fontSize);
-		}
-		return w;
-	
+                return w;
 
-				break;
-			}
+                break;
+            }
 
-			case 2: {
-				const [c, fontSize] = args as [number, number];
+            case 2: {
+                const [c, fontSize] = args as [number, number];
 
+                if ( c > BasicFontMetrics.MAX_CHAR || this.widths[c]===0 ) {
+                    return this.widths.m/1000.0;
+                }
 
-		if ( c > BasicFontMetrics.MAX_CHAR || this.widths[c]===0 ) {
- return this.widths['m']/1000.0;
-}
  // return width('m')
-		return this.widths[c]/1000.0 * fontSize;
-	
+                return this.widths[c]/1000.0 * fontSize;
 
-				break;
-			}
+                break;
+            }
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-
-	public  getLineHeight(fontSize: number):  number {
-		return this.maxCharHeight / 1000.0 * fontSize;
-	}
+    public  getLineHeight(fontSize: number):  number {
+        return this.maxCharHeight / 1000.0 * fontSize;
+    }
 }

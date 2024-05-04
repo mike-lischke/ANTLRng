@@ -4,20 +4,16 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { ActionChunk } from "./ActionChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-
-
 export  class ActionTemplate extends ActionChunk {
-	public  st:  ST;
+    public  st:  ST;
 
-	public  constructor(ctx: StructDecl, st: ST) {
-		super(ctx);
-		this.st = st;
-	}
+    public  constructor(ctx: StructDecl, st: ST) {
+        super(ctx);
+        this.st = st;
+    }
 }

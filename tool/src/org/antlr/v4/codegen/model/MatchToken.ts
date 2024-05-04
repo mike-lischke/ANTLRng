@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { RuleElement } from "./RuleElement.js";
 import { LabeledOp } from "./LabeledOp.js";
@@ -18,56 +16,49 @@ import { Grammar } from "../../tool/Grammar.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { TerminalAST } from "../../tool/ast/TerminalAST.js";
 
-
-
 /** */
 export  class MatchToken extends RuleElement implements LabeledOp {
-	public readonly  name:  string;
-	public readonly  escapedName:  string;
-	public readonly  ttype:  number;
-	public readonly  labels = new  Array<Decl>();
+    public readonly  name:  string;
+    public readonly  escapedName:  string;
+    public readonly  ttype:  number;
+    public readonly  labels = new  Array<Decl>();
 
-	public  constructor(factory: OutputModelFactory, ast: TerminalAST);
+    public  constructor(factory: OutputModelFactory, ast: TerminalAST);
 
-	public  constructor(factory: OutputModelFactory, ast: GrammarAST);
+    public  constructor(factory: OutputModelFactory, ast: GrammarAST);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 2: {
-				const [factory, ast] = args as [OutputModelFactory, TerminalAST];
+        switch (args.length) {
+            case 2: {
+                const [factory, ast] = args as [OutputModelFactory, TerminalAST];
 
+                super(factory, ast);
+                const  g = factory.getGrammar();
+                const  gen = factory.getGenerator();
+                this.ttype = g.getTokenType(ast.getText());
+                const  target = gen.getTarget();
+                this.name = target.getTokenTypeAsTargetLabel(g, this.ttype);
+                this.escapedName = target.escapeIfNeeded(this.name);
 
-		super(factory, ast);
-		let  g = factory.getGrammar();
-		let  gen = factory.getGenerator();
-		this.ttype = g.getTokenType(ast.getText());
-		let  target = gen.getTarget();
-		this.name = target.getTokenTypeAsTargetLabel(g, this.ttype);
-		this.escapedName = target.escapeIfNeeded(this.name);
-	
+                break;
+            }
 
-				break;
-			}
+            case 2: {
+                const [factory, ast] = args as [OutputModelFactory, GrammarAST];
 
-			case 2: {
-				const [factory, ast] = args as [OutputModelFactory, GrammarAST];
+                super(factory, ast);
+                this.ttype = 0;
+                this.name = null;
+                this.escapedName = null;
 
+                break;
+            }
 
-		super(factory, ast);
-		this.ttype = 0;
-		this.name = null;
-		this.escapedName = null;
-	
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-	@Override
-public  getLabels():  Array<Decl> { return this.labels; }
+    @Override
+    public  getLabels():  Decl[] { return this.labels; }
 }

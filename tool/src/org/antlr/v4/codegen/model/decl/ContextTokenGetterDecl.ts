@@ -4,54 +4,45 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { ContextGetterDecl } from "./ContextGetterDecl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-
-
 /** {@code public Token X() { }} */
 export  class ContextTokenGetterDecl extends ContextGetterDecl {
-	public  optional:  boolean;
+    public  optional:  boolean;
 
-	public  constructor(factory: OutputModelFactory, name: string, optional: boolean);
+    public  constructor(factory: OutputModelFactory, name: string, optional: boolean);
 
-	public  constructor(factory: OutputModelFactory, name: string, optional: boolean, signature: boolean);
+    public  constructor(factory: OutputModelFactory, name: string, optional: boolean, signature: boolean);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 3: {
-				const [factory, name, optional] = args as [OutputModelFactory, string, boolean];
+        switch (args.length) {
+            case 3: {
+                const [factory, name, optional] = args as [OutputModelFactory, string, boolean];
 
+                this(factory, name, optional, false);
 
-		this(factory, name, optional, false);
-	
+                break;
+            }
 
-				break;
-			}
+            case 4: {
+                const [factory, name, optional, signature] = args as [OutputModelFactory, string, boolean, boolean];
 
-			case 4: {
-				const [factory, name, optional, signature] = args as [OutputModelFactory, string, boolean, boolean];
+                super(factory, name, signature);
+                this.optional = optional;
 
+                break;
+            }
 
-		super(factory, name, signature);
-		this.optional = optional;
-	
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-	@Override
-public override  getSignatureDecl():  ContextGetterDecl {
-		return new  ContextTokenGetterDecl($outer.factory, $outer.name, this.optional, true);
-	}
+    @Override
+    public override  getSignatureDecl():  ContextGetterDecl {
+        return new  ContextTokenGetterDecl($outer.factory, $outer.name, this.optional, true);
+    }
 }

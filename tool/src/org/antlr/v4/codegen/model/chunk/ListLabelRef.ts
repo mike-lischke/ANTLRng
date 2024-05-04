@@ -4,16 +4,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { SymbolRefChunk } from "./SymbolRefChunk.js";
 import { LabelRef } from "./LabelRef.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-
-
 export  class ListLabelRef extends LabelRef {
-	public  constructor(ctx: StructDecl, name: string, escapedName: string) { super(ctx, name, escapedName); }
+    public  constructor(ctx: StructDecl, name: string, escapedName: string) { super(ctx, name, escapedName); }
 }

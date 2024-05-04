@@ -4,131 +4,124 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { SystemFontMetrics } from "./SystemFontMetrics.js";
 import { HashMap } from "antlr4ng";
 
-
-
 export  class PostScriptDocument {
-	public static readonly  DEFAULT_FONT = "CourierNew";
+    public static readonly  DEFAULT_FONT = "CourierNew";
 
-	public static readonly  POSTSCRIPT_FONT_NAMES:  Map<string, string>;
+    public static readonly  POSTSCRIPT_FONT_NAMES:  Map<string, string>;
 
-	protected  boundingBoxWidth:  number;
-	protected  boundingBoxHeight:  number;
+    protected  boundingBoxWidth:  number;
+    protected  boundingBoxHeight:  number;
 
-	protected  fontMetrics:  SystemFontMetrics;
-	protected  fontName:  string;
-	protected  fontSize = 12;
-	protected  lineWidth = 0.3;
-	protected  boundingBox:  string;
+    protected  fontMetrics:  SystemFontMetrics;
+    protected  fontName:  string;
+    protected  fontSize = 12;
+    protected  lineWidth = 0.3;
+    protected  boundingBox:  string;
 
-	protected  ps = new  StringBuilder();
-	protected  closed = false;
+    protected  ps = new  StringBuilder();
+    protected  closed = false;
 
-	public  constructor();
+    public  constructor();
 
-	public  constructor(fontName: string, fontSize: number);
+    public  constructor(fontName: string, fontSize: number);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 0: {
+        switch (args.length) {
+            case 0: {
 
-		this(PostScriptDocument.DEFAULT_FONT, 12);
-	
+                this(PostScriptDocument.DEFAULT_FONT, 12);
 
-				break;
-			}
+                break;
+            }
 
-			case 2: {
-				const [fontName, fontSize] = args as [string, number];
+            case 2: {
+                const [fontName, fontSize] = args as [string, number];
 
+                this.header();
+                this.setFont(fontName, fontSize);
 
-		this.header();
-		this.setFont(fontName, fontSize);
-	
+                break;
+            }
 
-				break;
-			}
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+    public  getPS():  string {
+        this.close();
 
+        return this.header()+this.ps.toString();
+    }
 
-	public  getPS():  string {
-		this.close();
-		return this.header()+this.ps.toString();
-	}
+    public  boundingBox(w: number, h: number):  void {
+        this.boundingBoxWidth = w;
+        this.boundingBoxHeight = h;
+        this.boundingBox = string.format(Intl.Locale.US, "%%%%BoundingBox: %d %d %d %d\n", 0,0,
+            this.boundingBoxWidth,this.boundingBoxHeight);
+    }
 
-	public  boundingBox(w: number, h: number):  void {
-		this.boundingBoxWidth = w;
-		this.boundingBoxHeight = h;
-		this.boundingBox = string.format(Intl.Locale.US, "%%%%BoundingBox: %d %d %d %d\n", 0,0,
-									this.boundingBoxWidth,this.boundingBoxHeight);
-	}
-
-	public  close():  void {
-		if ( this.closed ) {
- return;
-}
+    public  close():  void {
+        if ( this.closed ) {
+            return;
+        }
 
 //		ps.append("showpage\n");
-		this.ps.append("%%Trailer\n");
-		this.closed = true;
-	}
+        this.ps.append("%%Trailer\n");
+        this.closed = true;
+    }
 
-	public  setFont(fontName: string, fontSize: number):  void {
-		this.fontMetrics = new  SystemFontMetrics(fontName);
-		this.fontName = this.fontMetrics.getFont().getPSName();
-		this.fontSize = fontSize;
+    public  setFont(fontName: string, fontSize: number):  void {
+        this.fontMetrics = new  SystemFontMetrics(fontName);
+        this.fontName = this.fontMetrics.getFont().getPSName();
+        this.fontSize = fontSize;
 
-		let  psname = PostScriptDocument.POSTSCRIPT_FONT_NAMES.get(this.fontName);
-		if (psname === null) {
-			psname = this.fontName;
-		}
+        let  psname = PostScriptDocument.POSTSCRIPT_FONT_NAMES.get(this.fontName);
+        if (psname === null) {
+            psname = this.fontName;
+        }
 
-		this.ps.append(string.format(Intl.Locale.US, "/%s findfont %d scalefont setfont\n", psname, fontSize));
-	}
+        this.ps.append(string.format(Intl.Locale.US, "/%s findfont %d scalefont setfont\n", psname, fontSize));
+    }
 
-	public  lineWidth(w: number):  void {
-		this.lineWidth = w;
-		this.ps.append(w).append(" setlinewidth\n");
-	}
+    public  lineWidth(w: number):  void {
+        this.lineWidth = w;
+        this.ps.append(w).append(" setlinewidth\n");
+    }
 
-	public  move(x: number, y: number):  void {
-		this.ps.append(string.format(Intl.Locale.US, "%1.3f %1.3f moveto\n", x, y));
-	}
+    public  move(x: number, y: number):  void {
+        this.ps.append(string.format(Intl.Locale.US, "%1.3f %1.3f moveto\n", x, y));
+    }
 
-	public  lineto(x: number, y: number):  void {
-		this.ps.append(string.format(Intl.Locale.US, "%1.3f %1.3f lineto\n", x, y));
-	}
+    public  lineto(x: number, y: number):  void {
+        this.ps.append(string.format(Intl.Locale.US, "%1.3f %1.3f lineto\n", x, y));
+    }
 
-	public  line(x1: number, y1: number, x2: number, y2: number):  void {
-		this.move(x1, y1);
-		this.lineto(x2, y2);
-	}
+    public  line(x1: number, y1: number, x2: number, y2: number):  void {
+        this.move(x1, y1);
+        this.lineto(x2, y2);
+    }
 
-	public  rect(x: number, y: number, width: number, height: number):  void {
-		this.line(x, y, x, y + height);
-		this.line(x, y + height, x + width, y + height);
-		this.line(x + width, y + height, x + width, y);
-		this.line(x + width, y, x, y);
-	}
+    public  rect(x: number, y: number, width: number, height: number):  void {
+        this.line(x, y, x, y + height);
+        this.line(x, y + height, x + width, y + height);
+        this.line(x + width, y + height, x + width, y);
+        this.line(x + width, y, x, y);
+    }
 
 	/** Make red box */
-	public  highlight(x: number, y: number, width: number, height: number):  void {
-		this.ps.append(string.format(Intl.Locale.US, "%1.3f %1.3f %1.3f %1.3f highlight\n", x, y, width, height));
-	}
+    public  highlight(x: number, y: number, width: number, height: number):  void {
+        this.ps.append(string.format(Intl.Locale.US, "%1.3f %1.3f %1.3f %1.3f highlight\n", x, y, width, height));
+    }
 
-	public  stroke():  void {
-		this.ps.append("stroke\n");
-	}
+    public  stroke():  void {
+        this.ps.append("stroke\n");
+    }
 
 //	public void rarrow(double x, double y) {
 //		ps.append(String.format(Locale.US, "%1.3f %1.3f rarrow\n", x,y));
@@ -138,71 +131,71 @@ export  class PostScriptDocument {
 //		ps.append(String.format(Locale.US, "%1.3f %1.3f darrow\n", x,y));
 //	}
 
-	public  text(s: string, x: number, y: number):  void {
-		let  buf = new  StringBuilder();
+    public  text(s: string, x: number, y: number):  void {
+        const  buf = new  StringBuilder();
 		// escape \, (, ): \\,  \(,  \)
-		for (let c of s.toCharArray()) {
-			switch ( c ) {
-				case '\\' :
-				case '(' :
-				case ')' :{
-					buf.append('\\');
-					buf.append(c);
-					break;
-}
+        for (const c of s.toCharArray()) {
+            switch ( c ) {
+                case "\\" :
+                case "(" :
+                case ")" :{
+                    buf.append("\\");
+                    buf.append(c);
+                    break;
+                }
 
-				default :{
-					buf.append(c);
-					break;
-}
+                default :{
+                    buf.append(c);
+                    break;
+                }
 
-			}
-		}
-		s = buf.toString();
-		this.move(x,y);
-		this.ps.append(string.format(Intl.Locale.US, "(%s) show\n", s));
-		this.stroke();
-	}
+            }
+        }
+        s = buf.toString();
+        this.move(x,y);
+        this.ps.append(string.format(Intl.Locale.US, "(%s) show\n", s));
+        this.stroke();
+    }
 
 	// courier new: wid/hei 7.611979	10.0625
 	/** All chars are 600 thousands of an 'em' wide if courier */
-	public  getWidth(c: number):  number;
-	public  getWidth(s: string):  number;
-public getWidth(...args: unknown[]):  number {
-		switch (args.length) {
-			case 1: {
-				const [c] = args as [number];
+    public  getWidth(c: number):  number;
+    public  getWidth(s: string):  number;
+    public getWidth(...args: unknown[]):  number {
+        switch (args.length) {
+            case 1: {
+                const [c] = args as [number];
 
- return this.fontMetrics.getWidth(c, this.fontSize); 
+                return this.fontMetrics.getWidth(c, this.fontSize);
 
-				break;
-			}
+                break;
+            }
 
-			case 1: {
-				const [s] = args as [string];
+            case 1: {
+                const [s] = args as [string];
 
- return this.fontMetrics.getWidth(s, this.fontSize); 
+                return this.fontMetrics.getWidth(s, this.fontSize);
 
-				break;
-			}
+                break;
+            }
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-	public  getLineHeight():  number { return this.fontMetrics.getLineHeight(this.fontSize); }
+    public  getLineHeight():  number { return this.fontMetrics.getLineHeight(this.fontSize); }
 
-	public  getFontSize():  number { return this.fontSize; }
+    public  getFontSize():  number { return this.fontSize; }
 
 	/** Compute the header separately because we need to wait for the bounding box */
-	protected  header():  StringBuilder {
-		let  b = new  StringBuilder();
-		b.append("%!PS-Adobe-3.0 EPSF-3.0\n");
-		b.append(this.boundingBox).append("\n");
-		b.append("0.3 setlinewidth\n");
-		b.append("%% x y w h highlight\n" +
+    protected  header():  StringBuilder {
+        const  b = new  StringBuilder();
+        b.append("%!PS-Adobe-3.0 EPSF-3.0\n");
+        b.append(this.boundingBox).append("\n");
+        b.append("0.3 setlinewidth\n");
+        b.append("%% x y w h highlight\n" +
 				 "/highlight {\n" +
 				 "        4 dict begin\n" +
 				 "        /h exch def\n" +
@@ -223,21 +216,21 @@ public getWidth(...args: unknown[]):  number {
 				 "        end\n" +
 				 "} def\n");
 
-		return b;
-	}
+        return b;
+    }
 	 static {
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES = new  HashMap<string, string>();
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".plain", "ArialMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".bold", "Arial-BoldMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".italic", "Arial-ItalicMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".bolditalic", "Arial-BoldItalicMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".plain", "TimesNewRomanPSMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".bold", "TimesNewRomanPS-BoldMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".italic", "TimesNewRomanPS-ItalicMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".bolditalic", "TimesNewRomanPS-BoldItalicMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".plain", "CourierNewPSMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".bold", "CourierNewPS-BoldMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".italic", "CourierNewPS-ItalicMT");
-		PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".bolditalic", "CourierNewPS-BoldItalicMT");
-	}
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES = new  HashMap<string, string>();
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".plain", "ArialMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".bold", "Arial-BoldMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".italic", "Arial-ItalicMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SANS_SERIF + ".bolditalic", "Arial-BoldItalicMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".plain", "TimesNewRomanPSMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".bold", "TimesNewRomanPS-BoldMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".italic", "TimesNewRomanPS-ItalicMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.SERIF + ".bolditalic", "TimesNewRomanPS-BoldItalicMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".plain", "CourierNewPSMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".bold", "CourierNewPS-BoldMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".italic", "CourierNewPS-ItalicMT");
+        PostScriptDocument.POSTSCRIPT_FONT_NAMES.put(Font.MONOSPACED + ".bolditalic", "CourierNewPS-BoldItalicMT");
+    }
 }

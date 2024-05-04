@@ -219,7 +219,7 @@ export class GrammarTransformPipeline {
             if (imp_tokensRoot !== null) {
                 rootGrammar.tool.log("grammar", "imported tokens: " + imp_tokensRoot.getChildren());
                 if (tokensRoot === null) {
-                    tokensRoot = adaptor.create(ANTLRParser.TOKENS_SPEC, "TOKENS") as GrammarAST;
+                    tokensRoot = adaptor.create(ANTLRParser.TOKENS_SPEC, "TOKENS");
                     tokensRoot.g = rootGrammar;
                     root.insertChild(1, tokensRoot); // ^(GRAMMAR ID TOKENS...)
                 }
@@ -408,13 +408,13 @@ export class GrammarTransformPipeline {
             new GrammarRootAST(new CommonToken(ANTLRParser.GRAMMAR, "LEXER_GRAMMAR"), combinedGrammar.ast.tokenStream);
         lexerAST.grammarType = ANTLRParser.LEXER;
         lexerAST.token.setInputStream(combinedAST.token.getInputStream());
-        lexerAST.addChild(adaptor.create(ANTLRParser.ID, lexerName) as GrammarAST);
+        lexerAST.addChild(adaptor.create(ANTLRParser.ID, lexerName));
 
         // COPY OPTIONS
         const optionsRoot =
             combinedAST.getFirstChildWithType(ANTLRParser.OPTIONS) as GrammarAST;
         if (optionsRoot !== null && optionsRoot.getChildCount() !== 0) {
-            const lexerOptionsRoot = adaptor.dupNode(optionsRoot) as GrammarAST;
+            const lexerOptionsRoot = adaptor.dupNode(optionsRoot);
             lexerAST.addChild(lexerOptionsRoot);
             const options = optionsRoot.getChildren().toArray(new Array<GrammarAST>(0));
             for (const o of options) {
@@ -452,7 +452,7 @@ export class GrammarTransformPipeline {
         // MOVE lexer rules
 
         const lexerRulesRoot =
-            adaptor.create(ANTLRParser.RULES, "RULES") as GrammarAST;
+            adaptor.create(ANTLRParser.RULES, "RULES");
         lexerAST.addChild(lexerRulesRoot);
         const rulesWeMoved = new Array<GrammarAST>();
         let rules: GrammarASTWithOptions[];

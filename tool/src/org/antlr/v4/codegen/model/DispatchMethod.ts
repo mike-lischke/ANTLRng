@@ -6,14 +6,11 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
 import { OutputModelObject } from "./OutputModelObject.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-
-
 export  class DispatchMethod extends OutputModelObject {
-	public  constructor(factory: OutputModelFactory) {
-		super(factory);
-	}
+    public  constructor(factory: OutputModelFactory) {
+        super(factory);
+    }
 }

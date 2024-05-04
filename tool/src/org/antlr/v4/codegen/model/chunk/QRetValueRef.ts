@@ -4,21 +4,17 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { RetValueRef } from "./RetValueRef.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-
-
 /** */
 export  class QRetValueRef extends RetValueRef {
-	public readonly  dict:  string;
+    public readonly  dict:  string;
 
-	public  constructor(ctx: StructDecl, dict: string, name: string, escapedName: string) {
-		super(ctx, name, escapedName);
-		this.dict = dict;
-	}
+    public  constructor(ctx: StructDecl, dict: string, name: string, escapedName: string) {
+        super(ctx, name, escapedName);
+        this.dict = dict;
+    }
 }

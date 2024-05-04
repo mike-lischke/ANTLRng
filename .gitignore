@@ -4,3 +4,4 @@ coverage
 runtime-testsuite/generated
 /dist
 src/generated
+.vscode/numbered-bookmarks.json

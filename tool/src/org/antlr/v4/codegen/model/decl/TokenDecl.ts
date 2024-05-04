@@ -4,20 +4,16 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-
-
 /** x=ID or implicit _tID label */
 export  class TokenDecl extends Decl {
-	public  isImplicit:  boolean;
+    public  isImplicit:  boolean;
 
-	public  constructor(factory: OutputModelFactory, varName: string) {
-		super(factory, varName);
-	}
+    public  constructor(factory: OutputModelFactory, varName: string) {
+        super(factory, varName);
+    }
 }

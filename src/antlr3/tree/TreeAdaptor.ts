@@ -1,13 +1,13 @@
 /* java2ts: keep */
 
-import type { RecognitionException, Token, TokenStream } from "antlr4ng";
-import type { Tree } from "./Tree.js";
-
 /*
  * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+
+import type { RecognitionException, Token, TokenStream } from "antlr4ng";
+import type { Tree } from "./Tree.js";
 
 // cspell: disable
 
@@ -74,7 +74,7 @@ export interface TreeAdaptor {
      *  a list of element as the children.  If you want a flat tree (a list)
      *  use "t=adaptor.nil(); t.addChild(x); t.addChild(y);"
      */
-    nil(): unknown;
+    nil(): Tree;
 
     /**
      * Return a tree node representing an error.  This node records the

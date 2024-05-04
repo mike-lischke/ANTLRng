@@ -6,36 +6,32 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
-
-
-
 /**
  *
  * @author Sam Harwell
  */
 export  class JFileChooserConfirmOverwrite extends JFileChooser {
 
-	public  constructor() {
-		setMultiSelectionEnabled(false);
-	}
+    public  constructor() {
+        setMultiSelectionEnabled(false);
+    }
 
-	@Override
-public  approveSelection():  void {
-		let  selectedFile = getSelectedFile();
+    @Override
+    public  approveSelection():  void {
+        const  selectedFile = getSelectedFile();
 
-		if (selectedFile.exists()) {
-			let  answer = JOptionPane.showConfirmDialog(this,
+        if (selectedFile.exists()) {
+            const  answer = JOptionPane.showConfirmDialog(this,
 													   "Overwrite existing file?",
 													   "Overwrite?",
 													   JOptionPane.YES_NO_OPTION);
-			if (answer !== JOptionPane.YES_OPTION) {
+            if (answer !== JOptionPane.YES_OPTION) {
 				// do not call super.approveSelection
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		super.approveSelection();
-	}
+        super.approveSelection();
+    }
 
 }

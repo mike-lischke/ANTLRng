@@ -6,14 +6,11 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
 import { VisitorFile } from "./VisitorFile.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-
-
 export  class BaseVisitorFile extends VisitorFile {
-	public  constructor(factory: OutputModelFactory, fileName: string) {
-		super(factory, fileName);
-	}
+    public  constructor(factory: OutputModelFactory, fileName: string) {
+        super(factory, fileName);
+    }
 }

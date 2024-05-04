@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
 import { Choice } from "./Choice.js";
@@ -14,14 +12,12 @@ import { AltBlock } from "./AltBlock.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-
-
 /** */
 export  class OptionalBlock extends AltBlock {
-	public  constructor(factory: OutputModelFactory,
+    public  constructor(factory: OutputModelFactory,
 						 questionAST: GrammarAST,
-						 alts: Array<CodeBlockForAlt>)
-	{
-		super(factory, questionAST, alts);
-	}
+						 alts: CodeBlockForAlt[])
+    {
+        super(factory, questionAST, alts);
+    }
 }

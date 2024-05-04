@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { TokenInfo } from "./TokenInfo.js";
 import { SrcOp } from "./SrcOp.js";
@@ -15,77 +13,74 @@ import { Target } from "../Target.js";
 import { IntervalSet } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-
-
 /** */
 export  class TestSetInline extends SrcOp {
 
-	public static readonly Bitset =  class Bitset {
-		public readonly  shift:  number;
-		private readonly  tokens = new  Array();
-		private  calculated:  bigint;
+    public static readonly Bitset =  class Bitset {
+        public readonly  shift:  number;
+        private readonly  tokens = [];
+        private  calculated:  bigint;
 
-		public  constructor(shift: number) {
-			this.shift = shift;
-		}
+        public  constructor(shift: number) {
+            this.shift = shift;
+        }
 
-		public  addToken(type: number, name: string):  void {
-			this.tokens.add(new  TokenInfo(type, name));
-			this.calculated |= 1n << (type - this.shift);
-		}
+        public  addToken(type: number, name: string):  void {
+            this.tokens.add(new  TokenInfo(type, name));
+            this.calculated |= 1n << (type - this.shift);
+        }
 
-		public  getTokens():  Array<TokenInfo> {
-			return this.tokens;
-		}
+        public  getTokens():  TokenInfo[] {
+            return this.tokens;
+        }
 
-		public  getCalculated():  bigint {
-			return this.calculated;
-		}
-	};
+        public  getCalculated():  bigint {
+            return this.calculated;
+        }
+    };
 
-	public readonly  bitsetWordSize:  number;
-	public readonly  varName:  string;
-	public readonly  bitsets:  TestSetInline.Bitset[];
+    public readonly  bitsetWordSize:  number;
+    public readonly  varName:  string;
+    public readonly  bitsets:  TestSetInline.Bitset[];
 
-	public  constructor(factory: OutputModelFactory, ast: GrammarAST, set: IntervalSet, wordSize: number) {
-		super(factory, ast);
-		this.bitsetWordSize = wordSize;
-		let  withZeroOffset = TestSetInline.createBitsets(factory, set, wordSize, true);
-		let  withoutZeroOffset = TestSetInline.createBitsets(factory, set, wordSize, false);
-		this.bitsets = withZeroOffset.length <= withoutZeroOffset.length ? withZeroOffset : withoutZeroOffset;
-		this.varName = "_la";
-	}
+    public  constructor(factory: OutputModelFactory, ast: GrammarAST, set: IntervalSet, wordSize: number) {
+        super(factory, ast);
+        this.bitsetWordSize = wordSize;
+        const  withZeroOffset = TestSetInline.createBitsets(factory, set, wordSize, true);
+        const  withoutZeroOffset = TestSetInline.createBitsets(factory, set, wordSize, false);
+        this.bitsets = withZeroOffset.length <= withoutZeroOffset.length ? withZeroOffset : withoutZeroOffset;
+        this.varName = "_la";
+    }
 
-	private static  createBitsets(factory: OutputModelFactory,
+    private static  createBitsets(factory: OutputModelFactory,
 										  set: IntervalSet,
 										  wordSize: number,
 										  useZeroOffset: boolean):  TestSetInline.Bitset[] {
-		let  bitsetList = new  Array();
-		let  target = factory.getGenerator().getTarget();
-		let  current = null;
-		for (let ttype of set.toArray()) {
-			if (current === null || ttype > (current.shift + wordSize-1)) {
-				let  shift: number;
-				if (useZeroOffset && ttype >= 0 && ttype < wordSize-1) {
-					shift = 0;
-				}
-				else {
-					shift = ttype;
-				}
-				current = new  TestSetInline.Bitset(shift);
-				bitsetList.add(current);
-			}
+        const  bitsetList = [];
+        const  target = factory.getGenerator().getTarget();
+        let  current = null;
+        for (const ttype of set.toArray()) {
+            if (current === null || ttype > (current.shift + wordSize-1)) {
+                let  shift: number;
+                if (useZeroOffset && ttype >= 0 && ttype < wordSize-1) {
+                    shift = 0;
+                }
+                else {
+                    shift = ttype;
+                }
+                current = new  TestSetInline.Bitset(shift);
+                bitsetList.add(current);
+            }
 
-			current.addToken(ttype, target.getTokenTypeAsTargetLabel(factory.getGrammar(), ttype));
-		}
+            current.addToken(ttype, target.getTokenTypeAsTargetLabel(factory.getGrammar(), ttype));
+        }
 
-		return bitsetList.toArray(new  Array<TestSetInline.Bitset>(0));
-	}
+        return bitsetList.toArray(new  Array<TestSetInline.Bitset>(0));
+    }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace TestSetInline {
-	export type Bitset = InstanceType<typeof TestSetInline.Bitset>;
+    export type Bitset = InstanceType<typeof TestSetInline.Bitset>;
 }
-
 

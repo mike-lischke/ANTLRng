@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { RuleFunction } from "./RuleFunction.js";
 import { Recognizer } from "./Recognizer.js";
@@ -14,16 +12,14 @@ import { ParserFile } from "./ParserFile.js";
 import { ModelElement } from "./ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-
-
 export  class Parser extends Recognizer {
-	public  file:  ParserFile;
+    public  file:  ParserFile;
 
-	@ModelElement
-public  funcs = new  Array<RuleFunction>();
+    @ModelElement
+    public  funcs = new  Array<RuleFunction>();
 
-	public  constructor(factory: OutputModelFactory, file: ParserFile) {
-		super(factory);
-		this.file = file; // who contains us?
-	}
+    public  constructor(factory: OutputModelFactory, file: ParserFile) {
+        super(factory);
+        this.file = file; // who contains us?
+    }
 }

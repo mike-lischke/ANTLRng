@@ -4,53 +4,45 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { ContextGetterDecl } from "./ContextGetterDecl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-
-
-/** {@code public List<Token> X() { }
+/**
+ * {@code public List<Token> X() { }
  *  public Token X(int i) { }}
  */
 export  class ContextTokenListGetterDecl extends ContextGetterDecl {
-	public  constructor(factory: OutputModelFactory, name: string);
+    public  constructor(factory: OutputModelFactory, name: string);
 
-	public  constructor(factory: OutputModelFactory, name: string, signature: boolean);
+    public  constructor(factory: OutputModelFactory, name: string, signature: boolean);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 2: {
-				const [factory, name] = args as [OutputModelFactory, string];
+        switch (args.length) {
+            case 2: {
+                const [factory, name] = args as [OutputModelFactory, string];
 
+                this(factory, name, false);
 
-		this(factory, name, false);
-	
+                break;
+            }
 
-				break;
-			}
+            case 3: {
+                const [factory, name, signature] = args as [OutputModelFactory, string, boolean];
 
-			case 3: {
-				const [factory, name, signature] = args as [OutputModelFactory, string, boolean];
+                super(factory, name, signature);
 
+                break;
+            }
 
-		super(factory, name, signature);
-	
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
-
-	@Override
-public override  getSignatureDecl():  ContextGetterDecl {
-		return new  ContextTokenListGetterDecl($outer.factory, $outer.name, true);
-	}
+    @Override
+    public override  getSignatureDecl():  ContextGetterDecl {
+        return new  ContextTokenListGetterDecl($outer.factory, $outer.name, true);
+    }
 }

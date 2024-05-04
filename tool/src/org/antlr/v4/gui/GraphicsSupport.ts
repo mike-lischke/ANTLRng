@@ -4,12 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
-
-
-
 
 export  class GraphicsSupport {
 	/**
@@ -40,64 +35,65 @@ export  class GraphicsSupport {
 	 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 	 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	 */
-	public static  saveImage(/* final */  comp: JComponent, fileName: string):  void
-	{
-		if ( fileName.endsWith(".ps") || fileName.endsWith(".eps") ) {
-			let  flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
-			let  mimeType = "application/postscript";
-			let  factories =
+    public static  saveImage(/* final */  comp: JComponent, fileName: string):  void
+    {
+        if ( fileName.endsWith(".ps") || fileName.endsWith(".eps") ) {
+            const  flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
+            const  mimeType = "application/postscript";
+            const  factories =
 				StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, mimeType);
-			System.out.println(Arrays.toString(factories));
-			if (factories.length > 0) {
-				let  out = new  FileOutputStream(fileName);
-				let  service = factories[0].getPrintService(out);
-				let  doc = new  SimpleDoc(new  class extends Printable {
-					@Override
-public  print(g: Graphics, pf: PageFormat, page: number):  number {
-						if (page >= 1) {
- return Printable.NO_SUCH_PAGE;
-}
+            System.out.println(Arrays.toString(factories));
+            if (factories.length > 0) {
+                const  out = new  FileOutputStream(fileName);
+                const  service = factories[0].getPrintService(out);
+                const  doc = new  SimpleDoc(new  class extends Printable {
+                    @Override
+                    public  print(g: Graphics, pf: PageFormat, page: number):  number {
+                        if (page >= 1) {
+                            return Printable.NO_SUCH_PAGE;
+                        }
 
-						else {
-							let  g2 =  g as Graphics2D;
-							g2.translate((pf.getWidth() - pf.getImageableWidth()) / 2,
+                        else {
+                            const  g2 =  g as Graphics2D;
+                            g2.translate((pf.getWidth() - pf.getImageableWidth()) / 2,
 										 (pf.getHeight() - pf.getImageableHeight()) / 2);
-							if ( comp.getWidth() > pf.getImageableWidth() ||
+                            if ( comp.getWidth() > pf.getImageableWidth() ||
 								 comp.getHeight() > pf.getImageableHeight() )
-							{
-								let  sf1 = pf.getImageableWidth() / (comp.getWidth() + 1);
-								let  sf2 = pf.getImageableHeight() / (comp.getHeight() + 1);
-								let  s = Math.min(sf1, sf2);
-								g2.scale(s, s);
-							}
+                            {
+                                const  sf1 = pf.getImageableWidth() / (comp.getWidth() + 1);
+                                const  sf2 = pf.getImageableHeight() / (comp.getHeight() + 1);
+                                const  s = Math.min(sf1, sf2);
+                                g2.scale(s, s);
+                            }
 
-							comp.paint(g);
-							return Printable.PAGE_EXISTS;
-						}
-					}
-				}(), flavor, null);
-				let  job = service.createPrintJob();
-				let  attributes = new  HashPrintRequestAttributeSet();
-				job.print(doc, attributes);
-				out.close();
-			}
-		}
-		else {
+                            comp.paint(g);
+
+                            return Printable.PAGE_EXISTS;
+                        }
+                    }
+                }(), flavor, null);
+                const  job = service.createPrintJob();
+                const  attributes = new  HashPrintRequestAttributeSet();
+                job.print(doc, attributes);
+                out.close();
+            }
+        }
+        else {
 			// parrt: works with [image/jpeg, image/png, image/x-png, image/vnd.wap.wbmp, image/bmp, image/gif]
-			let  rect = comp.getBounds();
-			let  image = new  BufferedImage(rect.width, rect.height,
-													BufferedImage.TYPE_INT_RGB);
-			let  g =  image.getGraphics() as Graphics2D;
-			g.setColor(Color.WHITE);
-			g.fill(rect);
+            const  rect = comp.getBounds();
+            const  image = new  BufferedImage(rect.width, rect.height,
+                BufferedImage.TYPE_INT_RGB);
+            const  g =  image.getGraphics() as Graphics2D;
+            g.setColor(Color.WHITE);
+            g.fill(rect);
 //			g.setColor(Color.BLACK);
-			comp.paint(g);
-			let  extension = fileName.substring(fileName.lastIndexOf('.') + 1);
-			let  result = ImageIO.write(image, extension, new  File(fileName));
-			if ( !result ) {
-				System.err.println("Now imager for " + extension);
-			}
-			g.dispose();
-		}
-	}
+            comp.paint(g);
+            const  extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+            const  result = ImageIO.write(image, extension, new  File(fileName));
+            if ( !result ) {
+                System.err.println("Now imager for " + extension);
+            }
+            g.dispose();
+        }
+    }
 }

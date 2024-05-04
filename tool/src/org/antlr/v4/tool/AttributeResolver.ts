@@ -46,6 +46,6 @@ export interface AttributeResolver {
     resolvesToLabel(x: string, node: ActionAST): boolean;
     resolvesToAttributeDict(x: string, node: ActionAST): boolean;
     resolvesToToken(x: string, node: ActionAST): boolean;
-    resolveToAttribute(x: string, node: ActionAST): Attribute;
-    resolveToAttribute(x: string, y: string, node: ActionAST): Attribute;
+    resolveToAttribute(x: string, node: ActionAST): Attribute | null;
+    resolveToAttribute(x: string, y: string, node: ActionAST): Attribute | null;
 }

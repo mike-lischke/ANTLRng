@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
@@ -14,92 +12,85 @@ import { ModelElement } from "../ModelElement.js";
 import { SrcOp } from "../SrcOp.js";
 import { OrderedHashSet } from "antlr4ng";
 
-
-
 export  class CodeBlock extends SrcOp {
-	public  codeBlockLevel:  number;
-	public  treeLevel:  number;
+    public  codeBlockLevel:  number;
+    public  treeLevel:  number;
 
-	@ModelElement
-public  locals:  OrderedHashSet<Decl>;
-	@ModelElement
-public  preamble:  Array<SrcOp>;
-	@ModelElement
-public  ops:  Array<SrcOp>;
+    @ModelElement
+    public  locals:  OrderedHashSet<Decl>;
+    @ModelElement
+    public  preamble:  SrcOp[];
+    @ModelElement
+    public  ops:  SrcOp[];
 
-	public  constructor(factory: OutputModelFactory);
+    public  constructor(factory: OutputModelFactory);
 
-	public  constructor(factory: OutputModelFactory, treeLevel: number, codeBlockLevel: number);
+    public  constructor(factory: OutputModelFactory, treeLevel: number, codeBlockLevel: number);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 1: {
-				const [factory] = args as [OutputModelFactory];
+        switch (args.length) {
+            case 1: {
+                const [factory] = args as [OutputModelFactory];
 
+                super(factory);
 
-		super(factory);
-	
+                break;
+            }
 
-				break;
-			}
+            case 3: {
+                const [factory, treeLevel, codeBlockLevel] = args as [OutputModelFactory, number, number];
 
-			case 3: {
-				const [factory, treeLevel, codeBlockLevel] = args as [OutputModelFactory, number, number];
+                super(factory);
+                this.treeLevel = treeLevel;
+                this.codeBlockLevel = codeBlockLevel;
 
+                break;
+            }
 
-		super(factory);
-		this.treeLevel = treeLevel;
-		this.codeBlockLevel = codeBlockLevel;
-	
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
-
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
 	/** Add local var decl */
-	public  addLocalDecl(d: Decl):  void {
-		if ( this.locals===null ) {
- this.locals = new  OrderedHashSet<Decl>();
-}
+    public  addLocalDecl(d: Decl):  void {
+        if ( this.locals===null ) {
+            this.locals = new  OrderedHashSet<Decl>();
+        }
 
-		this.locals.add(d);
-		d.isLocal = true;
-	}
+        this.locals.add(d);
+        d.isLocal = true;
+    }
 
-	public  addPreambleOp(op: SrcOp):  void {
-		if ( this.preamble===null ) {
- this.preamble = new  Array<SrcOp>();
-}
+    public  addPreambleOp(op: SrcOp):  void {
+        if ( this.preamble===null ) {
+            this.preamble = new  Array<SrcOp>();
+        }
 
-		this.preamble.add(op);
-	}
+        this.preamble.add(op);
+    }
 
-	public  addOp(op: SrcOp):  void {
-		if ( this.ops===null ) {
- this.ops = new  Array<SrcOp>();
-}
+    public  addOp(op: SrcOp):  void {
+        if ( this.ops===null ) {
+            this.ops = new  Array<SrcOp>();
+        }
 
-		this.ops.add(op);
-	}
+        this.ops.add(op);
+    }
 
-	public  insertOp(i: number, op: SrcOp):  void {
-		if ( this.ops===null ) {
- this.ops = new  Array<SrcOp>();
-}
+    public  insertOp(i: number, op: SrcOp):  void {
+        if ( this.ops===null ) {
+            this.ops = new  Array<SrcOp>();
+        }
 
-		this.ops.add(i, op);
-	}
+        this.ops.add(i, op);
+    }
 
-	public  addOps(ops: Array<SrcOp>):  void {
-		if ( this.ops===null ) {
- this.ops = new  Array<SrcOp>();
-}
+    public  addOps(ops: SrcOp[]):  void {
+        if ( this.ops===null ) {
+            this.ops = new  Array<SrcOp>();
+        }
 
-		this.ops.addAll(ops);
-	}
+        this.ops.addAll(ops);
+    }
 }

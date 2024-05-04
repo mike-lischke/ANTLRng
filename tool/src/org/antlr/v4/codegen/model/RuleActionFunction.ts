@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { OutputModelObject } from "./OutputModelObject.js";
 import { ModelElement } from "./ModelElement.js";
@@ -15,24 +13,22 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Rule } from "../../tool/Rule.js";
 import { LinkedHashMap as HashMap } from "antlr4ng";
 
-
-
 export  class RuleActionFunction extends OutputModelObject {
-	public readonly  name:  string;
-	public readonly  escapedName:  string;
-	public readonly  ctxType:  string;
-	public readonly  ruleIndex:  number;
+    public readonly  name:  string;
+    public readonly  escapedName:  string;
+    public readonly  ctxType:  string;
+    public readonly  ruleIndex:  number;
 
 	/** Map actionIndex to Action */
-	@ModelElement
-public  actions =
-		new  LinkedHashMap<number, Action>();
+    @ModelElement
+    public  actions =
+            new  LinkedHashMap<number, Action>();
 
-	public  constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {
-		super(factory);
-		this.name = r.name;
-		this.escapedName = factory.getGenerator().getTarget().escapeIfNeeded(this.name);
-		this.ruleIndex = r.index;
-		this.ctxType = ctxType;
-	}
+    public  constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {
+        super(factory);
+        this.name = r.name;
+        this.escapedName = factory.getGenerator().getTarget().escapeIfNeeded(this.name);
+        this.ruleIndex = r.index;
+        this.ctxType = ctxType;
+    }
 }

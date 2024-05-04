@@ -4,56 +4,49 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-
-
 /** */
 export abstract  class OutputModelObject {
-	public  factory:  OutputModelFactory;
-	public  ast:  GrammarAST;
+    public  factory:  OutputModelFactory;
+    public  ast:  GrammarAST;
 
-	public  constructor();
+    public  constructor();
 
-	public  constructor(factory: OutputModelFactory);
+    public  constructor(factory: OutputModelFactory);
 
-	public  constructor(factory: OutputModelFactory, ast: GrammarAST);
+    public  constructor(factory: OutputModelFactory, ast: GrammarAST);
     public constructor(...args: unknown[]) {
-		switch (args.length) {
-			case 0: {
+        switch (args.length) {
+            case 0: {
 
+                break;
+            }
 
-				break;
-			}
+            case 1: {
+                const [factory] = args as [OutputModelFactory];
 
-			case 1: {
-				const [factory] = args as [OutputModelFactory];
+                this(factory, null);
 
- this(factory, null); 
+                break;
+            }
 
-				break;
-			}
+            case 2: {
+                const [factory, ast] = args as [OutputModelFactory, GrammarAST];
 
-			case 2: {
-				const [factory, ast] = args as [OutputModelFactory, GrammarAST];
+                this.factory = factory;
+                this.ast = ast;
 
+                break;
+            }
 
-		this.factory = factory;
-		this.ast = ast;
-	
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
 }

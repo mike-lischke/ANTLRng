@@ -14,9 +14,9 @@ import { CharSupport } from "../../misc/CharSupport.js";
 import { ErrorType } from "../ErrorType.js";
 
 export abstract class GrammarASTWithOptions extends GrammarAST {
-    protected options = new Map<string, GrammarAST>();
+    protected options = new Map<string, GrammarAST | null>();
 
-    public setOption(key: string, node: GrammarAST): void {
+    public setOption(key: string, node: GrammarAST | null): void {
         this.options.set(key, node);
     }
 
@@ -59,7 +59,7 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
         return this.options.size;
     }
 
-    public getOptions(): Map<string, GrammarAST> {
+    public getOptions(): Map<string, GrammarAST | null> {
         return this.options;
     }
 

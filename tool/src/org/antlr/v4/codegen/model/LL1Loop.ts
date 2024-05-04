@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { TestSetInline } from "./TestSetInline.js";
 import { SrcOp } from "./SrcOp.js";
@@ -19,42 +17,42 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { IntervalSet } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-
-
 /** */
 export abstract  class LL1Loop extends Choice {
-	/** The state associated wih the (A|B|...) block not loopback, which
+	/**
+	 * The state associated wih the (A|B|...) block not loopback, which
 	 *  is super.stateNumber
 	 */
-	public  blockStartStateNumber:  number;
-	public  loopBackStateNumber:  number;
+    public  blockStartStateNumber:  number;
+    public  loopBackStateNumber:  number;
 
-	@ModelElement
-public  loopExpr:  OutputModelObject;
-	@ModelElement
-public  iteration:  Array<SrcOp>;
+    @ModelElement
+    public  loopExpr:  OutputModelObject;
+    @ModelElement
+    public  iteration:  SrcOp[];
 
-	public  constructor(factory: OutputModelFactory,
+    public  constructor(factory: OutputModelFactory,
 				   blkAST: GrammarAST,
-				   alts: Array<CodeBlockForAlt>)
-	{
-		super(factory, blkAST, alts);
-	}
+				   alts: CodeBlockForAlt[])
+    {
+        super(factory, blkAST, alts);
+    }
 
-	public  addIterationOp(op: SrcOp):  void {
-		if ( this.iteration===null ) {
- this.iteration = new  Array<SrcOp>();
-}
+    public  addIterationOp(op: SrcOp):  void {
+        if ( this.iteration===null ) {
+            this.iteration = new  Array<SrcOp>();
+        }
 
-		this.iteration.add(op);
-	}
+        this.iteration.add(op);
+    }
 
-	public  addCodeForLoopLookaheadTempVar(look: IntervalSet):  SrcOp {
-		let  expr = this.addCodeForLookaheadTempVar(look);
-		if (expr !== null) {
-			let  nextType = new  CaptureNextTokenType($outer.factory, expr.varName);
-			this.addIterationOp(nextType);
-		}
-		return expr;
-	}
+    public  addCodeForLoopLookaheadTempVar(look: IntervalSet):  SrcOp {
+        const  expr = this.addCodeForLookaheadTempVar(look);
+        if (expr !== null) {
+            const  nextType = new  CaptureNextTokenType($outer.factory, expr.varName);
+            this.addIterationOp(nextType);
+        }
+
+        return expr;
+    }
 }

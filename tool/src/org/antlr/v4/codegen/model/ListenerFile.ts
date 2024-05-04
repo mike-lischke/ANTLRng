@@ -6,7 +6,6 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
 import { OutputFile } from "./OutputFile.js";
 import { ModelElement } from "./ModelElement.js";
 import { Action } from "./Action.js";
@@ -17,58 +16,57 @@ import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { AltAST } from "../../tool/ast/AltAST.js";
 import { LinkedHashMap as HashMap } from "antlr4ng";
 
-
-
-/** A model object representing a parse tree listener file.
+/**
+ * A model object representing a parse tree listener file.
  *  These are the rules specific events triggered by a parse tree visitor.
  */
 export  class ListenerFile extends OutputFile {
-	public  genPackage:  string; // from -package cmd-line
-	public  accessLevel:  string; // from -DaccessLevel cmd-line
-	public  exportMacro:  string; // from -DexportMacro cmd-line
-	public  grammarName:  string;
-	public  parserName:  string;
+    public  genPackage:  string; // from -package cmd-line
+    public  accessLevel:  string; // from -DaccessLevel cmd-line
+    public  exportMacro:  string; // from -DexportMacro cmd-line
+    public  grammarName:  string;
+    public  parserName:  string;
 	/**
 	 * The names of all listener contexts.
 	 */
-	public  listenerNames = new  java.util.LinkedHashSet<string>();
+    public  listenerNames = new  java.util.LinkedHashSet<string>();
 	/**
 	 * For listener contexts created for a labeled outer alternative, maps from
 	 * a listener context name to the name of the rule which defines the
 	 * context.
 	 */
-	public  listenerLabelRuleNames = new  LinkedHashMap<string, string>();
+    public  listenerLabelRuleNames = new  LinkedHashMap<string, string>();
 
-	@ModelElement
-public  header:  Action;
-	@ModelElement
-public  namedActions:  Map<string, Action>;
+    @ModelElement
+    public  header:  Action;
+    @ModelElement
+    public  namedActions:  Map<string, Action>;
 
-	public  constructor(factory: OutputModelFactory, fileName: string) {
-		super(factory, fileName);
-		let  g = factory.getGrammar();
-		this.parserName = g.getRecognizerName();
-		this.grammarName = g.name;
-		this.namedActions = this.buildNamedActions(factory.getGrammar(), ast => ast.getScope() === null);
-		for (let r of g.rules.values()) {
-			let  labels = r.getAltLabels();
-			if ( labels!==null ) {
-				for (let pair of labels.entrySet()) {
-					this.listenerNames.add(pair.getKey());
-					this.listenerLabelRuleNames.put(pair.getKey(), r.name);
-				}
-			}
-			else {
+    public  constructor(factory: OutputModelFactory, fileName: string) {
+        super(factory, fileName);
+        const  g = factory.getGrammar();
+        this.parserName = g.getRecognizerName();
+        this.grammarName = g.name;
+        this.namedActions = this.buildNamedActions(factory.getGrammar(), (ast) => {return ast.getScope() === null;});
+        for (const r of g.rules.values()) {
+            const  labels = r.getAltLabels();
+            if ( labels!==null ) {
+                for (const pair of labels.entrySet()) {
+                    this.listenerNames.add(pair.getKey());
+                    this.listenerLabelRuleNames.put(pair.getKey(), r.name);
+                }
+            }
+            else {
 				// only add rule context if no labels
-				this.listenerNames.add(r.name);
-			}
-		}
-		let  ast = g.namedActions.get("header");
-		if ( ast!==null && ast.getScope()===null ) {
-			this.header = new  Action(factory, ast);
-		}
-		this.genPackage = g.tool.genPackage;
-		this.accessLevel = g.getOptionString("accessLevel");
-		this.exportMacro = g.getOptionString("exportMacro");
-	}
+                this.listenerNames.add(r.name);
+            }
+        }
+        const  ast = g.namedActions.get("header");
+        if ( ast!==null && ast.getScope()===null ) {
+            this.header = new  Action(factory, ast);
+        }
+        this.genPackage = g.tool.genPackage;
+        this.accessLevel = g.getOptionString("accessLevel");
+        this.exportMacro = g.getOptionString("exportMacro");
+    }
 }

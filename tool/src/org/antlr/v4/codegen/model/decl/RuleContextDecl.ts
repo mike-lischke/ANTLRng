@@ -4,22 +4,18 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-
-
 /** */
 export  class RuleContextDecl extends Decl {
-	public  ctxName:  string;
-	public  isImplicit:  boolean;
+    public  ctxName:  string;
+    public  isImplicit:  boolean;
 
-	public  constructor(factory: OutputModelFactory, name: string, ctxName: string) {
-		super(factory, name);
-		this.ctxName = ctxName;
-	}
+    public  constructor(factory: OutputModelFactory, name: string, ctxName: string) {
+        super(factory, name);
+        this.ctxName = ctxName;
+    }
 }

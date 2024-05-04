@@ -4,10 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
-
 
 import { OutputModelFactory } from "./OutputModelFactory.js";
 import { Choice } from "./model/Choice.js";
@@ -21,55 +18,53 @@ import { RuleFunction } from "./model/RuleFunction.js";
 import { SrcOp } from "./model/SrcOp.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 
-
-
 /** Filter list of SrcOps and return; default is pass-through filter */
 export  class CodeGeneratorExtension {
-	public  factory:  OutputModelFactory;
+    public  factory:  OutputModelFactory;
 
-	public  constructor(factory: OutputModelFactory) {
-		this.factory = factory;
-	}
+    public  constructor(factory: OutputModelFactory) {
+        this.factory = factory;
+    }
 
-	public  parserFile(f: ParserFile):  ParserFile { return f; }
+    public  parserFile(f: ParserFile):  ParserFile { return f; }
 
-	public  parser(p: Parser):  Parser { return p; }
+    public  parser(p: Parser):  Parser { return p; }
 
-	public  lexerFile(f: LexerFile):  LexerFile { return f; }
+    public  lexerFile(f: LexerFile):  LexerFile { return f; }
 
-	public  lexer(l: Lexer):  Lexer { return l; }
+    public  lexer(l: Lexer):  Lexer { return l; }
 
-	public  rule(rf: RuleFunction):  RuleFunction { return rf; }
+    public  rule(rf: RuleFunction):  RuleFunction { return rf; }
 
-	public  rulePostamble(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  rulePostamble(ops: SrcOp[]):  SrcOp[] { return ops; }
 
-	public  alternative(blk: CodeBlockForAlt, outerMost: boolean):  CodeBlockForAlt { return blk; }
+    public  alternative(blk: CodeBlockForAlt, outerMost: boolean):  CodeBlockForAlt { return blk; }
 
-	public  finishAlternative(blk: CodeBlockForAlt, outerMost: boolean):  CodeBlockForAlt { return blk; }
+    public  finishAlternative(blk: CodeBlockForAlt, outerMost: boolean):  CodeBlockForAlt { return blk; }
 
-	public  epsilon(blk: CodeBlockForAlt):  CodeBlockForAlt { return blk; }
+    public  epsilon(blk: CodeBlockForAlt):  CodeBlockForAlt { return blk; }
 
-	public  ruleRef(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  ruleRef(ops: SrcOp[]):  SrcOp[] { return ops; }
 
-	public  tokenRef(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  tokenRef(ops: SrcOp[]):  SrcOp[] { return ops; }
 
-	public  set(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  set(ops: SrcOp[]):  SrcOp[] { return ops; }
 
-	public  stringRef(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  stringRef(ops: SrcOp[]):  SrcOp[] { return ops; }
 
-	public  wildcard(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  wildcard(ops: SrcOp[]):  SrcOp[] { return ops; }
 
 	// ACTIONS
 
-	public  action(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  action(ops: SrcOp[]):  SrcOp[] { return ops; }
 
-	public  sempred(ops: Array<SrcOp>):  Array<SrcOp> { return ops; }
+    public  sempred(ops: SrcOp[]):  SrcOp[] { return ops; }
 
 	// BLOCKS
 
-	public  getChoiceBlock(c: Choice):  Choice { return c; }
+    public  getChoiceBlock(c: Choice):  Choice { return c; }
 
-	public  getEBNFBlock(c: Choice):  Choice { return c; }
+    public  getEBNFBlock(c: Choice):  Choice { return c; }
 
-	public  needsImplicitLabel(ID: GrammarAST, op: LabeledOp):  boolean { return false; }
+    public  needsImplicitLabel(ID: GrammarAST, op: LabeledOp):  boolean { return false; }
 }
