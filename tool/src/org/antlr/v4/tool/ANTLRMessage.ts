@@ -23,52 +23,33 @@ export class ANTLRMessage {
     public charPosition = -1;
 
     public g: Grammar;
+
     /**
      * Most of the time, we'll have a token such as an undefined rule ref
      *  and so this will be set.
      */
-    public offendingToken: Token | null;
+    public readonly offendingToken: Token | null;
 
     private readonly errorType: ErrorType;
 
     private readonly args: unknown[] | null = null;
 
-    private readonly e: Error;
+    private readonly e: Error | null = null;
 
     public constructor(errorType: ErrorType);
-    public constructor(errorType: ErrorType, offendingToken: Token | null, ...args: Object[]);
-    public constructor(errorType: ErrorType, e: Error, offendingToken: Token, ...args: Object[]);
+    public constructor(errorType: ErrorType, offendingToken: Token | null, ...args: unknown[]);
+    public constructor(errorType: ErrorType, e: Error, offendingToken: Token, ...args: unknown[]);
     public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 1: {
-                const [errorType] = args as [ErrorType];
-
-                this(errorType, null as Throwable, Token.INVALID_TOKEN);
-
-                break;
+        this.errorType = args.shift() as ErrorType;
+        if (args.length > 0) {
+            if (args[0] instanceof Error) {
+                this.e = args.shift() as Error;
+            } else {
+                this.offendingToken = args.shift() as Token;
             }
 
-            case 3: {
-                const [errorType, offendingToken, args] = args as [ErrorType, Token, Object[]];
-
-                this(errorType, null, offendingToken, this.args);
-
-                break;
-            }
-
-            case 4: {
-                const [errorType, e, offendingToken, args] = args as [ErrorType, Throwable, Token, Object[]];
-
-                this.errorType = errorType;
-                this.e = e;
-                this.args = this.args;
-                this.offendingToken = offendingToken;
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            if (args.length > 0) {
+                this.args = args;
             }
         }
     }
@@ -87,7 +68,7 @@ export class ANTLRMessage {
 
     public getMessageTemplate(verbose: boolean): ST {
         const messageST = new ST(this.getErrorType().msg);
-        messageST.impl!.name = this.errorType.name();
+        messageST.impl!.name = this.errorType.name;
 
         messageST.add("verbose", verbose);
         const args = this.getArgs();
@@ -116,7 +97,7 @@ export class ANTLRMessage {
         return messageST;
     }
 
-    public getCause(): Error {
+    public getCause(): Error | null {
         return this.e;
     }
 
