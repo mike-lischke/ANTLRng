@@ -56,7 +56,7 @@ export class FastQueue<T> {
         this.data.push(o);
     }
 
-    public size(): number {
+    public get size(): number {
         return this.data.length - this.p;
     }
 
@@ -93,7 +93,7 @@ export class FastQueue<T> {
     /** Return string of current buffer contents; non-destructive */
     public toString(): string {
         let buf = "";
-        const n = this.size();
+        const n = this.size;
         for (let i = 0; i < n; i++) {
             buf += this.elementAt(i);
             if ((i + 1) < n) {

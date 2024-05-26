@@ -1,13 +1,16 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { ErrorType } from "./ErrorType.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
+import { ErrorType } from "./ErrorType.js";
+import { INVALID_TOKEN } from "../misc/Utils.js";
 
 /**
  * A generic message from the tool such as "file not found" type errors; there
@@ -20,38 +23,20 @@ import { ANTLRMessage } from "./ANTLRMessage.js";
  */
 export class ToolMessage extends ANTLRMessage {
     public constructor(errorType: ErrorType);
-    public constructor(errorType: ErrorType, ...args: Object[]);
-    public constructor(errorType: ErrorType, e: Throwable, ...args: Object[]);
+    public constructor(errorType: ErrorType, ...args: unknown[]);
+    public constructor(errorType: ErrorType, e: Error, ...args: unknown[]);
     public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 1: {
-                const [errorType] = args as [ErrorType];
+        if (args.length < 2) {
+            super(args[0] as ErrorType);
+        } else {
+            const [errorType, rest] = args as [ErrorType, unknown[]];
+            if (rest[0] instanceof Error) {
+                const [errorType, e, rest] = args as [ErrorType, Error, unknown[]];
 
-                super(errorType);
-
-                break;
-            }
-
-            case 2: {
-                const [errorType, args] = args as [ErrorType, Object[]];
-
-                super(errorType, null, Token.INVALID_TOKEN, this.args);
-
-                break;
-            }
-
-            case 3: {
-                const [errorType, e, args] = args as [ErrorType, Throwable, Object[]];
-
-                super(errorType, e, Token.INVALID_TOKEN, this.args);
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+                super(errorType, e, INVALID_TOKEN, rest);
+            } else {
+                super(errorType, null, INVALID_TOKEN, rest);
             }
         }
     }
-
 }

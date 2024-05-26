@@ -1,190 +1,130 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
+import { CommonToken, Token } from "antlr4ng";
 
-import { IntegerList, HashMap } from "antlr4ng";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
+import { Character } from "../support/Character.js";
 
+export const INVALID_TOKEN = CommonToken.fromType(Token.INVALID_TYPE);
 
+export type Constructor = new (...args: unknown[]) => unknown;
 
-/** */
-export  class Utils {
-	public static readonly  INTEGER_POOL_MAX_VALUE = 1000;
+export class Utils {
+    public static readonly INTEGER_POOL_MAX_VALUE = 1000;
 
-    public static  stripFileExtension(name: string):  string {
-        if ( name===null ) {
- return null;
-}
+    public static stripFileExtension(name: string): string | null {
+        if (name === null) {
+            return null;
+        }
 
-        let  lastDot = name.lastIndexOf('.');
-        if ( lastDot<0 ) {
- return name;
-}
+        const lastDot = name.lastIndexOf(".");
+        if (lastDot < 0) {
+            return name;
+        }
 
         return name.substring(0, lastDot);
     }
 
-	public static  join(a: Object[], separator: string):  string {
-		let  buf = new  StringBuilder();
-		for (let  i=0; i<a.length; i++) {
-			let  o = a[i];
-			buf.append(o.toString());
-			if ( (i+1)<a.length ) {
-				buf.append(separator);
-			}
-		}
-		return buf.toString();
-	}
+    public static sortLinesInString(s: string): string {
+        const lines = s.split("\n");
+        lines.sort();
 
-	public static  sortLinesInString(s: string):  string {
-		let  lines[] = s.split("\n");
-		java.util.Arrays.sort(lines);
-		let  linesL = java.util.Arrays.asList(lines);
-		let  buf = new  StringBuilder();
-		for (let l of linesL) {
-			buf.append(l);
-			buf.append('\n');
-		}
-		return buf.toString();
-	}
+        return lines.join("\n");
+    }
 
-	public static  nodesToStrings <T extends GrammarAST>(nodes: Array<T>):  Array<string> {
-		if ( nodes === null ) {
- return null;
-}
+    public static nodesToStrings<T extends GrammarAST>(nodes: T[]): string[] {
+        const a = new Array<string>();
+        for (const t of nodes) {
+            a.push(t.getText()!);
+        }
 
-		let  a = new  Array<string>();
-		for (let t of nodes) {
- a.add(t.getText());
-}
+        return a;
+    }
 
-		return a;
-	}
+    public static capitalize(s: string): string {
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
 
-//	public static <T> List<T> list(T... values) {
-//		List<T> x = new ArrayList<T>(values.length);
-//		for (T v : values) {
-//			if ( v!=null ) x.add(v);
-//		}
-//		return x;
-//	}
+    public static decapitalize(s: string): string {
+        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+    }
 
-	public static  writeSerializedATNIntegerHistogram(filename: string, serializedATN: IntegerList):  void {
-		let  histo = new  HashMap();
-		for (let i of serializedATN.toArray()) {
-			if ( histo.containsKey(i) ) {
-				histo.put(i, histo.get(i) + 1);
-			}
-			else {
-				histo.put(i, 1);
-			}
-		}
-		let  sorted = new  java.util.TreeMap(histo);
+    /**
+     * apply methodName to list and return list of results. method has
+     *  no args.  This pulls data out of a list essentially.
+     */
+    public static select<From, To>(list: From[], selector: Utils.Func1<From, To>): To[] {
+        const b = new Array<To>();
+        for (const f of list) {
+            b.push(selector.exec(f));
+        }
 
-		let  output = "";
-		output += "value,count\n";
-		for (let key of sorted.keySet()) {
-			output += key+","+sorted.get(key)+"\n";
-		}
-		try {
-			Files.write(Paths.get(filename), output.getBytes(StandardCharsets.UTF_8));
-		} catch (ioe) {
-if (ioe instanceof IOException) {
-			System.err.println(ioe);
-		} else {
-	throw ioe;
-	}
-}
-	}
+        return b;
+    }
 
-	public static  capitalize(s: string):  string {
-		return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-	}
+    /** Find exact object type or subclass of cl in list */
+    public static find<T>(ops: unknown[], cl: Constructor): T | null {
+        for (const o of ops) {
+            if (o instanceof cl) {
+                return o as T;
+            }
+        }
 
-	public static  decapitalize(s: string):  string {
-		return Character.toLowerCase(s.charAt(0)) + s.substring(1);
-	}
+        return null;
+    }
 
-	/** apply methodName to list and return list of results. method has
-	 *  no args.  This pulls data out of a list essentially.
-	 */
-	public static  select <From,To>(list: Array<From>, selector: Utils.Func1<From, To>):  Array<To> {
-		if ( list===null ) {
- return null;
-}
+    public static indexOf<T>(elements: T[], filter: Utils.Filter<T>): number {
+        for (let i = 0; i < elements.length; i++) {
+            if (filter.select(elements[i])) {
+                return i;
+            }
+        }
 
-		let  b = new  Array<To>();
-		for (let f of list) {
-			b.add(selector.exec(f));
-		}
-		return b;
-	}
+        return -1;
+    }
 
-	/** Find exact object type or subclass of cl in list */
-	public static  find <T>(ops: Array<unknown>, cl: Class<T>):  T {
-		for (let o of ops) {
-			if ( cl.isInstance(o) ) {
- return cl.cast(o);
-}
+    public static lastIndexOf<T>(elements: T[], filter: Utils.Filter<T>): number {
+        for (let i = elements.length - 1; i >= 0; i--) {
+            if (filter.select(elements[i])) {
+                return i;
+            }
+        }
 
-//			if ( o.getClass() == cl ) return o;
-		}
-		return null;
-	}
+        return -1;
+    }
 
-	public static  indexOf <T>(elems: Array< T>, filter: Utils.Filter<T>):  number {
-		for (let  i=0; i<elems.size(); i++) {
-			if ( filter.select(elems.get(i)) ) {
- return i;
-}
-
-		}
-		return -1;
-	}
-
-	public static  lastIndexOf <T>(elems: Array< T>, filter: Utils.Filter<T>):  number {
-		for (let  i=elems.size()-1; i>=0; i--) {
-			if ( filter.select(elems.get(i)) ) {
- return i;
-}
-
-		}
-		return -1;
-	}
-
-	public static  setSize(list: Array<unknown>, size: number):  void {
-		if (size < list.size()) {
-			list.subList(size, list.size()).clear();
-		}
-		else {
-			while (size > list.size()) {
-				list.add(null);
-			}
-		}
-	}
-
+    public static setSize(list: unknown[], size: number): void {
+        const fills = size - list.length;
+        if (fills < 0) {
+            list.length = size;
+        } else {
+            for (let i = 0; i < fills; i++) {
+                list.push(null);
+            }
+        }
+    }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace Utils {
-	export  interface Filter<T> {
-		  select(t: T): boolean;
-	}
+    export interface Filter<T> {
+        select(t: T): boolean;
+    }
 
-	export  interface Func0<TResult> {
-		  exec(): TResult;
-	}
+    export interface Func0<TResult> {
+        exec(): TResult;
+    }
 
-	export  interface Func1<T1, TResult> {
-		  exec(arg1: T1): TResult;
-	}
+    export interface Func1<T1, TResult> {
+        exec(arg1: T1): TResult;
+    }
 
 }
-
-

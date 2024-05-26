@@ -10,7 +10,7 @@
 
 import { ErrorBuffer, STGroup, STGroupFile } from "stringtemplate4ts";
 
-import type { Token } from "antlr4ng";
+import type { RecognitionException, Token } from "antlr4ng";
 import { basename } from "path";
 import { existsSync } from "fs";
 
@@ -173,7 +173,7 @@ export class ErrorManager {
         this.tool.info(msg);
     }
 
-    public syntaxError(errorType: ErrorType, fileName: string, token: Token, antlrException: Error,
+    public syntaxError(errorType: ErrorType, fileName: string, token: Token, antlrException: RecognitionException,
         ...args: Object[]): void {
         const msg = new GrammarSyntaxMessage(errorType, fileName, token, antlrException, args);
         this.emit(errorType, msg);
@@ -186,8 +186,8 @@ export class ErrorManager {
      * @param errorType The Message Descriptor
      * @param args The arguments to pass to the StringTemplate
      */
-    public toolError(errorType: ErrorType, ...args: Object[]): void;
-    public toolError(errorType: ErrorType, e: Error, ...args: Object[]): void;
+    public toolError(errorType: ErrorType, ...args: unknown[]): void;
+    public toolError(errorType: ErrorType, e: Error, ...args: unknown[]): void;
     public toolError(...allArgs: unknown[]): void {
         let msg: ToolMessage;
 
@@ -207,7 +207,7 @@ export class ErrorManager {
         this.emit(errorType, msg);
     }
 
-    public grammarError(errorType: ErrorType, fileName: string, token: Token, ...args: Object[]): void {
+    public grammarError(errorType: ErrorType, fileName: string, token: Token | null, ...args: unknown[]): void {
         const msg = new GrammarSemanticsMessage(errorType, fileName, token, args);
         this.emit(errorType, msg);
     }

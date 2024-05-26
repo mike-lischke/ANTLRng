@@ -53,279 +53,278 @@ import { HashMap } from "antlr4ng";
 
 
 /** */
-export  class ActionTranslator implements ActionSplitterListener {
-	public static readonly  thisRulePropToModelMap =
-		new  HashMap<string, Class< RulePropertyRef>>();
+export class ActionTranslator implements ActionSplitterListener {
+    public static readonly thisRulePropToModelMap =
+        new HashMap<string, Class<RulePropertyRef>>();
 
-	public static readonly  rulePropToModelMap =
-		new  HashMap<string, Class< RulePropertyRef>>();
+    public static readonly rulePropToModelMap =
+        new HashMap<string, Class<RulePropertyRef>>();
 
-	public static readonly  tokenPropToModelMap =
-		new  HashMap<string, Class< TokenPropertyRef>>();
+    public static readonly tokenPropToModelMap =
+        new HashMap<string, Class<TokenPropertyRef>>();
 
-	protected readonly  gen:  CodeGenerator;
-	protected readonly  target:  Target;
-	protected readonly  node:  ActionAST;
-	protected  rf: RuleFunction;
-	protected readonly  chunks = new  Array<ActionChunk>();
-	protected readonly  factory:  OutputModelFactory;
-	protected  nodeContext: StructDecl;
+    protected readonly gen: CodeGenerator;
+    protected readonly target: Target;
+    protected readonly node: ActionAST;
+    protected rf: RuleFunction;
+    protected readonly chunks = new Array<ActionChunk>();
+    protected readonly factory: OutputModelFactory;
+    protected nodeContext: StructDecl;
 
-	public  constructor(factory: OutputModelFactory, node: ActionAST) {
-		this.factory = factory;
-		this.node = node;
-		this.gen = factory.getGenerator();
-		this.target = this.gen.getTarget();
-	}
+    public constructor(factory: OutputModelFactory, node: ActionAST) {
+        this.factory = factory;
+        this.node = node;
+        this.gen = factory.getGenerator();
+        this.target = this.gen.getTarget();
+    }
 
-	public override static  toString(chunks: Array<ActionChunk>):  string {
-		let  buf = new  StringBuilder();
-		for (let c of chunks) {
- buf.append(c.toString());
-}
+    public override static toString(chunks: Array<ActionChunk>): string {
+        let buf = new StringBuilder();
+        for (let c of chunks) {
+            buf.append(c.toString());
+        }
 
-		return buf.toString();
-	}
+        return buf.toString();
+    }
 
-	public static  translateAction(factory: OutputModelFactory,
-													rf: RuleFunction,
-													tokenWithinAction: Token,
-													node: ActionAST):  Array<ActionChunk>
-	{
-		let  action = tokenWithinAction.getText();
-		if ( action!==null && action.length()>0 && action.charAt(0)==='{' ) {
-			let  firstCurly = action.indexOf('{');
-			let  lastCurly = action.lastIndexOf('}');
-			if ( firstCurly>=0 && lastCurly>=0 ) {
-				action = action.substring(firstCurly+1, lastCurly); // trim {...}
-			}
-		}
-		return ActionTranslator.translateActionChunk(factory, rf, action, node);
-	}
+    public static translateAction(factory: OutputModelFactory,
+        rf: RuleFunction,
+        tokenWithinAction: Token,
+        node: ActionAST): Array<ActionChunk> {
+        let action = tokenWithinAction.getText();
+        if (action !== null && action.length() > 0 && action.charAt(0) === '{') {
+            let firstCurly = action.indexOf('{');
+            let lastCurly = action.lastIndexOf('}');
+            if (firstCurly >= 0 && lastCurly >= 0) {
+                action = action.substring(firstCurly + 1, lastCurly); // trim {...}
+            }
+        }
+        return ActionTranslator.translateActionChunk(factory, rf, action, node);
+    }
 
-	public static  translateActionChunk(factory: OutputModelFactory,
-														 rf: RuleFunction,
-														 action: string,
-														 node: ActionAST):  Array<ActionChunk>
-	{
-		let  tokenWithinAction = node.token;
-		let  translator = new  ActionTranslator(factory, node);
-		translator.rf = rf;
+    public static translateActionChunk(factory: OutputModelFactory,
+        rf: RuleFunction,
+        action: string,
+        node: ActionAST): Array<ActionChunk> {
+        let tokenWithinAction = node.token;
+        let translator = new ActionTranslator(factory, node);
+        translator.rf = rf;
         factory.getGrammar().tool.log("action-translator", "translate " + action);
-		let  altLabel = node.getAltLabel();
-		if ( rf!==null ) {
-		    translator.nodeContext = rf.ruleCtx;
-	        if ( altLabel!==null ) {
- translator.nodeContext = rf.altLabelCtxs.get(altLabel);
-}
+        let altLabel = node.getAltLabel();
+        if (rf !== null) {
+            translator.nodeContext = rf.ruleCtx;
+            if (altLabel !== null) {
+                translator.nodeContext = rf.altLabelCtxs.get(altLabel);
+            }
 
-		}
-		let  in = new  ANTLRStringStream(action);
+        }
+        let in = new ANTLRStringStream(action);
 		in.setLine(tokenWithinAction.getLine());
 		in.setCharPositionInLine(tokenWithinAction.getCharPositionInLine());
-		let  trigger = new  ActionSplitter(in, translator);
-		// forces eval, triggers listener methods
-		trigger.getActionTokens();
-		return translator.chunks;
-	}
+        let trigger = new ActionSplitter(in, translator);
+        // forces eval, triggers listener methods
+        trigger.getActionTokens();
+        return translator.chunks;
+    }
 
-	@Override
-public  attr(expr: string, x: Token):  void {
-		this.gen.g.tool.log("action-translator", "attr "+x);
-		let  a = this.node.resolver.resolveToAttribute(x.getText(), this.node);
-		let  name = x.getText();
-		let  escapedName = this.target.escapeIfNeeded(name);
-		if ( a!==null ) {
-			switch ( a.dict.type ) {
-				case ARG:{
-					this.chunks.add(new  ArgRef(this.nodeContext, name, escapedName));
-					break;
-}
 
-				case RET:{
-					this.chunks.add(new  RetValueRef(this.rf.ruleCtx, name, escapedName));
-					break;
-}
+    public attr(expr: string, x: Token): void {
+        this.gen.g.tool.logInfo("action-translator", "attr " + x);
+        let a = this.node.resolver.resolveToAttribute(x.getText(), this.node);
+        let name = x.getText();
+        let escapedName = this.target.escapeIfNeeded(name);
+        if (a !== null) {
+            switch (a.dict.type) {
+                case ARG: {
+                    this.chunks.add(new ArgRef(this.nodeContext, name, escapedName));
+                    break;
+                }
 
-				case LOCAL:{
-					this.chunks.add(new  LocalRef(this.nodeContext, name, escapedName));
-					break;
-}
+                case RET: {
+                    this.chunks.add(new RetValueRef(this.rf.ruleCtx, name, escapedName));
+                    break;
+                }
 
-				case PREDEFINED_RULE:{
-					this.chunks.add(this.getRulePropertyRef(null, x));
-					break;
-}
+                case LOCAL: {
+                    this.chunks.add(new LocalRef(this.nodeContext, name, escapedName));
+                    break;
+                }
 
-				default:{
-					break;
-}
+                case PREDEFINED_RULE: {
+                    this.chunks.add(this.getRulePropertyRef(null, x));
+                    break;
+                }
 
-			}
-		}
-		if ( this.node.resolver.resolvesToToken(name, this.node) ) {
-			let  tokenLabel = this.getTokenLabel(name);
-			this.chunks.add(new  TokenRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel))); // $label
-			return;
-		}
-		if ( this.node.resolver.resolvesToLabel(name, this.node) ) {
-			let  tokenLabel = this.getTokenLabel(name);
-			this.chunks.add(new  LabelRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel))); // $x for x=ID etc...
-			return;
-		}
-		if ( this.node.resolver.resolvesToListLabel(name, this.node) ) {
-			this.chunks.add(new  ListLabelRef(this.nodeContext, name, escapedName)); // $ids for ids+=ID etc...
-			return;
-		}
-		let  r = this.factory.getGrammar().getRule(name);
-		if ( r!==null ) {
-			let  ruleLabel = this.getRuleLabel(name);
-			this.chunks.add(new  LabelRef(this.nodeContext, ruleLabel, this.target.escapeIfNeeded(ruleLabel))); // $r for r rule ref
-		}
-	}
+                default: {
+                    break;
+                }
 
-	@Override
-public  qualifiedAttr(expr: string, x: Token, y: Token):  void {
-		this.gen.g.tool.log("action-translator", "qattr "+x+"."+y);
-		if ( this.node.resolver.resolveToAttribute(x.getText(), this.node)!==null ) {
-			// must be a member access to a predefined attribute like $ctx.foo
-			this.attr(expr, x);
-			this.chunks.add(new  ActionText(this.nodeContext, "."+y.getText()));
-			return;
-		}
-		let  a = this.node.resolver.resolveToAttribute(x.getText(), y.getText(), this.node);
-		if ( a===null ) {
-			// Added in response to https://github.com/antlr/antlr4/issues/1211
-			this.gen.g.tool.errMgr.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE,
-			                               this.gen.g.fileName, x,
-			                               x.getText(),
-			                               "rule");
-			return;
-		}
-		switch ( a.dict.type ) {
-			case ARG:{ this.chunks.add(new  ArgRef(this.nodeContext, y.getText(), this.target.escapeIfNeeded(y.getText()))); break;
-}
- // has to be current rule
-			case RET:{
-				this.chunks.add(new  QRetValueRef(this.nodeContext, this.getRuleLabel(x.getText()), y.getText(), this.target.escapeIfNeeded(y.getText())));
-				break;
-}
+            }
+        }
+        if (this.node.resolver.resolvesToToken(name, this.node)) {
+            let tokenLabel = this.getTokenLabel(name);
+            this.chunks.add(new TokenRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel))); // $label
+            return;
+        }
+        if (this.node.resolver.resolvesToLabel(name, this.node)) {
+            let tokenLabel = this.getTokenLabel(name);
+            this.chunks.add(new LabelRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel))); // $x for x=ID etc...
+            return;
+        }
+        if (this.node.resolver.resolvesToListLabel(name, this.node)) {
+            this.chunks.add(new ListLabelRef(this.nodeContext, name, escapedName)); // $ids for ids+=ID etc...
+            return;
+        }
+        let r = this.factory.getGrammar().getRule(name);
+        if (r !== null) {
+            let ruleLabel = this.getRuleLabel(name);
+            this.chunks.add(new LabelRef(this.nodeContext, ruleLabel, this.target.escapeIfNeeded(ruleLabel))); // $r for r rule ref
+        }
+    }
 
-			case PREDEFINED_RULE:{
-				this.chunks.add(this.getRulePropertyRef(x, y));
-				break;
-}
 
-			case TOKEN:{
-				this.chunks.add(this.getTokenPropertyRef(x, y));
-				break;
-}
+    public qualifiedAttr(expr: string, x: Token, y: Token): void {
+        this.gen.g.tool.logInfo("action-translator", "qattr " + x + "." + y);
+        if (this.node.resolver.resolveToAttribute(x.getText(), this.node) !== null) {
+            // must be a member access to a predefined attribute like $ctx.foo
+            this.attr(expr, x);
+            this.chunks.add(new ActionText(this.nodeContext, "." + y.getText()));
+            return;
+        }
+        let a = this.node.resolver.resolveToAttribute(x.getText(), y.getText(), this.node);
+        if (a === null) {
+            // Added in response to https://github.com/antlr/antlr4/issues/1211
+            this.gen.g.tool.errMgr.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE,
+                this.gen.g.fileName, x,
+                x.getText(),
+                "rule");
+            return;
+        }
+        switch (a.dict.type) {
+            case ARG: {
+                this.chunks.add(new ArgRef(this.nodeContext, y.getText(), this.target.escapeIfNeeded(y.getText()))); break;
+            }
+            // has to be current rule
+            case RET: {
+                this.chunks.add(new QRetValueRef(this.nodeContext, this.getRuleLabel(x.getText()), y.getText(), this.target.escapeIfNeeded(y.getText())));
+                break;
+            }
 
-			default:{
-				break;
-}
+            case PREDEFINED_RULE: {
+                this.chunks.add(this.getRulePropertyRef(x, y));
+                break;
+            }
 
-		}
-	}
+            case TOKEN: {
+                this.chunks.add(this.getTokenPropertyRef(x, y));
+                break;
+            }
 
-	@Override
-public  setAttr(expr: string, x: Token, rhs: Token):  void {
-		this.gen.g.tool.log("action-translator", "setAttr "+x+" "+rhs);
-		let  rhsChunks = ActionTranslator.translateActionChunk(this.factory,this.rf,rhs.getText(),this.node);
-		let  name = x.getText();
-		let  s = new  SetAttr(this.nodeContext, name, this.target.escapeIfNeeded(name), rhsChunks);
-		this.chunks.add(s);
-	}
+            default: {
+                break;
+            }
 
-	@Override
-public  nonLocalAttr(expr: string, x: Token, y: Token):  void {
-		this.gen.g.tool.log("action-translator", "nonLocalAttr "+x+"::"+y);
-		let  r = this.factory.getGrammar().getRule(x.getText());
-		let  name = y.getText();
-		this.chunks.add(new  NonLocalAttrRef(this.nodeContext, x.getText(), name, this.target.escapeIfNeeded(name), r.index));
-	}
+        }
+    }
 
-	@Override
-public  setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token):  void {
-		this.gen.g.tool.log("action-translator", "setNonLocalAttr "+x+"::"+y+"="+rhs);
-		let  r = this.factory.getGrammar().getRule(x.getText());
-		let  rhsChunks = ActionTranslator.translateActionChunk(this.factory,this.rf,rhs.getText(),this.node);
-		let  name = y.getText();
-		let  s = new  SetNonLocalAttr(this.nodeContext, x.getText(), name, this.target.escapeIfNeeded(name), r.index, rhsChunks);
-		this.chunks.add(s);
-	}
 
-	@Override
-public  text(text: string):  void {
-		this.chunks.add(new  ActionText(this.nodeContext,text));
-	}
+    public setAttr(expr: string, x: Token, rhs: Token): void {
+        this.gen.g.tool.logInfo("action-translator", "setAttr " + x + " " + rhs);
+        let rhsChunks = ActionTranslator.translateActionChunk(this.factory, this.rf, rhs.getText(), this.node);
+        let name = x.getText();
+        let s = new SetAttr(this.nodeContext, name, this.target.escapeIfNeeded(name), rhsChunks);
+        this.chunks.add(s);
+    }
 
-	public  getTokenLabel(x: string):  string {
-		if ( this.node.resolver.resolvesToLabel(x, this.node) ) {
- return x;
-}
 
-		return this.target.getImplicitTokenLabel(x);
-	}
+    public nonLocalAttr(expr: string, x: Token, y: Token): void {
+        this.gen.g.tool.logInfo("action-translator", "nonLocalAttr " + x + "::" + y);
+        let r = this.factory.getGrammar().getRule(x.getText());
+        let name = y.getText();
+        this.chunks.add(new NonLocalAttrRef(this.nodeContext, x.getText(), name, this.target.escapeIfNeeded(name), r.index));
+    }
 
-	public  getRuleLabel(x: string):  string {
-		if ( this.node.resolver.resolvesToLabel(x, this.node) ) {
- return x;
-}
 
-		return this.target.getImplicitRuleLabel(x);
-	}
+    public setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token): void {
+        this.gen.g.tool.logInfo("action-translator", "setNonLocalAttr " + x + "::" + y + "=" + rhs);
+        let r = this.factory.getGrammar().getRule(x.getText());
+        let rhsChunks = ActionTranslator.translateActionChunk(this.factory, this.rf, rhs.getText(), this.node);
+        let name = y.getText();
+        let s = new SetNonLocalAttr(this.nodeContext, x.getText(), name, this.target.escapeIfNeeded(name), r.index, rhsChunks);
+        this.chunks.add(s);
+    }
 
-	protected  getTokenPropertyRef(x: Token, y: Token): TokenPropertyRef {
-		try {
-			let  c = ActionTranslator.tokenPropToModelMap.get(y.getText());
-			let  ctor = c.getConstructor(StructDecl.class, string.class);
-			return ctor.newInstance(this.nodeContext, this.getTokenLabel(x.getText()));
-		} catch (e) {
-if (e instanceof Exception) {
-			this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e);
-		} else {
-	throw e;
-	}
-}
-		return null;
-	}
 
-	protected  getRulePropertyRef(x: Token, prop: Token): RulePropertyRef {
-		try {
-			let  c = (x !== null ? ActionTranslator.rulePropToModelMap : ActionTranslator.thisRulePropToModelMap).get(prop.getText());
-			let  ctor = c.getConstructor(StructDecl.class, string.class);
-			return ctor.newInstance(this.nodeContext, this.getRuleLabel((x !== null ? x : prop).getText()));
-		} catch (e) {
-if (e instanceof Exception) {
-			this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e, prop.getText());
-		} else {
-	throw e;
-	}
-}
-		return null;
-	}
-	 static {
-		ActionTranslator.thisRulePropToModelMap.put("start", ThisRulePropertyRef_start.class);
-		ActionTranslator.thisRulePropToModelMap.put("stop",  ThisRulePropertyRef_stop.class);
-		ActionTranslator.thisRulePropToModelMap.put("text",  ThisRulePropertyRef_text.class);
-		ActionTranslator.thisRulePropToModelMap.put("ctx",   ThisRulePropertyRef_ctx.class);
-		ActionTranslator.thisRulePropToModelMap.put("parser",  ThisRulePropertyRef_parser.class);
-	}
-	 static {
-		ActionTranslator.rulePropToModelMap.put("start", RulePropertyRef_start.class);
-		ActionTranslator.rulePropToModelMap.put("stop",  RulePropertyRef_stop.class);
-		ActionTranslator.rulePropToModelMap.put("text",  RulePropertyRef_text.class);
-		ActionTranslator.rulePropToModelMap.put("ctx",   RulePropertyRef_ctx.class);
-		ActionTranslator.rulePropToModelMap.put("parser",  RulePropertyRef_parser.class);
-	}
-	 static {
-		ActionTranslator.tokenPropToModelMap.put("text",  TokenPropertyRef_text.class);
-		ActionTranslator.tokenPropToModelMap.put("type",  TokenPropertyRef_type.class);
-		ActionTranslator.tokenPropToModelMap.put("line",  TokenPropertyRef_line.class);
-		ActionTranslator.tokenPropToModelMap.put("index", TokenPropertyRef_index.class);
-		ActionTranslator.tokenPropToModelMap.put("pos",   TokenPropertyRef_pos.class);
-		ActionTranslator.tokenPropToModelMap.put("channel", TokenPropertyRef_channel.class);
-		ActionTranslator.tokenPropToModelMap.put("int",   TokenPropertyRef_int.class);
-	}
+    public text(text: string): void {
+        this.chunks.add(new ActionText(this.nodeContext, text));
+    }
+
+    public getTokenLabel(x: string): string {
+        if (this.node.resolver.resolvesToLabel(x, this.node)) {
+            return x;
+        }
+
+        return this.target.getImplicitTokenLabel(x);
+    }
+
+    public getRuleLabel(x: string): string {
+        if (this.node.resolver.resolvesToLabel(x, this.node)) {
+            return x;
+        }
+
+        return this.target.getImplicitRuleLabel(x);
+    }
+
+    protected getTokenPropertyRef(x: Token, y: Token): TokenPropertyRef {
+        try {
+            let c = ActionTranslator.tokenPropToModelMap.get(y.getText());
+            let ctor = c.getConstructor(StructDecl.class, string.class);
+            return ctor.newInstance(this.nodeContext, this.getTokenLabel(x.getText()));
+        } catch (e) {
+            if (e instanceof Exception) {
+                this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e);
+            } else {
+                throw e;
+            }
+        }
+        return null;
+    }
+
+    protected getRulePropertyRef(x: Token, prop: Token): RulePropertyRef {
+        try {
+            let c = (x !== null ? ActionTranslator.rulePropToModelMap : ActionTranslator.thisRulePropToModelMap).get(prop.getText());
+            let ctor = c.getConstructor(StructDecl.class, string.class);
+            return ctor.newInstance(this.nodeContext, this.getRuleLabel((x !== null ? x : prop).getText()));
+        } catch (e) {
+            if (e instanceof Exception) {
+                this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e, prop.getText());
+            } else {
+                throw e;
+            }
+        }
+        return null;
+    }
+    static {
+        ActionTranslator.thisRulePropToModelMap.put("start", ThisRulePropertyRef_start.class);
+        ActionTranslator.thisRulePropToModelMap.put("stop", ThisRulePropertyRef_stop.class);
+        ActionTranslator.thisRulePropToModelMap.put("text", ThisRulePropertyRef_text.class);
+        ActionTranslator.thisRulePropToModelMap.put("ctx", ThisRulePropertyRef_ctx.class);
+        ActionTranslator.thisRulePropToModelMap.put("parser", ThisRulePropertyRef_parser.class);
+    }
+    static {
+        ActionTranslator.rulePropToModelMap.put("start", RulePropertyRef_start.class);
+        ActionTranslator.rulePropToModelMap.put("stop", RulePropertyRef_stop.class);
+        ActionTranslator.rulePropToModelMap.put("text", RulePropertyRef_text.class);
+        ActionTranslator.rulePropToModelMap.put("ctx", RulePropertyRef_ctx.class);
+        ActionTranslator.rulePropToModelMap.put("parser", RulePropertyRef_parser.class);
+    }
+    static {
+        ActionTranslator.tokenPropToModelMap.put("text", TokenPropertyRef_text.class);
+        ActionTranslator.tokenPropToModelMap.put("type", TokenPropertyRef_type.class);
+        ActionTranslator.tokenPropToModelMap.put("line", TokenPropertyRef_line.class);
+        ActionTranslator.tokenPropToModelMap.put("index", TokenPropertyRef_index.class);
+        ActionTranslator.tokenPropToModelMap.put("pos", TokenPropertyRef_pos.class);
+        ActionTranslator.tokenPropToModelMap.put("channel", TokenPropertyRef_channel.class);
+        ActionTranslator.tokenPropToModelMap.put("int", TokenPropertyRef_int.class);
+    }
 }

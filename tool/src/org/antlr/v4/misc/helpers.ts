@@ -13,6 +13,9 @@ import { CharSupport } from "./CharSupport.js";
 
 export const INVALID_TOKEN_NAME = "<INVALID>";
 
+/** A generic constructor type. */
+export type Constructor<T = unknown> = new (...args: unknown[]) => T;
+
 /**
  * Given a token type, get a meaningful name for it such as the ID
  * or string literal.  If this is a lexer and the ttype is in the

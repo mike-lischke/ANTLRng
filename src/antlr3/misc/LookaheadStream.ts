@@ -89,7 +89,7 @@ export abstract class LookaheadStream<T> extends FastQueue<T> {
     }
 
     /** Size of entire stream is unknown; we only know buffer size from FastQueue. */
-    public override size(): number {
+    public override get size(): number {
         throw new Error("streams are of unknown size");
     }
 
@@ -111,7 +111,7 @@ export abstract class LookaheadStream<T> extends FastQueue<T> {
         return this.elementAt(k - 1);
     }
 
-    public index(): number {
+    public get index(): number {
         return this.currentElementIndex;
     }
 

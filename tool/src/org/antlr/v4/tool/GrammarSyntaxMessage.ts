@@ -24,7 +24,6 @@ export class GrammarSyntaxMessage extends ANTLRMessage {
         antlrException: RecognitionException, ...args: unknown[]) {
         super(type, antlrException, offendingToken, args);
         this.fileName = fileName;
-        this.offendingToken = offendingToken;
         if (offendingToken !== null) {
             this.line = offendingToken.line;
             this.charPosition = offendingToken.column;

@@ -45,73 +45,73 @@ import { GrammarAST } from "../tool/ast/GrammarAST.js";
  *  simple checks such as undefined rule until we have collected all
  *  tokens and rules from the imported grammars into a single collection.
  */
-export  class SemanticPipeline {
-    public  g:  Grammar;
+export class SemanticPipeline {
+    public g: Grammar;
 
-    public  constructor(g: Grammar) {
+    public constructor(g: Grammar) {
         this.g = g;
     }
 
-    public  process():  void {
-        if ( this.g.ast===null ) {
+    public process(): void {
+        if (this.g.ast === null) {
             return;
         }
 
-		// COLLECT RULE OBJECTS
-        const  ruleCollector = new  RuleCollector(this.g);
+        // COLLECT RULE OBJECTS
+        const ruleCollector = new RuleCollector(this.g);
         ruleCollector.process(this.g.ast);
 
-		// DO BASIC / EASY SEMANTIC CHECKS
-        let  prevErrors = this.g.tool.errMgr.getNumErrors();
-        const  basics = new  BasicSemanticChecks(this.g, ruleCollector);
+        // DO BASIC / EASY SEMANTIC CHECKS
+        let prevErrors = this.g.tool.errMgr.getNumErrors();
+        const basics = new BasicSemanticChecks(this.g, ruleCollector);
         basics.process();
-        if ( this.g.tool.errMgr.getNumErrors()>prevErrors ) {
+        if (this.g.tool.errMgr.getNumErrors() > prevErrors) {
             return;
         }
 
-		// TRANSFORM LEFT-RECURSIVE RULES
+        // TRANSFORM LEFT-RECURSIVE RULES
         prevErrors = this.g.tool.errMgr.getNumErrors();
-        const  lrtrans =
-			new  LeftRecursiveRuleTransformer(this.g.ast, ruleCollector.rules.values(), this.g);
+        const lrtrans =
+            new LeftRecursiveRuleTransformer(this.g.ast, ruleCollector.rules.values(), this.g);
         lrtrans.translateLeftRecursiveRules();
 
-		// don't continue if we got errors during left-recursion elimination
-        if ( this.g.tool.errMgr.getNumErrors()>prevErrors ) {
+        // don't continue if we got errors during left-recursion elimination
+        if (this.g.tool.errMgr.getNumErrors() > prevErrors) {
             return;
         }
 
-		// STORE RULES IN GRAMMAR
+        // STORE RULES IN GRAMMAR
         for (const r of ruleCollector.rules.values()) {
             this.g.defineRule(r);
         }
 
-		// COLLECT SYMBOLS: RULES, ACTIONS, TERMINALS, ...
-        const  collector = new  SymbolCollector(this.g);
+        // COLLECT SYMBOLS: RULES, ACTIONS, TERMINALS, ...
+        const collector = new SymbolCollector(this.g);
         collector.process(this.g.ast);
 
-		// CHECK FOR SYMBOL COLLISIONS
-        const  symcheck = new  SymbolChecks(this.g, collector);
+        // CHECK FOR SYMBOL COLLISIONS
+        const symcheck = new SymbolChecks(this.g, collector);
         symcheck.process(); // side-effect: strip away redef'd rules.
 
         for (const a of collector.namedActions) {
             this.g.defineAction(a);
         }
 
-		// LINK (outermost) ALT NODES WITH Alternatives
+        // LINK (outermost) ALT NODES WITH Alternatives
         for (const r of this.g.rules.values()) {
-            for (let  i=1; i<=r.numberOfAlts; i++) {
+            for (let i = 1; i <= r.numberOfAlts; i++) {
                 r.alt[i].ast.alt = r.alt[i];
             }
         }
 
-		// ASSIGN TOKEN TYPES
+        // ASSIGN TOKEN TYPES
         this.g.importTokensFromTokensFile();
-        if ( this.g.isLexer() ) {
+        if (this.g.isLexer()) {
             this.assignLexerTokenTypes(this.g, collector.tokensDefs);
         }
         else {
             this.assignTokenTypes(this.g, collector.tokensDefs,
-							 collector.tokenIDRefs, collector.terminals);
+                collector.tokenIDRefs, collector.terminals);
         }
 
         symcheck.checkForModeConflicts(this.g);
@@ -119,71 +119,71 @@ export  class SemanticPipeline {
 
         this.assignChannelTypes(this.g, collector.channelDefs);
 
-		// CHECK RULE REFS NOW (that we've defined rules in grammar)
+        // CHECK RULE REFS NOW (that we've defined rules in grammar)
         symcheck.checkRuleArgs(this.g, collector.rulerefs);
         this.identifyStartRules(collector);
         symcheck.checkForQualifiedRuleIssues(this.g, collector.qualifiedRulerefs);
 
-		// don't continue if we got symbol errors
-        if ( this.g.tool.getNumErrors()>0 ) {
+        // don't continue if we got symbol errors
+        if (this.g.tool.getNumErrors() > 0) {
             return;
         }
 
-		// CHECK ATTRIBUTE EXPRESSIONS FOR SEMANTIC VALIDITY
+        // CHECK ATTRIBUTE EXPRESSIONS FOR SEMANTIC VALIDITY
         AttributeChecks.checkAllAttributeExpressions(this.g);
 
         UseDefAnalyzer.trackTokenRuleRefsInActions(this.g);
     }
 
-    protected  identifyStartRules(collector: SymbolCollector): void {
+    protected identifyStartRules(collector: SymbolCollector): void {
         for (const ref of collector.rulerefs) {
-            const  ruleName = ref.getText();
-            const  r = this.g.getRule(ruleName);
-            if ( r!==null ) {
+            const ruleName = ref.getText();
+            const r = this.g.getRule(ruleName);
+            if (r !== null) {
                 r.isStartRule = false;
             }
 
         }
     }
 
-    protected  assignLexerTokenTypes(g: Grammar, tokensDefs: GrammarAST[]): void {
-        const  G = g.getOutermostGrammar(); // put in root, even if imported
+    protected assignLexerTokenTypes(g: Grammar, tokensDefs: GrammarAST[]): void {
+        const G = g.getOutermostGrammar(); // put in root, even if imported
         for (const def of tokensDefs) {
-			// tokens { id (',' id)* } so must check IDs not TOKEN_REF
-            if ( Grammar.isTokenName(def.getText()) ) {
+            // tokens { id (',' id)* } so must check IDs not TOKEN_REF
+            if (Grammar.isTokenName(def.getText())) {
                 G.defineTokenName(def.getText());
             }
         }
 
-		/* Define token types for nonfragment rules which do not include a 'type(...)'
-		 * or 'more' lexer command.
-		 */
+        /* Define token types for nonfragment rules which do not include a 'type(...)'
+         * or 'more' lexer command.
+         */
         for (const r of g.rules.values()) {
-            if ( !r.isFragment() && !this.hasTypeOrMoreCommand(r) ) {
+            if (!r.isFragment() && !this.hasTypeOrMoreCommand(r)) {
                 G.defineTokenName(r.name);
             }
         }
 
-		// FOR ALL X : 'xxx'; RULES, DEFINE 'xxx' AS TYPE X
-        const  litAliases =
-			Grammar.getStringLiteralAliasesFromLexerRules(g.ast);
-        const  conflictingLiterals = new  HashSet<string>();
-        if ( litAliases!==null ) {
+        // FOR ALL X : 'xxx'; RULES, DEFINE 'xxx' AS TYPE X
+        const litAliases =
+            Grammar.getStringLiteralAliasesFromLexerRules(g.ast);
+        const conflictingLiterals = new HashSet<string>();
+        if (litAliases !== null) {
             for (const pair of litAliases) {
-                const  nameAST = pair.a;
-                const  litAST = pair.b;
-                if ( !G.stringLiteralToTypeMap.containsKey(litAST.getText()) ) {
+                const nameAST = pair.a;
+                const litAST = pair.b;
+                if (!G.stringLiteralToTypeMap.containsKey(litAST.getText())) {
                     G.defineTokenAlias(nameAST.getText(), litAST.getText());
                 }
                 else {
-					// oops two literal defs in two rules (within or across modes).
+                    // oops two literal defs in two rules (within or across modes).
                     conflictingLiterals.add(litAST.getText());
                 }
             }
             for (const lit of conflictingLiterals) {
-				// Remove literal if repeated across rules so it's not
-				// found by parser grammar.
-                const  value = G.stringLiteralToTypeMap.remove(lit);
+                // Remove literal if repeated across rules so it's not
+                // found by parser grammar.
+                const value = G.stringLiteralToTypeMap.remove(lit);
                 if (value !== null && value > 0 && value < G.typeToStringLiteralList.size() && lit.equals(G.typeToStringLiteralList.get(value))) {
                     G.typeToStringLiteralList.set(value, null);
                 }
@@ -191,21 +191,21 @@ export  class SemanticPipeline {
         }
     }
 
-    protected  hasTypeOrMoreCommand(r: Rule): boolean {
-        const  ast = r.ast;
+    protected hasTypeOrMoreCommand(r: Rule): boolean {
+        const ast = r.ast;
         if (ast === null) {
             return false;
         }
 
-        const  altActionAst = ast.getFirstDescendantWithType(ANTLRParser.LEXER_ALT_ACTION) as GrammarAST;
+        const altActionAst = ast.getFirstDescendantWithType(ANTLRParser.LEXER_ALT_ACTION) as GrammarAST;
         if (altActionAst === null) {
-			// the rule isn't followed by any commands
+            // the rule isn't followed by any commands
             return false;
         }
 
-		// first child is the alt itself, subsequent are the actions
-        for (let  i = 1; i < altActionAst.getChildCount(); i++) {
-            const  node = altActionAst.getChild(i) as GrammarAST;
+        // first child is the alt itself, subsequent are the actions
+        for (let i = 1; i < altActionAst.getChildCount(); i++) {
+            const node = altActionAst.getChild(i) as GrammarAST;
             if (node.getType() === ANTLRParser.LEXER_ACTION_CALL) {
                 if ("type".equals(node.getChild(0).getText())) {
                     return true;
@@ -222,12 +222,11 @@ export  class SemanticPipeline {
         return false;
     }
 
-    protected  assignTokenTypes(g: Grammar, tokensDefs: GrammarAST[],
-						  tokenIDs: GrammarAST[], terminals: GrammarAST[]): void
-    {
-		//Grammar G = g.getOutermostGrammar(); // put in root, even if imported
+    protected assignTokenTypes(g: Grammar, tokensDefs: GrammarAST[],
+        tokenIDs: GrammarAST[], terminals: GrammarAST[]): void {
+        //Grammar G = g.getOutermostGrammar(); // put in root, even if imported
 
-		// create token types for tokens { A, B, C } ALIASES
+        // create token types for tokens { A, B, C } ALIASES
         for (const alias of tokensDefs) {
             if (g.getTokenType(alias.getText()) !== Token.INVALID_TYPE) {
                 g.tool.errMgr.grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token, alias.getText());
@@ -236,7 +235,7 @@ export  class SemanticPipeline {
             g.defineTokenName(alias.getText());
         }
 
-		// DEFINE TOKEN TYPES FOR TOKEN REFS LIKE ID, INT
+        // DEFINE TOKEN TYPES FOR TOKEN REFS LIKE ID, INT
         for (const idAST of tokenIDs) {
             if (g.getTokenType(idAST.getText()) === Token.INVALID_TYPE) {
                 g.tool.errMgr.grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token, idAST.getText());
@@ -245,7 +244,7 @@ export  class SemanticPipeline {
             g.defineTokenName(idAST.getText());
         }
 
-		// VERIFY TOKEN TYPES FOR STRING LITERAL REFS LIKE 'while', ';'
+        // VERIFY TOKEN TYPES FOR STRING LITERAL REFS LIKE 'while', ';'
         for (const termAST of terminals) {
             if (termAST.getType() !== ANTLRParser.STRING_LITERAL) {
                 continue;
@@ -256,28 +255,28 @@ export  class SemanticPipeline {
             }
         }
 
-        g.tool.log("semantics", "tokens="+g.tokenNameToTypeMap);
-        g.tool.log("semantics", "strings="+g.stringLiteralToTypeMap);
+        g.tool.logInfo("semantics", "tokens=" + g.tokenNameToTypeMap);
+        g.tool.logInfo("semantics", "strings=" + g.stringLiteralToTypeMap);
     }
 
-	/**
-	 * Assign constant values to custom channels defined in a grammar.
-	 *
-	 * @param g The grammar.
-	 * @param channelDefs A collection of AST nodes defining individual channels
-	 * within a {@code channels{}} block in the grammar.
-	 */
-    protected  assignChannelTypes(g: Grammar, channelDefs: GrammarAST[]): void {
-        const  outermost = g.getOutermostGrammar();
+    /**
+     * Assign constant values to custom channels defined in a grammar.
+     *
+     * @param g The grammar.
+     * @param channelDefs A collection of AST nodes defining individual channels
+     * within a {@code channels{}} block in the grammar.
+     */
+    protected assignChannelTypes(g: Grammar, channelDefs: GrammarAST[]): void {
+        const outermost = g.getOutermostGrammar();
         for (const channel of channelDefs) {
-            const  channelName = channel.getText();
+            const channelName = channel.getText();
 
-			// Channel names can't alias tokens or modes, because constant
-			// values are also assigned to them and the ->channel(NAME) lexer
-			// command does not distinguish between the various ways a constant
-			// can be declared. This method does not verify that channels do not
-			// alias rules, because rule names are not associated with constant
-			// values in ANTLR grammar semantics.
+            // Channel names can't alias tokens or modes, because constant
+            // values are also assigned to them and the ->channel(NAME) lexer
+            // command does not distinguish between the various ways a constant
+            // can be declared. This method does not verify that channels do not
+            // alias rules, because rule names are not associated with constant
+            // values in ANTLR grammar semantics.
 
             if (g.getTokenType(channelName) !== Token.INVALID_TYPE) {
                 g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_TOKEN, g.fileName, channel.token, channelName);
@@ -288,7 +287,7 @@ export  class SemanticPipeline {
             }
 
             if (outermost instanceof LexerGrammar) {
-                const  lexerGrammar = outermost;
+                const lexerGrammar = outermost;
                 if (lexerGrammar.modes.containsKey(channelName)) {
                     g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_MODE, g.fileName, channel.token, channelName);
                 }

@@ -8,18 +8,19 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { LabelType } from "./LabelType.js";
-import { LabelElementPair } from "./LabelElementPair.js";
-import { Grammar } from "./Grammar.js";
-import { AttributeResolver } from "./AttributeResolver.js";
-import { AttributeDict } from "./AttributeDict.js";
 import { Alternative } from "./Alternative.js";
+import { Attribute } from "./Attribute.js";
+import { AttributeDict } from "./AttributeDict.js";
+import { AttributeResolver } from "./AttributeResolver.js";
+import { DictType } from "./DictType.js";
+import { Grammar } from "./Grammar.js";
+import { LabelElementPair } from "./LabelElementPair.js";
+import { LabelType } from "./LabelType.js";
 import { ActionAST } from "./ast/ActionAST.js";
 import { AltAST } from "./ast/AltAST.js";
 import { GrammarAST } from "./ast/GrammarAST.js";
 import { PredAST } from "./ast/PredAST.js";
 import { RuleAST } from "./ast/RuleAST.js";
-import type { Attribute } from "./Attribute.js";
 
 export class Rule implements AttributeResolver {
     /**
@@ -28,7 +29,7 @@ export class Rule implements AttributeResolver {
      *
      *  These must be consistent with ActionTranslator.rulePropToModelMap, ...
      */
-    public static readonly predefinedRulePropertiesDict = new AttributeDict(AttributeDict.DictType.PREDEFINED_RULE);
+    public static readonly predefinedRulePropertiesDict = new AttributeDict(DictType.PREDEFINED_RULE);
 
     public static readonly validLexerCommands = new Set<string>();
 
@@ -114,9 +115,9 @@ export class Rule implements AttributeResolver {
 
     /** Lexer actions are numbered across rules 0..n-1 */
     public defineLexerAction(actionAST: ActionAST): void {
-        this.actionIndex = this.g.lexerActions.size();
+        this.actionIndex = this.g.lexerActions.size;
         if (this.g.lexerActions.get(actionAST) === null) {
-            this.g.lexerActions.put(actionAST, this.actionIndex);
+            this.g.lexerActions.set(actionAST, this.actionIndex);
         }
     }
 
@@ -124,11 +125,11 @@ export class Rule implements AttributeResolver {
         this.actions.push(predAST);
         this.alt[currentAlt].actions.push(predAST);
         if (this.g.sempreds.get(predAST) === null) {
-            this.g.sempreds.put(predAST, this.g.sempreds.size());
+            this.g.sempreds.set(predAST, this.g.sempreds.size);
         }
     }
 
-    public resolveRetvalOrProperty(y: string): Attribute {
+    public resolveRetvalOrProperty(y: string): Attribute | null {
         if (this.retvals !== null) {
             const a = this.retvals.get(y);
             if (a !== null) {
@@ -138,7 +139,7 @@ export class Rule implements AttributeResolver {
         }
         const d = this.getPredefinedScope(LabelType.RULE_LABEL);
 
-        return d.get(y);
+        return d?.get(y) ?? null;
     }
 
     public getTokenRefs(): Set<string> {
@@ -160,19 +161,25 @@ export class Rule implements AttributeResolver {
             }
         }
 
-        if (refs.isEmpty()) {
+        if (refs.size === 0) {
             return null;
         }
 
         return refs;
     }
 
-    public getElementLabelDefs(): Map<string, LabelElementPair> {
-        const defs = new Map<string, LabelElementPair>();
+    public getElementLabelDefs(): Map<string, LabelElementPair[]> {
+        const defs = new Map<string, LabelElementPair[]>();
         for (let i = 1; i <= this.numberOfAlts; i++) {
             for (const pairs of this.alt[i].labelDefs.values()) {
                 for (const p of pairs) {
-                    defs.map(p.label.getText(), p);
+                    const text = p.label.getText()!;
+                    let list = defs.get(text);
+                    if (!list) {
+                        list = [];
+                        defs.set(text, list);
+                    }
+                    list.push(p);
                 }
             }
         }
@@ -246,7 +253,7 @@ export class Rule implements AttributeResolver {
             const anyLabelDef = this.getAnyLabelDef(x);
             if (anyLabelDef !== null) {
                 if (anyLabelDef.type === LabelType.RULE_LABEL) {
-                    return this.g.getRule(anyLabelDef.element.getText()!).resolveRetvalOrProperty(y);
+                    return this.g.getRule(anyLabelDef.element.getText()!)?.resolveRetvalOrProperty(y) ?? null;
                 } else {
                     const scope = this.getPredefinedScope(anyLabelDef.type);
                     if (scope === null) {
@@ -287,7 +294,7 @@ export class Rule implements AttributeResolver {
 
         const properties = this.getPredefinedScope(LabelType.RULE_LABEL);
 
-        return properties.get(x);
+        return properties?.get(x) ?? null;
     }
 
     public resolvesToLabel(x: string, node: ActionAST): boolean {
@@ -323,14 +330,14 @@ export class Rule implements AttributeResolver {
         return false;
     }
 
-    public resolveToRule(x: string): Rule {
-        if (x.equals(this.name)) {
+    public resolveToRule(x: string): Rule | null {
+        if (x === this.name) {
             return this;
         }
 
         const anyLabelDef = this.getAnyLabelDef(x);
         if (anyLabelDef !== null && anyLabelDef.type === LabelType.RULE_LABEL) {
-            return this.g.getRule(anyLabelDef.element.getText());
+            return this.g.getRule(anyLabelDef.element.getText()!) ?? null;
         }
 
         return this.g.getRule(x);
@@ -338,8 +345,8 @@ export class Rule implements AttributeResolver {
 
     public getAnyLabelDef(x: string): LabelElementPair | null {
         const labels = this.getElementLabelDefs().get(x);
-        if (labels !== null) {
-            return labels.get(0) || null;
+        if (labels) {
+            return labels[0] ?? null;
         }
 
         return null;
@@ -357,7 +364,7 @@ export class Rule implements AttributeResolver {
         }
 
         for (const a of this.modifiers) {
-            if (a.getText().equals("fragment")) {
+            if (a.getText() === "fragment") {
                 return true;
             }
 
@@ -366,9 +373,7 @@ export class Rule implements AttributeResolver {
         return false;
     }
 
-    public override  hashCode(): number { return this.name.hashCode(); }
-
-    public override  equals(obj: Object): boolean {
+    public equals(obj: unknown): boolean {
         if (this === obj) {
             return true;
         }
@@ -377,32 +382,29 @@ export class Rule implements AttributeResolver {
             return false;
         }
 
-        return this.name.equals((obj).name);
+        return this.name === obj.name;
     }
 
-    public override  toString(): string {
-        const buf = new StringBuilder();
-        buf.append("Rule{name=").append(this.name);
-        if (this.args !== null) {
-            buf.append(", args=").append(this.args);
+    public toString(): string {
+        let buf = "Rule{name=" + this.name;
+        if (this.args) {
+            buf += ", args=" + JSON.stringify(this.args, null, 2);
         }
 
-        if (this.retvals !== null) {
-            buf.append(", retvals=").append(this.retvals);
+        if (this.retvals) {
+            buf += ", retvals=" + JSON.stringify(this.retvals, null, 4);
         }
 
-        buf.append("}");
-
-        return buf.toString();
+        return buf + "}";
     }
+
     static {
         Rule.predefinedRulePropertiesDict.add(new Attribute("parser"));
         Rule.predefinedRulePropertiesDict.add(new Attribute("text"));
         Rule.predefinedRulePropertiesDict.add(new Attribute("start"));
         Rule.predefinedRulePropertiesDict.add(new Attribute("stop"));
         Rule.predefinedRulePropertiesDict.add(new Attribute("ctx"));
-    }
-    static {
+
         // CALLS
         Rule.validLexerCommands.add("mode");
         Rule.validLexerCommands.add("pushMode");

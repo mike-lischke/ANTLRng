@@ -1,7 +1,7 @@
 /* java2ts: keep */
 
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -47,7 +47,7 @@ export class CodeGenerator {
     }
 
     public static fromGrammar(g: Grammar): CodeGenerator {
-        return CodeGenerator.fromTool(g.tool, g, g.getLanguage());
+        return CodeGenerator.fromTool(g.tool, g, g.getLanguage()!);
     }
 
     public static fromTool(tool: Tool, g: Grammar, language: string): CodeGenerator {

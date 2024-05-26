@@ -82,7 +82,7 @@ export class AnalysisPipeline {
     protected processParser(): void {
         this.g.decisionLOOK = new Array<IntervalSet[]>(this.g.atn.getNumberOfDecisions() + 1);
         for (const s of this.g.atn.decisionToState) {
-            this.g.tool.log("LL1", "\nDECISION " + s.decision + " in rule " + this.g.getRule(s.ruleIndex).name);
+            this.g.tool.logInfo("LL1", "\nDECISION " + s.decision + " in rule " + this.g.getRule(s.ruleIndex).name);
             let look: IntervalSet[];
             if (s.nonGreedy) { // nongreedy decisions can't be LL(1)
                 look = new Array<IntervalSet>(s.getNumberOfTransitions() + 1);
@@ -90,13 +90,13 @@ export class AnalysisPipeline {
             else {
                 const anal = new LL1Analyzer(this.g.atn);
                 look = anal.getDecisionLookahead(s);
-                this.g.tool.log("LL1", "look=" + Arrays.toString(look));
+                this.g.tool.logInfo("LL1", "look=" + Arrays.toString(look));
             }
 
             /* assert s.decision + 1 >= g.decisionLOOK.size(); */
             Utils.setSize(this.g.decisionLOOK, s.decision + 1);
             this.g.decisionLOOK.set(s.decision, look);
-            this.g.tool.log("LL1", "LL(1)? " + AnalysisPipeline.disjoint(look));
+            this.g.tool.logInfo("LL1", "LL(1)? " + AnalysisPipeline.disjoint(look));
         }
     }
 }

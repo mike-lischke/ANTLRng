@@ -36,19 +36,19 @@ export class TreeVisitor {
      *
      *  Return result of applying post action to this node.
      */
-    public visit<T extends Tree>(t: T, action: TreeVisitorAction<T>): T {
+    public visit<T extends Tree>(t: T | null, action: TreeVisitorAction<T>): T | null {
         // System.out.println("visit "+((Tree)t).toStringTree());
         const isNil = this.adaptor.isNil(t);
         if (action !== null && !isNil) {
             t = action.pre(t); // if rewritten, walk children of new t
         }
 
-        for (let i = 0; i < this.adaptor.getChildCount(t); i++) {
-            const child = this.adaptor.getChild(t, i)!;
+        for (let i = 0; i < this.adaptor.getChildCount(t!); i++) {
+            const child = this.adaptor.getChild(t!, i)!;
             const visitResult = this.visit(child, action);
-            const childAfterVisit = this.adaptor.getChild(t, i);
+            const childAfterVisit = this.adaptor.getChild(t!, i);
             if (visitResult !== childAfterVisit) { // result & child differ?
-                this.adaptor.setChild(t, i, visitResult);
+                this.adaptor.setChild(t!, i, visitResult!);
             }
         }
         if (action !== null && !isNil) {

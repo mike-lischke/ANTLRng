@@ -1063,7 +1063,7 @@ export class Grammar implements AttributeResolver {
         if (vocab !== null) {
             const vParser = new TokenVocabParser(this);
             const tokens = vParser.load();
-            this.tool.log("grammar", "tokens=" + tokens);
+            this.tool.logInfo("grammar", "tokens=" + tokens);
 
             for (const t of tokens.keys()) {
                 if (t.charAt(0) === "'") {

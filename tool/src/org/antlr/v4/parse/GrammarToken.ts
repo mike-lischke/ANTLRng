@@ -1,82 +1,85 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
+import { CommonToken, type CharStream, type Token, type TokenSource } from "antlr4ng";
 import { Grammar } from "../tool/Grammar.js";
 
 /**
  * A CommonToken that can also track it's original location,
- *  derived from options on the element ref like BEGIN&lt;line=34,...&gt;.
+ * derived from options on the element ref like BEGIN<line=34,..>.
  */
-export  class GrammarToken extends CommonToken {
-    public  g:  Grammar;
-    public  originalTokenIndex = -1;
+export class GrammarToken extends CommonToken {
+    public g: Grammar;
+    public originalTokenIndex = -1;
 
-    public  constructor(g: Grammar, oldToken: Token) {
-        super(oldToken);
+    public constructor(g: Grammar, oldToken: Token) {
+        const source: [TokenSource | null, CharStream | null] = [oldToken.tokenSource, oldToken.inputStream];
+
+        super({
+            ...oldToken,
+            source,
+        });
         this.g = g;
     }
 
-    @Override
-    public  getCharPositionInLine():  number {
-        if ( this.originalTokenIndex>=0 ) {
-            return this.g.originalTokenStream.get(this.originalTokenIndex).getCharPositionInLine();
+    public getCharPositionInLine(): number {
+        if (this.originalTokenIndex >= 0) {
+            return this.g.originalTokenStream.get(this.originalTokenIndex).column;
         }
 
-        return super.getCharPositionInLine();
+        return this.column;
     }
 
-    @Override
-    public  getLine():  number {
-        if ( this.originalTokenIndex>=0 ) {
-            return this.g.originalTokenStream.get(this.originalTokenIndex).getLine();
+    public getLine(): number {
+        if (this.originalTokenIndex >= 0) {
+            return this.g.originalTokenStream.get(this.originalTokenIndex).line;
         }
 
-        return super.getLine();
+        return this.line;
     }
 
-    @Override
-    public  getTokenIndex():  number {
+    public getTokenIndex(): number {
         return this.originalTokenIndex;
     }
 
-    @Override
-    public  getStartIndex():  number {
-        if ( this.originalTokenIndex>=0 ) {
-            return (this.g.originalTokenStream.get(this.originalTokenIndex) as CommonToken).getStartIndex();
+    public getStartIndex(): number {
+        if (this.originalTokenIndex >= 0) {
+            return (this.g.originalTokenStream.get(this.originalTokenIndex) as CommonToken).start;
         }
 
-        return super.getStartIndex();
+        return this.start;
     }
 
-    @Override
-    public  getStopIndex():  number {
-        const  n = super.getStopIndex() - super.getStartIndex() + 1;
+    public getStopIndex(): number {
+        const n = this.stop - this.start + 1;
 
         return this.getStartIndex() + n - 1;
     }
 
-    @Override
-    public  toString():  string {
-        let  channelStr = "";
-        if ( java.nio.channels.FileLock.channel>0 ) {
-            channelStr=",channel="+java.nio.channels.FileLock.channel;
+    public override toString(): string {
+        let channelStr = "";
+        if (this.channel > 0) {
+            channelStr = ",channel=" + this.channel;
         }
-        let  txt = java.text.BreakIterator.getText();
-        if ( txt!==null ) {
-            txt = txt.replaceAll("\n","\\\\n");
-            txt = txt.replaceAll("\r","\\\\r");
-            txt = txt.replaceAll("\t","\\\\t");
-        }
-        else {
+
+        let txt = this.text;
+        if (txt != null) {
+            txt = txt.replaceAll("\n", "\\\\n");
+            txt = txt.replaceAll("\r", "\\\\r");
+            txt = txt.replaceAll("\t", "\\\\t");
+        } else {
             txt = "<no text>";
         }
 
-        return "[@"+this.getTokenIndex()+","+this.getStartIndex()+":"+this.getStopIndex()+
-			   "='"+txt+"',<"+java.io.ObjectStreamField.getType()+">"+channelStr+","+this.getLine()+":"+this.getCharPositionInLine()+"]";
+        return "[@" + this.getTokenIndex() + "," + this.getStartIndex() + ":" + this.getStopIndex() +
+            "='" + txt + "',<" + this.type + ">" + channelStr + "," + this.getLine() + ":"
+            + this.getCharPositionInLine() + "]";
     }
 }

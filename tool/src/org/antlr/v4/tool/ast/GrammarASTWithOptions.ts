@@ -34,7 +34,7 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
                 v = CharSupport.getStringFromGrammarStringLiteral(v);
                 if (v === null) {
                     this.g.tool.errMgr.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, this.g.fileName,
-                        value.getToken()!, value.getText()!);
+                        value.getToken(), value.getText()!);
                     v = "";
                 }
             }

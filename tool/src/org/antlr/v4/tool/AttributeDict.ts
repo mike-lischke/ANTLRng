@@ -62,7 +62,7 @@ export class AttributeDict {
     }
 
     /**
-     * Return the set of keys that collide from {@code this} and {@code other}.
+     * @returns the set of keys that collide from {@code this} and {@code other}.
      */
     public intersection(other: AttributeDict | null): Set<string> {
         const result = new Set<string>();
@@ -92,6 +92,5 @@ export class AttributeDict {
         AttributeDict.predefinedTokenDict.add(new Attribute("pos"));
         AttributeDict.predefinedTokenDict.add(new Attribute("channel"));
         AttributeDict.predefinedTokenDict.add(new Attribute("int"));
-
     }
 }

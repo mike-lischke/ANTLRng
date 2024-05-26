@@ -257,7 +257,7 @@ public  otherAlt(originalAltTree: AltAST, alt: number):  void {
 
 		ruleST.add("primaryAlts", this.prefixAndOtherAlts);
 
-		this.tool.log("left-recursion", ruleST.render());
+		this.tool.logInfo("left-recursion", ruleST.render());
 
 		return ruleST.render();
 	}

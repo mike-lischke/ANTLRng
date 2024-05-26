@@ -1,7 +1,7 @@
 /* java2ts: keep */
 
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -20,7 +20,7 @@ export class LeftRecursionCyclesMessage extends ANTLRMessage {
         this.fileName = fileName;
     }
 
-    protected static getStartTokenOfFirstRule(cycles: Rule[][]): Token | undefined {
+    protected static getStartTokenOfFirstRule(cycles: Rule[][]): Token | null {
         for (const collection of cycles) {
             for (const rule of collection) {
                 return rule.ast.getToken();

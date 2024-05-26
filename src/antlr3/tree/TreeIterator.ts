@@ -11,9 +11,12 @@
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
 import { Token } from "antlr4ng";
+
 import { FastQueue } from "../misc/FastQueue.js";
 import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
+import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
+import { TreeParser } from "./TreeParser.js";
 
 /**
  * Return a node stream from a doubly-linked tree whose nodes
@@ -21,54 +24,44 @@ import type { TreeAdaptor } from "./TreeAdaptor.js";
  *
  *  Emit navigation nodes (DOWN, UP, and EOF) to let show tree structure.
  */
-export class TreeIterator implements Iterator<unknown> {
+export class TreeIterator {
 
     // navigation nodes to return during walk and at end
-    public up: unknown;
-    public down: unknown;
-    public eof: unknown;
+    public up: Tree;
+    public down: Tree;
+    public eof: Tree;
     protected adaptor: TreeAdaptor;
-    protected root: unknown;
-    protected tree: unknown;
+    protected root: Tree;
+    protected tree: Tree | null;
     protected firstTime = true;
 
     /**
      * If we emit UP/DOWN nodes, we need to spit out multiple nodes per
      *  next() call.
      */
-    protected nodes: FastQueue<unknown>;
+    protected nodes: FastQueue<Tree>;
 
-    public constructor(tree: unknown);
-
-    public constructor(adaptor: TreeAdaptor, tree: unknown);
+    public constructor(tree: Tree);
+    public constructor(adaptor: TreeAdaptor, tree: Tree);
     public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 1: {
-                const [tree] = args as [unknown];
+        let tree;
+        let adaptor;
 
-                this(new CommonTreeAdaptor(), tree);
+        if (args.length === 1) {
+            [tree] = args as [Tree];
 
-                break;
-            }
-
-            case 2: {
-                const [adaptor, tree] = args as [TreeAdaptor, unknown];
-
-                this.adaptor = adaptor;
-                this.tree = tree;
-                this.root = tree;
-                this.nodes = new FastQueue<unknown>();
-                this.down = adaptor.create(Token.DOWN, "DOWN");
-                this.up = adaptor.create(Token.UP, "UP");
-                this.eof = adaptor.create(Token.EOF, "EOF");
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+            adaptor = new CommonTreeAdaptor();
+        } else {
+            [adaptor, tree] = args as [TreeAdaptor, Tree];
         }
+
+        this.adaptor = adaptor;
+        this.tree = tree;
+        this.root = tree;
+        this.nodes = new FastQueue<Tree>();
+        this.down = adaptor.create(TreeParser.DOWN, "DOWN");
+        this.up = adaptor.create(TreeParser.UP, "UP");
+        this.eof = adaptor.create(Token.EOF, "EOF");
     }
 
     public reset(): void {
@@ -82,7 +75,7 @@ export class TreeIterator implements Iterator<unknown> {
             return this.root !== null;
         }
 
-        if (this.nodes !== null && this.nodes.size() > 0) {
+        if (this.nodes !== null && this.nodes.size > 0) {
             return true;
         }
 
@@ -97,10 +90,10 @@ export class TreeIterator implements Iterator<unknown> {
         return this.adaptor.getParent(this.tree) !== null; // back at root?
     }
 
-    public next(): unknown {
+    public nextTree(): Tree | null {
         if (this.firstTime) { // initial condition
             this.firstTime = false;
-            if (this.adaptor.getChildCount(this.tree) === 0) { // single node tree (special)
+            if (this.adaptor.getChildCount(this.tree!) === 0) { // single node tree (special)
                 this.nodes.add(this.eof);
 
                 return this.tree;
@@ -109,7 +102,7 @@ export class TreeIterator implements Iterator<unknown> {
             return this.tree;
         }
         // if any queued up, use those first
-        if (this.nodes !== null && this.nodes.size() > 0) {
+        if (this.nodes !== null && this.nodes.size > 0) {
             return this.nodes.remove();
         }
 
@@ -121,10 +114,11 @@ export class TreeIterator implements Iterator<unknown> {
         // next node will be child 0 if any children
         if (this.adaptor.getChildCount(this.tree) > 0) {
             this.tree = this.adaptor.getChild(this.tree, 0);
-            this.nodes.add(this.tree); // real node is next after DOWN
+            this.nodes.add(this.tree!); // real node is next after DOWN
 
             return this.down;
         }
+
         // if no children, look for next sibling of tree or ancestor
         let parent = this.adaptor.getParent(this.tree);
         // while we're out of siblings, keep popping back up towards root
@@ -134,6 +128,7 @@ export class TreeIterator implements Iterator<unknown> {
             this.tree = parent;
             parent = this.adaptor.getParent(this.tree);
         }
+
         // no nodes left?
         if (parent === null) {
             this.tree = null; // back at root? nothing left then
@@ -146,10 +141,12 @@ export class TreeIterator implements Iterator<unknown> {
         // move to it and return it
         const nextSiblingIndex = this.adaptor.getChildIndex(this.tree) + 1;
         this.tree = this.adaptor.getChild(parent, nextSiblingIndex);
-        this.nodes.add(this.tree); // add to queue, might have UP nodes in there
+        this.nodes.add(this.tree!); // add to queue, might have UP nodes in there
 
         return this.nodes.remove();
     }
 
-    public remove(): void { throw new UnsupportedOperationException(); }
+    public remove(): void {
+        throw new Error("Remove is unsupported");
+    }
 }

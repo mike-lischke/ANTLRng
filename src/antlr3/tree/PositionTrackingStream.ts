@@ -19,7 +19,7 @@ export interface PositionTrackingStream<T> {
      * {@code null} if an element containing exact information about the current
      * position is not available
      */
-    getKnownPositionElement(allowApproximateLocation: boolean): T;
+    getKnownPositionElement(allowApproximateLocation: boolean): T | null;
 
     /**
      * Determines if the specified {@code element} contains concrete position

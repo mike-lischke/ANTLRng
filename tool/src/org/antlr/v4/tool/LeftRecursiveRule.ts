@@ -1,182 +1,173 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-
-import { Rule } from "./Rule.js";
-import { Grammar } from "./Grammar.js";
-import { Alternative } from "./Alternative.js";
 import { LeftRecursiveRuleAltInfo } from "../analysis/LeftRecursiveRuleAltInfo.js";
+import { Alternative } from "./Alternative.js";
+import { Grammar } from "./Grammar.js";
+import { Rule } from "./Rule.js";
 import { AltAST } from "./ast/AltAST.js";
-import { GrammarAST } from "./ast/GrammarAST.js";
+import type { GrammarAST } from "./ast/GrammarAST.js";
 import { RuleAST } from "./ast/RuleAST.js";
-import { OrderedHashMap, HashMap } from "antlr4ng";
 
+export class LeftRecursiveRule extends Rule {
+    public recPrimaryAlts: LeftRecursiveRuleAltInfo[];
+    public recOpAlts: Map<number, LeftRecursiveRuleAltInfo>;
+    public originalAST: RuleAST;
 
+    /** Did we delete any labels on direct left-recur refs? Points at ID of ^(= ID el) */
+    public leftRecursiveRuleRefLabels = new Array<[GrammarAST, string]>();
 
-export  class LeftRecursiveRule extends Rule {
-	public  recPrimaryAlts:  Array<LeftRecursiveRuleAltInfo>;
-	public  recOpAlts:  OrderedHashMap<number, LeftRecursiveRuleAltInfo>;
-	public  originalAST:  RuleAST;
+    public constructor(g: Grammar, name: string, ast: RuleAST) {
+        super(g, name, ast, 1);
+        this.originalAST = ast;
+        this.alt = new Array<Alternative>(this.numberOfAlts + 1); // always just one
+        for (let i = 1; i <= this.numberOfAlts; i++) {
+            this.alt[i] = new Alternative(this, i);
+        }
+    }
 
-	/** Did we delete any labels on direct left-recur refs? Points at ID of ^(= ID el) */
-	public  leftRecursiveRuleRefLabels =
-		new  Array<<GrammarAST,string>>();
+    public override  hasAltSpecificContexts(): boolean {
+        return super.hasAltSpecificContexts() || this.getAltLabels() !== null;
+    }
 
-	public  constructor(g: Grammar, name: string, ast: RuleAST) {
-		super(g, name, ast, 1);
-		this.originalAST = ast;
-		this.alt = new  Array<Alternative>(this.numberOfAlts+1); // always just one
-		for (let  i=1; i<=this.numberOfAlts; i++) {
- this.alt[i] = new  Alternative(this, i);
-}
+    public override  getOriginalNumberOfAlts(): number {
+        let n = 0;
+        if (this.recPrimaryAlts !== null) {
+            n += this.recPrimaryAlts.length;
+        }
 
-	}
+        if (this.recOpAlts !== null) {
+            n += this.recOpAlts.size;
+        }
 
-	@Override
-public override  hasAltSpecificContexts():  boolean {
-		return super.hasAltSpecificContexts() || this.getAltLabels()!==null;
-	}
+        return n;
+    }
 
-	@Override
-public override  getOriginalNumberOfAlts():  number {
-		let  n = 0;
-		if ( this.recPrimaryAlts!==null ) {
- n += this.recPrimaryAlts.size();
-}
+    public getOriginalAST(): RuleAST {
+        return this.originalAST;
+    }
 
-		if ( this.recOpAlts!==null ) {
- n += this.recOpAlts.size();
-}
+    public override  getUnlabeledAltASTs(): AltAST[] | null {
+        const alts = new Array<AltAST>();
+        for (const altInfo of this.recPrimaryAlts) {
+            if (altInfo.altLabel === null) {
+                alts.push(altInfo.originalAltAST);
+            }
 
-		return n;
-	}
+        }
+        for (let i = 0; i < this.recOpAlts.size; i++) {
+            const altInfo = this.recOpAlts.get(i)!;
+            if (altInfo.altLabel === null) {
+                alts.push(altInfo.originalAltAST);
+            }
 
-	public  getOriginalAST():  RuleAST {
-		return this.originalAST;
-	}
+        }
+        if (alts.length === 0) {
+            return null;
+        }
 
-	@Override
-public override  getUnlabeledAltASTs():  Array<AltAST> {
-		let  alts = new  Array<AltAST>();
-		for (let altInfo of this.recPrimaryAlts) {
-			if (altInfo.altLabel === null) {
- alts.add(altInfo.originalAltAST);
-}
+        return alts;
+    }
 
-		}
-		for (let  i = 0; i < this.recOpAlts.size(); i++) {
-			let  altInfo = this.recOpAlts.getElement(i);
-			if ( altInfo.altLabel===null ) {
- alts.add(altInfo.originalAltAST);
-}
+    /**
+     * Return an array that maps predicted alt from primary decision
+     *  to original alt of rule. For following rule, return [0, 2, 4]
+     *
+     * ```antlr
+     * e : e '*' e
+     *   | INT
+     *   | e '+' e
+     *   | ID
+     *   ;
+     * ```
+     *
+     *  That maps predicted alt 1 to original alt 2 and predicted 2 to alt 4.
+     */
+    public getPrimaryAlts(): number[] {
+        const alts: number[] = [];
+        for (let i = 0; i < this.recPrimaryAlts.length; i++) { // recPrimaryAlts is a List not Map like recOpAlts
+            const altInfo = this.recPrimaryAlts[i];
+            alts[i + 1] = altInfo.altNum;
+        }
 
-		}
-		if ( alts.isEmpty() ) {
- return null;
-}
+        return alts;
+    }
 
-		return alts;
-	}
+    /**
+     * Return an array that maps predicted alt from recursive op decision
+     *  to original alt of rule. For following rule, return [0, 1, 3]
+     *
+     * ```antlr
+     * e : e '*' e
+     *   | INT
+     *   | e '+' e
+     *   | ID
+     *   ;
+     * ```
+     *  That maps predicted alt 1 to original alt 1 and predicted 2 to alt 3.
+     */
+    public getRecursiveOpAlts(): number[] {
+        const alts: number[] = [];
+        let alt = 1;
+        for (const altInfo of this.recOpAlts.values()) {
+            alts[alt] = altInfo.altNum;
+            alt++; // recOpAlts has alts possibly with gaps
+        }
 
-	/** Return an array that maps predicted alt from primary decision
-	 *  to original alt of rule. For following rule, return [0, 2, 4]
-	 *
-		e : e '*' e
-		  | INT
-		  | e '+' e
-		  | ID
-		  ;
+        return alts;
+    }
 
-	 *  That maps predicted alt 1 to original alt 2 and predicted 2 to alt 4.
-	 *
-	 *  @since 4.5.1
-	 */
-	public  getPrimaryAlts():  Int32Array {
-		if ( this.recPrimaryAlts.size()===0 ) {
- return null;
-}
+    /** Get -&gt; labels from those alts we deleted for left-recursive rules. */
 
-		let  alts = new  Int32Array(this.recPrimaryAlts.size()+1);
-		for (let  i = 0; i < this.recPrimaryAlts.size(); i++) { // recPrimaryAlts is a List not Map like recOpAlts
-			let  altInfo = this.recPrimaryAlts.get(i);
-			alts[i+1] = altInfo.altNum;
-		}
-		return alts;
-	}
+    public override  getAltLabels(): Map<string, Array<[number, AltAST]>> | null {
+        const labels = new Map<string, Array<[number, AltAST]>>();
+        const normalAltLabels = super.getAltLabels();
+        if (normalAltLabels !== null) {
+            normalAltLabels.forEach((value, key) => {
+                labels.set(key, value);
+            });
+        }
 
-	/** Return an array that maps predicted alt from recursive op decision
-	 *  to original alt of rule. For following rule, return [0, 1, 3]
-	 *
-		e : e '*' e
-		  | INT
-		  | e '+' e
-		  | ID
-		  ;
+        if (this.recPrimaryAlts !== null) {
+            for (const altInfo of this.recPrimaryAlts) {
+                if (altInfo.altLabel !== null) {
+                    let pairs = labels.get(altInfo.altLabel);
+                    if (!pairs) {
+                        pairs = [];
+                        labels.set(altInfo.altLabel, pairs);
+                    }
 
-	 *  That maps predicted alt 1 to original alt 1 and predicted 2 to alt 3.
-	 *
-	 *  @since 4.5.1
-	 */
-	public  getRecursiveOpAlts():  Int32Array {
-		if ( this.recOpAlts.size()===0 ) {
- return null;
-}
+                    pairs.push([altInfo.altNum, altInfo.originalAltAST]);
+                }
+            }
+        }
 
-		let  alts = new  Int32Array(this.recOpAlts.size()+1);
-		let  alt = 1;
-		for (let altInfo of this.recOpAlts.values()) {
-			alts[alt] = altInfo.altNum;
-			alt++; // recOpAlts has alts possibly with gaps
-		}
-		return alts;
-	}
+        if (this.recOpAlts !== null) {
+            for (let i = 0; i < this.recOpAlts.size; i++) {
+                const altInfo = this.recOpAlts.get(i)!;
+                if (altInfo.altLabel !== null) {
+                    let pairs = labels.get(altInfo.altLabel);
+                    if (!pairs) {
+                        pairs = [];
+                        labels.set(altInfo.altLabel, pairs);
+                    }
 
-	/** Get -&gt; labels from those alts we deleted for left-recursive rules. */
-	@Override
-public override  getAltLabels():  Map<string, Array<<number, AltAST>>> {
-		let  labels = new  HashMap<string, Array<<number, AltAST>>>();
-		let  normalAltLabels = super.getAltLabels();
-		if ( normalAltLabels!==null ) {
- labels.putAll(normalAltLabels);
-}
+                    pairs.push([altInfo.altNum, altInfo.originalAltAST]);
+                }
+            }
+        }
 
-		if ( this.recPrimaryAlts!==null ) {
-			for (let altInfo of this.recPrimaryAlts) {
-				if (altInfo.altLabel !== null) {
-					let  pairs = labels.get(altInfo.altLabel);
-					if (pairs === null) {
-						pairs = new  Array<<number, AltAST>>();
-						labels.put(altInfo.altLabel, pairs);
-					}
+        if (labels.size === 0) {
+            return null;
+        }
 
-					pairs.add(new  <number, AltAST>(altInfo.altNum, altInfo.originalAltAST));
-				}
-			}
-		}
-		if ( this.recOpAlts!==null ) {
-			for (let  i = 0; i < this.recOpAlts.size(); i++) {
-				let  altInfo = this.recOpAlts.getElement(i);
-				if ( altInfo.altLabel!==null ) {
-					let  pairs = labels.get(altInfo.altLabel);
-					if (pairs === null) {
-						pairs = new  Array<<number, AltAST>>();
-						labels.put(altInfo.altLabel, pairs);
-					}
-
-					pairs.add(new  <number, AltAST>(altInfo.altNum, altInfo.originalAltAST));
-				}
-			}
-		}
-		if ( labels.isEmpty() ) {
- return null;
-}
-
-		return labels;
-	}
+        return labels;
+    }
 }

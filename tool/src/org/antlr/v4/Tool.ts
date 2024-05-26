@@ -1,15 +1,17 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
 
-import { ATNSerializer, HashMap, LogManager, RuntimeMetaData } from "antlr4ng";
+import { ATNSerializer } from "antlr4ng";
 
+import { StringWriter, type Writer } from "stringtemplate4ts";
 import { AnalysisPipeline } from "./analysis/AnalysisPipeline.js";
 import { IATNFactory } from "./automata/ATNFactory.js";
 import { LexerATNFactory } from "./automata/LexerATNFactory.js";
@@ -36,9 +38,11 @@ import { GrammarAST } from "./tool/ast/GrammarAST.js";
 import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
 import { RuleAST } from "./tool/ast/RuleAST.js";
-import { StringWriter, type Writer } from "stringtemplate4ts";
 
-
+enum OptionArgType {
+    NONE = "NONE",
+    STRING = "STRING"
+};
 
 export class Tool {
     public static readonly VERSION: string;
@@ -46,68 +50,37 @@ export class Tool {
     public static readonly GRAMMAR_EXTENSION = ".g4";
     public static readonly LEGACY_GRAMMAR_EXTENSION = ".g";
 
-    public static readonly ALL_GRAMMAR_EXTENSIONS =
-        java.util.Collections.unmodifiableList(java.util.Arrays.asList(Tool.GRAMMAR_EXTENSION, Tool.LEGACY_GRAMMAR_EXTENSION)); // NONE implies boolean
-    public static Option = class Option {
+    public static readonly ALL_GRAMMAR_EXTENSIONS = [Tool.GRAMMAR_EXTENSION, Tool.LEGACY_GRAMMAR_EXTENSION]; // NONE implies boolean
+
+    private static Option = class Option {
         protected fieldName: string;
         protected name: string;
-        protected argType: Tool.OptionArgType;
+        protected argType: OptionArgType;
         protected description: string;
 
-        public constructor(fieldName: string, name: string, description: string);
-
-        public constructor(fieldName: string, name: string, argType: Tool.OptionArgType, description: string);
-        public constructor(...args: unknown[]) {
-            switch (args.length) {
-                case 3: {
-                    const [fieldName, name, description] = args as [string, string, string];
-
-
-                    this(fieldName, name, Tool.OptionArgType.NONE, description);
-
-
-                    break;
-                }
-
-                case 4: {
-                    const [fieldName, name, argType, description] = args as [string, string, Tool.OptionArgType, string];
-
-
-                    this.fieldName = fieldName;
-                    this.name = name;
-                    this.argType = argType;
-                    this.description = description;
-
-
-                    break;
-                }
-
-                default: {
-                    throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-                }
-            }
+        public constructor(fieldName: string, name: string, description: string, argType?: OptionArgType) {
+            this.fieldName = fieldName;
+            this.name = name;
+            this.argType = argType ?? OptionArgType.NONE;
+            this.description = description;
         }
-
     };
 
-
-    public static readonly optionDefs = [
-        new Tool.Option("outputDirectory", "-o", Tool.OptionArgType.STRING, "specify output directory where all output is generated"),
-        new Tool.Option("libDirectory", "-lib", Tool.OptionArgType.STRING, "specify location of grammars, tokens files"),
+    private static readonly optionDefs = [
+        new Tool.Option("outputDirectory", "-o", "specify output directory where all output is generated", OptionArgType.STRING),
+        new Tool.Option("libDirectory", "-lib", "specify location of grammars, tokens files", OptionArgType.STRING),
         new Tool.Option("generate_ATN_dot", "-atn", "generate rule augmented transition network diagrams"),
-        new Tool.Option("grammarEncoding", "-encoding", Tool.OptionArgType.STRING, "specify grammar file encoding; e.g., euc-jp"),
-        new Tool.Option("msgFormat", "-message-format", Tool.OptionArgType.STRING, "specify output style for messages in antlr, gnu, vs2005"),
+        new Tool.Option("grammarEncoding", "-encoding", "specify grammar file encoding; e.g., euc-jp", OptionArgType.STRING),
+        new Tool.Option("msgFormat", "-message-format", "specify output style for messages in antlr, gnu, vs2005", OptionArgType.STRING),
         new Tool.Option("longMessages", "-long-messages", "show exception details when available for errors and warnings"),
         new Tool.Option("gen_listener", "-listener", "generate parse tree listener (default)"),
         new Tool.Option("gen_listener", "-no-listener", "don't generate parse tree listener"),
         new Tool.Option("gen_visitor", "-visitor", "generate parse tree visitor"),
         new Tool.Option("gen_visitor", "-no-visitor", "don't generate parse tree visitor (default)"),
-        new Tool.Option("genPackage", "-package", Tool.OptionArgType.STRING, "specify a package/namespace for the generated code"),
+        new Tool.Option("genPackage", "-package", "specify a package/namespace for the generated code", OptionArgType.STRING),
         new Tool.Option("gen_dependencies", "-depend", "generate file dependencies"),
         new Tool.Option("", "-D<option>=value", "set/override a grammar-level option"),
         new Tool.Option("warnings_are_errors", "-Werror", "treat warnings as errors"),
-        new Tool.Option("launch_ST_inspector", "-XdbgST", "launch StringTemplate visualizer on generated code"),
-        new Tool.Option("ST_inspector_wait_for_close", "-XdbgSTWait", "wait for STViz to close before continuing"),
         new Tool.Option("force_atn", "-Xforce-atn", "use the ATN simulator for all predictions"),
         new Tool.Option("log", "-Xlog", "dump lots of logging info to antlr-timestamp.log"),
         new Tool.Option("exact_output_dir", "-Xexact-output-dir", "all output goes into -o dir regardless of paths/package"),
@@ -121,10 +94,8 @@ export class Tool {
     public generate_ATN_dot = false;
     public grammarEncoding = null; // use default locale's encoding
     public msgFormat = "antlr";
-    public launch_ST_inspector = false;
-    public ST_inspector_wait_for_close = false;
     public force_atn = false;
-    //public log = false;
+    public log = false;
     public gen_listener = true;
     public gen_visitor = false;
     public gen_dependencies = false;
@@ -142,7 +113,6 @@ export class Tool {
 
     // helper vars for option management
     protected haveOutputDir = false;
-    protected return_dont_exit = false;
 
     protected grammarFiles = new Array<string>();
 
@@ -156,7 +126,6 @@ export class Tool {
     private readonly importedGrammars = new Map<string, Grammar>();
 
     public constructor();
-
     public constructor(args: string[]);
     public constructor(...args: unknown[]) {
         switch (args.length) {
@@ -197,7 +166,7 @@ export class Tool {
             antlr.processGrammarsOnCommandLine();
         }
         finally {
-            if (antlr.log) {
+            if (antlr.logInfo) {
                 try {
                     let logname = antlr.logMgr.save();
                     System.out.println("wrote " + logname);
@@ -210,14 +179,7 @@ export class Tool {
                 }
             }
         }
-        if (antlr.return_dont_exit) {
-            return;
-        }
 
-
-        if (antlr.errMgr.getNumErrors() > 0) {
-            antlr.exit(1);
-        }
         antlr.exit(0);
     }
 
@@ -277,10 +239,6 @@ export class Tool {
         content.append("\n");
 
         let serializedATN = ATNSerializer.getSerialized(g.atn);
-        // Uncomment if you'd like to write out histogram info on the numbers of
-        // each integer value:
-        //Utils.writeSerializedATNIntegerHistogram(g.name+"-histo.csv", serializedATN);
-
         content.append("atn:\n");
         content.append(serializedATN.toString());
 
@@ -605,9 +563,9 @@ export class Tool {
 
     public parseGrammar(fileName: string): GrammarRootAST {
         try {
-            let file = new File(fileName);
+            let file = new URL(fileName);
             if (!file.isAbsolute()) {
-                file = new File(this.inputDirectory, fileName);
+                file = new URL(this.inputDirectory, fileName);
             }
 
             let in = new ANTLRFileStream(file.getAbsolutePath(), this.grammarEncoding);
@@ -645,7 +603,7 @@ export class Tool {
         let name = nameNode.getText();
         let imported = this.importedGrammars.get(name);
         if (imported === null) {
-            g.tool.log("grammar", "load " + name + " from " + g.fileName);
+            g.tool.logInfo("grammar", "load " + name + " from " + g.fileName);
             let importedFile = null;
             for (let extension of Tool.ALL_GRAMMAR_EXTENSIONS) {
                 importedFile = this.getImportedGrammarFile(g, name + extension);
@@ -759,7 +717,7 @@ export class Tool {
         // output directory is a function of where the grammar file lives
         // for subdir/T.g4, you get subdir here.  Well, depends on -o etc...
         let outputDir = this.getOutputDirectory(g.fileName);
-        let outputFile = new File(outputDir, fileName);
+        let outputFile = new URL(outputDir, fileName);
 
         if (!outputDir.exists()) {
             outputDir.mkdirs();
@@ -776,13 +734,13 @@ export class Tool {
     }
 
     public getImportedGrammarFile(g: Grammar, fileName: string): File {
-        let importedFile = new File(this.inputDirectory, fileName);
+        let importedFile = new URL(this.inputDirectory, fileName);
         if (!importedFile.exists()) {
-            let gfile = new File(g.fileName);
+            let gfile = new URL(g.fileName);
             let parentDir = gfile.getParent();
-            importedFile = new File(parentDir, fileName);
+            importedFile = new URL(parentDir, fileName);
             if (!importedFile.exists()) { // try in lib dir
-                importedFile = new File(this.libDirectory, fileName);
+                importedFile = new URL(this.libDirectory, fileName);
                 if (!importedFile.exists()) {
                     return null;
                 }
@@ -799,12 +757,12 @@ export class Tool {
      *
      * @param fileNameWithPath path to input source
      */
-    public getOutputDirectory(fileNameWithPath: string): File {
+    public getOutputDirectory(fileNameWithPath: string): URL {
         if (this.exact_output_dir) {
             return this.new_getOutputDirectory(fileNameWithPath);
         }
 
-        let outputDir: File;
+        let outputDir: URL;
         let fileDirectory: string;
 
         // Some files are given to us without a PATH but should should
@@ -812,95 +770,92 @@ export class Tool {
         // the output directory. The file directory is either the set of sub directories
         // or just or the relative path recorded for the parent grammar. This means
         // that when we write the tokens files, or the .java files for imported grammars
-        // taht we will write them in the correct place.
-        if ((fileNameWithPath === null) || (fileNameWithPath.lastIndexOf(File.separatorChar) === -1)) {
+        // that we will write them in the correct place.
+        if ((fileNameWithPath === null) || (fileNameWithPath.lastIndexOf("/") === -1)) {
             // No path is included in the file name, so make the file
             // directory the same as the parent grammar (which might sitll be just ""
             // but when it is not, we will write the file in the correct place.
             fileDirectory = ".";
 
+        } else {
+            fileDirectory = fileNameWithPath.substring(0, fileNameWithPath.lastIndexOf("/"));
         }
-        else {
-            fileDirectory = fileNameWithPath.substring(0, fileNameWithPath.lastIndexOf(File.separatorChar));
-        }
+
         if (this.haveOutputDir) {
             // -o /tmp /var/lib/t.g4 => /tmp/T.java
             // -o subdir/output /usr/lib/t.g4 => subdir/output/T.java
             // -o . /usr/lib/t.g4 => ./T.java
             if (fileDirectory !== null &&
-                (new File(fileDirectory).isAbsolute() ||
-                    fileDirectory.startsWith("~"))) { // isAbsolute doesn't count this :(
-                // somebody set the dir, it takes precendence; write new file there
-                outputDir = new File(this.outputDirectory);
+                (new URL(fileDirectory).isAbsolute() || fileDirectory.startsWith("~"))) {
+                // somebody set the dir, it takes precedence; write new file there
+                outputDir = new URL(this.outputDirectory);
             }
             else {
                 // -o /tmp subdir/t.g4 => /tmp/subdir/T.java
                 if (fileDirectory !== null) {
-                    outputDir = new File(this.outputDirectory, fileDirectory);
-                }
-                else {
-                    outputDir = new File(this.outputDirectory);
+                    outputDir = new URL(this.outputDirectory, fileDirectory);
+                } else {
+                    outputDir = new URL(this.outputDirectory);
                 }
             }
-        }
-        else {
+        } else {
             // they didn't specify a -o dir so just write to location
             // where grammar is, absolute or relative, this will only happen
             // with command line invocation as build tools will always
             // supply an output directory.
-            outputDir = new File(fileDirectory);
+            outputDir = new URL(fileDirectory);
         }
+
         return outputDir;
     }
 
-    /** @since 4.7.1 in response to -Xexact-output-dir */
-    public new_getOutputDirectory(fileNameWithPath: string): File {
-        let outputDir: File;
+    public new_getOutputDirectory(fileNameWithPath: string): URL {
+        let outputDir: URL;
         let fileDirectory: string;
 
-        if (fileNameWithPath.lastIndexOf(File.separatorChar) === -1) {
+        if (fileNameWithPath.lastIndexOf("/") === -1) {
             // No path is included in the file name, so make the file
             // directory the same as the parent grammar (which might still be just ""
             // but when it is not, we will write the file in the correct place.
             fileDirectory = ".";
+        } else {
+            fileDirectory = fileNameWithPath.substring(0, fileNameWithPath.lastIndexOf("/"));
         }
-        else {
-            fileDirectory = fileNameWithPath.substring(0, fileNameWithPath.lastIndexOf(File.separatorChar));
-        }
+
         if (this.haveOutputDir) {
             // -o /tmp /var/lib/t.g4 => /tmp/T.java
             // -o subdir/output /usr/lib/t.g4 => subdir/output/T.java
             // -o . /usr/lib/t.g4 => ./T.java
             // -o /tmp subdir/t.g4 => /tmp/T.java
-            outputDir = new File(this.outputDirectory);
-        }
-        else {
+            outputDir = new URL(this.outputDirectory);
+        } else {
             // they didn't specify a -o dir so just write to location
             // where grammar is, absolute or relative, this will only happen
             // with command line invocation as build tools will always
             // supply an output directory.
-            outputDir = new File(fileDirectory);
+            outputDir = new URL(fileDirectory);
         }
+
         return outputDir;
     }
 
     public help(): void {
         this.info("ANTLR Parser Generator  Version " + Tool.VERSION);
         for (let o of Tool.optionDefs) {
-            let name = o.name + (o.argType !== Tool.OptionArgType.NONE ? " ___" : "");
+            let name = o.name + (o.argType !== OptionArgType.NONE ? " ___" : "");
             let s = string.format(" %-19s %s", name, o.description);
             this.info(s);
         }
     }
-    public log(msg: string): void;
 
-    public log(component: string, msg: string): void;
-    public log(...args: unknown[]): void {
+    public logInfo(msg: string): void;
+    public logInfo(component: string, msg: string): void;
+    public logInfo(...args: unknown[]): void {
         switch (args.length) {
             case 1: {
                 const [msg] = args as [string];
 
-                this.log(null, msg);
+                this.logInfo(null, msg);
 
                 break;
             }
@@ -997,7 +952,7 @@ export class Tool {
                 if (arg.equals(o.name)) {
                     found = true;
                     let argValue = null;
-                    if (o.argType === Tool.OptionArgType.STRING) {
+                    if (o.argType === OptionArgType.STRING) {
                         argValue = this.args[i];
                         i++;
                     }
@@ -1038,7 +993,7 @@ export class Tool {
                 this.outputDirectory =
                     this.outputDirectory.substring(0, this.outputDirectory.length() - 1);
             }
-            let outDir = new File(this.outputDirectory);
+            let outDir = new URL(this.outputDirectory);
             this.haveOutputDir = true;
             if (outDir.exists() && !outDir.isDirectory()) {
                 this.errMgr.toolError(ErrorType.OUTPUT_DIR_IS_FILE, this.outputDirectory);
@@ -1053,7 +1008,7 @@ export class Tool {
                 this.libDirectory.endsWith("\\")) {
                 this.libDirectory = this.libDirectory.substring(0, this.libDirectory.length() - 1);
             }
-            let outDir = new File(this.libDirectory);
+            let outDir = new URL(this.libDirectory);
             if (!outDir.exists()) {
                 this.errMgr.toolError(ErrorType.DIR_NOT_FOUND, this.libDirectory);
                 this.libDirectory = ".";
@@ -1064,7 +1019,6 @@ export class Tool {
         }
         if (this.launch_ST_inspector) {
             STGroup.trackCreationEvents = true;
-            this.return_dont_exit = true;
         }
     }
 
@@ -1140,17 +1094,10 @@ export class Tool {
         Tool.VERSION = RuntimeMetaData.VERSION;
     }
 
-    public static OptionArgType = class OptionArgType extends Enum<OptionArgType> {
-        public static readonly NONE: OptionArgType = new class extends OptionArgType {
-        }(S`NONE`, 0); public static readonly STRING: OptionArgType = new class extends OptionArgType {
-        }(S`STRING`, 1);
-    };
-
-
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace Tool {
-    export type OptionArgType = InstanceType<typeof Tool.OptionArgType>;
+    export type OptionArgType = InstanceType<typeof OptionArgType>;
     export type Option = InstanceType<typeof Tool.Option>;
 }

@@ -17,12 +17,12 @@ export interface TreeVisitorAction<T> {
      *  with the return value.  Children of returned value will be
      *  visited if using TreeVisitor.visit().
      */
-    pre(t: T): T;
+    pre(t: T | null): T | null;
 
     /**
      * Execute an action after visiting children of t.  Return t or
      *  a rewritten t.  It is up to the visitor to decide what to do
      *  with the return value.
      */
-    post(t: T): T;
+    post(t: T | null): T | null;
 }

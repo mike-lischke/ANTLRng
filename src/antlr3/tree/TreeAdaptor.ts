@@ -94,7 +94,7 @@ export interface TreeAdaptor {
     errorNode(input: TokenStream, start: Token, stop: Token, e: RecognitionException): unknown;
 
     /** Is tree considered a nil node used to make lists of child nodes? */
-    isNil(tree: Tree): boolean;
+    isNil(tree: Tree | null): boolean;
 
     /**
      * Add a child to the tree t.  If child is a flat tree (a list), make all
@@ -198,7 +198,7 @@ export interface TreeAdaptor {
      *  the appropriate information and pass that back.  See
      *  BaseRecognizer.getErrorMessage().
      */
-    getToken(t: Tree): Token | null;
+    getToken(t: Tree | null): Token | null;
 
     /**
      * Where are the bounds in the input token stream for this node and
