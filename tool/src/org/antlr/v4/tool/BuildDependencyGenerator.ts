@@ -115,7 +115,8 @@ export class BuildDependencyGenerator {
             }
         }
 
-        if (this.g.tool.gen_listener) {
+        const generateListeners = Tool.getOptionValue<boolean>("gen_listeners") ?? true;
+        if (generateListeners) {
             // add generated listener; e.g., TListener.java
             if (this.generator.getTarget().needsHeader()) {
                 files.push(this.getOutputFile(this.generator.getListenerFileName(true)));
@@ -129,7 +130,8 @@ export class BuildDependencyGenerator {
             files.push(this.getOutputFile(this.generator.getBaseListenerFileName(false)));
         }
 
-        if (this.g.tool.gen_visitor) {
+        const generateVisitors = Tool.getOptionValue<boolean>("gen_listeners") ?? false;
+        if (generateVisitors) {
             // add generated visitor; e.g., TVisitor.java
             if (this.generator.getTarget().needsHeader()) {
                 files.push(this.getOutputFile(this.generator.getVisitorFileName(true)));
@@ -156,12 +158,12 @@ export class BuildDependencyGenerator {
 
     public getOutputFile(fileName: string): URL {
         let outputDir = this.tool.getOutputDirectory(this.g.fileName);
-        if (outputDir.pathname === ".") {
+        if (outputDir === ".") {
             // pay attention to -o then
             outputDir = this.tool.getOutputDirectory(fileName);
         }
 
-        if (outputDir.pathname === ".") {
+        if (outputDir === ".") {
             return new URL(fileName);
         }
 
@@ -185,9 +187,9 @@ export class BuildDependencyGenerator {
 
         // Handle imported grammars
         const imports = this.g.getAllImportedGrammars();
+        const libDirectory = Tool.getOptionValue<string>("libDirectory") ?? ".";
         for (const g of imports) {
-            const libDir = this.tool.libDirectory;
-            const fileName = this.groomQualifiedFileName(libDir, g.fileName);
+            const fileName = this.groomQualifiedFileName(libDirectory, g.fileName);
             files.push(new URL(fileName));
         }
 
@@ -209,10 +211,11 @@ export class BuildDependencyGenerator {
         if (tokenVocab !== null) {
             const fileName = tokenVocab + CodeGenerator.VOCAB_FILE_EXTENSION;
             let vocabFile: URL;
-            if (this.tool.libDirectory === ".") {
+            const libDirectory = Tool.getOptionValue<string>("libDirectory") ?? ".";
+            if (libDirectory === ".") {
                 vocabFile = new URL(fileName);
             } else {
-                vocabFile = new URL(fileName, this.tool.libDirectory);
+                vocabFile = new URL(fileName, libDirectory);
             }
             files.push(vocabFile);
         }

@@ -20,6 +20,7 @@ import { GrammarRootAST } from "../tool/ast/GrammarRootAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { RuleRefAST } from "../tool/ast/RuleRefAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
+import { GrammarTreeVisitor } from "../../../../../../src/tree-walkers/GrammarTreeVisitor.js";
 
 /**
  * No side-effects except for setting options into the appropriate node.
@@ -106,20 +107,17 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         this.errMgr = g.tool.errMgr;
     }
 
-    @Override
-    public getErrorManager(): java.util.logging.ErrorManager { return this.errMgr; }
+    public override getErrorManager(): java.util.logging.ErrorManager { return this.errMgr; }
 
     public process(): void { visitGrammar(this.g.ast); }
 
     // Routines to route visitor traffic to the checking routines
 
-    @Override
-    public discoverGrammar(root: GrammarRootAST, ID: GrammarAST): void {
+    public override discoverGrammar(root: GrammarRootAST, ID: GrammarAST): void {
         this.checkGrammarName(ID.token);
     }
 
-    @Override
-    public finishPrequels(firstPrequel: GrammarAST): void {
+    public override finishPrequels(firstPrequel: GrammarAST): void {
         if (firstPrequel === null) {
             return;
         }
@@ -131,26 +129,22 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         this.checkNumPrequels(options, imports, tokens);
     }
 
-    @Override
-    public importGrammar(label: GrammarAST, ID: GrammarAST): void {
+    public override importGrammar(label: GrammarAST, ID: GrammarAST): void {
         this.checkImport(ID.token);
     }
 
-    @Override
-    public discoverRules(rules: GrammarAST): void {
+    public override discoverRules(rules: GrammarAST): void {
         this.checkNumRules(rules);
     }
 
-    @Override
-    public modeDef(m: GrammarAST, ID: GrammarAST): void {
+    public override modeDef(m: GrammarAST, ID: GrammarAST): void {
         if (!this.g.isLexer()) {
             this.g.tool.errMgr.grammarError(ErrorType.MODE_NOT_IN_LEXER, this.g.fileName,
                 ID.token, ID.token.getText(), this.g);
         }
     }
 
-    @Override
-    public discoverRule(rule: RuleAST, ID: GrammarAST,
+    public override discoverRule(rule: RuleAST, ID: GrammarAST,
         modifiers: GrammarAST[],
         arg: ActionAST, returns: ActionAST,
         thrws: GrammarAST, options: GrammarAST,
@@ -160,8 +154,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         this.checkInvalidRuleDef(ID.token);
     }
 
-    @Override
-    public discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
+    public override discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
         block: GrammarAST): void {
         this.checkInvalidRuleDef(ID.token);
 
@@ -178,43 +171,35 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         }
     }
 
-    @Override
-    public ruleRef(ref: GrammarAST, arg: ActionAST): void {
+    public override ruleRef(ref: GrammarAST, arg: ActionAST): void {
         this.checkInvalidRuleRef(ref.token);
     }
 
-    @Override
-    public grammarOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override grammarOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.checkOptions(this.g.ast, ID.token, valueAST);
     }
 
-    @Override
-    public ruleOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override ruleOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.checkOptions(ID.getAncestor(RULE) as GrammarAST, ID.token, valueAST);
     }
 
-    @Override
-    public blockOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override blockOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.checkOptions(ID.getAncestor(BLOCK) as GrammarAST, ID.token, valueAST);
     }
 
-    @Override
-    public defineToken(ID: GrammarAST): void {
+    public override defineToken(ID: GrammarAST): void {
         this.checkTokenDefinition(ID.token);
     }
 
-    @Override
-    public defineChannel(ID: GrammarAST): void {
+    public override defineChannel(ID: GrammarAST): void {
         this.checkChannelDefinition(ID.token);
     }
 
-    @Override
-    public elementOption(elem: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST): void {
+    public override elementOption(elem: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST): void {
         this.checkElementOptions(elem, ID, valueAST);
     }
 
-    @Override
-    public finishRule(rule: RuleAST, ID: GrammarAST, block: GrammarAST): void {
+    public override finishRule(rule: RuleAST, ID: GrammarAST, block: GrammarAST): void {
         if (rule.isLexerRule()) {
             return;
         }
@@ -259,8 +244,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         }
     }
 
-    @Override
-    public actionInAlt(action: ActionAST): void {
+    public override actionInAlt(action: ActionAST): void {
         if (this.inFragmentRule) {
             const fileName = action.token.getInputStream().getSourceName();
             const ruleName = currentRuleName;
@@ -268,8 +252,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         }
     }
 
-    @Override
-    public label(op: GrammarAST, ID: GrammarAST, element: GrammarAST): void {
+    public override label(op: GrammarAST, ID: GrammarAST, element: GrammarAST): void {
         switch (element.getType()) {
             // token atoms
             case TOKEN_REF:
@@ -293,13 +276,11 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         }
     }
 
-    @Override
-    protected enterMode(tree: GrammarAST): void {
+    protected override enterMode(tree: GrammarAST): void {
         this.nonFragmentRuleCount = 0;
     }
 
-    @Override
-    protected exitMode(tree: GrammarAST): void {
+    protected override exitMode(tree: GrammarAST): void {
         if (this.nonFragmentRuleCount === 0) {
             let token = tree.getToken();
             let name = "?";
@@ -316,13 +297,11 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         }
     }
 
-    @Override
-    protected exitLexerRule(tree: GrammarAST): void {
+    protected override exitLexerRule(tree: GrammarAST): void {
         this.inFragmentRule = false;
     }
 
-    @Override
-    protected enterChannelsSpec(tree: GrammarAST): void {
+    protected override enterChannelsSpec(tree: GrammarAST): void {
         const errorType = this.g.isParser()
             ? ErrorType.CHANNELS_BLOCK_IN_PARSER_GRAMMAR
             : this.g.isCombined()
@@ -422,12 +401,10 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     protected checkChannelDefinition(tokenID: Token): void {
     }
 
-    @Override
-    protected enterLexerElement(tree: GrammarAST): void {
+    protected override enterLexerElement(tree: GrammarAST): void {
     }
 
-    @Override
-    protected enterLexerCommand(tree: GrammarAST): void {
+    protected override enterLexerCommand(tree: GrammarAST): void {
         this.checkElementIsOuterMostInSingleAlt(tree);
 
         if (this.inFragmentRule) {
@@ -460,8 +437,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         }
     }
 
-    @Override
-    protected enterTerminal(tree: GrammarAST): void {
+    protected override enterTerminal(tree: GrammarAST): void {
         const text = tree.getText();
         if (text.equals("''")) {
             this.g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, this.g.fileName, tree.token, "''");

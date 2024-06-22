@@ -162,7 +162,7 @@ export class CodeGenerator {
 
     public write(code: ST, fileName: string): void {
         try {
-            const w = this.tool.getOutputFileWriter(this.g, fileName);
+            const w = this.tool.getOutputFile(this.g, fileName);
             const wr = new AutoIndentWriter(w);
             wr.setLineWidth(this.lineWidth);
             code.write(wr);

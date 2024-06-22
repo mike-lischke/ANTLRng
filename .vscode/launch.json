@@ -7,18 +7,18 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch ANTLR4",
-            "program": "${workspaceFolder}/src/main.ts",
-            "outFiles": [
-                "${workspaceFolder}/output/**/*.js"
+            "name": "Launch ANTLRng",
+            "args": [],
+            "runtimeArgs": [
+                "--experimental-specifier-resolution=node",
+                "--no-warnings",
+                "--loader",
+                "ts-node/esm",
+                "src/runner.ts",
             ],
             "sourceMaps": true,
             "stopOnEntry": false,
             "smartStep": true,
-            "args": [],
-            "runtimeArgs": [
-                "--nolazy"
-            ],
             "console": "integratedTerminal",
             "preLaunchTask": "tsc: watch",
             "trace": false
@@ -40,60 +40,5 @@
             ],
             "console": "integratedTerminal",
         },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Run runtime.spec.ts",
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--experimental-vm-modules",
-                "--no-warnings",
-                "--loader",
-                "ts-node/esm",
-                "${workspaceRoot}/node_modules/.bin/jest",
-                "runtime.spec.ts",
-                "--no-coverage",
-                "--runInBand"
-            ],
-            "console": "integratedTerminal",
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "resolveSourceMapLocations": [
-                "${workspaceFolder}/**",
-                "!**/node_modules/**"
-            ],
-            "smartStep": true,
-            "trace": false,
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Generate Test Cases",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "runtimeArgs": [
-                "--no-warnings=ExperimentalWarning",
-                "--loader",
-                "ts-node/esm",
-                "runtime-testsuite/utils/generateTestCases.ts",
-            ],
-            "sourceMaps": true,
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Lexer Benchmark",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "runtimeArgs": [
-                "--no-warnings=ExperimentalWarning",
-                "--loader",
-                "ts-node/esm",
-                "runtime-testsuite/src/tests/api/perf/TimeLexerSpeed.ts",
-            ],
-            "sourceMaps": true,
-        }
     ]
 }

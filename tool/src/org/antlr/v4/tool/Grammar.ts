@@ -510,11 +510,11 @@ export class Grammar implements AttributeResolver {
 
             let g: Grammar;
             try {
-                g = this.tool.loadImportedGrammar(this, t);
+                g = this.tool.loadImportedGrammar(this, t)!;
             } catch (ioe) {
                 this.tool.errMgr.grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR,
                     importedGrammarName,
-                    t.getToken()!,
+                    t.getToken(),
                     importedGrammarName,
                     this.name);
                 continue;

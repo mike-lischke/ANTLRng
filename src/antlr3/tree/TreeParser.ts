@@ -34,9 +34,9 @@ export class TreeParser extends BaseRecognizer {
     protected static dotdot = /.*[^.]\\.\\.[^.].*/g;
     protected static doubleEtc = /.*\\.\\.\\.\\s+\\.\\.\\..*/g;
 
-    protected input: TreeNodeStream;
+    protected input?: TreeNodeStream;
 
-    public constructor(input: TreeNodeStream, state?: RecognizerSharedState) {
+    public constructor(input?: TreeNodeStream, state?: RecognizerSharedState) {
         super(state);
         this.input = input;
     }
@@ -111,9 +111,7 @@ export class TreeParser extends BaseRecognizer {
 
     public override reset(): void {
         super.reset(); // reset all recognizer state variables
-        if (this.input !== null) {
-            this.input.seek(0); // rewind the input
-        }
+        this.input?.seek(0); // rewind the input
     }
 
     /** Set the input stream */
@@ -121,12 +119,12 @@ export class TreeParser extends BaseRecognizer {
         this.input = input;
     }
 
-    public getTreeNodeStream(): TreeNodeStream {
+    public getTreeNodeStream(): TreeNodeStream | undefined {
         return this.input;
     }
 
     public getSourceName(): string {
-        return this.input.getSourceName();
+        return this.input?.getSourceName() ?? "";
     }
 
     /**
@@ -134,34 +132,35 @@ export class TreeParser extends BaseRecognizer {
      *  entire tree if node has children.  If children, scan until
      *  corresponding UP node.
      */
-    public override matchAny(ignore: IntStream): void { // ignore stream, copy of input
+    public override matchAny(input: IntStream): void {
         this.state.errorRecovery = false;
         this.state.failed = false;
-        let look = this.input.LT(1)!;
-        if (this.input.getTreeAdaptor().getChildCount(look) === 0) {
-            this.input.consume(); // not subtree, consume 1 node and return
+
+        const stream = this.input ?? input as TreeNodeStream;
+        let look = stream.LT(1)!;
+        if (stream.getTreeAdaptor().getChildCount(look) === 0) {
+            input.consume(); // not subtree, consume 1 node and return
 
             return;
         }
         // current node is a subtree, skip to corresponding UP.
         // must count nesting level to get right UP
         let level = 0;
-        let tokenType = this.input.getTreeAdaptor().getType(look);
+        let tokenType = stream.getTreeAdaptor().getType(look);
         while (tokenType !== Token.EOF && !(tokenType === TreeParser.UP && level === 0)) {
-            this.input.consume();
-            look = this.input.LT(1)!;
-            tokenType = this.input.getTreeAdaptor().getType(look);
+            input.consume();
+            look = stream.LT(1)!;
+            tokenType = stream.getTreeAdaptor().getType(look);
             if (tokenType === TreeParser.DOWN) {
                 level++;
-            }
-            else {
+            } else {
                 if (tokenType === TreeParser.UP) {
                     level--;
                 }
             }
-
         }
-        this.input.consume(); // consume UP
+
+        input.consume(); // consume UP
     }
 
     /**
@@ -202,15 +201,15 @@ export class TreeParser extends BaseRecognizer {
      *  There is no way to force the first node to be the root.
      */
     public inContext(context: string): boolean {
-        return TreeParser.inContext(this.input.getTreeAdaptor(), this.getTokenNames(), this.input.LT(1), context);
+        return TreeParser.inContext(this.input!.getTreeAdaptor(), this.getTokenNames(), this.input!.LT(1), context);
     }
 
     public override traceIn(ruleName: string, ruleIndex: number): void {
-        super.traceIn(ruleName, ruleIndex, this.input.LT(1));
+        super.traceIn(ruleName, ruleIndex, this.input!.LT(1));
     }
 
     public override traceOut(ruleName: string, ruleIndex: number): void {
-        super.traceOut(ruleName, ruleIndex, this.input.LT(1));
+        super.traceOut(ruleName, ruleIndex, this.input!.LT(1));
     }
 
     /**
@@ -231,7 +230,7 @@ export class TreeParser extends BaseRecognizer {
     protected override getMissingSymbol(input: IntStream, e: RecognitionException, expectedTokenType: number,
         follow: BitSet): Tree {
         const tokenText = "<missing " + this.getTokenNames()[expectedTokenType] + ">";
-        const adaptor = this.input.getTreeAdaptor();
+        const adaptor = this.input!.getTreeAdaptor();
 
         return adaptor.create(CommonToken.fromType(expectedTokenType, tokenText));
     }

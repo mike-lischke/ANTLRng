@@ -8,7 +8,7 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import type { RecognitionException, TokenStream } from "antlr4ng";
+import { NoViableAltException, type Parser, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
 
 import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
 import { Tool } from "../Tool.js";
@@ -28,28 +28,20 @@ export class ToolANTLRParser extends ANTLRv4Parser {
     }
 
     public displayRecognitionError(tokenNames: string[], e: RecognitionException): void {
-        let msg = this.getParserErrorMessage(this, e);
-        if (!paraphrases.isEmpty()) {
-            const paraphrase = paraphrases.peek();
-            msg = msg + " while " + paraphrase;
-        }
-        //	List stack = getRuleInvocationStack(e, this.getClass().getName());
-        //	msg += ", rule stack = "+stack;
-        this.tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, this.getSourceName(), e.offendingToken, e, msg);
+        const msg = this.getParserErrorMessage(this, e);
+        this.tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, this.getSourceName(), e.offendingToken!, e, msg);
     }
 
     public getParserErrorMessage(parser: Parser, e: RecognitionException): string {
         let msg: string;
         if (e instanceof NoViableAltException) {
-            const name = parser.getTokenErrorDisplay(e.token);
+            const name = e.message;
             msg = name + " came as a complete surprise to me";
-        }
-        else {
+        } else {
             if (e instanceof v4ParserException) {
-                msg = (e).msg;
-            }
-            else {
-                msg = parser.getErrorMessage(e, parser.getTokenNames());
+                msg = e.msg;
+            } else {
+                msg = e.message;
             }
         }
 

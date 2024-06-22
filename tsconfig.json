@@ -11,7 +11,6 @@
         "outDir": "dist",
         "lib": [
             "ESNext",
-            "DOM"
         ],
         "noImplicitAny": true,
         "strictNullChecks": true,
@@ -33,4 +32,7 @@
         "dist",
         "tests/**/*.ts",
     ],
+    "ts-node": {
+        "esm": true
+    },
 }

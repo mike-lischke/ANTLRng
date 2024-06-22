@@ -1,7 +1,26 @@
 // $ANTLR 3.5.3 org/antlr/v4/parse/BlockSetTransformer.g
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
+
+import {
+    DFA, FailedPredicateException, NoViableAltException, RecognitionException, Token, type IntStream
+} from "antlr4ng";
+
+import { CharSupport } from "../../tool/src/org/antlr/v4/misc/CharSupport.js";
+import { Grammar } from "../../tool/src/org/antlr/v4/tool/Grammar.js";
+import { GrammarTransformPipeline } from "../../tool/src/org/antlr/v4/tool/GrammarTransformPipeline.js";
+import { AltAST } from "../../tool/src/org/antlr/v4/tool/ast/AltAST.js";
+import { BlockAST } from "../../tool/src/org/antlr/v4/tool/ast/BlockAST.js";
+import type { GrammarAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarAST.js";
+import type { BaseRecognizer } from "../antlr3/BaseRecognizer.js";
+import { RecognizerSharedState } from "../antlr3/RecognizerSharedState.js";
+import { CommonTreeAdaptor } from "../antlr3/tree/CommonTreeAdaptor.js";
+import type { TreeAdaptor } from "../antlr3/tree/TreeAdaptor.js";
+import type { TreeNodeStream } from "../antlr3/tree/TreeNodeStream.js";
+import { TreeRewriter } from "../antlr3/tree/TreeRewriter.js";
+import { TreeRuleReturnScope } from "../antlr3/tree/TreeRuleReturnScope.js";
+import { TreeParser } from "../antlr3/tree/TreeParser.js";
+
 
 
 
@@ -107,8 +126,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
     public static topdown_return = class topdown_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
+
+
         public getTree(): GrammarAST { return this.tree; }
     };
 
@@ -116,8 +135,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
     public static setAlt_return = class setAlt_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
+
+
         public getTree(): GrammarAST { return this.tree; }
     };
 
@@ -125,8 +144,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
     public static ebnfBlockSet_return = class ebnfBlockSet_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
+
+
         public getTree(): GrammarAST { return this.tree; }
     };
 
@@ -134,8 +153,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
     public static ebnfSuffix_return = class ebnfSuffix_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
+
+
         public getTree(): GrammarAST { return this.tree; }
     };
 
@@ -143,17 +162,19 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
     public static blockSet_return = class blockSet_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
-        public getTree(): GrammarAST { return this.tree; }
+
+
+        public getTree(): GrammarAST {
+            return this.tree;
+        }
     };
 
     // $ANTLR end "blockSet"
 
 
     public static setElement_return = class setElement_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
+
+
         public getTree(): GrammarAST { return this.tree; }
     };
 
@@ -161,8 +182,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
     public static elementOptions_return = class elementOptions_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
+
+
         public getTree(): GrammarAST { return this.tree; }
     };
 
@@ -170,297 +191,28 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
     public static elementOption_return = class elementOption_return extends TreeRuleReturnScope {
-        protected tree: GrammarAST;
-        @Override
+
+
         public getTree(): GrammarAST { return this.tree; }
     };
-
-
-    public static readonly FOLLOW_RULE_in_topdown86 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_TOKEN_REF_in_topdown91 = new java.util.BitSet([0xFFFFFFFFFFFFFFF0n, 0x00000000000FFFFFn]);
-    public static readonly FOLLOW_RULE_REF_in_topdown95 = new java.util.BitSet([0xFFFFFFFFFFFFFFF0n, 0x00000000000FFFFFn]);
-    public static readonly FOLLOW_setAlt_in_topdown110 = new java.util.BitSet([0x0000000000000002n]);
-    public static readonly FOLLOW_ebnfBlockSet_in_topdown118 = new java.util.BitSet([0x0000000000000002n]);
-    public static readonly FOLLOW_blockSet_in_topdown126 = new java.util.BitSet([0x0000000000000002n]);
-    public static readonly FOLLOW_ALT_in_setAlt141 = new java.util.BitSet([0x0000000000000002n]);
-    public static readonly FOLLOW_ebnfSuffix_in_ebnfBlockSet161 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_blockSet_in_ebnfBlockSet163 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_BLOCK_in_blockSet244 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_ALT_in_blockSet249 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_elementOptions_in_blockSet251 = new java.util.BitSet([0x4802000000000000n]);
-    public static readonly FOLLOW_setElement_in_blockSet256 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_ALT_in_blockSet263 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_elementOptions_in_blockSet265 = new java.util.BitSet([0x4802000000000000n]);
-    public static readonly FOLLOW_setElement_in_blockSet268 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_BLOCK_in_blockSet313 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_ALT_in_blockSet316 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_elementOptions_in_blockSet318 = new java.util.BitSet([0x4802000000000000n]);
-    public static readonly FOLLOW_setElement_in_blockSet321 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_ALT_in_blockSet328 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_elementOptions_in_blockSet330 = new java.util.BitSet([0x4802000000000000n]);
-    public static readonly FOLLOW_setElement_in_blockSet333 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_STRING_LITERAL_in_setElement373 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_elementOptions_in_setElement375 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_STRING_LITERAL_in_setElement388 = new java.util.BitSet([0x0000000000000002n]);
-    public static readonly FOLLOW_TOKEN_REF_in_setElement400 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_elementOptions_in_setElement402 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_TOKEN_REF_in_setElement414 = new java.util.BitSet([0x0000000000000002n]);
-    public static readonly FOLLOW_RANGE_in_setElement425 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_STRING_LITERAL_in_setElement429 = new java.util.BitSet([0x0800000000000000n]);
-    public static readonly FOLLOW_STRING_LITERAL_in_setElement433 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_ELEMENT_OPTIONS_in_elementOptions455 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_elementOption_in_elementOptions457 = new java.util.BitSet([0x0000000010000408n]);
-    public static readonly FOLLOW_ID_in_elementOption470 = new java.util.BitSet([0x0000000000000002n]);
-    public static readonly FOLLOW_ASSIGN_in_elementOption476 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_ID_in_elementOption480 = new java.util.BitSet([0x0000000010000000n]);
-    public static readonly FOLLOW_ID_in_elementOption484 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_ASSIGN_in_elementOption491 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_ID_in_elementOption493 = new java.util.BitSet([0x0800000000000000n]);
-    public static readonly FOLLOW_STRING_LITERAL_in_elementOption497 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_ASSIGN_in_elementOption504 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_ID_in_elementOption506 = new java.util.BitSet([0x0000000000000010n]);
-    public static readonly FOLLOW_ACTION_in_elementOption510 = new java.util.BitSet([0x0000000000000008n]);
-    public static readonly FOLLOW_ASSIGN_in_elementOption517 = new java.util.BitSet([0x0000000000000004n]);
-    public static readonly FOLLOW_ID_in_elementOption519 = new java.util.BitSet([0x0000000040000000n]);
-    public static readonly FOLLOW_INT_in_elementOption523 = new java.util.BitSet([0x0000000000000008n]);
-    protected static readonly DFA10_eotS =
-		"\174\uffff";
-    protected static readonly DFA10_eofS =
-		"\174\uffff";
-    protected static readonly DFA10_minS =
-		"\1\106\1\2\1\105\1\2\1\61\4\2\1\3\1\111\1\105\1\111\1\73\1\3\1\2\1\61" +
-		"\3\2\1\73\1\34\1\3\1\61\2\3\1\4\1\3\1\2\1\3\4\2\1\3\1\2\6\3\1\34\2\3\1" +
-		"\111\1\3\1\111\1\73\1\34\5\3\1\4\1\3\1\2\1\61\1\2\1\0\1\2\1\73\1\4\4\3" +
-		"\1\34\1\3\2\uffff\12\3\1\4\1\3\1\2\2\3\1\2\12\3\1\34\1\3\1\34\5\3\2\4" +
-		"\20\3";
-    protected static readonly DFA10_maxS =
-		"\1\106\1\2\1\105\1\2\1\111\1\2\2\3\1\2\1\34\1\111\1\105\1\111\1\73\1\34" +
-		"\1\2\1\76\3\2\1\73\2\34\1\111\1\34\1\3\1\73\1\34\1\2\1\3\1\2\2\3\1\2\1" +
-		"\34\1\2\6\3\1\34\1\3\1\34\1\111\1\105\1\111\1\73\1\34\1\3\4\34\1\73\1" +
-		"\34\1\2\1\76\1\2\1\0\1\2\2\73\4\3\2\34\2\uffff\1\34\5\3\4\34\1\73\1\34" +
-		"\1\2\1\3\1\34\1\2\2\3\4\34\4\3\1\34\1\3\1\34\1\3\4\34\2\73\10\3\10\34";
-    protected static readonly DFA10_acceptS =
-		"\106\uffff\1\1\1\2\64\uffff";
-    protected static readonly DFA10_specialS =
-		"\74\uffff\1\0\77\uffff}>";
-    protected static readonly DFA10_transitionS = [
-			"\1\1",
-			"\1\2",
-			"\1\3",
-			"\1\4",
-			"\1\10\11\uffff\1\6\2\uffff\1\7\12\uffff\1\5",
-			"\1\11",
-			"\1\12\1\13",
-			"\1\14\1\13",
-			"\1\15",
-			"\1\20\6\uffff\1\17\21\uffff\1\16",
-			"\1\21",
-			"\1\22",
-			"\1\23",
-			"\1\24",
-			"\1\20\6\uffff\1\17\21\uffff\1\16",
-			"\1\25",
-			"\1\10\11\uffff\1\6\2\uffff\1\7",
-			"\1\26",
-			"\1\27",
-			"\1\30",
-			"\1\31",
-			"\1\32",
-			"\1\35\6\uffff\1\34\21\uffff\1\33",
-			"\1\41\11\uffff\1\37\2\uffff\1\40\12\uffff\1\36",
-			"\1\44\6\uffff\1\43\21\uffff\1\42",
-			"\1\45",
-			"\1\50\27\uffff\1\46\1\uffff\1\51\34\uffff\1\47",
-			"\1\35\6\uffff\1\34\21\uffff\1\33",
-			"\1\52",
-			"\1\53",
-			"\1\54",
-			"\1\55\1\56",
-			"\1\57\1\56",
-			"\1\60",
-			"\1\44\6\uffff\1\43\21\uffff\1\42",
-			"\1\61",
-			"\1\62",
-			"\1\13",
-			"\1\63",
-			"\1\64",
-			"\1\65",
-			"\1\66",
-			"\1\67",
-			"\1\13",
-			"\1\72\6\uffff\1\71\21\uffff\1\70",
-			"\1\73",
-			"\1\74\101\uffff\1\22",
-			"\1\75",
-			"\1\76",
-			"\1\77",
-			"\1\13",
-			"\1\20\6\uffff\1\17\21\uffff\1\16",
-			"\1\20\6\uffff\1\17\21\uffff\1\16",
-			"\1\20\6\uffff\1\17\21\uffff\1\16",
-			"\1\20\6\uffff\1\17\21\uffff\1\16",
-			"\1\102\27\uffff\1\100\1\uffff\1\103\34\uffff\1\101",
-			"\1\72\6\uffff\1\71\21\uffff\1\70",
-			"\1\104",
-			"\1\41\11\uffff\1\37\2\uffff\1\40",
-			"\1\105",
-			"\1\uffff",
-			"\1\110",
-			"\1\111",
-			"\1\114\27\uffff\1\112\1\uffff\1\115\34\uffff\1\113",
-			"\1\116",
-			"\1\117",
-			"\1\120",
-			"\1\121",
-			"\1\122",
-			"\1\125\6\uffff\1\124\21\uffff\1\123",
-        "",
-        "",
-			"\1\130\6\uffff\1\127\21\uffff\1\126",
-			"\1\131",
-			"\1\132",
-			"\1\133",
-			"\1\134",
-			"\1\135",
-			"\1\35\6\uffff\1\34\21\uffff\1\33",
-			"\1\35\6\uffff\1\34\21\uffff\1\33",
-			"\1\35\6\uffff\1\34\21\uffff\1\33",
-			"\1\35\6\uffff\1\34\21\uffff\1\33",
-			"\1\140\27\uffff\1\136\1\uffff\1\141\34\uffff\1\137",
-			"\1\125\6\uffff\1\124\21\uffff\1\123",
-			"\1\142",
-			"\1\143",
-			"\1\130\6\uffff\1\127\21\uffff\1\126",
-			"\1\144",
-			"\1\145",
-			"\1\56",
-			"\1\44\6\uffff\1\43\21\uffff\1\42",
-			"\1\44\6\uffff\1\43\21\uffff\1\42",
-			"\1\44\6\uffff\1\43\21\uffff\1\42",
-			"\1\44\6\uffff\1\43\21\uffff\1\42",
-			"\1\146",
-			"\1\147",
-			"\1\150",
-			"\1\151",
-			"\1\152",
-			"\1\56",
-			"\1\153",
-			"\1\56",
-			"\1\72\6\uffff\1\71\21\uffff\1\70",
-			"\1\72\6\uffff\1\71\21\uffff\1\70",
-			"\1\72\6\uffff\1\71\21\uffff\1\70",
-			"\1\72\6\uffff\1\71\21\uffff\1\70",
-			"\1\156\27\uffff\1\154\1\uffff\1\157\34\uffff\1\155",
-			"\1\162\27\uffff\1\160\1\uffff\1\163\34\uffff\1\161",
-			"\1\164",
-			"\1\165",
-			"\1\166",
-			"\1\167",
-			"\1\170",
-			"\1\171",
-			"\1\172",
-			"\1\173",
-			"\1\125\6\uffff\1\124\21\uffff\1\123",
-			"\1\125\6\uffff\1\124\21\uffff\1\123",
-			"\1\125\6\uffff\1\124\21\uffff\1\123",
-			"\1\125\6\uffff\1\124\21\uffff\1\123",
-			"\1\130\6\uffff\1\127\21\uffff\1\126",
-			"\1\130\6\uffff\1\127\21\uffff\1\126",
-			"\1\130\6\uffff\1\127\21\uffff\1\126",
-			"\1\130\6\uffff\1\127\21\uffff\1\126"
-    ];
-
-    protected static readonly DFA10_eot = DFA.unpackEncodedString(BlockSetTransformer.DFA10_eotS);
-    protected static readonly DFA10_eof = DFA.unpackEncodedString(BlockSetTransformer.DFA10_eofS);
-    protected static readonly DFA10_min = DFA.unpackEncodedStringToUnsignedChars(BlockSetTransformer.DFA10_minS);
-    protected static readonly DFA10_max = DFA.unpackEncodedStringToUnsignedChars(BlockSetTransformer.DFA10_maxS);
-    protected static readonly DFA10_accept = DFA.unpackEncodedString(BlockSetTransformer.DFA10_acceptS);
-    protected static readonly DFA10_special = DFA.unpackEncodedString(BlockSetTransformer.DFA10_specialS);
-    protected static readonly DFA10_transition: Int16Array[];
 
 
     public currentRuleName: string;
     public currentAlt: GrammarAST;
     public g: Grammar;
 
-    public DFA10 = (($outer) => {
-        return class DFA10 extends DFA {
-
-            public constructor(recognizer: BaseRecognizer) {
-                this.recognizer = recognizer;
-                this.decisionNumber = 10;
-                this.eot = BlockSetTransformer.DFA10_eot;
-                this.eof = BlockSetTransformer.DFA10_eof;
-                this.min = BlockSetTransformer.DFA10_min;
-                this.max = BlockSetTransformer.DFA10_max;
-                this.accept = BlockSetTransformer.DFA10_accept;
-                this.special = BlockSetTransformer.DFA10_special;
-                this.transition = BlockSetTransformer.DFA10_transition;
-            }
-            @Override
-            public getDescription(): string {
-                return "90:1: blockSet : ({...}? ^( BLOCK ^(alt= ALT ( elementOptions )? {...}? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ ) -> ^( BLOCK[$BLOCK.token] ^( ALT[$BLOCK.token,\"ALT\"] ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) ) ) |{...}? ^( BLOCK ^( ALT ( elementOptions )? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ ) -> ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) );";
-            }
-            @Override
-            public specialStateTransition(s: number, _input: java.util.stream.IntStream): number {
-                let input = _input as TreeNodeStream;
-                let _s = s;
-                switch (s) {
-                    case 0: {
-                        let LA10_60 = input.LA(1);
-
-                        let index10_60 = input.index();
-                        input.rewind();
-                        s = -1;
-                        if (((inContext("RULE")))) { s = 70; }
-                        else {
-                            if (((!inContext("RULE")))) { s = 71; }
-                        }
-
-
-                        input.seek(index10_60);
-                        if (s >= 0) {
-                            return s;
-                        }
-
-                        break;
-                    }
-
-
-                    default:
-
-                }
-                if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return -1; }
-                let nvae =
-                    new NoViableAltException(this.getDescription(), 10, _s, input);
-                java.util.logging.ErrorManager.error(nvae);
-                throw nvae;
-            }
-        };
-    })(this);
-
-
     protected adaptor = new CommonTreeAdaptor();
-    // $ANTLR end "elementOption"
 
-    // Delegated rules
-
-
-    protected dfa10 = new DFA10(this);
-
-    // delegators
-
-
-    public constructor(input: TreeNodeStream);
-    public constructor(input: TreeNodeStream, state: RecognizerSharedState);
-    public constructor(input: TreeNodeStream, g: Grammar);
+    public constructor(this.input: TreeNodeStream);
+    public constructor(this.input: TreeNodeStream, state: RecognizerSharedState);
+    public constructor(this.input: TreeNodeStream, g: Grammar);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 1: {
                 const [input] = args as [TreeNodeStream];
 
 
-                this(input, new RecognizerSharedState());
+                this(this.input, new RecognizerSharedState());
 
 
                 break;
@@ -470,7 +222,7 @@ export class BlockSetTransformer extends TreeRewriter {
                 const [input, state] = args as [TreeNodeStream, RecognizerSharedState];
 
 
-                super(input, state);
+                super(this.input, state);
 
 
                 break;
@@ -480,7 +232,7 @@ export class BlockSetTransformer extends TreeRewriter {
                 const [input, g] = args as [TreeNodeStream, Grammar];
 
 
-                this(input, new RecognizerSharedState());
+                this(this.input, new RecognizerSharedState());
                 this.g = g;
 
 
@@ -488,7 +240,7 @@ export class BlockSetTransformer extends TreeRewriter {
             }
 
             default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+                throw new IllegalArgumentException(S`Invalid number of arguments`);
             }
         }
     }
@@ -505,18 +257,22 @@ export class BlockSetTransformer extends TreeRewriter {
     public getTreeAdaptor(): TreeAdaptor {
         return this.adaptor;
     }
-    @Override
-    public getTokenNames(): string[] { return BlockSetTransformer.tokenNames; }
-    @Override
-    public getGrammarFileName(): string { return "org/antlr/v4/parse/BlockSetTransformer.g"; }
+
+    public override getTokenNames(): string[] {
+        return BlockSetTransformer.tokenNames;
+    }
+
+    public override getGrammarFileName(): string {
+        return "org/antlr/v4/parse/BlockSetTransformer.g";
+    }
 
 
     // $ANTLR start "topdown"
     // org/antlr/v4/parse/BlockSetTransformer.g:63:1: topdown : ( ^( RULE (id= TOKEN_REF |id= RULE_REF ) ( . )+ ) | setAlt | ebnfBlockSet | blockSet );
-    @Override
-    public readonly topdown(): BlockSetTransformer.topdown_return {
+
+    public override topdown(): BlockSetTransformer.topdown_return {
         let retval = new BlockSetTransformer.topdown_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -538,7 +294,7 @@ export class BlockSetTransformer extends TreeRewriter {
         try {
             // org/antlr/v4/parse/BlockSetTransformer.g:64:5: ( ^( RULE (id= TOKEN_REF |id= RULE_REF ) ( . )+ ) | setAlt | ebnfBlockSet | blockSet )
             let alt3 = 4;
-            switch (input.LA(1)) {
+            switch (this.input.LA(1)) {
                 case RULE: {
                     {
                         alt3 = 1;
@@ -570,9 +326,9 @@ export class BlockSetTransformer extends TreeRewriter {
                 }
 
                 default: {
-                    if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
+                    if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
                     let nvae =
-                        new NoViableAltException("", 3, 0, input);
+                        new NoViableAltException("", 3, 0, this.input);
                     throw nvae;
                 }
 
@@ -581,17 +337,17 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 1: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:64:7: ^( RULE (id= TOKEN_REF |id= RULE_REF ) ( . )+ )
                     {
-                        _last = input.LT(1) as GrammarAST;
+                        _last = this.input.LT(1) as GrammarAST;
                         {
                             let _save_last_1 = _last;
                             let _first_1 = null;
-                            _last = input.LT(1) as GrammarAST;
-                            RULE1 = java.security.cert.CertSelector.match(input, BlockSetTransformer.RULE, BlockSetTransformer.FOLLOW_RULE_in_topdown86) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            RULE1 = this.match(this.input, BlockSetTransformer.RULE, BlockSetTransformer.FOLLOW_RULE_in_topdown86) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = RULE1;
@@ -599,13 +355,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                 return retval;
                             }
 
                             // org/antlr/v4/parse/BlockSetTransformer.g:64:14: (id= TOKEN_REF |id= RULE_REF )
                             let alt1 = 2;
-                            let LA1_0 = input.LA(1);
+                            let LA1_0 = this.input.LA(1);
                             if ((LA1_0 === BlockSetTransformer.TOKEN_REF)) {
                                 alt1 = 1;
                             }
@@ -615,9 +371,9 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 else {
-                                    if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
+                                    if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
                                     let nvae =
-                                        new NoViableAltException("", 1, 0, input);
+                                        new NoViableAltException("", 1, 0, this.input);
                                     throw nvae;
                                 }
                             }
@@ -627,13 +383,13 @@ export class BlockSetTransformer extends TreeRewriter {
                                 case 1: {
                                     // org/antlr/v4/parse/BlockSetTransformer.g:64:15: id= TOKEN_REF
                                     {
-                                        _last = input.LT(1) as GrammarAST;
-                                        id = java.security.cert.CertSelector.match(input, BlockSetTransformer.TOKEN_REF, BlockSetTransformer.FOLLOW_TOKEN_REF_in_topdown91) as GrammarAST; if (java.security.Signature.state.failed) {
+                                        _last = this.input.LT(1) as GrammarAST;
+                                        id = this.match(this.input, BlockSetTransformer.TOKEN_REF, BlockSetTransformer.FOLLOW_TOKEN_REF_in_topdown91) as GrammarAST; if (this.state.failed) {
                                             return retval;
                                         }
 
 
-                                        if (java.security.Signature.state.backtracking === 1) {
+                                        if (this.state.backtracking === 1) {
 
                                             if (_first_1 === null) {
                                                 _first_1 = id;
@@ -642,7 +398,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                         }
 
 
-                                        if (java.security.Signature.state.backtracking === 1) {
+                                        if (this.state.backtracking === 1) {
                                             retval.tree = _first_0;
                                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -658,13 +414,13 @@ export class BlockSetTransformer extends TreeRewriter {
                                 case 2: {
                                     // org/antlr/v4/parse/BlockSetTransformer.g:64:28: id= RULE_REF
                                     {
-                                        _last = input.LT(1) as GrammarAST;
-                                        id = java.security.cert.CertSelector.match(input, BlockSetTransformer.RULE_REF, BlockSetTransformer.FOLLOW_RULE_REF_in_topdown95) as GrammarAST; if (java.security.Signature.state.failed) {
+                                        _last = this.input.LT(1) as GrammarAST;
+                                        id = this.match(this.input, BlockSetTransformer.RULE_REF, BlockSetTransformer.FOLLOW_RULE_REF_in_topdown95) as GrammarAST; if (this.state.failed) {
                                             return retval;
                                         }
 
 
-                                        if (java.security.Signature.state.backtracking === 1) {
+                                        if (this.state.backtracking === 1) {
 
                                             if (_first_1 === null) {
                                                 _first_1 = id;
@@ -673,7 +429,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                         }
 
 
-                                        if (java.security.Signature.state.backtracking === 1) {
+                                        if (this.state.backtracking === 1) {
                                             retval.tree = _first_0;
                                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -692,18 +448,18 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            if (java.security.Signature.state.backtracking === 1) { this.currentRuleName = (id !== null ? id.getText() : null); }
+                            if (this.state.backtracking === 1) { this.currentRuleName = (id !== null ? id.getText() : null); }
                             // org/antlr/v4/parse/BlockSetTransformer.g:64:69: ( . )+
                             let cnt2 = 0;
                             loop2:
                             while (true) {
                                 let alt2 = 2;
-                                let LA2_0 = input.LA(1);
+                                let LA2_0 = this.input.LA(1);
                                 if (((LA2_0 >= BlockSetTransformer.ACTION && LA2_0 <= BlockSetTransformer.WILDCARD))) {
                                     alt2 = 1;
                                 }
                                 else {
-                                    if ((LA2_0 === UP)) {
+                                    if ((LA2_0 === TreeParser.UP)) {
                                         alt2 = 2;
                                     }
                                 }
@@ -713,14 +469,14 @@ export class BlockSetTransformer extends TreeRewriter {
                                     case 1: {
                                         // org/antlr/v4/parse/BlockSetTransformer.g:64:69: .
                                         {
-                                            _last = input.LT(1) as GrammarAST;
-                                            wildcard2 = input.LT(1) as GrammarAST;
-                                            matchAny(input); if (java.security.Signature.state.failed) {
+                                            _last = this.input.LT(1) as GrammarAST;
+                                            wildcard2 = this.input.LT(1) as GrammarAST;
+                                            matchAny(this.input); if (this.state.failed) {
                                                 return retval;
                                             }
 
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
 
                                                 if (_first_1 === null) {
                                                     _first_1 = wildcard2;
@@ -729,7 +485,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                             }
 
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
                                                 retval.tree = _first_0;
                                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -748,8 +504,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                             break loop2;
                                         }
 
-                                        if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                        let eee = new EarlyExitException(2, input);
+                                        if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                        let eee = new EarlyExitException(2, this.input);
                                         throw eee;
                                     }
 
@@ -757,7 +513,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 cnt2++;
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, Token.UP, null); if (this.state.failed) {
                                 return retval;
                             }
 
@@ -765,7 +521,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -781,15 +537,15 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 2: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:65:7: setAlt
                     {
-                        _last = input.LT(1) as GrammarAST;
-                        pushFollow(BlockSetTransformer.FOLLOW_setAlt_in_topdown110);
+                        _last = this.input.LT(1) as GrammarAST;
+                        this.pushFollow(BlockSetTransformer.FOLLOW_setAlt_in_topdown110);
                         setAlt3 = this.setAlt();
-                        java.security.Signature.state._fsp--;
-                        if (java.security.Signature.state.failed) {
+                        this.state._fsp--;
+                        if (this.state.failed) {
                             return retval;
                         }
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
 
 
                             if (_first_0 === null) {
@@ -799,7 +555,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -815,15 +571,15 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 3: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:66:7: ebnfBlockSet
                     {
-                        _last = input.LT(1) as GrammarAST;
-                        pushFollow(BlockSetTransformer.FOLLOW_ebnfBlockSet_in_topdown118);
+                        _last = this.input.LT(1) as GrammarAST;
+                        this.pushFollow(BlockSetTransformer.FOLLOW_ebnfBlockSet_in_topdown118);
                         ebnfBlockSet4 = this.ebnfBlockSet();
-                        java.security.Signature.state._fsp--;
-                        if (java.security.Signature.state.failed) {
+                        this.state._fsp--;
+                        if (this.state.failed) {
                             return retval;
                         }
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
 
 
                             if (_first_0 === null) {
@@ -833,7 +589,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -849,15 +605,15 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 4: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:67:7: blockSet
                     {
-                        _last = input.LT(1) as GrammarAST;
-                        pushFollow(BlockSetTransformer.FOLLOW_blockSet_in_topdown126);
+                        _last = this.input.LT(1) as GrammarAST;
+                        this.pushFollow(BlockSetTransformer.FOLLOW_blockSet_in_topdown126);
                         blockSet5 = this.blockSet();
-                        java.security.Signature.state._fsp--;
-                        if (java.security.Signature.state.failed) {
+                        this.state._fsp--;
+                        if (this.state.failed) {
                             return retval;
                         }
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
 
 
                             if (_first_0 === null) {
@@ -867,7 +623,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -888,7 +644,7 @@ export class BlockSetTransformer extends TreeRewriter {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }
@@ -904,7 +660,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // org/antlr/v4/parse/BlockSetTransformer.g:70:1: setAlt :{...}? ALT ;
     public readonly setAlt(): BlockSetTransformer.setAlt_return {
         let retval = new BlockSetTransformer.setAlt_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -920,17 +676,17 @@ export class BlockSetTransformer extends TreeRewriter {
             // org/antlr/v4/parse/BlockSetTransformer.g:71:2: ({...}? ALT )
             // org/antlr/v4/parse/BlockSetTransformer.g:71:4: {...}? ALT
             {
-                if (!((inContext("RULE BLOCK")))) {
-                    if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                    throw new FailedPredicateException(input, "setAlt", "inContext(\"RULE BLOCK\")");
+                if (!((BlockSetTransformer.inContext("RULE BLOCK")))) {
+                    if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                    throw new FailedPredicateException(this.input, "setAlt", "inContext(\"RULE BLOCK\")");
                 }
-                _last = input.LT(1) as GrammarAST;
-                ALT6 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_setAlt141) as GrammarAST; if (java.security.Signature.state.failed) {
+                _last = this.input.LT(1) as GrammarAST;
+                ALT6 = this.match(this.input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_setAlt141) as GrammarAST; if (this.state.failed) {
                     return retval;
                 }
 
 
-                if (java.security.Signature.state.backtracking === 1) {
+                if (this.state.backtracking === 1) {
 
                     if (_first_0 === null) {
                         _first_0 = ALT6;
@@ -939,8 +695,8 @@ export class BlockSetTransformer extends TreeRewriter {
                 }
 
 
-                if (java.security.Signature.state.backtracking === 1) { this.currentAlt = (retval.start as GrammarAST); }
-                if (java.security.Signature.state.backtracking === 1) {
+                if (this.state.backtracking === 1) { this.currentAlt = (retval.start as GrammarAST); }
+                if (this.state.backtracking === 1) {
                     retval.tree = _first_0;
                     if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -954,7 +710,7 @@ export class BlockSetTransformer extends TreeRewriter {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }
@@ -970,7 +726,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // org/antlr/v4/parse/BlockSetTransformer.g:76:1: ebnfBlockSet : ^( ebnfSuffix blockSet ) -> ^( ebnfSuffix ^( BLOCK ^( ALT blockSet ) ) ) ;
     public readonly ebnfBlockSet(): BlockSetTransformer.ebnfBlockSet_return {
         let retval = new BlockSetTransformer.ebnfBlockSet_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -988,23 +744,23 @@ export class BlockSetTransformer extends TreeRewriter {
             // org/antlr/v4/parse/BlockSetTransformer.g:80:2: ( ^( ebnfSuffix blockSet ) -> ^( ebnfSuffix ^( BLOCK ^( ALT blockSet ) ) ) )
             // org/antlr/v4/parse/BlockSetTransformer.g:80:4: ^( ebnfSuffix blockSet )
             {
-                _last = input.LT(1) as GrammarAST;
+                _last = this.input.LT(1) as GrammarAST;
                 {
                     let _save_last_1 = _last;
                     let _first_1 = null;
-                    _last = input.LT(1) as GrammarAST;
-                    pushFollow(BlockSetTransformer.FOLLOW_ebnfSuffix_in_ebnfBlockSet161);
+                    _last = this.input.LT(1) as GrammarAST;
+                    this.pushFollow(BlockSetTransformer.FOLLOW_ebnfSuffix_in_ebnfBlockSet161);
                     ebnfSuffix7 = this.ebnfSuffix();
-                    java.security.Signature.state._fsp--;
-                    if (java.security.Signature.state.failed) {
+                    this.state._fsp--;
+                    if (this.state.failed) {
                         return retval;
                     }
 
-                    if (java.security.Signature.state.backtracking === 1) {
+                    if (this.state.backtracking === 1) {
                         stream_ebnfSuffix.add(ebnfSuffix7.getTree());
                     }
 
-                    if (java.security.Signature.state.backtracking === 1) {
+                    if (this.state.backtracking === 1) {
 
                         if (_first_0 === null) {
                             _first_0 = ebnfSuffix7.getTree() as GrammarAST;
@@ -1012,23 +768,23 @@ export class BlockSetTransformer extends TreeRewriter {
 
                     }
 
-                    java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                    this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                         return retval;
                     }
 
-                    _last = input.LT(1) as GrammarAST;
-                    pushFollow(BlockSetTransformer.FOLLOW_blockSet_in_ebnfBlockSet163);
+                    _last = this.input.LT(1) as GrammarAST;
+                    this.pushFollow(BlockSetTransformer.FOLLOW_blockSet_in_ebnfBlockSet163);
                     blockSet8 = this.blockSet();
-                    java.security.Signature.state._fsp--;
-                    if (java.security.Signature.state.failed) {
+                    this.state._fsp--;
+                    if (this.state.failed) {
                         return retval;
                     }
 
-                    if (java.security.Signature.state.backtracking === 1) {
+                    if (this.state.backtracking === 1) {
                         stream_blockSet.add(blockSet8.getTree());
                     }
 
-                    java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                    this.match(this.input, Token.UP, null); if (this.state.failed) {
                         return retval;
                     }
 
@@ -1044,7 +800,7 @@ export class BlockSetTransformer extends TreeRewriter {
                 // token list labels:
                 // rule list labels:
                 // wildcard labels:
-                if (java.security.Signature.state.backtracking === 1) {
+                if (this.state.backtracking === 1) {
                     retval.tree = root_0;
                     let stream_retval = new RewriteRuleSubtreeStream(this.adaptor, "rule retval", retval !== null ? retval.getTree() : null);
 
@@ -1077,7 +833,7 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
                     retval.tree = this.adaptor.rulePostProcessing(root_0) as GrammarAST;
-                    input.replaceChildren(this.adaptor.getParent(retval.start),
+                    this.input.replaceChildren(this.adaptor.getParent(retval.start),
                         this.adaptor.getChildIndex(retval.start),
                         this.adaptor.getChildIndex(_last),
                         retval.tree);
@@ -1085,13 +841,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
             }
 
-            if (java.security.Signature.state.backtracking === 1) {
+            if (this.state.backtracking === 1) {
                 GrammarTransformPipeline.setGrammarPtr(this.g, retval.tree);
             }
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1107,7 +863,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // org/antlr/v4/parse/BlockSetTransformer.g:83:1: ebnfSuffix : ( OPTIONAL | CLOSURE | POSITIVE_CLOSURE );
     public readonly ebnfSuffix(): BlockSetTransformer.ebnfSuffix_return {
         let retval = new BlockSetTransformer.ebnfSuffix_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -1123,20 +879,20 @@ export class BlockSetTransformer extends TreeRewriter {
             // org/antlr/v4/parse/BlockSetTransformer.g:85:2: ( OPTIONAL | CLOSURE | POSITIVE_CLOSURE )
             // org/antlr/v4/parse/BlockSetTransformer.g:
             {
-                _last = input.LT(1) as GrammarAST;
-                set9 = input.LT(1) as GrammarAST;
-                if (input.LA(1) === BlockSetTransformer.CLOSURE || (input.LA(1) >= BlockSetTransformer.OPTIONAL && input.LA(1) <= BlockSetTransformer.POSITIVE_CLOSURE)) {
-                    input.consume();
-                    java.security.Signature.state.errorRecovery = false;
-                    java.security.Signature.state.failed = false;
+                _last = this.input.LT(1) as GrammarAST;
+                set9 = this.input.LT(1) as GrammarAST;
+                if (this.input.LA(1) === BlockSetTransformer.CLOSURE || (this.input.LA(1) >= BlockSetTransformer.OPTIONAL && this.input.LA(1) <= BlockSetTransformer.POSITIVE_CLOSURE)) {
+                    this.input.consume();
+                    this.state.errorRecovery = false;
+                    this.state.failed = false;
                 }
                 else {
-                    if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                    let mse = new MismatchedSetException(null, input);
+                    if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                    let mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
 
-                if (java.security.Signature.state.backtracking === 1) {
+                if (this.state.backtracking === 1) {
                     retval.tree = _first_0;
                     if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -1148,11 +904,11 @@ export class BlockSetTransformer extends TreeRewriter {
 
             }
 
-            if (java.security.Signature.state.backtracking === 1) { retval.tree = this.adaptor.dupNode((retval.start as GrammarAST)) as GrammarAST; }
+            if (this.state.backtracking === 1) { retval.tree = this.adaptor.dupNode((retval.start as GrammarAST)) as GrammarAST; }
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1168,7 +924,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // org/antlr/v4/parse/BlockSetTransformer.g:90:1: blockSet : ({...}? ^( BLOCK ^(alt= ALT ( elementOptions )? {...}? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ ) -> ^( BLOCK[$BLOCK.token] ^( ALT[$BLOCK.token,\"ALT\"] ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) ) ) |{...}? ^( BLOCK ^( ALT ( elementOptions )? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ ) -> ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) );
     public readonly blockSet(): BlockSetTransformer.blockSet_return {
         let retval = new BlockSetTransformer.blockSet_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -1208,31 +964,31 @@ export class BlockSetTransformer extends TreeRewriter {
         try {
             // org/antlr/v4/parse/BlockSetTransformer.g:97:2: ({...}? ^( BLOCK ^(alt= ALT ( elementOptions )? {...}? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ ) -> ^( BLOCK[$BLOCK.token] ^( ALT[$BLOCK.token,\"ALT\"] ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) ) ) |{...}? ^( BLOCK ^( ALT ( elementOptions )? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ ) -> ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) )
             let alt10 = 2;
-            alt10 = this.dfa10.predict(input);
+            alt10 = this.dfa10.predict(this.input);
             switch (alt10) {
                 case 1: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:97:4: {...}? ^( BLOCK ^(alt= ALT ( elementOptions )? {...}? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ )
                     {
                         if (!((inContext("RULE")))) {
-                            if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                            throw new FailedPredicateException(input, "blockSet", "inContext(\"RULE\")");
+                            if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                            throw new FailedPredicateException(this.input, "blockSet", "inContext(\"RULE\")");
                         }
-                        _last = input.LT(1) as GrammarAST;
+                        _last = this.input.LT(1) as GrammarAST;
                         {
                             let _save_last_1 = _last;
                             let _first_1 = null;
-                            _last = input.LT(1) as GrammarAST;
-                            BLOCK10 = java.security.cert.CertSelector.match(input, BlockSetTransformer.BLOCK, BlockSetTransformer.FOLLOW_BLOCK_in_blockSet244) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            BLOCK10 = this.match(this.input, BlockSetTransformer.BLOCK, BlockSetTransformer.FOLLOW_BLOCK_in_blockSet244) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
                                 stream_BLOCK.add(BLOCK10);
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = BLOCK10;
@@ -1240,26 +996,26 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                 return retval;
                             }
 
-                            _last = input.LT(1) as GrammarAST;
+                            _last = this.input.LT(1) as GrammarAST;
                             {
                                 let _save_last_2 = _last;
                                 let _first_2 = null;
-                                _last = input.LT(1) as GrammarAST;
-                                alt = java.security.cert.CertSelector.match(input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet249) as GrammarAST; if (java.security.Signature.state.failed) {
+                                _last = this.input.LT(1) as GrammarAST;
+                                alt = this.match(this.input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet249) as GrammarAST; if (this.state.failed) {
                                     return retval;
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
                                     stream_ALT.add(alt);
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
                                     if (_first_1 === null) {
                                         _first_1 = alt;
@@ -1267,13 +1023,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                 }
 
-                                java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                     return retval;
                                 }
 
                                 // org/antlr/v4/parse/BlockSetTransformer.g:98:21: ( elementOptions )?
                                 let alt4 = 2;
-                                let LA4_0 = input.LA(1);
+                                let LA4_0 = this.input.LA(1);
                                 if ((LA4_0 === BlockSetTransformer.ELEMENT_OPTIONS)) {
                                     alt4 = 1;
                                 }
@@ -1281,19 +1037,19 @@ export class BlockSetTransformer extends TreeRewriter {
                                     case 1: {
                                         // org/antlr/v4/parse/BlockSetTransformer.g:98:21: elementOptions
                                         {
-                                            _last = input.LT(1) as GrammarAST;
-                                            pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet251);
+                                            _last = this.input.LT(1) as GrammarAST;
+                                            this.pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet251);
                                             elementOptions11 = this.elementOptions();
-                                            java.security.Signature.state._fsp--;
-                                            if (java.security.Signature.state.failed) {
+                                            this.state._fsp--;
+                                            if (this.state.failed) {
                                                 return retval;
                                             }
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
                                                 stream_elementOptions.add(elementOptions11.getTree());
                                             }
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
                                                 retval.tree = _first_0;
                                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -1313,22 +1069,22 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 if (!(((alt as AltAST).altLabel === null))) {
-                                    if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                    throw new FailedPredicateException(input, "blockSet", "((AltAST)$alt).altLabel==null");
+                                    if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                    throw new FailedPredicateException(this.input, "blockSet", "((AltAST)$alt).altLabel==null");
                                 }
-                                _last = input.LT(1) as GrammarAST;
-                                pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet256);
+                                _last = this.input.LT(1) as GrammarAST;
+                                this.pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet256);
                                 setElement12 = this.setElement(inLexer);
-                                java.security.Signature.state._fsp--;
-                                if (java.security.Signature.state.failed) {
+                                this.state._fsp--;
+                                if (this.state.failed) {
                                     return retval;
                                 }
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
                                     stream_setElement.add(setElement12.getTree());
                                 }
 
-                                java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, Token.UP, null); if (this.state.failed) {
                                     return retval;
                                 }
 
@@ -1341,7 +1097,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             loop6:
                             while (true) {
                                 let alt6 = 2;
-                                let LA6_0 = input.LA(1);
+                                let LA6_0 = this.input.LA(1);
                                 if ((LA6_0 === BlockSetTransformer.ALT)) {
                                     alt6 = 1;
                                 }
@@ -1350,22 +1106,22 @@ export class BlockSetTransformer extends TreeRewriter {
                                     case 1: {
                                         // org/antlr/v4/parse/BlockSetTransformer.g:98:93: ^( ALT ( elementOptions )? setElement[inLexer] )
                                         {
-                                            _last = input.LT(1) as GrammarAST;
+                                            _last = this.input.LT(1) as GrammarAST;
                                             {
                                                 let _save_last_2 = _last;
                                                 let _first_2 = null;
-                                                _last = input.LT(1) as GrammarAST;
-                                                ALT13 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet263) as GrammarAST; if (java.security.Signature.state.failed) {
+                                                _last = this.input.LT(1) as GrammarAST;
+                                                ALT13 = this.match(this.input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet263) as GrammarAST; if (this.state.failed) {
                                                     return retval;
                                                 }
 
 
-                                                if (java.security.Signature.state.backtracking === 1) {
+                                                if (this.state.backtracking === 1) {
                                                     stream_ALT.add(ALT13);
                                                 }
 
 
-                                                if (java.security.Signature.state.backtracking === 1) {
+                                                if (this.state.backtracking === 1) {
 
                                                     if (_first_1 === null) {
                                                         _first_1 = ALT13;
@@ -1373,13 +1129,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                                 }
 
-                                                java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                                                this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                                     return retval;
                                                 }
 
                                                 // org/antlr/v4/parse/BlockSetTransformer.g:98:99: ( elementOptions )?
                                                 let alt5 = 2;
-                                                let LA5_0 = input.LA(1);
+                                                let LA5_0 = this.input.LA(1);
                                                 if ((LA5_0 === BlockSetTransformer.ELEMENT_OPTIONS)) {
                                                     alt5 = 1;
                                                 }
@@ -1387,19 +1143,19 @@ export class BlockSetTransformer extends TreeRewriter {
                                                     case 1: {
                                                         // org/antlr/v4/parse/BlockSetTransformer.g:98:99: elementOptions
                                                         {
-                                                            _last = input.LT(1) as GrammarAST;
-                                                            pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet265);
+                                                            _last = this.input.LT(1) as GrammarAST;
+                                                            this.pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet265);
                                                             elementOptions14 = this.elementOptions();
-                                                            java.security.Signature.state._fsp--;
-                                                            if (java.security.Signature.state.failed) {
+                                                            this.state._fsp--;
+                                                            if (this.state.failed) {
                                                                 return retval;
                                                             }
 
-                                                            if (java.security.Signature.state.backtracking === 1) {
+                                                            if (this.state.backtracking === 1) {
                                                                 stream_elementOptions.add(elementOptions14.getTree());
                                                             }
 
-                                                            if (java.security.Signature.state.backtracking === 1) {
+                                                            if (this.state.backtracking === 1) {
                                                                 retval.tree = _first_0;
                                                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -1418,19 +1174,19 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                                 }
 
-                                                _last = input.LT(1) as GrammarAST;
-                                                pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet268);
+                                                _last = this.input.LT(1) as GrammarAST;
+                                                this.pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet268);
                                                 setElement15 = this.setElement(inLexer);
-                                                java.security.Signature.state._fsp--;
-                                                if (java.security.Signature.state.failed) {
+                                                this.state._fsp--;
+                                                if (this.state.failed) {
                                                     return retval;
                                                 }
 
-                                                if (java.security.Signature.state.backtracking === 1) {
+                                                if (this.state.backtracking === 1) {
                                                     stream_setElement.add(setElement15.getTree());
                                                 }
 
-                                                java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                                                this.match(this.input, Token.UP, null); if (this.state.failed) {
                                                     return retval;
                                                 }
 
@@ -1438,7 +1194,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                             }
 
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
                                                 retval.tree = _first_0;
                                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -1457,8 +1213,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                             break loop6;
                                         }
 
-                                        if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                        let eee = new EarlyExitException(6, input);
+                                        if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                        let eee = new EarlyExitException(6, this.input);
                                         throw eee;
                                     }
 
@@ -1466,7 +1222,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 cnt6++;
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, Token.UP, null); if (this.state.failed) {
                                 return retval;
                             }
 
@@ -1482,7 +1238,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         // token list labels:
                         // rule list labels:
                         // wildcard labels:
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = root_0;
                             let stream_retval = new RewriteRuleSubtreeStream(this.adaptor, "rule retval", retval !== null ? retval.getTree() : null);
 
@@ -1522,7 +1278,7 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
                             retval.tree = this.adaptor.rulePostProcessing(root_0) as GrammarAST;
-                            input.replaceChildren(this.adaptor.getParent(retval.start),
+                            this.input.replaceChildren(this.adaptor.getParent(retval.start),
                                 this.adaptor.getChildIndex(retval.start),
                                 this.adaptor.getChildIndex(_last),
                                 retval.tree);
@@ -1536,25 +1292,25 @@ export class BlockSetTransformer extends TreeRewriter {
                     // org/antlr/v4/parse/BlockSetTransformer.g:100:4: {...}? ^( BLOCK ^( ALT ( elementOptions )? setElement[inLexer] ) ( ^( ALT ( elementOptions )? setElement[inLexer] ) )+ )
                     {
                         if (!((!inContext("RULE")))) {
-                            if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                            throw new FailedPredicateException(input, "blockSet", "!inContext(\"RULE\")");
+                            if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                            throw new FailedPredicateException(this.input, "blockSet", "!inContext(\"RULE\")");
                         }
-                        _last = input.LT(1) as GrammarAST;
+                        _last = this.input.LT(1) as GrammarAST;
                         {
                             let _save_last_1 = _last;
                             let _first_1 = null;
-                            _last = input.LT(1) as GrammarAST;
-                            BLOCK16 = java.security.cert.CertSelector.match(input, BlockSetTransformer.BLOCK, BlockSetTransformer.FOLLOW_BLOCK_in_blockSet313) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            BLOCK16 = this.match(this.input, BlockSetTransformer.BLOCK, BlockSetTransformer.FOLLOW_BLOCK_in_blockSet313) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
                                 stream_BLOCK.add(BLOCK16);
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = BLOCK16;
@@ -1562,26 +1318,26 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                 return retval;
                             }
 
-                            _last = input.LT(1) as GrammarAST;
+                            _last = this.input.LT(1) as GrammarAST;
                             {
                                 let _save_last_2 = _last;
                                 let _first_2 = null;
-                                _last = input.LT(1) as GrammarAST;
-                                ALT17 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet316) as GrammarAST; if (java.security.Signature.state.failed) {
+                                _last = this.input.LT(1) as GrammarAST;
+                                ALT17 = this.match(this.input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet316) as GrammarAST; if (this.state.failed) {
                                     return retval;
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
                                     stream_ALT.add(ALT17);
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
                                     if (_first_1 === null) {
                                         _first_1 = ALT17;
@@ -1589,13 +1345,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                 }
 
-                                java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                     return retval;
                                 }
 
                                 // org/antlr/v4/parse/BlockSetTransformer.g:101:17: ( elementOptions )?
                                 let alt7 = 2;
-                                let LA7_0 = input.LA(1);
+                                let LA7_0 = this.input.LA(1);
                                 if ((LA7_0 === BlockSetTransformer.ELEMENT_OPTIONS)) {
                                     alt7 = 1;
                                 }
@@ -1603,19 +1359,19 @@ export class BlockSetTransformer extends TreeRewriter {
                                     case 1: {
                                         // org/antlr/v4/parse/BlockSetTransformer.g:101:17: elementOptions
                                         {
-                                            _last = input.LT(1) as GrammarAST;
-                                            pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet318);
+                                            _last = this.input.LT(1) as GrammarAST;
+                                            this.pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet318);
                                             elementOptions18 = this.elementOptions();
-                                            java.security.Signature.state._fsp--;
-                                            if (java.security.Signature.state.failed) {
+                                            this.state._fsp--;
+                                            if (this.state.failed) {
                                                 return retval;
                                             }
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
                                                 stream_elementOptions.add(elementOptions18.getTree());
                                             }
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
                                                 retval.tree = _first_0;
                                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -1634,19 +1390,19 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                 }
 
-                                _last = input.LT(1) as GrammarAST;
-                                pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet321);
+                                _last = this.input.LT(1) as GrammarAST;
+                                this.pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet321);
                                 setElement19 = this.setElement(inLexer);
-                                java.security.Signature.state._fsp--;
-                                if (java.security.Signature.state.failed) {
+                                this.state._fsp--;
+                                if (this.state.failed) {
                                     return retval;
                                 }
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
                                     stream_setElement.add(setElement19.getTree());
                                 }
 
-                                java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, Token.UP, null); if (this.state.failed) {
                                     return retval;
                                 }
 
@@ -1659,7 +1415,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             loop9:
                             while (true) {
                                 let alt9 = 2;
-                                let LA9_0 = input.LA(1);
+                                let LA9_0 = this.input.LA(1);
                                 if ((LA9_0 === BlockSetTransformer.ALT)) {
                                     alt9 = 1;
                                 }
@@ -1668,22 +1424,22 @@ export class BlockSetTransformer extends TreeRewriter {
                                     case 1: {
                                         // org/antlr/v4/parse/BlockSetTransformer.g:101:56: ^( ALT ( elementOptions )? setElement[inLexer] )
                                         {
-                                            _last = input.LT(1) as GrammarAST;
+                                            _last = this.input.LT(1) as GrammarAST;
                                             {
                                                 let _save_last_2 = _last;
                                                 let _first_2 = null;
-                                                _last = input.LT(1) as GrammarAST;
-                                                ALT20 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet328) as GrammarAST; if (java.security.Signature.state.failed) {
+                                                _last = this.input.LT(1) as GrammarAST;
+                                                ALT20 = this.match(this.input, BlockSetTransformer.ALT, BlockSetTransformer.FOLLOW_ALT_in_blockSet328) as GrammarAST; if (this.state.failed) {
                                                     return retval;
                                                 }
 
 
-                                                if (java.security.Signature.state.backtracking === 1) {
+                                                if (this.state.backtracking === 1) {
                                                     stream_ALT.add(ALT20);
                                                 }
 
 
-                                                if (java.security.Signature.state.backtracking === 1) {
+                                                if (this.state.backtracking === 1) {
 
                                                     if (_first_1 === null) {
                                                         _first_1 = ALT20;
@@ -1691,13 +1447,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                                 }
 
-                                                java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                                                this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                                     return retval;
                                                 }
 
                                                 // org/antlr/v4/parse/BlockSetTransformer.g:101:62: ( elementOptions )?
                                                 let alt8 = 2;
-                                                let LA8_0 = input.LA(1);
+                                                let LA8_0 = this.input.LA(1);
                                                 if ((LA8_0 === BlockSetTransformer.ELEMENT_OPTIONS)) {
                                                     alt8 = 1;
                                                 }
@@ -1705,19 +1461,19 @@ export class BlockSetTransformer extends TreeRewriter {
                                                     case 1: {
                                                         // org/antlr/v4/parse/BlockSetTransformer.g:101:62: elementOptions
                                                         {
-                                                            _last = input.LT(1) as GrammarAST;
-                                                            pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet330);
+                                                            _last = this.input.LT(1) as GrammarAST;
+                                                            this.pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_blockSet330);
                                                             elementOptions21 = this.elementOptions();
-                                                            java.security.Signature.state._fsp--;
-                                                            if (java.security.Signature.state.failed) {
+                                                            this.state._fsp--;
+                                                            if (this.state.failed) {
                                                                 return retval;
                                                             }
 
-                                                            if (java.security.Signature.state.backtracking === 1) {
+                                                            if (this.state.backtracking === 1) {
                                                                 stream_elementOptions.add(elementOptions21.getTree());
                                                             }
 
-                                                            if (java.security.Signature.state.backtracking === 1) {
+                                                            if (this.state.backtracking === 1) {
                                                                 retval.tree = _first_0;
                                                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -1736,19 +1492,19 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                                 }
 
-                                                _last = input.LT(1) as GrammarAST;
-                                                pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet333);
+                                                _last = this.input.LT(1) as GrammarAST;
+                                                this.pushFollow(BlockSetTransformer.FOLLOW_setElement_in_blockSet333);
                                                 setElement22 = this.setElement(inLexer);
-                                                java.security.Signature.state._fsp--;
-                                                if (java.security.Signature.state.failed) {
+                                                this.state._fsp--;
+                                                if (this.state.failed) {
                                                     return retval;
                                                 }
 
-                                                if (java.security.Signature.state.backtracking === 1) {
+                                                if (this.state.backtracking === 1) {
                                                     stream_setElement.add(setElement22.getTree());
                                                 }
 
-                                                java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                                                this.match(this.input, Token.UP, null); if (this.state.failed) {
                                                     return retval;
                                                 }
 
@@ -1756,7 +1512,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                             }
 
 
-                                            if (java.security.Signature.state.backtracking === 1) {
+                                            if (this.state.backtracking === 1) {
                                                 retval.tree = _first_0;
                                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -1775,8 +1531,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                             break loop9;
                                         }
 
-                                        if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                        let eee = new EarlyExitException(9, input);
+                                        if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                        let eee = new EarlyExitException(9, this.input);
                                         throw eee;
                                     }
 
@@ -1784,7 +1540,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 cnt9++;
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, Token.UP, null); if (this.state.failed) {
                                 return retval;
                             }
 
@@ -1800,7 +1556,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         // token list labels:
                         // rule list labels:
                         // wildcard labels:
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = root_0;
                             let stream_retval = new RewriteRuleSubtreeStream(this.adaptor, "rule retval", retval !== null ? retval.getTree() : null);
 
@@ -1826,7 +1582,7 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
                             retval.tree = this.adaptor.rulePostProcessing(root_0) as GrammarAST;
-                            input.replaceChildren(this.adaptor.getParent(retval.start),
+                            this.input.replaceChildren(this.adaptor.getParent(retval.start),
                                 this.adaptor.getChildIndex(retval.start),
                                 this.adaptor.getChildIndex(_last),
                                 retval.tree);
@@ -1841,13 +1597,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
             }
-            if (java.security.Signature.state.backtracking === 1) {
+            if (this.state.backtracking === 1) {
                 GrammarTransformPipeline.setGrammarPtr(this.g, retval.tree);
             }
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1863,7 +1619,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // org/antlr/v4/parse/BlockSetTransformer.g:105:1: setElement[boolean inLexer] : ( ^(a= STRING_LITERAL elementOptions ) {...}?|a= STRING_LITERAL {...}?|{...}? => ^( TOKEN_REF elementOptions ) |{...}? => TOKEN_REF |{...}? => ^( RANGE a= STRING_LITERAL b= STRING_LITERAL ) {...}?) ;
     public readonly setElement(inLexer: boolean): BlockSetTransformer.setElement_return {
         let retval = new BlockSetTransformer.setElement_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -1891,27 +1647,27 @@ export class BlockSetTransformer extends TreeRewriter {
             {
                 // org/antlr/v4/parse/BlockSetTransformer.g:109:4: ( ^(a= STRING_LITERAL elementOptions ) {...}?|a= STRING_LITERAL {...}?|{...}? => ^( TOKEN_REF elementOptions ) |{...}? => TOKEN_REF |{...}? => ^( RANGE a= STRING_LITERAL b= STRING_LITERAL ) {...}?)
                 let alt11 = 5;
-                let LA11_0 = input.LA(1);
+                let LA11_0 = this.input.LA(1);
                 if ((LA11_0 === BlockSetTransformer.STRING_LITERAL)) {
-                    let LA11_1 = input.LA(2);
-                    if ((LA11_1 === DOWN)) {
+                    let LA11_1 = this.input.LA(2);
+                    if ((LA11_1 === TreeParser.DOWN)) {
                         alt11 = 1;
                     }
                     else {
-                        if ((LA11_1 === UP)) {
+                        if ((LA11_1 === TreeParser.UP)) {
                             alt11 = 2;
                         }
 
                         else {
-                            if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                            let nvaeMark = input.mark();
+                            if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                            let nvaeMark = this.input.mark();
                             try {
-                                input.consume();
+                                this.input.consume();
                                 let nvae =
-                                    new NoViableAltException("", 11, 1, input);
+                                    new NoViableAltException("", 11, 1, this.input);
                                 throw nvae;
                             } finally {
-                                input.rewind(nvaeMark);
+                                this.input.rewind(nvaeMark);
                             }
                         }
                     }
@@ -1920,12 +1676,12 @@ export class BlockSetTransformer extends TreeRewriter {
                 }
                 else {
                     if ((LA11_0 === BlockSetTransformer.TOKEN_REF) && ((!inLexer))) {
-                        let LA11_2 = input.LA(2);
-                        if ((LA11_2 === DOWN) && ((!inLexer))) {
+                        let LA11_2 = this.input.LA(2);
+                        if ((LA11_2 === TreeParser.DOWN) && ((!inLexer))) {
                             alt11 = 3;
                         }
                         else {
-                            if ((LA11_2 === UP) && ((!inLexer))) {
+                            if ((LA11_2 === TreeParser.UP) && ((!inLexer))) {
                                 alt11 = 4;
                             }
                         }
@@ -1945,17 +1701,17 @@ export class BlockSetTransformer extends TreeRewriter {
                     case 1: {
                         // org/antlr/v4/parse/BlockSetTransformer.g:109:6: ^(a= STRING_LITERAL elementOptions ) {...}?
                         {
-                            _last = input.LT(1) as GrammarAST;
+                            _last = this.input.LT(1) as GrammarAST;
                             {
                                 let _save_last_1 = _last;
                                 let _first_1 = null;
-                                _last = input.LT(1) as GrammarAST;
-                                a = java.security.cert.CertSelector.match(input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement373) as GrammarAST; if (java.security.Signature.state.failed) {
+                                _last = this.input.LT(1) as GrammarAST;
+                                a = this.match(this.input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement373) as GrammarAST; if (this.state.failed) {
                                     return retval;
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
                                     if (_first_0 === null) {
                                         _first_0 = a;
@@ -1963,19 +1719,19 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                 }
 
-                                java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                     return retval;
                                 }
 
-                                _last = input.LT(1) as GrammarAST;
-                                pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_setElement375);
+                                _last = this.input.LT(1) as GrammarAST;
+                                this.pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_setElement375);
                                 elementOptions23 = this.elementOptions();
-                                java.security.Signature.state._fsp--;
-                                if (java.security.Signature.state.failed) {
+                                this.state._fsp--;
+                                if (this.state.failed) {
                                     return retval;
                                 }
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
 
                                     if (_first_1 === null) {
@@ -1985,7 +1741,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
 
-                                java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, Token.UP, null); if (this.state.failed) {
                                     return retval;
                                 }
 
@@ -1994,10 +1750,10 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
                             if (!((!inLexer || CharSupport.getCharValueFromGrammarCharLiteral(a.getText()) !== -1))) {
-                                if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                throw new FailedPredicateException(input, "setElement", "!inLexer || CharSupport.getCharValueFromGrammarCharLiteral($a.getText())!=-1");
+                                if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                throw new FailedPredicateException(this.input, "setElement", "!inLexer || CharSupport.getCharValueFromGrammarCharLiteral($a.getText())!=-1");
                             }
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
                                 retval.tree = _first_0;
                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2013,13 +1769,13 @@ export class BlockSetTransformer extends TreeRewriter {
                     case 2: {
                         // org/antlr/v4/parse/BlockSetTransformer.g:110:7: a= STRING_LITERAL {...}?
                         {
-                            _last = input.LT(1) as GrammarAST;
-                            a = java.security.cert.CertSelector.match(input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement388) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            a = this.match(this.input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement388) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = a;
@@ -2029,10 +1785,10 @@ export class BlockSetTransformer extends TreeRewriter {
 
 
                             if (!((!inLexer || CharSupport.getCharValueFromGrammarCharLiteral(a.getText()) !== -1))) {
-                                if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                throw new FailedPredicateException(input, "setElement", "!inLexer || CharSupport.getCharValueFromGrammarCharLiteral($a.getText())!=-1");
+                                if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                throw new FailedPredicateException(this.input, "setElement", "!inLexer || CharSupport.getCharValueFromGrammarCharLiteral($a.getText())!=-1");
                             }
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
                                 retval.tree = _first_0;
                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2049,20 +1805,20 @@ export class BlockSetTransformer extends TreeRewriter {
                         // org/antlr/v4/parse/BlockSetTransformer.g:111:5: {...}? => ^( TOKEN_REF elementOptions )
                         {
                             if (!((!inLexer))) {
-                                if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                throw new FailedPredicateException(input, "setElement", "!inLexer");
+                                if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                throw new FailedPredicateException(this.input, "setElement", "!inLexer");
                             }
-                            _last = input.LT(1) as GrammarAST;
+                            _last = this.input.LT(1) as GrammarAST;
                             {
                                 let _save_last_1 = _last;
                                 let _first_1 = null;
-                                _last = input.LT(1) as GrammarAST;
-                                TOKEN_REF24 = java.security.cert.CertSelector.match(input, BlockSetTransformer.TOKEN_REF, BlockSetTransformer.FOLLOW_TOKEN_REF_in_setElement400) as GrammarAST; if (java.security.Signature.state.failed) {
+                                _last = this.input.LT(1) as GrammarAST;
+                                TOKEN_REF24 = this.match(this.input, BlockSetTransformer.TOKEN_REF, BlockSetTransformer.FOLLOW_TOKEN_REF_in_setElement400) as GrammarAST; if (this.state.failed) {
                                     return retval;
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
                                     if (_first_0 === null) {
                                         _first_0 = TOKEN_REF24;
@@ -2070,19 +1826,19 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                 }
 
-                                java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                     return retval;
                                 }
 
-                                _last = input.LT(1) as GrammarAST;
-                                pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_setElement402);
+                                _last = this.input.LT(1) as GrammarAST;
+                                this.pushFollow(BlockSetTransformer.FOLLOW_elementOptions_in_setElement402);
                                 elementOptions25 = this.elementOptions();
-                                java.security.Signature.state._fsp--;
-                                if (java.security.Signature.state.failed) {
+                                this.state._fsp--;
+                                if (this.state.failed) {
                                     return retval;
                                 }
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
 
                                     if (_first_1 === null) {
@@ -2092,7 +1848,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
 
-                                java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, Token.UP, null); if (this.state.failed) {
                                     return retval;
                                 }
 
@@ -2100,7 +1856,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
                                 retval.tree = _first_0;
                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2117,16 +1873,16 @@ export class BlockSetTransformer extends TreeRewriter {
                         // org/antlr/v4/parse/BlockSetTransformer.g:112:5: {...}? => TOKEN_REF
                         {
                             if (!((!inLexer))) {
-                                if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                throw new FailedPredicateException(input, "setElement", "!inLexer");
+                                if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                throw new FailedPredicateException(this.input, "setElement", "!inLexer");
                             }
-                            _last = input.LT(1) as GrammarAST;
-                            TOKEN_REF26 = java.security.cert.CertSelector.match(input, BlockSetTransformer.TOKEN_REF, BlockSetTransformer.FOLLOW_TOKEN_REF_in_setElement414) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            TOKEN_REF26 = this.match(this.input, BlockSetTransformer.TOKEN_REF, BlockSetTransformer.FOLLOW_TOKEN_REF_in_setElement414) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = TOKEN_REF26;
@@ -2135,7 +1891,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
                                 retval.tree = _first_0;
                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2152,20 +1908,20 @@ export class BlockSetTransformer extends TreeRewriter {
                         // org/antlr/v4/parse/BlockSetTransformer.g:113:5: {...}? => ^( RANGE a= STRING_LITERAL b= STRING_LITERAL ) {...}?
                         {
                             if (!((inLexer))) {
-                                if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                throw new FailedPredicateException(input, "setElement", "inLexer");
+                                if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                throw new FailedPredicateException(this.input, "setElement", "inLexer");
                             }
-                            _last = input.LT(1) as GrammarAST;
+                            _last = this.input.LT(1) as GrammarAST;
                             {
                                 let _save_last_1 = _last;
                                 let _first_1 = null;
-                                _last = input.LT(1) as GrammarAST;
-                                RANGE27 = java.security.cert.CertSelector.match(input, BlockSetTransformer.RANGE, BlockSetTransformer.FOLLOW_RANGE_in_setElement425) as GrammarAST; if (java.security.Signature.state.failed) {
+                                _last = this.input.LT(1) as GrammarAST;
+                                RANGE27 = this.match(this.input, BlockSetTransformer.RANGE, BlockSetTransformer.FOLLOW_RANGE_in_setElement425) as GrammarAST; if (this.state.failed) {
                                     return retval;
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
                                     if (_first_0 === null) {
                                         _first_0 = RANGE27;
@@ -2173,17 +1929,17 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                 }
 
-                                java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                     return retval;
                                 }
 
-                                _last = input.LT(1) as GrammarAST;
-                                a = java.security.cert.CertSelector.match(input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement429) as GrammarAST; if (java.security.Signature.state.failed) {
+                                _last = this.input.LT(1) as GrammarAST;
+                                a = this.match(this.input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement429) as GrammarAST; if (this.state.failed) {
                                     return retval;
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
                                     if (_first_1 === null) {
                                         _first_1 = a;
@@ -2192,13 +1948,13 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
 
-                                _last = input.LT(1) as GrammarAST;
-                                b = java.security.cert.CertSelector.match(input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement433) as GrammarAST; if (java.security.Signature.state.failed) {
+                                _last = this.input.LT(1) as GrammarAST;
+                                b = this.match(this.input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_setElement433) as GrammarAST; if (this.state.failed) {
                                     return retval;
                                 }
 
 
-                                if (java.security.Signature.state.backtracking === 1) {
+                                if (this.state.backtracking === 1) {
 
                                     if (_first_1 === null) {
                                         _first_1 = b;
@@ -2207,7 +1963,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
 
-                                java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                                this.match(this.input, Token.UP, null); if (this.state.failed) {
                                     return retval;
                                 }
 
@@ -2217,10 +1973,10 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             if (!((CharSupport.getCharValueFromGrammarCharLiteral(a.getText()) !== -1 &&
                                 CharSupport.getCharValueFromGrammarCharLiteral(b.getText()) !== -1))) {
-                                if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                throw new FailedPredicateException(input, "setElement", "CharSupport.getCharValueFromGrammarCharLiteral($a.getText())!=-1 &&\n\t\t\t CharSupport.getCharValueFromGrammarCharLiteral($b.getText())!=-1");
+                                if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                throw new FailedPredicateException(this.input, "setElement", "CharSupport.getCharValueFromGrammarCharLiteral($a.getText())!=-1 &&\n\t\t\t CharSupport.getCharValueFromGrammarCharLiteral($b.getText())!=-1");
                             }
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
                                 retval.tree = _first_0;
                                 if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2239,7 +1995,7 @@ export class BlockSetTransformer extends TreeRewriter {
 
                 }
 
-                if (java.security.Signature.state.backtracking === 1) {
+                if (this.state.backtracking === 1) {
                     retval.tree = _first_0;
                     if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2250,13 +2006,13 @@ export class BlockSetTransformer extends TreeRewriter {
 
             }
 
-            if (java.security.Signature.state.backtracking === 1) {
+            if (this.state.backtracking === 1) {
                 GrammarTransformPipeline.setGrammarPtr(this.g, retval.tree);
             }
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }
@@ -2272,7 +2028,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // org/antlr/v4/parse/BlockSetTransformer.g:119:1: elementOptions : ^( ELEMENT_OPTIONS ( elementOption )* ) ;
     public readonly elementOptions(): BlockSetTransformer.elementOptions_return {
         let retval = new BlockSetTransformer.elementOptions_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -2289,17 +2045,17 @@ export class BlockSetTransformer extends TreeRewriter {
             // org/antlr/v4/parse/BlockSetTransformer.g:120:2: ( ^( ELEMENT_OPTIONS ( elementOption )* ) )
             // org/antlr/v4/parse/BlockSetTransformer.g:120:4: ^( ELEMENT_OPTIONS ( elementOption )* )
             {
-                _last = input.LT(1) as GrammarAST;
+                _last = this.input.LT(1) as GrammarAST;
                 {
                     let _save_last_1 = _last;
                     let _first_1 = null;
-                    _last = input.LT(1) as GrammarAST;
-                    ELEMENT_OPTIONS28 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ELEMENT_OPTIONS, BlockSetTransformer.FOLLOW_ELEMENT_OPTIONS_in_elementOptions455) as GrammarAST; if (java.security.Signature.state.failed) {
+                    _last = this.input.LT(1) as GrammarAST;
+                    ELEMENT_OPTIONS28 = this.match(this.input, BlockSetTransformer.ELEMENT_OPTIONS, BlockSetTransformer.FOLLOW_ELEMENT_OPTIONS_in_elementOptions455) as GrammarAST; if (this.state.failed) {
                         return retval;
                     }
 
 
-                    if (java.security.Signature.state.backtracking === 1) {
+                    if (this.state.backtracking === 1) {
 
                         if (_first_0 === null) {
                             _first_0 = ELEMENT_OPTIONS28;
@@ -2307,8 +2063,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                     }
 
-                    if (input.LA(1) === Token.DOWN) {
-                        java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                    if (this.input.LA(1) === TreeParser.DOWN) {
+                        this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                             return retval;
                         }
 
@@ -2316,7 +2072,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         loop12:
                         while (true) {
                             let alt12 = 2;
-                            let LA12_0 = input.LA(1);
+                            let LA12_0 = this.input.LA(1);
                             if ((LA12_0 === BlockSetTransformer.ASSIGN || LA12_0 === BlockSetTransformer.ID)) {
                                 alt12 = 1;
                             }
@@ -2325,15 +2081,15 @@ export class BlockSetTransformer extends TreeRewriter {
                                 case 1: {
                                     // org/antlr/v4/parse/BlockSetTransformer.g:120:22: elementOption
                                     {
-                                        _last = input.LT(1) as GrammarAST;
-                                        pushFollow(BlockSetTransformer.FOLLOW_elementOption_in_elementOptions457);
+                                        _last = this.input.LT(1) as GrammarAST;
+                                        this.pushFollow(BlockSetTransformer.FOLLOW_elementOption_in_elementOptions457);
                                         elementOption29 = this.elementOption();
-                                        java.security.Signature.state._fsp--;
-                                        if (java.security.Signature.state.failed) {
+                                        this.state._fsp--;
+                                        if (this.state.failed) {
                                             return retval;
                                         }
 
-                                        if (java.security.Signature.state.backtracking === 1) {
+                                        if (this.state.backtracking === 1) {
 
 
                                             if (_first_1 === null) {
@@ -2343,7 +2099,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                         }
 
 
-                                        if (java.security.Signature.state.backtracking === 1) {
+                                        if (this.state.backtracking === 1) {
                                             retval.tree = _first_0;
                                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2364,7 +2120,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
                         }
 
-                        java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                        this.match(this.input, Token.UP, null); if (this.state.failed) {
                             return retval;
                         }
 
@@ -2373,7 +2129,7 @@ export class BlockSetTransformer extends TreeRewriter {
                 }
 
 
-                if (java.security.Signature.state.backtracking === 1) {
+                if (this.state.backtracking === 1) {
                     retval.tree = _first_0;
                     if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2387,7 +2143,7 @@ export class BlockSetTransformer extends TreeRewriter {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }
@@ -2403,7 +2159,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // org/antlr/v4/parse/BlockSetTransformer.g:123:1: elementOption : ( ID | ^( ASSIGN id= ID v= ID ) | ^( ASSIGN ID v= STRING_LITERAL ) | ^( ASSIGN ID v= ACTION ) | ^( ASSIGN ID v= INT ) );
     public readonly elementOption(): BlockSetTransformer.elementOption_return {
         let retval = new BlockSetTransformer.elementOption_return();
-        retval.start = input.LT(1);
+        retval.start = this.input.LT(1);
 
         let root_0 = null;
 
@@ -2436,17 +2192,17 @@ export class BlockSetTransformer extends TreeRewriter {
         try {
             // org/antlr/v4/parse/BlockSetTransformer.g:124:2: ( ID | ^( ASSIGN id= ID v= ID ) | ^( ASSIGN ID v= STRING_LITERAL ) | ^( ASSIGN ID v= ACTION ) | ^( ASSIGN ID v= INT ) )
             let alt13 = 5;
-            let LA13_0 = input.LA(1);
+            let LA13_0 = this.input.LA(1);
             if ((LA13_0 === BlockSetTransformer.ID)) {
                 alt13 = 1;
             }
             else {
                 if ((LA13_0 === BlockSetTransformer.ASSIGN)) {
-                    let LA13_2 = input.LA(2);
-                    if ((LA13_2 === DOWN)) {
-                        let LA13_3 = input.LA(3);
+                    let LA13_2 = this.input.LA(2);
+                    if ((LA13_2 === TreeParser.DOWN)) {
+                        let LA13_3 = this.input.LA(3);
                         if ((LA13_3 === BlockSetTransformer.ID)) {
-                            switch (input.LA(4)) {
+                            switch (this.input.LA(4)) {
                                 case ID: {
                                     {
                                         alt13 = 2;
@@ -2476,17 +2232,17 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 default: {
-                                    if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                                    let nvaeMark = input.mark();
+                                    if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                                    let nvaeMark = this.input.mark();
                                     try {
                                         for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
-                                            input.consume();
+                                            this.input.consume();
                                         }
                                         let nvae =
-                                            new NoViableAltException("", 13, 4, input);
+                                            new NoViableAltException("", 13, 4, this.input);
                                         throw nvae;
                                     } finally {
-                                        input.rewind(nvaeMark);
+                                        this.input.rewind(nvaeMark);
                                     }
                                 }
 
@@ -2494,41 +2250,41 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
                         else {
-                            if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                            let nvaeMark = input.mark();
+                            if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                            let nvaeMark = this.input.mark();
                             try {
                                 for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
-                                    input.consume();
+                                    this.input.consume();
                                 }
                                 let nvae =
-                                    new NoViableAltException("", 13, 3, input);
+                                    new NoViableAltException("", 13, 3, this.input);
                                 throw nvae;
                             } finally {
-                                input.rewind(nvaeMark);
+                                this.input.rewind(nvaeMark);
                             }
                         }
 
                     }
 
                     else {
-                        if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
-                        let nvaeMark = input.mark();
+                        if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
+                        let nvaeMark = this.input.mark();
                         try {
-                            input.consume();
+                            this.input.consume();
                             let nvae =
-                                new NoViableAltException("", 13, 2, input);
+                                new NoViableAltException("", 13, 2, this.input);
                             throw nvae;
                         } finally {
-                            input.rewind(nvaeMark);
+                            this.input.rewind(nvaeMark);
                         }
                     }
 
                 }
 
                 else {
-                    if (java.security.Signature.state.backtracking > 0) { java.security.Signature.state.failed = true; return retval; }
+                    if (this.state.backtracking > 0) { this.state.failed = true; return retval; }
                     let nvae =
-                        new NoViableAltException("", 13, 0, input);
+                        new NoViableAltException("", 13, 0, this.input);
                     throw nvae;
                 }
             }
@@ -2538,13 +2294,13 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 1: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:124:4: ID
                     {
-                        _last = input.LT(1) as GrammarAST;
-                        ID30 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption470) as GrammarAST; if (java.security.Signature.state.failed) {
+                        _last = this.input.LT(1) as GrammarAST;
+                        ID30 = this.match(this.input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption470) as GrammarAST; if (this.state.failed) {
                             return retval;
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
 
                             if (_first_0 === null) {
                                 _first_0 = ID30;
@@ -2553,7 +2309,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2569,17 +2325,17 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 2: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:125:4: ^( ASSIGN id= ID v= ID )
                     {
-                        _last = input.LT(1) as GrammarAST;
+                        _last = this.input.LT(1) as GrammarAST;
                         {
                             let _save_last_1 = _last;
                             let _first_1 = null;
-                            _last = input.LT(1) as GrammarAST;
-                            ASSIGN31 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption476) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            ASSIGN31 = this.match(this.input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption476) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = ASSIGN31;
@@ -2587,17 +2343,17 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                 return retval;
                             }
 
-                            _last = input.LT(1) as GrammarAST;
-                            id = java.security.cert.CertSelector.match(input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption480) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            id = this.match(this.input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption480) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = id;
@@ -2606,13 +2362,13 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            _last = input.LT(1) as GrammarAST;
-                            v = java.security.cert.CertSelector.match(input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption484) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            v = this.match(this.input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption484) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = v;
@@ -2621,7 +2377,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, Token.UP, null); if (this.state.failed) {
                                 return retval;
                             }
 
@@ -2629,7 +2385,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2645,17 +2401,17 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 3: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:126:4: ^( ASSIGN ID v= STRING_LITERAL )
                     {
-                        _last = input.LT(1) as GrammarAST;
+                        _last = this.input.LT(1) as GrammarAST;
                         {
                             let _save_last_1 = _last;
                             let _first_1 = null;
-                            _last = input.LT(1) as GrammarAST;
-                            ASSIGN32 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption491) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            ASSIGN32 = this.match(this.input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption491) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = ASSIGN32;
@@ -2663,17 +2419,17 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                 return retval;
                             }
 
-                            _last = input.LT(1) as GrammarAST;
-                            ID33 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption493) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            ID33 = this.match(this.input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption493) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = ID33;
@@ -2682,13 +2438,13 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            _last = input.LT(1) as GrammarAST;
-                            v = java.security.cert.CertSelector.match(input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_elementOption497) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            v = this.match(this.input, BlockSetTransformer.STRING_LITERAL, BlockSetTransformer.FOLLOW_STRING_LITERAL_in_elementOption497) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = v;
@@ -2697,7 +2453,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, Token.UP, null); if (this.state.failed) {
                                 return retval;
                             }
 
@@ -2705,7 +2461,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2721,17 +2477,17 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 4: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:127:4: ^( ASSIGN ID v= ACTION )
                     {
-                        _last = input.LT(1) as GrammarAST;
+                        _last = this.input.LT(1) as GrammarAST;
                         {
                             let _save_last_1 = _last;
                             let _first_1 = null;
-                            _last = input.LT(1) as GrammarAST;
-                            ASSIGN34 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption504) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            ASSIGN34 = this.match(this.input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption504) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = ASSIGN34;
@@ -2739,17 +2495,17 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                 return retval;
                             }
 
-                            _last = input.LT(1) as GrammarAST;
-                            ID35 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption506) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            ID35 = this.match(this.input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption506) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = ID35;
@@ -2758,13 +2514,13 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            _last = input.LT(1) as GrammarAST;
-                            v = java.security.cert.CertSelector.match(input, BlockSetTransformer.ACTION, BlockSetTransformer.FOLLOW_ACTION_in_elementOption510) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            v = this.match(this.input, BlockSetTransformer.ACTION, BlockSetTransformer.FOLLOW_ACTION_in_elementOption510) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = v;
@@ -2773,7 +2529,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, Token.UP, null); if (this.state.failed) {
                                 return retval;
                             }
 
@@ -2781,7 +2537,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2797,17 +2553,17 @@ export class BlockSetTransformer extends TreeRewriter {
                 case 5: {
                     // org/antlr/v4/parse/BlockSetTransformer.g:128:4: ^( ASSIGN ID v= INT )
                     {
-                        _last = input.LT(1) as GrammarAST;
+                        _last = this.input.LT(1) as GrammarAST;
                         {
                             let _save_last_1 = _last;
                             let _first_1 = null;
-                            _last = input.LT(1) as GrammarAST;
-                            ASSIGN36 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption517) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            ASSIGN36 = this.match(this.input, BlockSetTransformer.ASSIGN, BlockSetTransformer.FOLLOW_ASSIGN_in_elementOption517) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_0 === null) {
                                     _first_0 = ASSIGN36;
@@ -2815,17 +2571,17 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             }
 
-                            java.security.cert.CertSelector.match(input, Token.DOWN, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, TreeParser.DOWN, null); if (this.state.failed) {
                                 return retval;
                             }
 
-                            _last = input.LT(1) as GrammarAST;
-                            ID37 = java.security.cert.CertSelector.match(input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption519) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            ID37 = this.match(this.input, BlockSetTransformer.ID, BlockSetTransformer.FOLLOW_ID_in_elementOption519) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = ID37;
@@ -2834,13 +2590,13 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            _last = input.LT(1) as GrammarAST;
-                            v = java.security.cert.CertSelector.match(input, BlockSetTransformer.INT, BlockSetTransformer.FOLLOW_INT_in_elementOption523) as GrammarAST; if (java.security.Signature.state.failed) {
+                            _last = this.input.LT(1) as GrammarAST;
+                            v = this.match(this.input, BlockSetTransformer.INT, BlockSetTransformer.FOLLOW_INT_in_elementOption523) as GrammarAST; if (this.state.failed) {
                                 return retval;
                             }
 
 
-                            if (java.security.Signature.state.backtracking === 1) {
+                            if (this.state.backtracking === 1) {
 
                                 if (_first_1 === null) {
                                     _first_1 = v;
@@ -2849,7 +2605,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
 
-                            java.security.cert.CertSelector.match(input, Token.UP, null); if (java.security.Signature.state.failed) {
+                            this.match(this.input, Token.UP, null); if (this.state.failed) {
                                 return retval;
                             }
 
@@ -2857,7 +2613,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
 
-                        if (java.security.Signature.state.backtracking === 1) {
+                        if (this.state.backtracking === 1) {
                             retval.tree = _first_0;
                             if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
 
@@ -2878,7 +2634,7 @@ export class BlockSetTransformer extends TreeRewriter {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 java.util.logging.Handler.reportError(re);
-                recover(input, re);
+                recover(this.input, re);
             } else {
                 throw re;
             }

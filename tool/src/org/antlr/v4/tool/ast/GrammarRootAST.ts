@@ -12,11 +12,12 @@ import { type Token, type TokenStream } from "antlr4ng";
 
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
+import type { GrammarType } from "../../support/GrammarType.js";
 
 export class GrammarRootAST extends GrammarASTWithOptions {
     public static readonly defaultOptions = new Map<string, string>();
 
-    public grammarType: number; // LEXER, PARSER, GRAMMAR (combined)
+    public grammarType: GrammarType;
     public hasErrors: boolean;
 
     /** Track stream used to create this tree */

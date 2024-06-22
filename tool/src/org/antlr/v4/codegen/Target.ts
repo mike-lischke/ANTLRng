@@ -101,14 +101,14 @@ export abstract class Target {
         let language = this.getLanguage();
         let templates = Target.languageTemplates.get(language);
 
-        if (templates === null) {
+        if (!templates) {
             let version = this.getVersion();
             if (version === null ||
                 !RuntimeMetaData.getMajorMinorVersion(version).equals(RuntimeMetaData.getMajorMinorVersion(Tool.VERSION))) {
                 this.gen.tool.errMgr.toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, Tool.VERSION, language);
             }
             templates = this.loadTemplates();
-            Target.languageTemplates.put(language, templates);
+            Target.languageTemplates.set(language, templates);
         }
 
         return templates;

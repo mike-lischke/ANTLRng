@@ -3,7 +3,7 @@
 
 # ANTLRng
 
-This project is (actually: will be) a TypeScript port of the ANTLR tool, which is written in Java. And it will not only be a simple port, but a real next-generation tool. Currently this repository is rather a placeholder until important conditions are met, one of them being to have a full TypeScript runtime for the latest ANTLR4 version.
+This project is a TypeScript port of the ANTLR tool (originally written in Java) and is still work-in-progress. It implements own mechanisms to work with ANTLR grammars, works in browsers and generally moves away from its Java centric roots.
 
 ## Status
 
@@ -37,8 +37,18 @@ See the [milestone 3](https://github.com/mike-lischke/ANTLRng/issues/10) for the
 
 ### Target Specific Ideas
 
+This is a tricky field and not easy to re-design. The original decision to allow target (language) specific code in a grammar made (and makes) sharing/reusing grammars very difficult. Below are some ideas:
+
 - Find a better solution for target specific code, e.g. by extending the ANTLR language with target specific named action blocks.
-- Allow target authors to define new named actions, to avoid situations like for the current C++ target, with it's ugly action names.
+- Even better: disallow any target specific code:
+    - Simple (unnamed) actions can be implemented in a base class as alt enter and exit listener methods (requires to label alts).
+    - For predicates introduce a small and simple expression syntax, which uses mappings defined in the language template. This is not as flexible as the current solution, but sometimes less is more.
+    - No longer support rule parameters, init values and return values. They are rarely used and create a too tight connection to the generated code. Additionally, they prevent further development of the code generator (maybe at some point it is no longer meaningful to generate plain methods?).
+- Allow target authors to define new named actions, to avoid situations like for the current C++ target, with its ugly action names.
+    - Even better: avoid named actions altogether, but they are very useful for including copyrights, headers and class specific code. This is probably the most difficult feature to re-design. Possible solutions are:
+        - Support a very simple macro syntax in the grammar to allow replacing text blocks which are read from an external file (which then can contain target specific code etc.). This would also lower duplication (like the same copyright in different generated files).
+
+Maybe we can take all this a step further by defining "language packs", a single file or a collection of files for a specific target language, which is automatically picked up by the ANTLRng tool to generate target specific code.
 
 ### New Stuff
 

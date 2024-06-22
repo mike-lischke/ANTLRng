@@ -107,7 +107,7 @@ export abstract class BaseRecognizer {
      *  immediate exit from rule.  Rule would recover by resynchronizing
      *  to the set of symbols that can follow rule ref.
      */
-    public match(input: IntStream, ttype: number, follow: BitSet): Tree | null {
+    public match(input: IntStream, ttype: number, follow: BitSet | null): Tree | null {
         let matchedSymbol = this.getCurrentInputSymbol(input);
         if (input.LA(1) === ttype) {
             input.consume();
@@ -717,7 +717,7 @@ export abstract class BaseRecognizer {
      *  is in the set of tokens that can follow the ')' token
      *  reference in rule atom.  It can assume that you forgot the ')'.
      */
-    protected recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet): Tree | null {
+    protected recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet | null): Tree | null {
         let e = null;
         // if next token is what we are looking for then "delete" this token
         if (this.mismatchIsUnwantedToken(input, ttype)) {
@@ -795,7 +795,7 @@ export abstract class BaseRecognizer {
     protected getMissingSymbol(input: IntStream,
         e: RecognitionException | null,
         expectedTokenType: number,
-        follow: BitSet): Tree | null {
+        follow: BitSet | null): Tree | null {
         return null;
     }
 

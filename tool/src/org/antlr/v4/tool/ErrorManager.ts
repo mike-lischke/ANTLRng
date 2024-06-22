@@ -103,7 +103,8 @@ export class ErrorManager {
     }
 
     public getMessageTemplate(msg: ANTLRMessage): IST | null {
-        const messageST = msg.getMessageTemplate(this.tool.longMessages);
+        const longMessages = Tool.getOptionValue<boolean>("longMessages");
+        const messageST = msg.getMessageTemplate(longMessages ?? false);
         const locationST = this.getLocationFormat();
         const reportST = this.getReportFormat(msg.getErrorType().severity);
         const messageFormatST = this.getMessageFormat();
