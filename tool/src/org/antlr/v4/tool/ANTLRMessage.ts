@@ -12,7 +12,6 @@ import type { Token } from "antlr4ng";
 import { ST } from "stringtemplate4ts";
 
 import { ErrorType } from "./ErrorType.js";
-import { Grammar } from "./Grammar.js";
 
 export class ANTLRMessage {
     private static readonly EMPTY_ARGS = new Array<unknown>();
@@ -21,8 +20,6 @@ export class ANTLRMessage {
     public fileName: string;
     public line = -1;
     public charPosition = -1;
-
-    public g: Grammar;
 
     /**
      * Most of the time, we'll have a token such as an undefined rule ref

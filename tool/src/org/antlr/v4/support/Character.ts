@@ -291,6 +291,37 @@ export class Character {
         return Character.categoryMapper.get(category) ?? Character.UNASSIGNED;
     }
 
+    /**
+     * Returns the leading surrogate (a high surrogate code unit) of the surrogate pair representing the specified
+     * supplementary character (Unicode code point) in the UTF-16 encoding. If the specified character is not a
+     * supplementary character, an unspecified char is returned.
+     *
+     * @param codePoint The supplementary character (Unicode code point) for which to get the leading surrogate.
+     *
+     * @returns The leading surrogate code unit used to represent the character in the UTF-16 encoding.
+     */
+    public static highSurrogate(codePoint: number): number {
+        return (codePoint >>> 10) + (Character.MIN_HIGH_SURROGATE - (Character.MIN_SUPPLEMENTARY_CODE_POINT >>> 10));
+    }
+
+    /**
+     * @param codePoint The supplementary character (Unicode code point) for which to get the leading surrogate.
+     *
+     * @returns the trailing surrogate (a low surrogate code unit) of the surrogate pair representing the specified
+     *          supplementary character (Unicode code point) in the UTF-16 encoding. If the specified character is not
+     *          a supplementary character, an unspecified char is returned.
+     */
+    public static lowSurrogate(codePoint: number): number {
+        return (codePoint & 0x3ff) + Character.MIN_LOW_SURROGATE;
+    }
+
+    /**
+     * Determines if the specified character (Unicode code point) is a digit.
+     *
+     * @param c The character to check.
+     *
+     * @returns True, if the character is a digit, otherwise false
+     */
     public static isDigit(c: number): boolean {
         return isDigit(c);
     }
@@ -374,6 +405,17 @@ export class Character {
     }
 
     /**
+     * Determines whether the specified character (Unicode code point) is in the supplementary character range.
+     *
+     * @param c The character to check.
+     *
+     * @returns True, if the character is in the supplementary character range, otherwise false.
+     */
+    public static isSupplementaryCodePoint(codePoint: number): boolean {
+        return codePoint >= Character.MIN_SUPPLEMENTARY_CODE_POINT && codePoint <= Character.MAX_CODE_POINT;
+    }
+
+    /**
      * Determines if the specified character (Unicode code point) may be part of a Unicode identifier as other than
      * the first character.
      *
@@ -446,4 +488,16 @@ export class Character {
         return s.toLowerCase();
     }
 
+    /**
+     * Determines the number of char values needed to represent the specified character (Unicode code point).
+     * If the specified character is equal to or greater than 0x10000, then the method returns 2.
+     * Otherwise, the method returns 1.
+     *
+     * @param codePoint The character (Unicode code point) to check.
+     *
+     * @returns The number of char values needed to represent the specified character.
+     */
+    public static charCount(codePoint: number): number {
+        return codePoint >= 0x10000 ? 2 : 1;
+    }
 }

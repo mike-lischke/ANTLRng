@@ -26,6 +26,25 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Unicode extraction",
+            "args": [],
+            "runtimeArgs": [
+                "--experimental-specifier-resolution=node",
+                "--no-warnings",
+                "--loader",
+                "ts-node/esm",
+                "build/generate-unicode-data.ts",
+            ],
+            "sourceMaps": true,
+            "stopOnEntry": false,
+            "smartStep": true,
+            "console": "integratedTerminal",
+            "preLaunchTask": "tsc: watch",
+            "trace": false
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Run selected Jest test",
             "runtimeExecutable": "npm",
             "runtimeArgs": [

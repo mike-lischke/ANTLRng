@@ -9,6 +9,7 @@
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
 import { ATN, ATNState } from "antlr4ng";
+
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { BlockAST } from "../tool/ast/BlockAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";

@@ -1,25 +1,25 @@
 /* java2ts: keep */
 
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { TerminalAST } from "./TerminalAST.js";
-import { StarBlockAST } from "./StarBlockAST.js";
-import { SetAST } from "./SetAST.js";
-import { RuleRefAST } from "./RuleRefAST.js";
-import { RuleAST } from "./RuleAST.js";
-import { RangeAST } from "./RangeAST.js";
-import { PredAST } from "./PredAST.js";
-import { PlusBlockAST } from "./PlusBlockAST.js";
-import { OptionalBlockAST } from "./OptionalBlockAST.js";
-import { NotAST } from "./NotAST.js";
-import { GrammarRootAST } from "./GrammarRootAST.js";
-import { GrammarAST } from "./GrammarAST.js";
-import { BlockAST } from "./BlockAST.js";
 import { AltAST } from "./AltAST.js";
+import { BlockAST } from "./BlockAST.js";
+import { GrammarAST } from "./GrammarAST.js";
+import { GrammarRootAST } from "./GrammarRootAST.js";
+import { NotAST } from "./NotAST.js";
+import { OptionalBlockAST } from "./OptionalBlockAST.js";
+import { PlusBlockAST } from "./PlusBlockAST.js";
+import { PredAST } from "./PredAST.js";
+import { RangeAST } from "./RangeAST.js";
+import { RuleAST } from "./RuleAST.js";
+import { RuleRefAST } from "./RuleRefAST.js";
+import { SetAST } from "./SetAST.js";
+import { StarBlockAST } from "./StarBlockAST.js";
+import { TerminalAST } from "./TerminalAST.js";
 
 /**
  * A simple visitor, based upon the classic double dispatch method,

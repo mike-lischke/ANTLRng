@@ -14,35 +14,35 @@ import path, { basename } from "path";
 
 import { ANTLRv4Parser } from "../../../../../src/generated/ANTLRv4Parser.js";
 
-import { UndefChecker } from "./UndefChecker.js";
-import { AnalysisPipeline } from "./analysis/AnalysisPipeline.js";
-import { IATNFactory } from "./automata/ATNFactory.js";
-import { LexerATNFactory } from "./automata/LexerATNFactory.js";
-import { ParserATNFactory } from "./automata/ParserATNFactory.js";
-import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
-import { CodeGenerator } from "./codegen/CodeGenerator.js";
+//import { UndefChecker } from "./UndefChecker.js";
+//import { AnalysisPipeline } from "./analysis/AnalysisPipeline.js";
+//import { IATNFactory } from "./automata/ATNFactory.js";
+//import { LexerATNFactory } from "./automata/LexerATNFactory.js";
+//import { ParserATNFactory } from "./automata/ParserATNFactory.js";
+//import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
+//import { CodeGenerator } from "./codegen/CodeGenerator.js";
 import { Graph } from "./misc/Graph.js";
 import { GrammarASTAdaptor } from "./parse/GrammarASTAdaptor.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";
-import { SemanticPipeline } from "./semantics/SemanticPipeline.js";
+//import { SemanticPipeline } from "./semantics/SemanticPipeline.js";
 import { GrammarType } from "./support/GrammarType.js";
 import { LogManager } from "./support/LogManager.js";
 import { ANTLRMessage } from "./tool/ANTLRMessage.js";
 import { ANTLRToolListener } from "./tool/ANTLRToolListener.js";
-import { BuildDependencyGenerator } from "./tool/BuildDependencyGenerator.js";
-import { DOTGenerator } from "./tool/DOTGenerator.js";
+//import { BuildDependencyGenerator } from "./tool/BuildDependencyGenerator.js";
+//import { DOTGenerator } from "./tool/DOTGenerator.js";
 import { DefaultToolListener } from "./tool/DefaultToolListener.js";
 import { ErrorManager } from "./tool/ErrorManager.js";
 import { ErrorType } from "./tool/ErrorType.js";
 import { Grammar } from "./tool/Grammar.js";
-import { GrammarTransformPipeline } from "./tool/GrammarTransformPipeline.js";
+//import { GrammarTransformPipeline } from "./tool/GrammarTransformPipeline.js";
 import { LexerGrammar } from "./tool/LexerGrammar.js";
-import { Rule } from "./tool/Rule.js";
-import { GrammarAST } from "./tool/ast/GrammarAST.js";
-import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
+//import { Rule } from "./tool/Rule.js";
+//import { GrammarAST } from "./tool/ast/GrammarAST.js";
+//import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
-import { RuleAST } from "./tool/ast/RuleAST.js";
+//import { RuleAST } from "./tool/ast/RuleAST.js";
 
 interface IOption {
     code: string,
@@ -359,10 +359,10 @@ export class Tool {
             ruleToAST.set(ruleName, ruleAST);
         }
 
-        const chk = new UndefChecker(g.isLexer());
-        chk.visitGrammar(g.ast!);
+        //const chk = new UndefChecker(g.isLexer());
+        //chk.visitGrammar(g.ast!);
 
-        return redefinition || chk.badRef;
+        return redefinition; // || chk.badRef;
     }
 
     public sortGrammarByTokenVocab(fileNames: string[]): GrammarRootAST[] {
@@ -511,7 +511,7 @@ export class Tool {
 
             imported = this.createGrammar(root);
             imported.fileName = importedFile;
-            this.importedGrammars.set(root.getGrammarName()!, imported);
+            this.importedGrammars.set(root.getGrammarName(), imported);
         }
 
         return imported;
@@ -556,7 +556,7 @@ export class Tool {
         for (const ig of grammars) {
             for (const r of ig.rules.values()) {
                 try {
-                    const dot = dotGenerator.getDOTFromState(g.atn.ruleToStartState[r.index]!, g.isLexer());
+                    const dot = dotGenerator.getDOTFromState(g.atn.ruleToStartState[r.index], g.isLexer());
                     if (dot !== null) {
                         this.writeDOTFile(g, r, dot);
                     }

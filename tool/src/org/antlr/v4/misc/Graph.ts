@@ -1,31 +1,28 @@
 /* java2ts: keep */
 
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { HashMap, OrderedHashSet } from "antlr4ng";
-
 /**
  * A generic graph with edges; Each node as a single Object payload.
- *  This is only used to topologically sort a list of file dependencies
- *  at the moment.
+ * This is only used to topologically sort a list of file dependencies at the moment.
  */
-export class Graph<T> {
-    public static Node = class Node<T> {
-        public payload: T;
+export class Graph {
+    public static Node = class Node {
+        public payload: string;
 
-        public edges: Array<Node<T>> = []; // points at which nodes?
+        public edges: Node[] = []; // points at which nodes?
 
-        public constructor(payload: T) {
+        public constructor(payload: string) {
             this.payload = payload;
         }
 
-        public addEdge(n: Node<T>): void {
+        public addEdge(n: Node): void {
             if (!this.edges.includes(n)) {
                 this.edges.push(n);
             }
@@ -37,70 +34,70 @@ export class Graph<T> {
     };
 
     /** Map from node payload to node containing it */
-    protected nodes = new HashMap<T, Graph.Node<T>>();
+    protected nodes = new Map<string, InstanceType<typeof Graph.Node>>();
 
-    public addEdge(a: T, b: T): void {
-        const a_node = this.getNode(a);
-        const b_node = this.getNode(b);
-        a_node.addEdge(b_node);
+    public addEdge(a: string, b: string): void {
+        const aNode = this.getNode(a);
+        const bNode = this.getNode(b);
+        aNode.addEdge(bNode);
     }
 
-    public getNode(a: T): Graph.Node<T> {
+    public getNode(a: string): InstanceType<typeof Graph.Node> {
         const existing = this.nodes.get(a);
-        if (existing !== null) {
+        if (existing) {
             return existing;
         }
 
-        const n = new Graph.Node<T>(a);
-        this.nodes.put(a, n);
+        const n = new Graph.Node(a);
+        this.nodes.set(a, n);
 
         return n;
-    }
+    };
 
     /**
-     * DFS-based topological sort.  A valid sort is the reverse of
-     *  the post-order DFA traversal.  Amazingly simple but true.
-     *  For sorting, I'm not following convention here since ANTLR
-     *  needs the opposite.  Here's what I assume for sorting:
+     * DFS-based topological sort. A valid sort is the reverse of
+     * the post-order DFA traversal.  Amazingly simple but true.
+     * For sorting, I'm not following convention here since ANTLR
+     * needs the opposite.  Here's what I assume for sorting:
      *
-     *    If there exists an edge u -> v then u depends on v and v
-     *    must happen before u.
+     * If there exists an edge u -> v then u depends on v and v must happen before u.
      *
-     *  So if this gives nonreversed postorder traversal, I get the order
-     *  I want.
+     * So if this gives non-reversed post order traversal, I get the order I want.
      */
-    public sort(): T[] {
-        const visited = new OrderedHashSet<Graph.Node<T>>();
-        const sorted = new Array<T>();
-        while (visited.size() < this.nodes.size()) {
+    public sort(): string[] {
+        const visited = new Set<InstanceType<typeof Graph.Node>>();
+        const sorted = new Array<string>();
+        while (visited.size < this.nodes.size) {
             // pick any unvisited node, n
             let n = null;
             for (const tNode of this.nodes.values()) {
                 n = tNode;
-                if (!visited.contains(n)) {
+                if (!visited.has(n)) {
                     break;
                 }
-
             }
+
             if (n !== null) { // if at least one unvisited
-                this.DFS(n, visited, sorted);
+                this.dfs(n, visited, sorted);
             }
         }
 
         return sorted;
     }
 
-    public DFS(n: Graph.Node<T>, visited: Set<Graph.Node<T>>, sorted: T[]): void {
-        if (visited.contains(n)) {
+    public dfs(n: InstanceType<typeof Graph.Node>, visited: Set<InstanceType<typeof Graph.Node>>,
+        sorted: string[]): void {
+        if (visited.has(n)) {
             return;
         }
 
         visited.add(n);
-        if (n.edges !== null) {
+        if (n.edges) {
             for (const target of n.edges) {
-                this.DFS(target, visited, sorted);
+                this.dfs(target, visited, sorted);
             }
         }
-        sorted.add(n.payload);
+
+        sorted.push(n.payload);
     }
 }

@@ -69,12 +69,12 @@ export class TreeRewriter extends TreeParser {
             }
 
             if (this.showTransformations &&
-                r !== null && t !== r.getTree() && r.getTree() !== null) {
-                this.reportTransformation(t, r.getTree());
+                r !== null && t !== r.tree && r.tree !== null) {
+                this.reportTransformation(t, r.tree);
             }
 
-            if (r !== null && r.getTree() !== null) {
-                return r.getTree();
+            if (r !== null && r.tree !== null) {
+                return r.tree;
             } else {
                 return t;
             }

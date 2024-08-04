@@ -1,3 +1,5 @@
+# Copyright (c) Mike Lischke. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
 
 printf "\x1b[1m\x1b[34mGenerating tool parsers...\x1b[0m\n\n"
 

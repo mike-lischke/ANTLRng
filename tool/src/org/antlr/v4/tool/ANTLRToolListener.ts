@@ -8,7 +8,7 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { ANTLRMessage } from "./ANTLRMessage.js";
+import { type ANTLRMessage } from "./ANTLRMessage.js";
 
 /**
  * Defines behavior of object able to handle error messages from ANTLR including

@@ -10,16 +10,16 @@
 
 import { ATNState, CommonToken, IntervalSet, Token, type BitSet } from "antlr4ng";
 
-import { ANTLRv4Parser } from "../../../../../../../src/generated/ANTLRv4Parser.js";
 import { CommonTree } from "../../../../../../../src/antlr3/tree/CommonTree.js";
+import type { Tree } from "../../../../../../../src/antlr3/tree/Tree.js";
+import { ANTLRv4Parser } from "../../../../../../../src/generated/ANTLRv4Parser.js";
 
+import { CommonTreeNodeStream } from "../../../../../../../src/antlr3/tree/CommonTreeNodeStream.js";
 import { GrammarASTAdaptor } from "../../parse/GrammarASTAdaptor.js";
 import { Grammar } from "../Grammar.js";
 import { AltAST } from "./AltAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { RuleAST } from "./RuleAST.js";
-import type { Tree } from "../../../../../../../src/antlr3/tree/Tree.js";
-import { CommonTreeNodeStream } from "../../../../../../../src/antlr3/tree/CommonTreeNodeStream.js";
 
 export class GrammarAST extends CommonTree {
     /** For error msgs, nice to know which grammar this AST lives in */
@@ -151,7 +151,7 @@ export class GrammarAST extends CommonTree {
                 }
 
                 if (a.leftRecursiveAltInfo !== null) {
-                    return a.leftRecursiveAltInfo.altLabel;
+                    return a.leftRecursiveAltInfo.altLabel ?? null;
                 }
             }
         }

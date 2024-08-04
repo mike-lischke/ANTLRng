@@ -11,9 +11,10 @@
 // cspell: disable
 
 import { CommonToken, Token } from "antlr4ng";
+
 import { BaseTreeAdaptor } from "./BaseTreeAdaptor.js";
-import type { Tree } from "./Tree.js";
 import { CommonTree } from "./CommonTree.js";
+import type { Tree } from "./Tree.js";
 
 /**
  * A TreeAdaptor that works with any Tree implementation.  It provides

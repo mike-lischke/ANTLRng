@@ -11,13 +11,14 @@
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
 import { Token, type TokenStream } from "antlr4ng";
+
 import { LookaheadStream } from "../misc/LookaheadStream.js";
+import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
 import type { PositionTrackingStream } from "./PositionTrackingStream.js";
 import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
-import type { TreeNodeStream } from "./TreeNodeStream.js";
 import { TreeIterator } from "./TreeIterator.js";
-import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
+import type { TreeNodeStream } from "./TreeNodeStream.js";
 
 export class CommonTreeNodeStream extends LookaheadStream<Tree>
     implements TreeNodeStream, PositionTrackingStream<Tree> {

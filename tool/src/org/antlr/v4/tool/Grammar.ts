@@ -1333,7 +1333,7 @@ export class Grammar implements AttributeResolver {
                 return this.$outer.tool.errMgr;
             }
         }(this);
-        collector.visitGrammar(this.ast);
+        collector.visitGrammar(this.ast!);
 
         return strings;
     }

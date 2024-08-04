@@ -11,9 +11,10 @@
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
 import { isToken, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
-import type { TreeAdaptor } from "./TreeAdaptor.js";
-import type { Tree } from "./Tree.js";
+
 import { CommonErrorNode } from "./CommonErrorNode.js";
+import type { Tree } from "./Tree.js";
+import type { TreeAdaptor } from "./TreeAdaptor.js";
 
 /** A TreeAdaptor that works with any Tree implementation. */
 export abstract class BaseTreeAdaptor implements TreeAdaptor {

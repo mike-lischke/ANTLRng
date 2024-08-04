@@ -1,13 +1,31 @@
+/* java2ts: keep */
+
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { CharSupport } from "./CharSupport.js";
 import { IntervalSet } from "antlr4ng";
+
+import { Character } from "../support/Character.js";
+import { CharSupport } from "./CharSupport.js";
+
+export enum ResultType {
+    Invalid,
+    CodePoint,
+    Property
+};
+
+export interface EscapeParsingResult {
+    type: ResultType;
+    codePoint: number;
+    propertyIntervalSet: IntervalSet;
+    startOffset: number;
+    parseLength: number;
+}
 
 /**
  * Utility class to parse escapes like:
@@ -16,195 +34,133 @@ import { IntervalSet } from "antlr4ng";
  *   \\u{10ABCD}
  *   \\p{Foo}
  *   \\P{Bar}
- *   \\p{Baz=Blech}
- *   \\P{Baz=Blech}
+ *   \\p{Baz=Bez}
+ *   \\P{Baz=Bez}
  */
-export abstract  class EscapeSequenceParsing {
-    public static Result =  class Result {
+export abstract class EscapeSequenceParsing {
+    static #emptySet = IntervalSet.of(-1, -1);
+    static #fullSet = IntervalSet.of(Character.MIN_CODE_POINT, Character.MAX_CODE_POINT);
 
-        public readonly  type:  EscapeSequenceParsing.Result.Type;
-        public readonly  codePoint:  number;
-        public readonly  propertyIntervalSet:  IntervalSet;
-        public readonly  startOffset:  number;
-        public readonly  parseLength:  number;
-
-        public  constructor(type: EscapeSequenceParsing.Result.Type, codePoint: number, propertyIntervalSet: IntervalSet, startOffset: number, parseLength: number) {
-            this.type = type;
-            this.codePoint = codePoint;
-            this.propertyIntervalSet = propertyIntervalSet;
-            this.startOffset = startOffset;
-            this.parseLength = parseLength;
+    /**
+     * Parses a single escape sequence starting at {@code startOff}.
+     *
+     * @returns a type of INVALID if no valid escape sequence was found, a Result otherwise.
+     */
+    public static parseEscape(s: string, startOff: number): EscapeParsingResult {
+        let offset = startOff;
+        if (offset + 2 > s.length || s.codePointAt(offset) !== 0x5C) { // backslash
+            return EscapeSequenceParsing.invalid(startOff, s.length - 1);
         }
 
-        @Override
-        public override  toString():  string {
-            return string.format(
-                "%s type=%s codePoint=%d propertyIntervalSet=%s parseLength=%d",
-                super.toString(),
-                this.type,
-                this.codePoint,
-                this.propertyIntervalSet,
-                this.parseLength);
-        }
-
-        @Override
-        public override  equals(other: Object):  boolean {
-            if (!(other instanceof Result)) {
-                return false;
-            }
-            const  that =  other;
-            if (this === that) {
-                return true;
-            }
-
-            return Objects.equals(this.type, that.type) &&
-				Objects.equals(this.codePoint, that.codePoint) &&
-				Objects.equals(this.propertyIntervalSet, that.propertyIntervalSet) &&
-				Objects.equals(this.parseLength, that.parseLength);
-        }
-
-        @Override
-        public override  hashCode():  number {
-            return Objects.hash(this.type, this.codePoint, this.propertyIntervalSet, this.parseLength);
-        }
-        public static  Type =  class Type extends Enum<Type> {
-            public static readonly INVALID: Type = new class extends Type {
-            }(S`INVALID`, 0);
-            public static readonly CODE_POINT: Type = new class extends Type {
-            }(S`CODE_POINT`, 1);
-            public static readonly PROPERTY: Type = new class extends Type {
-            }(S`PROPERTY`, 2);
-        };
-        ;
-    };
-
-	/**
-	 * Parses a single escape sequence starting at {@code startOff}.
-	 *
-	 * Returns a type of INVALID if no valid escape sequence was found, a Result otherwise.
-	 */
-    public static  parseEscape(s: string, startOff: number):  EscapeSequenceParsing.Result {
-        let  offset = startOff;
-        if (offset + 2 > s.length() || s.codePointAt(offset) !== "\\") {
-            return EscapeSequenceParsing.invalid(startOff, s.length()-1);
-        }
-		// Move past backslash
+        // Move past backslash
         offset++;
-        const  escaped = s.codePointAt(offset);
-		// Move past escaped code point
+        const escaped = s.codePointAt(offset)!;
+
+        // Move past escaped code point
         offset += Character.charCount(escaped);
-        if (escaped === "u") {
-			// \\u{1} is the shortest we support
-            if (offset + 3 > s.length()) {
-                return EscapeSequenceParsing.invalid(startOff, s.length()-1);
+        if (escaped === 0x75) { // 'u'
+            // \\u{1} is the shortest we support
+            if (offset + 3 > s.length) {
+                return EscapeSequenceParsing.invalid(startOff, s.length - 1);
             }
-            let  hexStartOffset: number;
-            let  hexEndOffset: number; // appears to be exclusive
-            if (s.codePointAt(offset) === "{") {
+
+            let hexStartOffset: number;
+            let hexEndOffset: number; // appears to be exclusive
+            if (s.codePointAt(offset) === 0x7B) { // '{'
                 hexStartOffset = offset + 1;
                 hexEndOffset = s.indexOf("}", hexStartOffset);
                 if (hexEndOffset === -1) {
-                    return EscapeSequenceParsing.invalid(startOff, s.length()-1);
+                    return EscapeSequenceParsing.invalid(startOff, s.length - 1);
                 }
                 offset = hexEndOffset + 1;
-            }
-            else {
-                if (offset + 4 > s.length()) {
-                    return EscapeSequenceParsing.invalid(startOff, s.length()-1);
+            } else {
+                if (offset + 4 > s.length) {
+                    return EscapeSequenceParsing.invalid(startOff, s.length - 1);
                 }
                 hexStartOffset = offset;
                 hexEndOffset = offset + 4;
                 offset = hexEndOffset;
             }
-            const  codePointValue = CharSupport.parseHexValue(s, hexStartOffset, hexEndOffset);
+
+            const codePointValue = CharSupport.parseHexValue(s, hexStartOffset, hexEndOffset);
             if (codePointValue === -1 || codePointValue > Character.MAX_CODE_POINT) {
-                return EscapeSequenceParsing.invalid(startOff, startOff+6-1);
+                return EscapeSequenceParsing.invalid(startOff, startOff + 6 - 1);
             }
 
-            return new  EscapeSequenceParsing.Result(
-                EscapeSequenceParsing.Result.Type.CODE_POINT,
-                codePointValue,
-                IntervalSet.EMPTY_SET,
-                startOff,
-                offset - startOff);
-        }
-        else {
-            if (escaped === "p" || escaped === "P") {
-			// \p{L} is the shortest we support
-                if (offset + 3 > s.length()) {
-                    return EscapeSequenceParsing.invalid(startOff, s.length()-1);
+            return {
+                type: ResultType.CodePoint,
+                codePoint: codePointValue,
+                propertyIntervalSet: EscapeSequenceParsing.#emptySet,
+                startOffset: startOff,
+                parseLength: offset - startOff,
+            };
+        } else {
+            if (escaped === 0x70 || escaped === 0x50) { // 'p' or 'P'
+                // \p{L} is the shortest we support
+                if (offset + 3 > s.length) {
+                    return EscapeSequenceParsing.invalid(startOff, s.length - 1);
                 }
-                if (s.codePointAt(offset) !== "{") {
+
+                if (s.codePointAt(offset) !== 0x7B) { // '{'
                     return EscapeSequenceParsing.invalid(startOff, offset);
                 }
-                const  openBraceOffset = offset;
-                const  closeBraceOffset = s.indexOf("}", openBraceOffset);
+
+                const openBraceOffset = offset;
+                const closeBraceOffset = s.indexOf("}", openBraceOffset);
                 if (closeBraceOffset === -1) {
-                    return EscapeSequenceParsing.invalid(startOff, s.length()-1);
+                    return EscapeSequenceParsing.invalid(startOff, s.length - 1);
                 }
-                const  propertyName = s.substring(openBraceOffset + 1, closeBraceOffset);
-                let  propertyIntervalSet = UnicodeData.getPropertyCodePoints(propertyName);
+
+                const propertyName = s.substring(openBraceOffset + 1, closeBraceOffset);
+                let propertyIntervalSet = UnicodeData.getPropertyCodePoints(propertyName);
                 if (propertyIntervalSet === null || propertyIntervalSet.isNil()) {
                     return EscapeSequenceParsing.invalid(startOff, closeBraceOffset);
                 }
+
                 offset = closeBraceOffset + 1;
-                if (escaped === "P") {
-                    propertyIntervalSet = propertyIntervalSet.complement(IntervalSet.COMPLETE_CHAR_SET);
+                if (escaped === 0x50) { // 'P'
+                    propertyIntervalSet = propertyIntervalSet.complementWithVocabulary(EscapeSequenceParsing.#fullSet);
                 }
 
-                return new  EscapeSequenceParsing.Result(
-                    EscapeSequenceParsing.Result.Type.PROPERTY,
-                    -1,
+                return {
+                    type: ResultType.Property,
+                    codePoint: -1,
                     propertyIntervalSet,
-                    startOff,
-                    offset - startOff);
-            }
-            else {
+                    startOffset: startOff,
+                    parseLength: offset - startOff,
+                };
+            } else {
                 if (escaped < CharSupport.ANTLRLiteralEscapedCharValue.length) {
-                    let  codePoint = CharSupport.ANTLRLiteralEscapedCharValue[escaped];
+                    let codePoint = CharSupport.ANTLRLiteralEscapedCharValue[escaped];
                     if (codePoint === 0) {
-                        if (escaped !== "]" && escaped !== "-") { // escape ']' and '-' only in char sets.
-                            return EscapeSequenceParsing.invalid(startOff, startOff+1);
-                        }
-                        else {
+                        if (escaped !== 0x5D && escaped !== 0x2D) { // escape ']' and '-' only in char sets.
+                            return EscapeSequenceParsing.invalid(startOff, startOff + 1);
+                        } else {
                             codePoint = escaped;
                         }
                     }
 
-                    return new  EscapeSequenceParsing.Result(
-                        EscapeSequenceParsing.Result.Type.CODE_POINT,
+                    return {
+                        type: ResultType.CodePoint,
                         codePoint,
-                        IntervalSet.EMPTY_SET,
-                        startOff,
-                        offset - startOff);
-                }
-                else {
-                    return EscapeSequenceParsing.invalid(startOff,s.length()-1);
+                        propertyIntervalSet: EscapeSequenceParsing.#emptySet,
+                        startOffset: startOff,
+                        parseLength: offset - startOff,
+                    };
+                } else {
+                    return EscapeSequenceParsing.invalid(startOff, s.length - 1);
                 }
             }
-
         }
-
     }
 
-    private static  invalid(start: number, stop: number):  EscapeSequenceParsing.Result { // start..stop is inclusive
-        return new  EscapeSequenceParsing.Result(
-            EscapeSequenceParsing.Result.Type.INVALID,
-            0,
-            IntervalSet.EMPTY_SET,
-            start,
-            stop - start + 1);
+    private static invalid(start: number, stop: number): EscapeParsingResult { // start..stop is inclusive
+        return {
+            type: ResultType.Invalid,
+            codePoint: 0,
+            propertyIntervalSet: EscapeSequenceParsing.#emptySet,
+            startOffset: start,
+            parseLength: stop - start + 1,
+        };
     }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
-export namespace EscapeSequenceParsing {
-    export type Result = InstanceType<typeof EscapeSequenceParsing.Result>;
-
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
-    namespace Result {
-        export type Type = InstanceType<typeof Result.Type>;
-    }
-
-}
-

@@ -12,7 +12,7 @@ import type { Token } from "antlr4ng";
 
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ErrorType } from "./ErrorType.js";
-import { Rule } from "./Rule.js";
+import { type Rule } from "./Rule.js";
 
 export class LeftRecursionCyclesMessage extends ANTLRMessage {
     public constructor(fileName: string, cycles: Rule[][]) {
