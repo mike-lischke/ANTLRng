@@ -35,12 +35,14 @@
         "Grosch",
         "Harwell",
         "IATN",
+        "Jamo",
         "LBRACK",
         "LLATN",
         "LPAREN",
         "Millis",
         "NONREDUCED",
         "NONSPACING",
+        "Noncharacter",
         "Nonnull",
         "Preorder",
         "RBRACK",
@@ -115,7 +117,9 @@
         "uxxxx",
         "vnext",
         "workdir",
-        "xdescribe"
+        "xdescribe",
+        "xidc",
+        "xids"
     ],
     "ignorePaths": [
         ".eslintrc.json"
