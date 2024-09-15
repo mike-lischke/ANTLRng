@@ -4,13 +4,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-export  class ElementListDecl extends Decl {
-    public  constructor(factory: OutputModelFactory, name: string) {
+export class ElementListDecl extends Decl {
+    public constructor(factory: OutputModelFactory, name: string) {
         super(factory, name);
     }
 }

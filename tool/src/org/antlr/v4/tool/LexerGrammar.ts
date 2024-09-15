@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Rule } from "./Rule.js";
 import { Grammar } from "./Grammar.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";

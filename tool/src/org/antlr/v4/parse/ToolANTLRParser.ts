@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { NoViableAltException, type Parser, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
 
 import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
@@ -29,7 +27,7 @@ export class ToolANTLRParser extends ANTLRv4Parser {
 
     public displayRecognitionError(tokenNames: string[], e: RecognitionException): void {
         const msg = this.getParserErrorMessage(this, e);
-        this.tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, this.getSourceName(), e.offendingToken!, e, msg);
+        this.tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, this.getSourceName(), e.offendingToken!, e, [msg]);
     }
 
     public getParserErrorMessage(parser: Parser, e: RecognitionException): string {

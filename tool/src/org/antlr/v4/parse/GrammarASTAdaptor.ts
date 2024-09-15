@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CommonToken, type CharStream, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
 
 import { CommonTreeAdaptor } from "../../../../../../src/antlr3/tree/CommonTreeAdaptor.js";

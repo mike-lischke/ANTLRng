@@ -18,7 +18,7 @@ export class Attribute {
     public decl?: string;
 
     /** The type; might be empty such as for Python which has no static typing */
-    public type: string = "";
+    public type = "";
 
     /** The name of the attribute "foo" */
     public name: string;

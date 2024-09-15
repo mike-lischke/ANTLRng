@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { HashMap } from "antlr4ng";
 
 /** Count how many of each key we have; not thread safe */

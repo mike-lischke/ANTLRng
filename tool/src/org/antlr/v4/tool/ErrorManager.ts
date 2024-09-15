@@ -6,13 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { ErrorBuffer, STGroup, STGroupFile } from "stringtemplate4ts";
 
 import type { RecognitionException, Token } from "antlr4ng";
-import { basename } from "path";
 import { existsSync } from "fs";
+import { basename } from "path";
 
 import type { IST } from "stringtemplate4ts/dist/compiler/common.js";
 import { Tool } from "../Tool.js";
@@ -56,7 +54,7 @@ export class ErrorManager {
     public static internalError(error: string, e?: Error): void {
         if (e) {
             const location = ErrorManager.getLastNonErrorManagerCodeLocation(e);
-            ErrorManager.internalError("Exception " + e + "@" + location + ": " + error);
+            ErrorManager.internalError(`Exception ${e}@${location}: ${error}`);
         } else {
             const location = ErrorManager.getLastNonErrorManagerCodeLocation(new Error());
             const msg = location + ": " + error;
@@ -120,7 +118,7 @@ export class ErrorManager {
             locationValid = true;
         }
 
-        if (msg.fileName !== null) {
+        if (msg.fileName) {
             let displayFileName = msg.fileName;
             if (this.formatName === "antlr") {
                 // Don't show path to file in messages in ANTLR format, they're too long.
@@ -167,7 +165,9 @@ export class ErrorManager {
     }
 
     public formatWantsSingleLineMessage(): boolean {
-        return this.format.getInstanceOf("wantsSingleLineMessage")?.render() === "true" ?? false;
+        const result = this.format.getInstanceOf("wantsSingleLineMessage")?.render();
+
+        return result === "true" ? true : false;
     }
 
     public info(msg: string): void {
@@ -175,7 +175,7 @@ export class ErrorManager {
     }
 
     public syntaxError(errorType: ErrorType, fileName: string, token: Token, antlrException: RecognitionException,
-        ...args: Object[]): void {
+        ...args: object[]): void {
         const msg = new GrammarSyntaxMessage(errorType, fileName, token, antlrException, args);
         this.emit(errorType, msg);
     }

@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { STGroupFile, type STGroup } from "stringtemplate4ts";
 
 import type { IST } from "stringtemplate4ts/dist/compiler/common.js";
@@ -250,7 +248,7 @@ export class BuildDependencyGenerator {
         if (outputDir === ".") {
             return fileName;
         } else {
-            if (outputDir.indexOf(" ") >= 0) { // has spaces?
+            if (outputDir.includes(" ")) { // has spaces?
                 const escSpaces = outputDir.replace(" ", "\\ ");
 
                 return escSpaces + "/" + fileName;

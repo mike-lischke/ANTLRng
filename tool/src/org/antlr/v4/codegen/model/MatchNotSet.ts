@@ -4,15 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { MatchSet } from "./MatchSet.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-export  class MatchNotSet extends MatchSet {
-    public  varName = "_la";
-    public  constructor(factory: OutputModelFactory, ast: GrammarAST) {
+export class MatchNotSet extends MatchSet {
+    public varName = "_la";
+    public constructor(factory: OutputModelFactory, ast: GrammarAST) {
         super(factory, ast);
     }
 }

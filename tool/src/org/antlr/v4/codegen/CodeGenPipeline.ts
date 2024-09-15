@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import type { ST } from "stringtemplate4ts";
 
 import { Grammar } from "../tool/Grammar.js";

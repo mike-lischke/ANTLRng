@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Parser } from "./Parser.js";
 import { OutputFile } from "./OutputFile.js";
 import { ModelElement } from "./ModelElement.js";
@@ -16,32 +14,32 @@ import { ActionText } from "./chunk/ActionText.js";
 import { Grammar } from "../../tool/Grammar.js";
 
 /** */
-export  class ParserFile extends OutputFile {
-    public  genPackage:  string; // from -package cmd-line
-    public  exportMacro:  string; // from -DexportMacro cmd-line
-    public  genListener:  boolean; // from -listener cmd-line
-    public  genVisitor:  boolean; // from -visitor cmd-line
+export class ParserFile extends OutputFile {
+    public genPackage: string; // from -package cmd-line
+    public exportMacro: string; // from -DexportMacro cmd-line
+    public genListener: boolean; // from -listener cmd-line
+    public genVisitor: boolean; // from -visitor cmd-line
     @ModelElement
-    public  parser:  Parser;
+    public parser: Parser;
     @ModelElement
-    public  namedActions:  Map<string, Action>;
+    public namedActions: Map<string, Action>;
     @ModelElement
-    public  contextSuperClass:  ActionChunk;
-    public  grammarName:  string;
+    public contextSuperClass: ActionChunk;
+    public grammarName: string;
 
-    public  constructor(factory: OutputModelFactory, fileName: string) {
+    public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
-        const  g = factory.getGrammar();
+        const g = factory.getGrammar();
         this.namedActions = this.buildNamedActions(factory.getGrammar());
         this.genPackage = g.tool.genPackage;
         this.exportMacro = factory.getGrammar().getOptionString("exportMacro");
-		// need the below members in the ST for Python, C++
+        // need the below members in the ST for Python, C++
         this.genListener = g.tool.gen_listener;
         this.genVisitor = g.tool.gen_visitor;
         this.grammarName = g.name;
 
         if (g.getOptionString("contextSuperClass") !== null) {
-            this.contextSuperClass = new  ActionText(null, g.getOptionString("contextSuperClass"));
+            this.contextSuperClass = new ActionText(null, g.getOptionString("contextSuperClass"));
         }
     }
 }

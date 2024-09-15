@@ -13,7 +13,7 @@ import type { RuleAST } from "./tool/ast/RuleAST.js";
 import type { TerminalAST } from "./tool/ast/TerminalAST.js";
 
 export class UndefChecker extends GrammarTreeVisitor {
-    public badRef: boolean = false;
+    public badRef = false;
     private errMgr: ErrorManager;
     private ruleToAST: Map<string, RuleAST>;
 

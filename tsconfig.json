@@ -21,6 +21,7 @@
         "noFallthroughCasesInSwitch": false,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
+        "resolveJsonModule": true
     },
     "include": [
         "tool/*.ts",
@@ -31,7 +32,7 @@
     "exclude": [
         "node_modules",
         "dist",
-        "tests/**/*.ts",
+        "tests/**/*.ts"
     ],
     "ts-node": {
         "esm": true

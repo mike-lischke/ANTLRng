@@ -5,8 +5,6 @@
  */
 
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { OutputModelController } from "./OutputModelController.js";
 import { CodeGenerator } from "./CodeGenerator.js";
@@ -28,109 +26,109 @@ import { Rule } from "../tool/Rule.js";
  *  objects such as RuleFunction that surround elements in rule
  *  functions.
  */
-export abstract  class DefaultOutputModelFactory extends BlankOutputModelFactory {
-	// Interface to outside world
+export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory {
+    // Interface to outside world
 
-	public readonly  g:  Grammar;
+    public readonly g: Grammar;
 
-	public readonly  gen:  CodeGenerator;
+    public readonly gen: CodeGenerator;
 
-	public  controller:  OutputModelController;
+    public controller: OutputModelController;
 
-	protected  constructor(gen: CodeGenerator) {
-		this.gen = gen;
-		this.g = gen.g;
-	}
+    protected constructor(gen: CodeGenerator) {
+        this.gen = gen;
+        this.g = gen.g;
+    }
 
-	// MISC
-
-
-	public static  list(...values: SrcOp[]):  Array<SrcOp>;
+    // MISC
 
 
-	public static  list(values: Collection< SrcOp>):  Array<SrcOp>;
-public static list(...args: unknown[]):  Array<SrcOp> {
-		switch (args.length) {
-			case 1: {
-				const [values] = args as [SrcOp[]];
+    public static list(...values: SrcOp[]): Array<SrcOp>;
 
 
-		return new  Array<SrcOp>(Arrays.asList(java.io.ObjectInputFilter.Status.values));
-	
-
-				break;
-			}
-
-			case 1: {
-				const [values] = args as [Collection< SrcOp>];
+    public static list(values: Collection<SrcOp>): Array<SrcOp>;
+    public static list(...args: unknown[]): Array<SrcOp> {
+        switch (args.length) {
+            case 1: {
+                const [values] = args as [SrcOp[]];
 
 
-		return new  Array<SrcOp>(values);
-	
-
-				break;
-			}
-
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+                return new Array<SrcOp>(Arrays.asList(java.io.ObjectInputFilter.Status.values));
 
 
-	@Override
-public  setController(controller: OutputModelController):  void {
-		this.controller = controller;
-	}
+                break;
+            }
 
-	@Override
-public  getController():  OutputModelController {
-		return this.controller;
-	}
-
-	@Override
-public override  rulePostamble(function: RuleFunction, r: Rule):  Array<SrcOp> {
-		if ( r.namedActions.containsKey("after") || r.namedActions.containsKey("finally") ) {
-			// See OutputModelController.buildLeftRecursiveRuleFunction
-			// and Parser.exitRule for other places which set stop.
-			let  gen = this.getGenerator();
-			let  codegenTemplates = gen.getTemplates();
-			let  setStopTokenAST = codegenTemplates.getInstanceOf("recRuleSetStopToken");
-			let  setStopTokenAction = new  Action(this, function.ruleCtx, setStopTokenAST);
-			let  ops = new  Array<SrcOp>(1);
-			ops.add(setStopTokenAction);
-			return ops;
-		}
-		return super.rulePostamble(function, r);
-	}
-
-	// Convenience methods
+            case 1: {
+                const [values] = args as [Collection<SrcOp>];
 
 
-	@Override
-public  getGrammar():  Grammar { return this.g; }
+                return new Array<SrcOp>(values);
 
-	@Override
-public  getGenerator():  CodeGenerator { return this.gen; }
 
-	@Override
-public  getRoot():  OutputModelObject { return this.controller.getRoot(); }
+                break;
+            }
 
-	@Override
-public  getCurrentRuleFunction():  RuleFunction { return this.controller.getCurrentRuleFunction(); }
+            default: {
+                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            }
+        }
+    }
 
-	@Override
-public  getCurrentOuterMostAlt():  Alternative { return this.controller.getCurrentOuterMostAlt(); }
 
-	@Override
-public  getCurrentBlock():  CodeBlock { return this.controller.getCurrentBlock(); }
+    @Override
+    public setController(controller: OutputModelController): void {
+        this.controller = controller;
+    }
 
-	@Override
-public  getCurrentOuterMostAlternativeBlock():  CodeBlockForOuterMostAlt { return this.controller.getCurrentOuterMostAlternativeBlock(); }
+    @Override
+    public getController(): OutputModelController {
+        return this.controller;
+    }
 
-	@Override
-public  getCodeBlockLevel():  number { return this.controller.codeBlockLevel; }
+    @Override
+    public override  rulePostamble(function: RuleFunction, r: Rule): Array<SrcOp> {
+        if (r.namedActions.containsKey("after") || r.namedActions.containsKey("finally")) {
+            // See OutputModelController.buildLeftRecursiveRuleFunction
+            // and Parser.exitRule for other places which set stop.
+            let gen = this.getGenerator();
+            let codegenTemplates = gen.getTemplates();
+            let setStopTokenAST = codegenTemplates.getInstanceOf("recRuleSetStopToken");
+            let setStopTokenAction = new Action(this, function.ruleCtx, setStopTokenAST);
+            let ops = new Array<SrcOp>(1);
+            ops.add(setStopTokenAction);
+            return ops;
+        }
+        return super.rulePostamble(function, r);
+    }
 
-	@Override
-public  getTreeLevel():  number { return this.controller.treeLevel; }
+    // Convenience methods
+
+
+    @Override
+    public getGrammar(): Grammar { return this.g; }
+
+    @Override
+    public getGenerator(): CodeGenerator { return this.gen; }
+
+    @Override
+    public getRoot(): OutputModelObject { return this.controller.getRoot(); }
+
+    @Override
+    public getCurrentRuleFunction(): RuleFunction { return this.controller.getCurrentRuleFunction(); }
+
+    @Override
+    public getCurrentOuterMostAlt(): Alternative { return this.controller.getCurrentOuterMostAlt(); }
+
+    @Override
+    public getCurrentBlock(): CodeBlock { return this.controller.getCurrentBlock(); }
+
+    @Override
+    public getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt { return this.controller.getCurrentOuterMostAlternativeBlock(); }
+
+    @Override
+    public getCodeBlockLevel(): number { return this.controller.codeBlockLevel; }
+
+    @Override
+    public getTreeLevel(): number { return this.controller.treeLevel; }
 }

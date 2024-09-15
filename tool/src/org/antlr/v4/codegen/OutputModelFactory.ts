@@ -5,8 +5,6 @@
  */
 
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { OutputModelController } from "./OutputModelController.js";
 import { CodeGenerator } from "./CodeGenerator.js";
@@ -32,79 +30,79 @@ import { GrammarAST } from "../tool/ast/GrammarAST.js";
 
 
 
- interface OutputModelFactory {
-	  getGrammar(): Grammar;
+interface OutputModelFactory {
+    getGrammar(): Grammar;
 
-	  getGenerator(): CodeGenerator;
+    getGenerator(): CodeGenerator;
 
-	  setController(controller: OutputModelController): void;
+    setController(controller: OutputModelController): void;
 
-	  getController(): OutputModelController;
+    getController(): OutputModelController;
 
-	  parserFile(fileName: string): ParserFile;
+    parserFile(fileName: string): ParserFile;
 
-	  parser(file: ParserFile): Parser;
+    parser(file: ParserFile): Parser;
 
-	  lexerFile(fileName: string): LexerFile;
+    lexerFile(fileName: string): LexerFile;
 
-	  lexer(file: LexerFile): Lexer;
+    lexer(file: LexerFile): Lexer;
 
-	  rule(r: Rule): RuleFunction;
+    rule(r: Rule): RuleFunction;
 
-	  rulePostamble(function: RuleFunction, r: Rule): Array<SrcOp>;
+    rulePostamble(function: RuleFunction, r: Rule): Array<SrcOp>;
 
-	// ELEMENT TRIGGERS
+    // ELEMENT TRIGGERS
 
-	  alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
+    alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
 
-	  finishAlternative(blk: CodeBlockForAlt, ops: Array<SrcOp>): CodeBlockForAlt;
+    finishAlternative(blk: CodeBlockForAlt, ops: Array<SrcOp>): CodeBlockForAlt;
 
-	  epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
+    epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
 
-	  ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): Array<SrcOp>;
+    ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): Array<SrcOp>;
 
-	  tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): Array<SrcOp>;
+    tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): Array<SrcOp>;
 
-	  stringRef(ID: GrammarAST, label: GrammarAST): Array<SrcOp>;
+    stringRef(ID: GrammarAST, label: GrammarAST): Array<SrcOp>;
 
-	  set(setAST: GrammarAST, label: GrammarAST, invert: boolean): Array<SrcOp>;
+    set(setAST: GrammarAST, label: GrammarAST, invert: boolean): Array<SrcOp>;
 
-	  wildcard(ast: GrammarAST, labelAST: GrammarAST): Array<SrcOp>;
+    wildcard(ast: GrammarAST, labelAST: GrammarAST): Array<SrcOp>;
 
-	  action(ast: ActionAST): Array<SrcOp>;
+    action(ast: ActionAST): Array<SrcOp>;
 
-	  sempred(ast: ActionAST): Array<SrcOp>;
+    sempred(ast: ActionAST): Array<SrcOp>;
 
-	  getChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>, label: GrammarAST): Choice;
+    getChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>, label: GrammarAST): Choice;
 
-	  getEBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
+    getEBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
 
-	  getLL1ChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>): Choice;
+    getLL1ChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>): Choice;
 
-	  getComplexChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>): Choice;
+    getComplexChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>): Choice;
 
-	  getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
+    getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
 
-	  getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
+    getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
 
-	  getLL1Test(look: IntervalSet, blkAST: GrammarAST): Array<SrcOp>;
+    getLL1Test(look: IntervalSet, blkAST: GrammarAST): Array<SrcOp>;
 
-	  needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean;
+    needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean;
 
-	// CONTEXT INFO
+    // CONTEXT INFO
 
-	  getRoot(): OutputModelObject;
+    getRoot(): OutputModelObject;
 
-	  getCurrentRuleFunction(): RuleFunction;
+    getCurrentRuleFunction(): RuleFunction;
 
-	  getCurrentOuterMostAlt(): Alternative;
+    getCurrentOuterMostAlt(): Alternative;
 
-	  getCurrentBlock(): CodeBlock;
+    getCurrentBlock(): CodeBlock;
 
-	  getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt;
+    getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt;
 
-	  getCodeBlockLevel(): number;
+    getCodeBlockLevel(): number;
 
-	  getTreeLevel(): number;
+    getTreeLevel(): number;
 
 }

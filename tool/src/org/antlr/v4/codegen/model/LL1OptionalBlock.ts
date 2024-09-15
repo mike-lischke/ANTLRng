@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { LL1Choice } from "./LL1Choice.js";
 import { LL1AltBlock } from "./LL1AltBlock.js";
 import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
@@ -18,8 +16,8 @@ import { GrammarAST } from "../../tool/ast/GrammarAST.js";
  *
  *  (A | B | C)?
  */
-export  class LL1OptionalBlock extends LL1AltBlock {
-    public  constructor(factory: OutputModelFactory, blkAST: GrammarAST, alts: CodeBlockForAlt[]) {
+export class LL1OptionalBlock extends LL1AltBlock {
+    public constructor(factory: OutputModelFactory, blkAST: GrammarAST, alts: CodeBlockForAlt[]) {
         super(factory, blkAST, alts);
     }
 }

@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Alternative } from "./Alternative.js";
 import { Attribute } from "./Attribute.js";
 import { AttributeDict } from "./AttributeDict.js";
@@ -202,8 +200,8 @@ export class Rule implements AttributeResolver {
      * (alternative number and {@link AltAST}) identifying the alternatives with
      * this label. Unlabeled alternatives are not included in the result.
      */
-    public getAltLabels(): Map<string, Array<[number, AltAST]>> | null {
-        const labels = new Map<string, Array<[number, AltAST]>>();
+    public getAltLabels(): Map<string, [number, AltAST][]> | null {
+        const labels = new Map<string, [number, AltAST][]>();
         for (let i = 1; i <= this.numberOfAlts; i++) {
             const altLabel = this.alt[i].ast.altLabel;
             if (altLabel !== null) {
@@ -330,7 +328,7 @@ export class Rule implements AttributeResolver {
         return false;
     }
 
-    public resolveToRule(x: string): Rule | null {
+    public resolveToRule(x: string): this | null {
         if (x === this.name) {
             return this;
         }

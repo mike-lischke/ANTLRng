@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { BitSet } from "antlr4ng";
 
 import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";

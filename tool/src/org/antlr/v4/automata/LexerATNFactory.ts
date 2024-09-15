@@ -5,8 +5,6 @@
  */
 
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { RangeBorderCharactersData } from "./RangeBorderCharactersData.js";
 import { ParserATNFactory } from "./ParserATNFactory.js";

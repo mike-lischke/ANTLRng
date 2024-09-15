@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { BitSet, RecognitionException, Token, type IntStream, type TokenStream } from "antlr4ng";
 
 import { RecognizerSharedState } from "./RecognizerSharedState.js";
@@ -411,7 +409,7 @@ export abstract class BaseRecognizer {
             this.state.ruleMemo![ruleIndex] = new Map<number, number>();
         }
 
-        const stopIndexI = this.state.ruleMemo![ruleIndex]!.get(ruleStartIndex);
+        const stopIndexI = this.state.ruleMemo![ruleIndex].get(ruleStartIndex);
         if (stopIndexI == null) {
             return BaseRecognizer.MEMO_RULE_UNKNOWN;
         }
@@ -461,7 +459,7 @@ export abstract class BaseRecognizer {
         }
 
         if (this.state.ruleMemo![ruleIndex] !== null) {
-            this.state.ruleMemo![ruleIndex]!.set(ruleStartIndex, stopTokenIndex);
+            this.state.ruleMemo![ruleIndex].set(ruleStartIndex, stopTokenIndex);
         }
     }
 

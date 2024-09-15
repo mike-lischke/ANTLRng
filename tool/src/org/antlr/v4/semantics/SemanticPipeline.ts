@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { UseDefAnalyzer } from "./UseDefAnalyzer.js";
 import { SymbolCollector } from "./SymbolCollector.js";
 import { SymbolChecks } from "./SymbolChecks.js";

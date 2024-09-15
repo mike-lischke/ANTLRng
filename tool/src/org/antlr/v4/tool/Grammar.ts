@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, DFA, Interval, IntervalSet, LexerInterpreter, ParserInterpreter,
     SemanticContext, Token, TokenStream, Vocabulary,
@@ -141,12 +139,6 @@ export class Grammar implements AttributeResolver {
     public rules = new Map<string, Rule>();
     public indexToRule = new Array<Rule>(); // used to invent rule names for 'keyword', ';', ... (0..n-1)
 
-    /**
-     * The ATN that represents the grammar with edges labelled with tokens
-     *  or epsilon.  It is more suitable to analysis than an AST representation.
-     */
-    public atn: ATN;
-
     public stateToGrammarRegionMap: Map<number, Interval> | null = null;
 
     public decisionDFAs = new Map<number, DFA>();
@@ -178,7 +170,7 @@ export class Grammar implements AttributeResolver {
      * Map a token type to its token name. Indexed with raw token type. 0 is
      * invalid.
      */
-    public readonly typeToTokenList: Array<string | null> = [];
+    public readonly typeToTokenList: (string | null)[] = [];
 
     /**
      * Map channel like {@code COMMENTS_CHANNEL} to its constant channel value.
@@ -214,7 +206,7 @@ export class Grammar implements AttributeResolver {
      */
     public sempreds = new Map<PredAST, number>();
     /** Map the other direction upon demand */
-    public indexToPredMap: Map<number, PredAST>;
+    public indexToPredMap: Map<number, PredAST> | null = null;
 
     protected ruleNumber = 0; // used to get rule indexes (0..n-1)
     protected stringLiteralRuleNumber = 0;
@@ -235,6 +227,12 @@ export class Grammar implements AttributeResolver {
      * {@link Token#MIN_USER_CHANNEL_VALUE} are assumed to be predefined.
      */
     protected maxChannelType = Token.MIN_USER_CHANNEL_VALUE - 1;
+
+    /**
+     * The ATN that represents the grammar with edges labelled with tokens
+     *  or epsilon.  It is more suitable to analysis than an AST representation.
+     */
+    #atn?: ATN;
 
     public constructor(tool: Tool, ast: GrammarRootAST);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
@@ -281,9 +279,9 @@ export class Grammar implements AttributeResolver {
             this.tool = new Tool();
 
             const hush = {
-                info: (msg: string): void => { },
-                error: (msg: ANTLRMessage): void => { },
-                warning: (msg: ANTLRMessage): void => { },
+                info: (msg: string): void => { /* ignored */ },
+                error: (msg: ANTLRMessage): void => { /* ignored */ },
+                warning: (msg: ANTLRMessage): void => { /* ignored */ },
             };
 
             this.tool.addListener(hush); // we want to hush errors/warnings
@@ -364,10 +362,6 @@ export class Grammar implements AttributeResolver {
      *  set option assoc=right in TOKEN_REF.
      */
     public static setNodeOptions(node: GrammarAST, options: GrammarAST): void {
-        if (options === null) {
-            return;
-        }
-
         const t = node as GrammarASTWithOptions;
         if (t.getChildCount() === 0 || options.getChildCount() === 0) {
             return;
@@ -384,7 +378,7 @@ export class Grammar implements AttributeResolver {
     }
 
     /** Return list of (TOKEN_NAME node, 'literal' node) pairs */
-    public static getStringLiteralAliasesFromLexerRules(ast: GrammarRootAST): Array<[GrammarAST, GrammarAST]> | null {
+    public static getStringLiteralAliasesFromLexerRules(ast: GrammarRootAST): [GrammarAST, GrammarAST][] | null {
         const patterns = [
             "(RULE %name:TOKEN_REF (BLOCK (ALT %lit:STRING_LITERAL)))",
             "(RULE %name:TOKEN_REF (BLOCK (ALT %lit:STRING_LITERAL ACTION)))",
@@ -425,15 +419,13 @@ export class Grammar implements AttributeResolver {
     public static getStateToGrammarRegionMap(ast: GrammarRootAST,
         grammarTokenTypes: IntervalSet | null): Map<number, Interval> {
         const stateToGrammarRegionMap = new Map<number, Interval>();
-        if (ast === null) {
-            return stateToGrammarRegionMap;
-        }
 
         const nodes = ast.getNodesWithType(grammarTokenTypes);
         for (const n of nodes) {
-            if (n.atnState !== null) {
+            if (n.atnState) {
                 let tokenRegion = Interval.of(n.getTokenStartIndex(), n.getTokenStopIndex());
                 let ruleNode = null;
+
                 // RULEs, BLOCKs of transformed recursive rules point to original token interval
                 switch (n.getType()) {
                     case ANTLRv4Parser.RULE_REF: {
@@ -466,11 +458,11 @@ export class Grammar implements AttributeResolver {
     }
 
     protected static defAlias(r: GrammarAST, pattern: string, wiz: TreeWizard,
-        lexerRuleToStringLiteral: Array<[GrammarAST, GrammarAST]>): boolean {
+        lexerRuleToStringLiteral: [GrammarAST, GrammarAST][]): boolean {
         const nodes = new Map<string, GrammarAST>();
         if (wiz.parse(r, pattern, nodes)) {
-            const litNode = nodes.get("lit") as GrammarAST;
-            const nameNode = nodes.get("name") as GrammarAST;
+            const litNode = nodes.get("lit")!;
+            const nameNode = nodes.get("name")!;
             const pair = [nameNode, litNode] as [GrammarAST, GrammarAST];
             lexerRuleToStringLiteral.push(pair);
 
@@ -485,7 +477,7 @@ export class Grammar implements AttributeResolver {
             return;
         }
 
-        const i = this.ast.getFirstChildWithType(ANTLRv4Parser.IMPORT) as GrammarAST;
+        const i = this.ast.getFirstChildWithType(ANTLRv4Parser.IMPORT) as GrammarAST | null;
         if (i === null) {
             return;
         }
@@ -511,17 +503,12 @@ export class Grammar implements AttributeResolver {
             let g: Grammar;
             try {
                 g = this.tool.loadImportedGrammar(this, t)!;
-            } catch (ioe) {
+            } catch {
                 this.tool.errMgr.grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR,
                     importedGrammarName,
                     t.getToken(),
                     importedGrammarName,
                     this.name);
-                continue;
-            }
-
-            // did it come back as error node or missing?
-            if (g === null) {
                 continue;
             }
 
@@ -555,7 +542,7 @@ export class Grammar implements AttributeResolver {
      * this name already existed in the grammar instance.
      */
     public defineRule(r: Rule): boolean {
-        if (this.rules.get(r.name) !== null) {
+        if (this.rules.has(r.name)) {
             return false;
         }
 
@@ -596,8 +583,7 @@ export class Grammar implements AttributeResolver {
         return true;
     }
 
-    public getRule(name: string): Rule | null;
-    public getRule(index: number): Rule | null;
+    public getRule(name: string | number): Rule | null;
     public getRule(grammarName: string, ruleName: string): Rule | null;
     public getRule(...args: unknown[]): Rule | null {
         switch (args.length) {
@@ -621,7 +607,7 @@ export class Grammar implements AttributeResolver {
             case 2: {
                 const [grammarName, ruleName] = args as [string, string];
 
-                if (grammarName !== null) { // scope override
+                if (grammarName) { // scope override
                     const g = this.getImportedGrammar(grammarName);
                     if (g === null) {
                         return null;
@@ -639,13 +625,17 @@ export class Grammar implements AttributeResolver {
         }
     }
 
-    public getATN(): ATN {
-        if (this.atn === null) {
+    public get atn(): ATN {
+        if (!this.#atn) {
             const factory = new ParserATNFactory(this);
-            this.atn = factory.createATN();
+            this.#atn = factory.createATN();
         }
 
-        return this.atn;
+        return this.#atn;
+    }
+
+    public set atn(atn: ATN) {
+        this.#atn = atn;
     }
 
     /**
@@ -658,10 +648,8 @@ export class Grammar implements AttributeResolver {
         for (const d of this.importedGrammars) {
             delegates.set(d.fileName, d);
             const ds = d.getAllImportedGrammars();
-            if (ds !== null) {
-                for (const imported of ds) {
-                    delegates.set(imported.fileName, imported);
-                }
+            for (const imported of ds) {
+                delegates.set(imported.fileName, imported);
             }
         }
 
@@ -727,15 +715,15 @@ export class Grammar implements AttributeResolver {
             qualifiedName += this.name;
         }
 
-        if (this.isCombined() || (this.isLexer() && this.implicitLexer !== null)) {
+        if (this.isCombined() || (this.isLexer())) {
             suffix = Grammar.getGrammarTypeToFileNameSuffix(this.getType());
         }
 
         return qualifiedName + suffix;
     }
 
-    public getStringLiteralLexerRuleName(lit: string): string {
-        return Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX + this.stringLiteralRuleNumber++;
+    public getStringLiteralLexerRuleName(_literal: string): string {
+        return `Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX${this.stringLiteralRuleNumber++}`;
     }
 
     /** Return grammar directly imported by this grammar */
@@ -752,7 +740,7 @@ export class Grammar implements AttributeResolver {
 
     public getTokenType(token: string): number {
         let index: number | undefined;
-        if (token.charAt(0) === "'") {
+        if (token.startsWith("'")) {
             index = this.stringLiteralToTypeMap.get(token);
         } else { // must be a label like ID
             index = this.tokenNameToTypeMap.get(token);
@@ -888,8 +876,8 @@ export class Grammar implements AttributeResolver {
      * @see #getTokenName
      * @returns The token names of all tokens defined in the grammar.
      */
-    public getTokenNames(): Array<string | null> {
-        const tokenNames: Array<string | null> = [];
+    public getTokenNames(): (string | null)[] {
+        const tokenNames: (string | null)[] = [];
         for (let i = 0; i < tokenNames.length; i++) {
             tokenNames[i] = this.getTokenName(i);
         }
@@ -905,8 +893,8 @@ export class Grammar implements AttributeResolver {
      * @see #getTokenDisplayName
      * @returns The display names of all tokens defined in the grammar.
      */
-    public getTokenDisplayNames(): Array<string | null> {
-        const tokenNames: Array<string | null> = [];
+    public getTokenDisplayNames(): (string | null)[] {
+        const tokenNames: (string | null)[] = [];
         for (let i = 0; i < tokenNames.length; i++) {
             tokenNames[i] = this.getTokenDisplayName(i);
         }
@@ -917,8 +905,8 @@ export class Grammar implements AttributeResolver {
     /**
      * Gets the literal names assigned to tokens in the grammar.
      */
-    public getTokenLiteralNames(): Array<string | null> {
-        const literalNames: Array<string | null> = [];
+    public getTokenLiteralNames(): (string | null)[] {
+        const literalNames: (string | null)[] = [];
         for (let i = 0; i < Math.min(literalNames.length, this.typeToStringLiteralList.length); i++) {
             literalNames[i] = this.typeToStringLiteralList[i];
         }
@@ -935,8 +923,8 @@ export class Grammar implements AttributeResolver {
     /**
      * Gets the symbolic names assigned to tokens in the grammar.
      */
-    public getTokenSymbolicNames(): Array<string | null> {
-        const symbolicNames: Array<string | null> = [];
+    public getTokenSymbolicNames(): (string | null)[] {
+        const symbolicNames: (string | null)[] = [];
         for (let i = 0; i < Math.min(symbolicNames.length, this.typeToTokenList.length); i++) {
             const name = this.typeToTokenList[i];
             if (!name || name.startsWith(Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX)) {
@@ -1063,10 +1051,10 @@ export class Grammar implements AttributeResolver {
         if (vocab !== null) {
             const vParser = new TokenVocabParser(this);
             const tokens = vParser.load();
-            this.tool.logInfo("grammar", "tokens=" + tokens);
+            this.tool.logInfo("grammar", `tokens=${String(tokens)}`);
 
             for (const t of tokens.keys()) {
-                if (t.charAt(0) === "'") {
+                if (t.startsWith("'")) {
                     this.defineStringLiteral(t, tokens.get(t));
                 } else {
                     this.defineTokenName(t, tokens.get(t));
@@ -1164,7 +1152,7 @@ export class Grammar implements AttributeResolver {
             Utils.setSize(this.typeToTokenList, ttype + 1);
         }
         const prevToken = this.typeToTokenList[ttype];
-        if (prevToken === null || prevToken.charAt(0) === "'") {
+        if (prevToken === null || prevToken.startsWith("'")) {
             // only record if nothing there before or if thing before was a literal
             this.typeToTokenList[ttype] = text;
         }
@@ -1351,10 +1339,6 @@ export class Grammar implements AttributeResolver {
             this.stateToGrammarRegionMap = Grammar.getStateToGrammarRegionMap(this.ast!, null);
         }
 
-        if (this.stateToGrammarRegionMap === null) {
-            return Interval.INVALID_INTERVAL;
-        }
-
         return this.stateToGrammarRegionMap.get(atnStateNumber)!;
     }
 
@@ -1373,7 +1357,7 @@ export class Grammar implements AttributeResolver {
         allChannels.push(...this.channelValueToNameList);
 
         // must run ATN through serializer to set some state flags
-        const serialized = ATNSerializer.getSerialized(this.atn);
+        const serialized = ATNSerializer.getSerialized(this.#atn!);
         const deserializedATN = new ATNDeserializer().deserialize(serialized);
 
         return new LexerInterpreter(this.fileName, this.getVocabulary(), this.getRuleNames(), allChannels,
@@ -1386,7 +1370,7 @@ export class Grammar implements AttributeResolver {
         }
 
         // must run ATN through serializer to set some state flags
-        const serialized = ATNSerializer.getSerialized(this.atn);
+        const serialized = ATNSerializer.getSerialized(this.#atn!);
         const deserializedATN = new ATNDeserializer().deserialize(serialized);
 
         return new GrammarParserInterpreter(this, deserializedATN, tokenStream);
@@ -1398,7 +1382,7 @@ export class Grammar implements AttributeResolver {
         }
 
         // must run ATN through serializer to set some state flags
-        const serialized = ATNSerializer.getSerialized(this.atn);
+        const serialized = ATNSerializer.getSerialized(this.#atn!);
         const deserializedATN = new ATNDeserializer().deserialize(serialized);
 
         return new ParserInterpreter(this.fileName, this.getVocabulary(), this.getRuleNames(), deserializedATN,

@@ -6,12 +6,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { IntervalSet } from "antlr4ng";
 
 import { Character } from "../support/Character.js";
 import { CharSupport } from "./CharSupport.js";
+import { getPropertyCodePoints } from "../support/Unicode.js";
 
 export enum ResultType {
     Invalid,
@@ -112,8 +111,8 @@ export abstract class EscapeSequenceParsing {
                 }
 
                 const propertyName = s.substring(openBraceOffset + 1, closeBraceOffset);
-                let propertyIntervalSet = UnicodeData.getPropertyCodePoints(propertyName);
-                if (propertyIntervalSet === null || propertyIntervalSet.isNil()) {
+                let propertyIntervalSet = getPropertyCodePoints(propertyName);
+                if (!propertyIntervalSet || propertyIntervalSet.length === 0) {
                     return EscapeSequenceParsing.invalid(startOff, closeBraceOffset);
                 }
 

@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { IntervalSet, LL1Analyzer, Token } from "antlr4ng";
 import { Utils } from "../misc/Utils.js";
 import { ErrorType } from "../tool/ErrorType.js";
@@ -48,7 +46,7 @@ export class AnalysisPipeline {
 
     public process(): void {
         // LEFT-RECURSION CHECK
-        const lr = new LeftRecursionDetector(this.g, this.g.atn);
+        const lr = new LeftRecursionDetector(this.g, this.g.#atn);
         lr.check();
         if (lr.listOfRecursiveCycles.length !== 0) {
             return;
@@ -71,7 +69,7 @@ export class AnalysisPipeline {
             }
 
             const analyzer = new LL1Analyzer();
-            const look = analyzer.look(this.g.atn, this.g.atn.ruleToStartState[rule.index]!, undefined);
+            const look = analyzer.look(this.g.#atn, this.g.#atn.ruleToStartState[rule.index]!, undefined);
             if (look.contains(Token.EPSILON)) {
                 this.g.tool.errMgr.grammarError(ErrorType.EPSILON_TOKEN, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
@@ -80,15 +78,15 @@ export class AnalysisPipeline {
     }
 
     protected processParser(): void {
-        this.g.decisionLOOK = new Array<IntervalSet[]>(this.g.atn.getNumberOfDecisions() + 1);
-        for (const s of this.g.atn.decisionToState) {
+        this.g.decisionLOOK = new Array<IntervalSet[]>(this.g.#atn.getNumberOfDecisions() + 1);
+        for (const s of this.g.#atn.decisionToState) {
             this.g.tool.logInfo("LL1", "\nDECISION " + s.decision + " in rule " + this.g.getRule(s.ruleIndex).name);
             let look: IntervalSet[];
             if (s.nonGreedy) { // nongreedy decisions can't be LL(1)
                 look = new Array<IntervalSet>(s.getNumberOfTransitions() + 1);
             }
             else {
-                const anal = new LL1Analyzer(this.g.atn);
+                const anal = new LL1Analyzer(this.g.#atn);
                 look = anal.getDecisionLookahead(s);
                 this.g.tool.logInfo("LL1", "look=" + Arrays.toString(look));
             }

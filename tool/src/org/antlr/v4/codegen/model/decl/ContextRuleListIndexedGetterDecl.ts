@@ -4,16 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { ContextRuleListGetterDecl } from "./ContextRuleListGetterDecl.js";
 import { ContextGetterDecl } from "./ContextGetterDecl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-export  class ContextRuleListIndexedGetterDecl extends ContextRuleListGetterDecl {
-    public  constructor(factory: OutputModelFactory, name: string, ctxName: string);
+export class ContextRuleListIndexedGetterDecl extends ContextRuleListGetterDecl {
+    public constructor(factory: OutputModelFactory, name: string, ctxName: string);
 
-    public  constructor(factory: OutputModelFactory, name: string, ctxName: string, signature: boolean);
+    public constructor(factory: OutputModelFactory, name: string, ctxName: string, signature: boolean);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 3: {
@@ -39,12 +37,12 @@ export  class ContextRuleListIndexedGetterDecl extends ContextRuleListGetterDecl
     }
 
     @Override
-    public override  getArgType():  string {
+    public override  getArgType(): string {
         return "int";
     }
 
     @Override
-    public override  getSignatureDecl():  ContextGetterDecl {
-        return new  ContextRuleListIndexedGetterDecl($outer.factory, $outer.name, this.ctxName, true);
+    public override  getSignatureDecl(): ContextGetterDecl {
+        return new ContextRuleListIndexedGetterDecl($outer.factory, $outer.name, this.ctxName, true);
     }
 }

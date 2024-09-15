@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { IntervalSet } from "antlr4ng";
 
 import { Character } from "../support/Character.js";
@@ -152,7 +150,7 @@ export class CharSupport {
 
             // no escape char
             case 2: {
-                if (cstr.charAt(0) !== "\\") {
+                if (!cstr.startsWith("\\")) {
                     return -1;
                 }
 

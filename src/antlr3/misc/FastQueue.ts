@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /**
  * A queue that can dequeue and get(i) in O(1) and grow arbitrarily large.
  *  A linked list is fast at dequeue but slow at get(i).  An array is

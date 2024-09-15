@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import type { IntStream, TokenStream } from "antlr4ng";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import type { Tree } from "./Tree.js";

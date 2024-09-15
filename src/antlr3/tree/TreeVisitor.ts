@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
 import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";

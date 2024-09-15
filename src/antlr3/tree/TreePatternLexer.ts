@@ -14,8 +14,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 export class TreePatternLexer {
     public static readonly EOF: number = -1;
     public static readonly BEGIN: number = 1;

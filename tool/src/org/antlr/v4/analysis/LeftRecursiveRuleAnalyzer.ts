@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CommonToken, IntervalSet, type TokenStream } from "antlr4ng";
 import { STGroupFile, type STGroup } from "stringtemplate4ts";
 

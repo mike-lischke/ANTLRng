@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import type { Token } from "antlr4ng";
 
 import { GrammarAST } from "./GrammarAST.js";
@@ -22,7 +20,7 @@ export class StarBlockAST extends GrammarAST implements RuleElementAST, Quantifi
     public constructor(type: number, t: Token, nonGreedy: Token);
     public constructor(...args: unknown[]) {
         if (typeof args[0] === "number") {
-            const [type, t, nonGreedy] = args as [number, Token, Token];
+            const [type, t, nonGreedy] = args as [number, Token, Token | null];
 
             super(type, t);
             this._greedy = nonGreedy === null;

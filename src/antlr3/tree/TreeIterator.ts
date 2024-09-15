@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Token } from "antlr4ng";
 
 import { FastQueue } from "../misc/FastQueue.js";

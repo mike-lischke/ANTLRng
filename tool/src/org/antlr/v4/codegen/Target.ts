@@ -7,8 +7,6 @@
  */
 
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { HashMap, Token } from "antlr4ng";
 import type { ST, STGroup } from "stringtemplate4ts";

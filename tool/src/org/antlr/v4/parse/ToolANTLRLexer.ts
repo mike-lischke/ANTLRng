@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import type { CharStream, RecognitionException, Token } from "antlr4ng";
 
 import { ANTLRv4Lexer } from "../../../../../../src/generated/ANTLRv4Lexer.js";
@@ -27,7 +25,7 @@ export class ToolANTLRLexer extends ANTLRv4Lexer {
         this.tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, this.sourceName, e.offendingToken!, e, msg);
     }
 
-    public grammarError(errorType: ErrorType, token: Token, ...args: Object[]): void {
+    public grammarError(errorType: ErrorType, token: Token, ...args: object[]): void {
         this.tool.errMgr.grammarError(errorType, this.sourceName, token, args);
     }
 }

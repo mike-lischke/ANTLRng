@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /**
  * A generic graph with edges; Each node as a single Object payload.
  * This is only used to topologically sort a list of file dependencies at the moment.

@@ -4,21 +4,19 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
 /** */
-export abstract  class OutputModelObject {
-    public  factory:  OutputModelFactory;
-    public  ast:  GrammarAST;
+export abstract class OutputModelObject {
+    public factory: OutputModelFactory;
+    public ast: GrammarAST;
 
-    public  constructor();
+    public constructor();
 
-    public  constructor(factory: OutputModelFactory);
+    public constructor(factory: OutputModelFactory);
 
-    public  constructor(factory: OutputModelFactory, ast: GrammarAST);
+    public constructor(factory: OutputModelFactory, ast: GrammarAST);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 0: {

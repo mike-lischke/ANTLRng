@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Token } from "antlr4ng";
 
 import { LeftRecursiveRuleAltInfo } from "../../analysis/LeftRecursiveRuleAltInfo.js";
@@ -21,19 +19,15 @@ export class AltAST extends GrammarASTWithOptions {
     public alt: Alternative;
 
     /** If we transformed this alt from a left-recursive one, need info on it */
-    public leftRecursiveAltInfo: LeftRecursiveRuleAltInfo;
+    public leftRecursiveAltInfo?: LeftRecursiveRuleAltInfo;
 
     /**
-     * If someone specified an outermost alternative label with #foo.
-     *  Token type will be ID.
+     * If someone specified an outermost alternative label with #foo. Token type will be ID.
      */
-    public altLabel: GrammarAST;
+    public altLabel?: GrammarAST;
 
-    public constructor(node: AltAST);
-    public constructor(t: Token);
-    public constructor(type: number);
-    public constructor(type: number, t: Token);
-    public constructor(type: number, t: Token, text: string);
+    public constructor(node: AltAST | Token);
+    public constructor(type: number, t?: Token, text?: string);
     public constructor(...args: unknown[]) {
         if (args.length === 1) {
             const [param] = args as [AltAST | Token | number];

@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { RuleElement } from "./RuleElement.js";
 import { LabeledOp } from "./LabeledOp.js";
 import { CodeGenerator } from "../CodeGenerator.js";
@@ -17,25 +15,25 @@ import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { TerminalAST } from "../../tool/ast/TerminalAST.js";
 
 /** */
-export  class MatchToken extends RuleElement implements LabeledOp {
-    public readonly  name:  string;
-    public readonly  escapedName:  string;
-    public readonly  ttype:  number;
-    public readonly  labels = new  Array<Decl>();
+export class MatchToken extends RuleElement implements LabeledOp {
+    public readonly name: string;
+    public readonly escapedName: string;
+    public readonly ttype: number;
+    public readonly labels = new Array<Decl>();
 
-    public  constructor(factory: OutputModelFactory, ast: TerminalAST);
+    public constructor(factory: OutputModelFactory, ast: TerminalAST);
 
-    public  constructor(factory: OutputModelFactory, ast: GrammarAST);
+    public constructor(factory: OutputModelFactory, ast: GrammarAST);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 2: {
                 const [factory, ast] = args as [OutputModelFactory, TerminalAST];
 
                 super(factory, ast);
-                const  g = factory.getGrammar();
-                const  gen = factory.getGenerator();
+                const g = factory.getGrammar();
+                const gen = factory.getGenerator();
                 this.ttype = g.getTokenType(ast.getText());
-                const  target = gen.getTarget();
+                const target = gen.getTarget();
                 this.name = target.getTokenTypeAsTargetLabel(g, this.ttype);
                 this.escapedName = target.escapeIfNeeded(this.name);
 
@@ -60,5 +58,5 @@ export  class MatchToken extends RuleElement implements LabeledOp {
     }
 
     @Override
-    public  getLabels():  Decl[] { return this.labels; }
+    public getLabels(): Decl[] { return this.labels; }
 }

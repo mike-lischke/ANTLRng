@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import type { Tree } from "./Tree.js";
 
 /**
@@ -27,7 +25,7 @@ export abstract class BaseTree implements Tree {
      * as there are no fields other than the children list, which cannot
      * be copied as the children are not considered part of this node.
      */
-    public constructor(node?: Tree) {
+    public constructor(private node?: Tree) {
     }
 
     public getChild(i: number): Tree | null {
@@ -67,35 +65,33 @@ export abstract class BaseTree implements Tree {
      *  and child isNil then this routine moves children to t via
      *  t.children = child.children; i.e., without copying the array.
      */
-    public addChild(t: Tree): void {
+    public addChild(t?: Tree): void {
         if (!t) {
             return; // do nothing upon addChild(null)
         }
 
         const childTree = t as BaseTree;
         if (childTree.isNil()) { // t is an empty node possibly with children
-            if (this.children !== null && this.children === childTree.children) {
+            if (this.children === childTree.children) {
                 throw new Error("attempt to add child list to itself");
             }
 
             // just add all of childTree's children to this
-            if (childTree.children !== null) {
-                if (this.children !== null) { // must copy, this has children already
-                    const n = childTree.children.length;
-                    for (let i = 0; i < n; i++) {
-                        const c = childTree.children[i];
-                        this.children.push(c);
+            if (this.children.length > 0) { // must copy, this has children already
+                const n = childTree.children.length;
+                for (let i = 0; i < n; i++) {
+                    const c = childTree.children[i];
+                    this.children.push(c);
 
-                        // handle double-link stuff for each child of nil root
-                        c.setParent(this);
-                        c.setChildIndex(this.children.length - 1);
-                    }
-                } else {
-                    // no children for this but t has children; just set pointer
-                    // call general freshener routine
-                    this.children = childTree.children;
-                    this.freshenParentAndChildIndexes();
+                    // handle double-link stuff for each child of nil root
+                    c.setParent(this);
+                    c.setChildIndex(this.children.length - 1);
                 }
+            } else {
+                // no children for this but t has children; just set pointer
+                // call general freshener routine
+                this.children = childTree.children;
+                this.freshenParentAndChildIndexes();
             }
         } else { // child is not nil (don't care about children)
             this.children.push(t);
@@ -128,7 +124,7 @@ export abstract class BaseTree implements Tree {
      */
     public insertChild(i: number, t: Tree): void {
         if (i < 0 || i > this.getChildCount()) {
-            throw new Error(i + " out or range");
+            throw new Error(`${i} out or range`);
         }
 
         this.children.splice(i, 0, t);
@@ -242,22 +238,20 @@ export abstract class BaseTree implements Tree {
     public sanityCheckParentAndChildIndexes(): void;
     public sanityCheckParentAndChildIndexes(parent: Tree, i: number): void;
     public sanityCheckParentAndChildIndexes(...args: unknown[]): void {
-        let [parent, i] = args as [Tree | null, number];
-        parent ??= null;
-        i ??= -1;
-
+        const parent = args[0] as Tree | undefined;
+        const i = (args[1] ?? -1) as number;
         if (parent !== this.getParent()) {
-            throw new Error("parents don't match; expected " + parent + " found " + this.getParent());
+            throw new Error(`parents don't match; expected ${parent} found ${this.getParent()}`);
         }
 
         if (i !== this.getChildIndex()) {
-            throw new Error("child indexes don't match; expected " + i + " found " + this.getChildIndex());
+            throw new Error(`child indexes don't match; expected ${i} found ${this.getChildIndex()}`);
         }
 
         const n = this.getChildCount();
         for (let c = 0; c < n; c++) {
             const child = this.getChild(c) as BaseTree;
-            child?.sanityCheckParentAndChildIndexes(this, c);
+            child.sanityCheckParentAndChildIndexes(this, c);
         }
     }
 
@@ -267,6 +261,7 @@ export abstract class BaseTree implements Tree {
     }
 
     public setChildIndex(index: number): void {
+        // do nothing
     }
 
     /** BaseTree doesn't track parent pointers. */
@@ -275,6 +270,7 @@ export abstract class BaseTree implements Tree {
     }
 
     public setParent(t: Tree): void {
+        // do nothing
     }
 
     /** Walk upwards looking for ancestor with this token type. */
@@ -323,7 +319,7 @@ export abstract class BaseTree implements Tree {
 
         let buf = "";
         if (!this.isNil()) {
-            buf += "(" + this.toString() + " ";
+            buf += `(${this.toString()} `;
         }
 
         for (let i = 0; i < this.children.length; i++) {
@@ -331,7 +327,7 @@ export abstract class BaseTree implements Tree {
             if (i > 0) {
                 buf += " ";
             }
-            buf += t.toStringTree();
+            buf += t.toStringTree()!;
         }
 
         if (!this.isNil()) {

@@ -4,15 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /** */
-export  class v4ParserException extends RecognitionException {
-    public  msg:  string;
-	/** Used for remote debugger deserialization */
-    public  constructor();
+export class v4ParserException extends RecognitionException {
+    public msg: string;
+    /** Used for remote debugger deserialization */
+    public constructor();
 
-    public  constructor(msg: string, input: java.util.stream.IntStream);
+    public constructor(msg: string, input: java.util.stream.IntStream);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 0: {

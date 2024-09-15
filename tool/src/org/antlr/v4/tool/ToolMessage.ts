@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ErrorType } from "./ErrorType.js";
 import { INVALID_TOKEN } from "../misc/Utils.js";

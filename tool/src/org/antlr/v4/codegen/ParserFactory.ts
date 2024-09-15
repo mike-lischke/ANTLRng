@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Target } from "./Target.js";
 import { OutputModelFactory } from "./OutputModelFactory.js";
 import { DefaultOutputModelFactory } from "./DefaultOutputModelFactory.js";

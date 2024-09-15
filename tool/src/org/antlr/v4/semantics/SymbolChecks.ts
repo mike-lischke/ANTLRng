@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { SymbolCollector } from "./SymbolCollector.js";
 import { LexerATNFactory } from "../automata/LexerATNFactory.js";
 import { Token, HashMap, HashSet } from "antlr4ng";

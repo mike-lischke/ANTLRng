@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { LeftRecursiveRuleAnalyzer } from "./LeftRecursiveRuleAnalyzer.js";
 import { LeftRecursiveRuleAltInfo } from "./LeftRecursiveRuleAltInfo.js";
 import { Tool } from "../Tool.js";

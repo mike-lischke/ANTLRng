@@ -4,16 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { SymbolRefChunk } from "./SymbolRefChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-export  class NonLocalAttrRef extends SymbolRefChunk {
-    public  ruleName:  string;
-    public  ruleIndex:  number;
+export class NonLocalAttrRef extends SymbolRefChunk {
+    public ruleName: string;
+    public ruleIndex: number;
 
-    public  constructor(ctx: StructDecl, ruleName: string, name: string, escapedName: string, ruleIndex: number) {
+    public constructor(ctx: StructDecl, ruleName: string, name: string, escapedName: string, ruleIndex: number) {
         super(ctx, name, escapedName);
         this.ruleName = ruleName;
         this.ruleIndex = ruleIndex;

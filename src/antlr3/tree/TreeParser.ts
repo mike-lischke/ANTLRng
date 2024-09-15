@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import {
     CommonToken, Token, type BitSet, type IntStream, type RecognitionException,
 } from "antlr4ng";

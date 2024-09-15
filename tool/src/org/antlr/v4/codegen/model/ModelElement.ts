@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /* @Retention(RetentionPolicy.RUNTIME)
 public @interface ModelElement {
 } */

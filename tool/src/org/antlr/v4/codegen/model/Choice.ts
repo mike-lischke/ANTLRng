@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { TokenInfo } from "./TokenInfo.js";
 import { ThrowNoViableAlt } from "./ThrowNoViableAlt.js";
 import { TestSetInline } from "./TestSetInline.js";
@@ -34,36 +32,35 @@ import { GrammarAST } from "../../tool/ast/GrammarAST.js";
  *  think it makes sense to factor code using super constructors because
  *  it has too much work to do.
  */
-export abstract  class Choice extends RuleElement {
-    public  decision = -1;
-    public  label:  Decl;
+export abstract class Choice extends RuleElement {
+    public decision = -1;
+    public label: Decl;
 
     @ModelElement
-    public  alts:  CodeBlockForAlt[];
+    public alts: CodeBlockForAlt[];
     @ModelElement
-    public  preamble = new  Array<SrcOp>();
+    public preamble = new Array<SrcOp>();
 
-    public  constructor(factory: OutputModelFactory,
-				  blkOrEbnfRootAST: GrammarAST,
-				  alts: CodeBlockForAlt[])
-    {
+    public constructor(factory: OutputModelFactory,
+        blkOrEbnfRootAST: GrammarAST,
+        alts: CodeBlockForAlt[]) {
         super(factory, blkOrEbnfRootAST);
         this.alts = alts;
     }
 
-    public  addPreambleOp(op: SrcOp):  void {
+    public addPreambleOp(op: SrcOp): void {
         this.preamble.add(op);
     }
 
-    public  getAltLookaheadAsStringLists(altLookSets: IntervalSet[]):  TokenInfo[][] {
-        const  altLook = [];
-        const  target = $outer.factory.getGenerator().getTarget();
-        const  grammar = $outer.factory.getGrammar();
+    public getAltLookaheadAsStringLists(altLookSets: IntervalSet[]): TokenInfo[][] {
+        const altLook = [];
+        const target = $outer.factory.getGenerator().getTarget();
+        const grammar = $outer.factory.getGrammar();
         for (const s of altLookSets) {
-            const  list = s.toIntegerList();
-            const  info = new  Array<TokenInfo>(list.size());
-            for (let  i = 0; i < info.length; i++) {
-                info[i] = new  TokenInfo(list.get(i), target.getTokenTypeAsTargetLabel(grammar, list.get(i)));
+            const list = s.toIntegerList();
+            const info = new Array<TokenInfo>(list.size());
+            for (let i = 0; i < info.length; i++) {
+                info[i] = new TokenInfo(list.get(i), target.getTokenTypeAsTargetLabel(grammar, list.get(i)));
             }
             altLook.add(info);
         }
@@ -71,22 +68,22 @@ export abstract  class Choice extends RuleElement {
         return altLook;
     }
 
-    public  addCodeForLookaheadTempVar(look: IntervalSet):  TestSetInline {
-        const  testOps = $outer.factory.getLL1Test(look, $outer.ast);
-        const  expr = Utils.find(testOps, TestSetInline.class);
+    public addCodeForLookaheadTempVar(look: IntervalSet): TestSetInline {
+        const testOps = $outer.factory.getLL1Test(look, $outer.ast);
+        const expr = Utils.find(testOps, TestSetInline.class);
         if (expr !== null) {
-            const  d = new  TokenTypeDecl($outer.factory, expr.varName);
+            const d = new TokenTypeDecl($outer.factory, expr.varName);
             $outer.factory.getCurrentRuleFunction().addLocalDecl(d);
-            const  nextType = new  CaptureNextTokenType($outer.factory,expr.varName);
+            const nextType = new CaptureNextTokenType($outer.factory, expr.varName);
             this.addPreambleOp(nextType);
         }
 
         return expr;
     }
 
-    public  getThrowNoViableAlt(factory: OutputModelFactory,
+    public getThrowNoViableAlt(factory: OutputModelFactory,
         blkAST: GrammarAST,
-        expecting: IntervalSet):  ThrowNoViableAlt {
-        return new  ThrowNoViableAlt(factory, blkAST, expecting);
+        expecting: IntervalSet): ThrowNoViableAlt {
+        return new ThrowNoViableAlt(factory, blkAST, expecting);
     }
 }

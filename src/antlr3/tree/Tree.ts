@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /**
  * What does a tree look like?  ANTLR has a number of support classes
  *  such as CommonTreeNodeStream that work on these kinds of trees.  You
@@ -111,7 +109,6 @@ export interface Tree {
     toString(): string | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
 export namespace Tree {
     //export const INVALID_NODE: Tree = new CommonTree(Token.INVALID_TYPE);
 }

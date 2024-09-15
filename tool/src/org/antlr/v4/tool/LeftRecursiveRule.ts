@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { LeftRecursiveRuleAltInfo } from "../analysis/LeftRecursiveRuleAltInfo.js";
 import { Alternative } from "./Alternative.js";
 import { Grammar } from "./Grammar.js";
@@ -126,8 +124,8 @@ export class LeftRecursiveRule extends Rule {
 
     /** Get -&gt; labels from those alts we deleted for left-recursive rules. */
 
-    public override  getAltLabels(): Map<string, Array<[number, AltAST]>> | null {
-        const labels = new Map<string, Array<[number, AltAST]>>();
+    public override  getAltLabels(): Map<string, [number, AltAST][]> | null {
+        const labels = new Map<string, [number, AltAST][]>();
         const normalAltLabels = super.getAltLabels();
         if (normalAltLabels !== null) {
             normalAltLabels.forEach((value, key) => {

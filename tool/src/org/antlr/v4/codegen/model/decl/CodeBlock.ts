@@ -4,28 +4,26 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { ModelElement } from "../ModelElement.js";
 import { SrcOp } from "../SrcOp.js";
 import { OrderedHashSet } from "antlr4ng";
 
-export  class CodeBlock extends SrcOp {
-    public  codeBlockLevel:  number;
-    public  treeLevel:  number;
+export class CodeBlock extends SrcOp {
+    public codeBlockLevel: number;
+    public treeLevel: number;
 
     @ModelElement
-    public  locals:  OrderedHashSet<Decl>;
+    public locals: OrderedHashSet<Decl>;
     @ModelElement
-    public  preamble:  SrcOp[];
+    public preamble: SrcOp[];
     @ModelElement
-    public  ops:  SrcOp[];
+    public ops: SrcOp[];
 
-    public  constructor(factory: OutputModelFactory);
+    public constructor(factory: OutputModelFactory);
 
-    public  constructor(factory: OutputModelFactory, treeLevel: number, codeBlockLevel: number);
+    public constructor(factory: OutputModelFactory, treeLevel: number, codeBlockLevel: number);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 1: {
@@ -52,43 +50,43 @@ export  class CodeBlock extends SrcOp {
         }
     }
 
-	/** Add local var decl */
-    public  addLocalDecl(d: Decl):  void {
-        if ( this.locals===null ) {
-            this.locals = new  OrderedHashSet<Decl>();
+    /** Add local var decl */
+    public addLocalDecl(d: Decl): void {
+        if (this.locals === null) {
+            this.locals = new OrderedHashSet<Decl>();
         }
 
         this.locals.add(d);
         d.isLocal = true;
     }
 
-    public  addPreambleOp(op: SrcOp):  void {
-        if ( this.preamble===null ) {
-            this.preamble = new  Array<SrcOp>();
+    public addPreambleOp(op: SrcOp): void {
+        if (this.preamble === null) {
+            this.preamble = new Array<SrcOp>();
         }
 
         this.preamble.add(op);
     }
 
-    public  addOp(op: SrcOp):  void {
-        if ( this.ops===null ) {
-            this.ops = new  Array<SrcOp>();
+    public addOp(op: SrcOp): void {
+        if (this.ops === null) {
+            this.ops = new Array<SrcOp>();
         }
 
         this.ops.add(op);
     }
 
-    public  insertOp(i: number, op: SrcOp):  void {
-        if ( this.ops===null ) {
-            this.ops = new  Array<SrcOp>();
+    public insertOp(i: number, op: SrcOp): void {
+        if (this.ops === null) {
+            this.ops = new Array<SrcOp>();
         }
 
         this.ops.add(i, op);
     }
 
-    public  addOps(ops: SrcOp[]):  void {
-        if ( this.ops===null ) {
-            this.ops = new  Array<SrcOp>();
+    public addOps(ops: SrcOp[]): void {
+        if (this.ops === null) {
+            this.ops = new Array<SrcOp>();
         }
 
         this.ops.addAll(ops);

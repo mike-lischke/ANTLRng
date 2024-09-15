@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { ATNState, CommonToken, IntervalSet, Token, type BitSet } from "antlr4ng";
 
 import { CommonTree } from "../../../../../../../src/antlr3/tree/CommonTree.js";
@@ -27,12 +25,11 @@ export class GrammarAST extends CommonTree {
     public g: Grammar;
 
     /** If we build an ATN, we make AST node point at left edge of ATN construct */
-    public atnState: ATNState;
+    public atnState?: ATNState;
 
     public textOverride: string;
 
-    public constructor();
-    public constructor(nodeOrToken: GrammarAST | Token);
+    public constructor(nodeOrToken?: GrammarAST | Token);
     public constructor(type: number, t?: Token, text?: string);
     public constructor(...args: unknown[]) {
         let nodeOrToken: GrammarAST | Token | undefined;
@@ -146,11 +143,11 @@ export class GrammarAST extends CommonTree {
             const p = ancestors[i] as GrammarAST;
             if (p.getType() === ANTLRv4Parser.OR) {
                 const a = p as AltAST;
-                if (a.altLabel !== null) {
+                if (a.altLabel) {
                     return a.altLabel.getText();
                 }
 
-                if (a.leftRecursiveAltInfo !== null) {
+                if (a.leftRecursiveAltInfo) {
                     return a.leftRecursiveAltInfo.altLabel ?? null;
                 }
             }
@@ -254,7 +251,7 @@ export class GrammarAST extends CommonTree {
         let o = nodes.LT(1) as GrammarAST;
         let type = adaptor.getType(o);
         while (type !== Token.EOF) {
-            buf += " " + o.getText();
+            buf += " " + o.getText()!;
             nodes.consume();
             o = nodes.LT(1) as GrammarAST;
             type = adaptor.getType(o);

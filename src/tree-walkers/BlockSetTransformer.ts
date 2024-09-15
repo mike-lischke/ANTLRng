@@ -1,7 +1,5 @@
 // $ANTLR 3.5.3 org/antlr/v4/parse/BlockSetTransformer.g
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import {
     DFA, FailedPredicateException, NoViableAltException, RecognitionException, Token, type IntStream
 } from "antlr4ng";

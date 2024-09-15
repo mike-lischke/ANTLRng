@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import {
     CharStream, CommonToken, CommonTokenStream, DiagnosticErrorListener, Lexer, Parser, ParserRuleContext,
     PredictionMode, TokenStream,
@@ -59,7 +57,7 @@ export class TestRig {
         while (i < args.length) {
             const arg = args[i];
             i++;
-            if (arg.charAt(0) !== "-") { // input file name
+            if (!arg.startsWith("-")) { // input file name
                 this.inputFiles.add(arg);
                 continue;
             }
@@ -228,7 +226,7 @@ export class TestRig {
 
                 try {
                     const startRule = parserClass.getMethod(this.startRuleName);
-                    const tree = startRule.invoke(parser, null as Object[]) as ParserRuleContext;
+                    const tree = startRule.invoke(parser, null as object[]) as ParserRuleContext;
 
                     if (this.printTree) {
                         System.out.println(tree.toStringTree(parser));

@@ -9,8 +9,6 @@ import { join } from "path";
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 // cspell: disable
 
 export class LogManager {
@@ -44,7 +42,7 @@ export class LogManager {
         }
     };
 
-    private records: Array<InstanceType<typeof LogManager.Record>> = [];
+    private records: InstanceType<typeof LogManager.Record>[] = [];
 
     public log(msg: string): void;
     public log(component: string, msg: string): void;

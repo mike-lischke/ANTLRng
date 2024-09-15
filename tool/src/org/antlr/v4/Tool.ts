@@ -6,49 +6,82 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { ATNSerializer, CharStream, CommonTokenStream } from "antlr4ng";
+import { Option, program, type OptionValues } from "commander";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import path, { basename } from "path";
 
 import { ANTLRv4Parser } from "../../../../../src/generated/ANTLRv4Parser.js";
 
-//import { UndefChecker } from "./UndefChecker.js";
-//import { AnalysisPipeline } from "./analysis/AnalysisPipeline.js";
-//import { IATNFactory } from "./automata/ATNFactory.js";
-//import { LexerATNFactory } from "./automata/LexerATNFactory.js";
-//import { ParserATNFactory } from "./automata/ParserATNFactory.js";
-//import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
-//import { CodeGenerator } from "./codegen/CodeGenerator.js";
+import { UndefChecker } from "./UndefChecker.js";
+import { AnalysisPipeline } from "./analysis/AnalysisPipeline.js";
+import { IATNFactory } from "./automata/ATNFactory.js";
+import { LexerATNFactory } from "./automata/LexerATNFactory.js";
+import { ParserATNFactory } from "./automata/ParserATNFactory.js";
+import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
+import { CodeGenerator } from "./codegen/CodeGenerator.js";
 import { Graph } from "./misc/Graph.js";
 import { GrammarASTAdaptor } from "./parse/GrammarASTAdaptor.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";
-//import { SemanticPipeline } from "./semantics/SemanticPipeline.js";
+import { SemanticPipeline } from "./semantics/SemanticPipeline.js";
 import { GrammarType } from "./support/GrammarType.js";
 import { LogManager } from "./support/LogManager.js";
 import { ANTLRMessage } from "./tool/ANTLRMessage.js";
 import { ANTLRToolListener } from "./tool/ANTLRToolListener.js";
-//import { BuildDependencyGenerator } from "./tool/BuildDependencyGenerator.js";
-//import { DOTGenerator } from "./tool/DOTGenerator.js";
+import { BuildDependencyGenerator } from "./tool/BuildDependencyGenerator.js";
+import { DOTGenerator } from "./tool/DOTGenerator.js";
 import { DefaultToolListener } from "./tool/DefaultToolListener.js";
 import { ErrorManager } from "./tool/ErrorManager.js";
 import { ErrorType } from "./tool/ErrorType.js";
 import { Grammar } from "./tool/Grammar.js";
-//import { GrammarTransformPipeline } from "./tool/GrammarTransformPipeline.js";
+import { GrammarTransformPipeline } from "./tool/GrammarTransformPipeline.js";
 import { LexerGrammar } from "./tool/LexerGrammar.js";
-//import { Rule } from "./tool/Rule.js";
-//import { GrammarAST } from "./tool/ast/GrammarAST.js";
-//import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
+import { Rule } from "./tool/Rule.js";
+import { GrammarAST } from "./tool/ast/GrammarAST.js";
+import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
-//import { RuleAST } from "./tool/ast/RuleAST.js";
+import { RuleAST } from "./tool/ast/RuleAST.js";
+
+import packageJson from "../../../../../package.json";
 
 interface IOption {
     code: string,
     description: string,
     value?: string | boolean,
 }
+
+interface IToolParameters extends OptionValues {
+    outputDirectory: string,
+    libDirectory: string,
+    generateATNDot: string,
+    grammarEncoding: string,
+    msgFormat: string,
+    longMessages: string;
+    generateListener: boolean,
+    generateVisitor: boolean,
+    generatePackage: boolean,
+    generateDependencies: boolean,
+    warningsAreErrors: boolean,
+    forceAtn: boolean,
+    log: boolean,
+}
+
+const parseBoolean = (value: string | null): boolean => {
+    if (value == null) {
+        return false;
+    }
+
+    const lower = value.trim().toLowerCase();
+
+    return lower === "true" || lower === "1" || lower === "on" || lower === "yes";
+};
+
+const parseKeyValuePair = (input: string): { key: string, value: string; } => {
+    const [key, value] = input.split("=");
+
+    return { key, value };
+};
 
 export class Tool {
     public static readonly VERSION = "10.0.0";
@@ -58,51 +91,8 @@ export class Tool {
 
     public static readonly ALL_GRAMMAR_EXTENSIONS = [Tool.GRAMMAR_EXTENSION, Tool.LEGACY_GRAMMAR_EXTENSION];
 
-    private static Option = class Option {
-        public fieldName: string;
-        public name: string;
-        public description: string;
-        public value?: string | boolean;
-
-        public constructor(fieldName: string, name: string, description: string, defaultValue?: string | boolean) {
-            this.fieldName = fieldName;
-            this.name = name;
-            this.description = description;
-            this.value = defaultValue;
-        }
-    };
-
-    private static readonly optionDefs = new Map<string, IOption>([
-        ["outputDirectory", { code: "-o", description: "specify output directory where all output is generated" }],
-        ["libDirectory", { code: "-lib", description: "specify location of grammars, tokens files" }],
-        ["generate_ATN_dot",
-            { code: "-atn", description: "generate rule augmented transition network diagrams", value: false }],
-        ["grammarEncoding",
-            { code: "-encoding", description: "specify grammar file encoding; e.g., ucs-2", value: "utf-8" }],
-        ["msgFormat", {
-            code: "-message-format",
-            description: "specify output style for messages in antlr, gnu, vs2005", value: "antlr",
-        }],
-        ["longMessages", {
-            code: "-long-messages",
-            description: "show exception details when available for errors and warnings", value: false,
-        }],
-        ["gen_listener", { code: "-listener", description: "generate parse tree listener (default)", value: true }],
-        ["gen_listener", { code: "-no-listener", description: "don't generate parse tree listener", value: false }],
-        ["gen_visitor", { code: "-visitor", description: "generate parse tree visitor", value: false }],
-        ["gen_visitor",
-            { code: "-no-visitor", description: "don't generate parse tree visitor (default)", value: false }],
-        ["genPackage",
-            { code: "-package", description: "specify a package/namespace for the generated code", value: false }],
-        ["gen_dependencies", { code: "-depend", description: "generate file dependencies", value: false }],
-        ["", { code: "-D<{code: option>=value", description: "set/override a grammar-level option" }],
-        ["warnings_are_errors", { code: "-Werror", description: "treat warnings as errors", value: false }],
-        ["force_atn", { code: "-Xforce-atn", description: "use the ATN simulator for all predictions", value: false }],
-        ["log", { code: "-Xlog", description: "dump lots of logging info to antlr-timestamp.log", value: false }],
-    ]);
-
     public inputDirectory: string;
-    public grammarOptions = new Map<string, string>();
+    public grammarOptions = program.opts<IToolParameters>();
 
     public readonly args: string[];
 
@@ -133,7 +123,7 @@ export class Tool {
         this.errMgr.setFormat("antlr");
         this.handleArgs();
 
-        const format = Tool.getOptionValue<string>("msgFormat");
+        const format = this.grammarOptions.msgFormat;
         if (format) {
             this.errMgr.setFormat(format);
         }
@@ -149,7 +139,7 @@ export class Tool {
         try {
             antlr.processGrammarsOnCommandLine();
         } finally {
-            if (Tool.getOptionValue("log")) {
+            if (antlr.grammarOptions.log) {
                 try {
                     const logName = antlr.logMgr.save();
                     console.log("wrote " + logName);
@@ -164,7 +154,7 @@ export class Tool {
 
     /** Manually get option node from tree; return null if not defined. */
     public static findOptionValueAST(root: GrammarRootAST, option: string): GrammarAST | null {
-        const options = root.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST;
+        const options = root.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
         if (options !== null && options.getChildCount() > 0) {
             for (const o of options.getChildren()) {
                 const c = o as GrammarAST;
@@ -209,17 +199,13 @@ export class Tool {
         return content.toString();
     }
 
-    public static getOptionValue<T extends string | boolean>(option: string): T | undefined {
-        return Tool.optionDefs.get(option)?.value as T;
-    }
-
     public processGrammarsOnCommandLine(): void {
         const sortedGrammars = this.sortGrammarByTokenVocab(this.grammarFiles);
 
         for (const t of sortedGrammars) {
             const g = this.createGrammar(t);
             g.fileName = t.fileName;
-            if (Tool.getOptionValue("gen_dependencies")) {
+            if (this.grammarOptions.generateDependencies) {
                 const dep = new BuildDependencyGenerator(this, g);
                 console.log(dep.getDependencies().render());
             } else {
@@ -248,9 +234,7 @@ export class Tool {
         if (g.ast !== null && g.ast.grammarType === GrammarType.Combined && !g.ast.hasErrors) {
             lexerAST = transform.extractImplicitLexer(g); // alters g.ast
             if (lexerAST !== null) {
-                if (this.grammarOptions !== null) {
-                    lexerAST.cmdLineOptions = this.grammarOptions;
-                }
+                lexerAST.cmdLineOptions = this.grammarOptions;
 
                 lexerGrammar = new LexerGrammar(this, lexerAST);
                 lexerGrammar.fileName = g.fileName;
@@ -261,9 +245,7 @@ export class Tool {
             }
         }
 
-        if (g.implicitLexer !== null) {
-            g.importVocab(g.implicitLexer);
-        }
+        g.importVocab(g.implicitLexer);
 
         this.processNonCombinedGrammar(g, genCode);
     }
@@ -359,14 +341,14 @@ export class Tool {
             ruleToAST.set(ruleName, ruleAST);
         }
 
-        //const chk = new UndefChecker(g.isLexer());
-        //chk.visitGrammar(g.ast!);
+        const chk = new UndefChecker(g.isLexer());
+        chk.visitGrammar(g.ast!);
 
         return redefinition; // || chk.badRef;
     }
 
     public sortGrammarByTokenVocab(fileNames: string[]): GrammarRootAST[] {
-        const g = new Graph<string>();
+        const g = new Graph();
         const roots = new Array<GrammarRootAST>();
         for (const fileName of fileNames) {
             const t = this.parseGrammar(fileName);
@@ -478,14 +460,15 @@ export class Tool {
 
     /**
      * Try current dir then dir of g then lib dir
-     * @param g
+     *
+     * @param g The grammar to import.
      * @param nameNode The node associated with the imported grammar name.
      */
     public loadImportedGrammar(g: Grammar, nameNode: GrammarAST): Grammar | null {
         const name = nameNode.getText()!;
         let imported = this.importedGrammars.get(name);
         if (!imported) {
-            g.tool.logInfo("grammar", "load " + name + " from " + g.fileName);
+            g.tool.logInfo({ component: "grammar", msg: `load ${name} from ${g.fileName}` });
 
             let importedFile;
             for (const extension of Tool.ALL_GRAMMAR_EXTENSIONS) {
@@ -511,7 +494,7 @@ export class Tool {
 
             imported = this.createGrammar(root);
             imported.fileName = importedFile;
-            this.importedGrammars.set(root.getGrammarName(), imported);
+            this.importedGrammars.set(root.getGrammarName()!, imported);
         }
 
         return imported;
@@ -522,26 +505,22 @@ export class Tool {
     }
 
     public parse(fileName: string, input: CharStream): GrammarRootAST | null {
-        try {
-            const adaptor = new GrammarASTAdaptor(input);
-            const lexer = new ToolANTLRLexer(input, this);
-            const tokens = new CommonTokenStream(lexer);
-            //lexer.tokens = tokens;
-            const p = new ToolANTLRParser(tokens, this);
-            //p.setTreeAdaptor(adaptor);
+        const adaptor = new GrammarASTAdaptor(input);
+        const lexer = new ToolANTLRLexer(input, this);
+        const tokens = new CommonTokenStream(lexer);
+        //lexer.tokens = tokens;
+        const p = new ToolANTLRParser(tokens, this);
+        //p.setTreeAdaptor(adaptor);
 
-            const root = p.grammarSpec();
-            if (root instanceof GrammarRootAST) {
-                root.hasErrors = p.numberOfSyntaxErrors > 0;
-                root.cmdLineOptions = this.grammarOptions;
+        const root = p.grammarSpec();
+        if (root instanceof GrammarRootAST) {
+            root.hasErrors = p.numberOfSyntaxErrors > 0;
+            root.cmdLineOptions = this.grammarOptions;
 
-                return (root);
-            }
-
-            return null;
-        } catch (re) {
-            throw re;
+            return (root);
         }
+
+        return null;
     }
 
     public generateATNs(g: Grammar): void {
@@ -549,17 +528,13 @@ export class Tool {
         const grammars = new Array<Grammar>();
         grammars.push(g);
         const imported = g.getAllImportedGrammars();
-        if (imported !== null) {
-            grammars.push(...imported);
-        }
+        grammars.push(...imported);
 
         for (const ig of grammars) {
             for (const r of ig.rules.values()) {
                 try {
-                    const dot = dotGenerator.getDOTFromState(g.atn.ruleToStartState[r.index], g.isLexer());
-                    if (dot !== null) {
-                        this.writeDOTFile(g, r, dot);
-                    }
+                    const dot = dotGenerator.getDOTFromState(g.atn.ruleToStartState[r.index]!, g.isLexer());
+                    this.writeDOTFile(g, r, dot);
                 } catch (ioe) {
                     this.errMgr.toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
                     throw ioe;
@@ -647,13 +622,11 @@ export class Tool {
         }
     }
 
-    public logInfo(msg: string): void;
-    public logInfo(component: string, msg: string): void;
-    public logInfo(...args: unknown[]): void {
-        if (args.length === 1) {
-            this.logMgr.log(args[0] as string);
+    public logInfo(info: { component?: string, msg: string; }): void {
+        if (info.component) {
+            this.logMgr.log(info.component, info.msg);
         } else {
-            this.logMgr.log(args[0] as string, args[1] as string);
+            this.logMgr.log(info.msg);
         }
     }
 
@@ -729,8 +702,11 @@ export class Tool {
     public panic(): void { throw new Error("ANTLR panic"); }
 
     protected handleArgs(): void {
+        const options = program.opts<IToolParameters>();
+
+
         let i = 0;
-        while (this.args !== null && i < this.args.length) {
+        while (i < this.args.length) {
             const arg = this.args[i];
             i++;
             if (arg.startsWith("-D")) { // -Dlanguage=Java syntax
@@ -738,7 +714,7 @@ export class Tool {
                 continue;
             }
 
-            if (arg.charAt(0) !== "-") { // file name
+            if (!arg.startsWith("-")) { // file name
                 if (!this.grammarFiles.includes(arg)) {
                     this.grammarFiles.push(arg);
                 }
@@ -831,5 +807,30 @@ export class Tool {
         const name = rulOrName instanceof Rule ? rulOrName.g.name + "." + rulOrName.name : rulOrName;
         const fileName = this.getOutputFile(g, name + ".dot");
         writeFileSync(fileName, dot);
+    }
+
+    static {
+        program
+            .argument("grammar1 grammar2 ...", "A list of grammar files.")
+            .option("-o, --output-directory <path>", "specify output directory where all output is generated")
+            .option("-lib, --lib-directory <path>", "specify location of grammars, tokens files")
+            .option<boolean>("-atn, --generate-atn-dot [boolean]",
+                "Generate rule augmented transition network diagrams.", parseBoolean, false)
+            .option("-e, --encoding", "Specify grammar file encoding; e.g., ucs-2.", "utf-8")
+            .addOption(new Option("-f, ---message-format", "Specify output style for messages in antlr, gnu, vs2005.")
+                .choices(["antlr", "gnu", "vs2005"])
+            )
+            .option<boolean>("-lm, --long-messages [boolean]",
+                "Show exception details when available for errors and warnings.", parseBoolean, false)
+            .option<boolean>("-l, --listener [boolean]", "Generate parse tree listener.", parseBoolean, true)
+            .option<boolean>("-v, --visitor [boolean]", "Generate parse tree visitor.", parseBoolean, false)
+            .option("-p, --package", "Specify a package/namespace for the generated code.")
+            .option<boolean>("-d, --dependencies", "Generate file dependencies.", parseBoolean, false)
+            .option("-D, --define <key=value>", "Set/override a grammar-level option.", parseKeyValuePair)
+            .option<boolean>("-w, --warnings-are-errors", "Treat warnings as errors.", parseBoolean, false)
+            .option<boolean>("-f, --force-atn", "Use the ATN simulator for all predictions.", parseBoolean, false)
+            .option<boolean>("--log", "Dump lots of logging info to antlr-timestamp.log.", parseBoolean, false)
+            .version(`ANTLRng ${packageJson.version}`)
+            .parse();
     }
 }

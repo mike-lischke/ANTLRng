@@ -5,8 +5,6 @@
  */
 
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { AttributeDict } from "../tool/AttributeDict.js";
 import { ErrorType } from "../tool/ErrorType.js";
@@ -138,7 +136,7 @@ let  j = 0; i < actionText.length(); i++, j++) {
 			attr.token = new  CommonToken(action.getToken().getInputStream(), ANTLRParser.ID, BaseRecognizer.DEFAULT_TOKEN_CHANNEL, offset + declOffset + idStart + 1, offset + declOffset + idStop);
 			attr.token.setLine(line);
 			attr.token.setCharPositionInLine(charPositionInLine);
-			/* assert attr.name.equals(attr.token.getText()) : "Attribute text should match the pseudo-token text at this point."; */ 
+			/* assert attr.name.equals(attr.token.getText()) : "Attribute text should match the pseudo-token text at this point."; */
 		}
 
 		return attr;

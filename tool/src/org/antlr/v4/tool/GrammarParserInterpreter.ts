@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import {
     ATN, ATNState, BailErrorStrategy, BitSet, DecisionState, DefaultErrorStrategy, InputMismatchException,
     InterpreterRuleContext, Parser, ParserInterpreter, ParserRuleContext, PredictionMode, RecognitionException,

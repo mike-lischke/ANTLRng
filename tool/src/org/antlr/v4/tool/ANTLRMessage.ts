@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import type { Token } from "antlr4ng";
 import { ST } from "stringtemplate4ts";
 
@@ -33,8 +31,7 @@ export class ANTLRMessage {
 
     private readonly e: Error | null = null;
 
-    public constructor(errorType: ErrorType);
-    public constructor(errorType: ErrorType, offendingToken: Token | null, ...args: unknown[]);
+    public constructor(errorType: ErrorType, offendingToken?: Token | null, ...args: unknown[]);
     public constructor(errorType: ErrorType, e: Error, offendingToken: Token, ...args: unknown[]);
     public constructor(...args: unknown[]) {
         this.errorType = args.shift() as ErrorType;
@@ -72,7 +69,7 @@ export class ANTLRMessage {
         for (let i = 0; i < args.length; i++) {
             let attr = "arg";
             if (i > 0) {
-                attr += i + 1;
+                attr += String(i + 1);
             }
 
             messageST.add(attr, args[i]);
@@ -100,12 +97,12 @@ export class ANTLRMessage {
 
     public toString(): string {
         return "Message{" +
-            "errorType=" + this.getErrorType() +
-            ", args=" + this.getArgs() +
-            ", e=" + this.getCause() +
+            "errorType=" + String(this.getErrorType()) +
+            ", args=" + String(this.getArgs()) +
+            ", e=" + String(this.getCause()) +
             ", fileName='" + this.fileName + "'" +
-            ", line=" + this.line +
-            ", charPosition=" + this.charPosition +
+            ", line=" + String(this.line) +
+            ", charPosition=" + String(this.charPosition) +
             "}";
     }
 }

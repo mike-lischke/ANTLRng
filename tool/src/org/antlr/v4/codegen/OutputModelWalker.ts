@@ -7,8 +7,6 @@
  */
 
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Tool } from "../Tool.js";
 import { ModelElement } from "./model/ModelElement.js";

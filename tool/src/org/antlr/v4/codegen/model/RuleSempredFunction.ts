@@ -4,15 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { RuleActionFunction } from "./RuleActionFunction.js";
 import { OutputModelObject } from "./OutputModelObject.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Rule } from "../../tool/Rule.js";
 
-export  class RuleSempredFunction extends RuleActionFunction {
-    public  constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {
+export class RuleSempredFunction extends RuleActionFunction {
+    public constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {
         super(factory, r, ctxType);
     }
 }

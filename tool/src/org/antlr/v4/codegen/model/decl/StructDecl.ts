@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { TokenTypeDecl } from "./TokenTypeDecl.js";
 import { TokenListDecl } from "./TokenListDecl.js";
 import { TokenDecl } from "./TokenDecl.js";
@@ -27,38 +25,38 @@ import { OrderedHashSet } from "antlr4ng";
  * This object models the structure holding all of the parameters,
  *  return values, local variables, and labels associated with a rule.
  */
-export  class StructDecl extends Decl {
-    public  derivedFromName:  string; // rule name or label name
-    public  provideCopyFrom:  boolean;
+export class StructDecl extends Decl {
+    public derivedFromName: string; // rule name or label name
+    public provideCopyFrom: boolean;
     @ModelElement
-    public  attrs = new  OrderedHashSet<Decl>();
+    public attrs = new OrderedHashSet<Decl>();
     @ModelElement
-    public  getters = new  OrderedHashSet<Decl>();
+    public getters = new OrderedHashSet<Decl>();
     @ModelElement
-    public  ctorAttrs:  Collection<AttributeDecl>;
+    public ctorAttrs: Collection<AttributeDecl>;
     @ModelElement
-    public  dispatchMethods:  DispatchMethod[];
+    public dispatchMethods: DispatchMethod[];
     @ModelElement
-    public  interfaces:  OutputModelObject[];
+    public interfaces: OutputModelObject[];
     @ModelElement
-    public  extensionMembers:  OutputModelObject[];
-	// Used to generate method signatures in Go target interfaces
+    public extensionMembers: OutputModelObject[];
+    // Used to generate method signatures in Go target interfaces
     @ModelElement
-    public  signatures = new  OrderedHashSet<Decl>();
+    public signatures = new OrderedHashSet<Decl>();
 
-	// Track these separately; Go target needs to generate getters/setters
-	// Do not make them templates; we only need the Decl object not the ST
-	// built from it. Avoids adding args to StructDecl template
-    public  tokenDecls = new  OrderedHashSet<Decl>();
-    public  tokenTypeDecls = new  OrderedHashSet<Decl>();
-    public  tokenListDecls = new  OrderedHashSet<Decl>();
-    public  ruleContextDecls = new  OrderedHashSet<Decl>();
-    public  ruleContextListDecls = new  OrderedHashSet<Decl>();
-    public  attributeDecls = new  OrderedHashSet<Decl>();
+    // Track these separately; Go target needs to generate getters/setters
+    // Do not make them templates; we only need the Decl object not the ST
+    // built from it. Avoids adding args to StructDecl template
+    public tokenDecls = new OrderedHashSet<Decl>();
+    public tokenTypeDecls = new OrderedHashSet<Decl>();
+    public tokenListDecls = new OrderedHashSet<Decl>();
+    public ruleContextDecls = new OrderedHashSet<Decl>();
+    public ruleContextListDecls = new OrderedHashSet<Decl>();
+    public attributeDecls = new OrderedHashSet<Decl>();
 
-    public  constructor(factory: OutputModelFactory, r: Rule);
+    public constructor(factory: OutputModelFactory, r: Rule);
 
-    protected  constructor(factory: OutputModelFactory, r: Rule, name: string);
+    protected constructor(factory: OutputModelFactory, r: Rule, name: string);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 2: {
@@ -86,58 +84,58 @@ export  class StructDecl extends Decl {
         }
     }
 
-    public  addDispatchMethods(r: Rule):  void {
-        this.dispatchMethods = new  Array<DispatchMethod>();
-        if ( !r.hasAltSpecificContexts() ) {
-			// no enter/exit for this ruleContext if rule has labels
-            if ( $outer.factory.getGrammar().tool.gen_listener ) {
-                this.dispatchMethods.add(new  ListenerDispatchMethod($outer.factory, true));
-                this.dispatchMethods.add(new  ListenerDispatchMethod($outer.factory, false));
+    public addDispatchMethods(r: Rule): void {
+        this.dispatchMethods = new Array<DispatchMethod>();
+        if (!r.hasAltSpecificContexts()) {
+            // no enter/exit for this ruleContext if rule has labels
+            if ($outer.factory.getGrammar().tool.gen_listener) {
+                this.dispatchMethods.add(new ListenerDispatchMethod($outer.factory, true));
+                this.dispatchMethods.add(new ListenerDispatchMethod($outer.factory, false));
             }
-            if ( $outer.factory.getGrammar().tool.gen_visitor ) {
-                this.dispatchMethods.add(new  VisitorDispatchMethod($outer.factory));
+            if ($outer.factory.getGrammar().tool.gen_visitor) {
+                this.dispatchMethods.add(new VisitorDispatchMethod($outer.factory));
             }
         }
     }
 
-    public  addDecl(d: Decl):  void;
+    public addDecl(d: Decl): void;
 
-    public  addDecl(a: java.security.KeyStore.Entry.Attribute):  void;
-    public addDecl(...args: unknown[]):  void {
+    public addDecl(a: java.security.KeyStore.Entry.Attribute): void;
+    public addDecl(...args: unknown[]): void {
         switch (args.length) {
             case 1: {
                 const [d] = args as [Decl];
 
                 d.ctx = this;
 
-                if ( d instanceof ContextGetterDecl ) {
+                if (d instanceof ContextGetterDecl) {
                     this.getters.add(d);
-                    this.signatures.add(( d).getSignatureDecl());
+                    this.signatures.add((d).getSignatureDecl());
                 } else {
                     this.attrs.add(d);
                 }
-		// add to specific "lists"
-                if ( d instanceof TokenTypeDecl ) {
+                // add to specific "lists"
+                if (d instanceof TokenTypeDecl) {
                     this.tokenTypeDecls.add(d);
                 }
                 else {
-                    if ( d instanceof TokenListDecl ) {
+                    if (d instanceof TokenListDecl) {
                         this.tokenListDecls.add(d);
                     }
                     else {
-                        if ( d instanceof TokenDecl ) {
+                        if (d instanceof TokenDecl) {
                             this.tokenDecls.add(d);
                         }
                         else {
-                            if ( d instanceof RuleContextListDecl ) {
+                            if (d instanceof RuleContextListDecl) {
                                 this.ruleContextListDecls.add(d);
                             }
                             else {
-                                if ( d instanceof RuleContextDecl ) {
+                                if (d instanceof RuleContextDecl) {
                                     this.ruleContextDecls.add(d);
                                 }
                                 else {
-                                    if ( d instanceof AttributeDecl ) {
+                                    if (d instanceof AttributeDecl) {
                                         this.attributeDecls.add(d);
                                     }
                                 }
@@ -156,7 +154,7 @@ export  class StructDecl extends Decl {
             case 1: {
                 const [a] = args as [java.security.KeyStore.Entry.Attribute];
 
-                this.addDecl(new  AttributeDecl($outer.factory, a));
+                this.addDecl(new AttributeDecl($outer.factory, a));
 
                 break;
             }
@@ -167,28 +165,28 @@ export  class StructDecl extends Decl {
         }
     }
 
-    public  addDecls(attrList: Collection<java.security.KeyStore.Entry.Attribute>):  void {
+    public addDecls(attrList: Collection<java.security.KeyStore.Entry.Attribute>): void {
         for (const a of attrList) {
             this.addDecl(a);
         }
 
     }
 
-    public  implementInterface(value: OutputModelObject):  void {
+    public implementInterface(value: OutputModelObject): void {
         if (this.interfaces === null) {
-            this.interfaces = new  Array<OutputModelObject>();
+            this.interfaces = new Array<OutputModelObject>();
         }
 
         this.interfaces.add(value);
     }
 
-    public  addExtensionMember(member: OutputModelObject):  void {
+    public addExtensionMember(member: OutputModelObject): void {
         if (this.extensionMembers === null) {
-            this.extensionMembers = new  Array<OutputModelObject>();
+            this.extensionMembers = new Array<OutputModelObject>();
         }
 
         this.extensionMembers.add(member);
     }
 
-    public  isEmpty():  boolean { return this.attrs.isEmpty(); }
+    public isEmpty(): boolean { return this.attrs.isEmpty(); }
 }

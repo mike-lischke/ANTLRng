@@ -4,14 +4,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CodeGenerator } from "../CodeGenerator.js";
 import { Target } from "../Target.js";
 import { HashSet, HashMap } from "antlr4ng";
 
-export  class Python3Target extends Target {
-    protected static readonly  reservedWords = new  HashSet(java.util.Arrays.asList(
+export class Python3Target extends Target {
+    protected static readonly reservedWords = new HashSet(java.util.Arrays.asList(
         "abs", "all", "and", "any", "apply", "as", "assert",
         "bin", "bool", "break", "buffer", "bytearray",
         "callable", "chr", "class", "classmethod", "coerce", "compile", "complex", "continue",
@@ -37,43 +35,43 @@ export  class Python3Target extends Target {
         "__import__",
         "True", "False", "None",
 
-		// misc
+        // misc
         "rule", "parserRule",
     ));
 
-    protected static readonly  targetCharValueEscape:  Map<Character, string>;
+    protected static readonly targetCharValueEscape: Map<Character, string>;
 
-    public  constructor(gen: CodeGenerator) {
+    public constructor(gen: CodeGenerator) {
         super(gen);
     }
 
     @Override
-    public override  getTargetCharValueEscape():  Map<Character, string> {
+    public override  getTargetCharValueEscape(): Map<Character, string> {
         return Python3Target.targetCharValueEscape;
     }
 
     @Override
-    public override  wantsBaseListener():  boolean {
+    public override  wantsBaseListener(): boolean {
         return false;
     }
 
     @Override
-    public override  wantsBaseVisitor():  boolean {
+    public override  wantsBaseVisitor(): boolean {
         return false;
     }
 
     @Override
-    public override  supportsOverloadedMethods():  boolean {
+    public override  supportsOverloadedMethods(): boolean {
         return false;
     }
 
     @Override
-    protected override  getReservedWords():  java.util.Set<string> {
+    protected override  getReservedWords(): java.util.Set<string> {
         return Python3Target.reservedWords;
     }
-	 static {
-		// https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
-        const  map = new  HashMap();
+    static {
+        // https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+        const map = new HashMap();
         Python3Target.addEscapedChar(map, "\\");
         Python3Target.addEscapedChar(map, "'");
         Python3Target.addEscapedChar(map, '\"');

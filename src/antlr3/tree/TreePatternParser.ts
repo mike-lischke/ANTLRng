@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CommonToken, Token } from "antlr4ng";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import { TreePatternLexer } from "./TreePatternLexer.js";

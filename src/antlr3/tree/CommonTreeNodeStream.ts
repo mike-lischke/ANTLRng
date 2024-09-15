@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Token, type TokenStream } from "antlr4ng";
 
 import { LookaheadStream } from "../misc/LookaheadStream.js";

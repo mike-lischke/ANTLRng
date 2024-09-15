@@ -5,8 +5,6 @@
  */
 
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 
 import { Target } from "./Target.js";
 import { OutputModelFactory } from "./OutputModelFactory.js";

@@ -4,13 +4,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { VisitorFile } from "./VisitorFile.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-export  class BaseVisitorFile extends VisitorFile {
-    public  constructor(factory: OutputModelFactory, fileName: string) {
+export class BaseVisitorFile extends VisitorFile {
+    public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
     }
 }

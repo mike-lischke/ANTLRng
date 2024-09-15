@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /**
  * Font metrics.  The only way to generate accurate images
  *  in any format that contain text is to know the font metrics.
@@ -48,20 +46,20 @@
  *
  *	Units are 1000th of an 'em'.
  */
-export abstract  class BasicFontMetrics {
-    public static readonly  MAX_CHAR = "\u00FF";
-    protected  maxCharHeight:  number;
-    protected  widths = new  Int32Array(BasicFontMetrics.MAX_CHAR+1);
+export abstract class BasicFontMetrics {
+    public static readonly MAX_CHAR = "\u00FF";
+    protected maxCharHeight: number;
+    protected widths = new Int32Array(BasicFontMetrics.MAX_CHAR + 1);
 
-    public  getWidth(s: string, fontSize: number):  number;
+    public getWidth(s: string, fontSize: number): number;
 
-    public  getWidth(c: number, fontSize: number):  number;
-    public getWidth(...args: unknown[]):  number {
+    public getWidth(c: number, fontSize: number): number;
+    public getWidth(...args: unknown[]): number {
         switch (args.length) {
             case 2: {
                 const [s, fontSize] = args as [string, number];
 
-                let  w = 0;
+                let w = 0;
                 for (const c of s.toCharArray()) {
                     w += this.getWidth(c, fontSize);
                 }
@@ -74,12 +72,12 @@ export abstract  class BasicFontMetrics {
             case 2: {
                 const [c, fontSize] = args as [number, number];
 
-                if ( c > BasicFontMetrics.MAX_CHAR || this.widths[c]===0 ) {
-                    return this.widths.m/1000.0;
+                if (c > BasicFontMetrics.MAX_CHAR || this.widths[c] === 0) {
+                    return this.widths.m / 1000.0;
                 }
 
- // return width('m')
-                return this.widths[c]/1000.0 * fontSize;
+                // return width('m')
+                return this.widths[c] / 1000.0 * fontSize;
 
                 break;
             }
@@ -90,7 +88,7 @@ export abstract  class BasicFontMetrics {
         }
     }
 
-    public  getLineHeight(fontSize: number):  number {
+    public getLineHeight(fontSize: number): number {
         return this.maxCharHeight / 1000.0 * fontSize;
     }
 }

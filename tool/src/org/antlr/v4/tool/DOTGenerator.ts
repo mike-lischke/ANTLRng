@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import {
     ATNConfig, ATNState, AbstractPredicateTransition, ActionTransition, AtomTransition, BlockEndState, BlockStartState,
     DFA, DFAState, DecisionState, NotSetTransition, PlusBlockStartState, PlusLoopbackState,
@@ -41,7 +39,7 @@ export class DOTGenerator {
      * @returns a String containing a DOT description that, when displayed, will show the incoming state machine
      * visually.  All nodes reachable from startState will be included.
      */
-    public getDOTFromState(startState: ATNState, isLexer: boolean = false, ruleNames?: string[]): string {
+    public getDOTFromState(startState: ATNState, isLexer = false, ruleNames?: string[]): string {
         ruleNames ??= [...this.grammar.rules.keys()];
 
         // The output DOT graph for visualization

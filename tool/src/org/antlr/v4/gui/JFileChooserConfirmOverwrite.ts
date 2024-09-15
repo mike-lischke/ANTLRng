@@ -4,29 +4,27 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /**
  *
  * @author Sam Harwell
  */
-export  class JFileChooserConfirmOverwrite extends JFileChooser {
+export class JFileChooserConfirmOverwrite extends JFileChooser {
 
-    public  constructor() {
+    public constructor() {
         setMultiSelectionEnabled(false);
     }
 
     @Override
-    public  approveSelection():  void {
-        const  selectedFile = getSelectedFile();
+    public approveSelection(): void {
+        const selectedFile = getSelectedFile();
 
         if (selectedFile.exists()) {
-            const  answer = JOptionPane.showConfirmDialog(this,
-													   "Overwrite existing file?",
-													   "Overwrite?",
-													   JOptionPane.YES_NO_OPTION);
+            const answer = JOptionPane.showConfirmDialog(this,
+                "Overwrite existing file?",
+                "Overwrite?",
+                JOptionPane.YES_NO_OPTION);
             if (answer !== JOptionPane.YES_OPTION) {
-				// do not call super.approveSelection
+                // do not call super.approveSelection
                 return;
             }
         }

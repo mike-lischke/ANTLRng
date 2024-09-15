@@ -4,16 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CodeGenerator } from "../CodeGenerator.js";
 import { Target } from "../Target.js";
 import { HashMap, HashSet } from "antlr4ng";
 
-export  class SwiftTarget extends Target {
-    protected static readonly  targetCharValueEscape:  Map<Character, string>;
+export class SwiftTarget extends Target {
+    protected static readonly targetCharValueEscape: Map<Character, string>;
 
-    protected static readonly  reservedWords = new  HashSet(Arrays.asList(
+    protected static readonly reservedWords = new HashSet(Arrays.asList(
         "associatedtype", "class", "deinit", "enum", "extension", "func", "import", "init", "inout", "internal",
         "let", "operator", "private", "protocol", "public", "static", "struct", "subscript", "typealias", "var",
         "break", "case", "continue", "default", "defer", "do", "else", "fallthrough", "for", "guard", "if",
@@ -27,33 +25,33 @@ export  class SwiftTarget extends Target {
         "rule", "parserRule",
     ));
 
-    public  constructor(gen: CodeGenerator) {
+    public constructor(gen: CodeGenerator) {
         super(gen);
     }
 
     @Override
-    public override  getTargetCharValueEscape():  Map<Character, string> {
+    public override  getTargetCharValueEscape(): Map<Character, string> {
         return SwiftTarget.targetCharValueEscape;
     }
 
     @Override
-    protected override  getReservedWords():  Set<string> {
+    protected override  getReservedWords(): Set<string> {
         return SwiftTarget.reservedWords;
     }
 
     @Override
-    protected override  escapeWord(word: string):  string {
+    protected override  escapeWord(word: string): string {
         return "`" + word + "`";
     }
 
     @Override
-    protected override  escapeChar(v: number):  string {
+    protected override  escapeChar(v: number): string {
         return string.format("\\u{%X}", v);
     }
 
-	 static {
-		// https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
-        const  map = new  HashMap();
+    static {
+        // https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
+        const map = new HashMap();
         SwiftTarget.addEscapedChar(map, "\0", "0");
         SwiftTarget.addEscapedChar(map, "\\");
         SwiftTarget.addEscapedChar(map, "\t", "t");

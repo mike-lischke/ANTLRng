@@ -4,8 +4,6 @@
 * can be found in the LICENSE.txt file in the project root.
 */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { RecognitionException, type ParserRuleContext } from "antlr4ng";
 
 import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";

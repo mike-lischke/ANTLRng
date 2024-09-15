@@ -4,25 +4,23 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { OutputFile } from "./OutputFile.js";
 import { ModelElement } from "./ModelElement.js";
 import { Lexer } from "./Lexer.js";
 import { Action } from "./Action.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-export  class LexerFile extends OutputFile {
-    public  genPackage:  string; // from -package cmd-line
-    public  exportMacro:  string; // from -DexportMacro cmd-line
-    public  genListener:  boolean; // from -listener cmd-line
-    public  genVisitor:  boolean; // from -visitor cmd-line
+export class LexerFile extends OutputFile {
+    public genPackage: string; // from -package cmd-line
+    public exportMacro: string; // from -DexportMacro cmd-line
+    public genListener: boolean; // from -listener cmd-line
+    public genVisitor: boolean; // from -visitor cmd-line
     @ModelElement
-    public  lexer:  Lexer;
+    public lexer: Lexer;
     @ModelElement
-    public  namedActions:  Map<string, Action>;
+    public namedActions: Map<string, Action>;
 
-    public  constructor(factory: OutputModelFactory, fileName: string) {
+    public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
         this.namedActions = this.buildNamedActions(factory.getGrammar());
         this.genPackage = factory.getGrammar().tool.genPackage;

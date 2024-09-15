@@ -10,8 +10,6 @@ import { printf } from "fast-printf";
 
 import { Character } from "../support/Character.js";
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 /**
  * Utility class to escape Unicode code points using various languages' syntax.
  */

@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 export interface PositionTrackingStream<T> {
     /**
      * Returns an element containing concrete information about the current

@@ -4,16 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CodeGenerator } from "../CodeGenerator.js";
 import { Target } from "../Target.js";
 import { HashMap, HashSet } from "antlr4ng";
 
-export  class DartTarget extends Target {
-    protected static readonly  targetCharValueEscape:  Map<Character, string>;
+export class DartTarget extends Target {
+    protected static readonly targetCharValueEscape: Map<Character, string>;
 
-    protected static readonly  reservedWords = new  HashSet(java.util.Arrays.asList(
+    protected static readonly reservedWords = new HashSet(java.util.Arrays.asList(
         "abstract", "dynamic", "implements", "show",
         "as", "else", "import", "static",
         "assert", "enum", "in", "super",
@@ -33,36 +31,36 @@ export  class DartTarget extends Target {
         "rule", "parserRule",
     ));
 
-    public  constructor(gen: CodeGenerator) {
+    public constructor(gen: CodeGenerator) {
         super(gen);
     }
 
     @Override
-    public override  getTargetCharValueEscape():  Map<Character, string> {
+    public override  getTargetCharValueEscape(): Map<Character, string> {
         return DartTarget.targetCharValueEscape;
     }
 
     @Override
     public override  getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string, addQuotes: boolean,
-															   escapeSpecial: boolean):  string {
+        escapeSpecial: boolean): string {
         return super.getTargetStringLiteralFromANTLRStringLiteral(generator, literal, addQuotes, escapeSpecial).replace("$", "\\$");
     }
 
-    public override  getReservedWords():  java.util.Set<string> {
+    public override  getReservedWords(): java.util.Set<string> {
         return DartTarget.reservedWords;
     }
 
     @Override
-    public override  isATNSerializedAsInts():  boolean {
+    public override  isATNSerializedAsInts(): boolean {
         return true;
     }
 
     @Override
-    protected override  escapeChar(v: number):  string {
+    protected override  escapeChar(v: number): string {
         return string.format("\\u{%X}", v);
     }
-	 static {
-        const  map = new  HashMap(DartTarget.defaultCharValueEscape);
+    static {
+        const map = new HashMap(DartTarget.defaultCharValueEscape);
         DartTarget.addEscapedChar(map, "$");
         DartTarget.targetCharValueEscape = map;
     }

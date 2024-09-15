@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Interval, Token, type RecognitionException, type TokenStream } from "antlr4ng";
 
 import { CommonTree } from "./CommonTree.js";

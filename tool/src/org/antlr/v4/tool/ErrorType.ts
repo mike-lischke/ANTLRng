@@ -6,7 +6,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable max-len */
+ 
 
 import { ErrorSeverity } from "./ErrorSeverity.js";
 import { Tool } from "../Tool.js";

@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CommonToken, type CharStream, type Token, type TokenSource } from "antlr4ng";
 import { Grammar } from "../tool/Grammar.js";
 

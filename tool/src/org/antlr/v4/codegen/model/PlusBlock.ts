@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { ThrowNoViableAlt } from "./ThrowNoViableAlt.js";
 import { ModelElement } from "./ModelElement.js";
 import { Loop } from "./Loop.js";
@@ -15,18 +13,17 @@ import { PlusBlockStartState, PlusLoopbackState } from "antlr4ng";
 import { BlockAST } from "../../tool/ast/BlockAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-export  class PlusBlock extends Loop {
+export class PlusBlock extends Loop {
     @ModelElement
-    public  error:  ThrowNoViableAlt;
+    public error: ThrowNoViableAlt;
 
-    public  constructor(factory: OutputModelFactory,
-					 plusRoot: GrammarAST,
-					 alts: CodeBlockForAlt[])
-    {
+    public constructor(factory: OutputModelFactory,
+        plusRoot: GrammarAST,
+        alts: CodeBlockForAlt[]) {
         super(factory, plusRoot, alts);
-        const  blkAST = plusRoot.getChild(0) as BlockAST;
-        const  blkStart = blkAST.atnState as PlusBlockStartState;
-        const  loop = blkStart.loopBackState;
+        const blkAST = plusRoot.getChild(0) as BlockAST;
+        const blkStart = blkAST.atnState as PlusBlockStartState;
+        const loop = blkStart.loopBackState;
         $outer.stateNumber = blkStart.loopBackState.stateNumber;
         this.blockStartStateNumber = blkStart.stateNumber;
         this.loopBackStateNumber = loop.stateNumber;

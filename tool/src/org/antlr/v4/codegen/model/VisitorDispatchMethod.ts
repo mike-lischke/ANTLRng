@@ -4,14 +4,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { OutputModelObject } from "./OutputModelObject.js";
 import { DispatchMethod } from "./DispatchMethod.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-export  class VisitorDispatchMethod extends DispatchMethod {
-    public  constructor(factory: OutputModelFactory) {
+export class VisitorDispatchMethod extends DispatchMethod {
+    public constructor(factory: OutputModelFactory) {
         super(factory);
     }
 }

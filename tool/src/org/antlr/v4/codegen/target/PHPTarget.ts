@@ -4,14 +4,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CodeGenerator } from "../CodeGenerator.js";
 import { Target } from "../Target.js";
 import { HashSet, HashMap } from "antlr4ng";
 
-export  class PHPTarget extends Target {
-    protected static readonly  reservedWords = new  HashSet(java.util.Arrays.asList(
+export class PHPTarget extends Target {
+    protected static readonly reservedWords = new HashSet(java.util.Arrays.asList(
         "abstract", "and", "array", "as",
         "break",
         "callable", "case", "catch", "class", "clone", "const", "continue",
@@ -36,52 +34,52 @@ export  class PHPTarget extends Target {
         "__halt_compiler", "__CLASS__", "__DIR__", "__FILE__", "__FUNCTION__",
         "__LINE__", "__METHOD__", "__NAMESPACE__", "__TRAIT__",
 
-		// misc
+        // misc
         "rule", "parserRule",
     ));
 
-    protected static readonly  targetCharValueEscape:  Map<Character, string>;
+    protected static readonly targetCharValueEscape: Map<Character, string>;
 
-    public  constructor(gen: CodeGenerator) {
+    public constructor(gen: CodeGenerator) {
         super(gen);
     }
 
     @Override
-    public override  getTargetCharValueEscape():  Map<Character, string> {
+    public override  getTargetCharValueEscape(): Map<Character, string> {
         return PHPTarget.targetCharValueEscape;
     }
 
     @Override
-    public override  supportsOverloadedMethods():  boolean {
+    public override  supportsOverloadedMethods(): boolean {
         return false;
     }
 
     @Override
     public override  getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string, addQuotes: boolean,
-															   escapeSpecial: boolean):  string {
-        let  targetStringLiteral = super.getTargetStringLiteralFromANTLRStringLiteral(generator, literal, addQuotes, escapeSpecial);
+        escapeSpecial: boolean): string {
+        let targetStringLiteral = super.getTargetStringLiteralFromANTLRStringLiteral(generator, literal, addQuotes, escapeSpecial);
         targetStringLiteral = targetStringLiteral.replace("$", "\\$");
 
         return targetStringLiteral;
     }
 
     @Override
-    public override  isATNSerializedAsInts():  boolean {
+    public override  isATNSerializedAsInts(): boolean {
         return true;
     }
 
     @Override
-    protected override  getReservedWords():  java.util.Set<string> {
+    protected override  getReservedWords(): java.util.Set<string> {
         return PHPTarget.reservedWords;
     }
 
     @Override
-    protected override  escapeChar(v: number):  string {
+    protected override  escapeChar(v: number): string {
         return string.format("\\u{%X}", v);
     }
-	 static {
-		// https://www.php.net/manual/en/language.types.string.php
-        const  map = new  HashMap();
+    static {
+        // https://www.php.net/manual/en/language.types.string.php
+        const map = new HashMap();
         PHPTarget.addEscapedChar(map, "\n", "n");
         PHPTarget.addEscapedChar(map, "\r", "r");
         PHPTarget.addEscapedChar(map, "\t", "t");

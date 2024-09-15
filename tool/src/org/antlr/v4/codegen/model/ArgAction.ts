@@ -4,16 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Action } from "./Action.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 
-export  class ArgAction extends Action {
-	/** Context type of invoked rule */
-    public  ctxType:  string;
-    public  constructor(factory: OutputModelFactory, ast: ActionAST, ctxType: string) {
+export class ArgAction extends Action {
+    /** Context type of invoked rule */
+    public ctxType: string;
+    public constructor(factory: OutputModelFactory, ast: ActionAST, ctxType: string) {
         super(factory, ast);
         this.ctxType = ctxType;
     }

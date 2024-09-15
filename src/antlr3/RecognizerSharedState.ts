@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import type { BitSet, Token } from "antlr4ng";
 import { BaseRecognizer } from "./BaseRecognizer.js";
 

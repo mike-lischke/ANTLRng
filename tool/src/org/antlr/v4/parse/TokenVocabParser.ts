@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { Tool } from "../Tool.js";
 import { CodeGenerator } from "../codegen/CodeGenerator.js";
 import { ErrorType } from "../tool/ErrorType.js";

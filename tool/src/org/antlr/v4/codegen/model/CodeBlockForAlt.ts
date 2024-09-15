@@ -4,15 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { CodeBlock } from "./decl/CodeBlock.js";
 
 /** Contains Rewrite block (usually as last op) */
-export  class CodeBlockForAlt extends CodeBlock {
+export class CodeBlockForAlt extends CodeBlock {
 
-    public  constructor(factory: OutputModelFactory) {
+    public constructor(factory: OutputModelFactory) {
         super(factory);
     }
 }

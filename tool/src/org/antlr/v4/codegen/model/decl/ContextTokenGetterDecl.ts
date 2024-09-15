@@ -4,18 +4,16 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { ContextGetterDecl } from "./ContextGetterDecl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
 /** {@code public Token X() { }} */
-export  class ContextTokenGetterDecl extends ContextGetterDecl {
-    public  optional:  boolean;
+export class ContextTokenGetterDecl extends ContextGetterDecl {
+    public optional: boolean;
 
-    public  constructor(factory: OutputModelFactory, name: string, optional: boolean);
+    public constructor(factory: OutputModelFactory, name: string, optional: boolean);
 
-    public  constructor(factory: OutputModelFactory, name: string, optional: boolean, signature: boolean);
+    public constructor(factory: OutputModelFactory, name: string, optional: boolean, signature: boolean);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 3: {
@@ -42,7 +40,7 @@ export  class ContextTokenGetterDecl extends ContextGetterDecl {
     }
 
     @Override
-    public override  getSignatureDecl():  ContextGetterDecl {
-        return new  ContextTokenGetterDecl($outer.factory, $outer.name, this.optional, true);
+    public override  getSignatureDecl(): ContextGetterDecl {
+        return new ContextTokenGetterDecl($outer.factory, $outer.name, this.optional, true);
     }
 }

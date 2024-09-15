@@ -4,14 +4,12 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
 import { CodeGenerator } from "../CodeGenerator.js";
 import { Target } from "../Target.js";
 import { HashSet, HashMap } from "antlr4ng";
 
-export  class CSharpTarget extends Target {
-    protected static readonly  reservedWords = new  HashSet(java.util.Arrays.asList(
+export class CSharpTarget extends Target {
+    protected static readonly reservedWords = new HashSet(java.util.Arrays.asList(
         "abstract",
         "as",
         "base",
@@ -92,39 +90,39 @@ export  class CSharpTarget extends Target {
         "while",
     ));
 
-    protected static readonly  targetCharValueEscape:  Map<Character, string>;
+    protected static readonly targetCharValueEscape: Map<Character, string>;
 
-    public  constructor(gen: CodeGenerator) {
+    public constructor(gen: CodeGenerator) {
         super(gen);
     }
 
     @Override
-    public override  getTargetCharValueEscape():  Map<Character, string> {
+    public override  getTargetCharValueEscape(): Map<Character, string> {
         return CSharpTarget.targetCharValueEscape;
     }
 
     @Override
-    public override  isATNSerializedAsInts():  boolean {
+    public override  isATNSerializedAsInts(): boolean {
         return true;
     }
 
     @Override
-    protected override  getReservedWords():  java.util.Set<string> {
+    protected override  getReservedWords(): java.util.Set<string> {
         return CSharpTarget.reservedWords;
     }
 
     @Override
-    protected override  escapeWord(word: string):  string {
+    protected override  escapeWord(word: string): string {
         return "@" + word;
     }
 
     @Override
-    protected override  escapeChar(v: number):  string {
+    protected override  escapeChar(v: number): string {
         return string.format("\\x%X", v);
     }
-	 static {
-		// https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/strings/#string-escape-sequences
-        const  map = new  HashMap();
+    static {
+        // https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/strings/#string-escape-sequences
+        const map = new HashMap();
         CSharpTarget.addEscapedChar(map, "'");
         CSharpTarget.addEscapedChar(map, '\"');
         CSharpTarget.addEscapedChar(map, "\\");
