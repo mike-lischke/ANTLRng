@@ -27,6 +27,7 @@ import { GrammarASTWithOptions } from "./ast/GrammarASTWithOptions.js";
 import { GrammarRootAST } from "./ast/GrammarRootAST.js";
 import { RuleAST } from "./ast/RuleAST.js";
 import { TerminalAST } from "./ast/TerminalAST.js";
+import { GrammarType } from "../support/GrammarType.js";
 
 /** Handle left-recursion and block-set transforms */
 export class GrammarTransformPipeline {
@@ -54,10 +55,6 @@ export class GrammarTransformPipeline {
     }
 
     public static augmentTokensWithOriginalPosition(g: Grammar, tree: GrammarAST): void {
-        if (tree === null) {
-            return;
-        }
-
         const optionsSubTrees = tree.getNodesWithType(ANTLRv4Parser.OPTIONS);
         for (const t of optionsSubTrees) {
             const elWithOpt = t.parent;
@@ -93,13 +90,13 @@ export class GrammarTransformPipeline {
             return;
         }
 
-        this.tool.logInfo("grammar", "before: " + root.toStringTree());
+        this.tool.logInfo({ component: "grammar", msg: `before: ${root.toStringTree()}` });
 
         this.integrateImportedGrammars(this.g);
         this.reduceBlocksToSets(root);
         this.expandParameterizedLoops(root);
 
-        this.tool.logInfo("grammar", "after: " + root.toStringTree());
+        this.tool.logInfo({ component: "grammar", msg: `after: ${root.toStringTree()}` });
     }
 
     public reduceBlocksToSets(root: GrammarAST): void {
@@ -161,8 +158,8 @@ export class GrammarTransformPipeline {
         const id = root.getChild(0) as GrammarAST;
         const adaptor = new GrammarASTAdaptor(id.token!.inputStream!);
 
-        let channelsRoot = root.getFirstChildWithType(ANTLRv4Parser.CHANNELS) as GrammarAST;
-        let tokensRoot = root.getFirstChildWithType(ANTLRv4Parser.TOKENS) as GrammarAST;
+        let channelsRoot = root.getFirstChildWithType(ANTLRv4Parser.CHANNELS) as GrammarAST | null;
+        let tokensRoot = root.getFirstChildWithType(ANTLRv4Parser.TOKENS) as GrammarAST | null;
         const actionRoots = root.getNodesWithType(ANTLRv4Parser.AT);
 
         // Compute list of rules in root grammar and ensure we have a RULES node
@@ -184,9 +181,13 @@ export class GrammarTransformPipeline {
 
         for (const imp of imports) {
             // COPY CHANNELS
-            const imp_channelRoot = imp.ast!.getFirstChildWithType(ANTLRv4Parser.CHANNELS) as GrammarAST;
+            const imp_channelRoot = imp.ast!.getFirstChildWithType(ANTLRv4Parser.CHANNELS) as GrammarAST | null;
             if (imp_channelRoot !== null) {
-                rootGrammar.tool.logInfo("grammar", "imported channels: " + imp_channelRoot.getChildren());
+                rootGrammar.tool.logInfo({
+                    component: "grammar",
+                    msg: `imported channels: ${imp_channelRoot.getChildren()}`
+                });
+
                 if (channelsRoot === null) {
                     channelsRoot = imp_channelRoot.dupTree();
                     channelsRoot.g = rootGrammar;
@@ -210,9 +211,13 @@ export class GrammarTransformPipeline {
             }
 
             // COPY TOKENS
-            const imp_tokensRoot = imp.ast!.getFirstChildWithType(ANTLRv4Parser.TOKENS) as GrammarAST;
+            const imp_tokensRoot = imp.ast!.getFirstChildWithType(ANTLRv4Parser.TOKENS) as GrammarAST | null;
             if (imp_tokensRoot !== null) {
-                rootGrammar.tool.logInfo("grammar", "imported tokens: " + imp_tokensRoot.getChildren());
+                rootGrammar.tool.logInfo({
+                    component: "grammar",
+                    msg: `imported tokens: ${imp_tokensRoot.getChildren()}`
+                });
+
                 if (tokensRoot === null) {
                     tokensRoot = adaptor.create(ANTLRv4Parser.TOKENS, "TOKENS");
                     tokensRoot.g = rootGrammar;
@@ -227,55 +232,58 @@ export class GrammarTransformPipeline {
             all_actionRoots.push(...imp_actionRoots);
 
             // COPY ACTIONS
-            if (imp_actionRoots !== null) {
-                const namedActions = new Map<string, Map<string, GrammarAST>>();
+            const namedActions = new Map<string, Map<string, GrammarAST>>();
+            rootGrammar.tool.logInfo({
+                component: "grammar",
+                msg: `imported actions: ${imp_actionRoots}`
+            });
 
-                rootGrammar.tool.logInfo("grammar", "imported actions: " + imp_actionRoots);
-                for (const at of all_actionRoots) {
-                    let scopeName = rootGrammar.getDefaultActionScope();
-                    let scope: GrammarAST;
-                    let name: GrammarAST;
-                    let action: GrammarAST;
-                    if (at.getChildCount() > 2) { // must have a scope
-                        scope = at.getChild(0) as GrammarAST;
-                        scopeName = scope.getText();
-                        name = at.getChild(1) as GrammarAST;
-                        action = at.getChild(2) as GrammarAST;
-                    } else {
-                        name = at.getChild(0) as GrammarAST;
-                        action = at.getChild(1) as GrammarAST;
-                    }
-
-                    const prevAction = namedActions.get(scopeName!)?.get(name.getText()!);
-                    if (!prevAction) {
-                        const mapping = namedActions.get(scopeName!) ?? new Map<string, GrammarAST>();
-                        mapping.set(name.getText()!, action);
-                        namedActions.set(scopeName!, mapping);
-                    } else {
-                        if (prevAction.g === at.g) {
-                            rootGrammar.tool.errMgr.grammarError(ErrorType.ACTION_REDEFINITION,
-                                at.g.fileName, name.token, name.getText());
-                        } else {
-                            let s1 = prevAction.getText()!;
-                            s1 = s1.substring(1, s1.length - 1);
-                            let s2 = action.getText()!;
-                            s2 = s2.substring(1, s2.length - 1);
-                            const combinedAction = "{" + s1 + "\n" + s2 + "}";
-                            prevAction.token!.text = combinedAction;
-                        }
-                    }
+            for (const at of all_actionRoots) {
+                let scopeName = rootGrammar.getDefaultActionScope();
+                let scope: GrammarAST;
+                let name: GrammarAST;
+                let action: GrammarAST;
+                if (at.getChildCount() > 2) { // must have a scope
+                    scope = at.getChild(0) as GrammarAST;
+                    scopeName = scope.getText();
+                    name = at.getChild(1) as GrammarAST;
+                    action = at.getChild(2) as GrammarAST;
+                } else {
+                    name = at.getChild(0) as GrammarAST;
+                    action = at.getChild(1) as GrammarAST;
                 }
 
-                // at this point, we have complete list of combined actions,
-                // some of which are already living in root grammar.
-                // Merge in any actions not in root grammar into root's tree.
-                for (const [scopeName, mapping] of namedActions) {
-                    for (const [name, action] of mapping) {
-                        rootGrammar.tool.logInfo("grammar", action.g.name + " " + scopeName + ":" + name + "=" +
-                            action.getText());
-                        if (action.g !== rootGrammar) {
-                            root.insertChild(1, action.getParent()!);
-                        }
+                const prevAction = namedActions.get(scopeName!)?.get(name.getText()!);
+                if (!prevAction) {
+                    const mapping = namedActions.get(scopeName!) ?? new Map<string, GrammarAST>();
+                    mapping.set(name.getText()!, action);
+                    namedActions.set(scopeName!, mapping);
+                } else {
+                    if (prevAction.g === at.g) {
+                        rootGrammar.tool.errMgr.grammarError(ErrorType.ACTION_REDEFINITION,
+                            at.g.fileName, name.token, name.getText());
+                    } else {
+                        let s1 = prevAction.getText()!;
+                        s1 = s1.substring(1, s1.length - 1);
+                        let s2 = action.getText()!;
+                        s2 = s2.substring(1, s2.length - 1);
+                        const combinedAction = "{" + s1 + "\n" + s2 + "}";
+                        prevAction.token!.text = combinedAction;
+                    }
+                }
+            }
+
+            // at this point, we have complete list of combined actions,
+            // some of which are already living in root grammar.
+            // Merge in any actions not in root grammar into root's tree.
+            for (const [scopeName, mapping] of namedActions) {
+                for (const [name, action] of mapping) {
+                    rootGrammar.tool.logInfo({
+                        component: "grammar",
+                        msg: `${action.g.name} ${scopeName}:${name}=${action.getText()}`
+                    });
+                    if (action.g !== rootGrammar) {
+                        root.insertChild(1, action.getParent()!);
                     }
                 }
             }
@@ -288,66 +296,61 @@ export class GrammarTransformPipeline {
             // section being added ends up empty it is not added to the merged
             // grammar.
             const modes = imp.ast!.getNodesWithType(ANTLRv4Parser.MODE);
-            if (modes !== null) {
-                for (const m of modes) {
-                    rootGrammar.tool.logInfo("grammar", "imported mode: " + m.toStringTree());
-                    const name = m.getChild(0)!.getText()!;
-                    const rootAlreadyHasMode = rootModeNames.has(name);
-                    let destinationAST = null;
-                    if (rootAlreadyHasMode) {
-                        for (const m2 of rootModes) {
-                            if (m2.getChild(0)!.getText() === name) {
-                                destinationAST = m2;
-                                break;
-                            }
-                        }
-                    } else {
-                        destinationAST = m.dupNode();
-                        destinationAST.addChild(m.getChild(0)!.dupNode());
-                    }
-
-                    let addedRules = 0;
-                    const modeRules = m.getAllChildrenWithType(ANTLRv4Parser.RULE_REF);
-                    for (const r of modeRules) {
-                        rootGrammar.tool.logInfo("grammar", "imported rule: " + r.toStringTree());
-                        const ruleName = r.getChild(0)!.getText()!;
-                        const rootAlreadyHasRule = rootRuleNames.has(ruleName);
-                        if (!rootAlreadyHasRule) {
-                            destinationAST?.addChild(r);
-                            addedRules++;
-                            rootRuleNames.add(ruleName);
+            for (const m of modes) {
+                rootGrammar.tool.logInfo({ component: "grammar", msg: `imported mode: ${m.toStringTree()}` });
+                const name = m.getChild(0)!.getText()!;
+                const rootAlreadyHasMode = rootModeNames.has(name);
+                let destinationAST = null;
+                if (rootAlreadyHasMode) {
+                    for (const m2 of rootModes) {
+                        if (m2.getChild(0)!.getText() === name) {
+                            destinationAST = m2;
+                            break;
                         }
                     }
+                } else {
+                    destinationAST = m.dupNode();
+                    destinationAST.addChild(m.getChild(0)!.dupNode());
+                }
 
-                    if (!rootAlreadyHasMode && addedRules > 0 && destinationAST) {
-                        rootGrammar.ast!.addChild(destinationAST);
-                        rootModeNames.add(name);
-                        rootModes.push(destinationAST);
+                let addedRules = 0;
+                const modeRules = m.getAllChildrenWithType(ANTLRv4Parser.RULE_REF);
+                for (const r of modeRules) {
+                    rootGrammar.tool.logInfo({ component: "grammar", msg: `imported rule: ${r.toStringTree()}` });
+                    const ruleName = r.getChild(0)!.getText()!;
+                    const rootAlreadyHasRule = rootRuleNames.has(ruleName);
+                    if (!rootAlreadyHasRule) {
+                        destinationAST?.addChild(r);
+                        addedRules++;
+                        rootRuleNames.add(ruleName);
                     }
+                }
+
+                if (!rootAlreadyHasMode && addedRules > 0 && destinationAST) {
+                    rootGrammar.ast!.addChild(destinationAST);
+                    rootModeNames.add(name);
+                    rootModes.push(destinationAST);
                 }
             }
 
             // COPY RULES
             // Rules copied in the mode copy phase are not copied again.
             const rules = imp.ast!.getNodesWithType(ANTLRv4Parser.RULE_REF);
-            if (rules !== null) {
-                for (const r of rules) {
-                    rootGrammar.tool.logInfo("grammar", "imported rule: " + r.toStringTree());
-                    const name = r.getChild(0)!.getText()!;
-                    const rootAlreadyHasRule = rootRuleNames.has(name);
-                    if (!rootAlreadyHasRule) {
-                        RULES.addChild(r); // merge in if not overridden
-                        rootRuleNames.add(name);
-                    }
+            for (const r of rules) {
+                rootGrammar.tool.logInfo({ component: "grammar", msg: `imported rule: ${r.toStringTree()}` });
+                const name = r.getChild(0)!.getText()!;
+                const rootAlreadyHasRule = rootRuleNames.has(name);
+                if (!rootAlreadyHasRule) {
+                    RULES.addChild(r); // merge in if not overridden
+                    rootRuleNames.add(name);
                 }
             }
 
-            const optionsRoot = imp.ast!.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST;
+            const optionsRoot = imp.ast!.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
             if (optionsRoot !== null) {
                 // suppress the warning if the options match the options specified
                 // in the root grammar
                 // https://github.com/antlr/antlr4/issues/707
-
                 let hasNewOption = false;
                 for (const [key] of imp.ast!.getOptions()) {
                     const importOption = imp.ast!.getOptionString(key);
@@ -368,7 +371,7 @@ export class GrammarTransformPipeline {
                 }
             }
         }
-        rootGrammar.tool.logInfo("grammar", "Grammar: " + rootGrammar.ast!.toStringTree());
+        rootGrammar.tool.logInfo({ component: "grammar", msg: `Grammar: ${rootGrammar.ast!.toStringTree()}` });
     }
 
     /**
@@ -395,15 +398,15 @@ export class GrammarTransformPipeline {
         const elements = combinedAST.getChildren();
 
         // MAKE A GRAMMAR ROOT and ID
-        const lexerName = combinedAST.getChild(0)!.getText() + "Lexer";
+        const lexerName = `${combinedAST.getChild(0)!.getText()}Lexer`;
         const lexerAST = new GrammarRootAST(CommonToken.fromType(ANTLRv4Parser.GRAMMAR, "LEXER_GRAMMAR"),
             combinedGrammar.ast!.tokenStream);
-        lexerAST.grammarType = ANTLRv4Parser.LEXER;
+        lexerAST.grammarType = GrammarType.Lexer;
         lexerAST.token!.inputStream = combinedAST.token!.inputStream;
         lexerAST.addChild(adaptor.create(ANTLRv4Parser.ID, lexerName));
 
         // COPY OPTIONS
-        const optionsRoot = combinedAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST;
+        const optionsRoot = combinedAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
         if (optionsRoot !== null && optionsRoot.getChildCount() !== 0) {
             const lexerOptionsRoot = adaptor.dupNode(optionsRoot);
             lexerAST.addChild(lexerOptionsRoot);
@@ -434,7 +437,7 @@ export class GrammarTransformPipeline {
             combinedAST.deleteChild(r);
         }
 
-        const combinedRulesRoot = combinedAST.getFirstChildWithType(ANTLRv4Parser.RULE_REF) as GrammarAST;
+        const combinedRulesRoot = combinedAST.getFirstChildWithType(ANTLRv4Parser.RULE_REF) as GrammarAST | null;
         if (combinedRulesRoot === null) {
             return lexerAST;
         }
@@ -511,8 +514,11 @@ export class GrammarTransformPipeline {
         lexerAST.sanityCheckParentAndChildIndexes();
         combinedAST.sanityCheckParentAndChildIndexes();
 
-        combinedGrammar.tool.logInfo("grammar", "after extract implicit lexer =" + combinedAST.toStringTree());
-        combinedGrammar.tool.logInfo("grammar", "lexer =" + lexerAST.toStringTree());
+        combinedGrammar.tool.logInfo({
+            component: "grammar",
+            msg: `after extract implicit lexer =${combinedAST.toStringTree()}`
+        });
+        combinedGrammar.tool.logInfo({ component: "grammar", msg: `lexer =${lexerAST.toStringTree()}` });
 
         if (lexerRulesRoot.getChildCount() === 0) {
             return null;

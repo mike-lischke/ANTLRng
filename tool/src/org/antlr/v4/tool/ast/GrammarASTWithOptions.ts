@@ -12,10 +12,10 @@ import { CharSupport } from "../../misc/CharSupport.js";
 import { ErrorType } from "../ErrorType.js";
 
 export abstract class GrammarASTWithOptions extends GrammarAST {
-    protected options = new Map<string, GrammarAST | null>();
+    #options = new Map<string, GrammarAST | null>();
 
     public setOption(key: string, node: GrammarAST | null): void {
-        this.options.set(key, node);
+        this.#options.set(key, node);
     }
 
     public getOptionString(key: string): string | null {
@@ -43,22 +43,18 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
 
     /**
      * Gets AST node holding value for option key; ignores default options
-     *  and command-line forced options.
+     * and command-line forced options.
      */
     public getOptionAST(key: string): GrammarAST | null {
-        if (this.options === null) {
-            return null;
-        }
-
-        return this.options.get(key) ?? null;
+        return this.#options.get(key) ?? null;
     }
 
     public getNumberOfOptions(): number {
-        return this.options.size;
+        return this.#options.size;
     }
 
     public getOptions(): Map<string, GrammarAST | null> {
-        return this.options;
+        return this.#options;
     }
 
     public abstract override dupNode(): GrammarASTWithOptions;

@@ -171,8 +171,8 @@ export class CommonTree extends BaseTree {
         this.childIndex = index;
     }
 
-    public toString(): string | null {
-        if (this.isNil()) {
+    public toString(): string {
+        if (this.token === null) {
             return "nil";
         }
 
@@ -180,10 +180,6 @@ export class CommonTree extends BaseTree {
             return "<errornode>";
         }
 
-        if (this.token === null) {
-            return null;
-        }
-
-        return this.token.text ?? null;
+        return this.token.text ?? "nil";
     }
 }

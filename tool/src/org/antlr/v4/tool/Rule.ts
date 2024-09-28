@@ -32,12 +32,12 @@ export class Rule implements AttributeResolver {
     public static readonly validLexerCommands = new Set<string>();
 
     public readonly name: string;
-    public modifiers: GrammarAST[];
+    public modifiers?: GrammarAST[];
 
     public ast: RuleAST;
-    public args: AttributeDict;
-    public retvals: AttributeDict;
-    public locals: AttributeDict;
+    public args?: AttributeDict;
+    public retvals?: AttributeDict;
+    public locals?: AttributeDict;
 
     /** In which grammar does this rule live? */
     public readonly g: Grammar;
@@ -94,7 +94,7 @@ export class Rule implements AttributeResolver {
         this.name = name;
         this.ast = ast;
         this.numberOfAlts = numberOfAlts;
-        this.alt = new Array(numberOfAlts + 1); // 1..n
+        this.alt = new Array<Alternative>(numberOfAlts + 1); // 1..n
         for (let i = 1; i <= numberOfAlts; i++) {
             this.alt[i] = new Alternative(this, i);
         }
@@ -114,7 +114,7 @@ export class Rule implements AttributeResolver {
     /** Lexer actions are numbered across rules 0..n-1 */
     public defineLexerAction(actionAST: ActionAST): void {
         this.actionIndex = this.g.lexerActions.size;
-        if (this.g.lexerActions.get(actionAST) === null) {
+        if (!this.g.lexerActions.has(actionAST)) {
             this.g.lexerActions.set(actionAST, this.actionIndex);
         }
     }
@@ -122,19 +122,19 @@ export class Rule implements AttributeResolver {
     public definePredicateInAlt(currentAlt: number, predAST: PredAST): void {
         this.actions.push(predAST);
         this.alt[currentAlt].actions.push(predAST);
-        if (this.g.sempreds.get(predAST) === null) {
+        if (!this.g.sempreds.has(predAST)) {
             this.g.sempreds.set(predAST, this.g.sempreds.size);
         }
     }
 
     public resolveRetvalOrProperty(y: string): Attribute | null {
-        if (this.retvals !== null) {
+        if (this.retvals) {
             const a = this.retvals.get(y);
-            if (a !== null) {
+            if (a) {
                 return a;
             }
-
         }
+
         const d = this.getPredefinedScope(LabelType.RULE_LABEL);
 
         return d?.get(y) ?? null;
@@ -200,11 +200,11 @@ export class Rule implements AttributeResolver {
      * (alternative number and {@link AltAST}) identifying the alternatives with
      * this label. Unlabeled alternatives are not included in the result.
      */
-    public getAltLabels(): Map<string, [number, AltAST][]> | null {
-        const labels = new Map<string, [number, AltAST][]>();
+    public getAltLabels(): Map<string, Array<[number, AltAST]>> | null {
+        const labels = new Map<string, Array<[number, AltAST]>>();
         for (let i = 1; i <= this.numberOfAlts; i++) {
             const altLabel = this.alt[i].ast.altLabel;
-            if (altLabel !== null) {
+            if (altLabel) {
                 let list = labels.get(altLabel.getText()!);
                 if (!list) {
                     list = [];
@@ -226,11 +226,11 @@ export class Rule implements AttributeResolver {
         const alts = new Array<AltAST>();
         for (let i = 1; i <= this.numberOfAlts; i++) {
             const altLabel = this.alt[i].ast.altLabel;
-            if (altLabel === null) {
+            if (!altLabel) {
                 alts.push(this.alt[i].ast);
             }
-
         }
+
         if (alts.length === 0) {
             return null;
         }
@@ -328,7 +328,7 @@ export class Rule implements AttributeResolver {
         return false;
     }
 
-    public resolveToRule(x: string): this | null {
+    public resolveToRule(x: string): Rule | null {
         if (x === this.name) {
             return this;
         }
@@ -357,7 +357,7 @@ export class Rule implements AttributeResolver {
     }
 
     public isFragment(): boolean {
-        if (this.modifiers === null) {
+        if (!this.modifiers) {
             return false;
         }
 

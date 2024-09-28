@@ -8,8 +8,6 @@
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param, max-classes-per-file */
-
 import { Token } from "antlr4ng";
 
 import { CommonTree } from "./CommonTree.js";
@@ -61,6 +59,7 @@ export class TreeWizard {
         public declare children: Tree[];
         public declare startIndex: number;
         public declare stopIndex: number;
+        public declare node: Tree;
 
         public constructor(payload: Token) {
             super(payload);
@@ -70,12 +69,8 @@ export class TreeWizard {
             return super.createChildrenList();
         }
 
-        public override toString(): string | null {
-            if (this.label !== null) {
-                return "%" + this.label + ":" + super.toString();
-            } else {
-                return super.toString();
-            }
+        public override toString(): string {
+            return "%" + this.label + ":" + super.toString();
         }
     };
 
@@ -105,26 +100,26 @@ export class TreeWizard {
     protected adaptor: TreeAdaptor;
     protected tokenNameToTypeMap?: Map<string | null, number>;
 
-    public constructor(adaptor: TreeAdaptor);
-    public constructor(tokenNames: string[]);
+    public constructor(adaptorOrTokenNames: TreeAdaptor | (string | null)[]);
     public constructor(adaptor: TreeAdaptor, tokenNameToTypeMap: Map<string, number>);
-    public constructor(adaptor: TreeAdaptor, tokenNames: Array<string | null>);
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
+    public constructor(adaptor: TreeAdaptor, tokenNames: (string | null)[]);
     public constructor(...args: unknown[]) {
         let adaptor: TreeAdaptor;
         let tokenNameToTypeMap: Map<string | null, number> | undefined;
-        let tokenNames: Array<string | null>;
+        let tokenNames: (string | null)[];
 
         if (args.length === 1) {
             if (Array.isArray(args[0])) {
                 adaptor = new CommonTreeAdaptor();
-                tokenNames = args[0] as Array<string | null>;
+                tokenNames = args[0] as (string | null)[];
             } else {
                 adaptor = args[0] as TreeAdaptor;
             }
         } else {
             adaptor = args[0] as TreeAdaptor;
             if (Array.isArray(args[1])) {
-                tokenNames = args[1] as Array<string | null>;
+                tokenNames = args[1] as (string | null)[];
                 tokenNameToTypeMap = this.computeTokenTypes(tokenNames);
             } else {
                 tokenNameToTypeMap = args[1] as Map<string, number>;
@@ -184,7 +179,7 @@ export class TreeWizard {
     /**
      * Compute a map that is an inverted index of tokenNames (which maps int token types to names).
      */
-    public computeTokenTypes(tokenNames: Array<string | null>): Map<string | null, number> {
+    public computeTokenTypes(tokenNames: (string | null)[]): Map<string | null, number> {
         const m = new Map<string | null, number>();
 
         for (let ttype = 0; ttype < tokenNames.length; ttype++) {
@@ -240,7 +235,7 @@ export class TreeWizard {
         const subtrees = new Array<Tree>();
         const tokenizer = new TreePatternLexer(typeOrPattern);
         const parser = new TreePatternParser(tokenizer, this, new TreeWizard.TreePatternTreeAdaptor());
-        const tpattern = parser.pattern() as TreeWizard.TreePattern;
+        const tpattern = parser.pattern() as TreeWizard.TreePattern | null;
 
         // don't allow invalid patterns
         if (tpattern === null || tpattern.isNil() || tpattern instanceof TreeWizard.WildcardTreePattern) {
@@ -279,6 +274,7 @@ export class TreeWizard {
      *  with visit(t, ttype, visitor) so nil-rooted patterns are not allowed.
      *  Patterns with wildcard roots are also not allowed.
      */
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public visit<T extends Tree>(t: T, pattern: string, visitor: TreeWizard.ContextVisitor): void;
     public visit<T extends Tree>(...args: unknown[]): void {
         const [t, typeOrPattern, visitor] = args as [T, number | string, TreeWizard.ContextVisitor];
@@ -442,7 +438,7 @@ export class TreeWizard {
 
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
+
 export namespace TreeWizard {
     export interface ContextVisitor {
         // TODO: should this be called visit or something else?

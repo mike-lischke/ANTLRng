@@ -7,8 +7,7 @@
  */
 
 import { ATNSerializer, CharStream, CommonTokenStream } from "antlr4ng";
-import { Option, program, type OptionValues } from "commander";
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import path, { basename } from "path";
 
 import { ANTLRv4Parser } from "../../../../../src/generated/ANTLRv4Parser.js";
@@ -20,6 +19,7 @@ import { LexerATNFactory } from "./automata/LexerATNFactory.js";
 import { ParserATNFactory } from "./automata/ParserATNFactory.js";
 import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
 import { CodeGenerator } from "./codegen/CodeGenerator.js";
+import { grammarOptions } from "./grammar-options.js";
 import { Graph } from "./misc/Graph.js";
 import { GrammarASTAdaptor } from "./parse/GrammarASTAdaptor.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
@@ -43,46 +43,6 @@ import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
 import { RuleAST } from "./tool/ast/RuleAST.js";
 
-import packageJson from "../../../../../package.json";
-
-interface IOption {
-    code: string,
-    description: string,
-    value?: string | boolean,
-}
-
-interface IToolParameters extends OptionValues {
-    outputDirectory: string,
-    libDirectory: string,
-    generateATNDot: string,
-    grammarEncoding: string,
-    msgFormat: string,
-    longMessages: string;
-    generateListener: boolean,
-    generateVisitor: boolean,
-    generatePackage: boolean,
-    generateDependencies: boolean,
-    warningsAreErrors: boolean,
-    forceAtn: boolean,
-    log: boolean,
-}
-
-const parseBoolean = (value: string | null): boolean => {
-    if (value == null) {
-        return false;
-    }
-
-    const lower = value.trim().toLowerCase();
-
-    return lower === "true" || lower === "1" || lower === "on" || lower === "yes";
-};
-
-const parseKeyValuePair = (input: string): { key: string, value: string; } => {
-    const [key, value] = input.split("=");
-
-    return { key, value };
-};
-
 export class Tool {
     public static readonly VERSION = "10.0.0";
 
@@ -92,7 +52,6 @@ export class Tool {
     public static readonly ALL_GRAMMAR_EXTENSIONS = [Tool.GRAMMAR_EXTENSION, Tool.LEGACY_GRAMMAR_EXTENSION];
 
     public inputDirectory: string;
-    public grammarOptions = program.opts<IToolParameters>();
 
     public readonly args: string[];
 
@@ -118,12 +77,7 @@ export class Tool {
         this.args = args ?? [];
         this.errMgr = new ErrorManager(this);
 
-        // We have to use the default message format until we have
-        // parsed the -message-format command line option.
-        this.errMgr.setFormat("antlr");
-        this.handleArgs();
-
-        const format = this.grammarOptions.msgFormat;
+        const format = grammarOptions.msgFormat;
         if (format) {
             this.errMgr.setFormat(format);
         }
@@ -131,15 +85,10 @@ export class Tool {
 
     public static main(args: string[]): void {
         const antlr = new Tool(args);
-        if (args.length === 0) {
-            antlr.help();
-            antlr.exit(0);
-        }
-
         try {
             antlr.processGrammarsOnCommandLine();
         } finally {
-            if (antlr.grammarOptions.log) {
+            if (grammarOptions.log) {
                 try {
                     const logName = antlr.logMgr.save();
                     console.log("wrote " + logName);
@@ -205,7 +154,7 @@ export class Tool {
         for (const t of sortedGrammars) {
             const g = this.createGrammar(t);
             g.fileName = t.fileName;
-            if (this.grammarOptions.generateDependencies) {
+            if (grammarOptions.generateDependencies) {
                 const dep = new BuildDependencyGenerator(this, g);
                 console.log(dep.getDependencies().render());
             } else {
@@ -234,8 +183,6 @@ export class Tool {
         if (g.ast !== null && g.ast.grammarType === GrammarType.Combined && !g.ast.hasErrors) {
             lexerAST = transform.extractImplicitLexer(g); // alters g.ast
             if (lexerAST !== null) {
-                lexerAST.cmdLineOptions = this.grammarOptions;
-
                 lexerGrammar = new LexerGrammar(this, lexerAST);
                 lexerGrammar.fileName = g.fileName;
                 lexerGrammar.originalGrammar = g;
@@ -281,7 +228,7 @@ export class Tool {
         }
 
         g.atn = factory.createATN();
-        if (Tool.getOptionValue("generate_ATN_dot")) {
+        if (grammarOptions.generateATNDot) {
             this.generateATNs(g);
         }
 
@@ -432,8 +379,7 @@ export class Tool {
     public parseGrammar(fileName: string): GrammarRootAST | null {
         try {
             const fullPath = path.join(this.inputDirectory, fileName);
-            const content = readFileSync(fullPath,
-                { encoding: Tool.getOptionValue<string>("grammarEncoding") as BufferEncoding });
+            const content = readFileSync(fullPath, { encoding: grammarOptions.grammarEncoding as BufferEncoding });
             const input = CharStream.fromString(content.toString());
 
             return this.parse(fileName, input);
@@ -484,7 +430,7 @@ export class Tool {
                 return null;
             }
 
-            const grammarEncoding = Tool.getOptionValue<BufferEncoding>("grammarEncoding");
+            const grammarEncoding = grammarOptions.grammarEncoding as BufferEncoding;
             const content = readFileSync(importedFile, { encoding: grammarEncoding });
             const input = CharStream.fromString(content.toString());
             const root = this.parse(g.fileName, input);
@@ -515,7 +461,6 @@ export class Tool {
         const root = p.grammarSpec();
         if (root instanceof GrammarRootAST) {
             root.hasErrors = p.numberOfSyntaxErrors > 0;
-            root.cmdLineOptions = this.grammarOptions;
 
             return (root);
         }
@@ -562,7 +507,7 @@ export class Tool {
      *  If outputDirectory==null then write a String.
      */
     public getOutputFile(g: Grammar, fileName: string): string {
-        const outputDirectory = Tool.getOptionValue<string>("outputDirectory");
+        const outputDirectory = grammarOptions.outputDirectory;
         if (!outputDirectory) {
             return "";
         }
@@ -585,7 +530,7 @@ export class Tool {
             const parentDir = basename(importedFile); // Check the parent dir of input directory.
             importedFile = path.join(parentDir, fileName);
             if (!existsSync(importedFile)) { // try in lib dir
-                const libDirectory = Tool.getOptionValue<string>("libDirectory");
+                const libDirectory = grammarOptions.libDirectory;
                 if (libDirectory) {
                     importedFile = path.join(libDirectory, fileName);
                     if (!existsSync(importedFile)) {
@@ -608,26 +553,14 @@ export class Tool {
      */
     public getOutputDirectory(fileNameWithPath: string): string {
         if (this.haveOutputDir) {
-            return Tool.getOptionValue<string>("outputDirectory") ?? "";
+            return grammarOptions.outputDirectory ?? "";
         } else {
             return path.dirname(fileNameWithPath);
         }
     }
 
-    public help(): void {
-        this.info("ANTLR Parser Generator  Version " + Tool.VERSION);
-        for (const [_, o] of Tool.optionDefs) {
-            const s = `${o.code.padEnd(20)} ${o.description}`;
-            this.info(s);
-        }
-    }
-
     public logInfo(info: { component?: string, msg: string; }): void {
-        if (info.component) {
-            this.logMgr.log(info.component, info.msg);
-        } else {
-            this.logMgr.log(info.msg);
-        }
+        this.logMgr.log(info);
     }
 
     public getNumErrors(): number {
@@ -686,7 +619,7 @@ export class Tool {
             }
         }
 
-        if (Tool.getOptionValue<boolean>("warnings_are_errors")) {
+        if (grammarOptions.warningsAreErrors) {
             this.errMgr.emit(ErrorType.WARNING_TREATED_AS_ERROR, new ANTLRMessage(ErrorType.WARNING_TREATED_AS_ERROR));
         }
     }
@@ -701,136 +634,9 @@ export class Tool {
 
     public panic(): void { throw new Error("ANTLR panic"); }
 
-    protected handleArgs(): void {
-        const options = program.opts<IToolParameters>();
-
-
-        let i = 0;
-        while (i < this.args.length) {
-            const arg = this.args[i];
-            i++;
-            if (arg.startsWith("-D")) { // -Dlanguage=Java syntax
-                this.handleOptionSetArg(arg);
-                continue;
-            }
-
-            if (!arg.startsWith("-")) { // file name
-                if (!this.grammarFiles.includes(arg)) {
-                    this.grammarFiles.push(arg);
-                }
-
-                continue;
-            }
-
-            let found = false;
-            for (const [_, o] of Tool.optionDefs) {
-                if (arg === o.code) {
-                    found = true;
-                    const argValue = null;
-                    // XXX: argument parsing
-                    /*if (o.argType === OptionArgType.STRING) {
-                        argValue = this.args[i];
-                        i++;
-                    }
-
-                    // use reflection to set field
-                    const c = this.getClass();
-                    const f = c.getField(o.fieldName);
-                    if (argValue === null) {
-                        if (arg.startsWith("-no-")) {
-                            this[o.fieldName] = false;
-                            f.setBoolean(this, false);
-                        } else {
-                            f.setBoolean(this, true);
-                        }
-                    } else {
-                        f.set(this, argValue);
-                    }*/
-                }
-            }
-
-            if (!found) {
-                this.errMgr.toolError(ErrorType.INVALID_CMDLINE_ARG, arg);
-            }
-        }
-
-        const outputDirectory = Tool.getOptionValue<string>("outputDirectory");
-        if (outputDirectory) {
-            this.haveOutputDir = true;
-            const stat = statSync(outputDirectory);
-            if (stat && !stat.isDirectory()) {
-                this.errMgr.toolError(ErrorType.OUTPUT_DIR_IS_FILE, outputDirectory);
-                const dir = Tool.optionDefs.get("outputDirectory")!;
-                dir.value = ".";
-            }
-        } else {
-            const dir = Tool.optionDefs.get("outputDirectory")!;
-            dir.value = ".";
-        }
-
-        const libDirectory = Tool.getOptionValue<string>("libDirectory");
-        if (libDirectory) {
-            if (!existsSync(libDirectory)) {
-                this.errMgr.toolError(ErrorType.DIR_NOT_FOUND, libDirectory);
-                const dir = Tool.optionDefs.get("libDirectory")!;
-                dir.value = ".";
-            }
-        } else {
-            const dir = Tool.optionDefs.get("libDirectory")!;
-            dir.value = ".";
-        }
-    }
-
-    protected handleOptionSetArg(arg: string): void {
-        const eq = arg.indexOf("=");
-        if (eq > 0 && arg.length > 3) {
-            const option = arg.substring("-D".length, eq);
-            const value = arg.substring(eq + 1);
-            if (value.length === 0) {
-                this.errMgr.toolError(ErrorType.BAD_OPTION_SET_SYNTAX, arg);
-
-                return;
-            }
-
-            if (Grammar.parserOptions.has(option) ||
-                Grammar.lexerOptions.has(option)) {
-                this.grammarOptions.set(option, value);
-            } else {
-                this.errMgr.grammarError(ErrorType.ILLEGAL_OPTION, "", null, option);
-            }
-        } else {
-            this.errMgr.toolError(ErrorType.BAD_OPTION_SET_SYNTAX, arg);
-        }
-    }
-
     protected writeDOTFile(g: Grammar, rulOrName: Rule | string, dot: string): void {
         const name = rulOrName instanceof Rule ? rulOrName.g.name + "." + rulOrName.name : rulOrName;
         const fileName = this.getOutputFile(g, name + ".dot");
         writeFileSync(fileName, dot);
-    }
-
-    static {
-        program
-            .argument("grammar1 grammar2 ...", "A list of grammar files.")
-            .option("-o, --output-directory <path>", "specify output directory where all output is generated")
-            .option("-lib, --lib-directory <path>", "specify location of grammars, tokens files")
-            .option<boolean>("-atn, --generate-atn-dot [boolean]",
-                "Generate rule augmented transition network diagrams.", parseBoolean, false)
-            .option("-e, --encoding", "Specify grammar file encoding; e.g., ucs-2.", "utf-8")
-            .addOption(new Option("-f, ---message-format", "Specify output style for messages in antlr, gnu, vs2005.")
-                .choices(["antlr", "gnu", "vs2005"])
-            )
-            .option<boolean>("-lm, --long-messages [boolean]",
-                "Show exception details when available for errors and warnings.", parseBoolean, false)
-            .option<boolean>("-l, --listener [boolean]", "Generate parse tree listener.", parseBoolean, true)
-            .option<boolean>("-v, --visitor [boolean]", "Generate parse tree visitor.", parseBoolean, false)
-            .option("-p, --package", "Specify a package/namespace for the generated code.")
-            .option<boolean>("-d, --dependencies", "Generate file dependencies.", parseBoolean, false)
-            .option("-D, --define <key=value>", "Set/override a grammar-level option.", parseKeyValuePair)
-            .option<boolean>("-w, --warnings-are-errors", "Treat warnings as errors.", parseBoolean, false)
-            .option<boolean>("-f, --force-atn", "Use the ATN simulator for all predictions.", parseBoolean, false)
-            .option<boolean>("--log", "Dump lots of logging info to antlr-timestamp.log.", parseBoolean, false)
-            .version(`ANTLRng ${packageJson.version}`)
-            .parse();
     }
 }

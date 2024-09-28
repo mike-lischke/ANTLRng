@@ -8,8 +8,6 @@
  * with that data. The file is then used by the runtime to support Unicode properties and categories.
  */
 
-/// <reference path="types.d.ts" />
-
 import * as fs from "fs/promises";
 import { join, dirname } from "path";
 

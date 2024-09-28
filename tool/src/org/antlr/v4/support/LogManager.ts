@@ -9,17 +9,15 @@ import { join } from "path";
  * can be found in the LICENSE.txt file in the project root.
  */
 
-// cspell: disable
-
 export class LogManager {
     private static Record = class Record {
-        public component: string | null = null;
-        public msg: string;
-
         protected timestamp: Date;
         protected location: string;
 
-        public constructor() {
+        #details: { component?: string, msg: string; };
+
+        public constructor(details: { component?: string, msg: string; }) {
+            this.#details = details;
             this.timestamp = new Date();
 
             const stack = new Error().stack?.split("\n") ?? [];
@@ -27,45 +25,20 @@ export class LogManager {
         }
 
         public toString(): string {
-            let result = "";
-            result += this.timestamp.toISOString();
-            result += " ";
-            result += this.component;
-            result += " ";
-            result += "<filename goes here>";
-            result += ":";
-            result += "<line number goes here>";
-            result += " ";
-            result += this.msg;
-
-            return result.toString();
+            return `${this.timestamp.toISOString()} ${this.#details.component ?? ""} <filename goes here>:` +
+                `<line number goes here> ${this.location} ${this.#details.msg}`;
         }
     };
 
     private records: InstanceType<typeof LogManager.Record>[] = [];
 
-    public log(msg: string): void;
-    public log(component: string, msg: string): void;
-    public log(...args: unknown[]): void {
-        let component: string | null = null;
-        let msg: string;
-
-        if (args.length === 1) {
-            msg = args[0] as string;
-        } else {
-            component = args[0] as string;
-            msg = args[1] as string;
-        }
-
-        const r = new LogManager.Record();
-        r.component = component;
-        r.msg = msg;
-        this.records.push(r);
+    public log(info: { component?: string, msg: string; }): void {
+        this.records.push(new LogManager.Record(info));
     }
 
     public save(filename?: string): string {
         if (!filename) {
-            filename = join(".", "antlr-" + Date.now() + ".log");
+            filename = join(".", `antlr-${Date.now()}.log`);
         }
 
         writeFileSync(filename, this.toString());

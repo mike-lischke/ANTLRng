@@ -8,19 +8,17 @@
 
 import { type Token, type TokenStream } from "antlr4ng";
 
+import { grammarOptions } from "../../grammar-options.js";
+import type { GrammarType } from "../../support/GrammarType.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
-import type { GrammarType } from "../../support/GrammarType.js";
 
 export class GrammarRootAST extends GrammarASTWithOptions {
-    public static readonly defaultOptions = new Map<string, string>();
-
     public grammarType: GrammarType;
     public hasErrors: boolean;
 
     /** Track stream used to create this tree */
     public readonly tokenStream: TokenStream;
-    public cmdLineOptions: Map<string, string>; // -DsuperClass=T on command line
     public fileName: string;
 
     public constructor(node: GrammarRootAST);
@@ -41,10 +39,10 @@ export class GrammarRootAST extends GrammarASTWithOptions {
             }
 
             case 2: {
-                const [t, tokenStream] = args as [Token, TokenStream];
+                const [t, tokenStream] = args as [Token, TokenStream | undefined];
 
                 super(t);
-                if (tokenStream == null) {
+                if (!tokenStream) {
                     throw new Error("tokenStream");
                 }
 
@@ -54,10 +52,10 @@ export class GrammarRootAST extends GrammarASTWithOptions {
             }
 
             case 3: {
-                const [type, t, tokenStream] = args as [number, Token, TokenStream];
+                const [type, t, tokenStream] = args as [number, Token, TokenStream | undefined];
 
                 super(type, t);
-                if (tokenStream == null) {
+                if (!tokenStream) {
                     throw new Error("tokenStream");
                 }
 
@@ -67,10 +65,10 @@ export class GrammarRootAST extends GrammarASTWithOptions {
             }
 
             case 4: {
-                const [type, t, text, tokenStream] = args as [number, Token, string, TokenStream];
+                const [type, t, text, tokenStream] = args as [number, Token, string, TokenStream | undefined];
 
                 super(type, t, text);
-                if (tokenStream == null) {
+                if (!tokenStream) {
                     throw new Error("tokenStream");
                 }
 
@@ -94,17 +92,12 @@ export class GrammarRootAST extends GrammarASTWithOptions {
         return null;
     }
 
-    public override  getOptionString(key: string): string | null {
-        if (this.cmdLineOptions !== null && this.cmdLineOptions.has(key)) {
-            return this.cmdLineOptions.get(key) ?? null;
+    public override getOptionString(key: string): string | null {
+        if (typeof grammarOptions[key] === "string") {
+            return grammarOptions[key];
         }
 
-        let value = super.getOptionString(key);
-        if (value === null) {
-            value = GrammarRootAST.defaultOptions.get(key) ?? null;
-        }
-
-        return value;
+        return super.getOptionString(key);
     }
 
     public override  visit<T>(v: GrammarASTVisitor<T>): T {
@@ -113,7 +106,4 @@ export class GrammarRootAST extends GrammarASTWithOptions {
 
     public override  dupNode(): GrammarRootAST { return new GrammarRootAST(this); }
 
-    static {
-        GrammarRootAST.defaultOptions.set("language", "Java");
-    }
 }

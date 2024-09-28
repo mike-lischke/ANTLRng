@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) Mike Lischke. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ */
 
 import eslint from "@eslint/js";
 import tslint from "typescript-eslint";
 import stylisticTs from "@stylistic/eslint-plugin-ts";
+import typescriptEslintParser from "@typescript-eslint/parser";
 
 export default tslint.config(
     eslint.configs.recommended,
@@ -12,11 +17,13 @@ export default tslint.config(
             "@stylistic/ts": stylisticTs
         },
         languageOptions: {
+            parser: typescriptEslintParser,
             parserOptions: {
                 projectService: {
                     allowDefaultProject: ["*.js", "*.mjs", "*.ts"],
                 },
                 tsconfigRootDir: import.meta.dirname,
+                project: "./tsconfig.json",
             },
         },
         rules: {
@@ -24,6 +31,14 @@ export default tslint.config(
                 "warn",
                 {
                     "commentPattern": "\\[falls?-through\\]"
+                }
+            ],
+            "max-len": [
+                "error",
+                {
+                    "ignoreRegExpLiterals": false,
+                    "ignoreStrings": false,
+                    "code": 120
                 }
             ],
             "@stylistic/ts/padding-line-between-statements": [
@@ -64,7 +79,8 @@ export default tslint.config(
             "@typescript-eslint/member-ordering": [
                 "error",
                 {
-                    // No ordering for getters and setters here, as that conflicts currently with the rule adjacent-overload-signatures.
+                    // No ordering for getters and setters here, as that conflicts currently with the rule
+                    // adjacent-overload-signatures.
                     "default": [
                         // Index signature
                         "signature",
@@ -112,6 +128,11 @@ export default tslint.config(
                 }
             ],
             "@typescript-eslint/restrict-template-expressions": "off",
+            "@typescript-eslint/restrict-plus-operands": "off", // TODO: re-enable this rule
+            "@typescript-eslint/no-unnecessary-condition": ["error", { "allowConstantLoopConditions": true }],
+            "@typescript-eslint/no-extraneous-class": "off",
+            "@typescript-eslint/array-type": ["error", { "default": "array-simple" }],
+            "@typescript-eslint/prefer-return-this-type": "off"
         },
     },
 );

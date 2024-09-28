@@ -21,8 +21,6 @@ import type { TreeRuleReturnScope } from "./TreeRuleReturnScope.js";
 
 // cspell: disable
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param, @typescript-eslint/naming-convention */
-
 interface fptr {
     rule(): unknown;
 }
@@ -62,7 +60,7 @@ export class TreeRewriter extends TreeParser {
             this.input = new CommonTreeNodeStream(this.originalAdaptor, t);
             (this.input as CommonTreeNodeStream).setTokenStream(this.originalTokenStream);
             this.setBacktrackingLevel(1);
-            const r = whichRule.rule() as TreeRuleReturnScope;
+            const r = whichRule.rule() as TreeRuleReturnScope | null;
             this.setBacktrackingLevel(0);
             if (this.failed()) {
                 return t;
@@ -73,7 +71,7 @@ export class TreeRewriter extends TreeParser {
                 this.reportTransformation(t, r.tree);
             }
 
-            if (r !== null && r.tree !== null) {
+            if (r?.tree) {
                 return r.tree;
             } else {
                 return t;
@@ -98,7 +96,7 @@ export class TreeRewriter extends TreeParser {
         return t;
     }
 
-    public downup(t: Tree | null, showTransformations?: boolean): Tree | null {
+    public downUp(t: Tree | null, showTransformations?: boolean): Tree | null {
         showTransformations ??= false;
         this.showTransformations = showTransformations;
         const v = new TreeVisitor(new CommonTreeAdaptor());
@@ -117,7 +115,7 @@ export class TreeRewriter extends TreeParser {
      *  other than stdout or if you're not using Tree-derived trees.
      */
     public reportTransformation(oldTree: unknown, newTree: unknown): void {
-        console.log((oldTree as Tree).toStringTree() + " -> " + (newTree as Tree).toStringTree());
+        console.log(`${(oldTree as Tree).toStringTree()} -> ${(newTree as Tree).toStringTree()}`);
     }
 
     // methods the downup strategy uses to do the up and down rules.

@@ -85,13 +85,13 @@ export class DOTGenerator {
 
                     let label = "<" + ruleNames[rr.ruleIndex];
                     if ((rr.target as RuleStartState).isLeftRecursiveRule) {
-                        label += "[" + rr.precedence + "]";
+                        label += `[${rr.precedence}]`;
                     }
                     label += ">";
 
                     edgeST.add("label", label);
-                    edgeST.add("src", "s" + s.stateNumber);
-                    edgeST.add("target", "s" + rr.followState.stateNumber);
+                    edgeST.add("src", `s${s.stateNumber}`);
+                    edgeST.add("target", `s${rr.followState.stateNumber}`);
                     edgeST.add("arrowhead", this.arrowhead);
                     dot.add("edges", edgeST);
                     work.push(rr.followState);
@@ -111,14 +111,14 @@ export class DOTGenerator {
                         throw new Error("no such template: edge");
                     }
 
-                    edgeST.add("label", this.getEdgeLabel(edge.toString()));
+                    edgeST.add("label", this.getEdgeLabel(String(edge)));
                 } else if (edge.isEpsilon) {
                     edgeST = DOTGenerator.stLib.getInstanceOf("epsilon-edge");
                     if (!edgeST) {
                         throw new Error("no such template: epsilon-edge");
                     }
 
-                    edgeST.add("label", this.getEdgeLabel(edge.toString()));
+                    edgeST.add("label", this.getEdgeLabel(String(edge)));
                     let loopback = false;
                     if (edge.target instanceof PlusBlockStartState) {
                         loopback = s.equals((edge.target).loopBackState);
@@ -181,16 +181,11 @@ export class DOTGenerator {
                         throw new Error("no such template: edge");
                     }
 
-                    edgeST.add("label", this.getEdgeLabel(edge.toString()));
+                    edgeST.add("label", this.getEdgeLabel(String(edge)));
                 }
 
-                if (!edgeST) {
-                    // We should never get here, because the above if-else chain should cover all cases.
-                    throw new Error("no such template: edge");
-                }
-
-                edgeST.add("src", "s" + s.stateNumber);
-                edgeST.add("target", "s" + edge.target.stateNumber);
+                edgeST.add("src", `s${s.stateNumber}`);
+                edgeST.add("target", `s${edge.target.stateNumber}`);
                 edgeST.add("arrowhead", this.arrowhead);
                 if (s.transitions.length > 1) {
                     edgeST.add("transitionIndex", i);
@@ -213,7 +208,7 @@ export class DOTGenerator {
                 throw new Error("no such template: stopstate");
             }
 
-            st.add("name", "s" + s.stateNumber);
+            st.add("name", `s${s.stateNumber}`);
             st.add("label", this.getStateLabel(s));
             dot.add("states", st);
         }
@@ -228,7 +223,7 @@ export class DOTGenerator {
                 throw new Error("no such template: state");
             }
 
-            st.add("name", "s" + s.stateNumber);
+            st.add("name", `s${s.stateNumber}`);
             st.add("label", this.getStateLabel(s));
             st.add("transitions", s.transitions);
             dot.add("states", st);
@@ -247,7 +242,7 @@ export class DOTGenerator {
             throw new Error("no such template: dfa");
         }
 
-        dot.add("name", "DFA" + dfa.decision);
+        dot.add("name", `DFA${dfa.decision}`);
         dot.add("startState", dfa.s0.stateNumber);
         dot.add("rankdir", this.rankdir);
 
@@ -262,7 +257,7 @@ export class DOTGenerator {
                 throw new Error("no such template: stopstate");
             }
 
-            st.add("name", "s" + d.stateNumber);
+            st.add("name", `s${d.stateNumber}`);
             st.add("label", this.getStateLabel(d));
             dot.add("states", st);
         }
@@ -281,7 +276,7 @@ export class DOTGenerator {
                 throw new Error("no such template: state");
             }
 
-            st.add("name", "s" + d.stateNumber);
+            st.add("name", `s${d.stateNumber}`);
             st.add("label", this.getStateLabel(d));
             dot.add("states", st);
         }
@@ -289,10 +284,6 @@ export class DOTGenerator {
         for (const d of dfa.getStates()) {
             for (let i = 0; i < d.edges.length; i++) {
                 const target = d.edges[i];
-                if (target === null) {
-                    continue;
-                }
-
                 if (target.stateNumber === Number.MAX_VALUE) {
                     continue;
                 }
@@ -311,8 +302,8 @@ export class DOTGenerator {
                 }
 
                 st.add("label", label);
-                st.add("src", "s" + d.stateNumber);
-                st.add("target", "s" + target.stateNumber);
+                st.add("src", `s${d.stateNumber}`);
+                st.add("target", `s${target.stateNumber}`);
                 st.add("arrowhead", this.arrowhead);
                 dot.add("edges", st);
             }
@@ -325,20 +316,17 @@ export class DOTGenerator {
 
     protected getStateLabel(s: DFAState | ATNState): string {
         if (s instanceof DFAState) {
-            let buf = "s" + s.stateNumber;
+            let buf = `s${s.stateNumber}`;
 
             if (s.isAcceptState) {
-                buf += "=>" + s.prediction;
+                buf += `=>${s.prediction}`;
             }
 
             if (s.requiresFullContext) {
                 buf += "^";
             }
 
-            const alts = new Set<number>();
-
-            // TODO: re-enable once the next antlr4ng release is out.
-            //const alts = s.getAltSet();
+            const alts = s.getAltSet();
             if (alts !== null) {
                 buf += "\\n";
                 // separate alts
@@ -350,9 +338,7 @@ export class DOTGenerator {
                     if (altIndex > 0) {
                         buf += "\\n";
                     }
-                    buf += "alt";
-                    buf += alt;
-                    buf += ":";
+                    buf += `alt${alt}:`;
 
                     // get a list of configs for just this alt
                     // it will help us print better later
@@ -403,8 +389,8 @@ export class DOTGenerator {
                 }
             }
 
-            if (s instanceof DecisionState && (s).decision >= 0) {
-                stateLabel = stateLabel + "\\nd=" + (s).decision;
+            if (s instanceof DecisionState && s.decision >= 0) {
+                stateLabel += `\\nd=${s.decision}`;
             }
 
             return stateLabel;
@@ -422,5 +408,4 @@ export class DOTGenerator {
 
         return label;
     }
-
 }

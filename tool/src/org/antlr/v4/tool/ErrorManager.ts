@@ -22,6 +22,7 @@ import { GrammarSyntaxMessage } from "./GrammarSyntaxMessage.js";
 import { LeftRecursionCyclesMessage } from "./LeftRecursionCyclesMessage.js";
 import { Rule } from "./Rule.js";
 import { ToolMessage } from "./ToolMessage.js";
+import { grammarOptions } from "../grammar-options.js";
 
 export class ErrorManager {
 
@@ -101,7 +102,7 @@ export class ErrorManager {
     }
 
     public getMessageTemplate(msg: ANTLRMessage): IST | null {
-        const longMessages = Tool.getOptionValue<boolean>("longMessages");
+        const longMessages = grammarOptions.longMessages;
         const messageST = msg.getMessageTemplate(longMessages ?? false);
         const locationST = this.getLocationFormat();
         const reportST = this.getReportFormat(msg.getErrorType().severity);

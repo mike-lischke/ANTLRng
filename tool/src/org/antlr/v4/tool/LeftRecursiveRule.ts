@@ -36,16 +36,7 @@ export class LeftRecursiveRule extends Rule {
     }
 
     public override  getOriginalNumberOfAlts(): number {
-        let n = 0;
-        if (this.recPrimaryAlts !== null) {
-            n += this.recPrimaryAlts.length;
-        }
-
-        if (this.recOpAlts !== null) {
-            n += this.recOpAlts.size;
-        }
-
-        return n;
+        return this.recPrimaryAlts.length + this.recOpAlts.size;
     }
 
     public getOriginalAST(): RuleAST {
@@ -55,15 +46,15 @@ export class LeftRecursiveRule extends Rule {
     public override  getUnlabeledAltASTs(): AltAST[] | null {
         const alts = new Array<AltAST>();
         for (const altInfo of this.recPrimaryAlts) {
-            if (altInfo.altLabel === null) {
-                alts.push(altInfo.originalAltAST);
+            if (altInfo.altLabel === undefined) {
+                alts.push(altInfo.originalAltAST!);
             }
 
         }
         for (let i = 0; i < this.recOpAlts.size; i++) {
             const altInfo = this.recOpAlts.get(i)!;
-            if (altInfo.altLabel === null) {
-                alts.push(altInfo.originalAltAST);
+            if (altInfo.altLabel === undefined) {
+                alts.push(altInfo.originalAltAST!);
             }
 
         }
@@ -124,8 +115,8 @@ export class LeftRecursiveRule extends Rule {
 
     /** Get -&gt; labels from those alts we deleted for left-recursive rules. */
 
-    public override  getAltLabels(): Map<string, [number, AltAST][]> | null {
-        const labels = new Map<string, [number, AltAST][]>();
+    public override  getAltLabels(): Map<string, Array<[number, AltAST]>> | null {
+        const labels = new Map<string, Array<[number, AltAST]>>();
         const normalAltLabels = super.getAltLabels();
         if (normalAltLabels !== null) {
             normalAltLabels.forEach((value, key) => {
@@ -133,32 +124,28 @@ export class LeftRecursiveRule extends Rule {
             });
         }
 
-        if (this.recPrimaryAlts !== null) {
-            for (const altInfo of this.recPrimaryAlts) {
-                if (altInfo.altLabel !== null) {
-                    let pairs = labels.get(altInfo.altLabel);
-                    if (!pairs) {
-                        pairs = [];
-                        labels.set(altInfo.altLabel, pairs);
-                    }
-
-                    pairs.push([altInfo.altNum, altInfo.originalAltAST]);
+        for (const altInfo of this.recPrimaryAlts) {
+            if (altInfo.altLabel !== undefined) {
+                let pairs = labels.get(altInfo.altLabel);
+                if (!pairs) {
+                    pairs = [];
+                    labels.set(altInfo.altLabel, pairs);
                 }
+
+                pairs.push([altInfo.altNum, altInfo.originalAltAST!]);
             }
         }
 
-        if (this.recOpAlts !== null) {
-            for (let i = 0; i < this.recOpAlts.size; i++) {
-                const altInfo = this.recOpAlts.get(i)!;
-                if (altInfo.altLabel !== null) {
-                    let pairs = labels.get(altInfo.altLabel);
-                    if (!pairs) {
-                        pairs = [];
-                        labels.set(altInfo.altLabel, pairs);
-                    }
-
-                    pairs.push([altInfo.altNum, altInfo.originalAltAST]);
+        for (let i = 0; i < this.recOpAlts.size; i++) {
+            const altInfo = this.recOpAlts.get(i)!;
+            if (altInfo.altLabel !== undefined) {
+                let pairs = labels.get(altInfo.altLabel);
+                if (!pairs) {
+                    pairs = [];
+                    labels.set(altInfo.altLabel, pairs);
                 }
+
+                pairs.push([altInfo.altNum, altInfo.originalAltAST!]);
             }
         }
 

@@ -78,14 +78,12 @@ export abstract class BaseRecognizer {
     /** reset the parser's state; subclasses must rewinds the input stream */
     public reset(): void {
         // wack everything related to error recovery
-        if (this.state === null) {
-            return; // no shared state work to do
-        }
         this.state._fsp = -1;
         this.state.errorRecovery = false;
         this.state.lastErrorIndex = -1;
         this.state.failed = false;
         this.state.syntaxErrors = 0;
+
         // wack everything related to backtracking and memoization
         this.state.backtracking = 0;
         for (let i = 0; this.state.ruleMemo !== null && i < this.state.ruleMemo.length; i++) { // wipe cache
@@ -249,11 +247,8 @@ export abstract class BaseRecognizer {
     /** What is the error header, normally line/character position information? */
     public getErrorHeader(e: RecognitionException): string {
         const token = e.offendingToken!;
-        if (this.getSourceName() !== null) {
-            return this.getSourceName() + " line " + token.line + ":" + token.column;
-        }
 
-        return "line " + token.line + ":" + token.column;
+        return this.getSourceName() + " line " + token.line + ":" + token.column;
     }
 
     /**
@@ -314,9 +309,11 @@ export abstract class BaseRecognizer {
      *  The DebugParser subclasses this to fire events to the listenter.
      */
     public beginResync(): void {
+        // intentionally empty
     }
 
     public endResync(): void {
+        // intentionally empty
     }
 
     public consumeUntil(input: IntStream, tokenTypeOrSet: number | BitSet): void {

@@ -25,7 +25,7 @@ export abstract class BaseTree implements Tree {
      * as there are no fields other than the children list, which cannot
      * be copied as the children are not considered part of this node.
      */
-    public constructor(private node?: Tree) {
+    public constructor(protected node?: Tree) {
     }
 
     public getChild(i: number): Tree | null {

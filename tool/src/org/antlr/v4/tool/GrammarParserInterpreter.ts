@@ -55,7 +55,9 @@ export class GrammarParserInterpreter extends ParserInterpreter {
             throw new InputMismatchException(recognizer);
         }
 
-        public override  sync(recognizer: Parser): void { } // don't consume anything; let it fail later
+        public override  sync(recognizer: Parser): void {
+            // don't consume anything; let it fail later
+        }
     };
 
     /**
@@ -266,14 +268,14 @@ export class GrammarParserInterpreter extends ParserInterpreter {
                 // will not have node for stopTreeAt; limit to overallRange.b
                 stopTreeAt = overallRange.stop;
             }
-            let subtree = Trees.getRootOfSubtreeEnclosingRegion(tt, startIndex, stopTreeAt) as ParserRuleContext | null;
+            let subtree = Trees.getRootOfSubtreeEnclosingRegion(tt, startIndex, stopTreeAt);
 
             // Use higher of overridden decision tree or tree enclosing all tokens
             if (Trees.isAncestorOf(parser.overrideDecisionRoot, subtree)) {
                 subtree = parser.overrideDecisionRoot;
             }
 
-            Trees.stripChildrenOutOfRange(subtree, parser.overrideDecisionRoot, startIndex, stopTreeAt);
+            Trees.stripChildrenOutOfRange(subtree, parser.overrideDecisionRoot!, startIndex, stopTreeAt);
             trees.push(subtree!);
         }
 
@@ -413,22 +415,20 @@ export class GrammarParserInterpreter extends ParserInterpreter {
             if (this.atn.ruleToStartState[r.index]?.isLeftRecursiveRule) {
                 let alts = this.stateToAltsMap[p.stateNumber];
                 const lr = this.g.getRule(p.ruleIndex)! as LeftRecursiveRule;
-                if ((p.constructor as typeof DecisionState).stateType === ATNState.BLOCK_START) {
-                    if (!alts) {
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                if (!alts) {
+                    if ((p.constructor as typeof DecisionState).stateType === ATNState.BLOCK_START) {
                         alts = lr.getPrimaryAlts();
                         this.stateToAltsMap[p.stateNumber] = alts; // cache it
-                    }
-                }
-                else {
-                    if ((p.constructor as typeof DecisionState).stateType === ATNState.STAR_BLOCK_START) {
-                        if (alts === null) {
+                    } else {
+                        if ((p.constructor as typeof DecisionState).stateType === ATNState.STAR_BLOCK_START) {
                             alts = lr.getRecursiveOpAlts();
                             this.stateToAltsMap[p.stateNumber] = alts; // cache it
                         }
                     }
                 }
 
-                ctx.outerAltNum = alts[predictedAlt];
+                ctx.outerAltNum = alts[predictedAlt]!;
             }
         }
 
