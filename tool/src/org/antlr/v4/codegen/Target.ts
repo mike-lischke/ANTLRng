@@ -6,13 +6,18 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+// cspell: ignore unnnn
 
+import { RuntimeMetaData, Token } from "antlr4ng";
+import {
+    NumberRenderer, STGroup, STGroupFile, StringRenderer, type ST, type STErrorListener, type STMessage
+} from "stringtemplate4ts";
 
-import { HashMap, Token } from "antlr4ng";
-import type { ST, STGroup } from "stringtemplate4ts";
+import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
 import { Tool } from "../Tool.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import { Utils } from "../misc/Utils.js";
+import { Character } from "../support/Character.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Rule } from "../tool/Rule.js";
@@ -21,59 +26,30 @@ import { CodeGenerator } from "./CodeGenerator.js";
 import { UnicodeEscapes } from "./UnicodeEscapes.js";
 import { RuleFunction } from "./model/RuleFunction.js";
 
-
+export type char = number;
 
 /** */
 export abstract class Target {
+    protected static readonly defaultCharValueEscape: Map<char, string>;
+    private static readonly languageTemplates = new Map<string, STGroup>();
 
-    protected static readonly defaultCharValueEscape: Map<Character, string>;
-    private static readonly languageTemplates = new HashMap();
-
-    protected readonly gen: CodeGenerator;
-
-    protected constructor(gen: CodeGenerator) {
-        this.gen = gen;
+    public constructor(protected gen: CodeGenerator) {
     }
 
-    protected static addEscapedChar(map: HashMap<Character, string>, key: number): void;
-    protected static addEscapedChar(map: HashMap<Character, string>, key: number, representation: number): void;
-    protected static addEscapedChar(...args: unknown[]): void {
-        switch (args.length) {
-            case 2: {
-                const [map, key] = args as [HashMap<Character, string>, number];
-
-
-                Target.addEscapedChar(map, key, key);
-
-
-                break;
-            }
-
-            case 3: {
-                const [map, key, representation] = args as [HashMap<Character, string>, number, number];
-
-
-                map.put(key, "\\" + representation);
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
+    protected static addEscapedChar(map: Map<Character, string>, key: number, representation?: number): void {
+        representation = representation ?? key;
+        map.set(key, "\\" + representation);
     }
 
-
-    /** For pure strings of Unicode char, how can we display
-     *  it in the target language as a literal. Useful for dumping
-     *  predicates and such that may refer to chars that need to be escaped
-     *  when represented as strings.  Also, templates need to be escaped so
-     *  that the target language can hold them as a string.
-     *  Each target can have a different set in memory at same time.
+    /**
+     * For pure strings of Unicode char, how can we display
+     * it in the target language as a literal. Useful for dumping
+     * predicates and such that may refer to chars that need to be escaped
+     * when represented as strings.  Also, templates need to be escaped so
+     * that the target language can hold them as a string.
+     * Each target can have a different set in memory at same time.
      */
-    public getTargetCharValueEscape(): Map<Character, string> {
+    public getTargetCharValueEscape(): Map<char, string> {
         return Target.defaultCharValueEscape;
     }
 
@@ -96,14 +72,16 @@ export abstract class Target {
     }
 
     public getTemplates(): STGroup {
-        let language = this.getLanguage();
+        const language = this.getLanguage();
         let templates = Target.languageTemplates.get(language);
 
         if (!templates) {
-            let version = this.getVersion();
-            if (version === null ||
-                !RuntimeMetaData.getMajorMinorVersion(version).equals(RuntimeMetaData.getMajorMinorVersion(Tool.VERSION))) {
-                this.gen.tool.errMgr.toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, Tool.VERSION, language);
+            const version = this.getVersion();
+            const theirVersion = RuntimeMetaData.getMajorMinorVersion(version);
+            const ourVersion = RuntimeMetaData.getMajorMinorVersion(Tool.VERSION);
+            if (theirVersion !== ourVersion) {
+                this.gen.tool.errMgr.toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, Tool.VERSION,
+                    language);
             }
             templates = this.loadTemplates();
             Target.languageTemplates.set(language, templates);
@@ -113,7 +91,7 @@ export abstract class Target {
     }
 
     public escapeIfNeeded(identifier: string): string {
-        return this.getReservedWords().contains(identifier) ? this.escapeWord(identifier) : identifier;
+        return this.reservedWords.has(identifier) ? this.escapeWord(identifier) : identifier;
     }
 
     /** Get a meaningful name for a token type useful during code generation.
@@ -123,35 +101,35 @@ export abstract class Target {
      *  to a token type in the generated code.
      */
     public getTokenTypeAsTargetLabel(g: Grammar, ttype: number): string {
-        let name = this.escapeIfNeeded(g.getTokenName(ttype));
+        const name = this.escapeIfNeeded(g.getTokenName(ttype)!);
+
         // If name is not valid, return the token type instead
-        if (Grammar.INVALID_TOKEN_NAME.equals(name)) {
-            return string.valueOf(ttype);
+        if (Grammar.INVALID_TOKEN_NAME === name) {
+            return String(ttype);
         }
 
         return name;
     }
 
-    public getTokenTypesAsTargetLabels(g: Grammar, ttypes: Int32Array): string[] {
-        let labels = new Array<string>(ttypes.length);
-        for (let i = 0; i < ttypes.length; i++) {
-            labels[i] = this.getTokenTypeAsTargetLabel(g, ttypes[i]);
+    public getTokenTypesAsTargetLabels(g: Grammar, tokenTypes: number[]): string[] {
+        const labels = new Array<string>(tokenTypes.length);
+        for (let i = 0; i < tokenTypes.length; i++) {
+            labels[i] = this.getTokenTypeAsTargetLabel(g, tokenTypes[i]);
         }
+
         return labels;
     }
 
-    public getTargetStringLiteralFromString(s: string): string;
-
-    /** Given a random string of Java unicode chars, return a new string with
+    /** Given a random string of unicode chars, return a new string with
      *  optionally appropriate quote characters for target language and possibly
      *  with some escaped characters.  For example, if the incoming string has
      *  actual newline characters, the output of this method would convert them
      *  to the two char sequence \n for Java, C, C++, ...  The new string has
      *  double-quotes around it as well.  Example String in memory:
      *
-     *     a"[newlinechar]b'c[carriagereturnchar]d[tab]e\f
+     *     a"[newlineChar]b'c[carriageReturnChar]d[tab]e\f
      *
-     *  would be converted to the valid Java s:
+     *  would be converted to the valid s:
      *
      *     "a\"\nb'c\rd\te\\f"
      *
@@ -161,65 +139,36 @@ export abstract class Target {
      *
      *  depending on the quoted arg.
      */
-    public getTargetStringLiteralFromString(s: string, quoted: boolean): string;
-    public getTargetStringLiteralFromString(...args: unknown[]): string {
-        switch (args.length) {
-            case 1: {
-                const [s] = args as [string];
+    public getTargetStringLiteralFromString(s: string, quoted?: boolean): string {
+        quoted ??= true;
 
-
-                return this.getTargetStringLiteralFromString(s, true);
-
-
-                break;
-            }
-
-            case 2: {
-                const [s, quoted] = args as [string, boolean];
-
-
-                if (s === null) {
-                    return null;
-                }
-
-                let buf = new StringBuilder();
-                if (quoted) {
-                    buf.append('"');
-                }
-                for (let i = 0; i < s.length();) {
-                    let c = s.codePointAt(i);
-                    let escaped = c <= Character.MAX_VALUE ? this.getTargetCharValueEscape().get(Number(c)) : null;
-                    if (c !== '\'' && escaped !== null) { // don't escape single quotes in strings for java
-                        buf.append(escaped);
-                    }
-                    else {
-                        if (this.shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(c)) {
-                            this.appendUnicodeEscapedCodePoint(i, buf);
-                        }
-                        else {
-                            buf.appendCodePoint(c);
-                        }
-                    }
-
-                    i += Character.charCount(c);
-                }
-                if (quoted) {
-                    buf.append('"');
-                }
-                return buf.toString();
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+        let result = "";
+        if (quoted) {
+            result += '"';
         }
+
+        for (let i = 0; i < s.length;) {
+            const c = s.codePointAt(i)!;
+            const escaped = (c <= Character.MAX_VALUE) ? this.getTargetCharValueEscape().get(Number(c)) : undefined;
+            if (c !== 0x27 && escaped) { // Don't escape single quotes in strings for Java.
+                result += escaped;
+            } else {
+                if (this.shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(c)) {
+                    result += this.createUnicodeEscapedCodePoint(i);
+                } else {
+                    result += String.fromCodePoint(c);
+                }
+            }
+
+            i += Character.charCount(c);
+        }
+        if (quoted) {
+            result += '"';
+        }
+
+        return result;
     }
 
-
-    public getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string, addQuotes: boolean): string;
 
     /**
      * <p>Convert from an ANTLR string literal found in a grammar file to an
@@ -237,151 +186,112 @@ export abstract class Target {
      * around.
      * </p>
      */
-    public getTargetStringLiteralFromANTLRStringLiteral(
-        generator: CodeGenerator,
-        literal: string,
-        addQuotes: boolean,
-        escapeSpecial: boolean): string;
-    public getTargetStringLiteralFromANTLRStringLiteral(...args: unknown[]): string {
-        switch (args.length) {
-            case 3: {
-                const [generator, literal, addQuotes] = args as [CodeGenerator, string, boolean];
+    public getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string, addQuotes: boolean,
+        escapeSpecial?: boolean): string {
+        escapeSpecial ??= false;
 
-
-                return this.getTargetStringLiteralFromANTLRStringLiteral(generator, literal, addQuotes, false);
-
-
-                break;
-            }
-
-            case 4: {
-                const [generator, literal, addQuotes, escapeSpecial] = args as [CodeGenerator, string, boolean, boolean];
-
-
-                let sb = new StringBuilder();
-
-                if (addQuotes) {
-                    sb.append('"');
-                }
-
-
-                for (let i = 1; i < literal.length() - 1;) {
-                    let codePoint = literal.codePointAt(i);
-                    let toAdvance = Character.charCount(codePoint);
-                    if (codePoint === '\\') {
-                        // Anything escaped is what it is! We assume that
-                        // people know how to escape characters correctly. However
-                        // we catch anything that does not need an escape in Java (which
-                        // is what the default implementation is dealing with and remove
-                        // the escape. The C target does this for instance.
-                        //
-                        let escapedCodePoint = literal.codePointAt(i + toAdvance);
-                        toAdvance++;
-                        switch (escapedCodePoint) {
-                            // Pass through any escapes that Java also needs
-                            //
-                            case 'n':
-                            case 'r':
-                            case 't':
-                            case 'b':
-                            case 'f':
-                            case '\\': {
-                                // Pass the escape through
-                                if (escapeSpecial && escapedCodePoint !== '\\') {
-                                    sb.append('\\');
-                                }
-                                sb.append('\\');
-                                sb.appendCodePoint(escapedCodePoint);
-                                break;
-                            }
-
-
-                            case 'u': {    // Either unnnn or u{nnnnnn}
-                                if (literal.charAt(i + toAdvance) === '{') {
-                                    while (literal.charAt(i + toAdvance) !== '}') {
-                                        toAdvance++;
-                                    }
-                                    toAdvance++;
-                                }
-                                else {
-                                    toAdvance += 4;
-                                }
-                                if (i + toAdvance <= literal.length()) { // we might have an invalid \\uAB or something
-                                    let fullEscape = literal.substring(i, i + toAdvance);
-                                    this.appendUnicodeEscapedCodePoint(
-                                        CharSupport.getCharValueFromCharInGrammarLiteral(fullEscape),
-                                        sb,
-                                        escapeSpecial);
-                                }
-                                break;
-                            }
-
-                            default: {
-                                if (this.shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(escapedCodePoint)) {
-                                    this.appendUnicodeEscapedCodePoint(escapedCodePoint, sb, escapeSpecial);
-                                }
-                                else {
-                                    sb.appendCodePoint(escapedCodePoint);
-                                }
-                                break;
-                            }
-
-                        }
-                    }
-                    else {
-                        if (codePoint === 0x22) {
-                            // ANTLR doesn't escape " in literal strings,
-                            // but every other language needs to do so.
-                            sb.append("\\\"");
-                        }
-                        else {
-                            if (this.shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint)) {
-                                this.appendUnicodeEscapedCodePoint(codePoint, sb, escapeSpecial);
-                            }
-                            else {
-                                sb.appendCodePoint(codePoint);
-                            }
-                        }
-
-                    }
-                    i += toAdvance;
-                }
-
-                if (addQuotes) {
-                    sb.append('"');
-                }
-
-
-                return sb.toString();
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+        let result = "";
+        if (addQuotes) {
+            result += '"';
         }
+
+        for (let i = 1; i < literal.length - 1;) {
+            const codePoint = literal.codePointAt(i)!;
+            let toAdvance = Character.charCount(codePoint);
+            if (codePoint === 0x5C) { // backslash
+                // Anything escaped is what it is! We assume that
+                // people know how to escape characters correctly. However
+                // we catch anything that does not need an escape in Java (which
+                // is what the default implementation is dealing with and remove
+                // the escape. The C target does this for instance.
+                const escapedChar = literal.charAt(i + toAdvance);
+                toAdvance++;
+                switch (escapedChar) {
+                    // Pass through any escapes that Java also needs
+                    case "n":
+                    case "r":
+                    case "t":
+                    case "b":
+                    case "f":
+                    case "\\": {
+                        // Pass the escape through
+                        if (escapeSpecial && escapedChar !== "\\") {
+                            result += "\\";
+                        }
+                        result += "\\" + escapedChar;
+                        break;
+                    }
+
+
+                    case "u": {    // Either unnnn or u{nnnnnn}
+                        if (literal.charAt(i + toAdvance) === "{") {
+                            while (literal.charAt(i + toAdvance) !== "}") {
+                                toAdvance++;
+                            }
+                            toAdvance++;
+                        } else {
+                            toAdvance += 4;
+                        }
+
+                        if (i + toAdvance <= literal.length) { // we might have an invalid \\uAB or something
+                            const fullEscape = literal.substring(i, i + toAdvance);
+                            result += this.createUnicodeEscapedCodePoint(
+                                CharSupport.getCharValueFromCharInGrammarLiteral(fullEscape), escapeSpecial);
+                        }
+                        break;
+                    }
+
+                    default: {
+                        const codePoint = literal.codePointAt(i + toAdvance)!;
+                        if (this.shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint)) {
+                            result += this.createUnicodeEscapedCodePoint(codePoint, escapeSpecial);
+                        } else {
+                            result += escapedChar;
+                        }
+
+                        break;
+                    }
+                }
+            } else {
+                if (codePoint === 0x22) {
+                    // ANTLR doesn't escape " in literal strings,
+                    // but every other language needs to do so.
+                    result += "\\\"";
+                } else {
+                    if (this.shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint)) {
+                        result += this.createUnicodeEscapedCodePoint(codePoint, escapeSpecial);
+                    } else {
+                        result += String.fromCodePoint(codePoint);
+                    }
+                }
+            }
+            i += toAdvance;
+        }
+
+        if (addQuotes) {
+            result += '"';
+        }
+
+        return result;
     }
 
 
     /** Assume 16-bit char */
     public encodeInt16AsCharEscape(v: number): string {
         if (v < Character.MIN_VALUE || v > Character.MAX_VALUE) {
-            throw new IllegalArgumentException(string.format("Cannot encode the specified value: %d", v));
+            throw new Error(`Cannot encode the specified value: ${v}`);
         }
 
         if (this.isATNSerializedAsInts()) {
-            return number.toString(v);
+            return String(v);
         }
 
-        let c = Number(v);
-        let escaped = this.getTargetCharValueEscape().get(c);
-        if (escaped !== null) {
+        const escaped = this.getTargetCharValueEscape().get(v);
+        if (escaped) {
             return escaped;
         }
 
-        switch (Character.getType(c)) {
+        switch (Character.getType(v)) {
             case Character.CONTROL:
             case Character.LINE_SEPARATOR:
             case Character.PARAGRAPH_SEPARATOR: {
@@ -390,132 +300,110 @@ export abstract class Target {
 
             default: {
                 if (v <= 127) {
-                    return string.valueOf(c);  // ascii chars can be as-is, no encoding
+                    return String(v);  // ascii chars can be as-is, no encoding
                 }
+
                 // else we use hex encoding to ensure pure ascii chars generated
                 return this.escapeChar(v);
             }
-
         }
     }
 
     public getLoopLabel(ast: GrammarAST): string {
-        return "loop" + ast.token.getTokenIndex();
+        return "loop" + ast.token!.tokenIndex;
     }
 
     public getLoopCounter(ast: GrammarAST): string {
-        return "cnt" + ast.token.getTokenIndex();
+        return "cnt" + ast.token!.tokenIndex;
     }
 
     public getListLabel(label: string): string {
-        let st = this.getTemplates().getInstanceOf("ListLabelName");
+        const st = this.getTemplates().getInstanceOf("ListLabelName")!;
         st.add("label", label);
+
         return st.render();
     }
-
-    public getRuleFunctionContextStructName(r: Rule): string;
 
     /** If we know which actual function, we can provide the actual ctx type.
      *  This will contain implicit labels etc...  From outside, though, we
      *  see only ParserRuleContext unless there are externally visible stuff
      *  like args, locals, explicit labels, etc...
      */
-    public getRuleFunctionContextStructName(function: RuleFunction): string;
-    public getRuleFunctionContextStructName(...args: unknown[]): string {
-        switch (args.length) {
-            case 1: {
-                const [r] = args as [Rule];
-
-
-                if (r.g.isLexer()) {
-                    return this.getTemplates().getInstanceOf("LexerRuleContext").render();
-                }
-                return Utils.capitalize(r.name) + this.getTemplates().getInstanceOf("RuleContextNameSuffix").render();
-
-
-                break;
-            }
-
-            case 1: {
-                const [function] = args as [RuleFunction];
-
-
-                let r = function.rule;
-                if (r.g.isLexer()) {
-                    return this.getTemplates().getInstanceOf("LexerRuleContext").render();
-                }
-                return Utils.capitalize(r.name) + this.getTemplates().getInstanceOf("RuleContextNameSuffix").render();
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+    public getRuleFunctionContextStructName(ruleOrFunction: Rule | RuleFunction): string {
+        const rule = ruleOrFunction instanceof Rule ? ruleOrFunction : ruleOrFunction.rule;
+        if (rule.g.isLexer()) {
+            return this.getTemplates().getInstanceOf("LexerRuleContext")!.render();
         }
+
+        return Utils.capitalize(rule.name) + this.getTemplates().getInstanceOf("RuleContextNameSuffix")!.render();
     }
 
 
     public getAltLabelContextStructName(label: string): string {
-        return Utils.capitalize(label) + this.getTemplates().getInstanceOf("RuleContextNameSuffix").render();
+        return Utils.capitalize(label) + this.getTemplates().getInstanceOf("RuleContextNameSuffix")!.render();
     }
 
     // should be same for all refs to same token like ctx.ID within single rule function
     // for literals like 'while', we gen _s<ttype>
     public getImplicitTokenLabel(tokenName: string): string {
-        let st = this.getTemplates().getInstanceOf("ImplicitTokenLabel");
-        let ttype = this.getCodeGenerator().g.getTokenType(tokenName);
+        const st = this.getTemplates().getInstanceOf("ImplicitTokenLabel")!;
+        const ttype = this.getCodeGenerator().g!.getTokenType(tokenName);
         if (tokenName.startsWith("'")) {
             return "s" + ttype;
         }
-        let text = this.getTokenTypeAsTargetLabel(this.getCodeGenerator().g, ttype);
+
+        const text = this.getTokenTypeAsTargetLabel(this.getCodeGenerator().g!, ttype);
         st.add("tokenName", text);
+
         return st.render();
     }
 
     // x=(A|B)
     public getImplicitSetLabel(id: string): string {
-        let st = this.getTemplates().getInstanceOf("ImplicitSetLabel");
+        const st = this.getTemplates().getInstanceOf("ImplicitSetLabel")!;
         st.add("id", id);
+
         return st.render();
     }
 
     public getImplicitRuleLabel(ruleName: string): string {
-        let st = this.getTemplates().getInstanceOf("ImplicitRuleLabel");
+        const st = this.getTemplates().getInstanceOf("ImplicitRuleLabel")!;
         st.add("ruleName", ruleName);
+
         return st.render();
     }
 
     public getElementListName(name: string): string {
-        let st = this.getTemplates().getInstanceOf("ElementListName");
+        const st = this.getTemplates().getInstanceOf("ElementListName")!;
         st.add("elemName", this.getElementName(name));
+
         return st.render();
     }
 
     public getElementName(name: string): string {
-        if (".".equals(name)) {
+        if (name === ".") {
             return "_wild";
         }
 
-        if (this.getCodeGenerator().g.getRule(name) !== null) {
+        if (this.getCodeGenerator().g!.getRule(name) !== null) {
             return name;
         }
 
-        let ttype = this.getCodeGenerator().g.getTokenType(name);
+        const ttype = this.getCodeGenerator().g!.getTokenType(name);
         if (ttype === Token.INVALID_TYPE) {
             return name;
         }
 
-        return this.getTokenTypeAsTargetLabel(this.getCodeGenerator().g, ttype);
+        return this.getTokenTypeAsTargetLabel(this.getCodeGenerator().g!, ttype);
     }
 
     /** Generate TParser.java and TLexer.java from T.g4 if combined, else
      *  just use T.java as output regardless of type.
      */
     public getRecognizerFileName(header: boolean): string {
-        let extST = this.getTemplates().getInstanceOf("codeFileExtension");
-        let recognizerName = this.gen.g.getRecognizerName();
+        const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
+        const recognizerName = this.gen.g!.getRecognizerName();
+
         return recognizerName + extST.render();
     }
 
@@ -524,8 +412,9 @@ export abstract class Target {
        */
     public getListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        let extST = this.getTemplates().getInstanceOf("codeFileExtension");
-        let listenerName = this.gen.g.name + "Listener";
+        const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "Listener";
+
         return listenerName + extST.render();
     }
 
@@ -534,8 +423,9 @@ export abstract class Target {
        */
     public getVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        let extST = this.getTemplates().getInstanceOf("codeFileExtension");
-        let listenerName = this.gen.g.name + "Visitor";
+        const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "Visitor";
+
         return listenerName + extST.render();
     }
 
@@ -544,8 +434,9 @@ export abstract class Target {
        */
     public getBaseListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        let extST = this.getTemplates().getInstanceOf("codeFileExtension");
-        let listenerName = this.gen.g.name + "BaseListener";
+        const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "BaseListener";
+
         return listenerName + extST.render();
     }
 
@@ -554,8 +445,9 @@ export abstract class Target {
        */
     public getBaseVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        let extST = this.getTemplates().getInstanceOf("codeFileExtension");
-        let listenerName = this.gen.g.name + "BaseVisitor";
+        const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "BaseVisitor";
+
         return listenerName + extST.render();
     }
 
@@ -584,7 +476,7 @@ export abstract class Target {
      * @return the serialized ATN segment limit
      */
     public getSerializedATNSegmentLimit(): number {
-        return number.MAX_VALUE;
+        return Number.MAX_VALUE;
     }
 
     /** How many bits should be used to do inline token type tests? Java assumes
@@ -596,14 +488,14 @@ export abstract class Target {
     public getInlineTestSetWordSize(): number { return 64; }
 
     public grammarSymbolCausesIssueInGeneratedCode(idNode: GrammarAST): boolean {
-        switch (idNode.getParent().getType()) {
-            case ANTLRParser.ASSIGN: {
-                switch (idNode.getParent().getParent().getType()) {
-                    case ANTLRParser.ELEMENT_OPTIONS:
-                    case ANTLRParser.OPTIONS: {
+        switch (idNode.getParent()?.getType()) {
+            case ANTLRv4Parser.ASSIGN: {
+                switch (idNode.getParent()?.getParent()?.getType()) {
+                    //case ANTLRv4Parser.ELEMENT_OPTIONS:
+                    case ANTLRv4Parser.LT: // TODO: is that the right replacement for ELEMENT_OPTIONS?
+                    case ANTLRv4Parser.OPTIONS: {
                         return false;
                     }
-
 
                     default: {
                         break;
@@ -615,13 +507,15 @@ export abstract class Target {
             }
 
 
-            case ANTLRParser.AT:
-            case ANTLRParser.ELEMENT_OPTIONS: {
+            //case ANTLRv4Parser.ELEMENT_OPTIONS: {
+            case ANTLRv4Parser.AT:
+            case ANTLRv4Parser.LT: { // TODO: is that the right replacement for ELEMENT_OPTIONS?
                 return false;
             }
 
 
-            case ANTLRParser.LEXER_ACTION_CALL: {
+            //case ANTLRv4Parser.LEXER_ACTION_CALL: {
+            case ANTLRv4Parser.ACTION_CONTENT: { // TODO: is that the right replacement for LEXER_ACTION_CALL?
                 if (idNode.getChildIndex() === 0) {
                     // first child is the command name which is part of the ANTLR language
                     return false;
@@ -638,11 +532,11 @@ export abstract class Target {
 
         }
 
-        return this.getReservedWords().contains(idNode.getText());
+        return this.reservedWords.has(idNode.getText()!);
     }
 
     public templatesExist(): boolean {
-        return this.loadTemplatesHelper(false) !== null;
+        return this.loadTemplatesHelper(false) !== undefined;
     }
 
     /**
@@ -670,17 +564,18 @@ export abstract class Target {
         return true;
     }
 
-    /** @since 4.6 */
-    public needsHeader(): boolean { return false; }
+    public needsHeader(): boolean {
+        return false;
+    }
 
-    protected abstract getReservedWords(): Set<string>;
+    public genFile(g: Grammar | undefined, outputFileST: ST, fileName: string): void {
+        this.getCodeGenerator().write(outputFileST, fileName);
+    }
+
+    protected abstract get reservedWords(): Set<string>;
 
     protected escapeWord(word: string): string {
         return word + "_";
-    }
-
-    public genFile(g: Grammar, outputFileST: ST, fileName: string): void {
-        this.getCodeGenerator().write(outputFileST, fileName);
     }
 
     /**
@@ -690,126 +585,88 @@ export abstract class Target {
      * The static method {@link UnicodeEscapes#appendEscapedCodePoint(StringBuilder, int, String)} can be used as well
      * if default escaping method (Java) is used or language is officially supported
      */
-    protected appendUnicodeEscapedCodePoint(codePoint: number, sb: StringBuilder): void;
+    protected createUnicodeEscapedCodePoint(codePoint: number, escape?: boolean): string {
+        let result = UnicodeEscapes.escapeCodePoint(codePoint, this.getLanguage());
 
-    private appendUnicodeEscapedCodePoint(codePoint: number, sb: StringBuilder, escape: boolean): void;
-    protected appendUnicodeEscapedCodePoint(...args: unknown[]): void {
-        switch (args.length) {
-            case 2: {
-                const [codePoint, sb] = args as [number, StringBuilder];
-
-
-                UnicodeEscapes.appendEscapedCodePoint(sb, codePoint, this.getLanguage());
-
-
-                break;
-            }
-
-            case 3: {
-                const [codePoint, sb, escape] = args as [number, StringBuilder, boolean];
-
-
-                if (escape) {
-                    sb.append("\\");
-                }
-                this.appendUnicodeEscapedCodePoint(codePoint, sb);
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+        if (escape) {
+            result = "\\" + result;
         }
+
+        return result;
     }
 
 
     protected shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint: number): boolean {
-        // We don't want anyone passing 0x0A (newline) or 0x22
-        // (double-quote) here because Java treats \\u000A as
-        // a literal newline and \\u0022 as a literal
-        // double-quote, so Unicode escaping doesn't help.
-        /* assert codePoint != 0x0A && codePoint != 0x22; */
-
-        return;
-        codePoint < 0x20 || // control characters up to but not including space
+        return codePoint < 0x20 || // control characters up to but not including space
             codePoint === 0x5C || // backslash
             codePoint >= 0x7F;   // DEL and beyond (keeps source code 7-bit US-ASCII)
     }
 
     protected escapeChar(v: number): string {
-        return string.format("\\u%04x", v);
+        return v.toString(16).padStart(4, "0");
     }
 
-    @Deprecated
+    /**
+     * @deprecated
+     */
     protected visibleGrammarSymbolCausesIssueInGeneratedCode(idNode: GrammarAST): boolean {
-        return this.getReservedWords().contains(idNode.getText());
+        return this.reservedWords.has(idNode.getText()!);
     }
 
     protected loadTemplates(): STGroup {
-        let result = this.loadTemplatesHelper(true);
-        if (result === null) {
-            return null;
-        }
-        result.registerRenderer(number.class, new NumberRenderer());
-        result.registerRenderer(string.class, new StringRenderer());
-        result.setListener(new class extends STErrorListener {
-            @Override
+        const result = this.loadTemplatesHelper(true)!;
+
+        result.registerRenderer(Number, new NumberRenderer());
+        result.registerRenderer(String, new StringRenderer());
+        result.setListener(new class implements STErrorListener {
+            public constructor(private $outer: Target) {
+            }
+
             public compileTimeError(msg: STMessage): void {
                 this.reportError(msg);
             }
 
-            @Override
+
             public runTimeError(msg: STMessage): void {
                 this.reportError(msg);
             }
 
-            @Override
+
             public IOError(msg: STMessage): void {
                 this.reportError(msg);
             }
 
-            @Override
+
             public internalError(msg: STMessage): void {
                 this.reportError(msg);
             }
 
+            public iOError(msg: STMessage): void {
+                this.reportError(msg);
+            };
+
             private reportError(msg: STMessage): void {
-                $outer.getCodeGenerator().tool.errMgr.toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.cause, msg.toString());
+                this.$outer.getCodeGenerator().tool.errMgr.toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.cause,
+                    msg.toString());
             }
-        }());
+        }(this));
 
         return result;
     }
 
-    private loadTemplatesHelper(reportErrorIfFail: boolean): STGroup {
-        let language = this.getLanguage();
-        let groupFileName = CodeGenerator.TEMPLATE_ROOT + "/" + language + "/" + language + STGroup.GROUP_FILE_EXTENSION;
+    private loadTemplatesHelper(reportErrorIfFail: boolean): STGroup | undefined {
+        const language = this.getLanguage();
+        const groupFileName = CodeGenerator.TEMPLATE_ROOT + "/" + language + "/" + language +
+            STGroup.GROUP_FILE_EXTENSION;
+
         try {
             return new STGroupFile(groupFileName);
-        } catch (iae) {
-            if (iae instanceof IllegalArgumentException) {
-                if (reportErrorIfFail) {
-                    this.gen.tool.errMgr.toolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, iae, this.getLanguage());
-                }
-                return null;
-            } else {
-                throw iae;
+        } catch (e) {
+            if (reportErrorIfFail) {
+                this.gen.tool.errMgr.toolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, e, this.getLanguage());
             }
+
+            return undefined;
         }
     }
-    static {
-        // https://docs.oracle.com/javase/tutorial/java/data/characters.html
-        let map = new HashMap();
-        Target.addEscapedChar(map, '\t', 't');
-        Target.addEscapedChar(map, '\b', 'b');
-        Target.addEscapedChar(map, '\n', 'n');
-        Target.addEscapedChar(map, '\r', 'r');
-        Target.addEscapedChar(map, '\f', 'f');
-        Target.addEscapedChar(map, '\'');
-        Target.addEscapedChar(map, '\"');
-        Target.addEscapedChar(map, '\\');
-        Target.defaultCharValueEscape = map;
-    } // Override in targets that need header files.
 }

@@ -22,6 +22,7 @@ export class UnicodeEscapes {
             case "Go":
             case "PHP": {
                 const format = Character.isSupplementaryCodePoint(codePoint) ? "\\U%08X" : "\\u%04X";
+
                 return printf(format, codePoint);
             }
 

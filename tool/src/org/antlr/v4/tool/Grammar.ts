@@ -42,6 +42,8 @@ import { GrammarRootAST } from "./ast/GrammarRootAST.js";
 import { PredAST } from "./ast/PredAST.js";
 import { RuleAST } from "./ast/RuleAST.js";
 import { TerminalAST } from "./ast/TerminalAST.js";
+import { GrammarType } from "../support/GrammarType.js";
+import { targetLanguages, type SupportedLanguage } from "../codegen/CodeGenerator.js";
 
 export class Grammar implements AttributeResolver {
     public static readonly GRAMMAR_FROM_STRING_NAME = "<string>";
@@ -170,7 +172,7 @@ export class Grammar implements AttributeResolver {
      * Map a token type to its token name. Indexed with raw token type. 0 is
      * invalid.
      */
-    public readonly typeToTokenList: (string | null)[] = [];
+    public readonly typeToTokenList: Array<string | null> = [];
 
     /**
      * Map channel like {@code COMMENTS_CHANNEL} to its constant channel value.
@@ -378,7 +380,7 @@ export class Grammar implements AttributeResolver {
     }
 
     /** Return list of (TOKEN_NAME node, 'literal' node) pairs */
-    public static getStringLiteralAliasesFromLexerRules(ast: GrammarRootAST): [GrammarAST, GrammarAST][] | null {
+    public static getStringLiteralAliasesFromLexerRules(ast: GrammarRootAST): Array<[GrammarAST, GrammarAST]> | null {
         const patterns = [
             "(RULE %name:TOKEN_REF (BLOCK (ALT %lit:STRING_LITERAL)))",
             "(RULE %name:TOKEN_REF (BLOCK (ALT %lit:STRING_LITERAL ACTION)))",
@@ -458,7 +460,7 @@ export class Grammar implements AttributeResolver {
     }
 
     protected static defAlias(r: GrammarAST, pattern: string, wiz: TreeWizard,
-        lexerRuleToStringLiteral: [GrammarAST, GrammarAST][]): boolean {
+        lexerRuleToStringLiteral: Array<[GrammarAST, GrammarAST]>): boolean {
         const nodes = new Map<string, GrammarAST>();
         if (wiz.parse(r, pattern, nodes)) {
             const litNode = nodes.get("lit")!;
@@ -876,8 +878,8 @@ export class Grammar implements AttributeResolver {
      * @see #getTokenName
      * @returns The token names of all tokens defined in the grammar.
      */
-    public getTokenNames(): (string | null)[] {
-        const tokenNames: (string | null)[] = [];
+    public getTokenNames(): Array<string | null> {
+        const tokenNames: Array<string | null> = [];
         for (let i = 0; i < tokenNames.length; i++) {
             tokenNames[i] = this.getTokenName(i);
         }
@@ -893,8 +895,8 @@ export class Grammar implements AttributeResolver {
      * @see #getTokenDisplayName
      * @returns The display names of all tokens defined in the grammar.
      */
-    public getTokenDisplayNames(): (string | null)[] {
-        const tokenNames: (string | null)[] = [];
+    public getTokenDisplayNames(): Array<string | null> {
+        const tokenNames: Array<string | null> = [];
         for (let i = 0; i < tokenNames.length; i++) {
             tokenNames[i] = this.getTokenDisplayName(i);
         }
@@ -905,8 +907,8 @@ export class Grammar implements AttributeResolver {
     /**
      * Gets the literal names assigned to tokens in the grammar.
      */
-    public getTokenLiteralNames(): (string | null)[] {
-        const literalNames: (string | null)[] = [];
+    public getTokenLiteralNames(): Array<string | null> {
+        const literalNames: Array<string | null> = [];
         for (let i = 0; i < Math.min(literalNames.length, this.typeToStringLiteralList.length); i++) {
             literalNames[i] = this.typeToStringLiteralList[i];
         }
@@ -923,8 +925,8 @@ export class Grammar implements AttributeResolver {
     /**
      * Gets the symbolic names assigned to tokens in the grammar.
      */
-    public getTokenSymbolicNames(): (string | null)[] {
-        const symbolicNames: (string | null)[] = [];
+    public getTokenSymbolicNames(): Array<string | null> {
+        const symbolicNames: Array<string | null> = [];
         for (let i = 0; i < Math.min(symbolicNames.length, this.typeToTokenList.length); i++) {
             const name = this.typeToTokenList[i];
             if (!name || name.startsWith(Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX)) {
@@ -1246,12 +1248,12 @@ export class Grammar implements AttributeResolver {
      */
     public getDefaultActionScope(): string | null {
         switch (this.getType()) {
-            case ANTLRv4Parser.LEXER: {
+            case GrammarType.Lexer: {
                 return "lexer";
             }
 
-            case ANTLRv4Parser.PARSER:
-            case ANTLRv4Parser.GRAMMAR: {
+            case GrammarType.Parser:
+            case GrammarType.Combined: {
                 return "parser";
             }
 
@@ -1262,12 +1264,12 @@ export class Grammar implements AttributeResolver {
         return null;
     }
 
-    public getType(): number {
+    public getType(): GrammarType {
         if (this.ast !== null) {
             return this.ast.grammarType;
         }
 
-        return 0;
+        return GrammarType.Lexer;
     }
 
     public getTokenStream(): TokenStream | null {
@@ -1279,15 +1281,15 @@ export class Grammar implements AttributeResolver {
     }
 
     public isLexer(): boolean {
-        return this.getType() === ANTLRv4Parser.LEXER;
+        return this.getType() === GrammarType.Lexer;
     }
 
     public isParser(): boolean {
-        return this.getType() === ANTLRv4Parser.PARSER;
+        return this.getType() === GrammarType.Parser;
     }
 
     public isCombined(): boolean {
-        return this.getType() === ANTLRv4Parser.GRAMMAR;
+        return this.getType() === GrammarType.Combined;
     }
 
     public getTypeString(): string | null {
@@ -1298,8 +1300,13 @@ export class Grammar implements AttributeResolver {
         return ANTLRv4Parser.symbolicNames[this.getType()]!.toLowerCase();
     }
 
-    public getLanguage(): string | null {
-        return this.getOptionString("language");
+    public getLanguage(): SupportedLanguage {
+        const language = this.getOptionString("language");
+        if (language === null || !targetLanguages.includes(language as SupportedLanguage)) {
+            throw new Error("Unsupported language: " + language);
+        }
+
+        return language as SupportedLanguage;
     }
 
     public getOptionString(key: string): string | null {

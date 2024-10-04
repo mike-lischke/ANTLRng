@@ -4,14 +4,28 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { CodeGenerator } from "../CodeGenerator.js";
+// cspell: ignore bitand bitor compl constexpr
+
 import { Target } from "../Target.js";
-import { HashMap, HashSet } from "antlr4ng";
 
 export class CppTarget extends Target {
-    protected static readonly targetCharValueEscape: Map<Character, string>;
+    protected static readonly targetCharValueEscape = new Map<number, string>([
+        // https://stackoverflow.com/a/10220539/1046374
+        [0x07, "a"],
+        [0x08, "b"],
+        [0x09, "t"],
+        [0x0A, "n"],
+        [0x0B, "v"],
+        [0x0C, "f"],
+        [0x0D, "r"],
+        [0x1B, "e"],
+        [0x3F, "?"],
+        [0x5C, "\\"],
+        [0x22, "\""],
+        [0x27, "'"],
+    ]);
 
-    protected static readonly reservedWords = new HashSet(java.util.Arrays.asList(
+    protected static readonly reservedWords = new Set([
         "alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand",
         "bitor", "bool", "break", "case", "catch", "char", "char16_t",
         "char32_t", "class", "compl", "concept", "const", "constexpr",
@@ -29,94 +43,71 @@ export class CppTarget extends Target {
         "xor", "xor_eq",
 
         "rule", "parserRule",
-    ));
+    ]);
 
-    public constructor(gen: CodeGenerator) {
-        super(gen);
-    }
-
-    @Override
-    public override  getTargetCharValueEscape(): Map<Character, string> {
+    public override  getTargetCharValueEscape(): Map<number, string> {
         return CppTarget.targetCharValueEscape;
     }
 
     public override  needsHeader(): boolean { return true; }
 
-    @Override
+
     public override  getRecognizerFileName(header: boolean): string {
-        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension");
-        const recognizerName = this.gen.g.getRecognizerName();
+        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
+        const recognizerName = this.gen.g!.getRecognizerName();
 
         return recognizerName + extST.render();
     }
 
-    @Override
+
     public override  getListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension");
-        const listenerName = this.gen.g.name + "Listener";
+        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "Listener";
 
         return listenerName + extST.render();
     }
 
-    @Override
+
     public override  getVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension");
-        const listenerName = this.gen.g.name + "Visitor";
+        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "Visitor";
 
         return listenerName + extST.render();
     }
 
-    @Override
+
     public override  getBaseListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension");
-        const listenerName = this.gen.g.name + "BaseListener";
+        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "BaseListener";
 
         return listenerName + extST.render();
     }
 
-    @Override
+
     public override  getBaseVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
-        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension");
-        const listenerName = this.gen.g.name + "BaseVisitor";
+        const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
+        const listenerName = this.gen.g!.name + "BaseVisitor";
 
         return listenerName + extST.render();
     }
 
-    @Override
-    protected override  getReservedWords(): java.util.Set<string> {
+
+    protected override  get reservedWords(): Set<string> {
         return CppTarget.reservedWords;
     }
 
-    @Override
+
     protected override  shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint: number): boolean {
-        if (codePoint === "?") {
+        if (codePoint === 0x3F) { // ?
             // in addition to the default escaped code points, also escape ? to prevent trigraphs
             // ideally, we would escape ? with \?, but escaping as unicode \u003F works as well
             return true;
-        }
-        else {
+        } else {
             return super.shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint);
         }
-    }
-    static {
-        // https://stackoverflow.com/a/10220539/1046374
-        const map = new HashMap();
-        CppTarget.addEscapedChar(map, Number(0x0007), "a");
-        CppTarget.addEscapedChar(map, Number(0x0008), "b");
-        CppTarget.addEscapedChar(map, "\t", "t");
-        CppTarget.addEscapedChar(map, "\n", "n");
-        CppTarget.addEscapedChar(map, Number(0x000B), "v");
-        CppTarget.addEscapedChar(map, "\f", "f");
-        CppTarget.addEscapedChar(map, "\r", "r");
-        CppTarget.addEscapedChar(map, Number(0x001B), "e");
-        CppTarget.addEscapedChar(map, '\"');
-        CppTarget.addEscapedChar(map, "'");
-        CppTarget.addEscapedChar(map, "?");
-        CppTarget.addEscapedChar(map, "\\");
-        CppTarget.targetCharValueEscape = map;
     }
 }

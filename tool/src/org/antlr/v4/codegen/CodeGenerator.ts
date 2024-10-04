@@ -6,21 +6,37 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { writeFileSync } from "fs";
 import { Token } from "antlr4ng";
+import { AutoIndentWriter, ST, StringWriter, type STGroup } from "stringtemplate4ts";
 
 import { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
+import { OutputModelObject } from "./model/OutputModelObject.js";
 import { OutputModelController } from "./OutputModelController.js";
 import { OutputModelWalker } from "./OutputModelWalker.js";
 import { ParserFactory } from "./ParserFactory.js";
 import { Target } from "./Target.js";
-import { OutputModelObject } from "./model/OutputModelObject.js";
-import { AutoIndentWriter, ST, type STGroup } from "stringtemplate4ts";
 
-/**
-  General controller for code gen.  Can instantiate sub generator(s).
- */
+// Possible targets:
+import { CppTarget } from "./target/CppTarget.js";
+import { CSharpTarget } from "./target/CSharpTarget.js";
+import { GoTarget } from "./target/GoTarget.js";
+import { JavaScriptTarget } from "./target/JavaScriptTarget.js";
+import { JavaTarget } from "./target/JavaTarget.js";
+import { PHPTarget } from "./target/PHPTarget.js";
+import { Python3Target } from "./target/Python3Target.js";
+import { SwiftTarget } from "./target/SwiftTarget.js";
+import { TypeScriptTarget } from "./target/TypeScriptTarget.js";
+
+export const targetLanguages = [
+    "Cpp", "CSharp", "Go", "JavaScript", "Java", "PHP", "Python3", "Swift", "TypeScript"
+] as const;
+
+export type SupportedLanguage = typeof targetLanguages[number];
+
+/**  General controller for code gen.  Can instantiate sub generator(s). */
 export class CodeGenerator {
     public static readonly TEMPLATE_ROOT = "org/antlr/v4/tool/templates/codegen";
     public static readonly VOCAB_FILE_EXTENSION = ".tokens";
@@ -28,7 +44,7 @@ export class CodeGenerator {
         "<tokens.keys:{t | <t>=<tokens.(t)>\n}>" +
         "<literals.keys:{t | <t>=<literals.(t)>\n}>";
 
-    public readonly g: Grammar;
+    public readonly g?: Grammar;
 
     public readonly tool: Tool;
 
@@ -38,36 +54,24 @@ export class CodeGenerator {
 
     private target: Target;
 
-    private constructor(tool: Tool, g: Grammar, language: string) {
+    static #languageMap = new Map<SupportedLanguage, new (generator: CodeGenerator) => Target>([
+        ["Cpp", CppTarget],
+        ["CSharp", CSharpTarget],
+        ["Go", GoTarget],
+        ["JavaScript", JavaScriptTarget],
+        ["Java", JavaTarget],
+        ["PHP", PHPTarget],
+        ["Python3", Python3Target],
+        ["Swift", SwiftTarget],
+        ["TypeScript", TypeScriptTarget],
+    ]);
+
+    public constructor(tool: Tool, g: Grammar | undefined, language: SupportedLanguage) {
         this.g = g;
         this.tool = tool;
         this.language = language;
-    }
 
-    public static fromGrammar(g: Grammar): CodeGenerator {
-        return CodeGenerator.fromTool(g.tool, g, g.getLanguage()!);
-    }
-
-    public static fromTool(tool: Tool, g: Grammar, language: string): CodeGenerator {
-        /*const targetName = "org.antlr.v4.codegen.target." + language + "Target";
-        try {
-            const c = Class.forName(targetName).asSubclass(Target.class);
-            const ctor = c.getConstructor(CodeGenerator.class);
-            const codeGenerator = new CodeGenerator(tool, g, language);
-            codeGenerator.target = ctor.newInstance(codeGenerator);
-
-            return codeGenerator;
-        } catch (e) {
-            if (e instanceof Exception) {
-                g.tool.errMgr.toolError(ErrorType.CANNOT_CREATE_TARGET_GENERATOR, e, language);
-
-                return null;
-            } else {
-                throw e;
-            }
-        }*/
-
-        throw new Error("CodeGenerator.fromTool not implemented");
+        this.target = new (CodeGenerator.#languageMap.get(language)!)(this);
     }
 
     public getTarget(): Target {
@@ -153,18 +157,20 @@ export class CodeGenerator {
         // does not change per target
         const tokenVocabSerialization = this.getTokenVocabOutput();
         const fileName = this.getVocabFileName();
-        if (fileName !== null) {
+        if (fileName !== undefined) {
             this.target.genFile(this.g, tokenVocabSerialization, fileName);
         }
     }
 
     public write(code: ST, fileName: string): void {
         try {
-            const w = this.tool.getOutputFile(this.g, fileName);
+            fileName = this.tool.getOutputFile(this.g!, fileName);
+            const w = new StringWriter();
             const wr = new AutoIndentWriter(w);
             wr.setLineWidth(this.lineWidth);
             code.write(wr);
-            //w.close();
+
+            writeFileSync(fileName, w.toString(), "utf8");
         } catch (cause) {
             if (cause instanceof Error) {
                 this.tool.errMgr.toolError(ErrorType.CANNOT_WRITE_FILE, cause, fileName);
@@ -216,10 +222,10 @@ export class CodeGenerator {
 
     /**
      * What is the name of the vocab file generated for this grammar?
-     *  Returns null if no .tokens file should be generated.
+     * Returns undefined if no ".tokens" file should be generated.
      */
-    public getVocabFileName(): string {
-        return this.g.name + CodeGenerator.VOCAB_FILE_EXTENSION;
+    public getVocabFileName(): string | undefined {
+        return this.g!.name + CodeGenerator.VOCAB_FILE_EXTENSION;
     }
 
     public getHeaderFileName(): string | undefined {
@@ -228,7 +234,7 @@ export class CodeGenerator {
             return undefined;
         }
 
-        const recognizerName = this.g.getRecognizerName();
+        const recognizerName = this.g!.getRecognizerName();
 
         return recognizerName + extST.render();
     }
@@ -246,7 +252,7 @@ export class CodeGenerator {
         const tokens = new Map<string, number>();
 
         // Make constants for the token names.
-        for (const [key, value] of this.g.tokenNameToTypeMap) {
+        for (const [key, value] of this.g!.tokenNameToTypeMap) {
             if (value >= Token.MIN_USER_TOKEN_TYPE) {
                 tokens.set(key, value);
             }
@@ -255,7 +261,7 @@ export class CodeGenerator {
 
         // Now dump the strings.
         const literals = new Map<string, number>();
-        for (const [key, value] of this.g.stringLiteralToTypeMap) {
+        for (const [key, value] of this.g!.stringLiteralToTypeMap) {
             if (value >= Token.MIN_USER_TOKEN_TYPE) {
                 literals.set(key, value);
             }

@@ -79,7 +79,7 @@ export class AttributeDict {
     }
 
     public toString(): string {
-        return this.getName() + ":" + this.attributes;
+        return this.getName() + ":" + String(this.attributes);
     }
 
     static {

@@ -6,6 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { type IComparable } from "antlr4ng";
+
 import { Alternative } from "./Alternative.js";
 import { Attribute } from "./Attribute.js";
 import { AttributeDict } from "./AttributeDict.js";
@@ -19,8 +21,9 @@ import { AltAST } from "./ast/AltAST.js";
 import { GrammarAST } from "./ast/GrammarAST.js";
 import { PredAST } from "./ast/PredAST.js";
 import { RuleAST } from "./ast/RuleAST.js";
+import { MurmurHash } from "../support/MurmurHash.js";
 
-export class Rule implements AttributeResolver {
+export class Rule implements AttributeResolver, IComparable {
     /**
      * Rule refs have a predefined set of attributes as well as
      *  the return values and args.
@@ -101,6 +104,14 @@ export class Rule implements AttributeResolver {
 
         this.mode = lexerMode;
         this.caseInsensitive = caseInsensitive;
+    }
+
+    public hashCode(): number {
+        let hash = MurmurHash.initialize();
+        hash = hash * 31 + MurmurHash.update(hash, this.name);
+        hash = hash * 31 + this.numberOfAlts;
+
+        return hash;
     }
 
     public defineActionInAlt(currentAlt: number, actionAST: ActionAST): void {

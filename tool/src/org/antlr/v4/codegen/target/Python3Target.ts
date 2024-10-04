@@ -4,12 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+// cspell: ignore bytearray classmethod delattr divmod frozenset getattr hasattr isinstance issubclass memoryview
+// cspell: ignore setattr repr staticmethod unichr
+
 import { CodeGenerator } from "../CodeGenerator.js";
-import { Target } from "../Target.js";
-import { HashSet, HashMap } from "antlr4ng";
+import { Target, type char } from "../Target.js";
 
 export class Python3Target extends Target {
-    protected static readonly reservedWords = new HashSet(java.util.Arrays.asList(
+    protected static readonly reservedWords = new Set([
         "abs", "all", "and", "any", "apply", "as", "assert",
         "bin", "bool", "break", "buffer", "bytearray",
         "callable", "chr", "class", "classmethod", "coerce", "compile", "complex", "continue",
@@ -37,51 +39,48 @@ export class Python3Target extends Target {
 
         // misc
         "rule", "parserRule",
-    ));
+    ]);
 
-    protected static readonly targetCharValueEscape: Map<Character, string>;
+    protected static readonly targetCharValueEscape = new Map<char, string>([
+        // https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+        [0x07, "a"],
+        [0x08, "b"],
+        [0x09, "t"],
+        [0x0A, "n"],
+        [0x0C, "f"],
+        [0x0D, "r"],
+        [0x0B, "v"],
+        [0x5C, "\\"],
+        [0x22, "\""],
+        [0x27, "'"],
+    ]);
 
     public constructor(gen: CodeGenerator) {
         super(gen);
     }
 
-    @Override
-    public override  getTargetCharValueEscape(): Map<Character, string> {
+
+    public override  getTargetCharValueEscape(): Map<char, string> {
         return Python3Target.targetCharValueEscape;
     }
 
-    @Override
+
     public override  wantsBaseListener(): boolean {
         return false;
     }
 
-    @Override
+
     public override  wantsBaseVisitor(): boolean {
         return false;
     }
 
-    @Override
+
     public override  supportsOverloadedMethods(): boolean {
         return false;
     }
 
-    @Override
-    protected override  getReservedWords(): java.util.Set<string> {
+
+    protected override  get reservedWords(): Set<string> {
         return Python3Target.reservedWords;
-    }
-    static {
-        // https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
-        const map = new HashMap();
-        Python3Target.addEscapedChar(map, "\\");
-        Python3Target.addEscapedChar(map, "'");
-        Python3Target.addEscapedChar(map, '\"');
-        Python3Target.addEscapedChar(map, Number(0x0007), "a");
-        Python3Target.addEscapedChar(map, Number(0x0008), "b");
-        Python3Target.addEscapedChar(map, "\f", "f");
-        Python3Target.addEscapedChar(map, "\n", "n");
-        Python3Target.addEscapedChar(map, "\r", "r");
-        Python3Target.addEscapedChar(map, "\t", "t");
-        Python3Target.addEscapedChar(map, Number(0x000B), "v");
-        Python3Target.targetCharValueEscape = map;
     }
 }

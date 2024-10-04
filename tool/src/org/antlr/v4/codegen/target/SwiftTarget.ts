@@ -4,61 +4,55 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { CodeGenerator } from "../CodeGenerator.js";
-import { Target } from "../Target.js";
-import { HashMap, HashSet } from "antlr4ng";
+// cspell: ignore associatedtype deinit typealias nonmutating
+
+
+import { format } from "../../misc/helpers.js";
+import { Target, type char } from "../Target.js";
 
 export class SwiftTarget extends Target {
-    protected static readonly targetCharValueEscape: Map<Character, string>;
+    // https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
+    protected static readonly targetCharValueEscape = new Map<number, string>([
+        [0, "0"],
+        [0x5C, "\\"],
+        [0x09, "t"],
+        [0x0A, "n"],
+        [0x0D, "r"],
+        [0x22, "\""],
+        [0x27, "'"],
+    ]);
 
-    protected static readonly reservedWords = new HashSet(Arrays.asList(
+    protected static readonly reservedWords = new Set([
         "associatedtype", "class", "deinit", "enum", "extension", "func", "import", "init", "inout", "internal",
         "let", "operator", "private", "protocol", "public", "static", "struct", "subscript", "typealias", "var",
         "break", "case", "continue", "default", "defer", "do", "else", "fallthrough", "for", "guard", "if",
         "in", "repeat", "return", "switch", "where", "while",
         "as", "catch", "dynamicType", "false", "is", "nil", "rethrows", "super", "self", "Self", "throw", "throws",
-        "true", "try", "__COLUMN__", "__FILE__", "__FUNCTION__", "__LINE__", "#column", "#file", "#function", "#line", "_", "#available", "#else", "#elseif", "#endif", "#if", "#selector",
+        "true", "try", "__COLUMN__", "__FILE__", "__FUNCTION__", "__LINE__", "#column", "#file", "#function", "#line",
+        "_", "#available", "#else", "#elseif", "#endif", "#if", "#selector",
         "associativity", "convenience", "dynamic", "didSet", "final", "get", "infix", "indirect", "lazy",
         "left", "mutating", "none", "nonmutating", "optional", "override", "postfix", "precedence",
         "prefix", "Protocol", "required", "right", "set", "Type", "unowned", "weak", "willSet",
 
         "rule", "parserRule",
-    ));
+    ]);
 
-    public constructor(gen: CodeGenerator) {
-        super(gen);
-    }
-
-    @Override
-    public override  getTargetCharValueEscape(): Map<Character, string> {
+    public override  getTargetCharValueEscape(): Map<char, string> {
         return SwiftTarget.targetCharValueEscape;
     }
 
-    @Override
-    protected override  getReservedWords(): Set<string> {
+
+    protected override  get reservedWords(): Set<string> {
         return SwiftTarget.reservedWords;
     }
 
-    @Override
+
     protected override  escapeWord(word: string): string {
         return "`" + word + "`";
     }
 
-    @Override
-    protected override  escapeChar(v: number): string {
-        return string.format("\\u{%X}", v);
-    }
 
-    static {
-        // https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
-        const map = new HashMap();
-        SwiftTarget.addEscapedChar(map, "\0", "0");
-        SwiftTarget.addEscapedChar(map, "\\");
-        SwiftTarget.addEscapedChar(map, "\t", "t");
-        SwiftTarget.addEscapedChar(map, "\n", "n");
-        SwiftTarget.addEscapedChar(map, "\r", "r");
-        SwiftTarget.addEscapedChar(map, '\"');
-        SwiftTarget.addEscapedChar(map, "'");
-        SwiftTarget.targetCharValueEscape = map;
+    protected override  escapeChar(v: number): string {
+        return format("\\u{%X}", v);
     }
 }

@@ -5582,7 +5582,7 @@ export class GrammarTreeVisitor extends TreeParser {
     protected exitElementOption(tree: GrammarAST): void { }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
+
 export namespace GrammarTreeVisitor {
     export type grammarSpec_return = InstanceType<typeof GrammarTreeVisitor.grammarSpec_return>;
     export type prequelConstructs_return = InstanceType<typeof GrammarTreeVisitor.prequelConstructs_return>;

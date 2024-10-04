@@ -24,15 +24,7 @@ export class AnalysisPipeline {
     public static disjoint(altLook: IntervalSet[]): boolean {
         let collision = false;
         const combined = new IntervalSet();
-        if (altLook === null) {
-            return false;
-        }
-
         for (const look of altLook) {
-            if (!look) {
-                return false;
-            }
-
             // lookahead must've computation failed
             if (look.and(combined).length >= 0) {
                 collision = true;
@@ -46,7 +38,7 @@ export class AnalysisPipeline {
 
     public process(): void {
         // LEFT-RECURSION CHECK
-        const lr = new LeftRecursionDetector(this.g, this.g.#atn);
+        const lr = new LeftRecursionDetector(this.g, this.g.atn);
         lr.check();
         if (lr.listOfRecursiveCycles.length !== 0) {
             return;
@@ -69,7 +61,7 @@ export class AnalysisPipeline {
             }
 
             const analyzer = new LL1Analyzer();
-            const look = analyzer.look(this.g.#atn, this.g.#atn.ruleToStartState[rule.index]!, undefined);
+            const look = analyzer.look(this.g.atn, this.g.atn.ruleToStartState[rule.index]!, undefined);
             if (look.contains(Token.EPSILON)) {
                 this.g.tool.errMgr.grammarError(ErrorType.EPSILON_TOKEN, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
@@ -78,23 +70,26 @@ export class AnalysisPipeline {
     }
 
     protected processParser(): void {
-        this.g.decisionLOOK = new Array<IntervalSet[]>(this.g.#atn.getNumberOfDecisions() + 1);
-        for (const s of this.g.#atn.decisionToState) {
-            this.g.tool.logInfo("LL1", "\nDECISION " + s.decision + " in rule " + this.g.getRule(s.ruleIndex).name);
-            let look: IntervalSet[];
+        this.g.decisionLOOK = new Array<IntervalSet[]>(this.g.atn.getNumberOfDecisions() + 1);
+        for (const s of this.g.atn.decisionToState) {
+            this.g.tool.logInfo({
+                component: "LL1",
+                msg: "\nDECISION " + s.decision + " in rule " + this.g.getRule(s.ruleIndex)?.name
+            });
+
+            let look: IntervalSet[] | undefined;
             if (s.nonGreedy) { // nongreedy decisions can't be LL(1)
-                look = new Array<IntervalSet>(s.getNumberOfTransitions() + 1);
-            }
-            else {
-                const anal = new LL1Analyzer(this.g.#atn);
-                look = anal.getDecisionLookahead(s);
-                this.g.tool.logInfo("LL1", "look=" + Arrays.toString(look));
+                look = new Array<IntervalSet>(s.transitions.length + 1);
+            } else {
+                const anal = new LL1Analyzer();
+                look = anal.getDecisionLookahead(s) as IntervalSet[];
+                this.g.tool.logInfo({ component: "LL1", msg: "look=" + look });
             }
 
             /* assert s.decision + 1 >= g.decisionLOOK.size(); */
             Utils.setSize(this.g.decisionLOOK, s.decision + 1);
-            this.g.decisionLOOK.set(s.decision, look);
-            this.g.tool.logInfo("LL1", "LL(1)? " + AnalysisPipeline.disjoint(look));
+            this.g.decisionLOOK[s.decision] = look;
+            this.g.tool.logInfo({ component: "LL1", msg: "LL(1)? " + AnalysisPipeline.disjoint(look) });
         }
     }
 }

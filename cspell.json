@@ -89,6 +89,7 @@
         "nintervals",
         "nmodes",
         "nonambig",
+        "nongreedy",
         "nqry",
         "nrules",
         "nsets",

@@ -211,7 +211,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                 const altLabel = altAST.altLabel.getText();
                 // first check that label doesn't conflict with a rule
                 // label X or x can't be rule x.
-                const r = this.ruleCollector.rules.get(Utils.decapitalize(altLabel));
+                const r = this.ruleCollector.nameToRuleMap.get(Utils.decapitalize(altLabel));
                 if (r !== null) {
                     this.g.tool.errMgr.grammarError(ErrorType.ALT_LABEL_CONFLICTS_WITH_RULE,
                         this.g.fileName, altAST.altLabel.token,

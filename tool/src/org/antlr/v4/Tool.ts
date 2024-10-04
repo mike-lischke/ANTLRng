@@ -18,7 +18,7 @@ import { IATNFactory } from "./automata/ATNFactory.js";
 import { LexerATNFactory } from "./automata/LexerATNFactory.js";
 import { ParserATNFactory } from "./automata/ParserATNFactory.js";
 import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
-import { CodeGenerator } from "./codegen/CodeGenerator.js";
+import { CodeGenerator, targetLanguages, type SupportedLanguage } from "./codegen/CodeGenerator.js";
 import { grammarOptions } from "./grammar-options.js";
 import { Graph } from "./misc/Graph.js";
 import { GrammarASTAdaptor } from "./parse/GrammarASTAdaptor.js";
@@ -217,7 +217,7 @@ export class Tool {
             return;
         }
 
-        const codeGenerator = CodeGenerator.fromGrammar(g);
+        const codeGenerator = new CodeGenerator(this, g, g.getLanguage());
 
         // BUILD ATN FROM AST
         let factory: IATNFactory;

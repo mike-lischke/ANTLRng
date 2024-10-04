@@ -6,8 +6,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns , jsdoc/require-param */
-
 import { Token, Vocabulary } from "antlr4ng";
 import { CharSupport } from "./CharSupport.js";
 
@@ -42,4 +40,42 @@ export const getTokenDisplayName = (ttype: number, vocabulary: Vocabulary, isLex
     }
 
     return String(ttype);
+};
+
+/**
+ * Formats a string using the provided arguments. This is a partial implementation of the `String.format`
+ * method in Java.
+ *
+ * @param formatString The format string.
+ * @param args The arguments to use for formatting.
+ *
+ * @returns The formatted string.
+ */
+export const format = (formatString: string, ...args: unknown[]): string => {
+    // cspell: ignore Xdfs
+    return formatString.replace(/%([xXdfs])/g, (match, format) => {
+        const value = args.shift()!;
+        switch (format) {
+            case "x": {
+                return Number(value).toString(16);
+            }
+
+            case "X": {
+                return Number(value).toString(16).toUpperCase();
+            }
+
+            case "f": {
+                return Number(value).toFixed(6);
+            }
+
+            case "s":
+            case "d": {
+                return String(value);
+            }
+
+            default: {
+                return match;
+            }
+        }
+    });
 };

@@ -70,7 +70,7 @@ export class SemanticPipeline {
         // TRANSFORM LEFT-RECURSIVE RULES
         prevErrors = this.g.tool.errMgr.getNumErrors();
         const lrtrans =
-            new LeftRecursiveRuleTransformer(this.g.ast, ruleCollector.rules.values(), this.g);
+            new LeftRecursiveRuleTransformer(this.g.ast, ruleCollector.nameToRuleMap.values(), this.g);
         lrtrans.translateLeftRecursiveRules();
 
         // don't continue if we got errors during left-recursion elimination
@@ -79,7 +79,7 @@ export class SemanticPipeline {
         }
 
         // STORE RULES IN GRAMMAR
-        for (const r of ruleCollector.rules.values()) {
+        for (const r of ruleCollector.nameToRuleMap.values()) {
             this.g.defineRule(r);
         }
 
