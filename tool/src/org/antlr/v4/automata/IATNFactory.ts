@@ -20,7 +20,7 @@ import { TerminalAST } from "../tool/ast/TerminalAST.js";
  */
 export interface IStatePair {
     left: ATNState;
-    right: ATNState;
+    right: ATNState | null;
 }
 
 export interface IATNFactory {
@@ -32,10 +32,10 @@ export interface IATNFactory {
     newState(): ATNState;
     label(t: IStatePair): IStatePair;
     listLabel(t: IStatePair): IStatePair;
-    tokenRef(node: TerminalAST): IStatePair;
+    tokenRef(node: TerminalAST): IStatePair | null;
     set(associatedAST: GrammarAST, alts: GrammarAST[], invert: boolean): IStatePair;
-    charSetLiteral(charSetAST: GrammarAST): IStatePair;
-    range(a: GrammarAST, b: GrammarAST): IStatePair;
+    charSetLiteral(charSetAST: GrammarAST): IStatePair | null;
+    range(a: GrammarAST, b: GrammarAST): IStatePair | null;
 
     /**
      * For a non-lexer, just build a simple token reference atom.
@@ -44,7 +44,7 @@ export interface IATNFactory {
      *  the DFA. Machine== o-'f'->o-'o'->o-'g'->o and has n+1 states
      *  for n characters.
      */
-    stringLiteral(stringLiteralAST: TerminalAST): IStatePair;
+    stringLiteral(stringLiteralAST: TerminalAST): IStatePair | null;
 
     /**
      * For reference to rule r, build
@@ -62,7 +62,7 @@ export interface IATNFactory {
      *
      * TODO add to codegen: collapse alt blocks that are sets into single matchSet
      */
-    ruleRef(node: GrammarAST): IStatePair;
+    ruleRef(node: GrammarAST): IStatePair | null;
 
     /** From an empty alternative build Grip o-e->o */
     epsilon(node: GrammarAST): IStatePair;
@@ -78,9 +78,8 @@ export interface IATNFactory {
      * Build what amounts to an epsilon transition with an action.
      * The action goes into ATN though it is ignored during analysis.
      */
-    action(action: ActionAST): IStatePair;
+    action(action: ActionAST | string): IStatePair;
 
-    action(action: string): IStatePair;
     alt(els: IStatePair[]): IStatePair;
 
     /**
@@ -107,7 +106,7 @@ export interface IATNFactory {
      *
      * Set alt number (1..n) in the left-Transition ATNState.
      */
-    block(blockAST: BlockAST, ebnfRoot: GrammarAST, alternativeGrips: IStatePair[]): IStatePair;
+    block(blockAST: BlockAST, ebnfRoot: GrammarAST | null, alternativeGrips: IStatePair[]): IStatePair | null;
 
     /**
      * From (A)? build either:

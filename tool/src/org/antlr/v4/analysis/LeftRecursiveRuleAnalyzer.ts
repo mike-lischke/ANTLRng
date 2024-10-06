@@ -42,7 +42,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
     public prefixAndOtherAlts = new Array<LeftRecursiveRuleAltInfo>();
 
     /** Pointer to ID node of ^(= ID element) */
-    public leftRecursiveRuleRefLabels = new Array<[GrammarAST, string | undefined]>();
+    public leftRecursiveRuleRefLabels = new Array<[GrammarAST, string]>();
 
     /** Tokens from which rule AST comes from */
     public readonly tokenStream: TokenStream;
@@ -138,7 +138,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public override binaryAlt(originalAltTree: AltAST, alt: number): void {
         let altTree = originalAltTree.dupTree() as AltAST;
-        const altLabel = altTree.altLabel?.getText() ?? undefined;
+        const altLabel = altTree.altLabel!.getText()!;
 
         let label: string | undefined;
         let isListLabel = false;
@@ -183,7 +183,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public override suffixAlt(originalAltTree: AltAST, alt: number): void {
         const altTree = originalAltTree.dupTree() as AltAST;
-        const altLabel = altTree.altLabel?.getText() ?? undefined;
+        const altLabel = altTree.altLabel!.getText()!;
 
         let label: string | undefined;
         let isListLabel = false;

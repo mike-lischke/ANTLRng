@@ -1,102 +1,114 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import {
+    ActionTransition, ATN, ATNState, AtomTransition, CodePointTransitions, CommonToken, IntervalSet, IntStream, Lexer,
+    LexerAction, LexerChannelAction, LexerCustomAction, LexerModeAction, LexerMoreAction, LexerPopModeAction,
+    LexerPushModeAction, LexerSkipAction, LexerTypeAction, NotSetTransition, SetTransition, Token, TokensStartState,
+    Transition
+} from "antlr4ng";
+import type { STGroup } from "stringtemplate4ts";
 
-
-import { RangeBorderCharactersData } from "./RangeBorderCharactersData.js";
-import { ParserATNFactory } from "./ParserATNFactory.js";
-import { CharactersDataCheckStatus } from "./CharactersDataCheckStatus.js";
-import { ATNOptimizer } from "./ATNOptimizer.js";
-import { IATNFactory } from "./ATNFactory.js";
+import type { CommonTree } from "../../../../../../src/antlr3/tree/CommonTree.js";
+import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
 import { CodeGenerator } from "../codegen/CodeGenerator.js";
 import { CharSupport } from "../misc/CharSupport.js";
-import { EscapeSequenceParsing } from "../misc/EscapeSequenceParsing.js";
-import { Lexer, Transition, TokensStartState, SetTransition, RuleStartState, NotSetTransition, LexerTypeAction, LexerSkipAction, LexerPushModeAction, LexerPopModeAction, LexerMoreAction, LexerModeAction, LexerCustomAction, LexerChannelAction, LexerAction, CodePointTransitions, AtomTransition, ActionTransition, ATNState, ATN, Interval, IntervalSet, HashMap } from "antlr4ng";
+import { EscapeSequenceParsing, ResultType } from "../misc/EscapeSequenceParsing.js";
+import { format } from "../misc/helpers.js";
+import { Character } from "../support/Character.js";
+import { MurmurHash } from "../support/MurmurHash.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { LexerGrammar } from "../tool/LexerGrammar.js";
-import { Rule } from "../tool/Rule.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { RangeAST } from "../tool/ast/RangeAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
+import { ATNOptimizer } from "./ATNOptimizer.js";
+import { CharactersDataCheckStatus } from "./CharactersDataCheckStatus.js";
+import type { IStatePair } from "./IATNFactory.js";
+import { ParserATNFactory } from "./ParserATNFactory.js";
+import { RangeBorderCharactersData } from "./RangeBorderCharactersData.js";
 
-
+enum Mode {
+    NONE,
+    ERROR,
+    PREV_CODE_POINT,
+    PREV_PROPERTY,
+};
 
 export class LexerATNFactory extends ParserATNFactory {
 
     /**
      * Provides a map of names of predefined constants which are likely to
-     * appear as the argument for lexer commands. These names would be resolved
-     * by the Java compiler for lexer commands that are translated to embedded
-     * actions, but are required during code generation for creating
+     * appear as the argument for lexer commands. These names are required during code generation for creating
      * {@link LexerAction} instances that are usable by a lexer interpreter.
      */
-    public static readonly COMMON_CONSTANTS = new HashMap<string, number>();
+    public static readonly COMMON_CONSTANTS = new Map<string, number>([
+        ["HIDDEN", Lexer.HIDDEN],
+        ["DEFAULT_TOKEN_CHANNEL", Lexer.DEFAULT_TOKEN_CHANNEL],
+        ["DEFAULT_MODE", Lexer.DEFAULT_MODE],
+        ["SKIP", Lexer.SKIP],
+        ["MORE", Lexer.MORE],
+        ["EOF", Lexer.EOF],
+        //["MAX_CHAR_VALUE", Lexer.MAX_CHAR_VALUE], // TODO: are these constants needed?
+        //["MIN_CHAR_VALUE", Lexer.MIN_CHAR_VALUE],
+    ]);
 
     public static CharSetParseState = class CharSetParseState {
 
-        public static readonly NONE = new CharSetParseState(LexerATNFactory.CharSetParseState.Mode.NONE, false, -1, IntervalSet.EMPTY_SET);
-        public static readonly ERROR = new CharSetParseState(LexerATNFactory.CharSetParseState.Mode.ERROR, false, -1, IntervalSet.EMPTY_SET);
+        public static readonly NONE = new CharSetParseState(Mode.NONE, false, -1, new IntervalSet());
+        public static readonly ERROR = new CharSetParseState(Mode.ERROR, false, -1, new IntervalSet());
 
-        public readonly mode: LexerATNFactory.CharSetParseState.Mode;
+        public readonly mode: Mode;
         public readonly inRange: boolean;
         public readonly prevCodePoint: number;
         public readonly prevProperty: IntervalSet;
 
-        public constructor(
-            mode: LexerATNFactory.CharSetParseState.Mode,
-            inRange: boolean,
-            prevCodePoint: number,
-            prevProperty: IntervalSet) {
+        public constructor(mode: Mode, inRange: boolean, prevCodePoint: number, prevProperty: IntervalSet) {
             this.mode = mode;
             this.inRange = inRange;
             this.prevCodePoint = prevCodePoint;
             this.prevProperty = prevProperty;
         }
 
-        @Override
-        public override  toString(): string {
-            return string.format(
-                "%s mode=%s inRange=%s prevCodePoint=%d prevProperty=%s",
-                super.toString(),
-                this.mode,
-                this.inRange,
-                this.prevCodePoint,
-                this.prevProperty);
+
+        public toString(): string {
+            return format("%s mode=%s inRange=%s prevCodePoint=%d prevProperty=%s", String(this), this.mode,
+                this.inRange, this.prevCodePoint, this.prevProperty);
         }
 
-        @Override
-        public override  equals(other: Object): boolean {
+        public equals(other: object): boolean {
             if (!(other instanceof CharSetParseState)) {
                 return false;
             }
-            let that = other as CharSetParseState;
+
+            const that = other;
             if (this === that) {
                 return true;
             }
-            return Objects.equals(this.mode, that.mode) &&
-                Objects.equals(this.inRange, that.inRange) &&
-                Objects.equals(this.prevCodePoint, that.prevCodePoint) &&
-                Objects.equals(this.prevProperty, that.prevProperty);
+
+            return this.mode === that.mode &&
+                this.inRange === that.inRange &&
+                this.prevCodePoint === that.prevCodePoint &&
+                this.prevProperty.equals(that.prevProperty);
         }
 
-        @Override
-        public override  hashCode(): number {
-            return Objects.hash(this.mode, this.inRange, this.prevCodePoint, this.prevProperty);
+
+        public hashCode(): number {
+            let hash = MurmurHash.initialize();
+            hash = MurmurHash.update(hash, this.mode);
+            hash = MurmurHash.update(hash, this.inRange);
+            hash = MurmurHash.update(hash, this.prevCodePoint);
+            hash = MurmurHash.update(hash, this.prevProperty);
+            hash = MurmurHash.finish(hash, 4);
+
+            return hash;
         }
-        protected static Mode = class Mode extends Enum<Mode> {
-            public static readonly NONE: Mode = new class extends Mode {
-            }(S`NONE`, 0);
-            public static readonly ERROR: Mode = new class extends Mode {
-            }(S`ERROR`, 1);
-            public static readonly PREV_CODE_POINT: Mode = new class extends Mode {
-            }(S`PREV_CODE_POINT`, 2);
-            public static readonly PREV_PROPERTY: Mode = new class extends Mode {
-            }(S`PREV_PROPERTY`, 3);
-        };
 
     };
 
@@ -105,86 +117,61 @@ export class LexerATNFactory extends ParserATNFactory {
     /**
      * Maps from an action index to a {@link LexerAction} object.
      */
-    protected indexToActionMap = new HashMap<number, LexerAction>();
+    protected indexToActionMap = new Map<number, LexerAction>();
+
     /**
      * Maps from a {@link LexerAction} object to the action index.
      */
-    protected actionToIndexMap = new HashMap<LexerAction, number>();
+    private actionToIndexMap = new Map<LexerAction, number>();
 
     private readonly ruleCommands = new Array<string>();
 
-    public constructor(g: LexerGrammar);
+    public constructor(g: LexerGrammar, codeGenerator?: CodeGenerator) {
+        super(g);
 
-    public constructor(g: LexerGrammar, codeGenerator: CodeGenerator);
-    public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 1: {
-                const [g] = args as [LexerGrammar];
-
-
-                this(g, null);
-
-
-                break;
-            }
-
-            case 2: {
-                const [g, codeGenerator] = args as [LexerGrammar, CodeGenerator];
-
-
-                super(g);
-                // use codegen to get correct language templates for lexer commands
-                this.codegenTemplates = (codeGenerator === null ? CodeGenerator.create(g) : codeGenerator).getTemplates();
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
+        // use codegen to get correct language templates for lexer commands
+        codeGenerator ??= new CodeGenerator(g);
+        this.codegenTemplates = codeGenerator.getTemplates();
     }
 
 
-    public static getCommonConstants(): Set<string> {
-        return LexerATNFactory.COMMON_CONSTANTS.keySet();
+    public static getCommonConstants(): MapIterator<string> {
+        return LexerATNFactory.COMMON_CONSTANTS.keys();
     }
 
-    @Override
+
     public override  createATN(): ATN {
         // BUILD ALL START STATES (ONE PER MODE)
-        let modes = (this.g as LexerGrammar).modes.keySet();
-        for (let modeName of modes) {
+        const modes = (this.g as LexerGrammar).modes.keys();
+        for (const modeName of modes) {
             // create s0, start state; implied Tokens rule node
-            let startState =
-                this.newState(TokensStartState.class, null);
-            this.atn.modeNameToStartState.put(modeName, startState);
-            this.atn.modeToStartState.add(startState);
+            const startState = this.newStateOfType(TokensStartState);
+            this.atn.modeNameToStartState.set(modeName, startState);
+            this.atn.modeToStartState.push(startState);
             this.atn.defineDecisionState(startState);
         }
 
         // INIT ACTION, RULE->TOKEN_TYPE MAP
-        this.atn.ruleToTokenType = new Int32Array(this.g.rules.size());
-        for (let r of this.g.rules.values()) {
+        this.atn.ruleToTokenType = new Array<number>(this.g.rules.size);
+        for (const r of this.g.rules.values()) {
             this.atn.ruleToTokenType[r.index] = this.g.getTokenType(r.name);
         }
 
         // CREATE ATN FOR EACH RULE
-        this._createATN(this.g.rules.values());
+        this._createATN([...this.g.rules.values()]);
 
-        this.atn.lexerActions = new Array<LexerAction>(this.indexToActionMap.size());
-        for (let entry of this.indexToActionMap.entrySet()) {
-            this.atn.lexerActions[entry.getKey()] = entry.getValue();
+        this.atn.lexerActions = new Array<LexerAction>(this.indexToActionMap.size);
+        for (const [index, value] of this.indexToActionMap.entries()) {
+            this.atn.lexerActions[index] = value;
         }
 
         // LINK MODE START STATE TO EACH TOKEN RULE
-        for (let modeName of modes) {
-            let rules = (this.g as LexerGrammar).modes.get(modeName);
-            let startState = this.atn.modeNameToStartState.get(modeName);
-            for (let r of rules) {
+        for (const modeName of modes) {
+            const rules = (this.g as LexerGrammar).modes.get(modeName)!;
+            const startState = this.atn.modeNameToStartState.get(modeName) ?? null;
+            for (const r of rules) {
                 if (!r.isFragment()) {
-                    let s = this.atn.ruleToStartState[r.index];
+                    const s = this.atn.ruleToStartState[r.index]!;
                     this.epsilon(startState, s);
                 }
             }
@@ -192,171 +179,145 @@ export class LexerATNFactory extends ParserATNFactory {
 
         ATNOptimizer.optimize(this.g, this.atn);
         this.checkEpsilonClosure();
+
         return this.atn;
     }
 
-    @Override
-    public override  rule(ruleAST: GrammarAST, name: string, blk: ATNFactory.Handle): ATNFactory.Handle {
-        this.ruleCommands.clear();
+
+    public override  rule(ruleAST: GrammarAST, name: string, blk: IStatePair): IStatePair {
+        this.ruleCommands.splice(0, this.ruleCommands.length);
+
         return super.rule(ruleAST, name, blk);
     }
 
-    @Override
-    public override  action(action: ActionAST): ATNFactory.Handle;
 
-    @Override
-    public override  action(action: string): ATNFactory.Handle;
+    public override  action(action: ActionAST | string): IStatePair;
+    public override  action(node: GrammarAST, lexerAction: LexerAction): IStatePair;
+    public override action(...args: unknown[]): IStatePair {
+        let node;
+        let lexerAction;
 
-    protected override  action(node: GrammarAST, lexerAction: LexerAction): ATNFactory.Handle;
-    public override action(...args: unknown[]): ATNFactory.Handle {
-        switch (args.length) {
-            case 1: {
-                const [action] = args as [ActionAST];
-
-
-                let ruleIndex = this.currentRule.index;
-                let actionIndex = this.g.lexerActions.get(action);
-                let lexerAction = new LexerCustomAction(ruleIndex, actionIndex);
-                return action(action, lexerAction);
-
-
-                break;
-            }
-
-            case 1: {
+        if (args.length === 1) {
+            if (typeof args[0] === "string") {
                 const [action] = args as [string];
 
-
-                if (action.trim().isEmpty()) {
-                    let left = this.newState(null);
-                    let right = this.newState(null);
+                if (action.trim().length === 0) {
+                    const left = this.newState();
+                    const right = this.newState();
                     this.epsilon(left, right);
-                    return new IATNFactory.IStatePair(left, right);
+
+                    return { left, right };
                 }
 
                 // define action AST for this rule as if we had found in grammar
-                let ast = new ActionAST(new CommonToken(ANTLRParser.ACTION, action));
-                this.currentRule.defineActionInAlt(this.currentOuterAlt, ast);
-                return action(ast);
-
-
-                break;
+                node = new ActionAST(CommonToken.fromType(ANTLRv4Parser.BEGIN_ACTION, action));
+                this.currentRule!.defineActionInAlt(this.currentOuterAlt, node);
+            } else {
+                [node] = args as [ActionAST];
             }
 
-            case 2: {
-                const [node, lexerAction] = args as [GrammarAST, LexerAction];
-
-
-                let left = this.newState(node);
-                let right = this.newState(node);
-                let isCtxDependent = false;
-                let lexerActionIndex = this.getLexerActionIndex(lexerAction);
-                let a =
-                    new ActionTransition(right, this.currentRule.index, lexerActionIndex, isCtxDependent);
-                left.addTransition(a);
-                node.atnState = left;
-                let h = new IATNFactory.IStatePair(left, right);
-                return h;
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+            const ruleIndex = this.currentRule!.index;
+            const actionIndex = this.g.lexerActions.get(node)!;
+            lexerAction = new LexerCustomAction(ruleIndex, actionIndex);
+        } else {
+            [node, lexerAction] = args as [GrammarAST, LexerAction];
         }
+
+        const left = this.newState(node);
+        const right = this.newState(node);
+        const isCtxDependent = false;
+        const lexerActionIndex = this.getLexerActionIndex(lexerAction);
+        const a = new ActionTransition(right, this.currentRule!.index, lexerActionIndex, isCtxDependent);
+        left.addTransition(a);
+        node.atnState = left;
+
+        return { left, right };
     }
 
 
-    @Override
-    public override  lexerAltCommands(alt: ATNFactory.Handle, cmds: ATNFactory.Handle): ATNFactory.Handle {
-        let h = new IATNFactory.IStatePair(alt.left, cmds.right);
-        this.epsilon(alt.right, cmds.left);
+    public override  lexerAltCommands(alt: IStatePair, commands: IStatePair): IStatePair {
+        const h = { left: alt.left, right: commands.right };
+        this.epsilon(alt.right, commands.left);
+
         return h;
     }
 
-    @Override
-    public override  lexerCallCommand(ID: GrammarAST, arg: GrammarAST): ATNFactory.Handle {
+
+    public override  lexerCallCommand(ID: GrammarAST, arg: GrammarAST): IStatePair {
         return this.lexerCallCommandOrCommand(ID, arg);
     }
 
-    @Override
-    public override  lexerCommand(ID: GrammarAST): ATNFactory.Handle {
+
+    public override  lexerCommand(ID: GrammarAST): IStatePair {
         return this.lexerCallCommandOrCommand(ID, null);
     }
 
-    @Override
-    public override  range(a: GrammarAST, b: GrammarAST): ATNFactory.Handle {
-        let left = this.newState(a);
-        let right = this.newState(b);
-        let t1 = CharSupport.getCharValueFromGrammarCharLiteral(a.getText());
-        let t2 = CharSupport.getCharValueFromGrammarCharLiteral(b.getText());
+
+    public override  range(a: GrammarAST, b: GrammarAST): IStatePair {
+        const left = this.newState(a);
+        const right = this.newState(b);
+        const t1 = CharSupport.getCharValueFromGrammarCharLiteral(a.getText()!);
+        const t2 = CharSupport.getCharValueFromGrammarCharLiteral(b.getText()!);
         if (this.checkRange(a, b, t1, t2)) {
             left.addTransition(this.createTransition(right, t1, t2, a));
         }
         a.atnState = left;
         b.atnState = left;
-        return new IATNFactory.IStatePair(left, right);
+
+        return { left, right };
     }
 
-    @Override
-    public override  set(associatedAST: GrammarAST, alts: Array<GrammarAST>, invert: boolean): ATNFactory.Handle {
-        let left = this.newState(associatedAST);
-        let right = this.newState(associatedAST);
-        let set = new IntervalSet();
-        for (let t of alts) {
-            if (t.getType() === ANTLRParser.RANGE) {
-                let a = CharSupport.getCharValueFromGrammarCharLiteral(t.getChild(0).getText());
-                let b = CharSupport.getCharValueFromGrammarCharLiteral(t.getChild(1).getText());
+
+    public override  set(associatedAST: GrammarAST, alts: GrammarAST[], invert: boolean): IStatePair {
+        const left = this.newState(associatedAST);
+        const right = this.newState(associatedAST);
+        const set = new IntervalSet();
+        for (const t of alts) {
+            if (t.getType() === ANTLRv4Parser.RANGE) {
+                const a = CharSupport.getCharValueFromGrammarCharLiteral(t.getChild(0)!.getText()!);
+                const b = CharSupport.getCharValueFromGrammarCharLiteral(t.getChild(1)!.getText()!);
                 if (this.checkRange(t.getChild(0) as GrammarAST, t.getChild(1) as GrammarAST, a, b)) {
-                    this.checkRangeAndAddToSet(associatedAST, t, set, a, b, this.currentRule.caseInsensitive, null);
+                    this.checkRangeAndAddToSet(associatedAST, t, set, a, b, this.currentRule!.caseInsensitive, null);
                 }
-            }
-            else {
-                if (t.getType() === ANTLRParser.LEXER_CHAR_SET) {
-                    set.addAll(this.getSetFromCharSetLiteral(t));
-                }
-                else {
-                    if (t.getType() === ANTLRParser.STRING_LITERAL) {
-                        let c = CharSupport.getCharValueFromGrammarCharLiteral(t.getText());
+            } else {
+                if (t.getType() === ANTLRv4Parser.LEXER_CHAR_SET) {
+                    set.addSet(this.getSetFromCharSetLiteral(t));
+                } else {
+                    if (t.getType() === ANTLRv4Parser.STRING_LITERAL) {
+                        const c = CharSupport.getCharValueFromGrammarCharLiteral(t.getText()!);
                         if (c !== -1) {
                             this.checkCharAndAddToSet(associatedAST, set, c);
-                        }
-                        else {
+                        } else {
                             this.g.tool.errMgr.grammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
                                 this.g.fileName, t.getToken(), t.getText());
                         }
-                    }
-                    else {
-                        if (t.getType() === ANTLRParser.TOKEN_REF) {
+                    } else {
+                        if (t.getType() === ANTLRv4Parser.TOKEN_REF) {
                             this.g.tool.errMgr.grammarError(ErrorType.UNSUPPORTED_REFERENCE_IN_LEXER_SET,
                                 this.g.fileName, t.getToken(), t.getText());
                         }
                     }
-
                 }
-
             }
-
         }
+
         if (invert) {
             left.addTransition(new NotSetTransition(right, set));
-        }
-        else {
+        } else {
             let transition: Transition;
-            if (set.getIntervals().size() === 1) {
-                let interval = set.getIntervals().get(0);
-                transition = CodePointTransitions.createWithCodePointRange(right, interval.a, interval.b);
-            }
-            else {
+            const intervals = [...set];
+            if (intervals.length === 1) {
+                const interval = intervals[0];
+                transition = CodePointTransitions.createWithCodePointRange(right, interval.start, interval.stop);
+            } else {
                 transition = new SetTransition(right, set);
             }
 
             left.addTransition(transition);
         }
         associatedAST.atnState = left;
-        return new IATNFactory.IStatePair(left, right);
+
+        return { left, right };
     }
 
     /** For a lexer, a string is a sequence of char to match.  That is,
@@ -366,134 +327,139 @@ export class LexerATNFactory extends ParserATNFactory {
      *  if "caseInsensitive" option is enabled, "fog" will be treated as
      *  o-('f'|'F') -> o-('o'|'O') -> o-('g'|'G')
      */
-    @Override
-    public override  stringLiteral(stringLiteralAST: TerminalAST): ATNFactory.Handle {
-        let chars = stringLiteralAST.getText();
-        let left = this.newState(stringLiteralAST);
-        let right: ATNState;
-        let s = CharSupport.getStringFromGrammarStringLiteral(chars);
+    public override  stringLiteral(stringLiteralAST: TerminalAST): IStatePair {
+        const chars = stringLiteralAST.getText()!;
+        const left = this.newState(stringLiteralAST);
+        let right: ATNState | null;
+        const s = CharSupport.getStringFromGrammarStringLiteral(chars);
         if (s === null) {
             // the lexer will already have given an error
-            return new IATNFactory.IStatePair(left, left);
+            return { left, right: left };
         }
 
-        let n = s.length();
         let prev = left;
         right = null;
-        for (let i = 0; i < n;) {
+        for (const char of s) {
             right = this.newState(stringLiteralAST);
-            let codePoint = s.codePointAt(i);
+            const codePoint = char.codePointAt(0)!;
             prev.addTransition(this.createTransition(right, codePoint, codePoint, stringLiteralAST));
             prev = right;
-            i += Character.charCount(codePoint);
         }
         stringLiteralAST.atnState = left;
-        return new IATNFactory.IStatePair(left, right);
+
+        return { left, right };
     }
 
     /** [Aa\t \u1234a-z\]\p{Letter}\-] char sets */
-    @Override
-    public override  charSetLiteral(charSetAST: GrammarAST): ATNFactory.Handle {
-        let left = this.newState(charSetAST);
-        let right = this.newState(charSetAST);
-        let set = this.getSetFromCharSetLiteral(charSetAST);
+    public override  charSetLiteral(charSetAST: GrammarAST): IStatePair {
+        const left = this.newState(charSetAST);
+        const right = this.newState(charSetAST);
+        const set = this.getSetFromCharSetLiteral(charSetAST);
 
         left.addTransition(new SetTransition(right, set));
         charSetAST.atnState = left;
-        return new IATNFactory.IStatePair(left, right);
+
+        return { left, right };
     }
 
     public getSetFromCharSetLiteral(charSetAST: GrammarAST): IntervalSet {
-        let chars = charSetAST.getText();
-        chars = chars.substring(1, chars.length() - 1);
-        let set = new IntervalSet();
+        const chars = charSetAST.getText()!.substring(1);
+        const set = new IntervalSet();
         let state = LexerATNFactory.CharSetParseState.NONE;
 
-        let n = chars.length();
+        const n = chars.length;
         for (let i = 0; i < n;) {
-            if (state.mode === LexerATNFactory.CharSetParseState.Mode.ERROR) {
+            if (state.mode === Mode.ERROR) {
                 return new IntervalSet();
             }
-            let c = chars.codePointAt(i);
+
+            const c = chars.codePointAt(i)!;
             let offset = Character.charCount(c);
-            if (c === '\\') {
-                let escapeParseResult =
-                    EscapeSequenceParsing.parseEscape(chars, i);
+            if (c === 0x5C) { // \
+                const escapeParseResult = EscapeSequenceParsing.parseEscape(chars, i);
+
                 switch (escapeParseResult.type) {
-                    case EscapeSequenceParsing.Result.Type.INVALID: {
-                        let invalid = chars.substring(escapeParseResult.startOffset,
+                    case ResultType.Invalid: {
+                        const invalid = chars.substring(escapeParseResult.startOffset,
                             escapeParseResult.startOffset + escapeParseResult.parseLength);
                         this.g.tool.errMgr.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
                             this.g.fileName, charSetAST.getToken(), invalid);
                         state = LexerATNFactory.CharSetParseState.ERROR;
+
                         break;
                     }
 
-                    case EscapeSequenceParsing.Result.Type.CODE_POINT: {
-                        state = this.applyPrevStateAndMoveToCodePoint(charSetAST, set, state, escapeParseResult.codePoint);
+                    case ResultType.CodePoint: {
+                        state = this.applyPrevStateAndMoveToCodePoint(charSetAST, set, state,
+                            escapeParseResult.codePoint);
+
                         break;
                     }
 
-                    case EscapeSequenceParsing.Result.Type.PROPERTY: {
-                        state = this.applyPrevStateAndMoveToProperty(charSetAST, set, state, escapeParseResult.propertyIntervalSet);
+                    case ResultType.Property: {
+                        state = this.applyPrevStateAndMoveToProperty(charSetAST, set, state,
+                            escapeParseResult.propertyIntervalSet);
+
                         break;
                     }
-
 
                     default:
 
                 }
                 offset = escapeParseResult.parseLength;
-            }
-            else {
-                if (c === '-' && !state.inRange && i !== 0 && i !== n - 1 && state.mode !== LexerATNFactory.CharSetParseState.Mode.NONE) {
-                    if (state.mode === LexerATNFactory.CharSetParseState.Mode.PREV_PROPERTY) {
+            } else {
+                if (c === 0x2D && !state.inRange && i !== 0 && i !== n - 1 && state.mode !== Mode.NONE) {
+                    if (state.mode === Mode.PREV_PROPERTY) {
                         this.g.tool.errMgr.grammarError(ErrorType.UNICODE_PROPERTY_NOT_ALLOWED_IN_RANGE,
                             this.g.fileName, charSetAST.getToken(), charSetAST.getText());
                         state = LexerATNFactory.CharSetParseState.ERROR;
+                    } else {
+                        state = new LexerATNFactory.CharSetParseState(state.mode, true, state.prevCodePoint,
+                            state.prevProperty);
                     }
-                    else {
-                        state = new LexerATNFactory.CharSetParseState(state.mode, true, state.prevCodePoint, state.prevProperty);
-                    }
-                }
-                else {
+                } else {
                     state = this.applyPrevStateAndMoveToCodePoint(charSetAST, set, state, c);
                 }
             }
 
             i += offset;
         }
-        if (state.mode === LexerATNFactory.CharSetParseState.Mode.ERROR) {
+
+        if (state.mode === Mode.ERROR) {
             return new IntervalSet();
         }
+
         // Whether or not we were in a range, we'll add the last code point found to the set.
         this.applyPrevState(charSetAST, set, state);
 
-        if (set.isNil()) {
-            this.g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, this.g.fileName, charSetAST.getToken(), "[]");
+        if (set.length === 0) {
+            this.g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, this.g.fileName,
+                charSetAST.getToken(), "[]");
         }
 
         return set;
     }
 
-    @Override
-    public override  tokenRef(node: TerminalAST): ATNFactory.Handle {
+
+    public override  tokenRef(node: TerminalAST): IStatePair | null {
         // Ref to EOF in lexer yields char transition on -1
-        if (node.getText().equals("EOF")) {
-            let left = this.newState(node);
-            let right = this.newState(node);
-            left.addTransition(new AtomTransition(right, java.util.stream.IntStream.EOF));
-            return new IATNFactory.IStatePair(left, right);
+        if (node.getText() === "EOF") {
+            const left = this.newState(node);
+            const right = this.newState(node);
+            left.addTransition(new AtomTransition(right, IntStream.EOF));
+
+            return { left, right };
         }
+
         return this._ruleRef(node);
     }
 
     protected getLexerActionIndex(lexerAction: LexerAction): number {
         let lexerActionIndex = this.actionToIndexMap.get(lexerAction);
-        if (lexerActionIndex === null) {
-            lexerActionIndex = this.actionToIndexMap.size();
-            this.actionToIndexMap.put(lexerAction, lexerActionIndex);
-            this.indexToActionMap.put(lexerActionIndex, lexerAction);
+        if (lexerActionIndex === undefined) {
+            lexerActionIndex = this.actionToIndexMap.size;
+            this.actionToIndexMap.set(lexerAction, lexerActionIndex);
+            this.indexToActionMap.set(lexerActionIndex, lexerAction);
         }
 
         return lexerActionIndex;
@@ -506,44 +472,50 @@ export class LexerATNFactory extends ParserATNFactory {
             this.g.tool.errMgr.grammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
                 this.g.fileName, leftNode.getToken(), leftNode.getText());
         }
+
         if (rightValue === -1) {
             result = false;
             this.g.tool.errMgr.grammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
                 this.g.fileName, rightNode.getToken(), rightNode.getText());
         }
+
         if (!result) {
             return false;
         }
 
-
         if (rightValue < leftValue) {
             this.g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED,
-                this.g.fileName, leftNode.parent.getToken(), leftNode.getText() + ".." + rightNode.getText());
+                this.g.fileName, leftNode.parent!.getToken(), leftNode.getText() + ".." + rightNode.getText());
+
             return false;
         }
+
         return true;
     }
 
-    private lexerCallCommandOrCommand(ID: GrammarAST, arg: GrammarAST): ATNFactory.Handle {
-        let lexerAction = this.createLexerAction(ID, arg);
+    private lexerCallCommandOrCommand(ID: GrammarAST, arg: GrammarAST | null): IStatePair {
+        const lexerAction = this.createLexerAction(ID, arg);
         if (lexerAction !== null) {
             return this.action(ID, lexerAction);
         }
 
         // fall back to standard action generation for the command
-        let cmdST = this.codegenTemplates.getInstanceOf("Lexer" +
-            CharSupport.capitalize(ID.getText()) +
+        const cmdST = this.codegenTemplates.getInstanceOf("Lexer" + CharSupport.capitalize(ID.getText()!) +
             "Command");
         if (cmdST === null) {
             this.g.tool.errMgr.grammarError(ErrorType.INVALID_LEXER_COMMAND, this.g.fileName, ID.token, ID.getText());
+
             return this.epsilon(ID);
         }
 
-        let callCommand = arg !== null;
-        let containsArg = cmdST.impl.formalArguments !== null && cmdST.impl.formalArguments.containsKey("arg");
+        const callCommand = arg !== null;
+        const containsArg = cmdST.impl?.formalArguments?.has("arg") ?? false;
         if (callCommand !== containsArg) {
-            let errorType = callCommand ? ErrorType.UNWANTED_LEXER_COMMAND_ARGUMENT : ErrorType.MISSING_LEXER_COMMAND_ARGUMENT;
+            const errorType = callCommand
+                ? ErrorType.UNWANTED_LEXER_COMMAND_ARGUMENT
+                : ErrorType.MISSING_LEXER_COMMAND_ARGUMENT;
             this.g.tool.errMgr.grammarError(errorType, this.g.fileName, ID.token, ID.getText());
+
             return this.epsilon(ID);
         }
 
@@ -570,15 +542,11 @@ export class LexerATNFactory extends ParserATNFactory {
             }
             this.checkRangeAndAddToSet(charSetAST, set, state.prevCodePoint, codePoint);
             state = LexerATNFactory.CharSetParseState.NONE;
-        }
-        else {
+        } else {
             this.applyPrevState(charSetAST, set, state);
-            state = new LexerATNFactory.CharSetParseState(
-                LexerATNFactory.CharSetParseState.Mode.PREV_CODE_POINT,
-                false,
-                codePoint,
-                IntervalSet.EMPTY_SET);
+            state = new LexerATNFactory.CharSetParseState(Mode.PREV_CODE_POINT, false, codePoint, new IntervalSet());
         }
+
         return state;
     }
 
@@ -588,38 +556,34 @@ export class LexerATNFactory extends ParserATNFactory {
         state: LexerATNFactory.CharSetParseState,
         property: IntervalSet): LexerATNFactory.CharSetParseState {
         if (state.inRange) {
-            this.g.tool.errMgr.grammarError(ErrorType.UNICODE_PROPERTY_NOT_ALLOWED_IN_RANGE,
-                this.g.fileName, charSetAST.getToken(), charSetAST.getText());
+            this.g.tool.errMgr.grammarError(ErrorType.UNICODE_PROPERTY_NOT_ALLOWED_IN_RANGE, this.g.fileName,
+                charSetAST.getToken(), charSetAST.getText());
+
             return LexerATNFactory.CharSetParseState.ERROR;
-        }
-        else {
+        } else {
             this.applyPrevState(charSetAST, set, state);
-            state = new LexerATNFactory.CharSetParseState(
-                LexerATNFactory.CharSetParseState.Mode.PREV_PROPERTY,
-                false,
-                -1,
-                property);
+            state = new LexerATNFactory.CharSetParseState(Mode.PREV_PROPERTY, false, -1, property);
         }
+
         return state;
     }
 
     private applyPrevState(charSetAST: GrammarAST, set: IntervalSet, state: LexerATNFactory.CharSetParseState): void {
         switch (state.mode) {
-            case NONE:
-            case java.util.jar.Pack200.Packer.ERROR: {
+            case Mode.NONE:
+            case Mode.ERROR: {
                 break;
             }
 
-            case PREV_CODE_POINT: {
+            case Mode.PREV_CODE_POINT: {
                 this.checkCharAndAddToSet(charSetAST, set, state.prevCodePoint);
                 break;
             }
 
-            case PREV_PROPERTY: {
-                set.addAll(state.prevProperty);
+            case Mode.PREV_PROPERTY: {
+                set.addSet(state.prevProperty);
                 break;
             }
-
 
             default:
 
@@ -627,78 +591,83 @@ export class LexerATNFactory extends ParserATNFactory {
     }
 
     private checkCharAndAddToSet(ast: GrammarAST, set: IntervalSet, c: number): void {
-        this.checkRangeAndAddToSet(ast, ast, set, c, c, this.currentRule.caseInsensitive, null);
+        this.checkRangeAndAddToSet(ast, ast, set, c, c, this.currentRule!.caseInsensitive, null);
     }
 
     private checkRangeAndAddToSet(mainAst: GrammarAST, set: IntervalSet, a: number, b: number): void;
-
-    private checkRangeAndAddToSet(rootAst: GrammarAST, ast: GrammarAST, set: IntervalSet, a: number, b: number, caseInsensitive: boolean, previousStatus: CharactersDataCheckStatus): CharactersDataCheckStatus;
+    private checkRangeAndAddToSet(rootAst: GrammarAST, ast: GrammarAST, set: IntervalSet, a: number, b: number,
+        caseInsensitive: boolean, previousStatus: CharactersDataCheckStatus | null): CharactersDataCheckStatus;
     private checkRangeAndAddToSet(...args: unknown[]): void | CharactersDataCheckStatus {
         switch (args.length) {
             case 4: {
                 const [mainAst, set, a, b] = args as [GrammarAST, IntervalSet, number, number];
 
 
-                this.checkRangeAndAddToSet(mainAst, mainAst, set, a, b, this.currentRule.caseInsensitive, null);
+                this.checkRangeAndAddToSet(mainAst, mainAst, set, a, b, this.currentRule!.caseInsensitive, null);
 
 
                 break;
             }
 
             case 7: {
-                const [rootAst, ast, set, a, b, caseInsensitive, previousStatus] = args as [GrammarAST, GrammarAST, IntervalSet, number, number, boolean, CharactersDataCheckStatus];
+                const [rootAst, ast, set, a, b, caseInsensitive, previousStatus] =
+                    args as [
+                        GrammarAST, GrammarAST, IntervalSet, number, number, boolean, CharactersDataCheckStatus | null
+                    ];
 
 
                 let status: CharactersDataCheckStatus;
-                let charactersData = RangeBorderCharactersData.getAndCheckCharactersData(a, b, this.g, ast,
-                    previousStatus === null || !previousStatus.notImpliedCharacters);
+                const charactersData = RangeBorderCharactersData.getAndCheckCharactersData(a, b, this.g, ast,
+                    !(previousStatus?.notImpliedCharacters ?? false));
                 if (caseInsensitive) {
                     status = new CharactersDataCheckStatus(false, charactersData.mixOfLowerAndUpperCharCase);
                     if (charactersData.isSingleRange()) {
                         status = this.checkRangeAndAddToSet(rootAst, ast, set, a, b, false, status);
-                    }
-                    else {
-                        status = this.checkRangeAndAddToSet(rootAst, ast, set, charactersData.lowerFrom, charactersData.lowerTo, false, status);
+                    } else {
+                        status = this.checkRangeAndAddToSet(rootAst, ast, set, charactersData.lowerFrom,
+                            charactersData.lowerTo, false, status);
                         // Don't report similar warning twice
-                        status = this.checkRangeAndAddToSet(rootAst, ast, set, charactersData.upperFrom, charactersData.upperTo, false, status);
+                        status = this.checkRangeAndAddToSet(rootAst, ast, set, charactersData.upperFrom,
+                            charactersData.upperTo, false, status);
                     }
-                }
-                else {
-                    let charactersCollision = previousStatus !== null && previousStatus.collision;
+                } else {
+                    let charactersCollision = previousStatus?.collision ?? false;
                     if (!charactersCollision) {
                         for (let i = a; i <= b; i++) {
                             if (set.contains(i)) {
                                 let setText: string;
-                                if (rootAst.getChildren() === null) {
-                                    setText = rootAst.getText();
-                                }
-                                else {
-                                    let sb = new StringBuilder();
-                                    for (let child of rootAst.getChildren()) {
+                                if (rootAst.getChildren().length === 0) {
+                                    setText = rootAst.getText()!;
+                                } else {
+                                    setText = "";
+                                    for (const child of rootAst.getChildren()) {
                                         if (child instanceof RangeAST) {
-                                            sb.append((child as RangeAST).getChild(0).getText());
-                                            sb.append("..");
-                                            sb.append((child as RangeAST).getChild(1).getText());
+                                            setText += (child.getChild(0)!.getText()!) + "..";
+                                            setText += (child).getChild(1)!.getText()!;
+                                        } else {
+                                            setText += (child as GrammarAST).getText()!;
                                         }
-                                        else {
-                                            sb.append((child as GrammarAST).getText());
-                                        }
-                                        sb.append(" | ");
+
+                                        setText += " | ";
                                     }
-                                    sb.replace(sb.length() - 3, sb.length(), "");
-                                    setText = sb.toString();
+                                    setText = setText.substring(0, setText.length - 3);
                                 }
-                                let charsString = a === b ? string.valueOf(Number(a)) : Number(a) + "-" + Number(b);
-                                this.g.tool.errMgr.grammarError(ErrorType.CHARACTERS_COLLISION_IN_SET, this.g.fileName, ast.getToken(),
-                                    charsString, setText);
+
+                                const charsString = a === b ? String(a) : String(a) + "-" + String(b);
+                                this.g.tool.errMgr.grammarError(ErrorType.CHARACTERS_COLLISION_IN_SET,
+                                    this.g.fileName, ast.getToken(), charsString, setText);
                                 charactersCollision = true;
+
                                 break;
                             }
                         }
                     }
-                    status = new CharactersDataCheckStatus(charactersCollision, charactersData.mixOfLowerAndUpperCharCase);
-                    set.add(a, b);
+
+                    status = new CharactersDataCheckStatus(charactersCollision,
+                        charactersData.mixOfLowerAndUpperCharCase);
+                    set.addRange(a, b);
                 }
+
                 return status;
 
 
@@ -706,284 +675,258 @@ export class LexerATNFactory extends ParserATNFactory {
             }
 
             default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+                throw new Error("Invalid number of arguments");
             }
         }
     }
 
 
     private createTransition(target: ATNState, from: number, to: number, tree: CommonTree): Transition {
-        let charactersData = RangeBorderCharactersData.getAndCheckCharactersData(from, to, this.g, tree, true);
-        if (this.currentRule.caseInsensitive) {
+        const charactersData = RangeBorderCharactersData.getAndCheckCharactersData(from, to, this.g, tree, true);
+        if (this.currentRule!.caseInsensitive) {
             if (charactersData.isSingleRange()) {
                 return CodePointTransitions.createWithCodePointRange(target, from, to);
-            }
-            else {
-                let intervalSet = new IntervalSet();
-                intervalSet.add(charactersData.lowerFrom, charactersData.lowerTo);
-                intervalSet.add(charactersData.upperFrom, charactersData.upperTo);
+            } else {
+                const intervalSet = new IntervalSet();
+                intervalSet.addRange(charactersData.lowerFrom, charactersData.lowerTo);
+                intervalSet.addRange(charactersData.upperFrom, charactersData.upperTo);
+
                 return new SetTransition(target, intervalSet);
             }
-        }
-        else {
+        } else {
             return CodePointTransitions.createWithCodePointRange(target, from, to);
         }
     }
 
-    private createLexerAction(ID: GrammarAST, arg: GrammarAST): LexerAction {
-        let command = ID.getText();
-        this.checkCommands(command, ID.getToken());
+    private createLexerAction(ID: GrammarAST, arg: GrammarAST | null): LexerAction | null {
+        const command = ID.getText()!;
+        this.checkCommands(command, ID.getToken()!);
 
-        if ("skip".equals(command) && arg === null) {
-            return LexerSkipAction.INSTANCE;
-        }
-        else {
-            if ("more".equals(command) && arg === null) {
-                return LexerMoreAction.INSTANCE;
+        switch (command) {
+            case "skip": {
+                return LexerSkipAction.instance;
             }
-            else {
-                if ("popMode".equals(command) && arg === null) {
-                    return LexerPopModeAction.INSTANCE;
-                }
-                else {
-                    if ("mode".equals(command) && arg !== null) {
-                        let modeName = arg.getText();
-                        let mode = this.getModeConstantValue(modeName, arg.getToken());
-                        if (mode === null) {
-                            return null;
+
+            case "more": {
+                return LexerMoreAction.instance;
+            }
+
+            case "popMode": {
+                return LexerPopModeAction.instance;
+            }
+
+            default: {
+                if (arg !== null) {
+                    const name = arg.getText();
+                    switch (command) {
+                        case "mode": {
+                            const mode = this.getModeConstantValue(name, arg.getToken()!);
+                            if (mode === null) {
+                                return null;
+                            }
+
+                            return new LexerModeAction(mode);
                         }
 
-                        return new LexerModeAction(mode);
-                    }
-                    else {
-                        if ("pushMode".equals(command) && arg !== null) {
-                            let modeName = arg.getText();
-                            let mode = this.getModeConstantValue(modeName, arg.getToken());
+                        case "pushMode": {
+                            const mode = this.getModeConstantValue(name, arg.getToken()!);
                             if (mode === null) {
                                 return null;
                             }
 
                             return new LexerPushModeAction(mode);
                         }
-                        else {
-                            if ("type".equals(command) && arg !== null) {
-                                let typeName = arg.getText();
-                                let type = this.getTokenConstantValue(typeName, arg.getToken());
-                                if (type === null) {
-                                    return null;
-                                }
 
-                                return new LexerTypeAction(type);
-                            }
-                            else {
-                                if ("channel".equals(command) && arg !== null) {
-                                    let channelName = arg.getText();
-                                    let channel = this.getChannelConstantValue(channelName, arg.getToken());
-                                    if (channel === null) {
-                                        return null;
-                                    }
-
-                                    return new LexerChannelAction(channel);
-                                }
-                                else {
-                                    return null;
-                                }
+                        case "type": {
+                            const type = this.getTokenConstantValue(name, arg.getToken()!);
+                            if (type === null) {
+                                return null;
                             }
 
+                            return new LexerTypeAction(type);
                         }
 
-                    }
+                        case "channel": {
+                            const channel = this.getChannelConstantValue(name, arg.getToken()!);
+                            if (channel === null) {
+                                return null;
+                            }
 
+                            return new LexerChannelAction(channel);
+                        }
+
+                        default:
+                    }
                 }
 
+                break;
             }
-
         }
 
+        return null;
     }
 
     private checkCommands(command: string, commandToken: Token): void {
         // Command combinations list: https://github.com/antlr/antlr4/issues/1388#issuecomment-263344701
-        if (!command.equals("pushMode") && !command.equals("popMode")) {
-            if (this.ruleCommands.contains(command)) {
+        if (command !== "pushMode" && command !== "popMode") {
+            if (this.ruleCommands.includes(command)) {
                 this.g.tool.errMgr.grammarError(ErrorType.DUPLICATED_COMMAND, this.g.fileName, commandToken, command);
             }
 
             let firstCommand = null;
 
-            if (command.equals("skip")) {
-                if (this.ruleCommands.contains("more")) {
+            if (command === "skip") {
+                if (this.ruleCommands.includes("more")) {
                     firstCommand = "more";
-                }
-                else {
-                    if (this.ruleCommands.contains("type")) {
+                } else {
+                    if (this.ruleCommands.includes("type")) {
                         firstCommand = "type";
-                    }
-                    else {
-                        if (this.ruleCommands.contains("channel")) {
+                    } else {
+                        if (this.ruleCommands.includes("channel")) {
                             firstCommand = "channel";
                         }
                     }
-
                 }
-
-            }
-            else {
-                if (command.equals("more")) {
-                    if (this.ruleCommands.contains("skip")) {
+            } else {
+                if (command === "more") {
+                    if (this.ruleCommands.includes("skip")) {
                         firstCommand = "skip";
-                    }
-                    else {
-                        if (this.ruleCommands.contains("type")) {
+                    } else {
+                        if (this.ruleCommands.includes("type")) {
                             firstCommand = "type";
-                        }
-                        else {
-                            if (this.ruleCommands.contains("channel")) {
+                        } else {
+                            if (this.ruleCommands.includes("channel")) {
                                 firstCommand = "channel";
                             }
                         }
-
                     }
-
-                }
-                else {
-                    if (command.equals("type") || command.equals("channel")) {
-                        if (this.ruleCommands.contains("more")) {
+                } else {
+                    if (command === "type" || command === "channel") {
+                        if (this.ruleCommands.includes("more")) {
                             firstCommand = "more";
-                        }
-                        else {
-                            if (this.ruleCommands.contains("skip")) {
+                        } else {
+                            if (this.ruleCommands.includes("skip")) {
                                 firstCommand = "skip";
                             }
                         }
-
                     }
                 }
-
             }
 
-
             if (firstCommand !== null) {
-                this.g.tool.errMgr.grammarError(ErrorType.INCOMPATIBLE_COMMANDS, this.g.fileName, commandToken, firstCommand, command);
+                this.g.tool.errMgr.grammarError(ErrorType.INCOMPATIBLE_COMMANDS, this.g.fileName, commandToken,
+                    firstCommand, command);
             }
         }
 
-        this.ruleCommands.add(command);
+        this.ruleCommands.push(command);
     }
 
-    private getModeConstantValue(modeName: string, token: Token): number {
+    private getModeConstantValue(modeName: string | null, token: Token): number | null {
         if (modeName === null) {
             return null;
         }
 
-        if (modeName.equals("DEFAULT_MODE")) {
+        if (modeName === "DEFAULT_MODE") {
             return Lexer.DEFAULT_MODE;
         }
-        if (LexerATNFactory.COMMON_CONSTANTS.containsKey(modeName)) {
-            this.g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, this.g.fileName, token, token.getText());
+
+        if (LexerATNFactory.COMMON_CONSTANTS.has(modeName)) {
+            this.g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, this.g.fileName, token,
+                token.text);
+
             return null;
         }
 
-        let modeNames = new Array<string>((this.g as LexerGrammar).modes.keySet());
-        let mode = modeNames.indexOf(modeName);
+        const modeNames = [...(this.g as LexerGrammar).modes.keys()];
+        const mode = modeNames.indexOf(modeName);
         if (mode >= 0) {
             return mode;
         }
 
-        try {
-            return number.parseInt(modeName);
-        } catch (ex) {
-            if (ex instanceof NumberFormatException) {
-                this.g.tool.errMgr.grammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_MODE_NAME, this.g.fileName, token, token.getText());
-                return null;
-            } else {
-                throw ex;
-            }
+        const result = Number.parseInt(modeName);
+        if (isNaN(result)) {
+            this.g.tool.errMgr.grammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_MODE_NAME, this.g.fileName,
+                token, token.text);
+
+            return null;
         }
+
+        return result;
     }
 
-    private getTokenConstantValue(tokenName: string, token: Token): number {
+    private getTokenConstantValue(tokenName: string | null, token: Token): number | null {
         if (tokenName === null) {
             return null;
         }
 
-        if (tokenName.equals("EOF")) {
+        if (tokenName === "EOF") {
             return Lexer.EOF;
         }
-        if (LexerATNFactory.COMMON_CONSTANTS.containsKey(tokenName)) {
-            this.g.tool.errMgr.grammarError(ErrorType.TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS, this.g.fileName, token, token.getText());
+
+        if (LexerATNFactory.COMMON_CONSTANTS.has(tokenName)) {
+            this.g.tool.errMgr.grammarError(ErrorType.TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS, this.g.fileName, token,
+                token.text);
+
             return null;
         }
 
-        let tokenType = this.g.getTokenType(tokenName);
-        if (tokenType !== org.antlr.v4.runtime.Token.INVALID_TYPE) {
+        const tokenType = this.g.getTokenType(tokenName);
+        if (tokenType !== Token.INVALID_TYPE) {
             return tokenType;
         }
 
-        try {
-            return number.parseInt(tokenName);
-        } catch (ex) {
-            if (ex instanceof NumberFormatException) {
-                this.g.tool.errMgr.grammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_TOKEN_NAME, this.g.fileName, token, token.getText());
-                return null;
-            } else {
-                throw ex;
-            }
+        const result = Number.parseInt(tokenName);
+        if (isNaN(result)) {
+            this.g.tool.errMgr.grammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_TOKEN_NAME, this.g.fileName,
+                token, token.text);
+
+            return null;
         }
+
+        return result;
     }
 
-    private getChannelConstantValue(channelName: string, token: Token): number {
+    private getChannelConstantValue(channelName: string | null, token: Token): number | null {
         if (channelName === null) {
             return null;
         }
 
-        if (channelName.equals("HIDDEN")) {
+        if (channelName === "HIDDEN") {
             return Lexer.HIDDEN;
         }
-        if (channelName.equals("DEFAULT_TOKEN_CHANNEL")) {
+
+        if (channelName === "DEFAULT_TOKEN_CHANNEL") {
             return Lexer.DEFAULT_TOKEN_CHANNEL;
         }
-        if (LexerATNFactory.COMMON_CONSTANTS.containsKey(channelName)) {
-            this.g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, this.g.fileName, token, token.getText());
+
+        if (LexerATNFactory.COMMON_CONSTANTS.has(channelName)) {
+            this.g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, this.g.fileName, token,
+                token.text);
+
             return null;
         }
 
-        let channelValue = this.g.getChannelValue(channelName);
-        if (channelValue >= org.antlr.v4.runtime.Token.MIN_USER_CHANNEL_VALUE) {
+        const channelValue = this.g.getChannelValue(channelName);
+        if (channelValue >= Token.MIN_USER_CHANNEL_VALUE) {
             return channelValue;
         }
 
-        try {
-            return number.parseInt(channelName);
-        } catch (ex) {
-            if (ex instanceof NumberFormatException) {
-                this.g.tool.errMgr.grammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_CHANNEL_NAME, this.g.fileName, token, token.getText());
-                return null;
-            } else {
-                throw ex;
-            }
+        const result = Number.parseInt(channelName);
+        if (isNaN(result)) {
+            this.g.tool.errMgr.grammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_CHANNEL_NAME, this.g.fileName,
+                token, token.text);
+
+            return null;
         }
+
+        return result;
     }
-    static {
-        LexerATNFactory.COMMON_CONSTANTS.put("HIDDEN", Lexer.HIDDEN);
-        LexerATNFactory.COMMON_CONSTANTS.put("DEFAULT_TOKEN_CHANNEL", Lexer.DEFAULT_TOKEN_CHANNEL);
-        LexerATNFactory.COMMON_CONSTANTS.put("DEFAULT_MODE", Lexer.DEFAULT_MODE);
-        LexerATNFactory.COMMON_CONSTANTS.put("SKIP", Lexer.SKIP);
-        LexerATNFactory.COMMON_CONSTANTS.put("MORE", Lexer.MORE);
-        LexerATNFactory.COMMON_CONSTANTS.put("EOF", Lexer.EOF);
-        LexerATNFactory.COMMON_CONSTANTS.put("MAX_CHAR_VALUE", Lexer.MAX_CHAR_VALUE);
-        LexerATNFactory.COMMON_CONSTANTS.put("MIN_CHAR_VALUE", Lexer.MIN_CHAR_VALUE);
-    }
+
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
+
 export namespace LexerATNFactory {
     export type CharSetParseState = InstanceType<typeof LexerATNFactory.CharSetParseState>;
-
-
-    // eslint-disable-next-line @typescript-eslint/no-namespace, no-redeclare
-    namespace CharSetParseState {
-        export type Mode = InstanceType<typeof CharSetParseState.Mode>;
-    }
 
 }

@@ -13,16 +13,12 @@ import { Character } from "../support/Character.js";
 
 export const INVALID_TOKEN = CommonToken.fromType(Token.INVALID_TYPE);
 
-export type Constructor = new (...args: unknown[]) => unknown;
+export type Constructor<T> = new (...args: unknown[]) => T;
 
 export class Utils {
     public static readonly INTEGER_POOL_MAX_VALUE = 1000;
 
-    public static stripFileExtension(name: string): string | null {
-        if (name === null) {
-            return null;
-        }
-
+    public static stripFileExtension(name: string): string {
         const lastDot = name.lastIndexOf(".");
         if (lastDot < 0) {
             return name;
@@ -69,10 +65,10 @@ export class Utils {
     }
 
     /** Find exact object type or subclass of cl in list */
-    public static find<T>(ops: unknown[], cl: Constructor): T | null {
+    public static find<T>(ops: unknown[], cl: Constructor<T>): T | null {
         for (const o of ops) {
             if (o instanceof cl) {
-                return o as T;
+                return o;
             }
         }
 
@@ -111,7 +107,7 @@ export class Utils {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
+
 export namespace Utils {
     export interface Filter<T> {
         select(t: T): boolean;

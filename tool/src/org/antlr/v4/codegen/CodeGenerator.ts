@@ -48,7 +48,7 @@ export class CodeGenerator {
 
     public readonly tool: Tool;
 
-    public readonly language: string;
+    public readonly language: SupportedLanguage;
 
     public lineWidth = 72;
 
@@ -66,12 +66,20 @@ export class CodeGenerator {
         ["TypeScript", TypeScriptTarget],
     ]);
 
-    public constructor(tool: Tool, g: Grammar | undefined, language: SupportedLanguage) {
-        this.g = g;
-        this.tool = tool;
-        this.language = language;
+    public constructor(g: Grammar);
+    public constructor(tool: Tool, g: Grammar | undefined, language: SupportedLanguage);
+    public constructor(toolOrGrammar: Tool | Grammar, g?: Grammar, language?: SupportedLanguage) {
+        if (toolOrGrammar instanceof Grammar) {
+            this.g = toolOrGrammar;
+            this.tool = this.g.tool;
+            this.language = toolOrGrammar.getLanguage();
+        } else {
+            this.g = g;
+            this.tool = toolOrGrammar;
+            this.language = language!;
+        }
 
-        this.target = new (CodeGenerator.#languageMap.get(language)!)(this);
+        this.target = new (CodeGenerator.#languageMap.get(this.language)!)(this);
     }
 
     public getTarget(): Target {

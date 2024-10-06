@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { getCategory, isDigit, isLowerCase, isUpperCase } from "unicode-properties";
+import { getCategory, isAlphabetic, isDigit, isLowerCase, isUpperCase } from "unicode-properties";
 
 /**
  * This class is a partial implementation of Java's Character class from the jree package and
@@ -316,6 +316,17 @@ export class Character {
     }
 
     /**
+     * Determines if the specified character (Unicode code point) is an alphabet.
+     *
+     * @param codePoint the character (Unicode code point) to be tested.
+     *
+     * @returns  true if the character is a Unicode alphabet character, false otherwise.
+     */
+    public static isAlphabetic(codePoint: number): boolean {
+        return isAlphabetic(codePoint);
+    }
+
+    /**
      * Determines if the specified character (Unicode code point) is a digit.
      *
      * @param c The character to check.
@@ -480,11 +491,23 @@ export class Character {
         return String.fromCodePoint(c);
     }
 
-    public static toUpperCase(s: string): string {
+    public static toUpperCase(s: string): string;
+    public static toUpperCase(c: number): number;
+    public static toUpperCase(s: string | number): string | number {
+        if (typeof s === "number") {
+            return String.fromCodePoint(s).toUpperCase().codePointAt(0)!;
+        }
+
         return s.toUpperCase();
     }
 
-    public static toLowerCase(s: string): string {
+    public static toLowerCase(s: string): string;
+    public static toLowerCase(c: number): number;
+    public static toLowerCase(s: string | number): string | number {
+        if (typeof s === "number") {
+            return String.fromCodePoint(s).toLowerCase().codePointAt(0)!;
+        }
+
         return s.toLowerCase();
     }
 

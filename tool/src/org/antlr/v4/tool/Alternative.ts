@@ -58,7 +58,7 @@ export class Alternative implements AttributeResolver {
     }
 
     public resolvesToToken(x: string, node: ActionAST): boolean {
-        if (this.tokenRefs.get(x) !== null) {
+        if (this.tokenRefs.has(x)) {
             return true;
         }
 
@@ -75,7 +75,7 @@ export class Alternative implements AttributeResolver {
             return true;
         }
 
-        if (this.ruleRefs.get(x) !== null) {
+        if (this.ruleRefs.has(x)) {
             return true;
         }
         // rule ref in this alt?

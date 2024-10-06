@@ -1,45 +1,50 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { ATNVisitor } from "./ATNVisitor.js";
-import { ATN, ATNState, BlockEndState, EpsilonTransition, PlusLoopbackState, RuleTransition, StarLoopbackState, Transition } from "antlr4ng";
+import {
+    ATN, ATNState, BlockEndState, EpsilonTransition, PlusLoopbackState, RuleTransition, StarLoopbackState
+} from "antlr4ng";
 
-/**
- *
- * @author Terence Parr
- */
+import { ATNVisitor } from "./ATNVisitor.js";
+
 export class TailEpsilonRemover extends ATNVisitor {
 
     private readonly _atn: ATN;
 
     public constructor(atn: ATN) {
+        super();
         this._atn = atn;
     }
 
-    @Override
+
     public override  visitState(p: ATNState): void {
-        if (p.getStateType() === ATNState.BASIC && p.getNumberOfTransitions() === 1) {
-            let q = p.transition(0).target;
-            if (p.transition(0) instanceof RuleTransition) {
-                q = (p.transition(0) as RuleTransition).followState;
+        if ((p.constructor as typeof ATNState).stateType === ATNState.BASIC && p.transitions.length === 1) {
+            const transition = p.transitions[0];
+            let q = transition.target;
+            if (transition instanceof RuleTransition) {
+                q = transition.followState;
             }
-            if (q.getStateType() === ATNState.BASIC) {
+
+            if ((q.constructor as typeof ATNState).stateType === ATNState.BASIC) {
                 // we have p-x->q for x in {rule, action, pred, token, ...}
                 // if edge out of q is single epsilon to block end
                 // we can strip epsilon p-x->q-eps->r
-                const trans = q.transition(0);
-                if (q.getNumberOfTransitions() === 1 && trans instanceof EpsilonTransition) {
+                const trans = q.transitions[0];
+                if (q.transitions.length === 1 && trans instanceof EpsilonTransition) {
                     const r = trans.target;
-                    if (r instanceof BlockEndState || r instanceof PlusLoopbackState || r instanceof StarLoopbackState) {
+                    if (r instanceof BlockEndState || r instanceof PlusLoopbackState
+                        || r instanceof StarLoopbackState) {
                         // skip over q
-                        if (p.transition(0) instanceof RuleTransition) {
-                            (p.transition(0) as RuleTransition).followState = r;
-                        }
-                        else {
-                            p.transition(0).target = r;
+                        const t = p.transitions[0];
+                        if (t instanceof RuleTransition) {
+                            t.followState = r;
+                        } else {
+                            t.target = r;
                         }
                         this._atn.removeState(q);
                     }

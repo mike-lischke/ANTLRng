@@ -1,4 +1,13 @@
+/* java2ts: keep */
 
+/*
+ * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD 3-clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
+
+import type { CommonTree } from "../../../../../../src/antlr3/tree/CommonTree.js";
+import { Character } from "../support/Character.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 
@@ -9,7 +18,8 @@ export class RangeBorderCharactersData {
     public readonly upperTo: number;
     public readonly mixOfLowerAndUpperCharCase: boolean;
 
-    public constructor(lowerFrom: number, upperFrom: number, lowerTo: number, upperTo: number, mixOfLowerAndUpperCharCase: boolean) {
+    public constructor(lowerFrom: number, upperFrom: number, lowerTo: number, upperTo: number,
+        mixOfLowerAndUpperCharCase: boolean) {
         this.lowerFrom = lowerFrom;
         this.upperFrom = upperFrom;
         this.lowerTo = lowerTo;
@@ -29,15 +39,16 @@ export class RangeBorderCharactersData {
         const isLowerTo = lowerTo === to;
         const mixOfLowerAndUpperCharCase = isLowerFrom && !isLowerTo || !isLowerFrom && isLowerTo;
         if (reportRangeContainsNotImpliedCharacters && mixOfLowerAndUpperCharCase && from <= 0x7F && to <= 0x7F) {
-            const notImpliedCharacters = new StringBuilder();
+            let notImpliedCharacters = "";
             for (let i = from; i < to; i++) {
                 if (!Character.isAlphabetic(i)) {
-                    notImpliedCharacters.append(Number(i));
+                    notImpliedCharacters += i;
                 }
             }
-            if (notImpliedCharacters.length() > 0) {
-                grammar.tool.errMgr.grammarError(ErrorType.RANGE_PROBABLY_CONTAINS_NOT_IMPLIED_CHARACTERS, grammar.fileName, tree.getToken(),
-                    Number(from), Number(to), notImpliedCharacters.toString());
+
+            if (notImpliedCharacters.length > 0) {
+                grammar.tool.errMgr.grammarError(ErrorType.RANGE_PROBABLY_CONTAINS_NOT_IMPLIED_CHARACTERS,
+                    grammar.fileName, tree.getToken(), from, to, notImpliedCharacters.toString());
             }
         }
 

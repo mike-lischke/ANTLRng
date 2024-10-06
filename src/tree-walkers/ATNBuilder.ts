@@ -1,16 +1,22 @@
+/* java2ts: keep */
+
 /*
 * Copyright (c) The ANTLR Project. All rights reserved.
 * Use of this file is governed by the BSD 3-clause license that
 * can be found in the LICENSE.txt file in the project root.
 */
 
-import { RecognitionException, type ParserRuleContext } from "antlr4ng";
+import { RecognitionException } from "antlr4ng";
 
-import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
-import { AlternativeContext, BlockContext, LabeledAltContext, RuleBlockContext, RuleSpecContext, type ElementContext, type LexerAltContext, type LexerCommandContext, type LexerCommandsContext } from "../generated/ANTLRv4Parser.js";
+import {
+    AlternativeContext, BlockContext, RuleBlockContext, RuleSpecContext, type ElementContext, type LexerAltContext,
+    type LexerCommandContext, type LexerCommandsContext
+} from "../generated/ANTLRv4Parser.js";
 
-import { IATNFactory, type IStatePair } from "../../tool/src/org/antlr/v4/automata/ATNFactory.js";
+import { IATNFactory, type IStatePair } from "../../tool/src/org/antlr/v4/automata/IATNFactory.js";
+import type { BlockAST } from "../../tool/src/org/antlr/v4/tool/ast/BlockAST.js";
 import type { GrammarAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarAST.js";
+import type { TreeNodeStream } from "../antlr3/tree/TreeNodeStream.js";
 
 export class ATNBuilder {
     public static element_return = class element_return extends TreeRuleReturnScope {
@@ -36,21 +42,22 @@ export class ATNBuilder {
         public p: IStatePair;
     };
 
-    public constructor(protected factory: IATNFactory, private root: RuleSpecContext) {
+    public constructor(private input: TreeNodeStream, protected factory: IATNFactory) {
     }
 
-    public ruleBlock(ebnfRoot: GrammarAST, ruleBlock: RuleBlockContext): IStatePair | undefined { // Four outer blocks.
+    public ruleBlock(ebnfRoot: GrammarAST | null/*, ruleBlock: RuleBlockContext*/): IStatePair | null { // For outer blocks.
         let p: IStatePair | undefined;
 
         const alts = new Array<IStatePair>();
-        let alt = 1;
+        const alt = 1;
         this.factory.setCurrentOuterAlt(alt);
 
-        for (const labledAlt of ruleBlock.ruleAltList().labeledAlt()) {
-            alts.push(this.alternative(labledAlt.alternative()));
-            this.factory.setCurrentOuterAlt(++alt);
-        }
-
+        /*
+                for (const labledAlt of ruleBlock.ruleAltList().labeledAlt()) {
+                    alts.push(this.alternative(labledAlt.alternative()));
+                    this.factory.setCurrentOuterAlt(++alt);
+                }
+        */
         return this.factory.block(BLOCK1 as BlockAST, ebnfRoot, alts);
     }
 

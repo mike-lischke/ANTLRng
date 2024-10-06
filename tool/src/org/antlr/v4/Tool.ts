@@ -14,7 +14,7 @@ import { ANTLRv4Parser } from "../../../../../src/generated/ANTLRv4Parser.js";
 
 import { UndefChecker } from "./UndefChecker.js";
 import { AnalysisPipeline } from "./analysis/AnalysisPipeline.js";
-import { IATNFactory } from "./automata/ATNFactory.js";
+import { IATNFactory } from "./automata/IATNFactory.js";
 import { LexerATNFactory } from "./automata/LexerATNFactory.js";
 import { ParserATNFactory } from "./automata/ParserATNFactory.js";
 import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";

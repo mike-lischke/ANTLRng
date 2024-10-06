@@ -1,10 +1,12 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { ATNState, Transition, HashSet } from "antlr4ng";
+import { ATNState } from "antlr4ng";
 
 /**
  * A simple visitor that walks everywhere it can go starting from s,
@@ -13,23 +15,23 @@ import { ATNState, Transition, HashSet } from "antlr4ng";
  */
 export class ATNVisitor {
     public visit(s: ATNState): void {
-        this.visit_(s, new HashSet<number>());
+        this.visit_(s, new Set<number>());
     }
 
     public visit_(s: ATNState, visited: Set<number>): void {
-        if (!visited.add(s.stateNumber)) {
+        if (visited.has(s.stateNumber)) {
             return;
         }
 
         visited.add(s.stateNumber);
 
         this.visitState(s);
-        const n = s.getNumberOfTransitions();
-        for (let i = 0; i < n; i++) {
-            const t = s.transition(i);
+        for (const t of s.transitions) {
             this.visit_(t.target, visited);
         }
     }
 
-    public visitState(s: ATNState): void { }
+    public visitState(s: ATNState): void {
+        // intentionally empty
+    }
 }

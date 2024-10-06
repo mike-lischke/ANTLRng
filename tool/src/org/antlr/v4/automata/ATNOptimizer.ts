@@ -1,22 +1,23 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import {
+    ATN, ATNState, AtomTransition, BlockEndState, CodePointTransitions, EpsilonTransition, IntervalSet,
+    NotSetTransition, RangeTransition, SetTransition, Transition
+} from "antlr4ng";
 import { CharSupport } from "../misc/CharSupport.js";
-import { ATN, ATNState, AtomTransition, BlockEndState, CodePointTransitions, DecisionState, EpsilonTransition, NotSetTransition, RangeTransition, SetTransition, Transition, Interval, IntervalSet } from "antlr4ng";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
-import { Rule } from "../tool/Rule.js";
+import { Character } from "../support/Character.js";
 
-/**
- *
- * @author Sam Harwell
- */
 export class ATNOptimizer {
-
     private constructor() {
+        // intentionally empty
     }
 
     public static optimize(g: Grammar, atn: ATN): void {
@@ -30,29 +31,28 @@ export class ATNOptimizer {
             return;
         }
 
-        let removedStates = 0;
         const decisions = atn.decisionToState;
         for (const decision of decisions) {
             if (decision.ruleIndex >= 0) {
-                const rule = g.getRule(decision.ruleIndex);
-                if (Character.isLowerCase(rule.name.charAt(0))) {
+                const rule = g.getRule(decision.ruleIndex)!;
+                if (Character.isLowerCase(rule.name.codePointAt(0)!)) {
                     // parser codegen doesn't currently support SetTransition
                     continue;
                 }
             }
 
             const setTransitions = new IntervalSet();
-            for (let i = 0; i < decision.getNumberOfTransitions(); i++) {
-                const epsTransition = decision.transition(i);
+            for (let i = 0; i < decision.transitions.length; i++) {
+                const epsTransition = decision.transitions[i];
                 if (!(epsTransition instanceof EpsilonTransition)) {
                     continue;
                 }
 
-                if (epsTransition.target.getNumberOfTransitions() !== 1) {
+                if (epsTransition.target.transitions.length !== 1) {
                     continue;
                 }
 
-                const transition = epsTransition.target.transition(0);
+                const transition = epsTransition.target.transitions[0];
                 if (!(transition.target instanceof BlockEndState)) {
                     continue;
                 }
@@ -65,31 +65,28 @@ export class ATNOptimizer {
                 if (transition instanceof AtomTransition
                     || transition instanceof RangeTransition
                     || transition instanceof SetTransition) {
-                    setTransitions.add(i);
+                    setTransitions.addOne(i);
                 }
             }
 
             // due to min alt resolution policies, can only collapse sequential alts
-            for (let i = setTransitions.getIntervals().size() - 1; i >= 0; i--) {
-                const interval = setTransitions.getIntervals().get(i);
-                if (interval.length() <= 1) {
+            for (const interval of setTransitions) {
+                if (interval.length <= 1) {
                     continue;
                 }
 
-                const blockEndState = decision.transition(interval.a).target.transition(0).target;
+                const blockEndState = decision.transitions[interval.start].target.transitions[0].target;
                 const matchSet = new IntervalSet();
-                for (let j = interval.a; j <= interval.b; j++) {
-                    const matchTransition = decision.transition(j).target.transition(0);
+                for (let j = interval.start; j <= interval.stop; j++) {
+                    const matchTransition = decision.transitions[j].target.transitions[0];
                     if (matchTransition instanceof NotSetTransition) {
-                        throw new UnsupportedOperationException("Not yet implemented.");
+                        throw new Error("Not yet implemented.");
                     }
-                    const set = matchTransition.label();
-                    const intervals = set.getIntervals();
-                    const n = intervals.size();
-                    for (let k = 0; k < n; k++) {
-                        const setInterval = intervals.get(k);
-                        const a = setInterval.a;
-                        const b = setInterval.b;
+
+                    const set = matchTransition.label!;
+                    for (const setInterval of set) {
+                        const a = setInterval.start;
+                        const b = setInterval.stop;
                         if (a !== -1 && b !== -1) {
                             for (let v = a; v <= b; v++) {
                                 if (matchSet.contains(v)) {
@@ -103,50 +100,39 @@ export class ATNOptimizer {
                             }
                         }
                     }
-                    matchSet.addAll(set);
+                    matchSet.addSet(set);
                 }
 
                 let newTransition: Transition;
-                if (matchSet.getIntervals().size() === 1) {
-                    if (matchSet.size() === 1) {
-                        newTransition = CodePointTransitions.createWithCodePoint(blockEndState, matchSet.getMinElement());
-                    }
-                    else {
-                        const matchInterval = matchSet.getIntervals().get(0);
-                        newTransition = CodePointTransitions.createWithCodePointRange(blockEndState, matchInterval.a, matchInterval.b);
-                    }
-                }
-                else {
+                const intervals = [...matchSet];
+                if (intervals.length === 1) {
+                    const matchInterval = intervals[0];
+                    newTransition = CodePointTransitions.createWithCodePointRange(blockEndState, matchInterval.start,
+                        matchInterval.stop);
+                } else {
                     newTransition = new SetTransition(blockEndState, matchSet);
                 }
 
-                decision.transition(interval.a).target.setTransition(0, newTransition);
-                for (let j = interval.a + 1; j <= interval.b; j++) {
-                    const removed = decision.removeTransition(interval.a + 1);
+                decision.transitions[interval.start].target.setTransition(0, newTransition);
+                for (let j = interval.start + 1; j <= interval.stop; j++) {
+                    const removed = decision.removeTransition(interval.start + 1);
                     atn.removeState(removed.target);
-                    removedStates++;
                 }
             }
         }
-
-        //		System.out.println("ATN optimizer removed " + removedStates + " states by collapsing sets.");
     }
 
     private static optimizeStates(atn: ATN): void {
-        //		System.out.println(atn.states);
         const compressed = new Array<ATNState>();
         let i = 0; // new state number
         for (const s of atn.states) {
             if (s !== null) {
-                compressed.add(s);
+                compressed.push(s);
                 s.stateNumber = i; // reset state number as we shift to new position
                 i++;
             }
         }
-        //		System.out.println(compressed);
-        //		System.out.println("ATN optimizer removed " + (atn.states.size() - compressed.size()) + " null states.");
-        atn.states.clear();
-        atn.states.addAll(compressed);
+        atn.states.splice(0, atn.states.length, ...compressed); // clear and add all
     }
 
 }
