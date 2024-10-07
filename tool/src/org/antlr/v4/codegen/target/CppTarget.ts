@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -51,14 +51,12 @@ export class CppTarget extends Target {
 
     public override  needsHeader(): boolean { return true; }
 
-
     public override  getRecognizerFileName(header: boolean): string {
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
         const recognizerName = this.gen.g!.getRecognizerName();
 
         return recognizerName + extST.render();
     }
-
 
     public override  getListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
@@ -68,7 +66,6 @@ export class CppTarget extends Target {
         return listenerName + extST.render();
     }
 
-
     public override  getVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
@@ -76,7 +73,6 @@ export class CppTarget extends Target {
 
         return listenerName + extST.render();
     }
-
 
     public override  getBaseListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
@@ -86,7 +82,6 @@ export class CppTarget extends Target {
         return listenerName + extST.render();
     }
 
-
     public override  getBaseVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
@@ -95,11 +90,9 @@ export class CppTarget extends Target {
         return listenerName + extST.render();
     }
 
-
     protected override  get reservedWords(): Set<string> {
         return CppTarget.reservedWords;
     }
-
 
     protected override  shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint: number): boolean {
         if (codePoint === 0x3F) { // ?

@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
- 
-
 export enum DictType {
     ARG,
     RET,

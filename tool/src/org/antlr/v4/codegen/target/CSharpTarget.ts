@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -43,21 +43,17 @@ export class CSharpTarget extends Target {
         return CSharpTarget.targetCharValueEscape;
     }
 
-
     public override  isATNSerializedAsInts(): boolean {
         return true;
     }
-
 
     protected override  get reservedWords(): Set<string> {
         return CSharpTarget.reservedWords;
     }
 
-
     protected override  escapeWord(word: string): string {
         return "@" + word;
     }
-
 
     protected override  escapeChar(v: number): string {
         return format("\\x%X", v);

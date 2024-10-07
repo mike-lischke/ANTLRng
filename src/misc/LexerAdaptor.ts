@@ -5,8 +5,6 @@
  * See LICENSE file for more info.
  */
 
-/* eslint-disable @typescript-eslint/naming-convention, no-underscore-dangle */
-
 import { CharStream, Lexer, Token } from "antlr4ng";
 
 import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
@@ -19,7 +17,8 @@ export abstract class LexerAdaptor extends Lexer {
     static #OPTIONS_CONSTRUCT = -11;
 
     #currentRuleType: number = Token.INVALID_TYPE;
-    #insideOptionsBlock: boolean = false;
+    // eslint-disable-next-line no-unused-private-class-members
+    #insideOptionsBlock = false;
 
     public constructor(input: CharStream) {
         super(input);

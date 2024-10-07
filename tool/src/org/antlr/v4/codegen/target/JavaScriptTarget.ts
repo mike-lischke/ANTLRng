@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -35,26 +35,21 @@ export class JavaScriptTarget extends Target {
         return 32;
     }
 
-
     public override  wantsBaseListener(): boolean {
         return false;
     }
-
 
     public override  wantsBaseVisitor(): boolean {
         return false;
     }
 
-
     public override  supportsOverloadedMethods(): boolean {
         return false;
     }
 
-
     public override  isATNSerializedAsInts(): boolean {
         return true;
     }
-
 
     protected override  get reservedWords(): Set<string> {
         return JavaScriptTarget.reservedWords;

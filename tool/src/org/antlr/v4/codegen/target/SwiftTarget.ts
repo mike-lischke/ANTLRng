@@ -1,11 +1,10 @@
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 // cspell: ignore associatedtype deinit typealias nonmutating
-
 
 import { format } from "../../misc/helpers.js";
 import { Target, type char } from "../Target.js";
@@ -41,16 +40,13 @@ export class SwiftTarget extends Target {
         return SwiftTarget.targetCharValueEscape;
     }
 
-
     protected override  get reservedWords(): Set<string> {
         return SwiftTarget.reservedWords;
     }
 
-
     protected override  escapeWord(word: string): string {
         return "`" + word + "`";
     }
-
 
     protected override  escapeChar(v: number): string {
         return format("\\u{%X}", v);

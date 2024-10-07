@@ -30,7 +30,7 @@ export class LogManager {
         }
     };
 
-    private records: InstanceType<typeof LogManager.Record>[] = [];
+    private records: Array<InstanceType<typeof LogManager.Record>> = [];
 
     public log(info: { component?: string, msg: string; }): void {
         this.records.push(new LogManager.Record(info));

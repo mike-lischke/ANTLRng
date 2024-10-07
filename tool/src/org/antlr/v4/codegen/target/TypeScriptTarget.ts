@@ -24,31 +24,25 @@ export class TypeScriptTarget extends Target {
         super(gen);
     }
 
-
     public override  getInlineTestSetWordSize(): number {
         return 32;
     }
-
 
     public override  wantsBaseListener(): boolean {
         return false;
     }
 
-
     public override  wantsBaseVisitor(): boolean {
         return false;
     }
-
 
     public override  supportsOverloadedMethods(): boolean {
         return true;
     }
 
-
     public override  isATNSerializedAsInts(): boolean {
         return true;
     }
-
 
     protected override  get reservedWords(): Set<string> {
         return TypeScriptTarget.reservedWords;

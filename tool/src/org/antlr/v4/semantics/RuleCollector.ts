@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -41,7 +41,6 @@ export class RuleCollector extends GrammarTreeVisitor {
         this.errMgr = g.tool.errMgr;
     }
 
-
     public override getErrorManager(): ErrorManager {
         return this.errMgr;
     }
@@ -49,7 +48,6 @@ export class RuleCollector extends GrammarTreeVisitor {
     public process(ast: GrammarAST): void {
         this.visitGrammar(ast);
     }
-
 
     public override discoverRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], arg: ActionAST | null,
         returns: ActionAST | null, thrws: GrammarAST, options: GrammarAST, locals: ActionAST | null,
@@ -90,7 +88,6 @@ export class RuleCollector extends GrammarTreeVisitor {
         }
     }
 
-
     public override discoverOuterAlt(alt: AltAST): void {
         if (alt.altLabel) {
             this.ruleToAltLabels.map(this.currentRuleName!, alt.altLabel);
@@ -100,14 +97,12 @@ export class RuleCollector extends GrammarTreeVisitor {
         }
     }
 
-
     public override grammarOption(ID: GrammarAST, valueAST: GrammarAST): void {
         const caseInsensitive = this.getCaseInsensitiveValue(ID, valueAST);
         if (caseInsensitive !== null) {
             this.grammarCaseInsensitive = caseInsensitive;
         }
     }
-
 
     public override discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[],
         options: GrammarAST | null, block: GrammarAST): void {

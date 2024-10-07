@@ -5,7 +5,7 @@
 
 import eslint from "@eslint/js";
 import tslint from "typescript-eslint";
-import stylisticTs from "@stylistic/eslint-plugin-ts";
+import stylistic from "@stylistic/eslint-plugin";
 import typescriptEslintParser from "@typescript-eslint/parser";
 
 export default tslint.config(
@@ -14,7 +14,7 @@ export default tslint.config(
     ...tslint.configs.stylisticTypeChecked,
     {
         plugins: {
-            "@stylistic/ts": stylisticTs
+            "@stylistic": stylistic
         },
         languageOptions: {
             parser: typescriptEslintParser,
@@ -47,7 +47,7 @@ export default tslint.config(
                     "code": 120
                 }
             ],
-            "@stylistic/ts/padding-line-between-statements": [
+            "@stylistic/padding-line-between-statements": [
                 "error",
                 {
                     "blankLine": "always",
@@ -55,7 +55,7 @@ export default tslint.config(
                     "next": "return"
                 }
             ],
-            "@stylistic/ts/quotes": [
+            "@stylistic/quotes": [
                 "error",
                 "double",
                 {
@@ -63,7 +63,7 @@ export default tslint.config(
                     "allowTemplateLiterals": true
                 }
             ],
-            "@stylistic/ts/indent": [
+            "@stylistic/indent": [
                 "error",
                 4,
                 {
@@ -72,10 +72,12 @@ export default tslint.config(
                     "MemberExpression": 1
                 }
             ],
-            "@stylistic/ts/semi": [
+            "@stylistic/semi": [
                 "error",
                 "always"
             ],
+            "@stylistic/no-multiple-empty-lines": ["error", { "max": 1 }],
+
             "@typescript-eslint/no-explicit-any": "error",
             "@typescript-eslint/no-namespace": "off",
             "@typescript-eslint/no-non-null-assertion": "off",

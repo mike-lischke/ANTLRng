@@ -107,7 +107,6 @@ export class Utils {
     }
 }
 
-
 export namespace Utils {
     export interface Filter<T> {
         select(t: T): boolean;

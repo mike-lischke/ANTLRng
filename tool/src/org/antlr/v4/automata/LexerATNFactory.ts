@@ -1,7 +1,7 @@
 /* java2ts: keep */
 
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -76,7 +76,6 @@ export class LexerATNFactory extends ParserATNFactory {
             this.prevProperty = prevProperty;
         }
 
-
         public toString(): string {
             return format("%s mode=%s inRange=%s prevCodePoint=%d prevProperty=%s", String(this), this.mode,
                 this.inRange, this.prevCodePoint, this.prevProperty);
@@ -97,7 +96,6 @@ export class LexerATNFactory extends ParserATNFactory {
                 this.prevCodePoint === that.prevCodePoint &&
                 this.prevProperty.equals(that.prevProperty);
         }
-
 
         public hashCode(): number {
             let hash = MurmurHash.initialize();
@@ -134,11 +132,9 @@ export class LexerATNFactory extends ParserATNFactory {
         this.codegenTemplates = codeGenerator.getTemplates();
     }
 
-
     public static getCommonConstants(): MapIterator<string> {
         return LexerATNFactory.COMMON_CONSTANTS.keys();
     }
-
 
     public override  createATN(): ATN {
         // BUILD ALL START STATES (ONE PER MODE)
@@ -183,13 +179,11 @@ export class LexerATNFactory extends ParserATNFactory {
         return this.atn;
     }
 
-
     public override  rule(ruleAST: GrammarAST, name: string, blk: IStatePair): IStatePair {
         this.ruleCommands.splice(0, this.ruleCommands.length);
 
         return super.rule(ruleAST, name, blk);
     }
-
 
     public override  action(action: ActionAST | string): IStatePair;
     public override  action(node: GrammarAST, lexerAction: LexerAction): IStatePair;
@@ -234,7 +228,6 @@ export class LexerATNFactory extends ParserATNFactory {
         return { left, right };
     }
 
-
     public override  lexerAltCommands(alt: IStatePair, commands: IStatePair): IStatePair {
         const h = { left: alt.left, right: commands.right };
         this.epsilon(alt.right, commands.left);
@@ -242,16 +235,13 @@ export class LexerATNFactory extends ParserATNFactory {
         return h;
     }
 
-
     public override  lexerCallCommand(ID: GrammarAST, arg: GrammarAST): IStatePair {
         return this.lexerCallCommandOrCommand(ID, arg);
     }
 
-
     public override  lexerCommand(ID: GrammarAST): IStatePair {
         return this.lexerCallCommandOrCommand(ID, null);
     }
-
 
     public override  range(a: GrammarAST, b: GrammarAST): IStatePair {
         const left = this.newState(a);
@@ -266,7 +256,6 @@ export class LexerATNFactory extends ParserATNFactory {
 
         return { left, right };
     }
-
 
     public override  set(associatedAST: GrammarAST, alts: GrammarAST[], invert: boolean): IStatePair {
         const left = this.newState(associatedAST);
@@ -440,7 +429,6 @@ export class LexerATNFactory extends ParserATNFactory {
         return set;
     }
 
-
     public override  tokenRef(node: TerminalAST): IStatePair | null {
         // Ref to EOF in lexer yields char transition on -1
         if (node.getText() === "EOF") {
@@ -602,9 +590,7 @@ export class LexerATNFactory extends ParserATNFactory {
             case 4: {
                 const [mainAst, set, a, b] = args as [GrammarAST, IntervalSet, number, number];
 
-
                 this.checkRangeAndAddToSet(mainAst, mainAst, set, a, b, this.currentRule!.caseInsensitive, null);
-
 
                 break;
             }
@@ -614,7 +600,6 @@ export class LexerATNFactory extends ParserATNFactory {
                     args as [
                         GrammarAST, GrammarAST, IntervalSet, number, number, boolean, CharactersDataCheckStatus | null
                     ];
-
 
                 let status: CharactersDataCheckStatus;
                 const charactersData = RangeBorderCharactersData.getAndCheckCharactersData(a, b, this.g, ast,
@@ -670,7 +655,6 @@ export class LexerATNFactory extends ParserATNFactory {
 
                 return status;
 
-
                 break;
             }
 
@@ -679,7 +663,6 @@ export class LexerATNFactory extends ParserATNFactory {
             }
         }
     }
-
 
     private createTransition(target: ATNState, from: number, to: number, tree: CommonTree): Transition {
         const charactersData = RangeBorderCharactersData.getAndCheckCharactersData(from, to, this.g, tree, true);
@@ -924,7 +907,6 @@ export class LexerATNFactory extends ParserATNFactory {
     }
 
 }
-
 
 export namespace LexerATNFactory {
     export type CharSetParseState = InstanceType<typeof LexerATNFactory.CharSetParseState>;

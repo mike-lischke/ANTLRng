@@ -319,8 +319,7 @@ export class Interpreter {
         }
     }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
+ 
 export namespace Interpreter {
     export type IgnoreTokenVocabGrammar = InstanceType<typeof Interpreter.IgnoreTokenVocabGrammar>;
 }

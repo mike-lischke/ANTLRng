@@ -1,7 +1,7 @@
 /* java2ts: keep */
 
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -20,7 +20,6 @@ export class TailEpsilonRemover extends ATNVisitor {
         super();
         this._atn = atn;
     }
-
 
     public override  visitState(p: ATNState): void {
         if ((p.constructor as typeof ATNState).stateType === ATNState.BASIC && p.transitions.length === 1) {

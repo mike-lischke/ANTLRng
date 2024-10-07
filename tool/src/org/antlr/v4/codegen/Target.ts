@@ -1,7 +1,5 @@
-/* java2ts: keep */
-
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -169,7 +167,6 @@ export abstract class Target {
         return result;
     }
 
-
     /**
      * <p>Convert from an ANTLR string literal found in a grammar file to an
      * equivalent string literal in the target language.
@@ -222,7 +219,6 @@ export abstract class Target {
                         break;
                     }
 
-
                     case "u": {    // Either unnnn or u{nnnnnn}
                         if (literal.charAt(i + toAdvance) === "{") {
                             while (literal.charAt(i + toAdvance) !== "}") {
@@ -274,7 +270,6 @@ export abstract class Target {
 
         return result;
     }
-
 
     /** Assume 16-bit char */
     public encodeInt16AsCharEscape(v: number): string {
@@ -337,7 +332,6 @@ export abstract class Target {
 
         return Utils.capitalize(rule.name) + this.getTemplates().getInstanceOf("RuleContextNameSuffix")!.render();
     }
-
 
     public getAltLabelContextStructName(label: string): string {
         return Utils.capitalize(label) + this.getTemplates().getInstanceOf("RuleContextNameSuffix")!.render();
@@ -506,13 +500,11 @@ export abstract class Target {
                 break;
             }
 
-
             //case ANTLRv4Parser.ELEMENT_OPTIONS: {
             case ANTLRv4Parser.AT:
             case ANTLRv4Parser.LT: { // TODO: is that the right replacement for ELEMENT_OPTIONS?
                 return false;
             }
-
 
             //case ANTLRv4Parser.LEXER_ACTION_CALL: {
             case ANTLRv4Parser.ACTION_CONTENT: { // TODO: is that the right replacement for LEXER_ACTION_CALL?
@@ -524,7 +516,6 @@ export abstract class Target {
                 // arguments to the command should be checked
                 break;
             }
-
 
             default: {
                 break;
@@ -595,7 +586,6 @@ export abstract class Target {
         return result;
     }
 
-
     protected shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint: number): boolean {
         return codePoint < 0x20 || // control characters up to but not including space
             codePoint === 0x5C || // backslash
@@ -626,16 +616,13 @@ export abstract class Target {
                 this.reportError(msg);
             }
 
-
             public runTimeError(msg: STMessage): void {
                 this.reportError(msg);
             }
 
-
             public IOError(msg: STMessage): void {
                 this.reportError(msg);
             }
-
 
             public internalError(msg: STMessage): void {
                 this.reportError(msg);

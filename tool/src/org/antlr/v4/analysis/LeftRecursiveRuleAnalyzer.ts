@@ -28,7 +28,6 @@ enum Associativity {
     Right = "right"
 };
 
-
 /** Using a tree walker on the rules, determine if a rule is directly left-recursive and if it follows
  *  our pattern.
  */
@@ -106,11 +105,9 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         return false;
     }
 
-
     public override setReturnValues(t: GrammarAST): void {
         this.retvals = t;
     }
-
 
     public override setAltAssoc(t: AltAST, alt: number): void {
         let assoc = Associativity.Left;
@@ -134,7 +131,6 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         }
         this.altAssociativity.set(alt, assoc);
     }
-
 
     public override binaryAlt(originalAltTree: AltAST, alt: number): void {
         let altTree = originalAltTree.dupTree() as AltAST;
@@ -163,7 +159,6 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         this.binaryAlts.set(alt, a);
     }
 
-
     public override prefixAlt(originalAltTree: AltAST, alt: number): void {
         let altTree = originalAltTree.dupTree() as AltAST;
         this.stripAltLabel(altTree);
@@ -179,7 +174,6 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         a.nextPrec = nextPrec;
         this.prefixAndOtherAlts.push(a);
     }
-
 
     public override suffixAlt(originalAltTree: AltAST, alt: number): void {
         const altTree = originalAltTree.dupTree() as AltAST;
@@ -199,7 +193,6 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         const a = new LeftRecursiveRuleAltInfo(alt, altText, label, altLabel, isListLabel, originalAltTree);
         this.suffixAlts.set(alt, a);
     }
-
 
     public override otherAlt(originalAltTree: AltAST, alt: number): void {
         const altTree = originalAltTree.dupTree() as AltAST;
@@ -412,7 +405,6 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
         return p + 1;
     }
-
 
     public override toString(): string {
         return "PrecRuleOperatorCollector{" +
