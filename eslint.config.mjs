@@ -23,7 +23,13 @@ export default tslint.config(
                     allowDefaultProject: ["*.js", "*.mjs", "*.ts"],
                 },
                 tsconfigRootDir: import.meta.dirname,
-                project: "./tsconfig.json",
+                project: [
+                    "./tsconfig.json",
+                    "./tests/tsconfig.json"
+                ],
+                "allowDefaultProject": [
+                    "./tests"
+                ]
             },
         },
         rules: {

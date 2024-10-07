@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "module": "Node16",
+        "target": "ESNext",
+        "moduleResolution": "Node16",
+        "resolveJsonModule": true,
+        "noEmit": true,
+        "removeComments": false,
+        "noImplicitAny": true,
+        "noImplicitOverride": false,
+        "sourceMap": true,
+        "inlineSources": true,
+        "isolatedModules": false,
+        "allowSyntheticDefaultImports": true,
+        "strictNullChecks": true,
+        "skipLibCheck": true,
+    },
+    "include": [
+        "**/*.ts",
+        "../jest.config.ts",
+    ],
+    "exclude": [],
+}
