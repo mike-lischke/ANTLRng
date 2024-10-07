@@ -27,7 +27,6 @@ export class InvokeRule extends RuleElement implements LabeledOp {
     public readonly labels = new OrderedHashSet<Decl>(); // TODO: should need just 1
     public readonly ctxName: string;
 
-    @ModelElement
     public argExprsChunks: ActionChunk[];
 
     public constructor(factory: ParserFactory, ast: GrammarAST, labelAST: GrammarAST) {

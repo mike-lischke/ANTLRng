@@ -36,9 +36,8 @@ export abstract class Choice extends RuleElement {
     public decision = -1;
     public label: Decl;
 
-    @ModelElement
     public alts: CodeBlockForAlt[];
-    @ModelElement
+
     public preamble = new Array<SrcOp>();
 
     public constructor(factory: OutputModelFactory,

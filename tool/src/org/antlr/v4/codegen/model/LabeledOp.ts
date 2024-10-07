@@ -7,6 +7,6 @@
 import { Decl } from "./decl/Decl.js";
 
 /** All the rule elements we can label like tokens, rules, sets, wildcard. */
-interface LabeledOp {
+export interface LabeledOp {
     getLabels(): Decl[];
 }

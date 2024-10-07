@@ -15,7 +15,7 @@ import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 export abstract class LL1Choice extends Choice {
     /** Token names for each alt 0..n-1 */
     public altLook: TokenInfo[][];
-    @ModelElement
+
     public error: ThrowNoViableAlt;
 
     public constructor(factory: OutputModelFactory, blkAST: GrammarAST,

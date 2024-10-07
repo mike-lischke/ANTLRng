@@ -15,9 +15,9 @@ import { SetTransition } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
 export class MatchSet extends MatchToken {
-    @ModelElement
+
     public expr: TestSetInline;
-    @ModelElement
+
     public capture: CaptureNextTokenType;
 
     public constructor(factory: OutputModelFactory, ast: GrammarAST) {

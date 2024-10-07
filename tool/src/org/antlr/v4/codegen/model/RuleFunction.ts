@@ -43,31 +43,31 @@ export class RuleFunction extends OutputModelObject {
     public readonly escapedName: string;
     public readonly modifiers: Array<string>;
     public ctxType: string;
-    public readonly ruleLabels: Collection<string>;
-    public readonly tokenLabels: Collection<string>;
+    public readonly ruleLabels: Array<string>;
+    public readonly tokenLabels: Array<string>;
     public readonly startState: ATNState;
     public readonly index: number;
     public readonly rule: Rule;
     public readonly altToContext: AltLabelStructDecl[];
     public hasLookaheadBlock: boolean;
 
-    @ModelElement
+
     public code: Array<SrcOp>;
-    @ModelElement
+
     public locals: OrderedHashSet<Decl>; // TODO: move into ctx?
-    @ModelElement
+
     public args = null;
-    @ModelElement
+
     public ruleCtx: StructDecl;
-    @ModelElement
+
     public altLabelCtxs: Map<string, AltLabelStructDecl>;
-    @ModelElement
+
     public namedActions: Map<string, Action>;
-    @ModelElement
+
     public finallyAction: Action;
-    @ModelElement
+
     public exceptions: Array<ExceptionClause>;
-    @ModelElement
+
     public postamble: Array<SrcOp>;
 
     public constructor(factory: OutputModelFactory, r: Rule) {

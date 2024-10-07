@@ -75,7 +75,7 @@ export class OutputModelWalker {
         let modelArgName = arg_it.next(); // ordered so this is first arg
         st.add(modelArgName, omo);
 
-        // COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH @ModelElement AND MAKE ST ATTRIBUTE
+        // COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH  AND MAKE ST ATTRIBUTE
         let usedFieldNames = new HashSet<string>();
         let fields[] = cl.getFields();
         for (let fi of fields) {
@@ -91,7 +91,7 @@ export class OutputModelWalker {
                 continue;
             }
 
-            // Just don't set @ModelElement fields w/o formal arg in target ST
+            // Just don't set  fields w/o formal arg in target ST
             if (formalArgs.get(fieldName) === null) {
                 continue;
             }
@@ -111,7 +111,7 @@ export class OutputModelWalker {
                         if (o instanceof OutputModelObject[]) {
                             o = Arrays.asList(o as OutputModelObject[]);
                         }
-                        let nestedOmos = o as Collection<unknown>;
+                        let nestedOmos = o as Array<unknown>;
                         for (let nestedOmo of nestedOmos) {
                             if (nestedOmo === null) {
                                 continue;

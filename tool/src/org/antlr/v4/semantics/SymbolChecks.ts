@@ -102,7 +102,7 @@ export class SymbolChecks {
      * defined in surrounding rule.  Also they must have same type
      * for repeated defs.
      */
-    public checkForLabelConflicts(rules: Collection<Rule>): void {
+    public checkForLabelConflicts(rules: Rule[]): void {
         for (const r of rules) {
             this.checkForAttributeConflicts(r);
 
@@ -327,7 +327,7 @@ export class SymbolChecks {
         }
     }
 
-    protected checkReservedNames(rules: Collection<Rule>): void {
+    protected checkReservedNames(rules: Rule[]): void {
         for (const rule of rules) {
             if (this.reservedNames.contains(rule.name)) {
                 this.errMgr.grammarError(ErrorType.RESERVED_RULE_NAME, this.g.fileName, (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);

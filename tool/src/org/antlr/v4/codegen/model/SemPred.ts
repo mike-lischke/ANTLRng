@@ -36,7 +36,7 @@ export class SemPred extends Action {
      * <p>
      * {@code {pred}?<fail={"Java literal"}>}</p>
      */
-    @ModelElement
+
     public failChunks: ActionChunk[];
 
     public constructor(factory: OutputModelFactory, ast: ActionAST) {

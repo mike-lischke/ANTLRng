@@ -18,7 +18,7 @@ export class RuleActionFunction extends OutputModelObject {
     public readonly ruleIndex: number;
 
     /** Map actionIndex to Action */
-    @ModelElement
+
     public actions =
         new LinkedHashMap<number, Action>();
 

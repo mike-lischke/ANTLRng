@@ -15,7 +15,6 @@ import { AttributeDecl } from "./AttributeDecl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { DispatchMethod } from "../DispatchMethod.js";
 import { ListenerDispatchMethod } from "../ListenerDispatchMethod.js";
-import { ModelElement } from "../ModelElement.js";
 import { OutputModelObject } from "../OutputModelObject.js";
 import { VisitorDispatchMethod } from "../VisitorDispatchMethod.js";
 import { Rule } from "../../../tool/Rule.js";
@@ -28,20 +27,20 @@ import { OrderedHashSet } from "antlr4ng";
 export class StructDecl extends Decl {
     public derivedFromName: string; // rule name or label name
     public provideCopyFrom: boolean;
-    @ModelElement
+
     public attrs = new OrderedHashSet<Decl>();
-    @ModelElement
+
     public getters = new OrderedHashSet<Decl>();
-    @ModelElement
-    public ctorAttrs: Collection<AttributeDecl>;
-    @ModelElement
+
+    public ctorAttrs: AttributeDecl[];
+
     public dispatchMethods: DispatchMethod[];
-    @ModelElement
+
     public interfaces: OutputModelObject[];
-    @ModelElement
+
     public extensionMembers: OutputModelObject[];
     // Used to generate method signatures in Go target interfaces
-    @ModelElement
+
     public signatures = new OrderedHashSet<Decl>();
 
     // Track these separately; Go target needs to generate getters/setters
@@ -165,7 +164,7 @@ export class StructDecl extends Decl {
         }
     }
 
-    public addDecls(attrList: Collection<java.security.KeyStore.Entry.Attribute>): void {
+    public addDecls(attrList: java.security.KeyStore.Entry.Attribute[]): void {
         for (const a of attrList) {
             this.addDecl(a);
         }

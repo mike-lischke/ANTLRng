@@ -15,9 +15,9 @@ export class LexerFile extends OutputFile {
     public exportMacro: string; // from -DexportMacro cmd-line
     public genListener: boolean; // from -listener cmd-line
     public genVisitor: boolean; // from -visitor cmd-line
-    @ModelElement
+
     public lexer: Lexer;
-    @ModelElement
+
     public namedActions: Map<string, Action>;
 
     public constructor(factory: OutputModelFactory, fileName: string) {

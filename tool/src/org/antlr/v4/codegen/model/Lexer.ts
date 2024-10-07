@@ -16,13 +16,12 @@ import { Rule } from "../../tool/Rule.js";
 import { LinkedHashMap as HashMap } from "antlr4ng";
 
 export class Lexer extends Recognizer {
-    public readonly channelNames: java.util.Collection<string>;
+    public readonly channelNames: java.util.Array<string>;
     public readonly escapedChannels: Map<string, number>;
     public readonly file: LexerFile;
-    public readonly modes: java.util.Collection<string>;
-    public readonly escapedModeNames: java.util.Collection<string>;
+    public readonly modes: java.util.Array<string>;
+    public readonly escapedModeNames: java.util.Array<string>;
 
-    @ModelElement
     public actionFuncs =
         new LinkedHashMap<Rule, RuleActionFunction>();
 

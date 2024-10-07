@@ -11,7 +11,7 @@ import { BlockStartState } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
 export class AltBlock extends Choice {
-    //	@ModelElement public ThrowNoViableAlt error;
+    //	 public ThrowNoViableAlt error;
 
     public constructor(factory: OutputModelFactory,
         blkOrEbnfRootAST: GrammarAST,

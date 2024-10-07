@@ -64,7 +64,7 @@ export class UseDefAnalyzer {
 
     public static getRuleDependencies(g: LexerGrammar, modeName: string): Map<Rule, Set<Rule>>;
 
-    public static getRuleDependencies(g: Grammar, rules: Collection<Rule>): Map<Rule, Set<Rule>>;
+    public static getRuleDependencies(g: Grammar, rules: Array<Rule>): Map<Rule, Set<Rule>>;
     public static getRuleDependencies(...args: unknown[]): Map<Rule, Set<Rule>> {
         switch (args.length) {
             case 1: {
@@ -88,7 +88,7 @@ export class UseDefAnalyzer {
             }
 
             case 2: {
-                const [g, rules] = args as [Grammar, Collection<Rule>];
+                const [g, rules] = args as [Grammar, Array<Rule>];
 
 
                 let dependencies = new HashMap<Rule, Set<Rule>>();

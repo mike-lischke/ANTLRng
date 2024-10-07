@@ -17,7 +17,6 @@ export class Loop extends Choice {
     public loopBackStateNumber: number;
     public readonly exitAlt: number;
 
-    @ModelElement
     public iteration: SrcOp[];
 
     public constructor(factory: OutputModelFactory,

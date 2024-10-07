@@ -14,11 +14,10 @@ export class CodeBlock extends SrcOp {
     public codeBlockLevel: number;
     public treeLevel: number;
 
-    @ModelElement
     public locals: OrderedHashSet<Decl>;
-    @ModelElement
+
     public preamble: SrcOp[];
-    @ModelElement
+
     public ops: SrcOp[];
 
     public constructor(factory: OutputModelFactory);

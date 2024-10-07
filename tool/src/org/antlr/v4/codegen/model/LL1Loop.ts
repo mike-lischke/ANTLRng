@@ -23,9 +23,8 @@ export abstract class LL1Loop extends Choice {
     public blockStartStateNumber: number;
     public loopBackStateNumber: number;
 
-    @ModelElement
     public loopExpr: OutputModelObject;
-    @ModelElement
+
     public iteration: SrcOp[];
 
     public constructor(factory: OutputModelFactory,

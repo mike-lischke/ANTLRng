@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-
 import { OutputModelController } from "./OutputModelController.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 import { Choice } from "./model/Choice.js";
@@ -28,9 +26,7 @@ import { ActionAST } from "../tool/ast/ActionAST.js";
 import { BlockAST } from "../tool/ast/BlockAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 
-
-
-interface OutputModelFactory {
+export interface OutputModelFactory {
     getGrammar(): Grammar;
 
     getGenerator(): CodeGenerator;
@@ -49,43 +45,43 @@ interface OutputModelFactory {
 
     rule(r: Rule): RuleFunction;
 
-    rulePostamble(function: RuleFunction, r: Rule): Array<SrcOp>;
+    rulePostamble(func: RuleFunction, r: Rule): SrcOp[];
 
     // ELEMENT TRIGGERS
 
     alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
 
-    finishAlternative(blk: CodeBlockForAlt, ops: Array<SrcOp>): CodeBlockForAlt;
+    finishAlternative(blk: CodeBlockForAlt, ops: SrcOp[]): CodeBlockForAlt;
 
     epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
 
-    ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): Array<SrcOp>;
+    ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[];
 
-    tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): Array<SrcOp>;
+    tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[];
 
-    stringRef(ID: GrammarAST, label: GrammarAST): Array<SrcOp>;
+    stringRef(ID: GrammarAST, label: GrammarAST): SrcOp[];
 
-    set(setAST: GrammarAST, label: GrammarAST, invert: boolean): Array<SrcOp>;
+    set(setAST: GrammarAST, label: GrammarAST, invert: boolean): SrcOp[];
 
-    wildcard(ast: GrammarAST, labelAST: GrammarAST): Array<SrcOp>;
+    wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[];
 
-    action(ast: ActionAST): Array<SrcOp>;
+    action(ast: ActionAST): SrcOp[];
 
-    sempred(ast: ActionAST): Array<SrcOp>;
+    sempred(ast: ActionAST): SrcOp[];
 
-    getChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>, label: GrammarAST): Choice;
+    getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice;
 
-    getEBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
+    getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice;
 
-    getLL1ChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>): Choice;
+    getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice;
 
-    getComplexChoiceBlock(blkAST: BlockAST, alts: Array<CodeBlockForAlt>): Choice;
+    getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice;
 
-    getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
+    getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice;
 
-    getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: Array<CodeBlockForAlt>): Choice;
+    getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice;
 
-    getLL1Test(look: IntervalSet, blkAST: GrammarAST): Array<SrcOp>;
+    getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[];
 
     needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean;
 

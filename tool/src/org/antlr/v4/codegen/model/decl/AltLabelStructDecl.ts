@@ -36,10 +36,10 @@ export class AltLabelStructDecl extends StructDecl {
     }
 
     public override  hashCode(): number {
-        return $outer.name.hashCode();
+        return super.hashCode();
     }
 
-    public override  equals(obj: object): boolean {
+    public override  equals(obj: unknown): boolean {
         if (obj === this) {
             return true;
         }
@@ -48,6 +48,6 @@ export class AltLabelStructDecl extends StructDecl {
             return false;
         }
 
-        return $outer.name.equals((obj).name);
+        return super.equals((obj).name);
     }
 }

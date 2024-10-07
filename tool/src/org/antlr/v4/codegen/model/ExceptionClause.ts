@@ -11,9 +11,9 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 
 export class ExceptionClause extends SrcOp {
-    @ModelElement
+
     public catchArg: Action;
-    @ModelElement
+
     public catchAction: Action;
 
     public constructor(factory: OutputModelFactory,

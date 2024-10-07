@@ -35,9 +35,8 @@ export class ListenerFile extends OutputFile {
      */
     public listenerLabelRuleNames = new LinkedHashMap<string, string>();
 
-    @ModelElement
     public header: Action;
-    @ModelElement
+
     public namedActions: Map<string, Action>;
 
     public constructor(factory: OutputModelFactory, fileName: string) {

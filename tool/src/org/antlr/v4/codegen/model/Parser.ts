@@ -13,7 +13,6 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 export class Parser extends Recognizer {
     public file: ParserFile;
 
-    @ModelElement
     public funcs = new Array<RuleFunction>();
 
     public constructor(factory: OutputModelFactory, file: ParserFile) {

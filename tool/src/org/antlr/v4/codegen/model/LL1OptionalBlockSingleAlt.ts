@@ -15,9 +15,9 @@ import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
 /** (A B C)? */
 export class LL1OptionalBlockSingleAlt extends LL1Choice {
-    @ModelElement
+
     public expr: SrcOp;
-    @ModelElement
+
     public followExpr: SrcOp[]; // might not work in template if size>1
 
     public constructor(factory: OutputModelFactory,

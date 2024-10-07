@@ -36,13 +36,12 @@ export abstract class Recognizer extends OutputModelObject {
     public literalNames: string[];
     public symbolicNames: string[];
     public ruleNames: Set<string>;
-    public rules: Collection<Rule>;
-    @ModelElement
+    public rules: Rule[];
+
     public superClass: ActionChunk;
 
-    @ModelElement
     public atn: SerializedATN;
-    @ModelElement
+
     public sempredFuncs =
         new LinkedHashMap<Rule, RuleSempredFunction>();
 

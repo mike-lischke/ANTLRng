@@ -47,7 +47,7 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
     public static list(...values: SrcOp[]): Array<SrcOp>;
 
 
-    public static list(values: Collection<SrcOp>): Array<SrcOp>;
+    public static list(values: Array<SrcOp>): Array<SrcOp>;
     public static list(...args: unknown[]): Array<SrcOp> {
         switch (args.length) {
             case 1: {
@@ -61,7 +61,7 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
             }
 
             case 1: {
-                const [values] = args as [Collection<SrcOp>];
+                const [values] = args as [Array<SrcOp>];
 
 
                 return new Array<SrcOp>(values);

@@ -32,9 +32,8 @@ export class VisitorFile extends OutputFile {
      */
     public visitorLabelRuleNames = new LinkedHashMap<string, string>();
 
-    @ModelElement
     public header: Action;
-    @ModelElement
+
     public namedActions: Map<string, Action>;
 
     public constructor(factory: OutputModelFactory, fileName: string) {

@@ -14,7 +14,7 @@ import { BlockAST } from "../../tool/ast/BlockAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
 export class PlusBlock extends Loop {
-    @ModelElement
+
     public error: ThrowNoViableAlt;
 
     public constructor(factory: OutputModelFactory,
