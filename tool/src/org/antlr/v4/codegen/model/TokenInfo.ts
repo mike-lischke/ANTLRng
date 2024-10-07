@@ -8,7 +8,6 @@ export class TokenInfo {
         this.name = name;
     }
 
-    @Override
     public override  toString(): string {
         return "TokenInfo{" +
             "type=" + this.type +

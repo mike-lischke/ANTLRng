@@ -40,17 +40,17 @@ export class UseDefAnalyzer {
 		in.setCharPositionInLine(actionAST.token.getCharPositionInLine());
         let dependent = [false]; // can't be simple bool with anon class
         let listener = new class extends BlankActionSplitterListener {
-            @Override
+
             public nonLocalAttr(expr: string, x: Token, y: Token): void { dependent[0] = true; }
-            @Override
+
             public qualifiedAttr(expr: string, x: Token, y: Token): void { dependent[0] = true; }
-            @Override
+
             public setAttr(expr: string, x: Token, rhs: Token): void { dependent[0] = true; }
-            @Override
+
             public setExprAttribute(expr: string): void { dependent[0] = true; }
-            @Override
+
             public setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token): void { dependent[0] = true; }
-            @Override
+
             public attr(expr: string, x: Token): void { dependent[0] = true; }
         }();
         let splitter = new ActionSplitter(in, listener);

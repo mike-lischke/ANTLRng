@@ -56,6 +56,5 @@ export class MatchToken extends RuleElement implements LabeledOp {
         }
     }
 
-    @Override
     public getLabels(): Decl[] { return this.labels; }
 }

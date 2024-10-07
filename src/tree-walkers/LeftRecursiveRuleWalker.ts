@@ -573,7 +573,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 this.special = LeftRecursiveRuleWalker.DFA11_special;
                 this.transition = LeftRecursiveRuleWalker.DFA11_transition;
             }
-            @Override
+
             public getDescription(): string {
                 return "()* loopback of 124:35: ( element )*";
             }
@@ -595,7 +595,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 this.special = LeftRecursiveRuleWalker.DFA14_special;
                 this.transition = LeftRecursiveRuleWalker.DFA14_transition;
             }
-            @Override
+
             public getDescription(): string {
                 return "()+ loopback of 130:4: ( element )+";
             }
@@ -650,9 +650,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         return [];
     }
 
-    @Override
+
     public getTokenNames(): string[] { return LeftRecursiveRuleWalker.tokenNames; }
-    @Override
+
     public getGrammarFileName(): string { return "org/antlr/v4/parse/LeftRecursiveRuleWalker.g"; }  // how many alts for this rule total?
 
     public setAltAssoc(altTree: AltAST, alt: number): void { }

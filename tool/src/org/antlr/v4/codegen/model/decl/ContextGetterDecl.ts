@@ -45,7 +45,6 @@ export abstract class ContextGetterDecl extends Decl { // assume no args
      */
     public getArgType(): string { return ""; }
 
-    @Override
     public override  hashCode(): number {
         let hash = MurmurHash.initialize();
         hash = MurmurHash.update(hash, this.name);
@@ -60,7 +59,7 @@ export abstract class ContextGetterDecl extends Decl { // assume no args
      *  OTOH, treat X() with two diff return values as the same.  Treat
      *  two X() with diff args as different.
      */
-    @Override
+
     public override  equals(obj: object): boolean {
         if (this === obj) {
             return true;

@@ -24,7 +24,6 @@ export class AltLabelStructDecl extends StructDecl {
         this.derivedFromName = label;
     }
 
-    @Override
     public override  addDispatchMethods(r: Rule): void {
         this.dispatchMethods = new Array<DispatchMethod>();
         if ($outer.factory.getGrammar().tool.gen_listener) {
@@ -36,12 +35,10 @@ export class AltLabelStructDecl extends StructDecl {
         }
     }
 
-    @Override
     public override  hashCode(): number {
         return $outer.name.hashCode();
     }
 
-    @Override
     public override  equals(obj: object): boolean {
         if (obj === this) {
             return true;

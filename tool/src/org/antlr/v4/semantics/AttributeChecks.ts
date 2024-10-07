@@ -83,7 +83,7 @@ export class AttributeChecks implements ActionSplitterListener {
     // LISTENER METHODS
 
     // $x.y
-    @Override
+
     public qualifiedAttr(expr: string, x: Token, y: Token): void {
         if (this.g.isLexer()) {
             this.errMgr.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION,
@@ -122,7 +122,7 @@ export class AttributeChecks implements ActionSplitterListener {
         }
     }
 
-    @Override
+
     public setAttr(expr: string, x: Token, rhs: Token): void {
         if (this.g.isLexer()) {
             this.errMgr.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION,
@@ -142,7 +142,7 @@ export class AttributeChecks implements ActionSplitterListener {
         new AttributeChecks(this.g, this.r, this.alt, this.node, rhs).examineAction();
     }
 
-    @Override
+
     public attr(expr: string, x: Token): void {
         if (this.g.isLexer()) {
             this.errMgr.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION,
@@ -166,7 +166,7 @@ export class AttributeChecks implements ActionSplitterListener {
         }
     }
 
-    @Override
+
     public nonLocalAttr(expr: string, x: Token, y: Token): void {
         let r = this.g.getRule(x.getText());
         if (r === null) {
@@ -183,7 +183,7 @@ export class AttributeChecks implements ActionSplitterListener {
 
     }
 
-    @Override
+
     public setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token): void {
         let r = this.g.getRule(x.getText());
         if (r === null) {
@@ -200,7 +200,7 @@ export class AttributeChecks implements ActionSplitterListener {
 
     }
 
-    @Override
+
     public text(text: string): void { }
 
     // don't care

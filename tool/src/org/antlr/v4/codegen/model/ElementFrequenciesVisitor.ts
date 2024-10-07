@@ -117,22 +117,19 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
     }
 
     /** During code gen, we can assume tree is in good shape */
-    @Override
+
     public getErrorManager(): java.util.logging.ErrorManager { return super.getErrorManager(); }
 
-    @Override
     public tokenRef(ref: TerminalAST): void {
         this.frequencies.peek().add(ref.getText());
         this.minFrequencies.peek().add(ref.getText());
     }
 
-    @Override
     public ruleRef(ref: GrammarAST, arg: ActionAST): void {
         this.frequencies.peek().add(ref.getText());
         this.minFrequencies.peek().add(ref.getText());
     }
 
-    @Override
     public stringRef(ref: TerminalAST): void {
         const tokenName = ref.g.getTokenName(ref.getText());
 
@@ -154,37 +151,31 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
      * Parser rules
      */
 
-    @Override
     protected enterAlternative(tree: AltAST): void {
         this.frequencies.push(new FrequencySet<string>());
         this.minFrequencies.push(new FrequencySet<string>());
     }
 
-    @Override
     protected exitAlternative(tree: AltAST): void {
         this.frequencies.push(ElementFrequenciesVisitor.combineMax(this.frequencies.pop(), this.frequencies.pop()));
         this.minFrequencies.push(ElementFrequenciesVisitor.combineMin(this.minFrequencies.pop(), this.minFrequencies.pop()));
     }
 
-    @Override
     protected enterElement(tree: GrammarAST): void {
         this.frequencies.push(new FrequencySet<string>());
         this.minFrequencies.push(new FrequencySet<string>());
     }
 
-    @Override
     protected exitElement(tree: GrammarAST): void {
         this.frequencies.push(ElementFrequenciesVisitor.combineAndClip(this.frequencies.pop(), this.frequencies.pop(), 2));
         this.minFrequencies.push(ElementFrequenciesVisitor.combineAndClip(this.minFrequencies.pop(), this.minFrequencies.pop(), 2));
     }
 
-    @Override
     protected enterBlockSet(tree: GrammarAST): void {
         this.frequencies.push(new FrequencySet<string>());
         this.minFrequencies.push(new FrequencySet<string>());
     }
 
-    @Override
     protected exitBlockSet(tree: GrammarAST): void {
         for (const entry of this.frequencies.peek().entrySet()) {
             // This visitor counts a block set as a sequence of elements, not a
@@ -203,7 +194,6 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
         this.minFrequencies.push(ElementFrequenciesVisitor.combineAndClip(this.minFrequencies.pop(), this.minFrequencies.pop(), 2));
     }
 
-    @Override
     protected exitSubrule(tree: GrammarAST): void {
         if (tree.getType() === CLOSURE || tree.getType() === POSITIVE_CLOSURE) {
             for (const entry of this.frequencies.peek().entrySet()) {
@@ -222,31 +212,26 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
      * Lexer rules
      */
 
-    @Override
     protected enterLexerAlternative(tree: GrammarAST): void {
         this.frequencies.push(new FrequencySet<string>());
         this.minFrequencies.push(new FrequencySet<string>());
     }
 
-    @Override
     protected exitLexerAlternative(tree: GrammarAST): void {
         this.frequencies.push(ElementFrequenciesVisitor.combineMax(this.frequencies.pop(), this.frequencies.pop()));
         this.minFrequencies.push(ElementFrequenciesVisitor.combineMin(this.minFrequencies.pop(), this.minFrequencies.pop()));
     }
 
-    @Override
     protected enterLexerElement(tree: GrammarAST): void {
         this.frequencies.push(new FrequencySet<string>());
         this.minFrequencies.push(new FrequencySet<string>());
     }
 
-    @Override
     protected exitLexerElement(tree: GrammarAST): void {
         this.frequencies.push(ElementFrequenciesVisitor.combineAndClip(this.frequencies.pop(), this.frequencies.pop(), 2));
         this.minFrequencies.push(ElementFrequenciesVisitor.combineAndClip(this.minFrequencies.pop(), this.minFrequencies.pop(), 2));
     }
 
-    @Override
     protected exitLexerSubrule(tree: GrammarAST): void {
         if (tree.getType() === CLOSURE || tree.getType() === POSITIVE_CLOSURE) {
             for (const entry of this.frequencies.peek().entrySet()) {

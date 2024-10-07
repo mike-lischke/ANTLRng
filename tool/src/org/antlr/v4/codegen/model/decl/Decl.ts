@@ -46,13 +46,12 @@ export class Decl extends SrcOp {
         }
     }
 
-    @Override
     public override  hashCode(): number {
         return this.name.hashCode();
     }
 
     /** If same name, can't redefine, unless it's a getter */
-    @Override
+
     public override  equals(obj: object): boolean {
         if (this === obj) {
             return true;

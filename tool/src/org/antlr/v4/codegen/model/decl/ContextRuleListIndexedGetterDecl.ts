@@ -36,12 +36,10 @@ export class ContextRuleListIndexedGetterDecl extends ContextRuleListGetterDecl 
         }
     }
 
-    @Override
     public override  getArgType(): string {
         return "int";
     }
 
-    @Override
     public override  getSignatureDecl(): ContextGetterDecl {
         return new ContextRuleListIndexedGetterDecl($outer.factory, $outer.name, this.ctxName, true);
     }

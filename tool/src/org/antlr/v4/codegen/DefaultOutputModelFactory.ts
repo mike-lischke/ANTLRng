@@ -77,17 +77,17 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
     }
 
 
-    @Override
+
     public setController(controller: OutputModelController): void {
         this.controller = controller;
     }
 
-    @Override
+
     public getController(): OutputModelController {
         return this.controller;
     }
 
-    @Override
+
     public override  rulePostamble(function: RuleFunction, r: Rule): Array<SrcOp> {
         if (r.namedActions.containsKey("after") || r.namedActions.containsKey("finally")) {
             // See OutputModelController.buildLeftRecursiveRuleFunction
@@ -106,30 +106,30 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
     // Convenience methods
 
 
-    @Override
+
     public getGrammar(): Grammar { return this.g; }
 
-    @Override
+
     public getGenerator(): CodeGenerator { return this.gen; }
 
-    @Override
+
     public getRoot(): OutputModelObject { return this.controller.getRoot(); }
 
-    @Override
+
     public getCurrentRuleFunction(): RuleFunction { return this.controller.getCurrentRuleFunction(); }
 
-    @Override
+
     public getCurrentOuterMostAlt(): Alternative { return this.controller.getCurrentOuterMostAlt(); }
 
-    @Override
+
     public getCurrentBlock(): CodeBlock { return this.controller.getCurrentBlock(); }
 
-    @Override
+
     public getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt { return this.controller.getCurrentOuterMostAlternativeBlock(); }
 
-    @Override
+
     public getCodeBlockLevel(): number { return this.controller.codeBlockLevel; }
 
-    @Override
+
     public getTreeLevel(): number { return this.controller.treeLevel; }
 }

@@ -56,19 +56,19 @@ export class ActionSniffer extends BlankActionSplitterListener {
     }
 
 
-    @Override
+
     public override  attr(expr: string, x: Token): void { this.trackRef(x); }
 
-    @Override
+
     public override  qualifiedAttr(expr: string, x: Token, y: Token): void { this.trackRef(x); }
 
-    @Override
+
     public override  setAttr(expr: string, x: Token, rhs: Token): void {
         this.trackRef(x);
         this.processNested(rhs);
     }
 
-    @Override
+
     public override  setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token): void {
         this.processNested(rhs);
     }

@@ -44,7 +44,7 @@ export class GraphicsSupport {
                 const out = new FileOutputStream(fileName);
                 const service = factories[0].getPrintService(out);
                 const doc = new SimpleDoc(new class extends Printable {
-                    @Override
+
                     public print(g: Graphics, pf: PageFormat, page: number): number {
                         if (page >= 1) {
                             return Printable.NO_SUCH_PAGE;

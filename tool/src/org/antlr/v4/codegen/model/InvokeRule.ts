@@ -76,7 +76,6 @@ export class InvokeRule extends RuleElement implements LabeledOp {
         }
     }
 
-    @Override
     public getLabels(): Decl[] {
         return this.labels.elements();
     }

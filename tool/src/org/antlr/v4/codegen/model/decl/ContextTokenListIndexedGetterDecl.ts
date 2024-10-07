@@ -37,12 +37,10 @@ export class ContextTokenListIndexedGetterDecl extends ContextTokenListGetterDec
         }
     }
 
-    @Override
     public override  getArgType(): string {
         return "int";
     }
 
-    @Override
     public override  getSignatureDecl(): ContextGetterDecl {
         return new ContextTokenListIndexedGetterDecl($outer.factory, $outer.name, true);
     }

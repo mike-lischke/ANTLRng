@@ -49,31 +49,26 @@ export class SymbolCollector extends GrammarTreeVisitor {
         this.errMgr = g.tool.errMgr;
     }
 
-    @Override
     public getErrorManager(): java.util.logging.ErrorManager { return this.errMgr; }
 
     public process(ast: GrammarAST): void { visitGrammar(ast); }
 
-    @Override
     public globalNamedAction(scope: GrammarAST, ID: GrammarAST, action: ActionAST): void {
         action.setScope(scope);
         this.namedActions.add(ID.getParent() as GrammarAST);
         action.resolver = this.g;
     }
 
-    @Override
     public defineToken(ID: GrammarAST): void {
         this.terminals.add(ID);
         this.tokenIDRefs.add(ID);
         this.tokensDefs.add(ID);
     }
 
-    @Override
     public defineChannel(ID: GrammarAST): void {
         this.channelDefs.add(ID);
     }
 
-    @Override
     public discoverRule(rule: RuleAST, ID: GrammarAST,
         modifiers: GrammarAST[], arg: ActionAST,
         returns: ActionAST, thrws: GrammarAST,
@@ -83,49 +78,41 @@ export class SymbolCollector extends GrammarTreeVisitor {
         this.currentRule = this.g.getRule(ID.getText());
     }
 
-    @Override
     public discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
         block: GrammarAST): void {
         this.currentRule = this.g.getRule(ID.getText());
     }
 
-    @Override
     public discoverOuterAlt(alt: AltAST): void {
         this.currentRule.alt[currentOuterAltNumber].ast = alt;
     }
 
-    @Override
     public actionInAlt(action: ActionAST): void {
         this.currentRule.defineActionInAlt(currentOuterAltNumber, action);
         action.resolver = this.currentRule.alt[currentOuterAltNumber];
     }
 
-    @Override
     public sempredInAlt(pred: PredAST): void {
         this.currentRule.definePredicateInAlt(currentOuterAltNumber, pred);
         pred.resolver = this.currentRule.alt[currentOuterAltNumber];
     }
 
-    @Override
     public ruleCatch(arg: GrammarAST, action: ActionAST): void {
         const catchme = action.getParent() as GrammarAST;
         this.currentRule.exceptions.add(catchme);
         action.resolver = this.currentRule;
     }
 
-    @Override
     public finallyAction(action: ActionAST): void {
         this.currentRule.finallyAction = action;
         action.resolver = this.currentRule;
     }
 
-    @Override
     public label(op: GrammarAST, ID: GrammarAST, element: GrammarAST): void {
         const lp = new LabelElementPair(this.g, ID, element, op.getType());
         this.currentRule.alt[currentOuterAltNumber].labelDefs.map(ID.getText(), lp);
     }
 
-    @Override
     public stringRef(ref: TerminalAST): void {
         this.terminals.add(ref);
         this.strings.add(ref.getText());
@@ -134,7 +121,6 @@ export class SymbolCollector extends GrammarTreeVisitor {
         }
     }
 
-    @Override
     public tokenRef(ref: TerminalAST): void {
         this.terminals.add(ref);
         this.tokenIDRefs.add(ref);
@@ -143,7 +129,6 @@ export class SymbolCollector extends GrammarTreeVisitor {
         }
     }
 
-    @Override
     public ruleRef(ref: GrammarAST, arg: ActionAST): void {
         //		if ( inContext("DOT ...") ) qualifiedRulerefs.add((GrammarAST)ref.getParent());
         this.rulerefs.add(ref);
@@ -152,22 +137,18 @@ export class SymbolCollector extends GrammarTreeVisitor {
         }
     }
 
-    @Override
     public grammarOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    @Override
     public ruleOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    @Override
     public blockOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    @Override
     public elementOption(t: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }

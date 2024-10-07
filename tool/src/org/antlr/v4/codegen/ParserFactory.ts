@@ -53,17 +53,14 @@ import { TerminalAST } from "../tool/ast/TerminalAST.js";
 export class ParserFactory extends DefaultOutputModelFactory {
     public constructor(gen: CodeGenerator) { super(gen); }
 
-    @Override
     public override  parserFile(fileName: string): ParserFile {
         return new ParserFile(this, fileName);
     }
 
-    @Override
     public override  parser(file: ParserFile): Parser {
         return new Parser(this, file);
     }
 
-    @Override
     public override  rule(r: Rule): RuleFunction {
         if (r instanceof LeftRecursiveRule) {
             return new LeftRecursiveRuleFunction(this, r);
@@ -75,12 +72,10 @@ export class ParserFactory extends DefaultOutputModelFactory {
         }
     }
 
-    @Override
     public override  epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt {
         return this.alternative(alt, outerMost);
     }
 
-    @Override
     public override  alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt {
         if (outerMost) {
             return new CodeBlockForOuterMostAlt(this, alt);
@@ -89,20 +84,16 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return new CodeBlockForAlt(this);
     }
 
-    @Override
     public override  finishAlternative(blk: CodeBlockForAlt, ops: SrcOp[]): CodeBlockForAlt {
         blk.ops = ops;
 
         return blk;
     }
 
-    @Override
     public override  action(ast: ActionAST): SrcOp[] { return ParserFactory.list(new Action(this, ast)); }
 
-    @Override
     public override  sempred(ast: ActionAST): SrcOp[] { return ParserFactory.list(new SemPred(this, ast)); }
 
-    @Override
     public override  ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] {
         const invokeOp = new InvokeRule(this, ID, label);
         // If no manual label and action refs as token/rule not label, we need to define implicit label
@@ -115,7 +106,6 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return ParserFactory.list(invokeOp, listLabelOp);
     }
 
-    @Override
     public override  tokenRef(ID: GrammarAST, labelAST: GrammarAST, args: GrammarAST): SrcOp[] {
         const matchOp = new MatchToken(this, ID as TerminalAST);
         if (labelAST !== null) {
@@ -158,7 +148,6 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return new TokenListDecl(this, this.gen.getTarget().getListLabel(label));
     }
 
-    @Override
     public override  set(setAST: GrammarAST, labelAST: GrammarAST, invert: boolean): SrcOp[] {
         let matchOp: MatchSet;
         if (invert) {
@@ -192,7 +181,6 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return ParserFactory.list(matchOp, listLabelOp);
     }
 
-    @Override
     public override  wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[] {
         const wild = new Wildcard(this, ast);
         // TODO: dup with tokenRef
@@ -215,7 +203,6 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return ParserFactory.list(wild, listLabelOp);
     }
 
-    @Override
     public override  getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], labelAST: GrammarAST): Choice {
         const decision = (blkAST.atnState as DecisionState).decision;
         let c: Choice;
@@ -241,7 +228,6 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return c;
     }
 
-    @Override
     public override  getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice {
         if (!this.g.tool.force_atn) {
             let decision: number;
@@ -265,17 +251,14 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return this.getComplexEBNFBlock(ebnfRoot, alts);
     }
 
-    @Override
     public override  getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice {
         return new LL1AltBlock(this, blkAST, alts);
     }
 
-    @Override
     public override  getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice {
         return new AltBlock(this, blkAST, alts);
     }
 
-    @Override
     public override  getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice {
         let ebnf = 0;
         if (ebnfRoot !== null) {
@@ -327,7 +310,6 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return c;
     }
 
-    @Override
     public override  getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice {
         let ebnf = 0;
         if (ebnfRoot !== null) {
@@ -358,12 +340,10 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return c;
     }
 
-    @Override
     public override  getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[] {
         return ParserFactory.list(new TestSetInline(this, blkAST, look, this.gen.getTarget().getInlineTestSetWordSize()));
     }
 
-    @Override
     public override  needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean {
         const currentOuterMostAlt = this.getCurrentOuterMostAlt();
         const actionRefsAsToken = currentOuterMostAlt.tokenRefsInActions.containsKey(ID.getText());

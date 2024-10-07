@@ -39,7 +39,6 @@ export class ContextTokenGetterDecl extends ContextGetterDecl {
         }
     }
 
-    @Override
     public override  getSignatureDecl(): ContextGetterDecl {
         return new ContextTokenGetterDecl($outer.factory, $outer.name, this.optional, true);
     }

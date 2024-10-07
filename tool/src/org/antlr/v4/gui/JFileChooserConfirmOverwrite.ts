@@ -14,7 +14,6 @@ export class JFileChooserConfirmOverwrite extends JFileChooser {
         setMultiSelectionEnabled(false);
     }
 
-    @Override
     public approveSelection(): void {
         const selectedFile = getSelectedFile();
 

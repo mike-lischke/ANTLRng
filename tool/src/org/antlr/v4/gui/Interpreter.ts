@@ -33,7 +33,6 @@ export class Interpreter {
             super(fileName, grammarText, tokenVocabSource, listener);
         }
 
-        @Override
         public override  importTokensFromTokensFile(): void {
             // don't try to import tokens files; must give me both grammars if split
         }
@@ -319,7 +318,7 @@ export class Interpreter {
         }
     }
 }
- 
+
 export namespace Interpreter {
     export type IgnoreTokenVocabGrammar = InstanceType<typeof Interpreter.IgnoreTokenVocabGrammar>;
 }
