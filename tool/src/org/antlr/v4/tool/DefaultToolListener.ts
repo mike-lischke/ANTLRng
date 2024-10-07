@@ -10,7 +10,6 @@ import { Tool } from "../Tool.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
 
-/** */
 export class DefaultToolListener implements ANTLRToolListener {
     public tool: Tool;
 

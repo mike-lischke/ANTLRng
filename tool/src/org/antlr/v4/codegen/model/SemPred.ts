@@ -15,7 +15,6 @@ import { ActionChunk } from "./chunk/ActionChunk.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export class SemPred extends Action {
     /**
      * The user-specified terminal option {@code fail}, if it was used and the

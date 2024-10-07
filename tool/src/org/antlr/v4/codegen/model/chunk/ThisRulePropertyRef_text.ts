@@ -8,7 +8,6 @@ import { RulePropertyRef } from "./RulePropertyRef.js";
 import { ActionChunk } from "./ActionChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-/** */
 export class ThisRulePropertyRef_text extends RulePropertyRef {
     public constructor(ctx: StructDecl, label: string) {
         super(ctx, label);

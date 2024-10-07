@@ -7,7 +7,6 @@
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export abstract class OutputModelObject {
     public factory: OutputModelFactory;
     public ast: GrammarAST;

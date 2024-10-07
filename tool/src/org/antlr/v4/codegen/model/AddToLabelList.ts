@@ -8,7 +8,6 @@ import { SrcOp } from "./SrcOp.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Decl } from "./decl/Decl.js";
 
-/** */
 export class AddToLabelList extends SrcOp {
     public readonly label: Decl;
     public readonly listName: string;

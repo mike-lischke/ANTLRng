@@ -11,7 +11,6 @@ import { Grammar } from "../tool/Grammar.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { LinkedHashMap as HashMap } from "antlr4ng";
 
-/** */
 export class TokenVocabParser {
     protected readonly g: Grammar;
 

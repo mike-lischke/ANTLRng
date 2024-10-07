@@ -6,6 +6,5 @@
 
 import { OutputModelObject } from "./OutputModelObject.js";
 
-/** */
 export class dbg extends OutputModelObject {
 }

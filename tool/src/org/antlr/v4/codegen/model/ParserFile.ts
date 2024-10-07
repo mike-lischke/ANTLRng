@@ -13,7 +13,6 @@ import { ActionChunk } from "./chunk/ActionChunk.js";
 import { ActionText } from "./chunk/ActionText.js";
 import { Grammar } from "../../tool/Grammar.js";
 
-/** */
 export class ParserFile extends OutputFile {
     public genPackage: string; // from -package cmd-line
     public exportMacro: string; // from -DexportMacro cmd-line

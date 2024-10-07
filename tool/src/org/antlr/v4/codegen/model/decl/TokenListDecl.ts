@@ -8,7 +8,6 @@ import { TokenDecl } from "./TokenDecl.js";
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-/** */
 export class TokenListDecl extends TokenDecl {
     public constructor(factory: OutputModelFactory, varName: string) {
         super(factory, varName);

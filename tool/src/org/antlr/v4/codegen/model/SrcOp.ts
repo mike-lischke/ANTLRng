@@ -11,7 +11,6 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { CodeBlock } from "./decl/CodeBlock.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export abstract class SrcOp extends OutputModelObject {
     /** Used to create unique var names etc... */
     public uniqueID: number; // TODO: do we need?

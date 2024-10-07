@@ -14,7 +14,6 @@ import { Grammar } from "../../tool/Grammar.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { TerminalAST } from "../../tool/ast/TerminalAST.js";
 
-/** */
 export class MatchToken extends RuleElement implements LabeledOp {
     public readonly name: string;
     public readonly escapedName: string;

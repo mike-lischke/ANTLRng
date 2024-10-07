@@ -7,7 +7,6 @@
 import { RetValueRef } from "./RetValueRef.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-/** */
 export class QRetValueRef extends RetValueRef {
     public readonly dict: string;
 

@@ -7,7 +7,6 @@
 import { DefaultOutputModelFactory } from "./DefaultOutputModelFactory.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 
-/** */
 export class LexerFactory extends DefaultOutputModelFactory {
     public constructor(gen: CodeGenerator) { super(gen); }
 }

@@ -7,7 +7,6 @@
 import { SymbolRefChunk } from "./SymbolRefChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-/** */
 export class RetValueRef extends SymbolRefChunk {
     public constructor(ctx: StructDecl, name: string, escapedName: string) {
         super(ctx, name, escapedName);

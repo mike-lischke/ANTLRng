@@ -8,7 +8,6 @@ import { SymbolRefChunk } from "./SymbolRefChunk.js";
 import { ActionChunk } from "./ActionChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-/** */
 export class TokenRef extends SymbolRefChunk {
     public constructor(ctx: StructDecl, name: string, escapedName: string) {
         super(ctx, name, escapedName);

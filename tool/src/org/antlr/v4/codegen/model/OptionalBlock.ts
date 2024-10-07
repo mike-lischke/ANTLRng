@@ -10,7 +10,6 @@ import { AltBlock } from "./AltBlock.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export class OptionalBlock extends AltBlock {
     public constructor(factory: OutputModelFactory,
         questionAST: GrammarAST,

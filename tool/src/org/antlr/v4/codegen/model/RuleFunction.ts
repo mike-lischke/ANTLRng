@@ -37,7 +37,7 @@ import { PredAST } from "../../tool/ast/PredAST.js";
 
 
 
-/** */
+
 export class RuleFunction extends OutputModelObject {
     public readonly name: string;
     public readonly escapedName: string;

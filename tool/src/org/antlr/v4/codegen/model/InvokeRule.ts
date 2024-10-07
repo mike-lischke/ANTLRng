@@ -21,7 +21,6 @@ import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { OrderedHashSet } from "antlr4ng";
 
-/** */
 export class InvokeRule extends RuleElement implements LabeledOp {
     public readonly name: string;
     public readonly escapedName: string;

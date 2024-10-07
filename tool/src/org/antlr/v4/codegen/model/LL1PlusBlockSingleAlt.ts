@@ -11,7 +11,6 @@ import { PlusBlockStartState, IntervalSet } from "antlr4ng";
 import { BlockAST } from "../../tool/ast/BlockAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export class LL1PlusBlockSingleAlt extends LL1Loop {
     public constructor(factory: OutputModelFactory, plusRoot: GrammarAST, alts: CodeBlockForAlt[]) {
         super(factory, plusRoot, alts);

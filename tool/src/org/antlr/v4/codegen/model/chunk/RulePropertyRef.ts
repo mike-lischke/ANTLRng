@@ -7,7 +7,6 @@
 import { ActionChunk } from "./ActionChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-/** */
 export class RulePropertyRef extends ActionChunk {
     public label: string;
 

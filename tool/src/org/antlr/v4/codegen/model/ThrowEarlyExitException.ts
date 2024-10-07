@@ -9,7 +9,6 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { IntervalSet } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export class ThrowEarlyExitException extends ThrowRecognitionException {
     public constructor(factory: OutputModelFactory, ast: GrammarAST, expecting: IntervalSet) {
         super(factory, ast, expecting);

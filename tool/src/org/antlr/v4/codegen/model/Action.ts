@@ -15,7 +15,6 @@ import { ActionText } from "./chunk/ActionText.js";
 import { StructDecl } from "./decl/StructDecl.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 
-/** */
 export class Action extends RuleElement {
     @ModelElement
     public chunks: ActionChunk[];

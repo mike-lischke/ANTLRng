@@ -7,7 +7,6 @@
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-/** */
 export class RuleContextDecl extends Decl {
     public ctxName: string;
     public isImplicit: boolean;

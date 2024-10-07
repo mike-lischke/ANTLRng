@@ -8,7 +8,6 @@ import { TokenPropertyRef } from "./TokenPropertyRef.js";
 import { ActionChunk } from "./ActionChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-/** */
 export class TokenPropertyRef_type extends TokenPropertyRef {
     public constructor(ctx: StructDecl, label: string) {
         super(ctx, label);

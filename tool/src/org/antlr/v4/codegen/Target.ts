@@ -26,7 +26,6 @@ import { RuleFunction } from "./model/RuleFunction.js";
 
 export type char = number;
 
-/** */
 export abstract class Target {
     protected static readonly defaultCharValueEscape: Map<char, string>;
     private static readonly languageTemplates = new Map<string, STGroup>();

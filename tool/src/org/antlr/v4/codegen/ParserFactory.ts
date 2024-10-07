@@ -50,7 +50,6 @@ import { BlockAST } from "../tool/ast/BlockAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
 
-/** */
 export class ParserFactory extends DefaultOutputModelFactory {
     public constructor(gen: CodeGenerator) { super(gen); }
 

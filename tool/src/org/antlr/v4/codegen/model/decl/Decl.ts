@@ -9,7 +9,6 @@ import { ContextGetterDecl } from "./ContextGetterDecl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { SrcOp } from "../SrcOp.js";
 
-/** */
 export class Decl extends SrcOp {
     public readonly name: string;
     public readonly escapedName: string;

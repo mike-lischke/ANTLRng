@@ -15,7 +15,6 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { IntervalSet } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export abstract class LL1Loop extends Choice {
     /**
      * The state associated wih the (A|B|...) block not loopback, which

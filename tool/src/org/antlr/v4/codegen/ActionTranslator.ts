@@ -51,7 +51,7 @@ import { HashMap } from "antlr4ng";
 
 
 
-/** */
+
 export class ActionTranslator implements ActionSplitterListener {
     public static readonly thisRulePropToModelMap =
         new HashMap<string, Class<RulePropertyRef>>();

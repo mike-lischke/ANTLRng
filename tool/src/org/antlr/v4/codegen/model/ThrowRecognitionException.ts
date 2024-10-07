@@ -9,7 +9,6 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { IntervalSet } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export class ThrowRecognitionException extends SrcOp {
     public decision: number;
     public grammarFile: string;

@@ -11,7 +11,6 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { StarLoopEntryState, IntervalSet } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
-/** */
 export class LL1StarBlockSingleAlt extends LL1Loop {
     public constructor(factory: OutputModelFactory, starRoot: GrammarAST, alts: CodeBlockForAlt[]) {
         super(factory, starRoot, alts);

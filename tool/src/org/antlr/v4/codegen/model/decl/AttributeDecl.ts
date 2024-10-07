@@ -7,7 +7,6 @@
 import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 
-/** */
 export class AttributeDecl extends Decl {
     public type: string;
     public initValue: string;

@@ -7,7 +7,6 @@
 import { RulePropertyRef } from "./RulePropertyRef.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-/** */
 export class RulePropertyRef_parser extends RulePropertyRef {
     public constructor(ctx: StructDecl, label: string) {
         super(ctx, label);

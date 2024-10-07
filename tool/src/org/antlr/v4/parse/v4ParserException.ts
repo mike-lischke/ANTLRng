@@ -4,7 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/** */
 export class v4ParserException extends RecognitionException {
     public msg: string;
     /** Used for remote debugger deserialization */

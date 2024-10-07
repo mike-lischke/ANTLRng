@@ -7,7 +7,6 @@
 import { SrcOp } from "./SrcOp.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 
-/** */
 export class CaptureNextTokenType extends SrcOp {
     public varName: string;
     public constructor(factory: OutputModelFactory, varName: string) {
