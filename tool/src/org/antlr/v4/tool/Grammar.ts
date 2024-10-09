@@ -47,6 +47,7 @@ import { targetLanguages, type SupportedLanguage } from "../codegen/CodeGenerato
 
 export class Grammar implements AttributeResolver {
     public static readonly GRAMMAR_FROM_STRING_NAME = "<string>";
+
     /**
      * This value is used in the following situations to indicate that a token
      * type does not have an associated name which can be directly referenced in
@@ -61,6 +62,7 @@ export class Grammar implements AttributeResolver {
      * </ul>
      */
     public static readonly INVALID_TOKEN_NAME = "<INVALID>";
+
     /**
      * This value is used as the name for elements in the array returned by
      * {@link #getRuleNames} for indexes not associated with a rule.
@@ -207,6 +209,7 @@ export class Grammar implements AttributeResolver {
      *  sempred index is 0..n-1
      */
     public sempreds = new Map<PredAST, number>();
+
     /** Map the other direction upon demand */
     public indexToPredMap: Map<number, PredAST> | null = null;
 
@@ -239,8 +242,10 @@ export class Grammar implements AttributeResolver {
     public constructor(tool: Tool, ast: GrammarRootAST);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
     public constructor(grammarText: string, listener?: ANTLRToolListener);
+
     /** For testing; builds trees, does sem anal */
     public constructor(fileName: string, grammarText: string, listener?: ANTLRToolListener);
+
     /** For testing; builds trees, does sem anal */
     public constructor(fileName: string, grammarText: string, tokenVocabSource: Grammar, listener: ANTLRToolListener);
     public constructor(...args: unknown[]) {
@@ -655,7 +660,7 @@ export class Grammar implements AttributeResolver {
             }
         }
 
-        return [...delegates.values()];
+        return Array.from(delegates.values());
     }
 
     public getImportedGrammars(): Grammar[] { return this.importedGrammars; }
@@ -804,11 +809,10 @@ export class Grammar implements AttributeResolver {
      *  or string literal.  If this is a lexer and the ttype is in the
      *  char vocabulary, compute an ANTLR-valid (possibly escaped) char literal.
      */
-    public getTokenDisplayName(ttype: number): string | null {
+    public getTokenDisplayName(ttype: number): string {
         // inside any target's char range and is lexer grammar?
-        if (this.isLexer() &&
-            // TODO: make the min and max char values from the lexer options available here.
-            ttype >= 0 && ttype <= 0x1FFFF) {
+        // TODO: make the min and max char values from the lexer options available here.
+        if (this.isLexer() && ttype >= 0 && ttype <= 0x1FFFF) {
             return CharSupport.getANTLRCharLiteralForChar(ttype);
         }
 
@@ -895,8 +899,8 @@ export class Grammar implements AttributeResolver {
      * @see #getTokenDisplayName
      * @returns The display names of all tokens defined in the grammar.
      */
-    public getTokenDisplayNames(): Array<string | null> {
-        const tokenNames: Array<string | null> = [];
+    public getTokenDisplayNames(): string[] {
+        const tokenNames: string[] = [];
         for (let i = 0; i < tokenNames.length; i++) {
             tokenNames[i] = this.getTokenDisplayName(i);
         }
@@ -907,14 +911,14 @@ export class Grammar implements AttributeResolver {
     /**
      * Gets the literal names assigned to tokens in the grammar.
      */
-    public getTokenLiteralNames(): Array<string | null> {
-        const literalNames: Array<string | null> = [];
+    public getTokenLiteralNames(): string[] {
+        const literalNames: string[] = [];
         for (let i = 0; i < Math.min(literalNames.length, this.typeToStringLiteralList.length); i++) {
             literalNames[i] = this.typeToStringLiteralList[i];
         }
 
         for (const [key, value] of this.stringLiteralToTypeMap) {
-            if (value >= 0 && value < literalNames.length && literalNames[value] === null) {
+            if (value >= 0 && value < literalNames.length && !literalNames[value]) {
                 literalNames[value] = key;
             }
         }
@@ -925,8 +929,8 @@ export class Grammar implements AttributeResolver {
     /**
      * Gets the symbolic names assigned to tokens in the grammar.
      */
-    public getTokenSymbolicNames(): Array<string | null> {
-        const symbolicNames: Array<string | null> = [];
+    public getTokenSymbolicNames(): string[] {
+        const symbolicNames: string[] = [];
         for (let i = 0; i < Math.min(symbolicNames.length, this.typeToTokenList.length); i++) {
             const name = this.typeToTokenList[i];
             if (!name || name.startsWith(Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX)) {
@@ -1309,7 +1313,7 @@ export class Grammar implements AttributeResolver {
         return language as SupportedLanguage;
     }
 
-    public getOptionString(key: string): string | null {
+    public getOptionString(key: string): string | undefined {
         return this.ast!.getOptionString(key);
     }
 

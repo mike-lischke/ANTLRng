@@ -40,7 +40,7 @@ export class DOTGenerator {
      * visually.  All nodes reachable from startState will be included.
      */
     public getDOTFromState(startState: ATNState, isLexer = false, ruleNames?: string[]): string {
-        ruleNames ??= [...this.grammar.rules.keys()];
+        ruleNames ??= Array.from(this.grammar.rules.keys());
 
         // The output DOT graph for visualization
         const markedStates = new Set<ATNState>();
@@ -330,7 +330,7 @@ export class DOTGenerator {
             if (alts !== null) {
                 buf += "\\n";
                 // separate alts
-                const altList = [...alts];
+                const altList = Array.from(alts);
                 altList.sort();
                 const configurations = s.configs;
                 for (let altIndex = 0; altIndex < altList.length; altIndex++) {

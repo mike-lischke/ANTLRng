@@ -4,9 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { OutputModelObject } from "./OutputModelObject.js";
-import { DispatchMethod } from "./DispatchMethod.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
+import { DispatchMethod } from "./DispatchMethod.js";
 
 export class VisitorDispatchMethod extends DispatchMethod {
     public constructor(factory: OutputModelFactory) {

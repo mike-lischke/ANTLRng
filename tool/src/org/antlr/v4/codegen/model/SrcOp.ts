@@ -4,16 +4,17 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuleFunction } from "./RuleFunction.js";
-import { OutputModelObject } from "./OutputModelObject.js";
-import { CodeBlockForOuterMostAlt } from "./CodeBlockForOuterMostAlt.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
-import { CodeBlock } from "./decl/CodeBlock.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { CodeBlockForOuterMostAlt } from "./CodeBlockForOuterMostAlt.js";
+import { CodeBlock } from "./decl/CodeBlock.js";
+import { OutputModelObject } from "./OutputModelObject.js";
+import { RuleFunction } from "./RuleFunction.js";
 
 export abstract class SrcOp extends OutputModelObject {
+
     /** Used to create unique var names etc... */
-    public uniqueID: number; // TODO: do we need?
+    public uniqueID?: number; // TODO: do we need?
 
     /**
      * All operations know in which block they live:
@@ -23,65 +24,43 @@ export abstract class SrcOp extends OutputModelObject {
      *  Templates might need to know block nesting level or find
      *  a specific declaration, etc...
      */
-    public enclosingBlock: CodeBlock;
+    public enclosingBlock?: CodeBlock;
 
-    public enclosingRuleRunction: RuleFunction;
+    public enclosingRuleFunction?: RuleFunction;
 
-    public constructor(factory: OutputModelFactory);
-    public constructor(factory: OutputModelFactory, ast: GrammarAST);
-    public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 1: {
-                const [factory] = args as [OutputModelFactory];
+    public constructor(factory: OutputModelFactory, ast?: GrammarAST) {
+        super(factory, ast);
+        this.uniqueID = ast?.token?.tokenIndex;
 
-                this(factory, null);
-
-                break;
-            }
-
-            case 2: {
-                const [factory, ast] = args as [OutputModelFactory, GrammarAST];
-
-                super(factory, ast);
-                if (ast !== null) {
-                    this.uniqueID = ast.token.getTokenIndex();
-                }
-
-                this.enclosingBlock = factory.getCurrentBlock();
-                this.enclosingRuleRunction = factory.getCurrentRuleFunction();
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
+        this.enclosingBlock = factory.getCurrentBlock();
+        this.enclosingRuleFunction = factory.getCurrentRuleFunction();
     }
 
     /** Walk upwards in model tree, looking for outer alt's code block */
-    public getOuterMostAltCodeBlock(): CodeBlockForOuterMostAlt {
+    public getOuterMostAltCodeBlock(): CodeBlockForOuterMostAlt | undefined {
         if (this instanceof CodeBlockForOuterMostAlt) {
             return this as CodeBlockForOuterMostAlt;
         }
+
         let p = this.enclosingBlock;
-        while (p !== null) {
+        while (p) {
             if (p instanceof CodeBlockForOuterMostAlt) {
                 return p;
             }
+
             p = p.enclosingBlock;
         }
 
-        return null;
+        return undefined;
     }
 
     /** Return label alt or return name of rule */
     public getContextName(): string {
         const alt = this.getOuterMostAltCodeBlock();
-        if (alt !== null && alt.altLabel !== null) {
+        if (alt?.altLabel) {
             return alt.altLabel;
         }
 
-        return this.enclosingRuleRunction.name;
+        return this.enclosingRuleFunction!.name;
     }
 }

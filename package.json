@@ -32,6 +32,7 @@
         "@typescript-eslint/eslint-plugin": "8.7.0",
         "@typescript-eslint/parser": "8.7.0",
         "@unicode/unicode-15.1.0": "1.6.0",
+        "antlr4ng-cli": "2.0.0",
         "eslint": "9.11.1",
         "eslint-plugin-jsdoc": "50.3.0",
         "eslint-plugin-prefer-arrow": "1.2.3",

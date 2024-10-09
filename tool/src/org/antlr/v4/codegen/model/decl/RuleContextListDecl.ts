@@ -4,9 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuleContextDecl } from "./RuleContextDecl.js";
-import { Decl } from "./Decl.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
+import { RuleContextDecl } from "./RuleContextDecl.js";
 
 export class RuleContextListDecl extends RuleContextDecl {
     public constructor(factory: OutputModelFactory, name: string, ctxName: string) {

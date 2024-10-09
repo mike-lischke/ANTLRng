@@ -4,26 +4,21 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuleActionFunction } from "./RuleActionFunction.js";
-import { Recognizer } from "./Recognizer.js";
-import { ModelElement } from "./ModelElement.js";
-import { LexerFile } from "./LexerFile.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
-import { Target } from "../Target.js";
-import { Grammar } from "../../tool/Grammar.js";
 import { LexerGrammar } from "../../tool/LexerGrammar.js";
 import { Rule } from "../../tool/Rule.js";
-import { LinkedHashMap as HashMap } from "antlr4ng";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { LexerFile } from "./LexerFile.js";
+import { Recognizer } from "./Recognizer.js";
+import { RuleActionFunction } from "./RuleActionFunction.js";
 
 export class Lexer extends Recognizer {
-    public readonly channelNames: java.util.Array<string>;
-    public readonly escapedChannels: Map<string, number>;
+    public readonly channelNames: string[] = [];
+    public readonly escapedChannels = new Map<string, number>();
     public readonly file: LexerFile;
-    public readonly modes: java.util.Array<string>;
-    public readonly escapedModeNames: java.util.Array<string>;
+    public readonly modes: string[];
+    public readonly escapedModeNames: string[];
 
-    public actionFuncs =
-        new LinkedHashMap<Rule, RuleActionFunction>();
+    public actionFuncs = new Map<Rule, RuleActionFunction>();
 
     public constructor(factory: OutputModelFactory, file: LexerFile) {
         super(factory);
@@ -32,18 +27,14 @@ export class Lexer extends Recognizer {
         const g = factory.getGrammar();
         const target = factory.getGenerator().getTarget();
 
-        this.escapedChannels = new LinkedHashMap();
-        this.channelNames = [];
-        for (const key of g.channelNameToValueMap.keySet()) {
-            const value = g.channelNameToValueMap.get(key);
-            this.escapedChannels.put(target.escapeIfNeeded(key), value);
-            this.channelNames.add(key);
+        for (const [key, value] of g.channelNameToValueMap) {
+            this.escapedChannels.set(target.escapeIfNeeded(key), value);
+            this.channelNames.push(key);
         }
 
-        this.modes = (g as LexerGrammar).modes.keySet();
-        this.escapedModeNames = new Array(this.modes.size());
+        this.modes = Array.from((g as LexerGrammar).modes.keys());
         for (const mode of this.modes) {
-            this.escapedModeNames.add(target.escapeIfNeeded(mode));
+            this.escapedModeNames.push(target.escapeIfNeeded(mode));
         }
     }
 }

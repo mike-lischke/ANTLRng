@@ -4,33 +4,29 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { OutputModelObject } from "./OutputModelObject.js";
-import { OutputFile } from "./OutputFile.js";
-import { ModelElement } from "./ModelElement.js";
-import { Action } from "./Action.js";
+import { grammarOptions } from "../../grammar-options.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
-import { Grammar } from "../../tool/Grammar.js";
-import { Rule } from "../../tool/Rule.js";
-import { ActionAST } from "../../tool/ast/ActionAST.js";
-import { AltAST } from "../../tool/ast/AltAST.js";
-import { LinkedHashMap as HashMap } from "antlr4ng";
+import { Action } from "./Action.js";
+import { OutputFile } from "./OutputFile.js";
 
 export class VisitorFile extends OutputFile {
-    public genPackage: string; // from -package cmd-line
-    public accessLevel: string; // from -DaccessLevel cmd-line
-    public exportMacro: string; // from -DexportMacro cmd-line
+    public genPackage?: string; // from -package cmd-line
+    public accessLevel?: string; // from -DaccessLevel cmd-line
+    public exportMacro?: string; // from -DexportMacro cmd-line
     public grammarName: string;
     public parserName: string;
+
     /**
      * The names of all rule contexts which may need to be visited.
      */
-    public visitorNames = new java.util.LinkedHashSet<string>();
+    public visitorNames = new Set<string>();
+
     /**
      * For rule contexts created for a labeled outer alternative, maps from
      * a listener context name to the name of the rule which defines the
      * context.
      */
-    public visitorLabelRuleNames = new LinkedHashMap<string, string>();
+    public visitorLabelRuleNames = new Map<string, string>();
 
     public header: Action;
 
@@ -38,6 +34,7 @@ export class VisitorFile extends OutputFile {
 
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
+
         const g = factory.getGrammar();
         this.namedActions = this.buildNamedActions(g, (ast) => { return ast.getScope() === null; });
         this.parserName = g.getRecognizerName();
@@ -45,23 +42,22 @@ export class VisitorFile extends OutputFile {
         for (const r of g.rules.values()) {
             const labels = r.getAltLabels();
             if (labels !== null) {
-                for (const pair of labels.entrySet()) {
-                    this.visitorNames.add(pair.getKey());
-                    this.visitorLabelRuleNames.put(pair.getKey(), r.name);
+                for (const [key] of labels) {
+                    this.visitorNames.add(key);
+                    this.visitorLabelRuleNames.set(key, r.name);
                 }
-            }
-            else {
+            } else {
                 // if labels, must label all. no need for generic rule visitor then
                 this.visitorNames.add(r.name);
             }
         }
-        const ast = g.namedActions.get("header");
-        if (ast !== null && ast.getScope() === null) {
 
+        const ast = g.namedActions.get("header");
+        if (ast?.getScope() == null) {
             this.header = new Action(factory, ast);
         }
 
-        this.genPackage = g.tool.genPackage;
+        this.genPackage = grammarOptions.package;
         this.accessLevel = g.getOptionString("accessLevel");
         this.exportMacro = g.getOptionString("exportMacro");
     }

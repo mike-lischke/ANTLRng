@@ -19,7 +19,7 @@ export interface IToolParameters {
     longMessages?: boolean;
     generateListener?: boolean,
     generateVisitor?: boolean,
-    generatePackage?: boolean,
+    package?: string,
     generateDependencies?: boolean,
     warningsAreErrors?: boolean,
     forceAtn?: boolean,

@@ -4,10 +4,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { SrcOp } from "./SrcOp.js";
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Alternative } from "../../tool/Alternative.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
 
 /**
  * The code associated with the outermost alternative of a rule.
@@ -15,10 +14,12 @@ import { Alternative } from "../../tool/Alternative.js";
  *  code generation.
  */
 export class CodeBlockForOuterMostAlt extends CodeBlockForAlt {
+
     /**
      * The label for the alternative; or null if the alternative is not labeled.
      */
-    public altLabel: string;
+    public altLabel?: string;
+
     /**
      * The alternative.
      */
@@ -27,6 +28,6 @@ export class CodeBlockForOuterMostAlt extends CodeBlockForAlt {
     public constructor(factory: OutputModelFactory, alt: Alternative) {
         super(factory);
         this.alt = alt;
-        this.altLabel = alt.ast.altLabel !== null ? alt.ast.altLabel.getText() : null;
+        this.altLabel = alt.ast.altLabel?.getText() ?? undefined;
     }
 }

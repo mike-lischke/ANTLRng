@@ -12,36 +12,14 @@ export class ContextRuleGetterDecl extends ContextGetterDecl {
     public ctxName: string;
     public optional: boolean;
 
-    public constructor(factory: OutputModelFactory, name: string, ctxName: string, optional: boolean);
-
-    public constructor(factory: OutputModelFactory, name: string, ctxName: string, optional: boolean, signature: boolean);
-    public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 4: {
-                const [factory, name, ctxName, optional] = args as [OutputModelFactory, string, string, boolean];
-
-                this(factory, name, ctxName, optional, false);
-
-                break;
-            }
-
-            case 5: {
-                const [factory, name, ctxName, optional, signature] = args as [OutputModelFactory, string, string, boolean, boolean];
-
-                super(factory, name, signature);
-                this.ctxName = ctxName;
-                this.optional = optional;
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
+    public constructor(factory: OutputModelFactory, name: string, ctxName: string, optional: boolean,
+        signature?: boolean) {
+        super(factory, name, signature);
+        this.ctxName = ctxName;
+        this.optional = optional;
     }
 
-    public override  getSignatureDecl(): ContextGetterDecl {
-        return new ContextRuleGetterDecl($outer.factory, $outer.name, this.ctxName, this.optional, true);
+    public override getSignatureDecl(): ContextGetterDecl {
+        return new ContextRuleGetterDecl(this.factory!, this.name, this.ctxName, this.optional, true);
     }
 }

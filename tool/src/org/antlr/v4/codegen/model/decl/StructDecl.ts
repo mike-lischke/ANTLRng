@@ -4,21 +4,22 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { TokenTypeDecl } from "./TokenTypeDecl.js";
-import { TokenListDecl } from "./TokenListDecl.js";
-import { TokenDecl } from "./TokenDecl.js";
-import { RuleContextListDecl } from "./RuleContextListDecl.js";
-import { RuleContextDecl } from "./RuleContextDecl.js";
-import { Decl } from "./Decl.js";
-import { ContextGetterDecl } from "./ContextGetterDecl.js";
-import { AttributeDecl } from "./AttributeDecl.js";
+import { grammarOptions } from "../../../grammar-options.js";
+import type { Attribute } from "../../../tool/Attribute.js";
+import { Rule } from "../../../tool/Rule.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { DispatchMethod } from "../DispatchMethod.js";
 import { ListenerDispatchMethod } from "../ListenerDispatchMethod.js";
 import { OutputModelObject } from "../OutputModelObject.js";
 import { VisitorDispatchMethod } from "../VisitorDispatchMethod.js";
-import { Rule } from "../../../tool/Rule.js";
-import { OrderedHashSet } from "antlr4ng";
+import { AttributeDecl } from "./AttributeDecl.js";
+import { ContextGetterDecl } from "./ContextGetterDecl.js";
+import { Decl } from "./Decl.js";
+import { RuleContextDecl } from "./RuleContextDecl.js";
+import { RuleContextListDecl } from "./RuleContextListDecl.js";
+import { TokenDecl } from "./TokenDecl.js";
+import { TokenListDecl } from "./TokenListDecl.js";
+import { TokenTypeDecl } from "./TokenTypeDecl.js";
 
 /**
  * This object models the structure holding all of the parameters,
@@ -28,143 +29,79 @@ export class StructDecl extends Decl {
     public derivedFromName: string; // rule name or label name
     public provideCopyFrom: boolean;
 
-    public attrs = new OrderedHashSet<Decl>();
+    public attrs = new Set<Decl>();
+    public getters = new Set<Decl>();
+    public ctorAttrs: AttributeDecl[] = [];
+    public dispatchMethods: DispatchMethod[] = [];
+    public interfaces: OutputModelObject[] = [];
+    public extensionMembers: OutputModelObject[] = [];
 
-    public getters = new OrderedHashSet<Decl>();
-
-    public ctorAttrs: AttributeDecl[];
-
-    public dispatchMethods: DispatchMethod[];
-
-    public interfaces: OutputModelObject[];
-
-    public extensionMembers: OutputModelObject[];
     // Used to generate method signatures in Go target interfaces
-
-    public signatures = new OrderedHashSet<Decl>();
+    public signatures = new Set<Decl>();
 
     // Track these separately; Go target needs to generate getters/setters
     // Do not make them templates; we only need the Decl object not the ST
     // built from it. Avoids adding args to StructDecl template
-    public tokenDecls = new OrderedHashSet<Decl>();
-    public tokenTypeDecls = new OrderedHashSet<Decl>();
-    public tokenListDecls = new OrderedHashSet<Decl>();
-    public ruleContextDecls = new OrderedHashSet<Decl>();
-    public ruleContextListDecls = new OrderedHashSet<Decl>();
-    public attributeDecls = new OrderedHashSet<Decl>();
+    public tokenDecls = new Set<Decl>();
+    public tokenTypeDecls = new Set<Decl>();
+    public tokenListDecls = new Set<Decl>();
+    public ruleContextDecls = new Set<Decl>();
+    public ruleContextListDecls = new Set<Decl>();
+    public attributeDecls = new Set<Decl>();
 
-    public constructor(factory: OutputModelFactory, r: Rule);
-
-    protected constructor(factory: OutputModelFactory, r: Rule, name: string);
-    public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 2: {
-                const [factory, r] = args as [OutputModelFactory, Rule];
-
-                this(factory, r, null);
-
-                break;
-            }
-
-            case 3: {
-                const [factory, r, name] = args as [OutputModelFactory, Rule, string];
-
-                super(factory, name === null ? factory.getGenerator().getTarget().getRuleFunctionContextStructName(r) : name);
-                this.addDispatchMethods(r);
-                this.derivedFromName = r.name;
-                this.provideCopyFrom = r.hasAltSpecificContexts();
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
+    public constructor(factory: OutputModelFactory, r: Rule, name?: string) {
+        super(factory, name ?? factory.getGenerator().getTarget().getRuleFunctionContextStructName(r));
+        this.addDispatchMethods(r);
+        this.derivedFromName = r.name;
+        this.provideCopyFrom = r.hasAltSpecificContexts();
     }
 
     public addDispatchMethods(r: Rule): void {
         this.dispatchMethods = new Array<DispatchMethod>();
         if (!r.hasAltSpecificContexts()) {
             // no enter/exit for this ruleContext if rule has labels
-            if ($outer.factory.getGrammar().tool.gen_listener) {
-                this.dispatchMethods.add(new ListenerDispatchMethod($outer.factory, true));
-                this.dispatchMethods.add(new ListenerDispatchMethod($outer.factory, false));
-            }
-            if ($outer.factory.getGrammar().tool.gen_visitor) {
-                this.dispatchMethods.add(new VisitorDispatchMethod($outer.factory));
-            }
-        }
-    }
-
-    public addDecl(d: Decl): void;
-
-    public addDecl(a: java.security.KeyStore.Entry.Attribute): void;
-    public addDecl(...args: unknown[]): void {
-        switch (args.length) {
-            case 1: {
-                const [d] = args as [Decl];
-
-                d.ctx = this;
-
-                if (d instanceof ContextGetterDecl) {
-                    this.getters.add(d);
-                    this.signatures.add((d).getSignatureDecl());
-                } else {
-                    this.attrs.add(d);
-                }
-                // add to specific "lists"
-                if (d instanceof TokenTypeDecl) {
-                    this.tokenTypeDecls.add(d);
-                }
-                else {
-                    if (d instanceof TokenListDecl) {
-                        this.tokenListDecls.add(d);
-                    }
-                    else {
-                        if (d instanceof TokenDecl) {
-                            this.tokenDecls.add(d);
-                        }
-                        else {
-                            if (d instanceof RuleContextListDecl) {
-                                this.ruleContextListDecls.add(d);
-                            }
-                            else {
-                                if (d instanceof RuleContextDecl) {
-                                    this.ruleContextDecls.add(d);
-                                }
-                                else {
-                                    if (d instanceof AttributeDecl) {
-                                        this.attributeDecls.add(d);
-                                    }
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-                break;
+            if (grammarOptions.generateListener) {
+                this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, true));
+                this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, false));
             }
 
-            case 1: {
-                const [a] = args as [java.security.KeyStore.Entry.Attribute];
-
-                this.addDecl(new AttributeDecl($outer.factory, a));
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
+            if (grammarOptions.generateVisitor) {
+                this.dispatchMethods.push(new VisitorDispatchMethod(this.factory!));
             }
         }
     }
 
-    public addDecls(attrList: java.security.KeyStore.Entry.Attribute[]): void {
+    public addDecl(a: Decl | Attribute): void {
+        if (a instanceof Decl) {
+            a.ctx = this;
+
+            if (a instanceof ContextGetterDecl) {
+                this.getters.add(a);
+                this.signatures.add(a.getSignatureDecl());
+            } else {
+                this.attrs.add(a);
+            }
+
+            // add to specific "lists"
+            if (a instanceof TokenTypeDecl) {
+                this.tokenTypeDecls.add(a);
+            } else if (a instanceof TokenListDecl) {
+                this.tokenListDecls.add(a);
+            } else if (a instanceof TokenDecl) {
+                this.tokenDecls.add(a);
+            } else if (a instanceof RuleContextListDecl) {
+                this.ruleContextListDecls.add(a);
+            } else if (a instanceof RuleContextDecl) {
+                this.ruleContextDecls.add(a);
+            } else if (a instanceof AttributeDecl) {
+                this.attributeDecls.add(a);
+            }
+        } else {
+            this.addDecl(new AttributeDecl(this.factory!, a));
+        }
+    }
+
+    public addDecls(attrList: Attribute[]): void {
         for (const a of attrList) {
             this.addDecl(a);
         }
@@ -172,20 +109,14 @@ export class StructDecl extends Decl {
     }
 
     public implementInterface(value: OutputModelObject): void {
-        if (this.interfaces === null) {
-            this.interfaces = new Array<OutputModelObject>();
-        }
-
-        this.interfaces.add(value);
+        this.interfaces.push(value);
     }
 
     public addExtensionMember(member: OutputModelObject): void {
-        if (this.extensionMembers === null) {
-            this.extensionMembers = new Array<OutputModelObject>();
-        }
-
-        this.extensionMembers.add(member);
+        this.extensionMembers.push(member);
     }
 
-    public isEmpty(): boolean { return this.attrs.isEmpty(); }
+    public isEmpty(): boolean {
+        return this.attrs.size === 0;
+    }
 }

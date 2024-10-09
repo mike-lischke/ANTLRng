@@ -67,7 +67,7 @@ export class BuildDependencyGenerator {
     public constructor(tool: Tool, g: Grammar) {
         this.tool = tool;
         this.g = g;
-        this.generator = CodeGenerator.fromGrammar(g);
+        this.generator = new CodeGenerator(g);
     }
 
     /**
@@ -86,7 +86,7 @@ export class BuildDependencyGenerator {
         // add output vocab file; e.g., T.tokens. This is always generated to
         // the base output directory, which will be just . if there is no -o option
         //
-        files.push(this.getOutputFile(this.generator.getVocabFileName()));
+        files.push(this.getOutputFile(this.generator.getVocabFileName()!));
 
         // are we generating a .h file?
         let headerExtST = null;
@@ -205,7 +205,7 @@ export class BuildDependencyGenerator {
 
         // handle token vocabulary loads
         const tokenVocab = this.g.getOptionString("tokenVocab");
-        if (tokenVocab !== null) {
+        if (tokenVocab !== undefined) {
             const fileName = tokenVocab + CodeGenerator.VOCAB_FILE_EXTENSION;
             let vocabFile: URL;
             const libDirectory = grammarOptions.libDirectory ?? ".";

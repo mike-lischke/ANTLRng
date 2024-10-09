@@ -14,6 +14,7 @@ import { AttributeDict } from "./AttributeDict.js";
  * Track the names of attributes defined in arg lists, return values,scope blocks etc...
  */
 export class Attribute {
+
     /** The entire declaration such as "String foo" or "x:int" */
     public decl?: string;
 

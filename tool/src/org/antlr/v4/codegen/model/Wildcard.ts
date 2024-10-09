@@ -4,13 +4,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { SrcOp } from "./SrcOp.js";
-import { RuleElement } from "./RuleElement.js";
-import { OutputModelObject } from "./OutputModelObject.js";
-import { MatchToken } from "./MatchToken.js";
-import { LabeledOp } from "./LabeledOp.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { MatchToken } from "./MatchToken.js";
 
 export class Wildcard extends MatchToken {
     public constructor(factory: OutputModelFactory, ast: GrammarAST) {

@@ -4,19 +4,17 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { SrcOp } from "./SrcOp.js";
-import { ModelElement } from "./ModelElement.js";
-import { LL1Choice } from "./LL1Choice.js";
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { Choice } from "./Choice.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
-import { DecisionState, IntervalSet } from "antlr4ng";
+import { DecisionState } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
+import { LL1Choice } from "./LL1Choice.js";
+import { SrcOp } from "./SrcOp.js";
 
 /** (A B C)? */
 export class LL1OptionalBlockSingleAlt extends LL1Choice {
 
-    public expr: SrcOp;
+    public expr: SrcOp | null;
 
     public followExpr: SrcOp[]; // might not work in template if size>1
 
@@ -27,16 +25,15 @@ export class LL1OptionalBlockSingleAlt extends LL1Choice {
         this.decision = (blkAST.atnState as DecisionState).decision;
 
         /** Lookahead for each alt 1..n */
-        //		IntervalSet[] altLookSets = LinearApproximator.getLL1LookaheadSets(dfa);
-        const altLookSets = factory.getGrammar().decisionLOOK.get($outer.decision);
-        this.altLook = $outer.getAltLookaheadAsStringLists(altLookSets);
+        const altLookSets = factory.getGrammar().decisionLOOK[this.decision];
+        this.altLook = this.getAltLookaheadAsStringLists(altLookSets);
         const look = altLookSets[0];
         const followLook = altLookSets[1];
 
-        const expecting = look.or(followLook);
-        this.error = $outer.getThrowNoViableAlt(factory, blkAST, expecting);
+        const expecting = look.or([followLook]);
+        this.error = this.getThrowNoViableAlt(factory, blkAST, expecting);
 
-        this.expr = $outer.addCodeForLookaheadTempVar(look);
+        this.expr = this.addCodeForLookaheadTempVar(look);
         this.followExpr = factory.getLL1Test(followLook, blkAST);
     }
 }

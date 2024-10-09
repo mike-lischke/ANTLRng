@@ -18,14 +18,14 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
         this.#options.set(key, node);
     }
 
-    public getOptionString(key: string): string | null {
+    public getOptionString(key: string): string | undefined {
         const value = this.getOptionAST(key);
-        if (value === null) {
-            return null;
+        if (value === undefined) {
+            return value;
         }
 
         if (value instanceof ActionAST) {
-            return value.getText();
+            return value.getText() ?? undefined;
         } else {
             let v = value.getText();
             if (v && (v.startsWith("'") || v.startsWith("\""))) {
@@ -37,7 +37,7 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
                 }
             }
 
-            return v;
+            return v ?? undefined;
         }
     }
 
@@ -45,8 +45,8 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
      * Gets AST node holding value for option key; ignores default options
      * and command-line forced options.
      */
-    public getOptionAST(key: string): GrammarAST | null {
-        return this.#options.get(key) ?? null;
+    public getOptionAST(key: string): GrammarAST | undefined {
+        return this.#options.get(key) ?? undefined;
     }
 
     public getNumberOfOptions(): number {

@@ -4,34 +4,29 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { SrcOp } from "./SrcOp.js";
-import { ModelElement } from "./ModelElement.js";
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { Choice } from "./Choice.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { QuantifierAST } from "../../tool/ast/QuantifierAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { Choice } from "./Choice.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
+import { SrcOp } from "./SrcOp.js";
 
 export class Loop extends Choice {
     public blockStartStateNumber: number;
     public loopBackStateNumber: number;
     public readonly exitAlt: number;
 
-    public iteration: SrcOp[];
+    public iteration: SrcOp[] = [];
 
     public constructor(factory: OutputModelFactory,
         blkOrEbnfRootAST: GrammarAST,
         alts: CodeBlockForAlt[]) {
         super(factory, blkOrEbnfRootAST, alts);
-        const nongreedy = (blkOrEbnfRootAST instanceof QuantifierAST) && !(blkOrEbnfRootAST as QuantifierAST).isGreedy();
-        this.exitAlt = nongreedy ? 1 : alts.size() + 1;
+        const nongreedy = ("isGreedy" in blkOrEbnfRootAST) && !(blkOrEbnfRootAST as QuantifierAST).isGreedy();
+        this.exitAlt = nongreedy ? 1 : alts.length + 1;
     }
 
     public addIterationOp(op: SrcOp): void {
-        if (this.iteration === null) {
-            this.iteration = new Array<SrcOp>();
-        }
-
-        this.iteration.add(op);
+        this.iteration.push(op);
     }
 }

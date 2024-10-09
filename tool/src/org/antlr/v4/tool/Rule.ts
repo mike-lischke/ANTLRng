@@ -24,6 +24,7 @@ import { RuleAST } from "./ast/RuleAST.js";
 import { MurmurHash } from "../support/MurmurHash.js";
 
 export class Rule implements AttributeResolver, IComparable {
+
     /**
      * Rule refs have a predefined set of attributes as well as
      *  the return values and args.
@@ -75,7 +76,7 @@ export class Rule implements AttributeResolver, IComparable {
      */
     public actions = new Array<ActionAST>();
 
-    public finallyAction: ActionAST;
+    public finallyAction?: ActionAST; // Set by SymbolCollector.
 
     public readonly numberOfAlts: number;
 
@@ -253,6 +254,7 @@ export class Rule implements AttributeResolver, IComparable {
        $x Attribute: rule arguments, return values, predefined rule prop.
      */
     public resolveToAttribute(x: string, node: ActionAST): Attribute | null;
+
     /** $x.y Attribute: x is surrounding rule, label ref (in any alts) */
     public resolveToAttribute(x: string, y: string, node: ActionAST): Attribute | null;
     public resolveToAttribute(...args: unknown[]): Attribute | null {

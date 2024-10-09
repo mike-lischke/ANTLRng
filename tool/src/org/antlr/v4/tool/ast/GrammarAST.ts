@@ -20,6 +20,7 @@ import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { RuleAST } from "./RuleAST.js";
 
 export class GrammarAST extends CommonTree {
+
     /** For error msgs, nice to know which grammar this AST lives in */
     // TODO: try to remove
     public g: Grammar;

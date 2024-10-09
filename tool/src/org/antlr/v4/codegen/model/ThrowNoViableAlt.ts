@@ -11,7 +11,7 @@ import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
 export class ThrowNoViableAlt extends ThrowRecognitionException {
     public constructor(factory: OutputModelFactory, blkOrEbnfRootAST: GrammarAST,
-        expecting: IntervalSet) {
+        expecting?: IntervalSet) {
         super(factory, blkOrEbnfRootAST, expecting);
     }
 }

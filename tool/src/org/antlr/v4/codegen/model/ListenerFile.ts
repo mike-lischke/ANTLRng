@@ -4,36 +4,31 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { OutputFile } from "./OutputFile.js";
-import { ModelElement } from "./ModelElement.js";
-import { Action } from "./Action.js";
+import { grammarOptions } from "../../grammar-options.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
-import { Grammar } from "../../tool/Grammar.js";
-import { Rule } from "../../tool/Rule.js";
-import { ActionAST } from "../../tool/ast/ActionAST.js";
-import { AltAST } from "../../tool/ast/AltAST.js";
-import { LinkedHashMap as HashMap } from "antlr4ng";
+import { Action } from "./Action.js";
+import { OutputFile } from "./OutputFile.js";
 
 /**
  * A model object representing a parse tree listener file.
  *  These are the rules specific events triggered by a parse tree visitor.
  */
 export class ListenerFile extends OutputFile {
-    public genPackage: string; // from -package cmd-line
-    public accessLevel: string; // from -DaccessLevel cmd-line
-    public exportMacro: string; // from -DexportMacro cmd-line
+    public genPackage?: string; // from -package cmd-line
+    public accessLevel?: string; // from -DaccessLevel cmd-line
+    public exportMacro?: string; // from -DexportMacro cmd-line
     public grammarName: string;
     public parserName: string;
-    /**
-     * The names of all listener contexts.
-     */
-    public listenerNames = new java.util.LinkedHashSet<string>();
+
+    /** The names of all listener contexts. */
+    public listenerNames = new Set<string>();
+
     /**
      * For listener contexts created for a labeled outer alternative, maps from
      * a listener context name to the name of the rule which defines the
      * context.
      */
-    public listenerLabelRuleNames = new LinkedHashMap<string, string>();
+    public listenerLabelRuleNames = new Map<string, string>();
 
     public header: Action;
 
@@ -44,13 +39,16 @@ export class ListenerFile extends OutputFile {
         const g = factory.getGrammar();
         this.parserName = g.getRecognizerName();
         this.grammarName = g.name;
-        this.namedActions = this.buildNamedActions(factory.getGrammar(), (ast) => { return ast.getScope() === null; });
+        this.namedActions = this.buildNamedActions(factory.getGrammar(), (ast) => {
+            return ast.getScope() === null;
+        });
+
         for (const r of g.rules.values()) {
             const labels = r.getAltLabels();
             if (labels !== null) {
-                for (const pair of labels.entrySet()) {
-                    this.listenerNames.add(pair.getKey());
-                    this.listenerLabelRuleNames.put(pair.getKey(), r.name);
+                for (const key of labels.keys()) {
+                    this.listenerNames.add(key);
+                    this.listenerLabelRuleNames.set(key, r.name);
                 }
             }
             else {
@@ -58,11 +56,13 @@ export class ListenerFile extends OutputFile {
                 this.listenerNames.add(r.name);
             }
         }
+
         const ast = g.namedActions.get("header");
-        if (ast !== null && ast.getScope() === null) {
+        if (ast?.getScope() === null) {
             this.header = new Action(factory, ast);
         }
-        this.genPackage = g.tool.genPackage;
+
+        this.genPackage = grammarOptions.package;
         this.accessLevel = g.getOptionString("accessLevel");
         this.exportMacro = g.getOptionString("exportMacro");
     }

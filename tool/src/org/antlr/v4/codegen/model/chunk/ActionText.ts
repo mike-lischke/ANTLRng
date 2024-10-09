@@ -8,9 +8,9 @@ import { ActionChunk } from "./ActionChunk.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
 export class ActionText extends ActionChunk {
-    public text: string;
+    public text?: string;
 
-    public constructor(ctx: StructDecl, text: string) {
+    public constructor(ctx?: StructDecl, text?: string) {
         super(ctx);
         this.text = text;
     }

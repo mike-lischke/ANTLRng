@@ -6,10 +6,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { HashMap } from "antlr4ng";
-
-/** Count how many of each key we have; not thread safe */
-export class FrequencySet<T> extends HashMap<T, number> {
+/** Count how many of each key we have */
+export class FrequencySet<T> extends Map<T, number> {
     public count(key: T): number {
         const value = this.get(key);
         if (value === undefined) {

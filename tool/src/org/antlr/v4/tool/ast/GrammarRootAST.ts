@@ -92,7 +92,7 @@ export class GrammarRootAST extends GrammarASTWithOptions {
         return null;
     }
 
-    public override getOptionString(key: string): string | null {
+    public override getOptionString(key: string): string | undefined {
         if (typeof grammarOptions[key] === "string") {
             return grammarOptions[key];
         }
@@ -100,10 +100,10 @@ export class GrammarRootAST extends GrammarASTWithOptions {
         return super.getOptionString(key);
     }
 
-    public override  visit<T>(v: GrammarASTVisitor<T>): T {
+    public override visit<T>(v: GrammarASTVisitor<T>): T {
         return v.visit(this);
     }
 
-    public override  dupNode(): GrammarRootAST { return new GrammarRootAST(this); }
+    public override dupNode(): GrammarRootAST { return new GrammarRootAST(this); }
 
 }

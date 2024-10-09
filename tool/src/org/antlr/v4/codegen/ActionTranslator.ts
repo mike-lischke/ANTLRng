@@ -4,12 +4,16 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { CharStream, type Token } from "antlr4ng";
 
+import { ActionSplitter } from "../../../../../../src/generated/ActionSplitter.js";
+import { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
 
-
-import { Target } from "./Target.js";
-import { OutputModelFactory } from "./OutputModelFactory.js";
+import { ErrorType } from "../tool/ErrorType.js";
+import { ActionAST } from "../tool/ast/ActionAST.js";
 import { CodeGenerator } from "./CodeGenerator.js";
+import { OutputModelFactory } from "./OutputModelFactory.js";
+import { Target } from "./Target.js";
 import { RuleFunction } from "./model/RuleFunction.js";
 import { ActionChunk } from "./model/chunk/ActionChunk.js";
 import { ActionText } from "./model/chunk/ActionText.js";
@@ -43,29 +47,39 @@ import { TokenPropertyRef_text } from "./model/chunk/TokenPropertyRef_text.js";
 import { TokenPropertyRef_type } from "./model/chunk/TokenPropertyRef_type.js";
 import { TokenRef } from "./model/chunk/TokenRef.js";
 import { StructDecl } from "./model/decl/StructDecl.js";
-import { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
-import { ErrorType } from "../tool/ErrorType.js";
-import { Rule } from "../tool/Rule.js";
-import { ActionAST } from "../tool/ast/ActionAST.js";
-import { HashMap } from "antlr4ng";
-
-
-
+import { DictType } from "../tool/DictType.js";
 
 export class ActionTranslator implements ActionSplitterListener {
-    public static readonly thisRulePropToModelMap =
-        new HashMap<string, Class<RulePropertyRef>>();
+    public static readonly thisRulePropToModelMap = new Map<string, typeof RulePropertyRef>([
+        ["start", ThisRulePropertyRef_start],
+        ["stop", ThisRulePropertyRef_stop],
+        ["text", ThisRulePropertyRef_text],
+        ["ctx", ThisRulePropertyRef_ctx],
+        ["parser", ThisRulePropertyRef_parser],
+    ]);
 
-    public static readonly rulePropToModelMap =
-        new HashMap<string, Class<RulePropertyRef>>();
+    public static readonly rulePropToModelMap = new Map<string, typeof RulePropertyRef>([
+        ["start", RulePropertyRef_start],
+        ["stop", RulePropertyRef_stop],
+        ["text", RulePropertyRef_text],
+        ["ctx", RulePropertyRef_ctx],
+        ["parser", RulePropertyRef_parser],
+    ]);
 
-    public static readonly tokenPropToModelMap =
-        new HashMap<string, Class<TokenPropertyRef>>();
+    public static readonly tokenPropToModelMap = new Map<string, typeof TokenPropertyRef>([
+        ["text", TokenPropertyRef_text],
+        ["type", TokenPropertyRef_type],
+        ["line", TokenPropertyRef_line],
+        ["index", TokenPropertyRef_index],
+        ["pos", TokenPropertyRef_pos],
+        ["channel", TokenPropertyRef_channel],
+        ["int", TokenPropertyRef_int],
+    ]);
 
     protected readonly gen: CodeGenerator;
     protected readonly target: Target;
     protected readonly node: ActionAST;
-    protected rf: RuleFunction;
+    protected rf?: RuleFunction;
     protected readonly chunks = new Array<ActionChunk>();
     protected readonly factory: OutputModelFactory;
     protected nodeContext: StructDecl;
@@ -77,80 +91,80 @@ export class ActionTranslator implements ActionSplitterListener {
         this.target = this.gen.getTarget();
     }
 
-    public override static toString(chunks: Array<ActionChunk>): string {
-        let buf = new StringBuilder();
-        for (let c of chunks) {
-            buf.append(c.toString());
+    public static toString(chunks: ActionChunk[]): string {
+        let result = "";
+        for (const c of chunks) {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
+            result += c.toString();
         }
 
-        return buf.toString();
+        return result.toString();
     }
 
-    public static translateAction(factory: OutputModelFactory,
-        rf: RuleFunction,
-        tokenWithinAction: Token,
-        node: ActionAST): Array<ActionChunk> {
-        let action = tokenWithinAction.getText();
-        if (action !== null && action.length() > 0 && action.charAt(0) === '{') {
-            let firstCurly = action.indexOf('{');
-            let lastCurly = action.lastIndexOf('}');
+    public static translateAction(factory: OutputModelFactory, rf: RuleFunction | null, tokenWithinAction: Token | null,
+        node: ActionAST): ActionChunk[] {
+        let action = tokenWithinAction!.text!;
+        if (action.startsWith("{")) {
+            const firstCurly = action.indexOf("{");
+            const lastCurly = action.lastIndexOf("}");
             if (firstCurly >= 0 && lastCurly >= 0) {
                 action = action.substring(firstCurly + 1, lastCurly); // trim {...}
             }
         }
+
         return ActionTranslator.translateActionChunk(factory, rf, action, node);
     }
 
-    public static translateActionChunk(factory: OutputModelFactory,
-        rf: RuleFunction,
-        action: string,
-        node: ActionAST): Array<ActionChunk> {
-        let tokenWithinAction = node.token;
-        let translator = new ActionTranslator(factory, node);
-        translator.rf = rf;
-        factory.getGrammar().tool.log("action-translator", "translate " + action);
-        let altLabel = node.getAltLabel();
-        if (rf !== null) {
+    public static translateActionChunk(factory: OutputModelFactory, rf: RuleFunction | null, action: string,
+        node: ActionAST): ActionChunk[] {
+        //const tokenWithinAction = node.token;
+        const translator = new ActionTranslator(factory, node);
+        translator.rf = rf ?? undefined;
+
+        factory.getGrammar().tool.logInfo({ component: "action-translator", msg: "translate " + action });
+        const altLabel = node.getAltLabel();
+        if (rf) {
             translator.nodeContext = rf.ruleCtx;
             if (altLabel !== null) {
-                translator.nodeContext = rf.altLabelCtxs.get(altLabel);
+                translator.nodeContext = rf.altLabelCtxs!.get(altLabel)!;
             }
-
         }
-        let in = new ANTLRStringStream(action);
-		in.setLine(tokenWithinAction.getLine());
-		in.setCharPositionInLine(tokenWithinAction.getCharPositionInLine());
-        let trigger = new ActionSplitter(in, translator);
+
+        const input = CharStream.fromString(action);
+        //input.setLine(tokenWithinAction.getLine());
+        //input.setCharPositionInLine(tokenWithinAction.getCharPositionInLine());
+        const trigger = new ActionSplitter(input);
+
         // forces eval, triggers listener methods
-        trigger.getActionTokens();
+        trigger.getActionTokens(translator);
+
         return translator.chunks;
     }
 
-
-    public attr(expr: string, x: Token): void {
-        this.gen.g.tool.logInfo("action-translator", "attr " + x);
-        let a = this.node.resolver.resolveToAttribute(x.getText(), this.node);
-        let name = x.getText();
-        let escapedName = this.target.escapeIfNeeded(name);
+    public attr(expr: string, x: string): void {
+        this.gen.g?.tool.logInfo({ component: "action-translator", msg: "attr " + x });
+        const a = this.node.resolver.resolveToAttribute(x, this.node);
+        const name = x;
+        const escapedName = this.target.escapeIfNeeded(name);
         if (a !== null) {
             switch (a.dict.type) {
-                case ARG: {
-                    this.chunks.add(new ArgRef(this.nodeContext, name, escapedName));
+                case DictType.ARG: {
+                    this.chunks.push(new ArgRef(this.nodeContext, name, escapedName));
                     break;
                 }
 
-                case RET: {
-                    this.chunks.add(new RetValueRef(this.rf.ruleCtx, name, escapedName));
+                case DictType.RET: {
+                    this.chunks.push(new RetValueRef(this.rf!.ruleCtx, name, escapedName));
                     break;
                 }
 
-                case LOCAL: {
-                    this.chunks.add(new LocalRef(this.nodeContext, name, escapedName));
+                case DictType.LOCAL: {
+                    this.chunks.push(new LocalRef(this.nodeContext, name, escapedName));
                     break;
                 }
 
-                case PREDEFINED_RULE: {
-                    this.chunks.add(this.getRulePropertyRef(null, x));
+                case DictType.PREDEFINED_RULE: {
+                    this.chunks.push(this.getRulePropertyRef(undefined, x));
                     break;
                 }
 
@@ -160,102 +174,112 @@ export class ActionTranslator implements ActionSplitterListener {
 
             }
         }
+
         if (this.node.resolver.resolvesToToken(name, this.node)) {
-            let tokenLabel = this.getTokenLabel(name);
-            this.chunks.add(new TokenRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel))); // $label
+            const tokenLabel = this.getTokenLabel(name);
+
+            // $label
+            this.chunks.push(new TokenRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel)));
+
             return;
         }
         if (this.node.resolver.resolvesToLabel(name, this.node)) {
-            let tokenLabel = this.getTokenLabel(name);
-            this.chunks.add(new LabelRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel))); // $x for x=ID etc...
+            const tokenLabel = this.getTokenLabel(name);
+
+            // $x for x=ID etc...
+            this.chunks.push(new LabelRef(this.nodeContext, tokenLabel, this.target.escapeIfNeeded(tokenLabel)));
+
             return;
         }
+
         if (this.node.resolver.resolvesToListLabel(name, this.node)) {
-            this.chunks.add(new ListLabelRef(this.nodeContext, name, escapedName)); // $ids for ids+=ID etc...
+            // $ids for ids+=ID etc...
+            this.chunks.push(new ListLabelRef(this.nodeContext, name, escapedName));
+
             return;
         }
-        let r = this.factory.getGrammar().getRule(name);
+
+        const r = this.factory.getGrammar().getRule(name);
         if (r !== null) {
-            let ruleLabel = this.getRuleLabel(name);
-            this.chunks.add(new LabelRef(this.nodeContext, ruleLabel, this.target.escapeIfNeeded(ruleLabel))); // $r for r rule ref
+            const ruleLabel = this.getRuleLabel(name);
+
+            // $r for r rule ref
+            this.chunks.push(new LabelRef(this.nodeContext, ruleLabel, this.target.escapeIfNeeded(ruleLabel)));
         }
     }
 
-
-    public qualifiedAttr(expr: string, x: Token, y: Token): void {
-        this.gen.g.tool.logInfo("action-translator", "qattr " + x + "." + y);
-        if (this.node.resolver.resolveToAttribute(x.getText(), this.node) !== null) {
+    public qualifiedAttr(expr: string, x: string, y: string): void {
+        this.gen.g?.tool.logInfo({ component: "action-translator", msg: "q-attr " + x + "." + y });
+        if (this.node.resolver.resolveToAttribute(x, this.node) !== null) {
             // must be a member access to a predefined attribute like $ctx.foo
             this.attr(expr, x);
-            this.chunks.add(new ActionText(this.nodeContext, "." + y.getText()));
+            this.chunks.push(new ActionText(this.nodeContext, "." + y));
+
             return;
         }
-        let a = this.node.resolver.resolveToAttribute(x.getText(), y.getText(), this.node);
+
+        const a = this.node.resolver.resolveToAttribute(x, y, this.node);
         if (a === null) {
             // Added in response to https://github.com/antlr/antlr4/issues/1211
-            this.gen.g.tool.errMgr.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE,
-                this.gen.g.fileName, x,
-                x.getText(),
-                "rule");
+            this.gen.g?.tool.errMgr.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.gen.g.fileName, null,
+                x, "rule");
+
             return;
         }
+
         switch (a.dict.type) {
-            case ARG: {
-                this.chunks.add(new ArgRef(this.nodeContext, y.getText(), this.target.escapeIfNeeded(y.getText()))); break;
+            case DictType.ARG: {
+                this.chunks.push(new ArgRef(this.nodeContext, y, this.target.escapeIfNeeded(y)));
+                break;
             }
+
             // has to be current rule
-            case RET: {
-                this.chunks.add(new QRetValueRef(this.nodeContext, this.getRuleLabel(x.getText()), y.getText(), this.target.escapeIfNeeded(y.getText())));
+            case DictType.RET: {
+                this.chunks.push(new QRetValueRef(this.nodeContext, this.getRuleLabel(x), y,
+                    this.target.escapeIfNeeded(y)));
                 break;
             }
 
-            case PREDEFINED_RULE: {
-                this.chunks.add(this.getRulePropertyRef(x, y));
+            case DictType.PREDEFINED_RULE: {
+                this.chunks.push(this.getRulePropertyRef(x, y));
                 break;
             }
 
-            case TOKEN: {
-                this.chunks.add(this.getTokenPropertyRef(x, y));
+            case DictType.TOKEN: {
+                this.chunks.push(this.getTokenPropertyRef(x, y));
                 break;
             }
 
             default: {
                 break;
             }
-
         }
     }
 
-
-    public setAttr(expr: string, x: Token, rhs: Token): void {
-        this.gen.g.tool.logInfo("action-translator", "setAttr " + x + " " + rhs);
-        let rhsChunks = ActionTranslator.translateActionChunk(this.factory, this.rf, rhs.getText(), this.node);
-        let name = x.getText();
-        let s = new SetAttr(this.nodeContext, name, this.target.escapeIfNeeded(name), rhsChunks);
-        this.chunks.add(s);
+    public setAttr(expr: string, x: string, rhs: string): void {
+        this.gen.g?.tool.logInfo({ component: "action-translator", msg: "setAttr " + x + " " + rhs });
+        const rhsChunks = ActionTranslator.translateActionChunk(this.factory, this.rf!, rhs, this.node);
+        const s = new SetAttr(this.nodeContext, x, this.target.escapeIfNeeded(x), rhsChunks);
+        this.chunks.push(s);
     }
 
-
-    public nonLocalAttr(expr: string, x: Token, y: Token): void {
-        this.gen.g.tool.logInfo("action-translator", "nonLocalAttr " + x + "::" + y);
-        let r = this.factory.getGrammar().getRule(x.getText());
-        let name = y.getText();
-        this.chunks.add(new NonLocalAttrRef(this.nodeContext, x.getText(), name, this.target.escapeIfNeeded(name), r.index));
+    public nonLocalAttr(expr: string, x: string, y: string): void {
+        this.gen.g?.tool.logInfo({ component: "action-translator", msg: "nonLocalAttr " + x + "::" + y });
+        const r = this.factory.getGrammar().getRule(x);
+        this.chunks.push(new NonLocalAttrRef(this.nodeContext, x, y, this.target.escapeIfNeeded(y), r!.index));
     }
 
-
-    public setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token): void {
-        this.gen.g.tool.logInfo("action-translator", "setNonLocalAttr " + x + "::" + y + "=" + rhs);
-        let r = this.factory.getGrammar().getRule(x.getText());
-        let rhsChunks = ActionTranslator.translateActionChunk(this.factory, this.rf, rhs.getText(), this.node);
-        let name = y.getText();
-        let s = new SetNonLocalAttr(this.nodeContext, x.getText(), name, this.target.escapeIfNeeded(name), r.index, rhsChunks);
-        this.chunks.add(s);
+    public setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
+        this.gen.g?.tool.logInfo(
+            { component: "action-translator", msg: "setNonLocalAttr " + x + "::" + y + "=" + rhs });
+        const r = this.factory.getGrammar().getRule(x);
+        const rhsChunks = ActionTranslator.translateActionChunk(this.factory, this.rf!, rhs, this.node);
+        const s = new SetNonLocalAttr(this.nodeContext, x, y, this.target.escapeIfNeeded(y), r!.index, rhsChunks);
+        this.chunks.push(s);
     }
-
 
     public text(text: string): void {
-        this.chunks.add(new ActionText(this.nodeContext, text));
+        this.chunks.push(new ActionText(this.nodeContext, text));
     }
 
     public getTokenLabel(x: string): string {
@@ -274,56 +298,19 @@ export class ActionTranslator implements ActionSplitterListener {
         return this.target.getImplicitRuleLabel(x);
     }
 
-    protected getTokenPropertyRef(x: Token, y: Token): TokenPropertyRef {
-        try {
-            let c = ActionTranslator.tokenPropToModelMap.get(y.getText());
-            let ctor = c.getConstructor(StructDecl.class, string.class);
-            return ctor.newInstance(this.nodeContext, this.getTokenLabel(x.getText()));
-        } catch (e) {
-            if (e instanceof Exception) {
-                this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e);
-            } else {
-                throw e;
-            }
-        }
-        return null;
+    protected getTokenPropertyRef(x: string, y: string): TokenPropertyRef {
+        const c = ActionTranslator.tokenPropToModelMap.get(y)!;
+
+        return new c(this.nodeContext, this.getTokenLabel(x));
     }
 
-    protected getRulePropertyRef(x: Token, prop: Token): RulePropertyRef {
-        try {
-            let c = (x !== null ? ActionTranslator.rulePropToModelMap : ActionTranslator.thisRulePropToModelMap).get(prop.getText());
-            let ctor = c.getConstructor(StructDecl.class, string.class);
-            return ctor.newInstance(this.nodeContext, this.getRuleLabel((x !== null ? x : prop).getText()));
-        } catch (e) {
-            if (e instanceof Exception) {
-                this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e, prop.getText());
-            } else {
-                throw e;
-            }
-        }
-        return null;
+    protected getRulePropertyRef(x: string | undefined, prop: string): RulePropertyRef {
+        const c = (x !== undefined
+            ? ActionTranslator.rulePropToModelMap
+            : ActionTranslator.thisRulePropToModelMap
+        ).get(prop)!;
+
+        return new c(this.nodeContext, this.getRuleLabel((x ?? prop)));
     }
-    static {
-        ActionTranslator.thisRulePropToModelMap.put("start", ThisRulePropertyRef_start.class);
-        ActionTranslator.thisRulePropToModelMap.put("stop", ThisRulePropertyRef_stop.class);
-        ActionTranslator.thisRulePropToModelMap.put("text", ThisRulePropertyRef_text.class);
-        ActionTranslator.thisRulePropToModelMap.put("ctx", ThisRulePropertyRef_ctx.class);
-        ActionTranslator.thisRulePropToModelMap.put("parser", ThisRulePropertyRef_parser.class);
-    }
-    static {
-        ActionTranslator.rulePropToModelMap.put("start", RulePropertyRef_start.class);
-        ActionTranslator.rulePropToModelMap.put("stop", RulePropertyRef_stop.class);
-        ActionTranslator.rulePropToModelMap.put("text", RulePropertyRef_text.class);
-        ActionTranslator.rulePropToModelMap.put("ctx", RulePropertyRef_ctx.class);
-        ActionTranslator.rulePropToModelMap.put("parser", RulePropertyRef_parser.class);
-    }
-    static {
-        ActionTranslator.tokenPropToModelMap.put("text", TokenPropertyRef_text.class);
-        ActionTranslator.tokenPropToModelMap.put("type", TokenPropertyRef_type.class);
-        ActionTranslator.tokenPropToModelMap.put("line", TokenPropertyRef_line.class);
-        ActionTranslator.tokenPropToModelMap.put("index", TokenPropertyRef_index.class);
-        ActionTranslator.tokenPropToModelMap.put("pos", TokenPropertyRef_pos.class);
-        ActionTranslator.tokenPropToModelMap.put("channel", TokenPropertyRef_channel.class);
-        ActionTranslator.tokenPropToModelMap.put("int", TokenPropertyRef_int.class);
-    }
+
 }

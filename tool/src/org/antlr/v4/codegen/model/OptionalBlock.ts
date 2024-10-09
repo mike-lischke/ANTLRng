@@ -4,11 +4,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { Choice } from "./Choice.js";
-import { AltBlock } from "./AltBlock.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { AltBlock } from "./AltBlock.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
 
 export class OptionalBlock extends AltBlock {
     public constructor(factory: OutputModelFactory,

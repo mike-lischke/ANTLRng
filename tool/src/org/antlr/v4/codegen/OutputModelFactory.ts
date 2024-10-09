@@ -89,7 +89,7 @@ export interface OutputModelFactory {
 
     getRoot(): OutputModelObject;
 
-    getCurrentRuleFunction(): RuleFunction;
+    getCurrentRuleFunction(): RuleFunction | undefined;
 
     getCurrentOuterMostAlt(): Alternative;
 

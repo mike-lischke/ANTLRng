@@ -87,7 +87,7 @@ export class ParserATNFactory implements IATNFactory {
     }
 
     public createATN(): ATN {
-        this._createATN([...this.g.rules.values()]);
+        this._createATN(Array.from(this.g.rules.values()));
 
         this.addRuleFollowLinks();
         this.addEOFTransitionToStartRules();
@@ -497,7 +497,7 @@ export class ParserATNFactory implements IATNFactory {
         end.loopBackState = loop;
 
         plusAST.atnState = loop;
-        this.epsilon(blkEnd, loop);		// blk can see loop back
+        this.epsilon(blkEnd, loop); // blk can see loop back
 
         const blkAST = plusAST.getChild(0) as BlockAST;
         if ((plusAST as QuantifierAST).isGreedy()) {
@@ -507,10 +507,10 @@ export class ParserATNFactory implements IATNFactory {
             }
 
             this.epsilon(loop, blkStart);	// loop back to start
-            this.epsilon(loop, end);			// or exit
+            this.epsilon(loop, end); // or exit
         } else {
             // if not greedy, priority to exit branch; make it first
-            this.epsilon(loop, end);			// exit
+            this.epsilon(loop, end); // exit
             this.epsilon(loop, blkStart);	// loop back to start
         }
 
@@ -553,14 +553,14 @@ export class ParserATNFactory implements IATNFactory {
             }
 
             this.epsilon(entry, blkStart);	// loop enter edge (alt 1)
-            this.epsilon(entry, end);		// bypass loop edge (alt 2)
+            this.epsilon(entry, end); // bypass loop edge (alt 2)
         } else {
             // if not greedy, priority to exit branch; make it first
-            this.epsilon(entry, end);		// bypass loop edge (alt 1)
+            this.epsilon(entry, end); // bypass loop edge (alt 1)
             this.epsilon(entry, blkStart);	// loop enter edge (alt 2)
         }
-        this.epsilon(blkEnd, loop);		// block end hits loop back
-        this.epsilon(loop, entry);		// loop back to entry/exit decision
+        this.epsilon(blkEnd, loop); // block end hits loop back
+        this.epsilon(loop, entry); // loop back to entry/exit decision
 
         starAST.atnState = entry;	// decision is to enter/exit; blk is its own decision
 

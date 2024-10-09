@@ -4,41 +4,37 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuleFunction } from "./RuleFunction.js";
-import { RuleElement } from "./RuleElement.js";
-import { ModelElement } from "./ModelElement.js";
-import { LabeledOp } from "./LabeledOp.js";
+import { ANTLRv4Parser } from "../../../../../../../src/generated/ANTLRv4Parser.js";
+
+import { ActionAST } from "../../tool/ast/ActionAST.js";
+import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { ActionTranslator } from "../ActionTranslator.js";
-import { CodeGenerator } from "../CodeGenerator.js";
 import { ParserFactory } from "../ParserFactory.js";
-import { Target } from "../Target.js";
+import { LabeledOp } from "./LabeledOp.js";
+import { RuleElement } from "./RuleElement.js";
 import { ActionChunk } from "./chunk/ActionChunk.js";
 import { Decl } from "./decl/Decl.js";
 import { RuleContextDecl } from "./decl/RuleContextDecl.js";
 import { RuleContextListDecl } from "./decl/RuleContextListDecl.js";
-import { Rule } from "../../tool/Rule.js";
-import { ActionAST } from "../../tool/ast/ActionAST.js";
-import { GrammarAST } from "../../tool/ast/GrammarAST.js";
-import { OrderedHashSet } from "antlr4ng";
 
 export class InvokeRule extends RuleElement implements LabeledOp {
     public readonly name: string;
     public readonly escapedName: string;
-    public readonly labels = new OrderedHashSet<Decl>(); // TODO: should need just 1
+    public readonly labels = new Set<Decl>(); // TODO: should need just 1
     public readonly ctxName: string;
 
     public argExprsChunks: ActionChunk[];
 
-    public constructor(factory: ParserFactory, ast: GrammarAST, labelAST: GrammarAST) {
+    public constructor(factory: ParserFactory, ast: GrammarAST, labelAST: GrammarAST | null) {
         super(factory, ast);
-        if (ast.atnState !== null) {
+        if (ast.atnState) {
             this.stateNumber = ast.atnState.stateNumber;
         }
 
         const gen = factory.getGenerator();
         const target = gen.getTarget();
-        const identifier = ast.getText();
-        const r = factory.getGrammar().getRule(identifier);
+        const identifier = ast.getText()!;
+        const r = factory.getGrammar().getRule(identifier)!;
         this.name = r.name;
         this.escapedName = gen.getTarget().escapeIfNeeded(this.name);
         this.ctxName = target.getRuleFunctionContextStructName(r);
@@ -48,34 +44,33 @@ export class InvokeRule extends RuleElement implements LabeledOp {
         if (labelAST !== null) {
             let decl: RuleContextDecl;
             // for x=r, define <rule-context-type> x and list_x
-            const label = labelAST.getText();
-            if (labelAST.parent.getType() === ANTLRParser.PLUS_ASSIGN) {
+            const label = labelAST.getText()!;
+            if (labelAST.parent!.getType() === ANTLRv4Parser.PLUS_ASSIGN) {
                 factory.defineImplicitLabel(ast, this);
                 const listLabel = gen.getTarget().getListLabel(label);
                 decl = new RuleContextListDecl(factory, listLabel, this.ctxName);
-            }
-            else {
+            } else {
                 decl = new RuleContextDecl(factory, label, this.ctxName);
                 this.labels.add(decl);
             }
-            rf.addContextDecl(ast.getAltLabel(), decl);
+            rf.addContextDecl(ast.getAltLabel()!, decl);
         }
 
-        const arg = ast.getFirstChildWithType(ANTLRParser.ARG_ACTION) as ActionAST;
+        const arg = ast.getFirstChildWithType(ANTLRv4Parser.BEGIN_ARGUMENT) as ActionAST | null;
         if (arg !== null) {
             this.argExprsChunks = ActionTranslator.translateAction(factory, rf, arg.token, arg);
         }
 
-        // If action refs rule as rulename not label, we need to define implicit label
-        if (factory.getCurrentOuterMostAlt().ruleRefsInActions.containsKey(identifier)) {
+        // If action refs rule as rule name not label, we need to define implicit label
+        if (factory.getCurrentOuterMostAlt().ruleRefsInActions.has(identifier)) {
             const label = gen.getTarget().getImplicitRuleLabel(identifier);
             const d = new RuleContextDecl(factory, label, this.ctxName);
             this.labels.add(d);
-            rf.addContextDecl(ast.getAltLabel(), d);
+            rf.addContextDecl(ast.getAltLabel()!, d);
         }
     }
 
     public getLabels(): Decl[] {
-        return this.labels.elements();
+        return this.labels.size > 0 ? Array.from(this.labels) : [];
     }
 }

@@ -4,10 +4,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuleActionFunction } from "./RuleActionFunction.js";
-import { OutputModelObject } from "./OutputModelObject.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Rule } from "../../tool/Rule.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { RuleActionFunction } from "./RuleActionFunction.js";
 
 export class RuleSempredFunction extends RuleActionFunction {
     public constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {

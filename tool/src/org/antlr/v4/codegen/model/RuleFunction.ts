@@ -4,16 +4,26 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { ATNState, IntervalSet, RecognitionException } from "antlr4ng";
 
+import { CommonTreeNodeStream } from "../../../../../../../src/antlr3/tree/CommonTreeNodeStream.js";
+import { ANTLRv4Lexer } from "../../../../../../../src/generated/ANTLRv4Lexer.js";
 
-import { SrcOp } from "./SrcOp.js";
-import { OutputModelObject } from "./OutputModelObject.js";
-import { ModelElement } from "./ModelElement.js";
-import { ExceptionClause } from "./ExceptionClause.js";
-import { ElementFrequenciesVisitor } from "./ElementFrequenciesVisitor.js";
-import { CodeBlockForOuterMostAlt } from "./CodeBlockForOuterMostAlt.js";
-import { Action } from "./Action.js";
+import { FrequencySet } from "../../misc/FrequencySet.js";
+import { Utils } from "../../misc/Utils.js";
+import { GrammarASTAdaptor } from "../../parse/GrammarASTAdaptor.js";
+import { ErrorType } from "../../tool/ErrorType.js";
+import { Rule } from "../../tool/Rule.js";
+import { ActionAST } from "../../tool/ast/ActionAST.js";
+import { AltAST } from "../../tool/ast/AltAST.js";
+import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { PredAST } from "../../tool/ast/PredAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
+import { Action } from "./Action.js";
+import { ElementFrequenciesVisitor } from "./ElementFrequenciesVisitor.js";
+import { ExceptionClause } from "./ExceptionClause.js";
+import { OutputModelObject } from "./OutputModelObject.js";
+import { SrcOp } from "./SrcOp.js";
 import { AltLabelStructDecl } from "./decl/AltLabelStructDecl.js";
 import { AttributeDecl } from "./decl/AttributeDecl.js";
 import { ContextRuleGetterDecl } from "./decl/ContextRuleGetterDecl.js";
@@ -24,58 +34,45 @@ import { ContextTokenListGetterDecl } from "./decl/ContextTokenListGetterDecl.js
 import { ContextTokenListIndexedGetterDecl } from "./decl/ContextTokenListIndexedGetterDecl.js";
 import { Decl } from "./decl/Decl.js";
 import { StructDecl } from "./decl/StructDecl.js";
-import { FrequencySet } from "../../misc/FrequencySet.js";
-import { Utils } from "../../misc/Utils.js";
-import { GrammarASTAdaptor } from "../../parse/GrammarASTAdaptor.js";
-import { ATNState, IntervalSet, OrderedHashSet, HashMap, HashSet } from "antlr4ng";
-import { ErrorType } from "../../tool/ErrorType.js";
-import { Rule } from "../../tool/Rule.js";
-import { ActionAST } from "../../tool/ast/ActionAST.js";
-import { AltAST } from "../../tool/ast/AltAST.js";
-import { GrammarAST } from "../../tool/ast/GrammarAST.js";
-import { PredAST } from "../../tool/ast/PredAST.js";
-
-
-
+import type { CommonTree } from "../../../../../../../src/antlr3/tree/CommonTree.js";
 
 export class RuleFunction extends OutputModelObject {
     public readonly name: string;
     public readonly escapedName: string;
-    public readonly modifiers: Array<string>;
+    public readonly modifiers: string[];
     public ctxType: string;
-    public readonly ruleLabels: Array<string>;
-    public readonly tokenLabels: Array<string>;
+    public readonly ruleLabels: Set<string> | null = null;
+    public readonly tokenLabels: Set<string>;
     public readonly startState: ATNState;
     public readonly index: number;
     public readonly rule: Rule;
     public readonly altToContext: AltLabelStructDecl[];
     public hasLookaheadBlock: boolean;
 
+    public code: SrcOp[];
 
-    public code: Array<SrcOp>;
-
-    public locals: OrderedHashSet<Decl>; // TODO: move into ctx?
-
-    public args = null;
+    public args?: AttributeDecl[];
 
     public ruleCtx: StructDecl;
 
-    public altLabelCtxs: Map<string, AltLabelStructDecl>;
+    public altLabelCtxs?: Map<string, AltLabelStructDecl>;
 
     public namedActions: Map<string, Action>;
 
     public finallyAction: Action;
 
-    public exceptions: Array<ExceptionClause>;
+    public exceptions: ExceptionClause[];
 
-    public postamble: Array<SrcOp>;
+    public postamble: SrcOp[];
+
+    private locals = new Set<Decl>(); // TODO: move into ctx?
 
     public constructor(factory: OutputModelFactory, r: Rule) {
         super(factory);
         this.name = r.name;
         this.escapedName = factory.getGenerator().getTarget().escapeIfNeeded(r.name);
         this.rule = r;
-        this.modifiers = Utils.nodesToStrings(r.modifiers);
+        this.modifiers = Utils.nodesToStrings(r.modifiers ?? []);
 
         this.index = r.index;
 
@@ -83,71 +80,68 @@ export class RuleFunction extends OutputModelObject {
         this.altToContext = new Array<AltLabelStructDecl>(r.getOriginalNumberOfAlts() + 1);
         this.addContextGetters(factory, r);
 
-        if (r.args !== null) {
-            let decls = r.args.attributes.values();
-            if (decls.size() > 0) {
-                this.args = new Array<AttributeDecl>();
-                this.ruleCtx.addDecls(decls);
-                for (let a of decls) {
-                    this.args.add(new AttributeDecl(factory, a));
+        if (r.args) {
+            if (r.args.attributes.size > 0) {
+                this.args = [];
+                this.ruleCtx.addDecls(Array.from(r.args.attributes.values()));
+                for (const a of r.args.attributes.values()) {
+                    this.args.push(new AttributeDecl(factory, a));
                 }
                 this.ruleCtx.ctorAttrs = this.args;
             }
         }
-        if (r.retvals !== null) {
-            this.ruleCtx.addDecls(r.retvals.attributes.values());
+
+        if (r.retvals) {
+            this.ruleCtx.addDecls(Array.from(r.retvals.attributes.values()));
         }
-        if (r.locals !== null) {
-            this.ruleCtx.addDecls(r.locals.attributes.values());
+
+        if (r.locals) {
+            this.ruleCtx.addDecls(Array.from(r.locals.attributes.values()));
         }
 
         this.ruleLabels = r.getElementLabelNames();
         this.tokenLabels = r.getTokenRefs();
-        if (r.exceptions !== null) {
-            this.exceptions = new Array<ExceptionClause>();
-            for (let e of r.exceptions) {
-                let catchArg = e.getChild(0) as ActionAST;
-                let catchAction = e.getChild(1) as ActionAST;
-                this.exceptions.add(new ExceptionClause(factory, catchArg, catchAction));
-            }
+        this.exceptions = new Array<ExceptionClause>();
+        for (const e of r.exceptions) {
+            const catchArg = e.getChild(0) as ActionAST;
+            const catchAction = e.getChild(1) as ActionAST;
+            this.exceptions.push(new ExceptionClause(factory, catchArg, catchAction));
         }
 
-        this.startState = factory.getGrammar().atn.ruleToStartState[r.index];
+        this.startState = factory.getGrammar().atn.ruleToStartState[r.index]!;
     }
 
     public addContextGetters(factory: OutputModelFactory, r: Rule): void {
         // Add ctx labels for elements in alts with no -> label
-        let altsNoLabels = r.getUnlabeledAltASTs();
+        const altsNoLabels = r.getUnlabeledAltASTs();
         if (altsNoLabels !== null) {
-            let decls = this.getDeclsForAllElements(altsNoLabels);
+            const decls = this.getDeclsForAllElements(altsNoLabels);
             // we know to put in rule ctx, so do it directly
-            for (let d of decls) {
+            for (const d of decls) {
                 this.ruleCtx.addDecl(d);
             }
 
         }
 
         // make structs for -> labeled alts, define ctx labels for elements
-        this.altLabelCtxs = new HashMap<string, AltLabelStructDecl>();
-        let labels = r.getAltLabels();
+        this.altLabelCtxs = new Map<string, AltLabelStructDecl>();
+        const labels = r.getAltLabels();
         if (labels !== null) {
-            for (let entry of labels.entrySet()) {
-                let label = entry.getKey();
-                let alts = new Array<AltAST>();
-                for (let pair of entry.getValue()) {
-                    alts.add(pair.b);
+            for (const [label, list] of labels) {
+                const alts = new Array<AltAST>();
+                for (const [_, ast] of list) {
+                    alts.push(ast);
                 }
 
-                let decls = this.getDeclsForAllElements(alts);
-                for (let pair of entry.getValue()) {
-                    let altNum = pair.a;
+                const decls = this.getDeclsForAllElements(alts);
+                for (const [altNum] of list) {
                     this.altToContext[altNum] = new AltLabelStructDecl(factory, r, altNum, label);
-                    if (!this.altLabelCtxs.containsKey(label)) {
-                        this.altLabelCtxs.put(label, this.altToContext[altNum]);
+                    if (!this.altLabelCtxs.has(label)) {
+                        this.altLabelCtxs.set(label, this.altToContext[altNum]);
                     }
 
                     // we know which ctx to put in, so do it directly
-                    for (let d of decls) {
+                    for (const d of decls) {
                         this.altToContext[altNum].addDecl(d);
                     }
                 }
@@ -156,14 +150,14 @@ export class RuleFunction extends OutputModelObject {
     }
 
     public fillNamedActions(factory: OutputModelFactory, r: Rule): void {
-        if (r.finallyAction !== null) {
+        if (r.finallyAction) {
             this.finallyAction = new Action(factory, r.finallyAction);
         }
 
-        this.namedActions = new HashMap<string, Action>();
-        for (let name of r.namedActions.keySet()) {
-            let ast = r.namedActions.get(name);
-            this.namedActions.put(name, new Action(factory, ast));
+        this.namedActions = new Map<string, Action>();
+        for (const name of r.namedActions.keys()) {
+            const ast = r.namedActions.get(name);
+            this.namedActions.set(name, new Action(factory, ast));
         }
     }
 
@@ -171,20 +165,24 @@ export class RuleFunction extends OutputModelObject {
        Must see across alts. If any alt needs X or r as list, then
        define as list.
      */
-    public getDeclsForAllElements(altASTs: Array<AltAST>): Set<Decl> {
-        let needsList = new HashSet<string>();
-        let nonOptional = new HashSet<string>();
-        let allRefs = new Array<GrammarAST>();
+    public getDeclsForAllElements(altASTs: AltAST[]): Set<Decl> {
+        const needsList = new Set<string>();
+        const nonOptional = new Set<string>();
+        const allRefs = new Array<GrammarAST>();
         let firstAlt = true;
-        let reftypes = new IntervalSet(RULE_REF, TOKEN_REF, STRING_LITERAL);
-        for (let ast of altASTs) {
-            let refs = this.getRuleTokens(ast.getNodesWithType(reftypes));
-            allRefs.addAll(refs);
-            let minAndAltFreq = this.getElementFrequenciesForAlt(ast);
-            let minFreq = minAndAltFreq.a;
-            let altFreq = minAndAltFreq.b;
-            for (let t of refs) {
-                let refLabelName = this.getName(t);
+
+        const refTypes = new IntervalSet();
+        refTypes.addOne(ANTLRv4Lexer.RULE_REF);
+        refTypes.addOne(ANTLRv4Lexer.TOKEN_REF);
+        refTypes.addOne(ANTLRv4Lexer.STRING_LITERAL);
+
+        for (const ast of altASTs) {
+            const refs = this.getRuleTokens(ast.getNodesWithType(refTypes));
+            allRefs.push(...refs);
+
+            const [minFreq, altFreq] = this.getElementFrequenciesForAlt(ast);
+            for (const t of refs) {
+                const refLabelName = this.getName(t);
 
                 if (refLabelName !== null) {
                     if (altFreq.count(refLabelName) > 1) {
@@ -197,138 +195,136 @@ export class RuleFunction extends OutputModelObject {
                 }
             }
 
-            for (let ref of nonOptional.toArray(new Array<string>(0))) {
+            for (const ref of nonOptional) {
                 if (minFreq.count(ref) === 0) {
-                    nonOptional.remove(ref);
+                    nonOptional.delete(ref);
                 }
             }
 
             firstAlt = false;
         }
-        let decls = new LinkedHashSet<Decl>();
-        for (let t of allRefs) {
-            let refLabelName = this.getName(t);
+
+        const decls = new Set<Decl>();
+        for (const t of allRefs) {
+            const refLabelName = this.getName(t);
 
             if (refLabelName === null) {
                 continue;
             }
 
-            let d = this.getDeclForAltElement(t,
-                refLabelName,
-                needsList.contains(refLabelName),
-                !nonOptional.contains(refLabelName));
-            decls.addAll(d);
+            const d = this.getDeclForAltElement(t, refLabelName, needsList.has(refLabelName),
+                !nonOptional.has(refLabelName));
+
+            d.forEach((decl) => decls.add(decl));
         }
+
         return decls;
     }
 
-    public getDeclForAltElement(t: GrammarAST, refLabelName: string, needList: boolean, optional: boolean): Array<Decl> {
-        let decls = new Array<Decl>();
-        if (t.getType() === RULE_REF) {
-            let rref = this.factory.getGrammar().getRule(t.getText());
-            let ctxName = this.factory.getGenerator().getTarget()
-                .getRuleFunctionContextStructName(rref);
+    public getDeclForAltElement(t: GrammarAST, refLabelName: string, needList: boolean, optional: boolean): Decl[] {
+        const decls = new Array<Decl>();
+        if (t.getType() === ANTLRv4Lexer.RULE_REF) {
+            const ruleRef = this.factory!.getGrammar().getRule(t.getText()!)!;
+            const ctxName = this.factory!.getGenerator().getTarget().getRuleFunctionContextStructName(ruleRef);
             if (needList) {
-                if (this.factory.getGenerator().getTarget().supportsOverloadedMethods()) {
-
-                    decls.add(new ContextRuleListGetterDecl(this.factory, refLabelName, ctxName));
+                if (this.factory!.getGenerator().getTarget().supportsOverloadedMethods()) {
+                    decls.push(new ContextRuleListGetterDecl(this.factory!, refLabelName, ctxName));
                 }
 
-                decls.add(new ContextRuleListIndexedGetterDecl(this.factory, refLabelName, ctxName));
+                decls.push(new ContextRuleListIndexedGetterDecl(this.factory!, refLabelName, ctxName));
+            } else {
+                decls.push(new ContextRuleGetterDecl(this.factory!, refLabelName, ctxName, optional));
             }
-            else {
-                decls.add(new ContextRuleGetterDecl(this.factory, refLabelName, ctxName, optional));
-            }
-        }
-        else {
+        } else {
             if (needList) {
-                if (this.factory.getGenerator().getTarget().supportsOverloadedMethods()) {
-
-                    decls.add(new ContextTokenListGetterDecl(this.factory, refLabelName));
+                if (this.factory!.getGenerator().getTarget().supportsOverloadedMethods()) {
+                    decls.push(new ContextTokenListGetterDecl(this.factory!, refLabelName));
                 }
 
-                decls.add(new ContextTokenListIndexedGetterDecl(this.factory, refLabelName));
-            }
-            else {
-                decls.add(new ContextTokenGetterDecl(this.factory, refLabelName, optional));
+                decls.push(new ContextTokenListIndexedGetterDecl(this.factory!, refLabelName));
+            } else {
+                decls.push(new ContextTokenGetterDecl(this.factory!, refLabelName, optional));
             }
         }
+
         return decls;
     }
 
     /** Add local var decl */
     public addLocalDecl(d: Decl): void {
-        if (this.locals === null) {
-            this.locals = new OrderedHashSet<Decl>();
-        }
-
         this.locals.add(d);
         d.isLocal = true;
     }
 
     /** Add decl to struct ctx for rule or alt if labeled */
     public addContextDecl(altLabel: string, d: Decl): void {
-        let alt = d.getOuterMostAltCodeBlock();
+        const alt = d.getOuterMostAltCodeBlock();
         // if we found code blk and might be alt label, try to add to that label ctx
-        if (alt !== null && this.altLabelCtxs !== null) {
-            //			System.out.println(d.name+" lives in alt "+alt.alt.altNum);
-            let altCtx = this.altLabelCtxs.get(altLabel);
-            if (altCtx !== null) { // we have an alt ctx
-                //				System.out.println("ctx is "+ altCtx.name);
+        if (alt && this.altLabelCtxs) {
+            const altCtx = this.altLabelCtxs.get(altLabel);
+            if (altCtx) { // we have an alt ctx
                 altCtx.addDecl(d);
+
                 return;
             }
         }
+
         this.ruleCtx.addDecl(d); // stick in overall rule's ctx
     }
 
     /** Given list of X and r refs in alt, compute how many of each there are */
-    protected getElementFrequenciesForAlt(ast: AltAST): <FrequencySet<string>, FrequencySet<string>> {
+    protected getElementFrequenciesForAlt(ast: AltAST): [FrequencySet<string>, FrequencySet<string>] {
         try {
-            let  visitor = new ElementFrequenciesVisitor(new CommonTreeNodeStream(new GrammarASTAdaptor(), ast));
+            const visitor = new ElementFrequenciesVisitor(new CommonTreeNodeStream(new GrammarASTAdaptor(), ast));
             visitor.outerAlternative();
-            if(visitor.frequencies.size() !== 1) {
-    this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR);
-    return new (new FrequencySet<string>(), new FrequencySet<string>());
-}
+            if (visitor.frequencies.length !== 1) {
+                this.factory!.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR);
 
-return new (visitor.getMinFrequencies(), visitor.frequencies.peek());
-		} catch (ex) {
-    if (ex instanceof RecognitionException) {
-        this.factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
-        return new (new FrequencySet<string>(), new FrequencySet<string>());
-    } else {
-        throw ex;
-    }
-}
-	}
-
-	private getRuleTokens(refs: Array<GrammarAST>): Array < GrammarAST > {
-    let  result = new Array(refs.size());
-    for(let ref of refs) {
-        let r = ref;
-
-        let ignore = false;
-        while (r !== null) {
-            // Ignore string literals in predicates
-            if (r instanceof PredAST) {
-                ignore = true;
-                break;
+                return [new FrequencySet<string>(), new FrequencySet<string>()];
             }
-            r = r.parent;
-        }
 
-        if (!ignore) {
-            result.add(ref);
+            return [visitor.getMinFrequencies(), visitor.frequencies[0]];
+        } catch (ex) {
+            if (ex instanceof RecognitionException) {
+                this.factory!.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
+
+                return [new FrequencySet<string>(), new FrequencySet<string>()];
+            } else {
+                throw ex;
+            }
         }
     }
 
-		return result;
-}
+    private getRuleTokens(refs: GrammarAST[]): GrammarAST[] {
+        const result: GrammarAST[] = [];
+        for (const ref of refs) {
+            let r: CommonTree | null = ref;
 
-	private getName(token: GrammarAST):  string {
-    let tokenText = token.getText();
-    let tokenName = token.getType() !== STRING_LITERAL ? tokenText : token.g.getTokenName(tokenText);
-    return tokenName === null || tokenName.startsWith("T__") ? null : tokenName; // Do not include tokens with auto generated names
-}
+            let ignore = false;
+            while (r !== null) {
+                // Ignore string literals in predicates
+                if (r instanceof PredAST) {
+                    ignore = true;
+                    break;
+                }
+                r = r.parent;
+            }
+
+            if (!ignore) {
+                result.push(ref);
+            }
+        }
+
+        return result;
+    }
+
+    private getName(token: GrammarAST): string | null {
+        const tokenText = token.getText()!;
+        const tokenName = token.getType() !== ANTLRv4Lexer.STRING_LITERAL
+            ? tokenText
+            : token.g.getTokenName(Number.parseInt(tokenText));
+
+        // Do not include tokens with auto generated names
+        return tokenName === null || tokenName.startsWith("T__") ? null : tokenName;
+    }
 }

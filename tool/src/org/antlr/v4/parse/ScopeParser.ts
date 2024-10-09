@@ -60,13 +60,13 @@ export  class ScopeParser {
 	 * but if the separator is ',' you cannot use ',' in the initvalue
 	 * unless you escape use "\," escape.
 	 */
-	public static  parseAttributeDef(action: ActionAST, decl: <string, number>, g: Grammar):  java.security.KeyStore.Entry.Attribute {
+	public static  parseAttributeDef(action: ActionAST, decl: <string, number>, g: Grammar):  Attribute {
 		if (decl.a === null) {
  return null;
 }
 
 
-		let  attr = new  java.security.KeyStore.Entry.Attribute();
+		let  attr = new  Attribute();
 		let  rightEdgeOfDeclarator = decl.a.length() - 1;
 		let  equalsIndex = decl.a.indexOf('=');
 		if (equalsIndex > 0) {
@@ -142,7 +142,7 @@ let  j = 0; i < actionText.length(); i++, j++) {
 		return attr;
 	}
 
-	public static  _parsePrefixDecl(attr: java.security.KeyStore.Entry.Attribute, decl: string, a: ActionAST, g: Grammar):  <number, number> {
+	public static  _parsePrefixDecl(attr: Attribute, decl: string, a: ActionAST, g: Grammar):  <number, number> {
 		// walk backwards looking for start of an ID
 		let  inID = false;
 		let  start = -1;
@@ -197,7 +197,7 @@ let  j = 0; i < actionText.length(); i++, j++) {
 		return new  <number, number>(start, stop);
 	}
 
-	public static  _parsePostfixDecl(attr: java.security.KeyStore.Entry.Attribute, decl: string, a: ActionAST, g: Grammar):  <number, number> {
+	public static  _parsePostfixDecl(attr: Attribute, decl: string, a: ActionAST, g: Grammar):  <number, number> {
 		let  start = -1;
 		let  stop = -1;
 		let  colon = decl.indexOf(':');

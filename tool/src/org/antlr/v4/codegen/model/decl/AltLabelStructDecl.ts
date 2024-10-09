@@ -4,12 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { StructDecl } from "./StructDecl.js";
+import { grammarOptions } from "../../../grammar-options.js";
+import { MurmurHash } from "../../../support/MurmurHash.js";
+import { Rule } from "../../../tool/Rule.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { DispatchMethod } from "../DispatchMethod.js";
 import { ListenerDispatchMethod } from "../ListenerDispatchMethod.js";
 import { VisitorDispatchMethod } from "../VisitorDispatchMethod.js";
-import { Rule } from "../../../tool/Rule.js";
+import { StructDecl } from "./StructDecl.js";
 
 /** A StructDecl to handle a -&gt; label on alt */
 export class AltLabelStructDecl extends StructDecl {
@@ -24,22 +26,23 @@ export class AltLabelStructDecl extends StructDecl {
         this.derivedFromName = label;
     }
 
-    public override  addDispatchMethods(r: Rule): void {
+    public override addDispatchMethods(r: Rule): void {
         this.dispatchMethods = new Array<DispatchMethod>();
-        if ($outer.factory.getGrammar().tool.gen_listener) {
-            this.dispatchMethods.add(new ListenerDispatchMethod($outer.factory, true));
-            this.dispatchMethods.add(new ListenerDispatchMethod($outer.factory, false));
+        if (grammarOptions.generateListener) {
+            this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, true));
+            this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, false));
         }
-        if ($outer.factory.getGrammar().tool.gen_visitor) {
-            this.dispatchMethods.add(new VisitorDispatchMethod($outer.factory));
+
+        if (grammarOptions.generateVisitor) {
+            this.dispatchMethods.push(new VisitorDispatchMethod(this.factory!));
         }
     }
 
-    public override  hashCode(): number {
-        return super.hashCode();
+    public override hashCode(): number {
+        return MurmurHash.hashCode(this.name);
     }
 
-    public override  equals(obj: unknown): boolean {
+    public override equals(obj: unknown): boolean {
         if (obj === this) {
             return true;
         }
@@ -48,6 +51,6 @@ export class AltLabelStructDecl extends StructDecl {
             return false;
         }
 
-        return super.equals((obj).name);
+        return this.name === obj.name;
     }
 }

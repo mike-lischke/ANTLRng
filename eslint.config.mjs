@@ -27,11 +27,12 @@ export default tslint.config(
                     "./tsconfig.json",
                     "./tests/tsconfig.json"
                 ],
-                "allowDefaultProject": [
+                allowDefaultProject: [
                     "./tests"
                 ]
             },
         },
+        ignores: ["src/generated/*"],
         rules: {
             "no-fallthrough": [
                 "warn",
@@ -77,7 +78,17 @@ export default tslint.config(
                 "always"
             ],
             "@stylistic/no-multiple-empty-lines": ["error", { "max": 1 }],
+            "@stylistic/no-multi-spaces": "error",
+            "@stylistic/lines-around-comment": [
+                "error",
+                {
+                    "afterBlockComment": false,
+                    "afterLineComment": false,
+                }
+            ],
+            "lines-between-class-members": "off", // Should be on, but handles overload signatures incorrectly.
 
+            "@typescript-eslint/adjacent-overload-signatures": "error",
             "@typescript-eslint/no-explicit-any": "error",
             "@typescript-eslint/no-namespace": "off",
             "@typescript-eslint/no-non-null-assertion": "off",
@@ -89,10 +100,13 @@ export default tslint.config(
                 {
                     // No ordering for getters and setters here, as that conflicts currently with the rule
                     // adjacent-overload-signatures.
+
                     "default": [
                         // Index signature
+
                         "signature",
                         // Fields
+
                         "public-static-field",
                         "protected-static-field",
                         "private-static-field",
@@ -110,11 +124,13 @@ export default tslint.config(
                         "decorated-field",
                         "field",
                         // Constructors
+
                         "public-constructor",
                         "protected-constructor",
                         "private-constructor",
                         "constructor",
                         // Methods
+
                         "public-static-method",
                         "protected-static-method",
                         "private-static-method",

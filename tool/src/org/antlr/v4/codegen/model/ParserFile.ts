@@ -4,18 +4,17 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Parser } from "./Parser.js";
-import { OutputFile } from "./OutputFile.js";
-import { ModelElement } from "./ModelElement.js";
-import { Action } from "./Action.js";
+import { grammarOptions } from "../../grammar-options.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
+import { Action } from "./Action.js";
 import { ActionChunk } from "./chunk/ActionChunk.js";
 import { ActionText } from "./chunk/ActionText.js";
-import { Grammar } from "../../tool/Grammar.js";
+import { OutputFile } from "./OutputFile.js";
+import { Parser } from "./Parser.js";
 
 export class ParserFile extends OutputFile {
-    public genPackage: string; // from -package cmd-line
-    public exportMacro: string; // from -DexportMacro cmd-line
+    public genPackage?: string; // from -package cmd-line
+    public exportMacro?: string; // from -DexportMacro cmd-line
     public genListener: boolean; // from -listener cmd-line
     public genVisitor: boolean; // from -visitor cmd-line
 
@@ -30,15 +29,16 @@ export class ParserFile extends OutputFile {
         super(factory, fileName);
         const g = factory.getGrammar();
         this.namedActions = this.buildNamedActions(factory.getGrammar());
-        this.genPackage = g.tool.genPackage;
+        this.genPackage = grammarOptions.package;
         this.exportMacro = factory.getGrammar().getOptionString("exportMacro");
+
         // need the below members in the ST for Python, C++
-        this.genListener = g.tool.gen_listener;
-        this.genVisitor = g.tool.gen_visitor;
+        this.genListener = grammarOptions.generateListener ?? true;
+        this.genVisitor = grammarOptions.generateVisitor ?? false;
         this.grammarName = g.name;
 
-        if (g.getOptionString("contextSuperClass") !== null) {
-            this.contextSuperClass = new ActionText(null, g.getOptionString("contextSuperClass"));
+        if (g.getOptionString("contextSuperClass")) {
+            this.contextSuperClass = new ActionText(undefined, g.getOptionString("contextSuperClass"));
         }
     }
 }

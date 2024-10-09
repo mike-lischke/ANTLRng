@@ -4,13 +4,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuleElement } from "./RuleElement.js";
-import { Loop } from "./Loop.js";
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { Choice } from "./Choice.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { StarLoopEntryState } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
+import { Loop } from "./Loop.js";
 
 export class StarBlock extends Loop {
     public loopLabel: string;
@@ -22,6 +20,6 @@ export class StarBlock extends Loop {
         this.loopLabel = factory.getGenerator().getTarget().getLoopLabel(blkOrEbnfRootAST);
         const star = blkOrEbnfRootAST.atnState as StarLoopEntryState;
         this.loopBackStateNumber = star.loopBackState.stateNumber;
-        $outer.decision = star.decision;
+        this.decision = star.decision;
     }
 }

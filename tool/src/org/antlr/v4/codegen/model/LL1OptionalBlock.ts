@@ -4,11 +4,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { LL1Choice } from "./LL1Choice.js";
-import { LL1AltBlock } from "./LL1AltBlock.js";
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
+import { LL1AltBlock } from "./LL1AltBlock.js";
 
 /**
  * An optional block is just an alternative block where the last alternative

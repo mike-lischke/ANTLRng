@@ -4,18 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RuleFunction } from "./RuleFunction.js";
-import { RuleElement } from "./RuleElement.js";
-import { ModelElement } from "./ModelElement.js";
-import { Action } from "./Action.js";
-import { ActionTranslator } from "../ActionTranslator.js";
-import { CodeGenerator } from "../CodeGenerator.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
-import { ActionChunk } from "./chunk/ActionChunk.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
-import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { ActionTranslator } from "../ActionTranslator.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { Action } from "./Action.js";
+import { ActionChunk } from "./chunk/ActionChunk.js";
 
 export class SemPred extends Action {
+
     /**
      * The user-specified terminal option {@code fail}, if it was used and the
      * value is a string literal. For example:
@@ -24,6 +20,7 @@ export class SemPred extends Action {
      * {@code {pred}?<fail='message'>}</p>
      */
     public msg: string;
+
     /**
      * The predicate string with <code>{</code> and <code>}?</code> stripped from the ends.
      */
@@ -41,34 +38,24 @@ export class SemPred extends Action {
 
     public constructor(factory: OutputModelFactory, ast: ActionAST) {
         super(factory, ast);
-
-        /* assert ast.atnState != null
-            && ast.atnState.getNumberOfTransitions() == 1
-            && ast.atnState.transition(0) instanceof AbstractPredicateTransition; */
-
         const failNode = ast.getOptionAST("fail");
         const gen = factory.getGenerator();
-        this.predicate = ast.getText();
+        this.predicate = ast.getText()!;
         if (this.predicate.startsWith("{") && this.predicate.endsWith("}?")) {
-            this.predicate = this.predicate.substring(1, this.predicate.length() - 2);
+            this.predicate = this.predicate.substring(1, this.predicate.length - 2);
         }
-        this.predicate = gen.getTarget().getTargetStringLiteralFromString(this.predicate);
 
-        if (failNode === null) {
+        this.predicate = gen.getTarget().getTargetStringLiteralFromString(this.predicate);
+        if (!failNode) {
             return;
         }
 
         if (failNode instanceof ActionAST) {
             const failActionNode = failNode;
-            const rf = factory.getCurrentRuleFunction();
-            this.failChunks = ActionTranslator.translateAction(factory, rf,
-                failActionNode.token,
-                failActionNode);
-        }
-        else {
-            this.msg = gen.getTarget().getTargetStringLiteralFromANTLRStringLiteral(gen,
-                failNode.getText(),
-                true,
+            const rf = factory.getCurrentRuleFunction() ?? null;
+            this.failChunks = ActionTranslator.translateAction(factory, rf, failActionNode.token, failActionNode);
+        } else {
+            this.msg = gen.getTarget().getTargetStringLiteralFromANTLRStringLiteral(gen, failNode.getText()!, true,
                 true);
         }
     }

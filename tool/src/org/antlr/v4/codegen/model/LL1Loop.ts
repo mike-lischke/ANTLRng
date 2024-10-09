@@ -4,18 +4,17 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { TestSetInline } from "./TestSetInline.js";
-import { SrcOp } from "./SrcOp.js";
-import { OutputModelObject } from "./OutputModelObject.js";
-import { ModelElement } from "./ModelElement.js";
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { Choice } from "./Choice.js";
-import { CaptureNextTokenType } from "./CaptureNextTokenType.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { IntervalSet } from "antlr4ng";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { CaptureNextTokenType } from "./CaptureNextTokenType.js";
+import { Choice } from "./Choice.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
+import { OutputModelObject } from "./OutputModelObject.js";
+import { SrcOp } from "./SrcOp.js";
 
 export abstract class LL1Loop extends Choice {
+
     /**
      * The state associated wih the (A|B|...) block not loopback, which
      *  is super.stateNumber
@@ -23,9 +22,9 @@ export abstract class LL1Loop extends Choice {
     public blockStartStateNumber: number;
     public loopBackStateNumber: number;
 
-    public loopExpr: OutputModelObject;
+    public loopExpr: OutputModelObject | null;
 
-    public iteration: SrcOp[];
+    public iteration: SrcOp[] = [];
 
     public constructor(factory: OutputModelFactory,
         blkAST: GrammarAST,
@@ -34,17 +33,13 @@ export abstract class LL1Loop extends Choice {
     }
 
     public addIterationOp(op: SrcOp): void {
-        if (this.iteration === null) {
-            this.iteration = new Array<SrcOp>();
-        }
-
-        this.iteration.add(op);
+        this.iteration.push(op);
     }
 
-    public addCodeForLoopLookaheadTempVar(look: IntervalSet): SrcOp {
+    public addCodeForLoopLookaheadTempVar(look: IntervalSet): SrcOp | null {
         const expr = this.addCodeForLookaheadTempVar(look);
-        if (expr !== null) {
-            const nextType = new CaptureNextTokenType($outer.factory, expr.varName);
+        if (expr) {
+            const nextType = new CaptureNextTokenType(this.factory!, expr.varName);
             this.addIterationOp(nextType);
         }
 

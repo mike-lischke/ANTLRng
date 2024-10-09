@@ -15,13 +15,10 @@ export class ThrowRecognitionException extends SrcOp {
     public grammarLine: number;
     public grammarCharPosInLine: number;
 
-    public constructor(factory: OutputModelFactory, ast: GrammarAST, expecting: IntervalSet) {
+    public constructor(factory: OutputModelFactory, ast: GrammarAST, expecting?: IntervalSet) {
         super(factory, ast);
-        //this.decision = ((BlockStartState)ast.ATNState).decision;
         this.grammarLine = ast.getLine();
         this.grammarLine = ast.getCharPositionInLine();
         this.grammarFile = factory.getGrammar().fileName;
-        //this.expecting = factory.createExpectingBitSet(ast, decision, expecting, "error");
-        //		factory.defineBitSet(this.expecting);
     }
 }

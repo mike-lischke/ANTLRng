@@ -4,12 +4,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { OutputModelObject } from "./OutputModelObject.js";
-import { ModelElement } from "./ModelElement.js";
-import { Action } from "./Action.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Rule } from "../../tool/Rule.js";
-import { LinkedHashMap as HashMap } from "antlr4ng";
+import { OutputModelFactory } from "../OutputModelFactory.js";
+import { Action } from "./Action.js";
+import { OutputModelObject } from "./OutputModelObject.js";
 
 export class RuleActionFunction extends OutputModelObject {
     public readonly name: string;
@@ -18,9 +16,7 @@ export class RuleActionFunction extends OutputModelObject {
     public readonly ruleIndex: number;
 
     /** Map actionIndex to Action */
-
-    public actions =
-        new LinkedHashMap<number, Action>();
+    public actions = new Map<number, Action>();
 
     public constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {
         super(factory);

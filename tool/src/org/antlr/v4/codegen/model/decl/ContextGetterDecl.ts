@@ -4,48 +4,24 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Decl } from "./Decl.js";
+import { MurmurHash } from "../../../support/MurmurHash.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
-import { MurmurHash } from "antlr4ng";
+import { Decl } from "./Decl.js";
 
 export abstract class ContextGetterDecl extends Decl { // assume no args
 
     public readonly signature: boolean;
-    public constructor(factory: OutputModelFactory, name: string);
-
-    public constructor(factory: OutputModelFactory, name: string, signature: boolean);
-    public constructor(...args: unknown[]) {
-        switch (args.length) {
-            case 2: {
-                const [factory, name] = args as [OutputModelFactory, string];
-
-                this(factory, name, false);
-
-                break;
-            }
-
-            case 3: {
-                const [factory, name, signature] = args as [OutputModelFactory, string, boolean];
-
-                super(factory, name);
-                this.signature = signature;
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
+    public constructor(factory: OutputModelFactory, name: string, signature?: boolean) {
+        super(factory, name);
+        this.signature = signature ?? false;
     }
 
     /**
-     * Not used for output; just used to distinguish between decl types
-     *  to avoid dups.
+     * Not used for output; just used to distinguish between decl types to avoid duplicates.
      */
     public getArgType(): string { return ""; }
 
-    public override  hashCode(): number {
+    public override hashCode(): number {
         let hash = MurmurHash.initialize();
         hash = MurmurHash.update(hash, this.name);
         hash = MurmurHash.update(hash, this.getArgType());
@@ -59,8 +35,7 @@ export abstract class ContextGetterDecl extends Decl { // assume no args
      *  OTOH, treat X() with two diff return values as the same.  Treat
      *  two X() with diff args as different.
      */
-
-    public override  equals(obj: object): boolean {
+    public override equals(obj: object): boolean {
         if (this === obj) {
             return true;
         }
@@ -70,8 +45,8 @@ export abstract class ContextGetterDecl extends Decl { // assume no args
             return false;
         }
 
-        return this.name.equals((obj as Decl).name) &&
-            this.getArgType().equals((obj).getArgType());
+        return this.name === obj.name && this.getArgType() === obj.getArgType();
     }
-    protected abstract getSignatureDecl(): ContextGetterDecl;;
+
+    public abstract getSignatureDecl(): ContextGetterDecl;;
 }

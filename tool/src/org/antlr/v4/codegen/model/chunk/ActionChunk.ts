@@ -8,10 +8,11 @@ import { OutputModelObject } from "../OutputModelObject.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
 export class ActionChunk extends OutputModelObject {
-    /** Where is the ctx that defines attrs,labels etc... for this action? */
-    public ctx: StructDecl;
 
-    public constructor(ctx: StructDecl) {
+    /** Where is the ctx that defines attrs,labels etc... for this action? */
+    public ctx?: StructDecl;
+
+    public constructor(ctx?: StructDecl) {
         super();
 
         this.ctx = ctx;

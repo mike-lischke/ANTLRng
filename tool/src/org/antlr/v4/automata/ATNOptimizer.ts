@@ -104,7 +104,7 @@ export class ATNOptimizer {
                 }
 
                 let newTransition: Transition;
-                const intervals = [...matchSet];
+                const intervals = Array.from(matchSet);
                 if (intervals.length === 1) {
                     const matchInterval = intervals[0];
                     newTransition = CodePointTransitions.createWithCodePointRange(blockEndState, matchInterval.start,

@@ -136,7 +136,7 @@ export class LexerATNFactory extends ParserATNFactory {
         return LexerATNFactory.COMMON_CONSTANTS.keys();
     }
 
-    public override  createATN(): ATN {
+    public override createATN(): ATN {
         // BUILD ALL START STATES (ONE PER MODE)
         const modes = (this.g as LexerGrammar).modes.keys();
         for (const modeName of modes) {
@@ -154,7 +154,7 @@ export class LexerATNFactory extends ParserATNFactory {
         }
 
         // CREATE ATN FOR EACH RULE
-        this._createATN([...this.g.rules.values()]);
+        this._createATN(Array.from(this.g.rules.values()));
 
         this.atn.lexerActions = new Array<LexerAction>(this.indexToActionMap.size);
         for (const [index, value] of this.indexToActionMap.entries()) {
@@ -179,14 +179,14 @@ export class LexerATNFactory extends ParserATNFactory {
         return this.atn;
     }
 
-    public override  rule(ruleAST: GrammarAST, name: string, blk: IStatePair): IStatePair {
+    public override rule(ruleAST: GrammarAST, name: string, blk: IStatePair): IStatePair {
         this.ruleCommands.splice(0, this.ruleCommands.length);
 
         return super.rule(ruleAST, name, blk);
     }
 
-    public override  action(action: ActionAST | string): IStatePair;
-    public override  action(node: GrammarAST, lexerAction: LexerAction): IStatePair;
+    public override action(action: ActionAST | string): IStatePair;
+    public override action(node: GrammarAST, lexerAction: LexerAction): IStatePair;
     public override action(...args: unknown[]): IStatePair {
         let node;
         let lexerAction;
@@ -228,22 +228,22 @@ export class LexerATNFactory extends ParserATNFactory {
         return { left, right };
     }
 
-    public override  lexerAltCommands(alt: IStatePair, commands: IStatePair): IStatePair {
+    public override lexerAltCommands(alt: IStatePair, commands: IStatePair): IStatePair {
         const h = { left: alt.left, right: commands.right };
         this.epsilon(alt.right, commands.left);
 
         return h;
     }
 
-    public override  lexerCallCommand(ID: GrammarAST, arg: GrammarAST): IStatePair {
+    public override lexerCallCommand(ID: GrammarAST, arg: GrammarAST): IStatePair {
         return this.lexerCallCommandOrCommand(ID, arg);
     }
 
-    public override  lexerCommand(ID: GrammarAST): IStatePair {
+    public override lexerCommand(ID: GrammarAST): IStatePair {
         return this.lexerCallCommandOrCommand(ID, null);
     }
 
-    public override  range(a: GrammarAST, b: GrammarAST): IStatePair {
+    public override range(a: GrammarAST, b: GrammarAST): IStatePair {
         const left = this.newState(a);
         const right = this.newState(b);
         const t1 = CharSupport.getCharValueFromGrammarCharLiteral(a.getText()!);
@@ -257,7 +257,7 @@ export class LexerATNFactory extends ParserATNFactory {
         return { left, right };
     }
 
-    public override  set(associatedAST: GrammarAST, alts: GrammarAST[], invert: boolean): IStatePair {
+    public override set(associatedAST: GrammarAST, alts: GrammarAST[], invert: boolean): IStatePair {
         const left = this.newState(associatedAST);
         const right = this.newState(associatedAST);
         const set = new IntervalSet();
@@ -294,7 +294,7 @@ export class LexerATNFactory extends ParserATNFactory {
             left.addTransition(new NotSetTransition(right, set));
         } else {
             let transition: Transition;
-            const intervals = [...set];
+            const intervals = Array.from(set);
             if (intervals.length === 1) {
                 const interval = intervals[0];
                 transition = CodePointTransitions.createWithCodePointRange(right, interval.start, interval.stop);
@@ -316,7 +316,7 @@ export class LexerATNFactory extends ParserATNFactory {
      *  if "caseInsensitive" option is enabled, "fog" will be treated as
      *  o-('f'|'F') -> o-('o'|'O') -> o-('g'|'G')
      */
-    public override  stringLiteral(stringLiteralAST: TerminalAST): IStatePair {
+    public override stringLiteral(stringLiteralAST: TerminalAST): IStatePair {
         const chars = stringLiteralAST.getText()!;
         const left = this.newState(stringLiteralAST);
         let right: ATNState | null;
@@ -340,7 +340,7 @@ export class LexerATNFactory extends ParserATNFactory {
     }
 
     /** [Aa\t \u1234a-z\]\p{Letter}\-] char sets */
-    public override  charSetLiteral(charSetAST: GrammarAST): IStatePair {
+    public override charSetLiteral(charSetAST: GrammarAST): IStatePair {
         const left = this.newState(charSetAST);
         const right = this.newState(charSetAST);
         const set = this.getSetFromCharSetLiteral(charSetAST);
@@ -429,7 +429,7 @@ export class LexerATNFactory extends ParserATNFactory {
         return set;
     }
 
-    public override  tokenRef(node: TerminalAST): IStatePair | null {
+    public override tokenRef(node: TerminalAST): IStatePair | null {
         // Ref to EOF in lexer yields char transition on -1
         if (node.getText() === "EOF") {
             const left = this.newState(node);

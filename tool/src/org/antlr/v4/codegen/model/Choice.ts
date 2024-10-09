@@ -4,22 +4,20 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { TokenInfo } from "./TokenInfo.js";
-import { ThrowNoViableAlt } from "./ThrowNoViableAlt.js";
-import { TestSetInline } from "./TestSetInline.js";
-import { SrcOp } from "./SrcOp.js";
-import { RuleElement } from "./RuleElement.js";
-import { ModelElement } from "./ModelElement.js";
-import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
-import { CaptureNextTokenType } from "./CaptureNextTokenType.js";
+import { IntervalSet } from "antlr4ng";
+
+import { Utils } from "../../misc/Utils.js";
+import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
-import { Target } from "../Target.js";
+import { CaptureNextTokenType } from "./CaptureNextTokenType.js";
+import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
+import { RuleElement } from "./RuleElement.js";
+import { SrcOp } from "./SrcOp.js";
+import { TestSetInline } from "./TestSetInline.js";
+import { ThrowNoViableAlt } from "./ThrowNoViableAlt.js";
+import { TokenInfo } from "./TokenInfo.js";
 import { Decl } from "./decl/Decl.js";
 import { TokenTypeDecl } from "./decl/TokenTypeDecl.js";
-import { Utils } from "../../misc/Utils.js";
-import { IntegerList, IntervalSet } from "antlr4ng";
-import { Grammar } from "../../tool/Grammar.js";
-import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 
 /**
  * The class hierarchy underneath SrcOp is pretty deep but makes sense that,
@@ -36,9 +34,9 @@ export abstract class Choice extends RuleElement {
     public decision = -1;
     public label: Decl;
 
-    public alts: CodeBlockForAlt[];
+    public alts: CodeBlockForAlt[] = [];
 
-    public preamble = new Array<SrcOp>();
+    public preamble: SrcOp[] = [];
 
     public constructor(factory: OutputModelFactory,
         blkOrEbnfRootAST: GrammarAST,
@@ -48,41 +46,40 @@ export abstract class Choice extends RuleElement {
     }
 
     public addPreambleOp(op: SrcOp): void {
-        this.preamble.add(op);
+        this.preamble.push(op);
     }
 
     public getAltLookaheadAsStringLists(altLookSets: IntervalSet[]): TokenInfo[][] {
-        const altLook = [];
-        const target = $outer.factory.getGenerator().getTarget();
-        const grammar = $outer.factory.getGrammar();
+        const altLook: TokenInfo[][] = [];
+        const target = this.factory!.getGenerator().getTarget();
+        const grammar = this.factory!.getGrammar();
         for (const s of altLookSets) {
-            const list = s.toIntegerList();
-            const info = new Array<TokenInfo>(list.size());
+            const list = s.toArray();
+            const info = new Array<TokenInfo>(list.length);
             for (let i = 0; i < info.length; i++) {
-                info[i] = new TokenInfo(list.get(i), target.getTokenTypeAsTargetLabel(grammar, list.get(i)));
+                info[i] = new TokenInfo(list[i], target.getTokenTypeAsTargetLabel(grammar, list[i]));
             }
-            altLook.add(info);
+            altLook.push(info);
         }
 
         return altLook;
     }
 
-    public addCodeForLookaheadTempVar(look: IntervalSet): TestSetInline {
-        const testOps = $outer.factory.getLL1Test(look, $outer.ast);
-        const expr = Utils.find(testOps, TestSetInline.class);
+    public addCodeForLookaheadTempVar(look: IntervalSet): TestSetInline | null {
+        const testOps = this.factory!.getLL1Test(look, this.ast!);
+        const expr = Utils.find(testOps, TestSetInline);
         if (expr !== null) {
-            const d = new TokenTypeDecl($outer.factory, expr.varName);
-            $outer.factory.getCurrentRuleFunction().addLocalDecl(d);
-            const nextType = new CaptureNextTokenType($outer.factory, expr.varName);
+            const d = new TokenTypeDecl(this.factory!, expr.varName);
+            this.factory!.getCurrentRuleFunction()!.addLocalDecl(d);
+            const nextType = new CaptureNextTokenType(this.factory!, expr.varName);
             this.addPreambleOp(nextType);
         }
 
         return expr;
     }
 
-    public getThrowNoViableAlt(factory: OutputModelFactory,
-        blkAST: GrammarAST,
-        expecting: IntervalSet): ThrowNoViableAlt {
+    public getThrowNoViableAlt(factory: OutputModelFactory, blkAST: GrammarAST,
+        expecting?: IntervalSet): ThrowNoViableAlt {
         return new ThrowNoViableAlt(factory, blkAST, expecting);
     }
 }
