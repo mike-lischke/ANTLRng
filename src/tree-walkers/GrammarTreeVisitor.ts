@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 /*
  * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -5581,7 +5583,6 @@ export class GrammarTreeVisitor extends TreeParser {
     protected enterElementOption(tree: GrammarAST): void { }
     protected exitElementOption(tree: GrammarAST): void { }
 }
-
 
 export namespace GrammarTreeVisitor {
     export type grammarSpec_return = InstanceType<typeof GrammarTreeVisitor.grammarSpec_return>;

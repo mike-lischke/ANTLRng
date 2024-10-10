@@ -35,7 +35,7 @@ export class VisitorFile extends OutputFile {
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
 
-        const g = factory.getGrammar();
+        const g = factory.getGrammar()!;
         this.namedActions = this.buildNamedActions(g, (ast) => { return ast.getScope() === null; });
         this.parserName = g.getRecognizerName();
         this.grammarName = g.name;

@@ -15,6 +15,7 @@ import type { Tree } from "./Tree.js";
  * have to be {@link Object}.
  */
 export class TreeRuleReturnScope {
+
     /** First node or root node of tree matched for this rule. */
     public start: Tree | null = null;
     public stop: Tree | null = null;

@@ -51,8 +51,8 @@ export abstract class Choice extends RuleElement {
 
     public getAltLookaheadAsStringLists(altLookSets: IntervalSet[]): TokenInfo[][] {
         const altLook: TokenInfo[][] = [];
-        const target = this.factory!.getGenerator().getTarget();
-        const grammar = this.factory!.getGrammar();
+        const target = this.factory!.getGenerator()!.getTarget();
+        const grammar = this.factory!.getGrammar()!;
         for (const s of altLookSets) {
             const list = s.toArray();
             const info = new Array<TokenInfo>(list.length);
@@ -66,7 +66,7 @@ export abstract class Choice extends RuleElement {
     }
 
     public addCodeForLookaheadTempVar(look: IntervalSet): TestSetInline | null {
-        const testOps = this.factory!.getLL1Test(look, this.ast!);
+        const testOps = this.factory!.getLL1Test(look, this.ast!)!;
         const expr = Utils.find(testOps, TestSetInline);
         if (expr !== null) {
             const d = new TokenTypeDecl(this.factory!, expr.varName);

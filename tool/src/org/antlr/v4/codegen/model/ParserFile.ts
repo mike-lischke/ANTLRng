@@ -27,10 +27,10 @@ export class ParserFile extends OutputFile {
 
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
-        const g = factory.getGrammar();
-        this.namedActions = this.buildNamedActions(factory.getGrammar());
+        const g = factory.getGrammar()!;
+        this.namedActions = this.buildNamedActions(factory.getGrammar()!);
         this.genPackage = grammarOptions.package;
-        this.exportMacro = factory.getGrammar().getOptionString("exportMacro");
+        this.exportMacro = factory.getGrammar()!.getOptionString("exportMacro");
 
         // need the below members in the ST for Python, C++
         this.genListener = grammarOptions.generateListener ?? true;

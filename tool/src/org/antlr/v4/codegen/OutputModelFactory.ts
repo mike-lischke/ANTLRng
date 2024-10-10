@@ -27,75 +27,75 @@ import { BlockAST } from "../tool/ast/BlockAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 
 export interface OutputModelFactory {
-    getGrammar(): Grammar;
+    getGrammar(): Grammar | null;
 
-    getGenerator(): CodeGenerator;
+    getGenerator(): CodeGenerator | null;
 
     setController(controller: OutputModelController): void;
 
-    getController(): OutputModelController;
+    getController(): OutputModelController | null;
 
-    parserFile(fileName: string): ParserFile;
+    parserFile(fileName: string): ParserFile | null;
 
-    parser(file: ParserFile): Parser;
+    parser(file: ParserFile): Parser | null;
 
-    lexerFile(fileName: string): LexerFile;
+    lexerFile(fileName: string): LexerFile | null;
 
-    lexer(file: LexerFile): Lexer;
+    lexer(file: LexerFile): Lexer | null;
 
-    rule(r: Rule): RuleFunction;
+    rule(r: Rule): RuleFunction | null;
 
-    rulePostamble(func: RuleFunction, r: Rule): SrcOp[];
+    rulePostamble(func: RuleFunction, r: Rule): SrcOp[] | null;
 
     // ELEMENT TRIGGERS
 
-    alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
+    alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt | null;
 
     finishAlternative(blk: CodeBlockForAlt, ops: SrcOp[]): CodeBlockForAlt;
 
-    epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt;
+    epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt | null;
 
-    ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[];
+    ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] | null;
 
-    tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[];
+    tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] | null;
 
-    stringRef(ID: GrammarAST, label: GrammarAST): SrcOp[];
+    stringRef(ID: GrammarAST, label: GrammarAST): SrcOp[] | null;
 
-    set(setAST: GrammarAST, label: GrammarAST, invert: boolean): SrcOp[];
+    set(setAST: GrammarAST, label: GrammarAST, invert: boolean): SrcOp[] | null;
 
-    wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[];
+    wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[] | null;
 
-    action(ast: ActionAST): SrcOp[];
+    action(ast: ActionAST): SrcOp[] | null;
 
-    sempred(ast: ActionAST): SrcOp[];
+    sempred(ast: ActionAST): SrcOp[] | null;
 
-    getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice;
+    getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice | null;
 
-    getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice;
+    getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null;
 
-    getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice;
+    getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | null;
 
-    getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice;
+    getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | null;
 
-    getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice;
+    getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null;
 
-    getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice;
+    getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null;
 
-    getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[];
+    getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[] | null;
 
     needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean;
 
     // CONTEXT INFO
 
-    getRoot(): OutputModelObject;
+    getRoot(): OutputModelObject | null;
 
     getCurrentRuleFunction(): RuleFunction | undefined;
 
-    getCurrentOuterMostAlt(): Alternative;
+    getCurrentOuterMostAlt(): Alternative | null;
 
-    getCurrentBlock(): CodeBlock;
+    getCurrentBlock(): CodeBlock | null;
 
-    getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt;
+    getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt | null;
 
     getCodeBlockLevel(): number;
 

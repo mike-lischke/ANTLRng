@@ -21,7 +21,7 @@ export class RuleActionFunction extends OutputModelObject {
     public constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {
         super(factory);
         this.name = r.name;
-        this.escapedName = factory.getGenerator().getTarget().escapeIfNeeded(this.name);
+        this.escapedName = factory.getGenerator()!.getTarget().escapeIfNeeded(this.name);
         this.ruleIndex = r.index;
         this.ctxType = ctxType;
     }

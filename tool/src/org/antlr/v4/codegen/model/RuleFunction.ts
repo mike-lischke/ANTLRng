@@ -70,7 +70,7 @@ export class RuleFunction extends OutputModelObject {
     public constructor(factory: OutputModelFactory, r: Rule) {
         super(factory);
         this.name = r.name;
-        this.escapedName = factory.getGenerator().getTarget().escapeIfNeeded(r.name);
+        this.escapedName = factory.getGenerator()!.getTarget().escapeIfNeeded(r.name);
         this.rule = r;
         this.modifiers = Utils.nodesToStrings(r.modifiers ?? []);
 
@@ -108,7 +108,7 @@ export class RuleFunction extends OutputModelObject {
             this.exceptions.push(new ExceptionClause(factory, catchArg, catchAction));
         }
 
-        this.startState = factory.getGrammar().atn.ruleToStartState[r.index]!;
+        this.startState = factory.getGrammar()!.atn.ruleToStartState[r.index]!;
     }
 
     public addContextGetters(factory: OutputModelFactory, r: Rule): void {
@@ -224,10 +224,10 @@ export class RuleFunction extends OutputModelObject {
     public getDeclForAltElement(t: GrammarAST, refLabelName: string, needList: boolean, optional: boolean): Decl[] {
         const decls = new Array<Decl>();
         if (t.getType() === ANTLRv4Lexer.RULE_REF) {
-            const ruleRef = this.factory!.getGrammar().getRule(t.getText()!)!;
-            const ctxName = this.factory!.getGenerator().getTarget().getRuleFunctionContextStructName(ruleRef);
+            const ruleRef = this.factory!.getGrammar()!.getRule(t.getText()!)!;
+            const ctxName = this.factory!.getGenerator()!.getTarget().getRuleFunctionContextStructName(ruleRef);
             if (needList) {
-                if (this.factory!.getGenerator().getTarget().supportsOverloadedMethods()) {
+                if (this.factory!.getGenerator()!.getTarget().supportsOverloadedMethods()) {
                     decls.push(new ContextRuleListGetterDecl(this.factory!, refLabelName, ctxName));
                 }
 
@@ -237,7 +237,7 @@ export class RuleFunction extends OutputModelObject {
             }
         } else {
             if (needList) {
-                if (this.factory!.getGenerator().getTarget().supportsOverloadedMethods()) {
+                if (this.factory!.getGenerator()!.getTarget().supportsOverloadedMethods()) {
                     decls.push(new ContextTokenListGetterDecl(this.factory!, refLabelName));
                 }
 
@@ -278,7 +278,7 @@ export class RuleFunction extends OutputModelObject {
             const visitor = new ElementFrequenciesVisitor(new CommonTreeNodeStream(new GrammarASTAdaptor(), ast));
             visitor.outerAlternative();
             if (visitor.frequencies.length !== 1) {
-                this.factory!.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR);
+                this.factory!.getGrammar()!.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR);
 
                 return [new FrequencySet<string>(), new FrequencySet<string>()];
             }
@@ -286,7 +286,7 @@ export class RuleFunction extends OutputModelObject {
             return [visitor.getMinFrequencies(), visitor.frequencies[0]];
         } catch (ex) {
             if (ex instanceof RecognitionException) {
-                this.factory!.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
+                this.factory!.getGrammar()!.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
 
                 return [new FrequencySet<string>(), new FrequencySet<string>()];
             } else {

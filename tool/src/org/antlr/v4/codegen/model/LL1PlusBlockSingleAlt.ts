@@ -22,7 +22,7 @@ export class LL1PlusBlockSingleAlt extends LL1Loop {
         this.blockStartStateNumber = blkStart.stateNumber;
         const plus = blkAST.atnState as PlusBlockStartState;
         this.decision = plus.loopBackState.decision;
-        const altLookSets = factory.getGrammar().decisionLOOK[this.decision];
+        const altLookSets = factory.getGrammar()!.decisionLOOK[this.decision];
 
         const loopBackLook = altLookSets[0];
         this.loopExpr = this.addCodeForLoopLookaheadTempVar(loopBackLook);

@@ -24,8 +24,8 @@ export class Lexer extends Recognizer {
         super(factory);
         this.file = file; // who contains us?
 
-        const g = factory.getGrammar();
-        const target = factory.getGenerator().getTarget();
+        const g = factory.getGrammar()!;
+        const target = factory.getGenerator()!.getTarget();
 
         for (const [key, value] of g.channelNameToValueMap) {
             this.escapedChannels.set(target.escapeIfNeeded(key), value);

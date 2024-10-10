@@ -19,6 +19,6 @@ export class ThrowRecognitionException extends SrcOp {
         super(factory, ast);
         this.grammarLine = ast.getLine();
         this.grammarLine = ast.getCharPositionInLine();
-        this.grammarFile = factory.getGrammar().fileName;
+        this.grammarFile = factory.getGrammar()!.fileName;
     }
 }

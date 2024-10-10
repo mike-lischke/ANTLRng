@@ -25,7 +25,7 @@ export class LL1OptionalBlockSingleAlt extends LL1Choice {
         this.decision = (blkAST.atnState as DecisionState).decision;
 
         /** Lookahead for each alt 1..n */
-        const altLookSets = factory.getGrammar().decisionLOOK[this.decision];
+        const altLookSets = factory.getGrammar()!.decisionLOOK[this.decision];
         this.altLook = this.getAltLookaheadAsStringLists(altLookSets);
         const look = altLookSets[0];
         const followLook = altLookSets[1];
@@ -34,6 +34,6 @@ export class LL1OptionalBlockSingleAlt extends LL1Choice {
         this.error = this.getThrowNoViableAlt(factory, blkAST, expecting);
 
         this.expr = this.addCodeForLookaheadTempVar(look);
-        this.followExpr = factory.getLL1Test(followLook, blkAST);
+        this.followExpr = factory.getLL1Test(followLook, blkAST)!;
     }
 }

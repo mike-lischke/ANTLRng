@@ -21,7 +21,7 @@ export abstract class OutputFile extends OutputModelObject {
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory);
         this.fileName = fileName;
-        const g = factory.getGrammar();
+        const g = factory.getGrammar()!;
         this.grammarFileName = g.fileName.replace("\\", "/");
         this.antlrVersion = Tool.VERSION;
         this.tokenLabelType = g.getOptionString("TokenLabelType");

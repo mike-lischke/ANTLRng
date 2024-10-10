@@ -39,7 +39,7 @@ export class SemPred extends Action {
     public constructor(factory: OutputModelFactory, ast: ActionAST) {
         super(factory, ast);
         const failNode = ast.getOptionAST("fail");
-        const gen = factory.getGenerator();
+        const gen = factory.getGenerator()!;
         this.predicate = ast.getText()!;
         if (this.predicate.startsWith("{") && this.predicate.endsWith("}?")) {
             this.predicate = this.predicate.substring(1, this.predicate.length - 2);

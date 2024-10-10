@@ -24,7 +24,7 @@ export class Decl extends SrcOp {
     public constructor(factory: OutputModelFactory, name: string, decl?: string) {
         super(factory);
         this.name = name;
-        this.escapedName = factory.getGenerator().getTarget().escapeIfNeeded(name);
+        this.escapedName = factory.getGenerator()!.getTarget().escapeIfNeeded(name);
         this.decl = decl;
     }
 

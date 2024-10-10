@@ -17,7 +17,7 @@ export class StarBlock extends Loop {
         blkOrEbnfRootAST: GrammarAST,
         alts: CodeBlockForAlt[]) {
         super(factory, blkOrEbnfRootAST, alts);
-        this.loopLabel = factory.getGenerator().getTarget().getLoopLabel(blkOrEbnfRootAST);
+        this.loopLabel = factory.getGenerator()!.getTarget().getLoopLabel(blkOrEbnfRootAST);
         const star = blkOrEbnfRootAST.atnState as StarLoopEntryState;
         this.loopBackStateNumber = star.loopBackState.stateNumber;
         this.decision = star.decision;

@@ -52,7 +52,7 @@ export class TestSetInline extends SrcOp {
     private static createBitsets(factory: OutputModelFactory, set: IntervalSet, wordSize: number,
         useZeroOffset: boolean): Bitset[] {
         const bitsetList: Bitset[] = [];
-        const target = factory.getGenerator().getTarget();
+        const target = factory.getGenerator()!.getTarget();
         let current: Bitset | undefined;
         for (const ttype of set.toArray()) {
             if (!current || ttype > (current.shift + wordSize - 1)) {
@@ -66,7 +66,7 @@ export class TestSetInline extends SrcOp {
                 bitsetList.push(current);
             }
 
-            current.addToken(ttype, target.getTokenTypeAsTargetLabel(factory.getGrammar(), ttype));
+            current.addToken(ttype, target.getTokenTypeAsTargetLabel(factory.getGrammar()!, ttype));
         }
 
         return bitsetList;

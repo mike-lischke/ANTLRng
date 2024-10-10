@@ -17,14 +17,14 @@ export class LeftRecursiveRuleFunction extends RuleFunction {
     public constructor(factory: OutputModelFactory, r: LeftRecursiveRule) {
         super(factory, r);
 
-        const gen = factory.getGenerator();
+        const gen = factory.getGenerator()!;
         // Since we delete x=lr, we have to manually add decls for all labels
         // on left-recur refs to proper structs
         for (const [idAST, altLabel] of r.leftRecursiveRuleRefLabels) {
             const label = idAST.getText()!;
             const ruleRefAST = idAST.getParent()!.getChild(1) as GrammarAST;
             if (ruleRefAST.getType() === ANTLRv4Parser.RULE_REF) {
-                const targetRule = factory.getGrammar().getRule(ruleRefAST.getText()!)!;
+                const targetRule = factory.getGrammar()!.getRule(ruleRefAST.getText()!)!;
                 const ctxName = gen.getTarget().getRuleFunctionContextStructName(targetRule);
                 let d: RuleContextDecl;
                 if (idAST.getParent()!.getType() === ANTLRv4Parser.ASSIGN) {

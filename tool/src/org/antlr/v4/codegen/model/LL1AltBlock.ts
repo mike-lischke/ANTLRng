@@ -18,7 +18,7 @@ export class LL1AltBlock extends LL1Choice {
         this.decision = (blkAST.atnState as DecisionState).decision;
 
         /** Lookahead for each alt 1..n */
-        const altLookSets = factory.getGrammar().decisionLOOK[this.decision];
+        const altLookSets = factory.getGrammar()!.decisionLOOK[this.decision];
         this.altLook = this.getAltLookaheadAsStringLists(altLookSets);
 
         const expecting = IntervalSet.or(altLookSets); // combine alt sets

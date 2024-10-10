@@ -50,7 +50,7 @@ export class StructDecl extends Decl {
     public attributeDecls = new Set<Decl>();
 
     public constructor(factory: OutputModelFactory, r: Rule, name?: string) {
-        super(factory, name ?? factory.getGenerator().getTarget().getRuleFunctionContextStructName(r));
+        super(factory, name ?? factory.getGenerator()!.getTarget().getRuleFunctionContextStructName(r));
         this.addDispatchMethods(r);
         this.derivedFromName = r.name;
         this.provideCopyFrom = r.hasAltSpecificContexts();

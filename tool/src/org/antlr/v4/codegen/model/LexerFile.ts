@@ -22,9 +22,9 @@ export class LexerFile extends OutputFile {
 
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
-        this.namedActions = this.buildNamedActions(factory.getGrammar());
+        this.namedActions = this.buildNamedActions(factory.getGrammar()!);
         this.genPackage = grammarOptions.package;
-        this.exportMacro = factory.getGrammar().getOptionString("exportMacro");
+        this.exportMacro = factory.getGrammar()!.getOptionString("exportMacro");
         this.genListener = grammarOptions.generateListener ?? true;
         this.genVisitor = grammarOptions.generateVisitor ?? false;
     }

@@ -4,9 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-
-
 import { OutputModelController } from "./OutputModelController.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 import { BlankOutputModelFactory } from "./BlankOutputModelFactory.js";
@@ -20,8 +17,6 @@ import { Alternative } from "../tool/Alternative.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Rule } from "../tool/Rule.js";
 
-
-
 /** Create output objects for elements *within* rule functions except
  *  buildOutputModel() which builds outer/root model object and any
  *  objects such as RuleFunction that surround elements in rule
@@ -30,106 +25,65 @@ import { Rule } from "../tool/Rule.js";
 export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory {
     // Interface to outside world
 
-    public readonly g: Grammar;
+    public readonly g?: Grammar;
 
     public readonly gen: CodeGenerator;
 
     public controller: OutputModelController;
 
     protected constructor(gen: CodeGenerator) {
+        super();
+
         this.gen = gen;
         this.g = gen.g;
     }
 
     // MISC
 
-
-    public static list(...values: SrcOp[]): Array<SrcOp>;
-
-
-    public static list(values: Array<SrcOp>): Array<SrcOp>;
-    public static list(...args: unknown[]): Array<SrcOp> {
-        switch (args.length) {
-            case 1: {
-                const [values] = args as [SrcOp[]];
-
-
-                return new Array<SrcOp>(Arrays.asList(java.io.ObjectInputFilter.Status.values));
-
-
-                break;
-            }
-
-            case 1: {
-                const [values] = args as [Array<SrcOp>];
-
-
-                return new Array<SrcOp>(values);
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
-    }
-
-
-
-    public setController(controller: OutputModelController): void {
+    public override setController(controller: OutputModelController): void {
         this.controller = controller;
     }
 
-
-    public getController(): OutputModelController {
+    public override getController(): OutputModelController {
         return this.controller;
     }
 
-
-    public override  rulePostamble(function: RuleFunction, r: Rule): Array<SrcOp> {
-        if (r.namedActions.containsKey("after") || r.namedActions.containsKey("finally")) {
+    public override rulePostamble(ruleFunction: RuleFunction, r: Rule): SrcOp[] | null {
+        if (r.namedActions.has("after") || r.namedActions.has("finally")) {
             // See OutputModelController.buildLeftRecursiveRuleFunction
             // and Parser.exitRule for other places which set stop.
-            let gen = this.getGenerator();
-            let codegenTemplates = gen.getTemplates();
-            let setStopTokenAST = codegenTemplates.getInstanceOf("recRuleSetStopToken");
-            let setStopTokenAction = new Action(this, function.ruleCtx, setStopTokenAST);
-            let ops = new Array<SrcOp>(1);
-            ops.add(setStopTokenAction);
+            const gen = this.getGenerator();
+            const codegenTemplates = gen.getTemplates();
+            const setStopTokenAST = codegenTemplates.getInstanceOf("recRuleSetStopToken")!;
+            const setStopTokenAction = new Action(this, ruleFunction.ruleCtx, setStopTokenAST);
+            const ops = new Array<SrcOp>(1);
+            ops.push(setStopTokenAction);
+
             return ops;
         }
-        return super.rulePostamble(function, r);
+
+        return super.rulePostamble(ruleFunction, r);
     }
 
     // Convenience methods
 
+    public override getGrammar(): Grammar | null { return this.g ?? null; }
 
+    public override getGenerator(): CodeGenerator { return this.gen; }
 
-    public getGrammar(): Grammar { return this.g; }
+    public override getRoot(): OutputModelObject | null { return this.controller.getRoot(); }
 
+    public override getCurrentRuleFunction(): RuleFunction { return this.controller.getCurrentRuleFunction(); }
 
-    public getGenerator(): CodeGenerator { return this.gen; }
+    public override getCurrentOuterMostAlt(): Alternative { return this.controller.getCurrentOuterMostAlt(); }
 
+    public override getCurrentBlock(): CodeBlock { return this.controller.getCurrentBlock(); }
 
-    public getRoot(): OutputModelObject { return this.controller.getRoot(); }
+    public override getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt {
+        return this.controller.getCurrentOuterMostAlternativeBlock();
+    }
 
+    public override getCodeBlockLevel(): number { return this.controller.codeBlockLevel; }
 
-    public getCurrentRuleFunction(): RuleFunction { return this.controller.getCurrentRuleFunction(); }
-
-
-    public getCurrentOuterMostAlt(): Alternative { return this.controller.getCurrentOuterMostAlt(); }
-
-
-    public getCurrentBlock(): CodeBlock { return this.controller.getCurrentBlock(); }
-
-
-    public getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt { return this.controller.getCurrentOuterMostAlternativeBlock(); }
-
-
-    public getCodeBlockLevel(): number { return this.controller.codeBlockLevel; }
-
-
-    public getTreeLevel(): number { return this.controller.treeLevel; }
+    public override getTreeLevel(): number { return this.controller.treeLevel; }
 }

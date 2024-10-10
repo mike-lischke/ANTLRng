@@ -1,3 +1,5 @@
+/* java2ts: keep */
+
 // $ANTLR 3.5.3 org/antlr/v4/parse/BlockSetTransformer.g
 
 import {

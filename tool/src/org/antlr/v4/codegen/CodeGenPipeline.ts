@@ -6,6 +6,7 @@
 
 import type { ST } from "stringtemplate4ts";
 
+import { grammarOptions } from "../grammar-options.js";
 import { Grammar } from "../tool/Grammar.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 
@@ -35,20 +36,20 @@ export class CodeGenPipeline {
             if (this.g.tool.errMgr.getNumErrors() === errorCount) {
                 this.writeRecognizer(lexer, this.gen, false);
             }
-        }
-        else {
+        } else {
             if (this.gen.getTarget().needsHeader()) {
                 const parser = this.gen.generateParser(true);
                 if (this.g.tool.errMgr.getNumErrors() === errorCount) {
                     this.writeRecognizer(parser, this.gen, true);
                 }
             }
+
             const parser = this.gen.generateParser(false);
             if (this.g.tool.errMgr.getNumErrors() === errorCount) {
                 this.writeRecognizer(parser, this.gen, false);
             }
 
-            if (this.g.tool.gen_listener) {
+            if (grammarOptions.generateListener) {
                 if (this.gen.getTarget().needsHeader()) {
                     const listener = this.gen.generateListener(true);
                     if (this.g.tool.errMgr.getNumErrors() === errorCount) {
@@ -73,7 +74,8 @@ export class CodeGenPipeline {
                     }
                 }
             }
-            if (this.g.tool.gen_visitor) {
+
+            if (grammarOptions.generateVisitor) {
                 if (this.gen.getTarget().needsHeader()) {
                     const visitor = this.gen.generateVisitor(true);
                     if (this.g.tool.errMgr.getNumErrors() === errorCount) {

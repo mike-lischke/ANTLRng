@@ -31,10 +31,10 @@ export class InvokeRule extends RuleElement implements LabeledOp {
             this.stateNumber = ast.atnState.stateNumber;
         }
 
-        const gen = factory.getGenerator();
+        const gen = factory.getGenerator()!;
         const target = gen.getTarget();
         const identifier = ast.getText()!;
-        const r = factory.getGrammar().getRule(identifier)!;
+        const r = factory.getGrammar()!.getRule(identifier)!;
         this.name = r.name;
         this.escapedName = gen.getTarget().escapeIfNeeded(this.name);
         this.ctxName = target.getRuleFunctionContextStructName(r);

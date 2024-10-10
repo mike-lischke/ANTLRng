@@ -32,7 +32,7 @@ export abstract class SrcOp extends OutputModelObject {
         super(factory, ast);
         this.uniqueID = ast?.token?.tokenIndex;
 
-        this.enclosingBlock = factory.getCurrentBlock();
+        this.enclosingBlock = factory.getCurrentBlock()!;
         this.enclosingRuleFunction = factory.getCurrentRuleFunction();
     }
 

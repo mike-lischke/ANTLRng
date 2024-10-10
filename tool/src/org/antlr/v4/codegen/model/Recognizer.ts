@@ -44,8 +44,8 @@ export abstract class Recognizer extends OutputModelObject {
     public constructor(factory: OutputModelFactory) {
         super(factory);
 
-        const g = factory.getGrammar();
-        const gen = factory.getGenerator();
+        const g = factory.getGrammar()!;
+        const gen = factory.getGenerator()!;
         this.grammarFileName = g.fileName;
         this.grammarName = g.name;
         this.name = g.getRecognizerName();

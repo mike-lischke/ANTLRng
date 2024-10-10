@@ -17,7 +17,7 @@ export class LL1StarBlockSingleAlt extends LL1Loop {
         const star = starRoot.atnState as StarLoopEntryState;
         this.loopBackStateNumber = star.loopBackState.stateNumber;
         this.decision = star.decision;
-        const altLookSets = factory.getGrammar().decisionLOOK[this.decision];
+        const altLookSets = factory.getGrammar()!.decisionLOOK[this.decision];
 
         const enterLook = altLookSets[0];
         this.loopExpr = this.addCodeForLoopLookaheadTempVar(enterLook);

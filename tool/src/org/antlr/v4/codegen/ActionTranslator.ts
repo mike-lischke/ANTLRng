@@ -87,7 +87,7 @@ export class ActionTranslator implements ActionSplitterListener {
     public constructor(factory: OutputModelFactory, node: ActionAST) {
         this.factory = factory;
         this.node = node;
-        this.gen = factory.getGenerator();
+        this.gen = factory.getGenerator()!;
         this.target = this.gen.getTarget();
     }
 
@@ -121,7 +121,7 @@ export class ActionTranslator implements ActionSplitterListener {
         const translator = new ActionTranslator(factory, node);
         translator.rf = rf ?? undefined;
 
-        factory.getGrammar().tool.logInfo({ component: "action-translator", msg: "translate " + action });
+        factory.getGrammar()!.tool.logInfo({ component: "action-translator", msg: "translate " + action });
         const altLabel = node.getAltLabel();
         if (rf) {
             translator.nodeContext = rf.ruleCtx;
@@ -199,7 +199,7 @@ export class ActionTranslator implements ActionSplitterListener {
             return;
         }
 
-        const r = this.factory.getGrammar().getRule(name);
+        const r = this.factory.getGrammar()!.getRule(name);
         if (r !== null) {
             const ruleLabel = this.getRuleLabel(name);
 
@@ -265,14 +265,14 @@ export class ActionTranslator implements ActionSplitterListener {
 
     public nonLocalAttr(expr: string, x: string, y: string): void {
         this.gen.g?.tool.logInfo({ component: "action-translator", msg: "nonLocalAttr " + x + "::" + y });
-        const r = this.factory.getGrammar().getRule(x);
+        const r = this.factory.getGrammar()!.getRule(x);
         this.chunks.push(new NonLocalAttrRef(this.nodeContext, x, y, this.target.escapeIfNeeded(y), r!.index));
     }
 
     public setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
         this.gen.g?.tool.logInfo(
             { component: "action-translator", msg: "setNonLocalAttr " + x + "::" + y + "=" + rhs });
-        const r = this.factory.getGrammar().getRule(x);
+        const r = this.factory.getGrammar()!.getRule(x);
         const rhsChunks = ActionTranslator.translateActionChunk(this.factory, this.rf!, rhs, this.node);
         const s = new SetNonLocalAttr(this.nodeContext, x, y, this.target.escapeIfNeeded(y), r!.index, rhsChunks);
         this.chunks.push(s);

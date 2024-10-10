@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { ST } from "stringtemplate4ts";
+import type { IST, ST } from "stringtemplate4ts";
 import { CommonToken } from "antlr4ng";
 
 import { ANTLRv4Parser } from "../../../../../../../src/generated/ANTLRv4Parser.js";
@@ -23,7 +23,7 @@ export class Action extends RuleElement {
     public chunks: ActionChunk[] = [];
 
     public constructor(factory: OutputModelFactory, ast?: ActionAST);
-    public constructor(factory: OutputModelFactory, ctx: StructDecl, action?: string | ST);
+    public constructor(factory: OutputModelFactory, ctx: StructDecl, action?: string | IST);
     public constructor(...args: unknown[]) {
         if (args.length === 2) {
             const [factory, ast] = args as [OutputModelFactory, ActionAST | undefined];

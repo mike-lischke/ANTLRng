@@ -36,10 +36,10 @@ export class ListenerFile extends OutputFile {
 
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);
-        const g = factory.getGrammar();
+        const g = factory.getGrammar()!;
         this.parserName = g.getRecognizerName();
         this.grammarName = g.name;
-        this.namedActions = this.buildNamedActions(factory.getGrammar(), (ast) => {
+        this.namedActions = this.buildNamedActions(factory.getGrammar()!, (ast) => {
             return ast.getScope() === null;
         });
 
