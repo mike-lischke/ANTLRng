@@ -28,7 +28,7 @@ export class GrammarSyntaxMessage extends ANTLRMessage {
         }
     }
 
-    public override  getCause(): RecognitionException {
+    public override getCause(): RecognitionException {
         return super.getCause() as RecognitionException;
     }
 }

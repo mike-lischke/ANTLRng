@@ -59,23 +59,23 @@ export class Python3Target extends Target {
         super(gen);
     }
 
-    public override  getTargetCharValueEscape(): Map<char, string> {
+    public override getTargetCharValueEscape(): Map<char, string> {
         return Python3Target.targetCharValueEscape;
     }
 
-    public override  wantsBaseListener(): boolean {
+    public override wantsBaseListener(): boolean {
         return false;
     }
 
-    public override  wantsBaseVisitor(): boolean {
+    public override wantsBaseVisitor(): boolean {
         return false;
     }
 
-    public override  supportsOverloadedMethods(): boolean {
+    public override supportsOverloadedMethods(): boolean {
         return false;
     }
 
-    protected override  get reservedWords(): Set<string> {
+    protected override get reservedWords(): Set<string> {
         return Python3Target.reservedWords;
     }
 }

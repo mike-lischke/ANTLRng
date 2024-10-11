@@ -26,25 +26,25 @@ export class DartTarget extends Target {
         super(gen);
     }
 
-    public override  getTargetCharValueEscape(): Map<char, string> {
+    public override getTargetCharValueEscape(): Map<char, string> {
         return DartTarget.targetCharValueEscape;
     }
 
-    public override  getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string,
+    public override getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string,
         addQuotes: boolean, escapeSpecial: boolean): string {
         return super.getTargetStringLiteralFromANTLRStringLiteral(generator, literal, addQuotes, escapeSpecial)
             .replace("$", "\\$");
     }
 
-    public override  get reservedWords(): Set<string> {
+    public override get reservedWords(): Set<string> {
         return DartTarget.reservedWords;
     }
 
-    public override  isATNSerializedAsInts(): boolean {
+    public override isATNSerializedAsInts(): boolean {
         return true;
     }
 
-    protected override  escapeChar(v: number): string {
+    protected override escapeChar(v: number): string {
         return format("\\u{%X}", v);
     }
 }

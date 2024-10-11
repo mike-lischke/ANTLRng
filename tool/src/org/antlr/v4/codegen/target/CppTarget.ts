@@ -45,20 +45,20 @@ export class CppTarget extends Target {
         "rule", "parserRule",
     ]);
 
-    public override  getTargetCharValueEscape(): Map<number, string> {
+    public override getTargetCharValueEscape(): Map<number, string> {
         return CppTarget.targetCharValueEscape;
     }
 
-    public override  needsHeader(): boolean { return true; }
+    public override needsHeader(): boolean { return true; }
 
-    public override  getRecognizerFileName(header: boolean): string {
+    public override getRecognizerFileName(header: boolean): string {
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
         const recognizerName = this.gen.g!.getRecognizerName();
 
         return recognizerName + extST.render();
     }
 
-    public override  getListenerFileName(header: boolean): string {
+    public override getListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
         const listenerName = this.gen.g!.name + "Listener";
@@ -66,7 +66,7 @@ export class CppTarget extends Target {
         return listenerName + extST.render();
     }
 
-    public override  getVisitorFileName(header: boolean): string {
+    public override getVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
         const listenerName = this.gen.g!.name + "Visitor";
@@ -74,7 +74,7 @@ export class CppTarget extends Target {
         return listenerName + extST.render();
     }
 
-    public override  getBaseListenerFileName(header: boolean): string {
+    public override getBaseListenerFileName(header: boolean): string {
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
         const listenerName = this.gen.g!.name + "BaseListener";
@@ -82,7 +82,7 @@ export class CppTarget extends Target {
         return listenerName + extST.render();
     }
 
-    public override  getBaseVisitorFileName(header: boolean): string {
+    public override getBaseVisitorFileName(header: boolean): string {
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;
         const listenerName = this.gen.g!.name + "BaseVisitor";
@@ -90,11 +90,11 @@ export class CppTarget extends Target {
         return listenerName + extST.render();
     }
 
-    protected override  get reservedWords(): Set<string> {
+    protected override get reservedWords(): Set<string> {
         return CppTarget.reservedWords;
     }
 
-    protected override  shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint: number): boolean {
+    protected override shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint: number): boolean {
         if (codePoint === 0x3F) { // ?
             // in addition to the default escaped code points, also escape ? to prevent trigraphs
             // ideally, we would escape ? with \?, but escaping as unicode \u003F works as well

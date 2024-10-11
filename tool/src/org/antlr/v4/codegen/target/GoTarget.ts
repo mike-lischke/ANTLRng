@@ -61,7 +61,7 @@ export class GoTarget extends Target {
         return result;
     })();
 
-    public override  getRecognizerFileName(header: boolean): string {
+    public override getRecognizerFileName(header: boolean): string {
         const gen = this.getCodeGenerator();
         const g = gen.g!;
         let name: string;
@@ -93,7 +93,7 @@ export class GoTarget extends Target {
      * A given grammar T, return the listener name such as
      *  TListener.java, if we're using the Java target.
      */
-    public override  getListenerFileName(header: boolean): string {
+    public override getListenerFileName(header: boolean): string {
         const gen = this.getCodeGenerator();
         const g = gen.g!;
 
@@ -105,7 +105,7 @@ export class GoTarget extends Target {
      * A given grammar T, return the visitor name such as
      *  TVisitor.java, if we're using the Java target.
      */
-    public override  getVisitorFileName(header: boolean): string {
+    public override getVisitorFileName(header: boolean): string {
         const gen = this.getCodeGenerator();
         const g = gen.g!;
 
@@ -117,7 +117,7 @@ export class GoTarget extends Target {
      * A given grammar T, return a blank listener implementation
      *  such as TBaseListener.java, if we're using the Java target.
      */
-    public override  getBaseListenerFileName(header: boolean): string {
+    public override getBaseListenerFileName(header: boolean): string {
         const gen = this.getCodeGenerator();
         const g = gen.g!;
 
@@ -129,7 +129,7 @@ export class GoTarget extends Target {
      * A given grammar T, return a blank listener implementation
      *  such as TBaseListener.java, if we're using the Java target.
      */
-    public override  getBaseVisitorFileName(header: boolean): string {
+    public override getBaseVisitorFileName(header: boolean): string {
         const gen = this.getCodeGenerator();
         const g = gen.g!;
 
@@ -137,11 +137,11 @@ export class GoTarget extends Target {
         return g.name.toLowerCase() + "_base_visitor.go";
     }
 
-    protected override  get reservedWords(): Set<string> {
+    protected override get reservedWords(): Set<string> {
         return GoTarget.reservedWords;
     }
 
-    public override  genFile(g: Grammar | undefined, outputFileST: ST, fileName: string): void {
+    public override genFile(g: Grammar | undefined, outputFileST: ST, fileName: string): void {
         super.genFile(g, outputFileST, fileName);
         if (g && GoTarget.DO_GOFMT && !fileName.startsWith(".") /* criterion taken from gofmt */
             && fileName.endsWith(".go")) {

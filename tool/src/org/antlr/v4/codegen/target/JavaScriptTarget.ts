@@ -31,27 +31,27 @@ export class JavaScriptTarget extends Target {
         "rule", "parserRule",
     ]);
 
-    public override  getInlineTestSetWordSize(): number {
+    public override getInlineTestSetWordSize(): number {
         return 32;
     }
 
-    public override  wantsBaseListener(): boolean {
+    public override wantsBaseListener(): boolean {
         return false;
     }
 
-    public override  wantsBaseVisitor(): boolean {
+    public override wantsBaseVisitor(): boolean {
         return false;
     }
 
-    public override  supportsOverloadedMethods(): boolean {
+    public override supportsOverloadedMethods(): boolean {
         return false;
     }
 
-    public override  isATNSerializedAsInts(): boolean {
+    public override isATNSerializedAsInts(): boolean {
         return true;
     }
 
-    protected override  get reservedWords(): Set<string> {
+    protected override get reservedWords(): Set<string> {
         return JavaScriptTarget.reservedWords;
     }
 }

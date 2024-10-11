@@ -116,6 +116,7 @@
         "stringbuilder",
         "stringtemplate",
         "stype",
+        "testrig",
         "testsuite",
         "ttype",
         "unpredicated",

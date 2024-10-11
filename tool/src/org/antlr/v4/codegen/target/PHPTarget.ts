@@ -58,15 +58,15 @@ export class PHPTarget extends Target {
         super(gen);
     }
 
-    public override  getTargetCharValueEscape(): Map<char, string> {
+    public override getTargetCharValueEscape(): Map<char, string> {
         return PHPTarget.targetCharValueEscape;
     }
 
-    public override  supportsOverloadedMethods(): boolean {
+    public override supportsOverloadedMethods(): boolean {
         return false;
     }
 
-    public override  getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string,
+    public override getTargetStringLiteralFromANTLRStringLiteral(generator: CodeGenerator, literal: string,
         addQuotes: boolean, escapeSpecial: boolean): string {
         let targetStringLiteral = super.getTargetStringLiteralFromANTLRStringLiteral(generator, literal, addQuotes,
             escapeSpecial);
@@ -75,15 +75,15 @@ export class PHPTarget extends Target {
         return targetStringLiteral;
     }
 
-    public override  isATNSerializedAsInts(): boolean {
+    public override isATNSerializedAsInts(): boolean {
         return true;
     }
 
-    protected override  get reservedWords(): Set<string> {
+    protected override get reservedWords(): Set<string> {
         return PHPTarget.reservedWords;
     }
 
-    protected override  escapeChar(v: number): string {
+    protected override escapeChar(v: number): string {
         return format("\\u{%X}", v);
     }
 }

@@ -109,7 +109,7 @@ export class Alternative implements AttributeResolver {
             return this.rule.getPredefinedScope(LabelType.TOKEN_LABEL)?.get(y) ?? null;
         }
 
-        if (this.ruleRefs.get(x)) {  // rule ref in this alt?
+        if (this.ruleRefs.get(x)) { // rule ref in this alt?
             // look up rule, ask it to resolve y (must be retval or predefined)
             return this.rule.g.getRule(x)!.resolveRetvalOrProperty(y);
         }

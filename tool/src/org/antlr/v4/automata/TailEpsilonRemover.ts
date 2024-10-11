@@ -21,7 +21,7 @@ export class TailEpsilonRemover extends ATNVisitor {
         this._atn = atn;
     }
 
-    public override  visitState(p: ATNState): void {
+    public override visitState(p: ATNState): void {
         if ((p.constructor as typeof ATNState).stateType === ATNState.BASIC && p.transitions.length === 1) {
             const transition = p.transitions[0];
             let q = transition.target;

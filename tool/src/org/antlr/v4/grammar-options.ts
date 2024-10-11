@@ -13,7 +13,7 @@ export interface IToolParameters {
 
     outputDirectory?: string,
     libDirectory?: string,
-    generateATNDot?: string,
+    generateATNDot?: boolean,
     grammarEncoding?: string,
     msgFormat?: string,
     longMessages?: boolean;
@@ -49,7 +49,7 @@ program
     .option<boolean>("-atn, --generate-atn-dot [boolean]",
         "Generate rule augmented transition network diagrams.", parseBoolean, false)
     .option("-e, --encoding", "Specify grammar file encoding; e.g., ucs-2.", "utf-8")
-    .addOption(new Option("-f, ---message-format", "Specify output style for messages in antlr, gnu, vs2005.")
+    .addOption(new Option("-f, --message-format", "Specify output style for messages in antlr, gnu, vs2005.")
         .choices(["antlr", "gnu", "vs2005"]).default("antlr"))
     .option<boolean>("-lm, --long-messages [boolean]",
         "Show exception details when available for errors and warnings.", parseBoolean, false)

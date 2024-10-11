@@ -84,6 +84,7 @@ export default tslint.config(
                 {
                     "afterBlockComment": false,
                     "afterLineComment": false,
+                    "beforeBlockComment": false,
                 }
             ],
             "lines-between-class-members": "off", // Should be on, but handles overload signatures incorrectly.
@@ -158,6 +159,7 @@ export default tslint.config(
             "@typescript-eslint/array-type": ["error", { "default": "array-simple" }],
             "@typescript-eslint/prefer-return-this-type": "off",
             "@typescript-eslint/no-invalid-void-type": "off",
+            "@typescript-eslint/unified-signatures": "off",
         },
     },
 );

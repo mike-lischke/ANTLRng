@@ -31,11 +31,11 @@ export class LeftRecursiveRule extends Rule {
         }
     }
 
-    public override  hasAltSpecificContexts(): boolean {
+    public override hasAltSpecificContexts(): boolean {
         return super.hasAltSpecificContexts() || this.getAltLabels() !== null;
     }
 
-    public override  getOriginalNumberOfAlts(): number {
+    public override getOriginalNumberOfAlts(): number {
         return this.recPrimaryAlts.length + this.recOpAlts.size;
     }
 
@@ -43,7 +43,7 @@ export class LeftRecursiveRule extends Rule {
         return this.originalAST;
     }
 
-    public override  getUnlabeledAltASTs(): AltAST[] | null {
+    public override getUnlabeledAltASTs(): AltAST[] | null {
         const alts = new Array<AltAST>();
         for (const altInfo of this.recPrimaryAlts) {
             if (altInfo.altLabel === undefined) {
@@ -115,7 +115,7 @@ export class LeftRecursiveRule extends Rule {
 
     /** Get -&gt; labels from those alts we deleted for left-recursive rules. */
 
-    public override  getAltLabels(): Map<string, Array<[number, AltAST]>> | null {
+    public override getAltLabels(): Map<string, Array<[number, AltAST]>> | null {
         const labels = new Map<string, Array<[number, AltAST]>>();
         const normalAltLabels = super.getAltLabels();
         if (normalAltLabels !== null) {

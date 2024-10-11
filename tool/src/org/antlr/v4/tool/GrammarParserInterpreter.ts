@@ -34,7 +34,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
     private static BailButConsumeErrorStrategy = class BailButConsumeErrorStrategy extends DefaultErrorStrategy {
         public firstErrorTokenIndex = -1;
 
-        public override  recover(recognizer: Parser, e: RecognitionException): void {
+        public override recover(recognizer: Parser, e: RecognitionException): void {
             const errIndex = recognizer.inputStream.index;
             if (this.firstErrorTokenIndex === -1) {
                 this.firstErrorTokenIndex = errIndex; // latch
@@ -46,7 +46,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
             }
         }
 
-        public override  recoverInline(recognizer: Parser): Token {
+        public override recoverInline(recognizer: Parser): Token {
             const errIndex = recognizer.inputStream.index;
             if (this.firstErrorTokenIndex === -1) {
                 this.firstErrorTokenIndex = errIndex; // latch
@@ -55,7 +55,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
             throw new InputMismatchException(recognizer);
         }
 
-        public override  sync(recognizer: Parser): void {
+        public override sync(recognizer: Parser): void {
             // don't consume anything; let it fail later
         }
     };
@@ -354,7 +354,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
         return track;
     }
 
-    protected override  createInterpreterRuleContext(parent: ParserRuleContext,
+    protected override createInterpreterRuleContext(parent: ParserRuleContext,
         invokingStateNumber: number,
         ruleIndex: number): InterpreterRuleContext {
         return new GrammarInterpreterRuleContext(parent, invokingStateNumber, ruleIndex);
@@ -399,7 +399,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
      *  We use stateToAltsMap as a cache to avoid expensive calls to
      *  getRecursiveOpAlts().
      */
-    protected override  visitDecisionState(p: DecisionState): number {
+    protected override visitDecisionState(p: DecisionState): number {
         const predictedAlt = super.visitDecisionState(p);
         if (p.transitions.length > 1) {
             if (p.decision === this.overrideDecision &&

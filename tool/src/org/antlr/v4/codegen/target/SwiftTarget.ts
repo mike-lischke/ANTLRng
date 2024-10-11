@@ -36,19 +36,19 @@ export class SwiftTarget extends Target {
         "rule", "parserRule",
     ]);
 
-    public override  getTargetCharValueEscape(): Map<char, string> {
+    public override getTargetCharValueEscape(): Map<char, string> {
         return SwiftTarget.targetCharValueEscape;
     }
 
-    protected override  get reservedWords(): Set<string> {
+    protected override get reservedWords(): Set<string> {
         return SwiftTarget.reservedWords;
     }
 
-    protected override  escapeWord(word: string): string {
+    protected override escapeWord(word: string): string {
         return "`" + word + "`";
     }
 
-    protected override  escapeChar(v: number): string {
+    protected override escapeChar(v: number): string {
         return format("\\u{%X}", v);
     }
 }

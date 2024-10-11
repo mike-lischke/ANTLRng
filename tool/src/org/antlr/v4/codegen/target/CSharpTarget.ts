@@ -39,23 +39,23 @@ export class CSharpTarget extends Target {
 
     ]);
 
-    public override  getTargetCharValueEscape(): Map<char, string> {
+    public override getTargetCharValueEscape(): Map<char, string> {
         return CSharpTarget.targetCharValueEscape;
     }
 
-    public override  isATNSerializedAsInts(): boolean {
+    public override isATNSerializedAsInts(): boolean {
         return true;
     }
 
-    protected override  get reservedWords(): Set<string> {
+    protected override get reservedWords(): Set<string> {
         return CSharpTarget.reservedWords;
     }
 
-    protected override  escapeWord(word: string): string {
+    protected override escapeWord(word: string): string {
         return "@" + word;
     }
 
-    protected override  escapeChar(v: number): string {
+    protected override escapeChar(v: number): string {
         return format("\\x%X", v);
     }
 }

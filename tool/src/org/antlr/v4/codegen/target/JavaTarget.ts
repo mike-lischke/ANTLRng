@@ -27,17 +27,17 @@ export class JavaTarget extends Target {
      */
     //private static readonly targetTemplates = new STGroup();
 
-    public override  get reservedWords(): Set<string> {
+    public override get reservedWords(): Set<string> {
         return JavaTarget.reservedWords;
     }
 
-    public override  getSerializedATNSegmentLimit(): number {
+    public override getSerializedATNSegmentLimit(): number {
         // 65535 is the class file format byte limit for a UTF-8 encoded string literal
         // 3 is the maximum number of bytes it takes to encode a value in the range 0-0xFFFF
         return 65535 / 3;
     }
 
-    public override  isATNSerializedAsInts(): boolean {
+    public override isATNSerializedAsInts(): boolean {
         return false;
     }
 }

@@ -242,12 +242,11 @@ export class Grammar implements AttributeResolver {
     public constructor(tool: Tool, ast: GrammarRootAST);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
     public constructor(grammarText: string, listener?: ANTLRToolListener);
-
     /** For testing; builds trees, does sem anal */
     public constructor(fileName: string, grammarText: string, listener?: ANTLRToolListener);
-
     /** For testing; builds trees, does sem anal */
-    public constructor(fileName: string, grammarText: string, tokenVocabSource: Grammar, listener: ANTLRToolListener);
+    public constructor(fileName: string, grammarText: string, tokenVocabSource: Grammar | undefined,
+        listener: ANTLRToolListener);
     public constructor(...args: unknown[]) {
         if (args.length === 2 && args[0] instanceof Tool) {
             [this.tool, this.ast] = args as [Tool, GrammarRootAST];
@@ -275,7 +274,7 @@ export class Grammar implements AttributeResolver {
                     listener = args[2] as ANTLRToolListener;
 
                     if (args.length > 3) {
-                        tokenVocabSource = args[2] as LexerGrammar;
+                        tokenVocabSource = args[2] as LexerGrammar | undefined;
                         listener = args[3] as ANTLRToolListener;
                     }
                 }
@@ -1054,7 +1053,7 @@ export class Grammar implements AttributeResolver {
 
     public importTokensFromTokensFile(): void {
         const vocab = this.getOptionString("tokenVocab");
-        if (vocab !== null) {
+        if (vocab) {
             const vParser = new TokenVocabParser(this);
             const tokens = vParser.load();
             this.tool.logInfo({ component: "grammar", msg: `tokens=${String(tokens)}` });
@@ -1306,7 +1305,7 @@ export class Grammar implements AttributeResolver {
 
     public getLanguage(): SupportedLanguage {
         const language = this.getOptionString("language");
-        if (language === null || !targetLanguages.includes(language as SupportedLanguage)) {
+        if (language || !targetLanguages.includes(language as SupportedLanguage)) {
             throw new Error("Unsupported language: " + language);
         }
 

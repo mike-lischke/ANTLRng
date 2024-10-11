@@ -56,7 +56,7 @@ export class RuleAST extends GrammarASTWithOptions {
         return null;
     }
 
-    public override  visit<T>(v: GrammarASTVisitor<T>): T {
+    public override visit<T>(v: GrammarASTVisitor<T>): T {
         return v.visit(this);
     }
 }

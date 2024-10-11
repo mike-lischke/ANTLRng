@@ -11,5 +11,5 @@ export enum LabelType {
     TOKEN_LABEL = 1,
     RULE_LIST_LABEL = 2,
     TOKEN_LIST_LABEL = 3,
-    LEXER_STRING_LABEL = 4         // used in lexer for x='a'
+    LEXER_STRING_LABEL = 4 // used in lexer for x='a'
 }

@@ -374,7 +374,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
             }
 
             result += tok.text; // add actual text of the current token to the rewritten alternative
-            i++;                // move to the next token
+            i++; // move to the next token
 
             // Are there args on a rule?
             if (tok.type === LeftRecursiveRuleAnalyzer.RULE_REF && i <= tokenStopIndex
