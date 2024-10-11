@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { ST } from "stringtemplate4ts";
+import type { IST } from "stringtemplate4ts";
 
 import { grammarOptions } from "../grammar-options.js";
 import { Grammar } from "../tool/Grammar.js";
@@ -104,7 +104,7 @@ export class CodeGenPipeline {
         this.gen.writeVocabFile();
     }
 
-    protected writeRecognizer(template: ST, gen: CodeGenerator, header: boolean): void {
+    protected writeRecognizer(template: IST, gen: CodeGenerator, header: boolean): void {
         gen.writeRecognizer(template, header);
     }
 }

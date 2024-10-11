@@ -55,6 +55,7 @@ export abstract class BaseRecognizer {
     public static getRuleInvocationStack(e: Error, recognizerClassName: string): string[] {
         //const rules = new Array<string>();
         const stack = e.stack ?? "";
+
         /*let i: number;
         for (i = stack.length - 1; i >= 0; i--) {
             const t = stack[i];
@@ -112,6 +113,7 @@ export abstract class BaseRecognizer {
 
             return matchedSymbol;
         }
+
         if (this.state.backtracking > 0) {
             this.state.failed = true;
 
@@ -725,7 +727,7 @@ export abstract class BaseRecognizer {
             this.beginResync();
             input.consume(); // simply delete extra token
             this.endResync();
-            this.reportError(e);  // report after consuming so AW sees the token in the exception
+            this.reportError(e); // report after consuming so AW sees the token in the exception
             // we want to return the token we're actually matching
             const matchedSymbol = this.getCurrentInputSymbol(input);
             input.consume(); // move past ttype token as if all were ok
@@ -739,7 +741,7 @@ export abstract class BaseRecognizer {
             e = new RecognitionException({
                 message: "Missing Token", input: input as TokenStream, recognizer: null, ctx: null,
             });
-            this.reportError(e);  // report after inserting so AW sees the token in the exception
+            this.reportError(e); // report after inserting so AW sees the token in the exception
 
             return inserted;
         }

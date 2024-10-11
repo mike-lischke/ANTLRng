@@ -4,12 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { RecognitionException } from "antlr4ng";
 import type { IST } from "stringtemplate4ts";
 
 import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
 
 import { CommonTreeNodeStream } from "../../../../../../src/antlr3/tree/CommonTreeNodeStream.js";
+import { SourceGenTriggers } from "../../../../../../src/tree-walkers/SourceGenTriggers.js";
+
 import { Utils } from "../misc/Utils.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
 import { Alternative } from "../tool/Alternative.js";
@@ -23,7 +24,6 @@ import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 import { CodeGeneratorExtension } from "./CodeGeneratorExtension.js";
-import { DefaultOutputModelFactory } from "./DefaultOutputModelFactory.js";
 import { OutputModelFactory } from "./OutputModelFactory.js";
 import { Action } from "./model/Action.js";
 import { AltBlock } from "./model/AltBlock.js";
@@ -295,25 +295,16 @@ export class OutputModelController {
         const blk = r.ast.getFirstChildWithType(ANTLRv4Parser.LPAREN) as GrammarAST;
         const nodes = new CommonTreeNodeStream(adaptor, blk);
         this.walker = new SourceGenTriggers(nodes, this);
-        try {
-            // walk AST of rule alts/elements
-            ruleFunction.code = DefaultOutputModelFactory.list(this.walker.block(null, null));
-            ruleFunction.hasLookaheadBlock = this.walker.hasLookaheadBlock;
-        } catch (e) {
-            if (e instanceof RecognitionException) {
-                e.printStackTrace(System.err);
-            } else {
-                throw e;
-            }
-        }
 
+        // walk AST of rule alts/elements
+        ruleFunction.code = this.walker.block(null, null);
+        ruleFunction.hasLookaheadBlock = this.walker.hasLookaheadBlock;
         ruleFunction.ctxType = gen.getTarget().getRuleFunctionContextStructName(ruleFunction);
-
         ruleFunction.postamble = this.rulePostamble(ruleFunction, r);
     }
 
-    public buildLexerRuleActions(lexer: Lexer, /* final */ r: Rule): void {
-        if (r.actions.isEmpty()) {
+    public buildLexerRuleActions(lexer: Lexer, r: Rule): void {
+        if (r.actions.length === 0) {
             return;
         }
 
@@ -321,7 +312,7 @@ export class OutputModelController {
         const g = this.delegate.getGrammar();
         const ctxType = gen.getTarget().getRuleFunctionContextStructName(r);
         let raf = lexer.actionFuncs.get(r);
-        if (raf === null) {
+        if (!raf) {
             raf = new RuleActionFunction(this.delegate, r, ctxType);
         }
 
@@ -329,28 +320,26 @@ export class OutputModelController {
             if (a instanceof PredAST) {
                 const p = a;
                 let rsf = lexer.sempredFuncs.get(r);
-                if (rsf === null) {
+                if (!rsf) {
                     rsf = new RuleSempredFunction(this.delegate, r, ctxType);
-                    lexer.sempredFuncs.put(r, rsf);
+                    lexer.sempredFuncs.set(r, rsf);
                 }
-                rsf.actions.put(g.sempreds.get(p), new Action(this.delegate, p));
-            }
-            else {
-                if (a.getType() === ANTLRv4Parser.ACTION) {
-                    raf.actions.put(g.lexerActions.get(a), new Action(this.delegate, a));
+                rsf.actions.set(g!.sempreds.get(p)!, new Action(this.delegate, p));
+            } else {
+                if (a.getType() === ANTLRv4Parser.BEGIN_ACTION) {
+                    raf.actions.set(g!.lexerActions.get(a)!, new Action(this.delegate, a));
                 }
             }
-
         }
 
-        if (!raf.actions.isEmpty() && !lexer.actionFuncs.containsKey(r)) {
+        if (raf.actions.size > 0 && !lexer.actionFuncs.has(r)) {
             // only add to lexer if the function actually contains actions
-            lexer.actionFuncs.put(r, raf);
+            lexer.actionFuncs.set(r, raf);
         }
     }
 
     public rule(r: Rule): RuleFunction {
-        let rf = this.delegate.rule(r);
+        let rf = this.delegate.rule(r)!;
         for (const ext of this.extensions) {
             rf = ext.rule(rf);
         }
@@ -359,7 +348,7 @@ export class OutputModelController {
     }
 
     public rulePostamble(ruleFunction: RuleFunction, r: Rule): SrcOp[] {
-        let ops = this.delegate.rulePostamble(ruleFunction, r);
+        let ops = this.delegate.rulePostamble(ruleFunction, r)!;
         for (const ext of this.extensions) {
             ops = ext.rulePostamble(ops);
         }
@@ -376,10 +365,11 @@ export class OutputModelController {
     }
 
     public alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt {
-        let blk = this.delegate.alternative(alt, outerMost);
+        let blk = this.delegate.alternative(alt, outerMost)!;
         if (outerMost) {
             this.currentOuterMostAlternativeBlock = blk as CodeBlockForOuterMostAlt;
         }
+
         for (const ext of this.extensions) {
             blk = ext.alternative(blk, outerMost);
         }
@@ -397,7 +387,7 @@ export class OutputModelController {
     }
 
     public ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] {
-        let ops = this.delegate.ruleRef(ID, label, args);
+        let ops = this.delegate.ruleRef(ID, label, args)!;
         for (const ext of this.extensions) {
             ops = ext.ruleRef(ops);
         }
@@ -406,7 +396,7 @@ export class OutputModelController {
     }
 
     public tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] {
-        let ops = this.delegate.tokenRef(ID, label, args);
+        let ops = this.delegate.tokenRef(ID, label, args)!;
         for (const ext of this.extensions) {
             ops = ext.tokenRef(ops);
         }
@@ -415,7 +405,7 @@ export class OutputModelController {
     }
 
     public stringRef(ID: GrammarAST, label: GrammarAST): SrcOp[] {
-        let ops = this.delegate.stringRef(ID, label);
+        let ops = this.delegate.stringRef(ID, label)!;
         for (const ext of this.extensions) {
             ops = ext.stringRef(ops);
         }
@@ -425,7 +415,7 @@ export class OutputModelController {
 
     /** (A|B|C) possibly with ebnfRoot and label */
     public set(setAST: GrammarAST, labelAST: GrammarAST, invert: boolean): SrcOp[] {
-        let ops = this.delegate.set(setAST, labelAST, invert);
+        let ops = this.delegate.set(setAST, labelAST, invert)!;
         for (const ext of this.extensions) {
             ops = ext.set(ops);
         }
@@ -434,7 +424,7 @@ export class OutputModelController {
     }
 
     public epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt {
-        let blk = this.delegate.epsilon(alt, outerMost);
+        let blk = this.delegate.epsilon(alt, outerMost)!;
         for (const ext of this.extensions) {
             blk = ext.epsilon(blk);
         }
@@ -443,7 +433,7 @@ export class OutputModelController {
     }
 
     public wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[] {
-        let ops = this.delegate.wildcard(ast, labelAST);
+        let ops = this.delegate.wildcard(ast, labelAST)!;
         for (const ext of this.extensions) {
             ops = ext.wildcard(ops);
         }
@@ -452,7 +442,7 @@ export class OutputModelController {
     }
 
     public action(ast: ActionAST): SrcOp[] {
-        let ops = this.delegate.action(ast);
+        let ops = this.delegate.action(ast)!;
         for (const ext of this.extensions) {
             ops = ext.action(ops);
         }
@@ -461,7 +451,7 @@ export class OutputModelController {
     }
 
     public sempred(ast: ActionAST): SrcOp[] {
-        let ops = this.delegate.sempred(ast);
+        let ops = this.delegate.sempred(ast)!;
         for (const ext of this.extensions) {
             ops = ext.sempred(ops);
         }
@@ -470,7 +460,7 @@ export class OutputModelController {
     }
 
     public getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice {
-        let c = this.delegate.getChoiceBlock(blkAST, alts, label);
+        let c = this.delegate.getChoiceBlock(blkAST, alts, label)!;
         for (const ext of this.extensions) {
             c = ext.getChoiceBlock(c);
         }
@@ -479,7 +469,7 @@ export class OutputModelController {
     }
 
     public getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice {
-        let c = this.delegate.getEBNFBlock(ebnfRoot, alts);
+        let c = this.delegate.getEBNFBlock(ebnfRoot, alts)!;
         for (const ext of this.extensions) {
             c = ext.getEBNFBlock(c);
         }
@@ -490,37 +480,47 @@ export class OutputModelController {
     public needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean {
         let needs = this.delegate.needsImplicitLabel(ID, op);
         for (const ext of this.extensions) {
-            needs |= ext.needsImplicitLabel(ID, op);
+            needs ||= ext.needsImplicitLabel(ID, op);
         }
 
         return needs;
     }
 
-    public getRoot(): OutputModelObject { return this.root; }
+    public getRoot(): OutputModelObject {
+        return this.root;
+    }
 
-    public setRoot(root: OutputModelObject): void { this.root = root; }
+    public setRoot(root: OutputModelObject): void {
+        this.root = root;
+    }
 
-    public getCurrentRuleFunction(): RuleFunction {
-        if (!this.currentRule.isEmpty()) {
-            return this.currentRule.peek();
+    public getCurrentRuleFunction(): RuleFunction | undefined {
+        if (this.currentRule.length > 0) {
+            return this.currentRule[this.currentRule.length - 1];
+        }
+
+        return undefined;
+    }
+
+    public pushCurrentRule(r: RuleFunction): void {
+        this.currentRule.push(r);
+    }
+
+    public popCurrentRule(): RuleFunction | null {
+        if (this.currentRule.length > 0) {
+            return this.currentRule.pop()!;
         }
 
         return null;
     }
 
-    public pushCurrentRule(r: RuleFunction): void { this.currentRule.push(r); }
-
-    public popCurrentRule(): RuleFunction {
-        if (!this.currentRule.isEmpty()) {
-            return this.currentRule.pop();
-        }
-
-        return null;
+    public getCurrentOuterMostAlt(): Alternative {
+        return this.currentOuterMostAlt;
     }
 
-    public getCurrentOuterMostAlt(): Alternative { return this.currentOuterMostAlt; }
-
-    public setCurrentOuterMostAlt(currentOuterMostAlt: Alternative): void { this.currentOuterMostAlt = currentOuterMostAlt; }
+    public setCurrentOuterMostAlt(currentOuterMostAlt: Alternative): void {
+        this.currentOuterMostAlt = currentOuterMostAlt;
+    }
 
     public setCurrentBlock(blk: CodeBlock): void {
         this.currentBlock = blk;

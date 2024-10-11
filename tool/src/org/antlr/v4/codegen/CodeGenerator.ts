@@ -6,9 +6,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { writeFileSync } from "fs";
 import { Token } from "antlr4ng";
-import { AutoIndentWriter, ST, StringWriter, type STGroup } from "stringtemplate4ts";
+import { writeFileSync } from "fs";
+import { AutoIndentWriter, ST, StringWriter, type IST, type STGroup } from "stringtemplate4ts";
 
 import { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
@@ -90,7 +90,7 @@ export class CodeGenerator {
         return this.target.getTemplates();
     }
 
-    public generateLexer(header?: boolean): ST {
+    public generateLexer(header?: boolean): IST {
         if (!header) {
             return this.generateLexer(false);
         }
@@ -99,7 +99,7 @@ export class CodeGenerator {
 
     }
 
-    public generateParser(header?: boolean): ST {
+    public generateParser(header?: boolean): IST {
         if (!header) {
             return this.generateParser(false);
         }
@@ -107,7 +107,7 @@ export class CodeGenerator {
         return this.walk(this.createController().buildParserOutputModel(header), header);
     }
 
-    public generateListener(header?: boolean): ST {
+    public generateListener(header?: boolean): IST {
         if (!header) {
             return this.generateListener(false);
         }
@@ -116,7 +116,7 @@ export class CodeGenerator {
 
     }
 
-    public generateBaseListener(header?: boolean): ST {
+    public generateBaseListener(header?: boolean): IST {
         if (!header) {
             return this.generateBaseListener(false);
         }
@@ -124,7 +124,7 @@ export class CodeGenerator {
         return this.walk(this.createController().buildBaseListenerOutputModel(header), header);
     }
 
-    public generateVisitor(header?: boolean): ST {
+    public generateVisitor(header?: boolean): IST {
         if (!header) {
             return this.generateVisitor(false);
         }
@@ -132,7 +132,7 @@ export class CodeGenerator {
         return this.walk(this.createController().buildVisitorOutputModel(header), header);
     }
 
-    public generateBaseVisitor(header?: boolean): ST {
+    public generateBaseVisitor(header?: boolean): IST {
         if (!header) {
             return this.generateBaseVisitor(false);
         }
@@ -140,23 +140,23 @@ export class CodeGenerator {
         return this.walk(this.createController().buildBaseVisitorOutputModel(header), header);
     }
 
-    public writeRecognizer(outputFileST: ST, header: boolean): void {
+    public writeRecognizer(outputFileST: IST, header: boolean): void {
         this.target.genFile(this.g, outputFileST, this.getRecognizerFileName(header));
     }
 
-    public writeListener(outputFileST: ST, header: boolean): void {
+    public writeListener(outputFileST: IST, header: boolean): void {
         this.target.genFile(this.g, outputFileST, this.getListenerFileName(header));
     }
 
-    public writeBaseListener(outputFileST: ST, header: boolean): void {
+    public writeBaseListener(outputFileST: IST, header: boolean): void {
         this.target.genFile(this.g, outputFileST, this.getBaseListenerFileName(header));
     }
 
-    public writeVisitor(outputFileST: ST, header: boolean): void {
+    public writeVisitor(outputFileST: IST, header: boolean): void {
         this.target.genFile(this.g, outputFileST, this.getVisitorFileName(header));
     }
 
-    public writeBaseVisitor(outputFileST: ST, header: boolean): void {
+    public writeBaseVisitor(outputFileST: IST, header: boolean): void {
         this.target.genFile(this.g, outputFileST, this.getBaseVisitorFileName(header));
     }
 
@@ -170,7 +170,7 @@ export class CodeGenerator {
         }
     }
 
-    public write(code: ST, fileName: string): void {
+    public write(code: IST, fileName: string): void {
         try {
             fileName = this.tool.getOutputFile(this.g!, fileName);
             const w = new StringWriter();
@@ -289,7 +289,7 @@ export class CodeGenerator {
         return controller;
     }
 
-    private walk(outputModel: OutputModelObject, header: boolean): ST {
+    private walk(outputModel: OutputModelObject, header: boolean): IST {
         const walker = new OutputModelWalker(this.tool, this.getTemplates());
 
         return walker.walk(outputModel, header);

@@ -4,17 +4,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
-
+import { ST, STGroup, type IST } from "stringtemplate4ts";
 
 import { Tool } from "../Tool.js";
-import { ModelElement } from "./model/ModelElement.js";
-import { OutputModelObject } from "./model/OutputModelObject.js";
 import { ErrorType } from "../tool/ErrorType.js";
-import { HashSet, LinkedHashMap as HashMap } from "antlr4ng";
-import type { ST, STGroup } from "stringtemplate4ts";
-
-
+import { OutputModelObject } from "./model/OutputModelObject.js";
 
 /** Convert an output model tree to template hierarchy by walking
  *  the output model. Each output model object has a corresponding template
@@ -43,115 +37,105 @@ export class OutputModelWalker {
         this.templates = templates;
     }
 
-    public walk(omo: OutputModelObject, header: boolean): ST {
+    public walk(omo: OutputModelObject, header: boolean): IST {
         // CREATE TEMPLATE FOR THIS OUTPUT OBJECT
-        let cl = omo.getClass();
-        let templateName = cl.getSimpleName();
-        if (templateName === null) {
-            this.tool.errMgr.toolError(ErrorType.NO_MODEL_TO_TEMPLATE_MAPPING, cl.getSimpleName());
-            return new ST("[" + templateName + " invalid]");
-        }
-
+        let templateName = omo.constructor.name;
         if (header) {
             templateName += "Header";
         }
 
-
-        let st = this.templates.getInstanceOf(templateName);
+        const st = this.templates.getInstanceOf(templateName);
         if (st === null) {
             this.tool.errMgr.toolError(ErrorType.CODE_GEN_TEMPLATES_INCOMPLETE, templateName);
+
             return new ST("[" + templateName + " invalid]");
         }
-        if (st.impl.formalArguments === null) {
-            this.tool.errMgr.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
-            return st;
-        }
 
-        let formalArgs = st.impl.formalArguments;
-
-        // PASS IN OUTPUT MODEL OBJECT TO TEMPLATE AS FIRST ARG
-        let argNames = formalArgs.keySet();
-        let arg_it = argNames.iterator();
-        let modelArgName = arg_it.next(); // ordered so this is first arg
-        st.add(modelArgName, omo);
-
-        // COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH  AND MAKE ST ATTRIBUTE
-        let usedFieldNames = new HashSet<string>();
-        let fields[] = cl.getFields();
-        for (let fi of fields) {
-            let annotation = fi.getAnnotation(ModelElement.class);
-            if (annotation === null) {
-                continue;
-            }
-
-            let fieldName = fi.getName();
-
-            if (!usedFieldNames.add(fieldName)) {
-                this.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.getClass().getSimpleName() + " has multiple fields named '" + fieldName + "'");
-                continue;
-            }
-
-            // Just don't set  fields w/o formal arg in target ST
-            if (formalArgs.get(fieldName) === null) {
-                continue;
-            }
-
-
-            try {
-                let o = fi.get(omo);
-                if (o instanceof OutputModelObject) {  // SINGLE MODEL OBJECT?
-                    let nestedOmo = o as OutputModelObject;
-                    let nestedST = this.walk(nestedOmo, header);
-                    //					System.out.println("set ModelElement "+fieldName+"="+nestedST+" in "+templateName);
-                    st.add(fieldName, nestedST);
+        /*
+                if (!st.impl?.formalArguments) {
+                    this.tool.errMgr.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
+                    return st;
                 }
-                else {
-                    if (o instanceof Collection || o instanceof OutputModelObject[]) {
-                        // LIST OF MODEL OBJECTS?
-                        if (o instanceof OutputModelObject[]) {
-                            o = Arrays.asList(o as OutputModelObject[]);
-                        }
-                        let nestedOmos = o as Array<unknown>;
-                        for (let nestedOmo of nestedOmos) {
-                            if (nestedOmo === null) {
-                                continue;
-                            }
 
-                            let nestedST = this.walk(nestedOmo as OutputModelObject, header);
-                            //						System.out.println("set ModelElement "+fieldName+"="+nestedST+" in "+templateName);
+                let formalArgs = st.impl.formalArguments;
+
+                // PASS IN OUTPUT MODEL OBJECT TO TEMPLATE AS FIRST ARG
+                let [modelArgName] = [...formalArgs.keys()];
+                st.add(modelArgName, omo);
+
+                // COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH  AND MAKE ST ATTRIBUTE
+                let usedFieldNames = new Set<string>();
+                let fields = Object.getOwnPropertyNames(omo.constructor.prototype);
+                for (let fi of fields) {
+                    let annotation = fi.getAnnotation(ModelElement.class);
+                    if (annotation === null) {
+                        continue;
+                    }
+
+                    let fieldName = fi.getName();
+
+                    if (!usedFieldNames.add(fieldName)) {
+                        this.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.getClass()
+                        .getSimpleName() + " has multiple fields named '" + fieldName + "'");
+                        continue;
+                    }
+
+                    // Just don't set  fields w/o formal arg in target ST
+                    if (formalArgs.get(fieldName) === null) {
+                        continue;
+                    }
+
+                    try {
+                        let o = fi.get(omo);
+                        if (o instanceof OutputModelObject) {  // SINGLE MODEL OBJECT?
+                            let nestedOmo = o as OutputModelObject;
+                            let nestedST = this.walk(nestedOmo, header);
                             st.add(fieldName, nestedST);
                         }
-                    }
-                    else {
-                        if (o instanceof Map) {
-                            let nestedOmoMap = o as Map<unknown, unknown>;
-                            let m = new LinkedHashMap<Object, ST>();
-                            for (let entry of nestedOmoMap.entrySet()) {
-                                let nestedST = this.walk(entry.getValue() as OutputModelObject, header);
-                                //						System.out.println("set ModelElement "+fieldName+"="+nestedST+" in "+templateName);
-                                m.put(entry.getKey(), nestedST);
-                            }
-                            st.add(fieldName, m);
-                        }
                         else {
-                            if (o !== null) {
-                                this.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, "not recognized nested model element: " + fieldName);
+                            if (o instanceof Collection || o instanceof OutputModelObject[]) {
+                                // LIST OF MODEL OBJECTS?
+                                if (o instanceof OutputModelObject[]) {
+                                    o = Arrays.asList(o as OutputModelObject[]);
+                                }
+                                let nestedOmos = o as Array<unknown>;
+                                for (let nestedOmo of nestedOmos) {
+                                    if (nestedOmo === null) {
+                                        continue;
+                                    }
+
+                                    let nestedST = this.walk(nestedOmo as OutputModelObject, header);
+                                    st.add(fieldName, nestedST);
+                                }
                             }
+                            else {
+                                if (o instanceof Map) {
+                                    let nestedOmoMap = o as Map<unknown, unknown>;
+                                    let m = new LinkedHashMap<Object, ST>();
+                                    for (let entry of nestedOmoMap.entrySet()) {
+                                        let nestedST = this.walk(entry.getValue() as OutputModelObject, header);
+                                        m.put(entry.getKey(), nestedST);
+                                    }
+                                    st.add(fieldName, m);
+                                }
+                                else {
+                                    if (o !== null) {
+                                    }
+                                }
+
+                            }
+
                         }
 
+                    } catch (iae) {
+                        if (iae instanceof IllegalAccessException) {
+                            this.tool.errMgr.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, fieldName);
+                        } else {
+                            throw iae;
+                        }
                     }
+                }*/
 
-                }
-
-            } catch (iae) {
-                if (iae instanceof IllegalAccessException) {
-                    this.tool.errMgr.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, fieldName);
-                } else {
-                    throw iae;
-                }
-            }
-        }
-        //st.impl.dump();
         return st;
     }
 

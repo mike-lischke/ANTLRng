@@ -8,7 +8,7 @@
 
 import { RuntimeMetaData, Token } from "antlr4ng";
 import {
-    NumberRenderer, STGroup, STGroupFile, StringRenderer, type ST, type STErrorListener, type STMessage
+    NumberRenderer, STGroup, STGroupFile, StringRenderer, type IST, type STErrorListener, type STMessage
 } from "stringtemplate4ts";
 
 import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
@@ -218,7 +218,7 @@ export abstract class Target {
                         break;
                     }
 
-                    case "u": {    // Either unnnn or u{nnnnnn}
+                    case "u": { // Either unnnn or u{nnnnnn}
                         if (literal.charAt(i + toAdvance) === "{") {
                             while (literal.charAt(i + toAdvance) !== "}") {
                                 toAdvance++;
@@ -294,7 +294,7 @@ export abstract class Target {
 
             default: {
                 if (v <= 127) {
-                    return String(v);  // ascii chars can be as-is, no encoding
+                    return String(v); // ascii chars can be as-is, no encoding
                 }
 
                 // else we use hex encoding to ensure pure ascii chars generated
@@ -404,6 +404,7 @@ export abstract class Target {
      *  TListener.java, if we're using the Java target.
        */
     public getListenerFileName(header: boolean): string {
+
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
         const listenerName = this.gen.g!.name + "Listener";
@@ -415,6 +416,7 @@ export abstract class Target {
      *  TVisitor.java, if we're using the Java target.
        */
     public getVisitorFileName(header: boolean): string {
+
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
         const listenerName = this.gen.g!.name + "Visitor";
@@ -426,6 +428,7 @@ export abstract class Target {
      *  such as TBaseListener.java, if we're using the Java target.
        */
     public getBaseListenerFileName(header: boolean): string {
+
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
         const listenerName = this.gen.g!.name + "BaseListener";
@@ -437,6 +440,7 @@ export abstract class Target {
      *  such as TBaseListener.java, if we're using the Java target.
        */
     public getBaseVisitorFileName(header: boolean): string {
+
         /* assert gen.g.name != null; */
         const extST = this.getTemplates().getInstanceOf("codeFileExtension")!;
         const listenerName = this.gen.g!.name + "BaseVisitor";
@@ -558,7 +562,7 @@ export abstract class Target {
         return false;
     }
 
-    public genFile(g: Grammar | undefined, outputFileST: ST, fileName: string): void {
+    public genFile(g: Grammar | undefined, outputFileST: IST, fileName: string): void {
         this.getCodeGenerator().write(outputFileST, fileName);
     }
 
@@ -588,7 +592,7 @@ export abstract class Target {
     protected shouldUseUnicodeEscapeForCodePointInDoubleQuotedString(codePoint: number): boolean {
         return codePoint < 0x20 || // control characters up to but not including space
             codePoint === 0x5C || // backslash
-            codePoint >= 0x7F;   // DEL and beyond (keeps source code 7-bit US-ASCII)
+            codePoint >= 0x7F; // DEL and beyond (keeps source code 7-bit US-ASCII)
     }
 
     protected escapeChar(v: number): string {

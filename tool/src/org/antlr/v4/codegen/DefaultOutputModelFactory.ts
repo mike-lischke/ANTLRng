@@ -73,7 +73,9 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
 
     public override getRoot(): OutputModelObject | null { return this.controller.getRoot(); }
 
-    public override getCurrentRuleFunction(): RuleFunction { return this.controller.getCurrentRuleFunction(); }
+    public override getCurrentRuleFunction(): RuleFunction | undefined {
+        return this.controller.getCurrentRuleFunction();
+    }
 
     public override getCurrentOuterMostAlt(): Alternative { return this.controller.getCurrentOuterMostAlt(); }
 

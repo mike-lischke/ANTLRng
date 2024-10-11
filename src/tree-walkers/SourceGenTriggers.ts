@@ -260,7 +260,7 @@ export class SourceGenTriggers extends TreeParser {
 
     // $ANTLR start "block"
     // ./SourceGenTriggers.g:61:1: block[GrammarAST label, GrammarAST ebnfRoot] returns [List<? extends SrcOp> omos] : ^(blk= BLOCK ( ^( OPTIONS ( . )+ ) )? ( alternative )+ ) ;
-    public readonly block(label: GrammarAST, ebnfRoot: GrammarAST): Array<SrcOp> {
+    public readonly block(label: GrammarAST | null, ebnfRoot: GrammarAST | null): Array<SrcOp> {
         let omos = null;
 
 

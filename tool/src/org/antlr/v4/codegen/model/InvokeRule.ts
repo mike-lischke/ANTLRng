@@ -31,7 +31,7 @@ export class InvokeRule extends RuleElement implements LabeledOp {
             this.stateNumber = ast.atnState.stateNumber;
         }
 
-        const gen = factory.getGenerator()!;
+        const gen = factory.getGenerator();
         const target = gen.getTarget();
         const identifier = ast.getText()!;
         const r = factory.getGrammar()!.getRule(identifier)!;
@@ -40,7 +40,7 @@ export class InvokeRule extends RuleElement implements LabeledOp {
         this.ctxName = target.getRuleFunctionContextStructName(r);
 
         // TODO: move to factory
-        const rf = factory.getCurrentRuleFunction();
+        const rf = factory.getCurrentRuleFunction()!;
         if (labelAST !== null) {
             let decl: RuleContextDecl;
             // for x=r, define <rule-context-type> x and list_x
