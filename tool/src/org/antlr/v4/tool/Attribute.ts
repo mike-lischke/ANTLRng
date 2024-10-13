@@ -19,13 +19,13 @@ export class Attribute {
     public decl?: string;
 
     /** The type; might be empty such as for Python which has no static typing */
-    public type = "";
+    public type: string | null = null;
 
     /** The name of the attribute "foo" */
-    public name: string;
+    public name?: string;
 
     /** A {@link Token} giving the position of the name of this attribute in the grammar. */
-    public token: Token;
+    public token: Token | null = null;
 
     /** The optional attribute initialization expression */
     public initValue?: string;
@@ -33,7 +33,7 @@ export class Attribute {
     /** Who contains us? */
     public dict: AttributeDict;
 
-    public constructor(name: string, decl?: string) {
+    public constructor(name?: string, decl?: string) {
         this.name = name;
         this.decl = decl;
     }

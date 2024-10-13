@@ -1,4 +1,5 @@
 {
     "jest.rootPath": ".",
     "jest.autoRun": "off",
+    "typescript.tsdk": "node_modules/typescript/lib",
 }

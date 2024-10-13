@@ -130,7 +130,7 @@ export class Grammar implements AttributeResolver {
     public implicitLexer: LexerGrammar;
 
     /** If this is an extracted/implicit lexer, we point at original grammar */
-    public originalGrammar: Grammar;
+    public originalGrammar: Grammar | null = null;
 
     /** If we're imported, who imported us? If null, implies grammar is root */
     public parent: Grammar | null = null;
@@ -168,7 +168,7 @@ export class Grammar implements AttributeResolver {
      * Reverse index for {@link #stringLiteralToTypeMap}. Indexed with raw token
      * type. 0 is invalid.
      */
-    public readonly typeToStringLiteralList = new Array<string>();
+    public readonly typeToStringLiteralList = new Array<string | null>();
 
     /**
      * Map a token type to its token name. Indexed with raw token type. 0 is
@@ -340,19 +340,19 @@ export class Grammar implements AttributeResolver {
         return Character.isUpperCase(id.charCodeAt(0));
     }
 
-    public static getGrammarTypeToFileNameSuffix(type: number): string {
+    public static getGrammarTypeToFileNameSuffix(type: GrammarType): string {
         switch (type) {
-            case ANTLRv4Parser.LEXER: {
+            case GrammarType.Lexer: {
                 return "Lexer";
             }
 
-            case ANTLRv4Parser.PARSER: {
+            case GrammarType.Parser: {
                 return "Parser";
             }
 
             // if combined grammar, gen Parser and Lexer will be done later
             // TODO: we are separate now right?
-            case ANTLRv4Parser.GRAMMAR: {
+            case GrammarType.Combined: {
                 return "Parser";
             }
 
@@ -910,8 +910,8 @@ export class Grammar implements AttributeResolver {
     /**
      * Gets the literal names assigned to tokens in the grammar.
      */
-    public getTokenLiteralNames(): string[] {
-        const literalNames: string[] = [];
+    public getTokenLiteralNames(): Array<string | null> {
+        const literalNames: Array<string | null> = [];
         for (let i = 0; i < Math.min(literalNames.length, this.typeToStringLiteralList.length); i++) {
             literalNames[i] = this.typeToStringLiteralList[i];
         }

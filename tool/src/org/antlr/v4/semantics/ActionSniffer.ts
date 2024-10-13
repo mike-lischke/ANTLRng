@@ -4,30 +4,31 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { CharStream, type Token } from "antlr4ng";
 
+import { ActionSplitter } from "../../../../../../src/generated/ActionSplitter.js";
 
-import { BlankActionSplitterListener } from "./BlankActionSplitterListener.js";
 import { Alternative } from "../tool/Alternative.js";
+import { ActionAST } from "../tool/ast/ActionAST.js";
+import type { ErrorManager } from "../tool/ErrorManager.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Rule } from "../tool/Rule.js";
-import { ActionAST } from "../tool/ast/ActionAST.js";
-import { GrammarAST } from "../tool/ast/GrammarAST.js";
-import { TerminalAST } from "../tool/ast/TerminalAST.js";
+import { BlankActionSplitterListener } from "./BlankActionSplitterListener.js";
 
-
-
-/** Find token and rule refs plus refs to them in actions;
- *  side-effect: update Alternatives
+/**
+ * Find token and rule refs plus refs to them in actions; side-effect: update Alternatives
  */
 export class ActionSniffer extends BlankActionSplitterListener {
     public g: Grammar;
-    public r: Rule;          // null if action outside of rule
+    public r: Rule; // null if action outside of rule
     public alt: Alternative; // null if action outside of alt; could be in rule
     public node: ActionAST;
     public actionToken: Token; // token within action
-    public errMgr: java.util.logging.ErrorManager;
+    public errMgr: ErrorManager;
 
     public constructor(g: Grammar, r: Rule, alt: Alternative, node: ActionAST, actionToken: Token) {
+        super();
+
         this.g = g;
         this.r = r;
         this.alt = alt;
@@ -37,50 +38,61 @@ export class ActionSniffer extends BlankActionSplitterListener {
     }
 
     public examineAction(): void {
-        //System.out.println("examine "+actionToken);
-        let in = new ANTLRStringStream(this.actionToken.getText());
-		in.setLine(this.actionToken.getLine());
-		in.setCharPositionInLine(this.actionToken.getCharPositionInLine());
-        let splitter = new ActionSplitter(in, this);
+        const input = CharStream.fromString(this.actionToken.text!);
+        //input.setLine(this.actionToken.line);
+        //input.setCharPositionInLine(this.actionToken.getCharPositionInLine());
+        const splitter = new ActionSplitter(input);
+
         // forces eval, triggers listener methods
-        this.node.chunks = splitter.getActionTokens();
+        this.node.chunks = splitter.getActionTokens(this);
     }
 
-    public processNested(actionToken: Token): void {
-        let in = new ANTLRStringStream(actionToken.getText());
-		in.setLine(actionToken.getLine());
-		in.setCharPositionInLine(actionToken.getCharPositionInLine());
-        let splitter = new ActionSplitter(in, this);
+    public processNested(actionToken: string): void {
+        const input = CharStream.fromString(actionToken);
+        //input.setLine(actionToken.getLine());
+        //input.setCharPositionInLine(actionToken.getCharPositionInLine());
+        const splitter = new ActionSplitter(input);
+
         // forces eval, triggers listener methods
-        splitter.getActionTokens();
+        splitter.getActionTokens(this);
     }
 
+    public override attr(expr: string, x: string): void {
+        this.trackRef(x);
+    }
 
+    public override qualifiedAttr(expr: string, x: string, y: string): void {
+        this.trackRef(x);
+    }
 
-    public override  attr(expr: string, x: Token): void { this.trackRef(x); }
-
-
-    public override  qualifiedAttr(expr: string, x: Token, y: Token): void { this.trackRef(x); }
-
-
-    public override  setAttr(expr: string, x: Token, rhs: Token): void {
+    public override setAttr(expr: string, x: string, rhs: string): void {
         this.trackRef(x);
         this.processNested(rhs);
     }
 
-
-    public override  setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token): void {
+    public override setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
         this.processNested(rhs);
     }
 
-    public trackRef(x: Token): void {
-        let xRefs = this.alt.tokenRefs.get(x.getText());
-        if (xRefs !== null) {
-            this.alt.tokenRefsInActions.map(x.getText(), this.node);
+    public trackRef(x: string): void {
+        const xRefs = this.alt.tokenRefs.get(x);
+        if (xRefs) {
+            const list = this.alt.tokenRefsInActions.get(x);
+            if (!list) {
+                this.alt.tokenRefsInActions.set(x, [this.node]);
+            } else {
+                list.push(this.node);
+            }
         }
-        let rRefs = this.alt.ruleRefs.get(x.getText());
-        if (rRefs !== null) {
-            this.alt.ruleRefsInActions.map(x.getText(), this.node);
+
+        const rRefs = this.alt.ruleRefs.get(x);
+        if (rRefs) {
+            const list = this.alt.ruleRefsInActions.get(x);
+            if (!list) {
+                this.alt.ruleRefsInActions.set(x, [this.node]);
+            } else {
+                list.push(this.node);
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
     "compilerOptions": {
         "declaration": true,
         "module": "Node16",
-        "target": "ESNext",
+        "target": "ES2023",
         "moduleResolution": "Node16",
         "resolveJsonModule": true,
         "noEmit": true,
@@ -20,5 +20,7 @@
         "**/*.ts",
         "../jest.config.ts",
     ],
-    "exclude": [],
+    "exclude": [
+        "node_modules",
+    ],
 }

@@ -37,7 +37,8 @@ export default tslint.config(
             "no-fallthrough": [
                 "warn",
                 {
-                    "commentPattern": "\\[falls?-through\\]"
+                    "commentPattern": "\\[falls?-through\\]",
+                    "allowEmptyCase": true
                 }
             ],
             "max-len": [

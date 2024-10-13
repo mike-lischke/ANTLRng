@@ -81,7 +81,7 @@ export class LeftRecursiveRuleTransformer {
 
             // must be rule def
             const rule = r as GrammarASTWithOptions;
-            if (rule.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME) !== null) {
+            if (rule.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME)) {
                 continue;
             }
 

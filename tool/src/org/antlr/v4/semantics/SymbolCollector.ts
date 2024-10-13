@@ -4,9 +4,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Grammar } from "../tool/Grammar.js";
-import { LabelElementPair } from "../tool/LabelElementPair.js";
-import { Rule } from "../tool/Rule.js";
+import { HashSet } from "antlr4ng";
+
+import { GrammarTreeVisitor } from "../../../../../../src/tree-walkers/GrammarTreeVisitor.js";
+
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { AltAST } from "../tool/ast/AltAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
@@ -14,149 +15,179 @@ import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
-import { HashSet } from "antlr4ng";
+import type { ErrorManager } from "../tool/ErrorManager.js";
+import { Grammar } from "../tool/Grammar.js";
+import { LabelElementPair } from "../tool/LabelElementPair.js";
+import { Rule } from "../tool/Rule.js";
 
 /**
- * Collects (create) rules, terminals, strings, actions, scopes etc... from AST
- *  side-effects: sets resolver field of asts for actions and
- *  defines predicates via definePredicateInAlt(), collects actions and stores
- *  in alts.
- *  TODO: remove side-effects!
+ * Collects (create) rules, terminals, strings, actions, scopes etc... from AST side-effects: sets resolver field
+ * of asts for actions and defines predicates via definePredicateInAlt(), collects actions and stores in alts.
+ * TODO: remove side-effects!
  */
 export class SymbolCollector extends GrammarTreeVisitor {
     /** which grammar are we checking */
     public g: Grammar;
 
     // stuff to collect
-    public rulerefs = new Array<GrammarAST>();
-    public qualifiedRulerefs = new Array<GrammarAST>();
+    public ruleRefs = new Array<GrammarAST>();
+    public qualifiedRuleRefs = new Array<GrammarAST>();
     public terminals = new Array<GrammarAST>();
     public tokenIDRefs = new Array<GrammarAST>();
     public strings = new HashSet<string>();
     public tokensDefs = new Array<GrammarAST>();
     public channelDefs = new Array<GrammarAST>();
 
-    public errMgr: java.util.logging.ErrorManager;
+    public errMgr: ErrorManager;
 
     // context
-    public currentRule: Rule;
+    public currentRule: Rule | null = null;
 
     /** Track action name node in @parser::members {...} or @members {...} */
-    protected namedActions = new Array<GrammarAST>();
+    public readonly namedActions = new Array<GrammarAST>();
 
     public constructor(g: Grammar) {
+        super();
+
         this.g = g;
         this.errMgr = g.tool.errMgr;
     }
 
-    public getErrorManager(): java.util.logging.ErrorManager { return this.errMgr; }
+    public override getErrorManager(): ErrorManager {
+        return this.errMgr;
+    }
 
-    public process(ast: GrammarAST): void { visitGrammar(ast); }
+    public process(ast: GrammarAST): void {
+        this.visitGrammar(ast);
+    }
 
-    public globalNamedAction(scope: GrammarAST, ID: GrammarAST, action: ActionAST): void {
+    public override globalNamedAction(scope: GrammarAST, ID: GrammarAST, action: ActionAST): void {
         action.setScope(scope);
-        this.namedActions.add(ID.getParent() as GrammarAST);
+        this.namedActions.push(ID.getParent() as GrammarAST);
         action.resolver = this.g;
     }
 
-    public defineToken(ID: GrammarAST): void {
-        this.terminals.add(ID);
-        this.tokenIDRefs.add(ID);
-        this.tokensDefs.add(ID);
+    public override defineToken(ID: GrammarAST): void {
+        this.terminals.push(ID);
+        this.tokenIDRefs.push(ID);
+        this.tokensDefs.push(ID);
     }
 
-    public defineChannel(ID: GrammarAST): void {
-        this.channelDefs.add(ID);
+    public override defineChannel(ID: GrammarAST): void {
+        this.channelDefs.push(ID);
     }
 
-    public discoverRule(rule: RuleAST, ID: GrammarAST,
-        modifiers: GrammarAST[], arg: ActionAST,
-        returns: ActionAST, thrws: GrammarAST,
-        options: GrammarAST, locals: ActionAST,
-        actions: GrammarAST[],
+    public override discoverRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], arg: ActionAST,
+        returns: ActionAST, throws: GrammarAST, options: GrammarAST, locals: ActionAST, actions: GrammarAST[],
         block: GrammarAST): void {
-        this.currentRule = this.g.getRule(ID.getText());
+        this.currentRule = this.g.getRule(ID.getText()!);
     }
 
-    public discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
+    public override discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
         block: GrammarAST): void {
-        this.currentRule = this.g.getRule(ID.getText());
+        this.currentRule = this.g.getRule(ID.getText()!);
     }
 
-    public discoverOuterAlt(alt: AltAST): void {
-        this.currentRule.alt[currentOuterAltNumber].ast = alt;
+    public override discoverOuterAlt(alt: AltAST): void {
+        this.currentRule!.alt[this.currentOuterAltNumber].ast = alt;
     }
 
-    public actionInAlt(action: ActionAST): void {
-        this.currentRule.defineActionInAlt(currentOuterAltNumber, action);
-        action.resolver = this.currentRule.alt[currentOuterAltNumber];
+    public override actionInAlt(action: ActionAST): void {
+        this.currentRule!.defineActionInAlt(this.currentOuterAltNumber, action);
+        action.resolver = this.currentRule!.alt[this.currentOuterAltNumber];
     }
 
-    public sempredInAlt(pred: PredAST): void {
-        this.currentRule.definePredicateInAlt(currentOuterAltNumber, pred);
-        pred.resolver = this.currentRule.alt[currentOuterAltNumber];
+    public override sempredInAlt(pred: PredAST): void {
+        this.currentRule!.definePredicateInAlt(this.currentOuterAltNumber, pred);
+        pred.resolver = this.currentRule!.alt[this.currentOuterAltNumber];
     }
 
-    public ruleCatch(arg: GrammarAST, action: ActionAST): void {
-        const catchme = action.getParent() as GrammarAST;
-        this.currentRule.exceptions.add(catchme);
-        action.resolver = this.currentRule;
+    public override ruleCatch(arg: GrammarAST, action: ActionAST): void {
+        const catchMe = action.getParent() as GrammarAST;
+        this.currentRule!.exceptions.push(catchMe);
+        action.resolver = this.currentRule!;
     }
 
-    public finallyAction(action: ActionAST): void {
-        this.currentRule.finallyAction = action;
-        action.resolver = this.currentRule;
+    public override finallyAction(action: ActionAST): void {
+        this.currentRule!.finallyAction = action;
+        action.resolver = this.currentRule!;
     }
 
-    public label(op: GrammarAST, ID: GrammarAST, element: GrammarAST): void {
+    public override label(op: GrammarAST, ID: GrammarAST, element: GrammarAST): void {
         const lp = new LabelElementPair(this.g, ID, element, op.getType());
-        this.currentRule.alt[currentOuterAltNumber].labelDefs.map(ID.getText(), lp);
-    }
 
-    public stringRef(ref: TerminalAST): void {
-        this.terminals.add(ref);
-        this.strings.add(ref.getText());
-        if (this.currentRule !== null) {
-            this.currentRule.alt[currentOuterAltNumber].tokenRefs.map(ref.getText(), ref);
+        const list = this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.get(ID.getText()!);
+        if (list) {
+            list.push(lp);
+        } else {
+            this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.set(ID.getText()!, [lp]);
         }
     }
 
-    public tokenRef(ref: TerminalAST): void {
-        this.terminals.add(ref);
-        this.tokenIDRefs.add(ref);
-        if (this.currentRule !== null) {
-            this.currentRule.alt[currentOuterAltNumber].tokenRefs.map(ref.getText(), ref);
+    public override stringRef(ref: TerminalAST): void {
+        this.terminals.push(ref);
+        this.strings.add(ref.getText()!);
+        if (this.currentRule) {
+            const list = this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.get(ref.getText()!);
+            if (list) {
+                list.push(ref);
+            } else {
+                this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.set(ref.getText()!, [ref]);
+            }
         }
     }
 
-    public ruleRef(ref: GrammarAST, arg: ActionAST): void {
-        //		if ( inContext("DOT ...") ) qualifiedRulerefs.add((GrammarAST)ref.getParent());
-        this.rulerefs.add(ref);
-        if (this.currentRule !== null) {
-            this.currentRule.alt[currentOuterAltNumber].ruleRefs.map(ref.getText(), ref);
+    public override tokenRef(ref: TerminalAST): void {
+        this.terminals.push(ref);
+        this.tokenIDRefs.push(ref);
+        if (this.currentRule) {
+            const list = this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.get(ref.getText()!);
+            if (list) {
+                list.push(ref);
+            } else {
+                this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.set(ref.getText()!, [ref]);
+            }
         }
     }
 
-    public grammarOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override ruleRef(ref: GrammarAST, arg: ActionAST): void {
+        this.ruleRefs.push(ref);
+        if (this.currentRule !== null) {
+            const list = this.currentRule.alt[this.currentOuterAltNumber].ruleRefs.get(ref.getText()!,);
+            if (list) {
+                list.push(ref);
+            } else {
+                this.currentRule.alt[this.currentOuterAltNumber].ruleRefs.set(ref.getText()!, [ref]);
+            }
+        }
+    }
+
+    public override grammarOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    public ruleOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override ruleOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    public blockOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override blockOption(ID: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    public elementOption(t: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST): void {
-        this.setActionResolver(valueAST);
+    public override elementOption(t: GrammarASTWithOptions): GrammarTreeVisitor.elementOption_return;
+    public override elementOption(t: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST): void;
+    public override elementOption(...args: unknown[]): GrammarTreeVisitor.elementOption_return | void {
+        if (args.length === 3) {
+            this.setActionResolver(args[2] as GrammarAST);
+        } else {
+            return super.elementOption(args[0] as GrammarASTWithOptions);
+        }
     }
 
     /** In case of option id={...}, set resolve in case they use $foo */
     private setActionResolver(valueAST: GrammarAST): void {
         if (valueAST instanceof ActionAST) {
-            (valueAST).resolver = this.currentRule.alt[currentOuterAltNumber];
+            (valueAST).resolver = this.currentRule!.alt[this.currentOuterAltNumber];
         }
     }
 }

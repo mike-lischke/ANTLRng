@@ -26,16 +26,16 @@ export class Alternative implements AttributeResolver {
     public altNum: number;
 
     // token IDs, string literals in this alt
-    public tokenRefs = new Map<string, TerminalAST>();
+    public tokenRefs = new Map<string, TerminalAST[]>();
 
     // does not include labels
-    public tokenRefsInActions = new Map<string, GrammarAST>();
+    public tokenRefsInActions = new Map<string, GrammarAST[]>();
 
     // all rule refs in this alt
-    public ruleRefs = new Map<string, GrammarAST>();
+    public ruleRefs = new Map<string, GrammarAST[]>();
 
     // does not include labels
-    public ruleRefsInActions = new Map<string, GrammarAST>();
+    public ruleRefsInActions = new Map<string, GrammarAST[]>();
 
     /** A list of all LabelElementPair attached to tokens like id=ID, ids+=ID */
     public labelDefs = new Map<string, LabelElementPair[]>();

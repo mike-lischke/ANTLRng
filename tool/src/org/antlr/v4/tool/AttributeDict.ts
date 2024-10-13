@@ -42,7 +42,7 @@ export class AttributeDict {
     public add(a: Attribute): Attribute {
         a.dict = this;
 
-        this.attributes.set(a.name, a);
+        this.attributes.set(a.name!, a);
 
         return a;
     }

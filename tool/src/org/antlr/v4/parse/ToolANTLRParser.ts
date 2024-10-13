@@ -11,7 +11,6 @@ import { NoViableAltException, type Parser, type RecognitionException, type Toke
 import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
 import { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
-import { v4ParserException } from "./v4ParserException.js";
 
 /**
  * Override error handling for use with ANTLR tool itself; leaves
@@ -33,14 +32,9 @@ export class ToolANTLRParser extends ANTLRv4Parser {
     public getParserErrorMessage(parser: Parser, e: RecognitionException): string {
         let msg: string;
         if (e instanceof NoViableAltException) {
-            const name = e.message;
-            msg = name + " came as a complete surprise to me";
+            msg = e.message + " came as a complete surprise to me";
         } else {
-            if (e instanceof v4ParserException) {
-                msg = e.msg;
-            } else {
-                msg = e.message;
-            }
+            msg = e.message;
         }
 
         return msg;

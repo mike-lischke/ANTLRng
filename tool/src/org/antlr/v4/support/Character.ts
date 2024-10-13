@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { getCategory, isAlphabetic, isDigit, isLowerCase, isUpperCase } from "unicode-properties";
+import { getCategory, isAlphabetic, isDigit, isLowerCase, isUpperCase, isWhiteSpace } from "unicode-properties";
 
 /**
  * This class is a partial implementation of Java's Character class from the jree package and
@@ -392,6 +392,10 @@ export class Character {
             type === Character.OTHER_LETTER;
     }
 
+    public static isLetterOrDigit(c: number): boolean {
+        return this.isLetter(c) || this.isDigit(c);
+    }
+
     /**
      * Determines if the specified character (Unicode code point) is an lowercase character.
      *
@@ -472,6 +476,10 @@ export class Character {
 
     public static isISOControl(c: number): boolean {
         return c <= 0x1F || (c >= 0x7F && c <= 0x9F);
+    }
+
+    public static isWhitespace(c: number): boolean {
+        return isWhiteSpace(c);
     }
 
     /**

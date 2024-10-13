@@ -28,10 +28,10 @@ export abstract class Recognizer extends OutputModelObject {
      * {@link #literalNames} and {@link #symbolicNames}.
      * @Deprecated
      */
-    public tokenNames: string[];
+    public tokenNames: Array<string | null>;
 
-    public literalNames: string[];
-    public symbolicNames: string[];
+    public literalNames: Array<string | null>;
+    public symbolicNames: Array<string | null>;
     public ruleNames: Set<string>;
     public rules: Rule[];
 
@@ -75,8 +75,8 @@ export abstract class Recognizer extends OutputModelObject {
         this.symbolicNames = Recognizer.translateTokenStringsToTarget(g.getTokenSymbolicNames(), gen);
     }
 
-    protected static translateTokenStringsToTarget(tokenStrings: string[],
-        gen: CodeGenerator): string[] {
+    protected static translateTokenStringsToTarget(tokenStrings: Array<string | null>,
+        gen: CodeGenerator): Array<string | null> {
         let result = tokenStrings.slice();
         for (let i = 0; i < tokenStrings.length; i++) {
             result[i] = Recognizer.translateTokenStringToTarget(tokenStrings[i], gen);
@@ -94,7 +94,11 @@ export abstract class Recognizer extends OutputModelObject {
         return result;
     }
 
-    protected static translateTokenStringToTarget(tokenName: string, gen: CodeGenerator): string {
+    protected static translateTokenStringToTarget(tokenName: string | null, gen: CodeGenerator): string | null {
+        if (tokenName == null) {
+            return null;
+        }
+
         if (tokenName.startsWith("'")) {
             const targetString =
                 gen.getTarget().getTargetStringLiteralFromANTLRStringLiteral(gen, tokenName, false, true);

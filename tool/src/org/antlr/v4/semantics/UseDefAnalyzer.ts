@@ -4,30 +4,27 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { CharStream } from "antlr4ng";
 
+import { ActionSplitter } from "../../../../../../src/generated/ActionSplitter.js";
 
-import { BlankActionSplitterListener } from "./BlankActionSplitterListener.js";
-import { ActionSniffer } from "./ActionSniffer.js";
-import { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
-import { Alternative } from "../tool/Alternative.js";
+import { ANTLRv4Parser } from "../../../../../../src/generated/ANTLRv4Parser.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LexerGrammar } from "../tool/LexerGrammar.js";
 import { Rule } from "../tool/Rule.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
-import { GrammarAST } from "../tool/ast/GrammarAST.js";
-import { HashMap, HashSet } from "antlr4ng";
+import { ActionSniffer } from "./ActionSniffer.js";
+import { BlankActionSplitterListener } from "./BlankActionSplitterListener.js";
 
-
-
-/** Look for errors and deadcode stuff */
+/** Look for errors and dead code stuff */
 export class UseDefAnalyzer {
     // side-effect: updates Alternative with refs in actions
     public static trackTokenRuleRefsInActions(g: Grammar): void {
-        for (let r of g.rules.values()) {
+        for (const r of g.rules.values()) {
             for (let i = 1; i <= r.numberOfAlts; i++) {
-                let alt = r.alt[i];
-                for (let a of alt.actions) {
-                    let sniffer = new ActionSniffer(g, r, alt, a, a.token);
+                const alt = r.alt[i];
+                for (const a of alt.actions) {
+                    const sniffer = new ActionSniffer(g, r, alt, a, a.token!);
                     sniffer.examineAction();
                 }
             }
@@ -35,87 +32,78 @@ export class UseDefAnalyzer {
     }
 
     public static actionIsContextDependent(actionAST: ActionAST): boolean {
-        let in = new ANTLRStringStream(actionAST.token.getText());
-		in.setLine(actionAST.token.getLine());
-		in.setCharPositionInLine(actionAST.token.getCharPositionInLine());
-        let dependent = [false]; // can't be simple bool with anon class
-        let listener = new class extends BlankActionSplitterListener {
+        const input = CharStream.fromString(actionAST.token!.text!);
+        //input.setLine(actionAST.token.getLine());
+        //input.setCharPositionInLine(actionAST.token.getCharPositionInLine());
+        const dependent = [false]; // can't be simple bool with anon class
+        const listener = new class extends BlankActionSplitterListener {
+            public override nonLocalAttr(expr: string, x: string, y: string): void {
+                dependent[0] = true;
+            }
 
-            public nonLocalAttr(expr: string, x: Token, y: Token): void { dependent[0] = true; }
+            public override qualifiedAttr(expr: string, x: string, y: string): void {
+                dependent[0] = true;
+            }
 
-            public qualifiedAttr(expr: string, x: Token, y: Token): void { dependent[0] = true; }
+            public override setAttr(expr: string, x: string, rhs: string): void {
+                dependent[0] = true;
+            }
 
-            public setAttr(expr: string, x: Token, rhs: Token): void { dependent[0] = true; }
+            public override setExprAttribute(expr: string): void {
+                dependent[0] = true;
+            }
 
-            public setExprAttribute(expr: string): void { dependent[0] = true; }
+            public override setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
+                dependent[0] = true;
+            }
 
-            public setNonLocalAttr(expr: string, x: Token, y: Token, rhs: Token): void { dependent[0] = true; }
-
-            public attr(expr: string, x: Token): void { dependent[0] = true; }
+            public override attr(expr: string, x: string): void {
+                dependent[0] = true;
+            }
         }();
-        let splitter = new ActionSplitter(in, listener);
+
+        const splitter = new ActionSplitter(input);
+
         // forces eval, triggers listener methods
-        splitter.getActionTokens();
+        splitter.getActionTokens(listener);
+
         return dependent[0];
     }
 
     /** Find all rules reachable from r directly or indirectly for all r in g */
     public static getRuleDependencies(g: Grammar): Map<Rule, Set<Rule>>;
-
     public static getRuleDependencies(g: LexerGrammar, modeName: string): Map<Rule, Set<Rule>>;
-
-    public static getRuleDependencies(g: Grammar, rules: Array<Rule>): Map<Rule, Set<Rule>>;
+    public static getRuleDependencies(g: Grammar, rules: Rule[]): Map<Rule, Set<Rule>>;
     public static getRuleDependencies(...args: unknown[]): Map<Rule, Set<Rule>> {
-        switch (args.length) {
-            case 1: {
-                const [g] = args as [Grammar];
+        if (args.length === 1) {
+            const g = args[0] as Grammar;
 
+            return UseDefAnalyzer.getRuleDependencies(g, Array.from(g.rules.values()));
+        }
 
-                return UseDefAnalyzer.getRuleDependencies(g, g.rules.values());
+        if (args[0] instanceof LexerGrammar) {
+            const [g, modeName] = args as [LexerGrammar, string];
 
+            return UseDefAnalyzer.getRuleDependencies(g, g.modes.get(modeName)!);
+        } else {
+            const [g, rules] = args as [Grammar, Rule[]];
 
-                break;
-            }
+            const dependencies = new Map<Rule, Set<Rule>>();
 
-            case 2: {
-                const [g, modeName] = args as [LexerGrammar, string];
-
-
-                return UseDefAnalyzer.getRuleDependencies(g, g.modes.get(modeName));
-
-
-                break;
-            }
-
-            case 2: {
-                const [g, rules] = args as [Grammar, Array<Rule>];
-
-
-                let dependencies = new HashMap<Rule, Set<Rule>>();
-
-                for (let r of rules) {
-                    let tokenRefs = r.ast.getNodesWithType(ANTLRParser.TOKEN_REF);
-                    for (let tref of tokenRefs) {
-                        let calls = dependencies.get(r);
-                        if (calls === null) {
-                            calls = new HashSet<Rule>();
-                            dependencies.put(r, calls);
-                        }
-                        calls.add(g.getRule(tref.getText()));
+            for (const r of rules) {
+                const tokenRefs = r.ast.getNodesWithType(ANTLRv4Parser.TOKEN_REF);
+                for (const tref of tokenRefs) {
+                    let calls = dependencies.get(r);
+                    if (!calls) {
+                        calls = new Set<Rule>();
+                        dependencies.set(r, calls);
                     }
+                    calls.add(g.getRule(tref.getText()!)!);
                 }
-
-                return dependencies;
-
-
-                break;
             }
 
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
+            return dependencies;
         }
     }
-
 
 }

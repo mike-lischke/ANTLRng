@@ -176,7 +176,7 @@ export class ErrorManager {
     }
 
     public syntaxError(errorType: ErrorType, fileName: string, token: Token, antlrException: RecognitionException,
-        ...args: object[]): void {
+        ...args: unknown[]): void {
         const msg = new GrammarSyntaxMessage(errorType, fileName, token, antlrException, args);
         this.emit(errorType, msg);
     }

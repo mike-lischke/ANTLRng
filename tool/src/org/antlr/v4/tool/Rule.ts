@@ -250,16 +250,13 @@ export class Rule implements AttributeResolver, IComparable {
         return alts;
     }
 
-    /**
-       $x Attribute: rule arguments, return values, predefined rule prop.
-     */
-    public resolveToAttribute(x: string, node: ActionAST): Attribute | null;
-
+    /** $x Attribute: rule arguments, return values, predefined rule prop. */
+    public resolveToAttribute(x: string, node: ActionAST | null): Attribute | null;
     /** $x.y Attribute: x is surrounding rule, label ref (in any alts) */
-    public resolveToAttribute(x: string, y: string, node: ActionAST): Attribute | null;
+    public resolveToAttribute(x: string, y: string, node: ActionAST | null): Attribute | null;
     public resolveToAttribute(...args: unknown[]): Attribute | null {
         if (args.length === 3) {
-            const [x, y, _node] = args as [string, string, ActionAST];
+            const [x, y, _node] = args as [string, string, ActionAST | null];
 
             const anyLabelDef = this.getAnyLabelDef(x);
             if (anyLabelDef !== null) {
@@ -278,7 +275,7 @@ export class Rule implements AttributeResolver, IComparable {
             return null;
         }
 
-        const [x, _node] = args as [string, ActionAST];
+        const [x, _node] = args as [string, ActionAST | null];
 
         if (this.args) {
             const a = this.args.get(x);
