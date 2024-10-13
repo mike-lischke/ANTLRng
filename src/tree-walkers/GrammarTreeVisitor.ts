@@ -6,7 +6,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { NoViableAltException, RecognitionException } from "antlr4ng";
+/* eslint-disable max-len */
+// cspell: disable
+
+import { RecognitionException } from "antlr4ng";
 
 import { GrammarASTAdaptor } from "../../tool/src/org/antlr/v4/parse/GrammarASTAdaptor.js";
 import type { ErrorManager } from "../../tool/src/org/antlr/v4/tool/ErrorManager.js";
@@ -20,6 +23,9 @@ import type { GrammarRootAST } from "../../tool/src/org/antlr/v4/tool/ast/Gramma
 import type { PredAST } from "../../tool/src/org/antlr/v4/tool/ast/PredAST.js";
 import type { RuleAST } from "../../tool/src/org/antlr/v4/tool/ast/RuleAST.js";
 import type { TerminalAST } from "../../tool/src/org/antlr/v4/tool/ast/TerminalAST.js";
+import { EarlyExitException } from "../antlr3/EarlyExitException.js";
+import { MismatchedSetException } from "../antlr3/MismatchedSetException.js";
+import { NoViableAltException } from "../antlr3/NoViableAltException.js";
 import { RecognizerSharedState } from "../antlr3/RecognizerSharedState.js";
 import { CommonTreeNodeStream } from "../antlr3/tree/CommonTreeNodeStream.js";
 import type { TreeNodeStream } from "../antlr3/tree/TreeNodeStream.js";
@@ -288,7 +294,7 @@ export class GrammarTreeVisitor extends TreeParser {
     public static block_return = class block_return extends TreeRuleReturnScope {
     };
 
-    public static ruleref_return = class ruleref_return extends TreeRuleReturnScope {
+    public static ruleRef_return = class ruleRef_return extends TreeRuleReturnScope {
     };
 
     public static range_return = class range_return extends TreeRuleReturnScope {
@@ -304,7 +310,7 @@ export class GrammarTreeVisitor extends TreeParser {
     };
 
     public grammarName: string | null = null;
-    public currentRuleAST: GrammarAST;
+    public currentRuleAST: GrammarAST | null = null;
     public currentModeName: string | null = LexerGrammar.DEFAULT_MODE_NAME;
     public currentRuleName: string | null = null;
     public currentOuterAltRoot: GrammarAST;
@@ -348,16 +354,16 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (e) {
             if (e instanceof Error) {
                 const errMgr = this.getErrorManager();
+                let error = e;
                 if (e.cause) {
-                    e = e.cause;
+                    error = e.cause as Error;
                 }
 
                 if (errMgr === null) {
-                    console.error("can't find rule " + ruleName + " or tree structure error: " + t.toStringTree(),
-                    );
+                    console.error("can't find rule " + ruleName + " or tree structure error: " + t.toStringTree());
                     //e.printStackTrace(System.err);
                 } else {
-                    errMgr.toolError(ErrorType.INTERNAL_ERROR, e);
+                    errMgr.toolError(ErrorType.INTERNAL_ERROR, error);
                 }
             } else {
                 throw e;
@@ -365,45 +371,45 @@ export class GrammarTreeVisitor extends TreeParser {
         }
     }
 
-    public discoverGrammar(root: GrammarRootAST, ID: GrammarAST): void { }
-    public finishPrequels(firstPrequel: GrammarAST): void { }
-    public finishGrammar(root: GrammarRootAST, ID: GrammarAST): void { }
+    public discoverGrammar(root: GrammarRootAST, ID: GrammarAST | null): void { /**/ }
+    public finishPrequels(firstPrequel: GrammarAST | null): void { /**/ }
+    public finishGrammar(root: GrammarRootAST, ID: GrammarAST | null): void { /**/ }
 
-    public grammarOption(ID: GrammarAST, valueAST: GrammarAST | null): void { }
-    public ruleOption(ID: GrammarAST, valueAST: GrammarAST | null): void { }
-    public blockOption(ID: GrammarAST, valueAST: GrammarAST | null): void { }
-    public defineToken(ID: GrammarAST): void { }
-    public defineChannel(ID: GrammarAST): void { }
-    public globalNamedAction(scope: GrammarAST, ID: GrammarAST, action: ActionAST): void { }
-    public importGrammar(label: GrammarAST | null, ID: GrammarAST): void { }
+    public grammarOption(ID: GrammarAST | null, valueAST: GrammarAST | null): void { /**/ }
+    public ruleOption(ID: GrammarAST | null, valueAST: GrammarAST | null): void { /**/ }
+    public blockOption(ID: GrammarAST | null, valueAST: GrammarAST | null): void { /**/ }
+    public defineToken(ID: GrammarAST): void { /**/ }
+    public defineChannel(ID: GrammarAST): void { /**/ }
+    public globalNamedAction(scope: GrammarAST | null, ID: GrammarAST, action: ActionAST): void { /**/ }
+    public importGrammar(label: GrammarAST | null, ID: GrammarAST): void { /**/ }
 
-    public modeDef(m: GrammarAST, ID: GrammarAST): void { }
+    public modeDef(m: GrammarAST | null, ID: GrammarAST | null): void { /**/ }
 
-    public discoverRules(rules: GrammarAST): void { }
-    public finishRules(rule: GrammarAST): void { }
-    public discoverRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[],
-        arg: ActionAST, returns: ActionAST, thrws: GrammarAST,
-        options: GrammarAST, locals: ActionAST,
-        actions: GrammarAST[],
-        block: GrammarAST): void { }
-    public finishRule(rule: RuleAST, ID: GrammarAST, block: GrammarAST): void { }
-    public discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
-        block: GrammarAST): void { }
-    public finishLexerRule(rule: RuleAST, ID: GrammarAST, block: GrammarAST): void { }
-    public ruleCatch(arg: GrammarAST, action: ActionAST): void { }
-    public finallyAction(action: ActionAST): void { }
-    public discoverOuterAlt(alt: AltAST): void { }
-    public finishOuterAlt(alt: AltAST): void { }
-    public discoverAlt(alt: AltAST): void { }
-    public finishAlt(alt: AltAST): void { }
+    public discoverRules(rules: GrammarAST): void { /**/ }
+    public finishRules(rule: GrammarAST): void { /**/ }
+    public discoverRule(rule: RuleAST | null, ID: GrammarAST | null, modifiers: Array<GrammarAST | null>,
+        arg: ActionAST | null, returns: ActionAST | null, throws: GrammarAST | null,
+        options: GrammarAST | null, locals: ActionAST | null,
+        actions: Array<GrammarAST | null>,
+        block: GrammarAST | null): void { /**/ }
+    public finishRule(rule: RuleAST | null, ID: GrammarAST | null, block: GrammarAST | null): void { /**/ }
+    public discoverLexerRule(rule: RuleAST | null, ID: GrammarAST | null, modifiers: GrammarAST[],
+        options: GrammarAST | null, block: GrammarAST): void { /**/ }
+    public finishLexerRule(rule: RuleAST | null, ID: GrammarAST | null, block: GrammarAST | null): void { /**/ }
+    public ruleCatch(arg: GrammarAST, action: ActionAST): void { /**/ }
+    public finallyAction(action: ActionAST): void { /**/ }
+    public discoverOuterAlt(alt: AltAST): void { /**/ }
+    public finishOuterAlt(alt: AltAST): void { /**/ }
+    public discoverAlt(alt: AltAST): void { /**/ }
+    public finishAlt(alt: AltAST): void { /**/ }
 
-    public ruleRef(ref: GrammarAST, arg: ActionAST): void { }
-    public tokenRef(ref: TerminalAST): void { }
+    public ruleRef(ref: GrammarAST, arg: ActionAST): void { /**/ }
+    public tokenRef(ref: TerminalAST): void { /**/ }
 
     // $ANTLR start "elementOption"
     // org/antlr/v4/parse/GrammarTreeVisitor.g:1008:1: elementOption[GrammarASTWithOptions t] : ( ID | ^( ASSIGN id= ID v= ID ) | ^( ASSIGN ID v= STRING_LITERAL ) | ^( ASSIGN ID v= ACTION ) | ^( ASSIGN ID v= INT ) );
     public elementOption(t: GrammarASTWithOptions): GrammarTreeVisitor.elementOption_return;
-    public elementOption(t: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST): void;
+    public elementOption(t: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST | null): void;
     public elementOption(...args: unknown[]): GrammarTreeVisitor.elementOption_return | void {
         switch (args.length) {
             case 1: {
@@ -468,8 +474,9 @@ export class GrammarTreeVisitor extends TreeParser {
                                                 for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
                                                     this.input!.consume();
                                                 }
+
                                                 const nvae =
-                                                    new NoViableAltException(this, 55, 4, this.input);
+                                                    new NoViableAltException("", 55, 4, this.input);
                                                 throw nvae;
                                             } finally {
                                                 this.input!.release(nvaeMark);
@@ -512,7 +519,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:1015:7: ID
                             {
-                                ID45 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_elementOption2663) as GrammarAST;
+                                ID45 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
                                 this.elementOption(t, ID45, null);
                             }
                             break;
@@ -521,11 +528,11 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 2: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:1016:9: ^( ASSIGN id= ID v= ID )
                             {
-                                this.match(this.input, GrammarTreeVisitor.ASSIGN, GrammarTreeVisitor.FOLLOW_ASSIGN_in_elementOption2683);
-                                this.match(this.input, TreeParser.DOWN, null);
-                                id = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_elementOption2687) as GrammarAST;
-                                v = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_elementOption2691) as GrammarAST;
-                                this.match(this.input, TreeParser.UP, null);
+                                this.match(this.input!, GrammarTreeVisitor.ASSIGN, null);
+                                this.match(this.input!, TreeParser.DOWN, null);
+                                id = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                                v = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                                this.match(this.input!, TreeParser.UP, null);
 
                                 this.elementOption(t, id, v);
                             }
@@ -535,11 +542,11 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 3: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:1017:9: ^( ASSIGN ID v= STRING_LITERAL )
                             {
-                                this.match(this.input, GrammarTreeVisitor.ASSIGN, GrammarTreeVisitor.FOLLOW_ASSIGN_in_elementOption2707);
-                                this.match(this.input, TreeParser.DOWN, null);
-                                ID46 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_elementOption2709) as GrammarAST;
-                                v = this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_elementOption2713) as GrammarAST;
-                                this.match(this.input, TreeParser.UP, null);
+                                this.match(this.input!, GrammarTreeVisitor.ASSIGN, null);
+                                this.match(this.input!, TreeParser.DOWN, null);
+                                ID46 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                                v = this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null) as GrammarAST;
+                                this.match(this.input!, TreeParser.UP, null);
 
                                 this.elementOption(t, ID46, v);
                             }
@@ -549,11 +556,11 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 4: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:1018:9: ^( ASSIGN ID v= ACTION )
                             {
-                                this.match(this.input, GrammarTreeVisitor.ASSIGN, GrammarTreeVisitor.FOLLOW_ASSIGN_in_elementOption2727);
-                                this.match(this.input, TreeParser.DOWN, null);
-                                ID47 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_elementOption2729) as GrammarAST;
-                                v = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_elementOption2733) as GrammarAST;
-                                this.match(this.input, TreeParser.UP, null);
+                                this.match(this.input!, GrammarTreeVisitor.ASSIGN, null);
+                                this.match(this.input!, TreeParser.DOWN, null);
+                                ID47 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                                v = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
+                                this.match(this.input!, TreeParser.UP, null);
 
                                 this.elementOption(t, ID47, v);
                             }
@@ -563,11 +570,11 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 5: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:1019:9: ^( ASSIGN ID v= INT )
                             {
-                                this.match(this.input, GrammarTreeVisitor.ASSIGN, GrammarTreeVisitor.FOLLOW_ASSIGN_in_elementOption2749);
-                                this.match(this.input, TreeParser.DOWN, null);
-                                ID48 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_elementOption2751) as GrammarAST;
-                                v = this.match(this.input, GrammarTreeVisitor.INT, GrammarTreeVisitor.FOLLOW_INT_in_elementOption2755) as GrammarAST;
-                                this.match(this.input, TreeParser.UP, null);
+                                this.match(this.input!, GrammarTreeVisitor.ASSIGN, null);
+                                this.match(this.input!, TreeParser.DOWN, null);
+                                ID48 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                                v = this.match(this.input!, GrammarTreeVisitor.INT, null) as GrammarAST;
+                                this.match(this.input!, TreeParser.UP, null);
 
                                 this.elementOption(t, ID48, v);
                             }
@@ -582,7 +589,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 } catch (re) {
                     if (re instanceof RecognitionException) {
                         this.reportError(re);
-                        this.recover(this.input, re);
+                        this.recover(this.input!, re);
                     } else {
                         throw re;
                     }
@@ -594,7 +601,8 @@ export class GrammarTreeVisitor extends TreeParser {
             }
 
             case 3: {
-                const [t, ID, valueAST] = args as [GrammarASTWithOptions, GrammarAST, GrammarAST];
+                //const [t, ID, valueAST] = args as [GrammarASTWithOptions, GrammarAST, GrammarAST | null];
+                // ignored
 
                 break;
             }
@@ -605,12 +613,12 @@ export class GrammarTreeVisitor extends TreeParser {
         }
     }
 
-    public stringRef(ref: TerminalAST): void { }
-    public wildcardRef(ref: GrammarAST): void { }
-    public actionInAlt(action: ActionAST): void { }
-    public sempredInAlt(pred: PredAST): void { }
-    public label(op: GrammarAST, ID: GrammarAST, element: GrammarAST): void { }
-    public lexerCallCommand(outerAltNumber: number, ID: GrammarAST, arg: GrammarAST): void { }
+    public stringRef(ref: TerminalAST): void { /**/ }
+    public wildcardRef(ref: GrammarAST): void { /**/ }
+    public actionInAlt(action: ActionAST): void { /**/ }
+    public sempredInAlt(pred: PredAST): void { /**/ }
+    public label(op: GrammarAST | null, ID: GrammarAST | null, element: GrammarAST | null): void { /**/ }
+    public lexerCallCommand(outerAltNumber: number, ID: GrammarAST, arg: GrammarAST | null): void { /**/ }
 
     // $ANTLR start "lexerCommand"
     // org/antlr/v4/parse/GrammarTreeVisitor.g:796:1: lexerCommand : ( ^( LEXER_ACTION_CALL ID lexerCommandExpr ) | ID );
@@ -649,16 +657,17 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:803:4: ^( LEXER_ACTION_CALL ID lexerCommandExpr )
                             {
-                                this.match(this.input, GrammarTreeVisitor.LEXER_ACTION_CALL, GrammarTreeVisitor.FOLLOW_LEXER_ACTION_CALL_in_lexerCommand1774);
-                                this.match(this.input, TreeParser.DOWN, null);
-                                ID25 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_lexerCommand1776) as GrammarAST;
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerCommandExpr_in_lexerCommand1778);
+                                this.match(this.input!, GrammarTreeVisitor.LEXER_ACTION_CALL, null);
+                                this.match(this.input!, TreeParser.DOWN, null);
+                                ID25 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                                this.pushFollow(null);
                                 lexerCommandExpr26 = this.lexerCommandExpr();
                                 this.state._fsp--;
 
-                                this.match(this.input, TreeParser.UP, null);
+                                this.match(this.input!, TreeParser.UP, null);
 
-                                this.lexerCallCommand(this.currentOuterAltNumber, ID25, (lexerCommandExpr26 !== null ? (lexerCommandExpr26.start as GrammarAST) : null));
+                                this.lexerCallCommand(this.currentOuterAltNumber, ID25,
+                                    lexerCommandExpr26.start as GrammarAST);
                             }
                             break;
                         }
@@ -666,7 +675,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 2: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:805:4: ID
                             {
-                                ID27 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_lexerCommand1794) as GrammarAST;
+                                ID27 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
                                 this.lexerCommand(this.currentOuterAltNumber, ID27);
                             }
                             break;
@@ -680,7 +689,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 } catch (re) {
                     if (re instanceof RecognitionException) {
                         this.reportError(re);
-                        this.recover(this.input, re);
+                        this.recover(this.input!, re);
                     } else {
                         throw re;
                     }
@@ -695,7 +704,7 @@ export class GrammarTreeVisitor extends TreeParser {
             }
 
             case 2: {
-                const [outerAltNumber, ID] = args as [number, GrammarAST];
+                //const [outerAltNumber, ID] = args as [number, GrammarAST];
 
                 break;
             }
@@ -730,17 +739,17 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:348:5: ( ^( GRAMMAR ID prequelConstructs rules ( mode )* ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:348:9: ^( GRAMMAR ID prequelConstructs rules ( mode )* )
             {
-                GRAMMAR2 = this.match(this.input, GrammarTreeVisitor.GRAMMAR, GrammarTreeVisitor.FOLLOW_GRAMMAR_in_grammarSpec85) as GrammarAST;
-                this.match(this.input, TreeParser.DOWN, null);
-                ID1 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_grammarSpec87) as GrammarAST;
-                this.grammarName = (ID1 !== null ? ID1.getText() : null);
+                GRAMMAR2 = this.match(this.input!, GrammarTreeVisitor.GRAMMAR, null) as GrammarAST | null;
+                this.match(this.input!, TreeParser.DOWN, null);
+                ID1 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST | null;
+                this.grammarName = ID1?.getText() ?? null;
                 this.discoverGrammar(GRAMMAR2 as GrammarRootAST, ID1);
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_prequelConstructs_in_grammarSpec106);
+                this.pushFollow(null);
                 prequelConstructs3 = this.prequelConstructs();
                 this.state._fsp--;
 
-                this.finishPrequels((prequelConstructs3 !== null ? (prequelConstructs3).firstOne : null));
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_rules_in_grammarSpec123);
+                this.finishPrequels(prequelConstructs3.firstOne);
+                this.pushFollow(null);
                 this.rules();
                 this.state._fsp--;
 
@@ -757,7 +766,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:352:14: mode
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_mode_in_grammarSpec125);
+                                this.pushFollow(null);
                                 this.mode();
                                 this.state._fsp--;
 
@@ -773,7 +782,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 }
 
                 this.finishGrammar(GRAMMAR2 as GrammarRootAST, ID1);
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -782,7 +791,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -840,7 +849,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 case 1: {
                                     // org/antlr/v4/parse/GrammarTreeVisitor.g:364:24: prequelConstruct
                                     {
-                                        this.pushFollow(GrammarTreeVisitor.FOLLOW_prequelConstruct_in_prequelConstructs167);
+                                        this.pushFollow(null);
                                         this.prequelConstruct();
                                         this.state._fsp--;
 
@@ -879,7 +888,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -949,7 +958,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:375:6: optionsSpec
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_optionsSpec_in_prequelConstruct194);
+                        this.pushFollow(null);
                         this.optionsSpec();
                         this.state._fsp--;
 
@@ -960,7 +969,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:376:9: delegateGrammars
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_delegateGrammars_in_prequelConstruct204);
+                        this.pushFollow(null);
                         this.delegateGrammars();
                         this.state._fsp--;
 
@@ -971,7 +980,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:377:9: tokensSpec
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_tokensSpec_in_prequelConstruct214);
+                        this.pushFollow(null);
                         this.tokensSpec();
                         this.state._fsp--;
 
@@ -982,7 +991,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:378:9: channelsSpec
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_channelsSpec_in_prequelConstruct224);
+                        this.pushFollow(null);
                         this.channelsSpec();
                         this.state._fsp--;
 
@@ -993,7 +1002,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 5: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:379:9: action
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_action_in_prequelConstruct234);
+                        this.pushFollow(null);
                         this.action();
                         this.state._fsp--;
 
@@ -1010,7 +1019,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1034,9 +1043,9 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:389:2: ( ^( OPTIONS ( option )* ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:389:4: ^( OPTIONS ( option )* )
             {
-                this.match(this.input, GrammarTreeVisitor.OPTIONS, GrammarTreeVisitor.FOLLOW_OPTIONS_in_optionsSpec259);
+                this.match(this.input!, GrammarTreeVisitor.OPTIONS, null);
                 if (this.input!.LA(1) === TreeParser.DOWN) {
-                    this.match(this.input, TreeParser.DOWN, null);
+                    this.match(this.input!, TreeParser.DOWN, null);
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:389:14: ( option )*
                     loop5:
                     while (true) {
@@ -1050,7 +1059,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             case 1: {
                                 // org/antlr/v4/parse/GrammarTreeVisitor.g:389:14: option
                                 {
-                                    this.pushFollow(GrammarTreeVisitor.FOLLOW_option_in_optionsSpec261);
+                                    this.pushFollow(null);
                                     this.option();
                                     this.state._fsp--;
 
@@ -1065,7 +1074,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         }
                     }
 
-                    this.match(this.input, TreeParser.UP, null);
+                    this.match(this.input!, TreeParser.UP, null);
                 }
 
             }
@@ -1075,7 +1084,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1093,7 +1102,6 @@ export class GrammarTreeVisitor extends TreeParser {
         const retval = new GrammarTreeVisitor.option_return();
         retval.start = this.input!.LT(1);
 
-        let a = null;
         let ID4 = null;
         let v = null;
 
@@ -1105,24 +1113,23 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:401:5: ( ^(a= ASSIGN ID v= optionValue ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:401:9: ^(a= ASSIGN ID v= optionValue )
             {
-                a = this.match(this.input, GrammarTreeVisitor.ASSIGN, GrammarTreeVisitor.FOLLOW_ASSIGN_in_option295) as GrammarAST;
-                this.match(this.input, TreeParser.DOWN, null);
-                ID4 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_option297) as GrammarAST;
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_optionValue_in_option301);
+                //const a = this.match(this.input!, GrammarTreeVisitor.ASSIGN, null) as GrammarAST | null;
+                this.match(this.input!, TreeParser.DOWN, null);
+                ID4 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST | null;
+                this.pushFollow(null);
                 v = this.optionValue();
                 this.state._fsp--;
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
                 if (block) {
-                    this.blockOption(ID4, (v !== null ? (v.start as GrammarAST) : null));
+                    this.blockOption(ID4, v.start as GrammarAST | null ?? null);
                 } else {
                     // most specific first
                     if (rule) {
-                        this.ruleOption(ID4, (v !== null ? (v.start as GrammarAST) : null));
-                    }
-                    else {
-                        this.grammarOption(ID4, (v !== null ? (v.start as GrammarAST) : null));
+                        this.ruleOption(ID4, v.start as GrammarAST | null ?? null);
+                    } else {
+                        this.grammarOption(ID4, v.start as GrammarAST | null ?? null);
                     }
 
                 }
@@ -1134,7 +1141,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1159,11 +1166,11 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:417:5: ( ID | STRING_LITERAL | INT )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:
             {
-                if (this.input!.LA(1) === GrammarTreeVisitor.ID || this.input!.LA(1) === GrammarTreeVisitor.INT || this.input!.LA(1) === GrammarTreeVisitor.STRING_LITERAL) {
+                if (this.input!.LA(1) === GrammarTreeVisitor.ID || this.input!.LA(1) === GrammarTreeVisitor.INT
+                    || this.input!.LA(1) === GrammarTreeVisitor.STRING_LITERAL) {
                     this.input!.consume();
                     this.state.errorRecovery = false;
-                }
-                else {
+                } else {
                     const mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
@@ -1174,7 +1181,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1195,8 +1202,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:429:2: ( ^( IMPORT ( delegateGrammar )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:429:6: ^( IMPORT ( delegateGrammar )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.IMPORT, GrammarTreeVisitor.FOLLOW_IMPORT_in_delegateGrammars389);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.IMPORT, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:429:15: ( delegateGrammar )+
                 let cnt6 = 0;
                 loop6:
@@ -1211,7 +1218,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:429:15: delegateGrammar
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_delegateGrammar_in_delegateGrammars391);
+                                this.pushFollow(null);
                                 this.delegateGrammar();
                                 this.state._fsp--;
 
@@ -1232,7 +1239,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt6++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -1241,7 +1248,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1284,11 +1291,11 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:439:9: ^( ASSIGN label= ID id= ID )
                     {
-                        this.match(this.input, GrammarTreeVisitor.ASSIGN, GrammarTreeVisitor.FOLLOW_ASSIGN_in_delegateGrammar420);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        label = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_delegateGrammar424) as GrammarAST;
-                        id = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_delegateGrammar428) as GrammarAST;
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, GrammarTreeVisitor.ASSIGN, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        label = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                        id = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.importGrammar(label, id);
                     }
@@ -1298,7 +1305,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:440:9: id= ID
                     {
-                        id = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_delegateGrammar443) as GrammarAST;
+                        id = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
                         this.importGrammar(null, id);
                     }
                     break;
@@ -1313,7 +1320,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1337,8 +1344,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:450:2: ( ^( TOKENS_SPEC ( tokenSpec )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:450:6: ^( TOKENS_SPEC ( tokenSpec )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.TOKENS_SPEC, GrammarTreeVisitor.FOLLOW_TOKENS_SPEC_in_tokensSpec477);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.TOKENS_SPEC, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:450:20: ( tokenSpec )+
                 let cnt8 = 0;
                 loop8:
@@ -1353,7 +1360,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:450:20: tokenSpec
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_tokenSpec_in_tokensSpec479);
+                                this.pushFollow(null);
                                 this.tokenSpec();
                                 this.state._fsp--;
 
@@ -1374,7 +1381,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt8++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -1383,7 +1390,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1409,7 +1416,7 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:460:2: ( ID )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:460:4: ID
             {
-                ID5 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_tokenSpec502) as GrammarAST;
+                ID5 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
                 this.defineToken(ID5);
             }
 
@@ -1418,7 +1425,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1442,8 +1449,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:470:2: ( ^( CHANNELS ( channelSpec )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:470:6: ^( CHANNELS ( channelSpec )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.CHANNELS, GrammarTreeVisitor.FOLLOW_CHANNELS_in_channelsSpec532);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.CHANNELS, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:470:17: ( channelSpec )+
                 let cnt9 = 0;
                 loop9:
@@ -1458,7 +1465,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:470:17: channelSpec
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_channelSpec_in_channelsSpec534);
+                                this.pushFollow(null);
                                 this.channelSpec();
                                 this.state._fsp--;
 
@@ -1479,7 +1486,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt9++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -1488,7 +1495,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1514,7 +1521,7 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:480:2: ( ID )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:480:4: ID
             {
-                ID6 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_channelSpec557) as GrammarAST;
+                ID6 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
                 this.defineChannel(ID6);
             }
 
@@ -1523,7 +1530,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1551,8 +1558,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:490:2: ( ^( AT (sc= ID )? name= ID ACTION ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:490:4: ^( AT (sc= ID )? name= ID ACTION )
             {
-                this.match(this.input, GrammarTreeVisitor.AT, GrammarTreeVisitor.FOLLOW_AT_in_action585);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.AT, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:490:11: (sc= ID )?
                 let alt10 = 2;
                 const LA10_0 = this.input!.LA(1);
@@ -1566,7 +1573,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:490:11: sc= ID
                         {
-                            sc = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_action589) as GrammarAST;
+                            sc = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
                         }
                         break;
                     }
@@ -1575,9 +1582,9 @@ export class GrammarTreeVisitor extends TreeParser {
 
                 }
 
-                name = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_action594) as GrammarAST;
-                ACTION7 = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_action596) as GrammarAST;
-                this.match(this.input, TreeParser.UP, null);
+                name = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                ACTION7 = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
+                this.match(this.input!, TreeParser.UP, null);
 
                 this.globalNamedAction(sc, name, ACTION7 as ActionAST);
             }
@@ -1587,7 +1594,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1613,10 +1620,10 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:500:5: ( ^( RULES ( rule | lexerRule )* ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:500:7: ^( RULES ( rule | lexerRule )* )
             {
-                RULES8 = this.match(this.input, GrammarTreeVisitor.RULES, GrammarTreeVisitor.FOLLOW_RULES_in_rules624) as GrammarAST;
+                RULES8 = this.match(this.input!, GrammarTreeVisitor.RULES, null) as GrammarAST;
                 this.discoverRules(RULES8);
                 if (this.input!.LA(1) === TreeParser.DOWN) {
-                    this.match(this.input, TreeParser.DOWN, null);
+                    this.match(this.input!, TreeParser.DOWN, null);
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:500:40: ( rule | lexerRule )*
                     loop11:
                     while (true) {
@@ -1643,7 +1650,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             case 1: {
                                 // org/antlr/v4/parse/GrammarTreeVisitor.g:500:41: rule
                                 {
-                                    this.pushFollow(GrammarTreeVisitor.FOLLOW_rule_in_rules629);
+                                    this.pushFollow(null);
                                     this.rule();
                                     this.state._fsp--;
 
@@ -1654,7 +1661,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             case 2: {
                                 // org/antlr/v4/parse/GrammarTreeVisitor.g:500:46: lexerRule
                                 {
-                                    this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerRule_in_rules631);
+                                    this.pushFollow(null);
                                     this.lexerRule();
                                     this.state._fsp--;
 
@@ -1670,7 +1677,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     }
 
                     this.finishRules(RULES8);
-                    this.match(this.input, TreeParser.UP, null);
+                    this.match(this.input!, TreeParser.UP, null);
                 }
 
             }
@@ -1680,7 +1687,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1707,9 +1714,9 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:510:2: ( ^( MODE ID ( lexerRule )* ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:510:4: ^( MODE ID ( lexerRule )* )
             {
-                MODE10 = this.match(this.input, GrammarTreeVisitor.MODE, GrammarTreeVisitor.FOLLOW_MODE_in_mode662) as GrammarAST;
-                this.match(this.input, TreeParser.DOWN, null);
-                ID9 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_mode664) as GrammarAST;
+                MODE10 = this.match(this.input!, GrammarTreeVisitor.MODE, null) as GrammarAST | null;
+                this.match(this.input!, TreeParser.DOWN, null);
+                ID9 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST | null;
                 this.currentModeName = (ID9 !== null ? ID9.getText() : null);
                 this.modeDef(MODE10, ID9);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:510:64: ( lexerRule )*
@@ -1725,7 +1732,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:510:64: lexerRule
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerRule_in_mode668);
+                                this.pushFollow(null);
                                 this.lexerRule();
                                 this.state._fsp--;
 
@@ -1740,7 +1747,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     }
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -1749,7 +1756,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1781,10 +1788,11 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:522:2: ( ^( RULE TOKEN_REF ( ^( RULEMODIFIERS m= FRAGMENT ) )? (opts= optionsSpec )* lexerRuleBlock ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:522:4: ^( RULE TOKEN_REF ( ^( RULEMODIFIERS m= FRAGMENT ) )? (opts= optionsSpec )* lexerRuleBlock )
             {
-                RULE12 = this.match(this.input, GrammarTreeVisitor.RULE, GrammarTreeVisitor.FOLLOW_RULE_in_lexerRule694) as GrammarAST;
-                this.match(this.input, TreeParser.DOWN, null);
-                TOKEN_REF11 = this.match(this.input, GrammarTreeVisitor.TOKEN_REF, GrammarTreeVisitor.FOLLOW_TOKEN_REF_in_lexerRule696) as GrammarAST;
-                this.currentRuleName = (TOKEN_REF11 !== null ? TOKEN_REF11.getText() : null); this.currentRuleAST = RULE12;
+                RULE12 = this.match(this.input!, GrammarTreeVisitor.RULE, null) as GrammarAST | null;
+                this.match(this.input!, TreeParser.DOWN, null);
+                TOKEN_REF11 = this.match(this.input!, GrammarTreeVisitor.TOKEN_REF, null) as GrammarAST | null;
+                this.currentRuleName = TOKEN_REF11?.getText() ?? null;
+                this.currentRuleAST = RULE12;
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:524:4: ( ^( RULEMODIFIERS m= FRAGMENT ) )?
                 let alt13 = 2;
                 const LA13_0 = this.input!.LA(1);
@@ -1795,11 +1803,11 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:524:5: ^( RULEMODIFIERS m= FRAGMENT )
                         {
-                            this.match(this.input, GrammarTreeVisitor.RULEMODIFIERS, GrammarTreeVisitor.FOLLOW_RULEMODIFIERS_in_lexerRule708);
-                            this.match(this.input, TreeParser.DOWN, null);
-                            m = this.match(this.input, GrammarTreeVisitor.FRAGMENT, GrammarTreeVisitor.FOLLOW_FRAGMENT_in_lexerRule712) as GrammarAST;
-                            mods.add(m);
-                            this.match(this.input, TreeParser.UP, null);
+                            this.match(this.input!, GrammarTreeVisitor.RULEMODIFIERS, null);
+                            this.match(this.input!, TreeParser.DOWN, null);
+                            m = this.match(this.input!, GrammarTreeVisitor.FRAGMENT, null) as GrammarAST;
+                            mods.push(m);
+                            this.match(this.input!, TreeParser.UP, null);
 
                         }
                         break;
@@ -1822,7 +1830,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:525:8: opts= optionsSpec
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_optionsSpec_in_lexerRule724);
+                                this.pushFollow(null);
                                 opts = this.optionsSpec();
                                 this.state._fsp--;
 
@@ -1837,15 +1845,17 @@ export class GrammarTreeVisitor extends TreeParser {
                     }
                 }
 
-                this.discoverLexerRule(RULE12 as RuleAST, TOKEN_REF11, mods, (opts !== null ? (opts.start as GrammarAST) : null), this.input!.LT(1) as GrammarAST);
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerRuleBlock_in_lexerRule745);
+                this.discoverLexerRule(RULE12 as RuleAST, TOKEN_REF11, mods, opts?.start as GrammarAST | null ?? null,
+                    this.input!.LT(1) as GrammarAST);
+                this.pushFollow(null);
                 lexerRuleBlock13 = this.lexerRuleBlock();
                 this.state._fsp--;
 
-                this.finishLexerRule(RULE12 as RuleAST, TOKEN_REF11, (lexerRuleBlock13 !== null ? (lexerRuleBlock13.start as GrammarAST) : null));
+                this.finishLexerRule(RULE12 as RuleAST, TOKEN_REF11,
+                    lexerRuleBlock13.start as GrammarAST | null ?? null);
                 this.currentRuleName = null; this.currentRuleAST = null;
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -1854,7 +1864,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -1884,17 +1894,17 @@ export class GrammarTreeVisitor extends TreeParser {
         let ruleBlock17 = null;
 
         this.enterRule((retval.start as GrammarAST));
-        const mods = new Array<GrammarAST>();
-        const actions = new Array<GrammarAST>(); // track roots
+        const mods = new Array<GrammarAST | null>();
+        const actions = new Array<GrammarAST | null>(); // track roots
         this.currentOuterAltNumber = 0;
 
         try {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:545:2: ( ^( RULE RULE_REF ( ^( RULEMODIFIERS (m= ruleModifier )+ ) )? ( ARG_ACTION )? (ret= ruleReturns )? (thr= throwsSpec )? (loc= locals )? (opts= optionsSpec |a= ruleAction )* ruleBlock exceptionGroup ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:545:6: ^( RULE RULE_REF ( ^( RULEMODIFIERS (m= ruleModifier )+ ) )? ( ARG_ACTION )? (ret= ruleReturns )? (thr= throwsSpec )? (loc= locals )? (opts= optionsSpec |a= ruleAction )* ruleBlock exceptionGroup )
             {
-                RULE15 = this.match(this.input, GrammarTreeVisitor.RULE, GrammarTreeVisitor.FOLLOW_RULE_in_rule790) as GrammarAST;
-                this.match(this.input, TreeParser.DOWN, null);
-                RULE_REF14 = this.match(this.input, GrammarTreeVisitor.RULE_REF, GrammarTreeVisitor.FOLLOW_RULE_REF_in_rule792) as GrammarAST;
+                RULE15 = this.match(this.input!, GrammarTreeVisitor.RULE, null) as GrammarAST | null;
+                this.match(this.input!, TreeParser.DOWN, null);
+                RULE_REF14 = this.match(this.input!, GrammarTreeVisitor.RULE_REF, null) as GrammarAST | null;
                 this.currentRuleName = (RULE_REF14 !== null ? RULE_REF14.getText() : null); this.currentRuleAST = RULE15;
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:546:4: ( ^( RULEMODIFIERS (m= ruleModifier )+ ) )?
                 let alt16 = 2;
@@ -1906,8 +1916,8 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:546:5: ^( RULEMODIFIERS (m= ruleModifier )+ )
                         {
-                            this.match(this.input, GrammarTreeVisitor.RULEMODIFIERS, GrammarTreeVisitor.FOLLOW_RULEMODIFIERS_in_rule801);
-                            this.match(this.input, TreeParser.DOWN, null);
+                            this.match(this.input!, GrammarTreeVisitor.RULEMODIFIERS, null);
+                            this.match(this.input!, TreeParser.DOWN, null);
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:546:21: (m= ruleModifier )+
                             let cnt15 = 0;
                             loop15:
@@ -1922,11 +1932,11 @@ export class GrammarTreeVisitor extends TreeParser {
                                     case 1: {
                                         // org/antlr/v4/parse/GrammarTreeVisitor.g:546:22: m= ruleModifier
                                         {
-                                            this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleModifier_in_rule806);
+                                            this.pushFollow(null);
                                             m = this.ruleModifier();
                                             this.state._fsp--;
 
-                                            mods.add((m !== null ? (m.start as GrammarAST) : null));
+                                            mods.push(m.start as GrammarAST | null);
                                         }
                                         break;
                                     }
@@ -1944,7 +1954,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 cnt15++;
                             }
 
-                            this.match(this.input, TreeParser.UP, null);
+                            this.match(this.input!, TreeParser.UP, null);
 
                         }
                         break;
@@ -1964,7 +1974,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:547:4: ARG_ACTION
                         {
-                            ARG_ACTION16 = this.match(this.input, GrammarTreeVisitor.ARG_ACTION, GrammarTreeVisitor.FOLLOW_ARG_ACTION_in_rule817) as GrammarAST;
+                            ARG_ACTION16 = this.match(this.input!, GrammarTreeVisitor.ARG_ACTION, null) as GrammarAST;
                         }
                         break;
                     }
@@ -1983,7 +1993,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:548:12: ret= ruleReturns
                         {
-                            this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleReturns_in_rule830);
+                            this.pushFollow(null);
                             ret = this.ruleReturns();
                             this.state._fsp--;
 
@@ -2005,7 +2015,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:549:12: thr= throwsSpec
                         {
-                            this.pushFollow(GrammarTreeVisitor.FOLLOW_throwsSpec_in_rule843);
+                            this.pushFollow(null);
                             thr = this.throwsSpec();
                             this.state._fsp--;
 
@@ -2027,7 +2037,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:550:12: loc= locals
                         {
-                            this.pushFollow(GrammarTreeVisitor.FOLLOW_locals_in_rule856);
+                            this.pushFollow(null);
                             loc = this.locals();
                             this.state._fsp--;
 
@@ -2057,7 +2067,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:551:11: opts= optionsSpec
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_optionsSpec_in_rule871);
+                                this.pushFollow(null);
                                 opts = this.optionsSpec();
                                 this.state._fsp--;
 
@@ -2068,11 +2078,11 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 2: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:552:11: a= ruleAction
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleAction_in_rule885);
+                                this.pushFollow(null);
                                 a = this.ruleAction();
                                 this.state._fsp--;
 
-                                actions.add((a !== null ? (a.start as GrammarAST) : null));
+                                actions.push(a.start as GrammarAST | null);
                             }
                             break;
                         }
@@ -2084,21 +2094,26 @@ export class GrammarTreeVisitor extends TreeParser {
                     }
                 }
 
-                this.discoverRule(RULE15 as RuleAST, RULE_REF14, mods, ARG_ACTION16 as ActionAST,
-                    (ret !== null ? (ret.start as GrammarAST) : null) !== null ? (ret !== null ? (ret.start as GrammarAST) : null).getChild(0) as ActionAST : null,
-                    (thr !== null ? (thr.start as GrammarAST) : null), (opts !== null ? (opts.start as GrammarAST) : null),
-                    (loc !== null ? (loc.start as GrammarAST) : null) !== null ? (loc !== null ? (loc.start as GrammarAST) : null).getChild(0) as ActionAST : null,
+                const retStart = ret?.start as GrammarAST | null ?? null;
+                const thrStart = thr?.start as GrammarAST | null ?? null;
+                const locStart = loc?.start as GrammarAST | null ?? null;
+                this.discoverRule(RULE15 as RuleAST | null, RULE_REF14, mods, ARG_ACTION16 as ActionAST,
+                    retStart?.getChild(0) as ActionAST | null ?? null, thrStart,
+                    opts?.start as GrammarAST | null ?? null,
+                    locStart?.getChild(0) as ActionAST | null ?? null,
                     actions, this.input!.LT(1) as GrammarAST);
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleBlock_in_rule916);
+                this.pushFollow(null);
                 ruleBlock17 = this.ruleBlock();
                 this.state._fsp--;
 
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_exceptionGroup_in_rule918);
+                this.pushFollow(null);
                 this.exceptionGroup();
                 this.state._fsp--;
 
-                this.finishRule(RULE15 as RuleAST, RULE_REF14, (ruleBlock17 !== null ? (ruleBlock17.start as GrammarAST) : null)); this.currentRuleName = null; this.currentRuleAST = null;
-                this.match(this.input, TreeParser.UP, null);
+                this.finishRule(RULE15 as RuleAST | null, RULE_REF14, ruleBlock17.start as GrammarAST);
+                this.currentRuleName = null;
+                this.currentRuleAST = null;
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2107,7 +2122,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2144,7 +2159,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:571:7: exceptionHandler
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_exceptionHandler_in_exceptionGroup965);
+                                this.pushFollow(null);
                                 this.exceptionHandler();
                                 this.state._fsp--;
 
@@ -2169,7 +2184,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:571:25: finallyClause
                         {
-                            this.pushFollow(GrammarTreeVisitor.FOLLOW_finallyClause_in_exceptionGroup968);
+                            this.pushFollow(null);
                             this.finallyClause();
                             this.state._fsp--;
 
@@ -2188,7 +2203,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2215,11 +2230,11 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:581:2: ( ^( CATCH ARG_ACTION ACTION ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:581:4: ^( CATCH ARG_ACTION ACTION )
             {
-                this.match(this.input, GrammarTreeVisitor.CATCH, GrammarTreeVisitor.FOLLOW_CATCH_in_exceptionHandler994);
-                this.match(this.input, TreeParser.DOWN, null);
-                ARG_ACTION18 = this.match(this.input, GrammarTreeVisitor.ARG_ACTION, GrammarTreeVisitor.FOLLOW_ARG_ACTION_in_exceptionHandler996) as GrammarAST;
-                ACTION19 = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_exceptionHandler998) as GrammarAST;
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, GrammarTreeVisitor.CATCH, null);
+                this.match(this.input!, TreeParser.DOWN, null);
+                ARG_ACTION18 = this.match(this.input!, GrammarTreeVisitor.ARG_ACTION, null) as GrammarAST;
+                ACTION19 = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
+                this.match(this.input!, TreeParser.UP, null);
 
                 this.ruleCatch(ARG_ACTION18, ACTION19 as ActionAST);
             }
@@ -2229,7 +2244,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2255,10 +2270,10 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:591:2: ( ^( FINALLY ACTION ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:591:4: ^( FINALLY ACTION )
             {
-                this.match(this.input, GrammarTreeVisitor.FINALLY, GrammarTreeVisitor.FOLLOW_FINALLY_in_finallyClause1023);
-                this.match(this.input, TreeParser.DOWN, null);
-                ACTION20 = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_finallyClause1025) as GrammarAST;
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, GrammarTreeVisitor.FINALLY, null);
+                this.match(this.input!, TreeParser.DOWN, null);
+                ACTION20 = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
+                this.match(this.input!, TreeParser.UP, null);
 
                 this.finallyAction(ACTION20 as ActionAST);
             }
@@ -2268,7 +2283,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2292,10 +2307,10 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:601:2: ( ^( LOCALS ARG_ACTION ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:601:4: ^( LOCALS ARG_ACTION )
             {
-                this.match(this.input, GrammarTreeVisitor.LOCALS, GrammarTreeVisitor.FOLLOW_LOCALS_in_locals1053);
-                this.match(this.input, TreeParser.DOWN, null);
-                this.match(this.input, GrammarTreeVisitor.ARG_ACTION, GrammarTreeVisitor.FOLLOW_ARG_ACTION_in_locals1055);
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, GrammarTreeVisitor.LOCALS, null);
+                this.match(this.input!, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.ARG_ACTION, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2304,7 +2319,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2328,10 +2343,10 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:611:2: ( ^( RETURNS ARG_ACTION ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:611:4: ^( RETURNS ARG_ACTION )
             {
-                this.match(this.input, GrammarTreeVisitor.RETURNS, GrammarTreeVisitor.FOLLOW_RETURNS_in_ruleReturns1078);
-                this.match(this.input, TreeParser.DOWN, null);
-                this.match(this.input, GrammarTreeVisitor.ARG_ACTION, GrammarTreeVisitor.FOLLOW_ARG_ACTION_in_ruleReturns1080);
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, GrammarTreeVisitor.RETURNS, null);
+                this.match(this.input!, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.ARG_ACTION, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2340,7 +2355,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2364,8 +2379,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:621:5: ( ^( THROWS ( ID )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:621:7: ^( THROWS ( ID )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.THROWS, GrammarTreeVisitor.FOLLOW_THROWS_in_throwsSpec1106);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.THROWS, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:621:16: ( ID )+
                 let cnt24 = 0;
                 loop24:
@@ -2380,7 +2395,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:621:16: ID
                             {
-                                this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_throwsSpec1108);
+                                this.match(this.input!, GrammarTreeVisitor.ID, null);
                             }
                             break;
                         }
@@ -2398,7 +2413,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt24++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2407,7 +2422,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2431,11 +2446,11 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:631:2: ( ^( AT ID ACTION ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:631:4: ^( AT ID ACTION )
             {
-                this.match(this.input, GrammarTreeVisitor.AT, GrammarTreeVisitor.FOLLOW_AT_in_ruleAction1135);
-                this.match(this.input, TreeParser.DOWN, null);
-                this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_ruleAction1137);
-                this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_ruleAction1139);
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, GrammarTreeVisitor.AT, null);
+                this.match(this.input!, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.ID, null);
+                this.match(this.input!, GrammarTreeVisitor.ACTION, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2444,7 +2459,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2483,7 +2498,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2507,8 +2522,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:654:5: ( ^( BLOCK ( lexerOuterAlternative )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:654:7: ^( BLOCK ( lexerOuterAlternative )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.BLOCK, GrammarTreeVisitor.FOLLOW_BLOCK_in_lexerRuleBlock1217);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.BLOCK, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:655:7: ( lexerOuterAlternative )+
                 let cnt25 = 0;
                 loop25:
@@ -2527,7 +2542,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 this.currentOuterAltRoot = this.input!.LT(1) as GrammarAST;
                                 this.currentOuterAltNumber++;
 
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerOuterAlternative_in_lexerRuleBlock1236);
+                                this.pushFollow(null);
                                 this.lexerOuterAlternative();
                                 this.state._fsp--;
 
@@ -2548,7 +2563,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt25++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2557,7 +2572,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2581,8 +2596,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:671:5: ( ^( BLOCK ( outerAlternative )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:671:7: ^( BLOCK ( outerAlternative )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.BLOCK, GrammarTreeVisitor.FOLLOW_BLOCK_in_ruleBlock1281);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.BLOCK, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:672:7: ( outerAlternative )+
                 let cnt26 = 0;
                 loop26:
@@ -2601,7 +2616,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 this.currentOuterAltRoot = this.input!.LT(1) as GrammarAST;
                                 this.currentOuterAltNumber++;
 
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_outerAlternative_in_ruleBlock1300);
+                                this.pushFollow(null);
                                 this.outerAlternative();
                                 this.state._fsp--;
 
@@ -2622,7 +2637,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt26++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2631,7 +2646,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2656,7 +2671,7 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:690:2: ( lexerAlternative )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:690:4: lexerAlternative
             {
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerAlternative_in_lexerOuterAlternative1340);
+                this.pushFollow(null);
                 this.lexerAlternative();
                 this.state._fsp--;
 
@@ -2668,7 +2683,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2693,7 +2708,7 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:703:2: ( alternative )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:703:4: alternative
             {
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_alternative_in_outerAlternative1362);
+                this.pushFollow(null);
                 this.alternative();
                 this.state._fsp--;
 
@@ -2705,7 +2720,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2748,9 +2763,9 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:713:4: ^( LEXER_ALT_ACTION lexerElements ( lexerCommand )+ )
                     {
-                        this.match(this.input, GrammarTreeVisitor.LEXER_ALT_ACTION, GrammarTreeVisitor.FOLLOW_LEXER_ALT_ACTION_in_lexerAlternative1384);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerElements_in_lexerAlternative1386);
+                        this.match(this.input!, GrammarTreeVisitor.LEXER_ALT_ACTION, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.lexerElements();
                         this.state._fsp--;
 
@@ -2768,7 +2783,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 case 1: {
                                     // org/antlr/v4/parse/GrammarTreeVisitor.g:713:37: lexerCommand
                                     {
-                                        this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerCommand_in_lexerAlternative1388);
+                                        this.pushFollow(null);
                                         this.lexerCommand();
                                         this.state._fsp--;
 
@@ -2789,7 +2804,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             cnt27++;
                         }
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -2798,7 +2813,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:714:9: lexerElements
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerElements_in_lexerAlternative1400);
+                        this.pushFollow(null);
                         this.lexerElements();
                         this.state._fsp--;
 
@@ -2815,7 +2830,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -2839,8 +2854,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:724:5: ( ^( ALT ( lexerElement )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:724:7: ^( ALT ( lexerElement )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.ALT, GrammarTreeVisitor.FOLLOW_ALT_in_lexerElements1428);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.ALT, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:724:13: ( lexerElement )+
                 let cnt29 = 0;
                 loop29:
@@ -2855,7 +2870,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:724:13: lexerElement
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerElement_in_lexerElements1430);
+                                this.pushFollow(null);
                                 this.lexerElement();
                                 this.state._fsp--;
 
@@ -2876,7 +2891,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt29++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -2885,7 +2900,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -3013,7 +3028,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:734:4: lexerAtom
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerAtom_in_lexerElement1456);
+                        this.pushFollow(null);
                         this.lexerAtom();
                         this.state._fsp--;
 
@@ -3024,7 +3039,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:735:4: lexerSubrule
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerSubrule_in_lexerElement1461);
+                        this.pushFollow(null);
                         this.lexerSubrule();
                         this.state._fsp--;
 
@@ -3035,7 +3050,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:736:6: ACTION
                     {
-                        ACTION21 = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_lexerElement1468) as GrammarAST;
+                        ACTION21 = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
                         this.actionInAlt(ACTION21 as ActionAST);
                     }
                     break;
@@ -3044,7 +3059,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:737:6: SEMPRED
                     {
-                        SEMPRED22 = this.match(this.input, GrammarTreeVisitor.SEMPRED, GrammarTreeVisitor.FOLLOW_SEMPRED_in_lexerElement1482) as GrammarAST;
+                        SEMPRED22 = this.match(this.input!, GrammarTreeVisitor.SEMPRED, null) as GrammarAST;
                         this.sempredInAlt(SEMPRED22 as PredAST);
                     }
                     break;
@@ -3053,13 +3068,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 5: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:738:6: ^( ACTION elementOptions )
                     {
-                        ACTION23 = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_lexerElement1497) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_lexerElement1499);
+                        ACTION23 = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.actionInAlt(ACTION23 as ActionAST);
                     }
@@ -3069,13 +3084,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 6: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:739:6: ^( SEMPRED elementOptions )
                     {
-                        SEMPRED24 = this.match(this.input, GrammarTreeVisitor.SEMPRED, GrammarTreeVisitor.FOLLOW_SEMPRED_in_lexerElement1510) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_lexerElement1512);
+                        SEMPRED24 = this.match(this.input!, GrammarTreeVisitor.SEMPRED, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.sempredInAlt(SEMPRED24 as PredAST);
                     }
@@ -3085,7 +3100,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 7: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:740:4: EPSILON
                     {
-                        this.match(this.input, GrammarTreeVisitor.EPSILON, GrammarTreeVisitor.FOLLOW_EPSILON_in_lexerElement1520);
+                        this.match(this.input!, GrammarTreeVisitor.EPSILON, null);
                     }
                     break;
                 }
@@ -3099,7 +3114,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -3123,8 +3138,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:750:3: ( ^( BLOCK ( optionsSpec )? ( lexerAlternative )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:750:5: ^( BLOCK ( optionsSpec )? ( lexerAlternative )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.BLOCK, GrammarTreeVisitor.FOLLOW_BLOCK_in_lexerBlock1543);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.BLOCK, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:750:13: ( optionsSpec )?
                 let alt31 = 2;
                 const LA31_0 = this.input!.LA(1);
@@ -3135,7 +3150,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:750:13: optionsSpec
                         {
-                            this.pushFollow(GrammarTreeVisitor.FOLLOW_optionsSpec_in_lexerBlock1545);
+                            this.pushFollow(null);
                             this.optionsSpec();
                             this.state._fsp--;
 
@@ -3161,7 +3176,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:750:26: lexerAlternative
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerAlternative_in_lexerBlock1548);
+                                this.pushFollow(null);
                                 this.lexerAlternative();
                                 this.state._fsp--;
 
@@ -3182,7 +3197,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt32++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -3191,7 +3206,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -3297,7 +3312,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:760:9: terminal
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_terminal_in_lexerAtom1579);
+                        this.pushFollow(null);
                         this.terminal();
                         this.state._fsp--;
 
@@ -3308,13 +3323,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:761:9: ^( NOT blockSet )
                     {
-                        this.match(this.input, GrammarTreeVisitor.NOT, GrammarTreeVisitor.FOLLOW_NOT_in_lexerAtom1590);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_blockSet_in_lexerAtom1592);
+                        this.match(this.input!, GrammarTreeVisitor.NOT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.blockSet();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -3323,7 +3338,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:762:9: blockSet
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_blockSet_in_lexerAtom1603);
+                        this.pushFollow(null);
                         this.blockSet();
                         this.state._fsp--;
 
@@ -3334,13 +3349,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:763:9: ^( WILDCARD elementOptions )
                     {
-                        this.match(this.input, GrammarTreeVisitor.WILDCARD, GrammarTreeVisitor.FOLLOW_WILDCARD_in_lexerAtom1614);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_lexerAtom1616);
+                        this.match(this.input!, GrammarTreeVisitor.WILDCARD, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -3349,7 +3364,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 5: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:764:9: WILDCARD
                     {
-                        this.match(this.input, GrammarTreeVisitor.WILDCARD, GrammarTreeVisitor.FOLLOW_WILDCARD_in_lexerAtom1627);
+                        this.match(this.input!, GrammarTreeVisitor.WILDCARD, null);
                     }
                     break;
                 }
@@ -3357,7 +3372,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 6: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:765:7: LEXER_CHAR_SET
                     {
-                        this.match(this.input, GrammarTreeVisitor.LEXER_CHAR_SET, GrammarTreeVisitor.FOLLOW_LEXER_CHAR_SET_in_lexerAtom1635);
+                        this.match(this.input!, GrammarTreeVisitor.LEXER_CHAR_SET, null);
                     }
                     break;
                 }
@@ -3365,7 +3380,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 7: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:766:9: range
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_range_in_lexerAtom1645);
+                        this.pushFollow(null);
                         this.range();
                         this.state._fsp--;
 
@@ -3376,7 +3391,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 8: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:767:9: ruleref
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleref_in_lexerAtom1655);
+                        this.pushFollow(null);
                         this.ruleref();
                         this.state._fsp--;
 
@@ -3393,7 +3408,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -3478,7 +3493,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:777:4: ACTION
                     {
-                        this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_actionElement1679);
+                        this.match(this.input!, GrammarTreeVisitor.ACTION, null);
                     }
                     break;
                 }
@@ -3486,13 +3501,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:778:6: ^( ACTION elementOptions )
                     {
-                        this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_actionElement1687);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_actionElement1689);
+                        this.match(this.input!, GrammarTreeVisitor.ACTION, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -3501,7 +3516,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:779:6: SEMPRED
                     {
-                        this.match(this.input, GrammarTreeVisitor.SEMPRED, GrammarTreeVisitor.FOLLOW_SEMPRED_in_actionElement1697);
+                        this.match(this.input!, GrammarTreeVisitor.SEMPRED, null);
                     }
                     break;
                 }
@@ -3509,13 +3524,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:780:6: ^( SEMPRED elementOptions )
                     {
-                        this.match(this.input, GrammarTreeVisitor.SEMPRED, GrammarTreeVisitor.FOLLOW_SEMPRED_in_actionElement1705);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_actionElement1707);
+                        this.match(this.input!, GrammarTreeVisitor.SEMPRED, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -3530,7 +3545,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -3553,14 +3568,15 @@ export class GrammarTreeVisitor extends TreeParser {
 
         try {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:792:2: ( ^( ALT ( elementOptions )? ( element )+ ) | ^( ALT ( elementOptions )? EPSILON ) )
-            let alt38 = 2;
-            alt38 = this.dfa38.predict(input);
+            // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+            const alt38: number = 2;
+            //alt38 = this.dfa38.predict(input);
             switch (alt38) {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:792:4: ^( ALT ( elementOptions )? ( element )+ )
                     {
-                        this.match(this.input, GrammarTreeVisitor.ALT, GrammarTreeVisitor.FOLLOW_ALT_in_alternative1730);
-                        this.match(this.input, TreeParser.DOWN, null);
+                        this.match(this.input!, GrammarTreeVisitor.ALT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:792:10: ( elementOptions )?
                         let alt35 = 2;
                         const LA35_0 = this.input!.LA(1);
@@ -3571,7 +3587,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             case 1: {
                                 // org/antlr/v4/parse/GrammarTreeVisitor.g:792:10: elementOptions
                                 {
-                                    this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_alternative1732);
+                                    this.pushFollow(null);
                                     this.elementOptions();
                                     this.state._fsp--;
 
@@ -3597,7 +3613,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 case 1: {
                                     // org/antlr/v4/parse/GrammarTreeVisitor.g:792:26: element
                                     {
-                                        this.pushFollow(GrammarTreeVisitor.FOLLOW_element_in_alternative1735);
+                                        this.pushFollow(null);
                                         this.element();
                                         this.state._fsp--;
 
@@ -3618,7 +3634,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             cnt36++;
                         }
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -3627,8 +3643,8 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:793:4: ^( ALT ( elementOptions )? EPSILON )
                     {
-                        this.match(this.input, GrammarTreeVisitor.ALT, GrammarTreeVisitor.FOLLOW_ALT_in_alternative1743);
-                        this.match(this.input, TreeParser.DOWN, null);
+                        this.match(this.input!, GrammarTreeVisitor.ALT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:793:10: ( elementOptions )?
                         let alt37 = 2;
                         const LA37_0 = this.input!.LA(1);
@@ -3639,7 +3655,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             case 1: {
                                 // org/antlr/v4/parse/GrammarTreeVisitor.g:793:10: elementOptions
                                 {
-                                    this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_alternative1745);
+                                    this.pushFollow(null);
                                     this.elementOptions();
                                     this.state._fsp--;
 
@@ -3651,8 +3667,8 @@ export class GrammarTreeVisitor extends TreeParser {
 
                         }
 
-                        this.match(this.input, GrammarTreeVisitor.EPSILON, GrammarTreeVisitor.FOLLOW_EPSILON_in_alternative1748);
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, GrammarTreeVisitor.EPSILON, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -3668,7 +3684,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -3707,13 +3723,10 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
-        }
-        finally {
-            // do for sure before leaving
         }
 
         return retval;
@@ -3886,7 +3899,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:827:4: labeledElement
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_labeledElement_in_element1851);
+                        this.pushFollow(null);
                         this.labeledElement();
                         this.state._fsp--;
 
@@ -3897,7 +3910,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:828:4: atom
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_atom_in_element1856);
+                        this.pushFollow(null);
                         this.atom();
                         this.state._fsp--;
 
@@ -3908,7 +3921,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:829:4: subrule
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_subrule_in_element1861);
+                        this.pushFollow(null);
                         this.subrule();
                         this.state._fsp--;
 
@@ -3919,7 +3932,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:830:6: ACTION
                     {
-                        ACTION28 = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_element1868) as GrammarAST;
+                        ACTION28 = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
                         this.actionInAlt(ACTION28 as ActionAST);
                     }
                     break;
@@ -3928,7 +3941,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 5: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:831:6: SEMPRED
                     {
-                        SEMPRED29 = this.match(this.input, GrammarTreeVisitor.SEMPRED, GrammarTreeVisitor.FOLLOW_SEMPRED_in_element1882) as GrammarAST;
+                        SEMPRED29 = this.match(this.input!, GrammarTreeVisitor.SEMPRED, null) as GrammarAST;
                         this.sempredInAlt(SEMPRED29 as PredAST);
                     }
                     break;
@@ -3937,13 +3950,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 6: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:832:6: ^( ACTION elementOptions )
                     {
-                        ACTION30 = this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_element1897) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_element1899);
+                        ACTION30 = this.match(this.input!, GrammarTreeVisitor.ACTION, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.actionInAlt(ACTION30 as ActionAST);
                     }
@@ -3953,13 +3966,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 7: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:833:6: ^( SEMPRED elementOptions )
                     {
-                        SEMPRED31 = this.match(this.input, GrammarTreeVisitor.SEMPRED, GrammarTreeVisitor.FOLLOW_SEMPRED_in_element1910) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_element1912);
+                        SEMPRED31 = this.match(this.input!, GrammarTreeVisitor.SEMPRED, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.sempredInAlt(SEMPRED31 as PredAST);
                     }
@@ -3969,7 +3982,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 8: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:834:4: range
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_range_in_element1920);
+                        this.pushFollow(null);
                         this.range();
                         this.state._fsp--;
 
@@ -3980,13 +3993,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 9: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:835:4: ^( NOT blockSet )
                     {
-                        this.match(this.input, GrammarTreeVisitor.NOT, GrammarTreeVisitor.FOLLOW_NOT_in_element1926);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_blockSet_in_element1928);
+                        this.match(this.input!, GrammarTreeVisitor.NOT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.blockSet();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -3995,13 +4008,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 10: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:836:4: ^( NOT block )
                     {
-                        this.match(this.input, GrammarTreeVisitor.NOT, GrammarTreeVisitor.FOLLOW_NOT_in_element1935);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_block_in_element1937);
+                        this.match(this.input!, GrammarTreeVisitor.NOT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.block();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -4016,7 +4029,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4098,7 +4111,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:846:4: atom
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_atom_in_astOperand1959);
+                        this.pushFollow(null);
                         this.atom();
                         this.state._fsp--;
 
@@ -4109,13 +4122,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:847:4: ^( NOT blockSet )
                     {
-                        this.match(this.input, GrammarTreeVisitor.NOT, GrammarTreeVisitor.FOLLOW_NOT_in_astOperand1965);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_blockSet_in_astOperand1967);
+                        this.match(this.input!, GrammarTreeVisitor.NOT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.blockSet();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -4124,13 +4137,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:848:4: ^( NOT block )
                     {
-                        this.match(this.input, GrammarTreeVisitor.NOT, GrammarTreeVisitor.FOLLOW_NOT_in_astOperand1974);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_block_in_astOperand1976);
+                        this.match(this.input!, GrammarTreeVisitor.NOT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.block();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -4145,7 +4158,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4180,15 +4193,15 @@ export class GrammarTreeVisitor extends TreeParser {
                     const mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
-                this.match(this.input, TreeParser.DOWN, null);
-                ID32 = this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_labeledElement2005) as GrammarAST;
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_element_in_labeledElement2007);
+                this.match(this.input!, TreeParser.DOWN, null);
+                ID32 = this.match(this.input!, GrammarTreeVisitor.ID, null) as GrammarAST;
+                this.pushFollow(null);
                 element33 = this.element();
                 this.state._fsp--;
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
-                this.label((retval.start as GrammarAST), ID32, (element33 !== null ? (element33.start as GrammarAST) : null));
+                this.label((retval.start as GrammarAST | null), ID32, element33.start as GrammarAST | null);
             }
 
             this.exitLabeledElement((retval.start as GrammarAST));
@@ -4196,7 +4209,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4239,16 +4252,16 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:868:4: ^( blockSuffix block )
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_blockSuffix_in_subrule2032);
+                        this.pushFollow(null);
                         this.blockSuffix();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_block_in_subrule2034);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.block();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -4257,7 +4270,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:869:5: block
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_block_in_subrule2041);
+                        this.pushFollow(null);
                         this.block();
                         this.state._fsp--;
 
@@ -4274,7 +4287,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4317,16 +4330,16 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:879:4: ^( blockSuffix lexerBlock )
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_blockSuffix_in_lexerSubrule2066);
+                        this.pushFollow(null);
                         this.blockSuffix();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerBlock_in_lexerSubrule2068);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.lexerBlock();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -4335,7 +4348,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:880:5: lexerBlock
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_lexerBlock_in_lexerSubrule2075);
+                        this.pushFollow(null);
                         this.lexerBlock();
                         this.state._fsp--;
 
@@ -4352,7 +4365,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4376,7 +4389,7 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:890:5: ( ebnfSuffix )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:890:7: ebnfSuffix
             {
-                this.pushFollow(GrammarTreeVisitor.FOLLOW_ebnfSuffix_in_blockSuffix2102);
+                this.pushFollow(null);
                 this.ebnfSuffix();
                 this.state._fsp--;
 
@@ -4387,7 +4400,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4426,7 +4439,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4578,14 +4591,14 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:912:4: ^( DOT ID terminal )
                     {
-                        this.match(this.input, GrammarTreeVisitor.DOT, GrammarTreeVisitor.FOLLOW_DOT_in_atom2163);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_atom2165);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_terminal_in_atom2167);
+                        this.match(this.input!, GrammarTreeVisitor.DOT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.match(this.input!, GrammarTreeVisitor.ID, null);
+                        this.pushFollow(null);
                         this.terminal();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -4594,14 +4607,14 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:913:4: ^( DOT ID ruleref )
                     {
-                        this.match(this.input, GrammarTreeVisitor.DOT, GrammarTreeVisitor.FOLLOW_DOT_in_atom2174);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.match(this.input, GrammarTreeVisitor.ID, GrammarTreeVisitor.FOLLOW_ID_in_atom2176);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleref_in_atom2178);
+                        this.match(this.input!, GrammarTreeVisitor.DOT, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.match(this.input!, GrammarTreeVisitor.ID, null);
+                        this.pushFollow(null);
                         this.ruleref();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                     }
                     break;
@@ -4610,13 +4623,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:914:7: ^( WILDCARD elementOptions )
                     {
-                        WILDCARD34 = this.match(this.input, GrammarTreeVisitor.WILDCARD, GrammarTreeVisitor.FOLLOW_WILDCARD_in_atom2188) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_atom2190);
+                        WILDCARD34 = this.match(this.input!, GrammarTreeVisitor.WILDCARD, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.wildcardRef(WILDCARD34);
                     }
@@ -4626,7 +4639,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:915:7: WILDCARD
                     {
-                        WILDCARD35 = this.match(this.input, GrammarTreeVisitor.WILDCARD, GrammarTreeVisitor.FOLLOW_WILDCARD_in_atom2201) as GrammarAST;
+                        WILDCARD35 = this.match(this.input!, GrammarTreeVisitor.WILDCARD, null) as GrammarAST;
                         this.wildcardRef(WILDCARD35);
                     }
                     break;
@@ -4635,7 +4648,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 5: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:916:9: terminal
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_terminal_in_atom2217);
+                        this.pushFollow(null);
                         this.terminal();
                         this.state._fsp--;
 
@@ -4646,7 +4659,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 6: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:917:7: blockSet
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_blockSet_in_atom2225);
+                        this.pushFollow(null);
                         this.blockSet();
                         this.state._fsp--;
 
@@ -4657,7 +4670,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 7: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:918:9: ruleref
                     {
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleref_in_atom2235);
+                        this.pushFollow(null);
                         this.ruleref();
                         this.state._fsp--;
 
@@ -4674,7 +4687,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4698,8 +4711,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:928:2: ( ^( SET ( setElement )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:928:4: ^( SET ( setElement )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.SET, GrammarTreeVisitor.FOLLOW_SET_in_blockSet2260);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.SET, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:928:10: ( setElement )+
                 let cnt45 = 0;
                 loop45:
@@ -4714,7 +4727,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:928:10: setElement
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_setElement_in_blockSet2262);
+                                this.pushFollow(null);
                                 this.setElement();
                                 this.state._fsp--;
 
@@ -4735,7 +4748,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt45++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -4744,7 +4757,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4856,13 +4869,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:938:4: ^( STRING_LITERAL elementOptions )
                     {
-                        STRING_LITERAL36 = this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_setElement2286) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_setElement2288);
+                        STRING_LITERAL36 = this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.stringRef(STRING_LITERAL36 as TerminalAST);
                     }
@@ -4872,13 +4885,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:939:4: ^( TOKEN_REF elementOptions )
                     {
-                        TOKEN_REF37 = this.match(this.input, GrammarTreeVisitor.TOKEN_REF, GrammarTreeVisitor.FOLLOW_TOKEN_REF_in_setElement2300) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_setElement2302);
+                        TOKEN_REF37 = this.match(this.input!, GrammarTreeVisitor.TOKEN_REF, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.tokenRef(TOKEN_REF37 as TerminalAST);
                     }
@@ -4888,7 +4901,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:940:4: STRING_LITERAL
                     {
-                        STRING_LITERAL38 = this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_setElement2312) as GrammarAST;
+                        STRING_LITERAL38 = this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null) as GrammarAST;
                         this.stringRef(STRING_LITERAL38 as TerminalAST);
                     }
                     break;
@@ -4897,7 +4910,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:941:4: TOKEN_REF
                     {
-                        TOKEN_REF39 = this.match(this.input, GrammarTreeVisitor.TOKEN_REF, GrammarTreeVisitor.FOLLOW_TOKEN_REF_in_setElement2337) as GrammarAST;
+                        TOKEN_REF39 = this.match(this.input!, GrammarTreeVisitor.TOKEN_REF, null) as GrammarAST;
                         this.tokenRef(TOKEN_REF39 as TerminalAST);
                     }
                     break;
@@ -4906,11 +4919,11 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 5: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:942:4: ^( RANGE a= STRING_LITERAL b= STRING_LITERAL )
                     {
-                        this.match(this.input, GrammarTreeVisitor.RANGE, GrammarTreeVisitor.FOLLOW_RANGE_in_setElement2366);
-                        this.match(this.input, TreeParser.DOWN, null);
-                        a = this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_setElement2370) as GrammarAST;
-                        b = this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_setElement2374) as GrammarAST;
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, GrammarTreeVisitor.RANGE, null);
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        a = this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null) as GrammarAST;
+                        b = this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.stringRef(a as TerminalAST);
                         this.stringRef(b as TerminalAST);
@@ -4922,7 +4935,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 6: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:947:17: LEXER_CHAR_SET
                     {
-                        this.match(this.input, GrammarTreeVisitor.LEXER_CHAR_SET, GrammarTreeVisitor.FOLLOW_LEXER_CHAR_SET_in_setElement2397);
+                        this.match(this.input!, GrammarTreeVisitor.LEXER_CHAR_SET, null);
                     }
                     break;
                 }
@@ -4936,7 +4949,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -4960,8 +4973,8 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:957:5: ( ^( BLOCK ( optionsSpec )? ( ruleAction )* ( ACTION )? ( alternative )+ ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:957:7: ^( BLOCK ( optionsSpec )? ( ruleAction )* ( ACTION )? ( alternative )+ )
             {
-                this.match(this.input, GrammarTreeVisitor.BLOCK, GrammarTreeVisitor.FOLLOW_BLOCK_in_block2422);
-                this.match(this.input, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.BLOCK, null);
+                this.match(this.input!, TreeParser.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:957:15: ( optionsSpec )?
                 let alt47 = 2;
                 const LA47_0 = this.input!.LA(1);
@@ -4972,7 +4985,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:957:15: optionsSpec
                         {
-                            this.pushFollow(GrammarTreeVisitor.FOLLOW_optionsSpec_in_block2424);
+                            this.pushFollow(null);
                             this.optionsSpec();
                             this.state._fsp--;
 
@@ -4997,7 +5010,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:957:28: ruleAction
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_ruleAction_in_block2427);
+                                this.pushFollow(null);
                                 this.ruleAction();
                                 this.state._fsp--;
 
@@ -5022,7 +5035,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/GrammarTreeVisitor.g:957:40: ACTION
                         {
-                            this.match(this.input, GrammarTreeVisitor.ACTION, GrammarTreeVisitor.FOLLOW_ACTION_in_block2430);
+                            this.match(this.input!, GrammarTreeVisitor.ACTION, null);
                         }
                         break;
                     }
@@ -5045,7 +5058,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:957:48: alternative
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_alternative_in_block2433);
+                                this.pushFollow(null);
                                 this.alternative();
                                 this.state._fsp--;
 
@@ -5066,7 +5079,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     cnt50++;
                 }
 
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -5075,7 +5088,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -5090,7 +5103,7 @@ export class GrammarTreeVisitor extends TreeParser {
     // $ANTLR start "ruleref"
     // org/antlr/v4/parse/GrammarTreeVisitor.g:960:1: ruleref : ^( RULE_REF (arg= ARG_ACTION )? ( elementOptions )? ) ;
     public ruleref(): GrammarTreeVisitor.ruleref_return {
-        const retval = new GrammarTreeVisitor.ruleref_return();
+        const retval = new GrammarTreeVisitor.ruleRef_return();
         retval.start = this.input!.LT(1);
 
         let arg = null;
@@ -5102,9 +5115,9 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:967:5: ( ^( RULE_REF (arg= ARG_ACTION )? ( elementOptions )? ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:967:7: ^( RULE_REF (arg= ARG_ACTION )? ( elementOptions )? )
             {
-                RULE_REF40 = this.match(this.input, GrammarTreeVisitor.RULE_REF, GrammarTreeVisitor.FOLLOW_RULE_REF_in_ruleref2463) as GrammarAST;
+                RULE_REF40 = this.match(this.input!, GrammarTreeVisitor.RULE_REF, null) as GrammarAST;
                 if (this.input!.LA(1) === TreeParser.DOWN) {
-                    this.match(this.input, TreeParser.DOWN, null);
+                    this.match(this.input!, TreeParser.DOWN, null);
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:967:21: (arg= ARG_ACTION )?
                     let alt51 = 2;
                     const LA51_0 = this.input!.LA(1);
@@ -5115,7 +5128,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:967:21: arg= ARG_ACTION
                             {
-                                arg = this.match(this.input, GrammarTreeVisitor.ARG_ACTION, GrammarTreeVisitor.FOLLOW_ARG_ACTION_in_ruleref2467) as GrammarAST;
+                                arg = this.match(this.input!, GrammarTreeVisitor.ARG_ACTION, null) as GrammarAST;
                             }
                             break;
                         }
@@ -5134,7 +5147,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/GrammarTreeVisitor.g:967:34: elementOptions
                             {
-                                this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_ruleref2470);
+                                this.pushFollow(null);
                                 this.elementOptions();
                                 this.state._fsp--;
 
@@ -5146,7 +5159,7 @@ export class GrammarTreeVisitor extends TreeParser {
 
                     }
 
-                    this.match(this.input, TreeParser.UP, null);
+                    this.match(this.input!, TreeParser.UP, null);
                 }
 
                 this.ruleRef(RULE_REF40, arg as ActionAST);
@@ -5161,7 +5174,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -5185,11 +5198,11 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:981:5: ( ^( RANGE STRING_LITERAL STRING_LITERAL ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:981:7: ^( RANGE STRING_LITERAL STRING_LITERAL )
             {
-                this.match(this.input, GrammarTreeVisitor.RANGE, GrammarTreeVisitor.FOLLOW_RANGE_in_range2507);
-                this.match(this.input, TreeParser.DOWN, null);
-                this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_range2509);
-                this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_range2511);
-                this.match(this.input, TreeParser.UP, null);
+                this.match(this.input!, GrammarTreeVisitor.RANGE, null);
+                this.match(this.input!, TreeParser.DOWN, null);
+                this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null);
+                this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null);
+                this.match(this.input!, TreeParser.UP, null);
 
             }
 
@@ -5198,7 +5211,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -5288,13 +5301,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 1: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:991:8: ^( STRING_LITERAL elementOptions )
                     {
-                        STRING_LITERAL41 = this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_terminal2541) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_terminal2543);
+                        STRING_LITERAL41 = this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.stringRef(STRING_LITERAL41 as TerminalAST);
                     }
@@ -5304,7 +5317,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 2: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:993:7: STRING_LITERAL
                     {
-                        STRING_LITERAL42 = this.match(this.input, GrammarTreeVisitor.STRING_LITERAL, GrammarTreeVisitor.FOLLOW_STRING_LITERAL_in_terminal2566) as GrammarAST;
+                        STRING_LITERAL42 = this.match(this.input!, GrammarTreeVisitor.STRING_LITERAL, null) as GrammarAST;
                         this.stringRef(STRING_LITERAL42 as TerminalAST);
                     }
                     break;
@@ -5313,13 +5326,13 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 3: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:994:7: ^( TOKEN_REF elementOptions )
                     {
-                        TOKEN_REF43 = this.match(this.input, GrammarTreeVisitor.TOKEN_REF, GrammarTreeVisitor.FOLLOW_TOKEN_REF_in_terminal2580) as GrammarAST;
-                        this.match(this.input, TreeParser.DOWN, null);
-                        this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOptions_in_terminal2582);
+                        TOKEN_REF43 = this.match(this.input!, GrammarTreeVisitor.TOKEN_REF, null) as GrammarAST;
+                        this.match(this.input!, TreeParser.DOWN, null);
+                        this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input, TreeParser.UP, null);
+                        this.match(this.input!, TreeParser.UP, null);
 
                         this.tokenRef(TOKEN_REF43 as TerminalAST);
                     }
@@ -5329,7 +5342,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 case 4: {
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:995:7: TOKEN_REF
                     {
-                        TOKEN_REF44 = this.match(this.input, GrammarTreeVisitor.TOKEN_REF, GrammarTreeVisitor.FOLLOW_TOKEN_REF_in_terminal2593) as GrammarAST;
+                        TOKEN_REF44 = this.match(this.input!, GrammarTreeVisitor.TOKEN_REF, null) as GrammarAST;
                         this.tokenRef(TOKEN_REF44 as TerminalAST);
                     }
                     break;
@@ -5344,7 +5357,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -5368,9 +5381,9 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:1005:5: ( ^( ELEMENT_OPTIONS ( elementOption[(GrammarASTWithOptions)$start.getParent()] )* ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:1005:7: ^( ELEMENT_OPTIONS ( elementOption[(GrammarASTWithOptions)$start.getParent()] )* )
             {
-                this.match(this.input, GrammarTreeVisitor.ELEMENT_OPTIONS, GrammarTreeVisitor.FOLLOW_ELEMENT_OPTIONS_in_elementOptions2630);
+                this.match(this.input!, GrammarTreeVisitor.ELEMENT_OPTIONS, null);
                 if (this.input!.LA(1) === TreeParser.DOWN) {
-                    this.match(this.input, TreeParser.DOWN, null);
+                    this.match(this.input!, TreeParser.DOWN, null);
                     // org/antlr/v4/parse/GrammarTreeVisitor.g:1005:25: ( elementOption[(GrammarASTWithOptions)$start.getParent()] )*
                     loop54:
                     while (true) {
@@ -5384,7 +5397,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             case 1: {
                                 // org/antlr/v4/parse/GrammarTreeVisitor.g:1005:25: elementOption[(GrammarASTWithOptions)$start.getParent()]
                                 {
-                                    this.pushFollow(GrammarTreeVisitor.FOLLOW_elementOption_in_elementOptions2632);
+                                    this.pushFollow(null);
                                     this.elementOption((retval.start as GrammarAST).getParent() as GrammarASTWithOptions);
                                     this.state._fsp--;
 
@@ -5399,7 +5412,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         }
                     }
 
-                    this.match(this.input, TreeParser.UP, null);
+                    this.match(this.input!, TreeParser.UP, null);
                 }
 
             }
@@ -5409,7 +5422,7 @@ export class GrammarTreeVisitor extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input, re);
+                this.recover(this.input!, re);
             } else {
                 throw re;
             }
@@ -5421,167 +5434,167 @@ export class GrammarTreeVisitor extends TreeParser {
         return retval;
     }
 
-    protected enterGrammarSpec(tree: GrammarAST): void { }
-    protected exitGrammarSpec(tree: GrammarAST): void { }
+    protected enterGrammarSpec(tree: GrammarAST): void { /**/ }
+    protected exitGrammarSpec(tree: GrammarAST): void { /**/ }
 
-    protected enterPrequelConstructs(tree: GrammarAST): void { }
-    protected exitPrequelConstructs(tree: GrammarAST): void { }
+    protected enterPrequelConstructs(tree: GrammarAST): void { /**/ }
+    protected exitPrequelConstructs(tree: GrammarAST): void { /**/ }
 
-    protected enterPrequelConstruct(tree: GrammarAST): void { }
-    protected exitPrequelConstruct(tree: GrammarAST): void { }
+    protected enterPrequelConstruct(tree: GrammarAST): void { /**/ }
+    protected exitPrequelConstruct(tree: GrammarAST): void { /**/ }
 
-    protected enterOptionsSpec(tree: GrammarAST): void { }
-    protected exitOptionsSpec(tree: GrammarAST): void { }
+    protected enterOptionsSpec(tree: GrammarAST): void { /**/ }
+    protected exitOptionsSpec(tree: GrammarAST): void { /**/ }
 
-    protected enterOption(tree: GrammarAST): void { }
-    protected exitOption(tree: GrammarAST): void { }
+    protected enterOption(tree: GrammarAST): void { /**/ }
+    protected exitOption(tree: GrammarAST): void { /**/ }
 
-    protected enterOptionValue(tree: GrammarAST): void { }
-    protected exitOptionValue(tree: GrammarAST): void { }
+    protected enterOptionValue(tree: GrammarAST): void { /**/ }
+    protected exitOptionValue(tree: GrammarAST): void { /**/ }
 
-    protected enterDelegateGrammars(tree: GrammarAST): void { }
-    protected exitDelegateGrammars(tree: GrammarAST): void { }
+    protected enterDelegateGrammars(tree: GrammarAST): void { /**/ }
+    protected exitDelegateGrammars(tree: GrammarAST): void { /**/ }
 
-    protected enterDelegateGrammar(tree: GrammarAST): void { }
-    protected exitDelegateGrammar(tree: GrammarAST): void { }
+    protected enterDelegateGrammar(tree: GrammarAST): void { /**/ }
+    protected exitDelegateGrammar(tree: GrammarAST): void { /**/ }
 
-    protected enterTokensSpec(tree: GrammarAST): void { }
-    protected exitTokensSpec(tree: GrammarAST): void { }
+    protected enterTokensSpec(tree: GrammarAST): void { /**/ }
+    protected exitTokensSpec(tree: GrammarAST): void { /**/ }
 
-    protected enterTokenSpec(tree: GrammarAST): void { }
-    protected exitTokenSpec(tree: GrammarAST): void { }
+    protected enterTokenSpec(tree: GrammarAST): void { /**/ }
+    protected exitTokenSpec(tree: GrammarAST): void { /**/ }
 
-    protected enterChannelsSpec(tree: GrammarAST): void { }
-    protected exitChannelsSpec(tree: GrammarAST): void { }
+    protected enterChannelsSpec(tree: GrammarAST): void { /**/ }
+    protected exitChannelsSpec(tree: GrammarAST): void { /**/ }
 
-    protected enterChannelSpec(tree: GrammarAST): void { }
-    protected exitChannelSpec(tree: GrammarAST): void { }
+    protected enterChannelSpec(tree: GrammarAST): void { /**/ }
+    protected exitChannelSpec(tree: GrammarAST): void { /**/ }
 
-    protected enterAction(tree: GrammarAST): void { }
-    protected exitAction(tree: GrammarAST): void { }
+    protected enterAction(tree: GrammarAST): void { /**/ }
+    protected exitAction(tree: GrammarAST): void { /**/ }
 
-    protected enterRules(tree: GrammarAST): void { }
-    protected exitRules(tree: GrammarAST): void { }
+    protected enterRules(tree: GrammarAST): void { /**/ }
+    protected exitRules(tree: GrammarAST): void { /**/ }
 
-    protected enterMode(tree: GrammarAST): void { }
-    protected exitMode(tree: GrammarAST): void { }
+    protected enterMode(tree: GrammarAST): void { /**/ }
+    protected exitMode(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerRule(tree: GrammarAST): void { }
-    protected exitLexerRule(tree: GrammarAST): void { }
+    protected enterLexerRule(tree: GrammarAST): void { /**/ }
+    protected exitLexerRule(tree: GrammarAST): void { /**/ }
 
-    protected enterRule(tree: GrammarAST): void { }
-    protected exitRule(tree: GrammarAST): void { }
+    protected enterRule(tree: GrammarAST): void { /**/ }
+    protected exitRule(tree: GrammarAST): void { /**/ }
 
-    protected enterExceptionGroup(tree: GrammarAST): void { }
-    protected exitExceptionGroup(tree: GrammarAST): void { }
+    protected enterExceptionGroup(tree: GrammarAST): void { /**/ }
+    protected exitExceptionGroup(tree: GrammarAST): void { /**/ }
 
-    protected enterExceptionHandler(tree: GrammarAST): void { }
-    protected exitExceptionHandler(tree: GrammarAST): void { }
+    protected enterExceptionHandler(tree: GrammarAST): void { /**/ }
+    protected exitExceptionHandler(tree: GrammarAST): void { /**/ }
 
-    protected enterFinallyClause(tree: GrammarAST): void { }
-    protected exitFinallyClause(tree: GrammarAST): void { }
+    protected enterFinallyClause(tree: GrammarAST): void { /**/ }
+    protected exitFinallyClause(tree: GrammarAST): void { /**/ }
 
-    protected enterLocals(tree: GrammarAST): void { }
-    protected exitLocals(tree: GrammarAST): void { }
+    protected enterLocals(tree: GrammarAST): void { /**/ }
+    protected exitLocals(tree: GrammarAST): void { /**/ }
 
-    protected enterRuleReturns(tree: GrammarAST): void { }
-    protected exitRuleReturns(tree: GrammarAST): void { }
+    protected enterRuleReturns(tree: GrammarAST): void { /**/ }
+    protected exitRuleReturns(tree: GrammarAST): void { /**/ }
 
-    protected enterThrowsSpec(tree: GrammarAST): void { }
-    protected exitThrowsSpec(tree: GrammarAST): void { }
+    protected enterThrowsSpec(tree: GrammarAST): void { /**/ }
+    protected exitThrowsSpec(tree: GrammarAST): void { /**/ }
 
-    protected enterRuleAction(tree: GrammarAST): void { }
-    protected exitRuleAction(tree: GrammarAST): void { }
+    protected enterRuleAction(tree: GrammarAST): void { /**/ }
+    protected exitRuleAction(tree: GrammarAST): void { /**/ }
 
-    protected enterRuleModifier(tree: GrammarAST): void { }
-    protected exitRuleModifier(tree: GrammarAST): void { }
+    protected enterRuleModifier(tree: GrammarAST): void { /**/ }
+    protected exitRuleModifier(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerRuleBlock(tree: GrammarAST): void { }
-    protected exitLexerRuleBlock(tree: GrammarAST): void { }
+    protected enterLexerRuleBlock(tree: GrammarAST): void { /**/ }
+    protected exitLexerRuleBlock(tree: GrammarAST): void { /**/ }
 
-    protected enterRuleBlock(tree: GrammarAST): void { }
-    protected exitRuleBlock(tree: GrammarAST): void { }
+    protected enterRuleBlock(tree: GrammarAST): void { /**/ }
+    protected exitRuleBlock(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerOuterAlternative(tree: AltAST): void { }
-    protected exitLexerOuterAlternative(tree: AltAST): void { }
+    protected enterLexerOuterAlternative(tree: AltAST): void { /**/ }
+    protected exitLexerOuterAlternative(tree: AltAST): void { /**/ }
 
-    protected enterOuterAlternative(tree: AltAST): void { }
-    protected exitOuterAlternative(tree: AltAST): void { }
+    protected enterOuterAlternative(tree: AltAST): void { /**/ }
+    protected exitOuterAlternative(tree: AltAST): void { /**/ }
 
-    protected enterLexerAlternative(tree: GrammarAST): void { }
-    protected exitLexerAlternative(tree: GrammarAST): void { }
+    protected enterLexerAlternative(tree: GrammarAST): void { /**/ }
+    protected exitLexerAlternative(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerElements(tree: GrammarAST): void { }
-    protected exitLexerElements(tree: GrammarAST): void { }
+    protected enterLexerElements(tree: GrammarAST): void { /**/ }
+    protected exitLexerElements(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerElement(tree: GrammarAST): void { }
-    protected exitLexerElement(tree: GrammarAST): void { }
+    protected enterLexerElement(tree: GrammarAST): void { /**/ }
+    protected exitLexerElement(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerBlock(tree: GrammarAST): void { }
-    protected exitLexerBlock(tree: GrammarAST): void { }
+    protected enterLexerBlock(tree: GrammarAST): void { /**/ }
+    protected exitLexerBlock(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerAtom(tree: GrammarAST): void { }
-    protected exitLexerAtom(tree: GrammarAST): void { }
+    protected enterLexerAtom(tree: GrammarAST): void { /**/ }
+    protected exitLexerAtom(tree: GrammarAST): void { /**/ }
 
-    protected enterActionElement(tree: GrammarAST): void { }
-    protected exitActionElement(tree: GrammarAST): void { }
+    protected enterActionElement(tree: GrammarAST): void { /**/ }
+    protected exitActionElement(tree: GrammarAST): void { /**/ }
 
-    protected enterAlternative(tree: AltAST): void { }
-    protected exitAlternative(tree: AltAST): void { }
+    protected enterAlternative(tree: AltAST): void { /**/ }
+    protected exitAlternative(tree: AltAST): void { /**/ }
 
-    protected enterLexerCommand(tree: GrammarAST): void { }
-    protected exitLexerCommand(tree: GrammarAST): void { }
+    protected enterLexerCommand(tree: GrammarAST): void { /**/ }
+    protected exitLexerCommand(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerCommandExpr(tree: GrammarAST): void { }
-    protected exitLexerCommandExpr(tree: GrammarAST): void { }
+    protected enterLexerCommandExpr(tree: GrammarAST): void { /**/ }
+    protected exitLexerCommandExpr(tree: GrammarAST): void { /**/ }
 
-    protected enterElement(tree: GrammarAST): void { }
-    protected exitElement(tree: GrammarAST): void { }
+    protected enterElement(tree: GrammarAST): void { /**/ }
+    protected exitElement(tree: GrammarAST): void { /**/ }
 
-    protected enterAstOperand(tree: GrammarAST): void { }
-    protected exitAstOperand(tree: GrammarAST): void { }
+    protected enterAstOperand(tree: GrammarAST): void { /**/ }
+    protected exitAstOperand(tree: GrammarAST): void { /**/ }
 
-    protected enterLabeledElement(tree: GrammarAST): void { }
-    protected exitLabeledElement(tree: GrammarAST): void { }
+    protected enterLabeledElement(tree: GrammarAST): void { /**/ }
+    protected exitLabeledElement(tree: GrammarAST): void { /**/ }
 
-    protected enterSubrule(tree: GrammarAST): void { }
-    protected exitSubrule(tree: GrammarAST): void { }
+    protected enterSubrule(tree: GrammarAST): void { /**/ }
+    protected exitSubrule(tree: GrammarAST): void { /**/ }
 
-    protected enterLexerSubrule(tree: GrammarAST): void { }
-    protected exitLexerSubrule(tree: GrammarAST): void { }
+    protected enterLexerSubrule(tree: GrammarAST): void { /**/ }
+    protected exitLexerSubrule(tree: GrammarAST): void { /**/ }
 
-    protected enterBlockSuffix(tree: GrammarAST): void { }
-    protected exitBlockSuffix(tree: GrammarAST): void { }
+    protected enterBlockSuffix(tree: GrammarAST): void { /**/ }
+    protected exitBlockSuffix(tree: GrammarAST): void { /**/ }
 
-    protected enterEbnfSuffix(tree: GrammarAST): void { }
-    protected exitEbnfSuffix(tree: GrammarAST): void { }
+    protected enterEbnfSuffix(tree: GrammarAST): void { /**/ }
+    protected exitEbnfSuffix(tree: GrammarAST): void { /**/ }
 
-    protected enterAtom(tree: GrammarAST): void { }
-    protected exitAtom(tree: GrammarAST): void { }
+    protected enterAtom(tree: GrammarAST): void { /**/ }
+    protected exitAtom(tree: GrammarAST): void { /**/ }
 
-    protected enterBlockSet(tree: GrammarAST): void { }
-    protected exitBlockSet(tree: GrammarAST): void { }
+    protected enterBlockSet(tree: GrammarAST): void { /**/ }
+    protected exitBlockSet(tree: GrammarAST): void { /**/ }
 
-    protected enterSetElement(tree: GrammarAST): void { }
-    protected exitSetElement(tree: GrammarAST): void { }
+    protected enterSetElement(tree: GrammarAST): void { /**/ }
+    protected exitSetElement(tree: GrammarAST): void { /**/ }
 
-    protected enterBlock(tree: GrammarAST): void { }
-    protected exitBlock(tree: GrammarAST): void { }
+    protected enterBlock(tree: GrammarAST): void { /**/ }
+    protected exitBlock(tree: GrammarAST): void { /**/ }
 
-    protected enterRuleref(tree: GrammarAST): void { }
-    protected exitRuleref(tree: GrammarAST): void { }
+    protected enterRuleref(tree: GrammarAST): void { /**/ }
+    protected exitRuleref(tree: GrammarAST): void { /**/ }
 
-    protected enterRange(tree: GrammarAST): void { }
-    protected exitRange(tree: GrammarAST): void { }
+    protected enterRange(tree: GrammarAST): void { /**/ }
+    protected exitRange(tree: GrammarAST): void { /**/ }
 
-    protected enterTerminal(tree: GrammarAST): void { }
-    protected exitTerminal(tree: GrammarAST): void { }
+    protected enterTerminal(tree: GrammarAST): void { /**/ }
+    protected exitTerminal(tree: GrammarAST): void { /**/ }
 
-    protected enterElementOptions(tree: GrammarAST): void { }
-    protected exitElementOptions(tree: GrammarAST): void { }
+    protected enterElementOptions(tree: GrammarAST): void { /**/ }
+    protected exitElementOptions(tree: GrammarAST): void { /**/ }
 
-    protected enterElementOption(tree: GrammarAST): void { }
-    protected exitElementOption(tree: GrammarAST): void { }
+    protected enterElementOption(tree: GrammarAST): void { /**/ }
+    protected exitElementOption(tree: GrammarAST): void { /**/ }
 }
 
 export namespace GrammarTreeVisitor {
@@ -5634,10 +5647,9 @@ export namespace GrammarTreeVisitor {
     export type blockSet_return = InstanceType<typeof GrammarTreeVisitor.blockSet_return>;
     export type setElement_return = InstanceType<typeof GrammarTreeVisitor.setElement_return>;
     export type block_return = InstanceType<typeof GrammarTreeVisitor.block_return>;
-    export type ruleref_return = InstanceType<typeof GrammarTreeVisitor.ruleref_return>;
+    export type ruleref_return = InstanceType<typeof GrammarTreeVisitor.ruleRef_return>;
     export type range_return = InstanceType<typeof GrammarTreeVisitor.range_return>;
     export type terminal_return = InstanceType<typeof GrammarTreeVisitor.terminal_return>;
     export type elementOptions_return = InstanceType<typeof GrammarTreeVisitor.elementOptions_return>;
     export type elementOption_return = InstanceType<typeof GrammarTreeVisitor.elementOption_return>;
-    export type DFA38 = InstanceType<GrammarTreeVisitor["DFA38"]>;
 }

@@ -665,18 +665,19 @@ export abstract class BaseRecognizer {
         const followSet = new BitSet();
         for (let i = top; i >= 0; i--) {
             const localFollowSet = this.state.following[i];
-            followSet.or(localFollowSet);
-            if (exact) {
-                // can we see end of rule?
-                if (localFollowSet.get(TreeParser.EOR_TOKEN_TYPE)) {
-                    // Only leave EOR in set if at top (start rule); this lets
-                    // us know if have to include follow(start rule); i.e., EOF
-                    if (i > 0) {
-                        followSet.clear(TreeParser.EOR_TOKEN_TYPE);
+            if (localFollowSet) {
+                followSet.or(localFollowSet);
+                if (exact) {
+                    // can we see end of rule?
+                    if (localFollowSet.get(TreeParser.EOR_TOKEN_TYPE)) {
+                        // Only leave EOR in set if at top (start rule); this lets
+                        // us know if have to include follow(start rule); i.e., EOF
+                        if (i > 0) {
+                            followSet.clear(TreeParser.EOR_TOKEN_TYPE);
+                        }
+                    } else { // can't see end of rule, quit
+                        break;
                     }
-                }
-                else { // can't see end of rule, quit
-                    break;
                 }
             }
         }
@@ -797,7 +798,7 @@ export abstract class BaseRecognizer {
     }
 
     /** Push a rule's follow set using our own hardcoded stack */
-    protected pushFollow(fset: BitSet): void {
+    protected pushFollow(fset: BitSet | null): void {
         if ((this.state._fsp + 1) >= this.state.following.length) {
             this.state.following = this.state.following.slice();
         }

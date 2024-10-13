@@ -25,7 +25,7 @@ export class RecognizerSharedState {
      *  Stack grows upwards.  When it hits the max, it grows 2x in size
      *  and keeps going.
      */
-    public following = new Array<BitSet>(BaseRecognizer.INITIAL_FOLLOW_STACK_SIZE);
+    public following = new Array<BitSet | null>(BaseRecognizer.INITIAL_FOLLOW_STACK_SIZE);
     public _fsp = -1;
 
     /**
