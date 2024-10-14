@@ -218,7 +218,7 @@ export class ATNBuilder extends TreeParser {
 
     // $ANTLR start "ruleBlock"
     // org/antlr/v4/parse/ATNBuilder.g:82:1: ruleBlock[GrammarAST ebnfRoot] returns [IStatePair p] : ^( BLOCK ( ^( OPTIONS ( . )* ) )? (a= alternative )+ ) ;
-    public ruleBlock(ebnfRoot: GrammarAST): IStatePair | null {
+    public ruleBlock(ebnfRoot: GrammarAST | null): IStatePair | null {
         let p = null;
 
         let BLOCK1 = null;

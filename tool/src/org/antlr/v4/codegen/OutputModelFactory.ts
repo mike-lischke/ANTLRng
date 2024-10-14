@@ -55,23 +55,23 @@ export interface OutputModelFactory {
 
     epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt | null;
 
-    ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] | null;
+    ruleRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | null;
 
-    tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] | null;
+    tokenRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | null;
 
-    stringRef(ID: GrammarAST, label: GrammarAST): SrcOp[] | null;
+    stringRef(ID: GrammarAST, label: GrammarAST | null): SrcOp[] | null;
 
-    set(setAST: GrammarAST, label: GrammarAST, invert: boolean): SrcOp[] | null;
+    set(setAST: GrammarAST, label: GrammarAST | null, invert: boolean): SrcOp[] | null;
 
-    wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[] | null;
+    wildcard(ast: GrammarAST, labelAST: GrammarAST | null): SrcOp[] | null;
 
     action(ast: ActionAST): SrcOp[] | null;
 
     sempred(ast: ActionAST): SrcOp[] | null;
 
-    getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice | null;
+    getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST | null): Choice | null;
 
-    getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null;
+    getEBNFBlock(ebnfRoot: GrammarAST | null, alts: CodeBlockForAlt[]): Choice | null;
 
     getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | null;
 

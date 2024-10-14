@@ -34,7 +34,6 @@ enum Associativity {
 export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public tool: Tool;
-    public declare ruleName: string;
     public binaryAlts = new Map<number, LeftRecursiveRuleAltInfo>();
     public ternaryAlts = new Map<number, LeftRecursiveRuleAltInfo>();
     public suffixAlts = new Map<number, LeftRecursiveRuleAltInfo>();

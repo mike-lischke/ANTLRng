@@ -297,7 +297,7 @@ export class OutputModelController {
         this.walker = new SourceGenTriggers(nodes, this);
 
         // walk AST of rule alts/elements
-        ruleFunction.code = this.walker.block(null, null);
+        ruleFunction.code = this.walker.block(null, null)!;
         ruleFunction.hasLookaheadBlock = this.walker.hasLookaheadBlock;
         ruleFunction.ctxType = gen.getTarget().getRuleFunctionContextStructName(ruleFunction);
         ruleFunction.postamble = this.rulePostamble(ruleFunction, r);
@@ -386,7 +386,7 @@ export class OutputModelController {
         return blk;
     }
 
-    public ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] {
+    public ruleRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] {
         let ops = this.delegate.ruleRef(ID, label, args)!;
         for (const ext of this.extensions) {
             ops = ext.ruleRef(ops);
@@ -395,7 +395,7 @@ export class OutputModelController {
         return ops;
     }
 
-    public tokenRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] {
+    public tokenRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] {
         let ops = this.delegate.tokenRef(ID, label, args)!;
         for (const ext of this.extensions) {
             ops = ext.tokenRef(ops);
@@ -404,7 +404,7 @@ export class OutputModelController {
         return ops;
     }
 
-    public stringRef(ID: GrammarAST, label: GrammarAST): SrcOp[] {
+    public stringRef(ID: GrammarAST, label: GrammarAST | null): SrcOp[] {
         let ops = this.delegate.stringRef(ID, label)!;
         for (const ext of this.extensions) {
             ops = ext.stringRef(ops);
@@ -414,7 +414,7 @@ export class OutputModelController {
     }
 
     /** (A|B|C) possibly with ebnfRoot and label */
-    public set(setAST: GrammarAST, labelAST: GrammarAST, invert: boolean): SrcOp[] {
+    public set(setAST: GrammarAST, labelAST: GrammarAST | null, invert: boolean): SrcOp[] {
         let ops = this.delegate.set(setAST, labelAST, invert)!;
         for (const ext of this.extensions) {
             ops = ext.set(ops);
@@ -432,7 +432,7 @@ export class OutputModelController {
         return blk;
     }
 
-    public wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[] {
+    public wildcard(ast: GrammarAST, labelAST: GrammarAST | null): SrcOp[] {
         let ops = this.delegate.wildcard(ast, labelAST)!;
         for (const ext of this.extensions) {
             ops = ext.wildcard(ops);
@@ -459,7 +459,7 @@ export class OutputModelController {
         return ops;
     }
 
-    public getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice {
+    public getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST | null): Choice {
         let c = this.delegate.getChoiceBlock(blkAST, alts, label)!;
         for (const ext of this.extensions) {
             c = ext.getChoiceBlock(c);
@@ -468,7 +468,7 @@ export class OutputModelController {
         return c;
     }
 
-    public getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice {
+    public getEBNFBlock(ebnfRoot: GrammarAST | null, alts: CodeBlockForAlt[]): Choice {
         let c = this.delegate.getEBNFBlock(ebnfRoot, alts)!;
         for (const ext of this.extensions) {
             c = ext.getEBNFBlock(c);

@@ -231,7 +231,7 @@ export class ParserATNFactory implements IATNFactory {
         const right = this.newState(node);
         let precedence = 0;
         const ast = node as GrammarASTWithOptions;
-        if (ast.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME) !== null) {
+        if (ast.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME)) {
             precedence = Number.parseInt(
                 ast.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME) ?? "0");
         }
@@ -285,7 +285,7 @@ export class ParserATNFactory implements IATNFactory {
         const right = this.newState(pred);
 
         let p: AbstractPredicateTransition;
-        if (pred.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME) !== null) {
+        if (pred.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME)) {
             const precedence = Number.parseInt(
                 pred.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME) ?? "0");
             p = new PrecedencePredicateTransition(right, precedence);
