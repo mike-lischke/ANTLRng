@@ -1,5 +1,3 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -9,8 +7,8 @@
 /* eslint-disable max-len */
 // cspell: disable
 
-import type { AltAST } from "../../tool/src/org/antlr/v4/tool/ast/AltAST.js";
-import type { GrammarAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarAST.js";
+import type { AltAST } from "../tool/ast/AltAST.js";
+import type { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { EarlyExitException } from "../antlr3/EarlyExitException.js";
 import { FailedPredicateException } from "../antlr3/FailedPredicateException.js";
 import { MismatchedSetException } from "../antlr3/MismatchedSetException.js";

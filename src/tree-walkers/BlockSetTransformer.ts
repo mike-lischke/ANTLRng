@@ -1,5 +1,3 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -13,12 +11,12 @@
 
 import { RecognitionException } from "antlr4ng";
 
-import { CharSupport } from "../../tool/src/org/antlr/v4/misc/CharSupport.js";
-import { AltAST } from "../../tool/src/org/antlr/v4/tool/ast/AltAST.js";
-import { BlockAST } from "../../tool/src/org/antlr/v4/tool/ast/BlockAST.js";
-import type { GrammarAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarAST.js";
-import { Grammar } from "../../tool/src/org/antlr/v4/tool/Grammar.js";
-import { GrammarTransformPipeline } from "../../tool/src/org/antlr/v4/tool/GrammarTransformPipeline.js";
+import { CharSupport } from "../misc/CharSupport.js";
+import { AltAST } from "../tool/ast/AltAST.js";
+import { BlockAST } from "../tool/ast/BlockAST.js";
+import type { GrammarAST } from "../tool/ast/GrammarAST.js";
+import { Grammar } from "../tool/Grammar.js";
+import { GrammarTransformPipeline } from "../tool/GrammarTransformPipeline.js";
 import { EarlyExitException } from "../antlr3/EarlyExitException.js";
 import { FailedPredicateException } from "../antlr3/FailedPredicateException.js";
 import { MismatchedSetException } from "../antlr3/MismatchedSetException.js";

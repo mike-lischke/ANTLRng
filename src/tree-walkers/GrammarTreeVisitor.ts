@@ -1,5 +1,3 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -11,18 +9,18 @@
 
 import { RecognitionException } from "antlr4ng";
 
-import { GrammarASTAdaptor } from "../../tool/src/org/antlr/v4/parse/GrammarASTAdaptor.js";
-import type { ErrorManager } from "../../tool/src/org/antlr/v4/tool/ErrorManager.js";
-import { ErrorType } from "../../tool/src/org/antlr/v4/tool/ErrorType.js";
-import { LexerGrammar } from "../../tool/src/org/antlr/v4/tool/LexerGrammar.js";
-import type { ActionAST } from "../../tool/src/org/antlr/v4/tool/ast/ActionAST.js";
-import type { AltAST } from "../../tool/src/org/antlr/v4/tool/ast/AltAST.js";
-import type { GrammarAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarAST.js";
-import type { GrammarASTWithOptions } from "../../tool/src/org/antlr/v4/tool/ast/GrammarASTWithOptions.js";
-import type { GrammarRootAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarRootAST.js";
-import type { PredAST } from "../../tool/src/org/antlr/v4/tool/ast/PredAST.js";
-import type { RuleAST } from "../../tool/src/org/antlr/v4/tool/ast/RuleAST.js";
-import type { TerminalAST } from "../../tool/src/org/antlr/v4/tool/ast/TerminalAST.js";
+import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
+import type { ErrorManager } from "../tool/ErrorManager.js";
+import { ErrorType } from "../tool/ErrorType.js";
+import { LexerGrammar } from "../tool/LexerGrammar.js";
+import type { ActionAST } from "../tool/ast/ActionAST.js";
+import type { AltAST } from "../tool/ast/AltAST.js";
+import type { GrammarAST } from "../tool/ast/GrammarAST.js";
+import type { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
+import type { GrammarRootAST } from "../tool/ast/GrammarRootAST.js";
+import type { PredAST } from "../tool/ast/PredAST.js";
+import type { RuleAST } from "../tool/ast/RuleAST.js";
+import type { TerminalAST } from "../tool/ast/TerminalAST.js";
 import { EarlyExitException } from "../antlr3/EarlyExitException.js";
 import { MismatchedSetException } from "../antlr3/MismatchedSetException.js";
 import { NoViableAltException } from "../antlr3/NoViableAltException.js";

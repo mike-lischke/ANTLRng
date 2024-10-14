@@ -10,8 +10,8 @@ lexer grammar ActionSplitter;
 // $antlr-format allowShortRulesOnASingleLine on, alignSemicolons none, minEmptyLines 0
 
 @header {
-import { Character } from "../../tool/src/org/antlr/v4/support/Character.js";
-import type { ActionSplitterListener } from "../../tool/src/org/antlr/v4/parse/ActionSplitterListener.js";
+import { Character } from "../support/Character.js";
+import type { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
 }
 
 @members {

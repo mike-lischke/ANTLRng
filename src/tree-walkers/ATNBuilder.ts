@@ -1,5 +1,3 @@
-/* java2ts: keep */
-
 /*
  * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -13,12 +11,12 @@
 
 import { RecognitionException } from "antlr4ng";
 
-import type { IATNFactory, IStatePair } from "../../tool/src/org/antlr/v4/automata/IATNFactory.js";
-import type { ActionAST } from "../../tool/src/org/antlr/v4/tool/ast/ActionAST.js";
-import type { BlockAST } from "../../tool/src/org/antlr/v4/tool/ast/BlockAST.js";
-import type { GrammarAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarAST.js";
-import type { PredAST } from "../../tool/src/org/antlr/v4/tool/ast/PredAST.js";
-import type { TerminalAST } from "../../tool/src/org/antlr/v4/tool/ast/TerminalAST.js";
+import type { IATNFactory, IStatePair } from "../automata/IATNFactory.js";
+import type { ActionAST } from "../tool/ast/ActionAST.js";
+import type { BlockAST } from "../tool/ast/BlockAST.js";
+import type { GrammarAST } from "../tool/ast/GrammarAST.js";
+import type { PredAST } from "../tool/ast/PredAST.js";
+import type { TerminalAST } from "../tool/ast/TerminalAST.js";
 import { EarlyExitException } from "../antlr3/EarlyExitException.js";
 import { MismatchedSetException } from "../antlr3/MismatchedSetException.js";
 import { NoViableAltException } from "../antlr3/NoViableAltException.js";

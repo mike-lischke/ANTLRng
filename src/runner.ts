@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Tool } from "../tool/src/org/antlr/v4/Tool.js";
+import { Tool } from "./Tool.js";
 
 console.log("Hello, world!");
 Tool.main(process.argv.slice(2));

@@ -1,16 +1,14 @@
-/* java2ts: keep */
-
 import { RecognitionException } from "antlr4ng";
 
-import { CodeBlockForAlt } from "../../tool/src/org/antlr/v4/codegen/model/CodeBlockForAlt.js";
-import { PlusBlock } from "../../tool/src/org/antlr/v4/codegen/model/PlusBlock.js";
-import type { SrcOp } from "../../tool/src/org/antlr/v4/codegen/model/SrcOp.js";
-import { StarBlock } from "../../tool/src/org/antlr/v4/codegen/model/StarBlock.js";
-import { OutputModelController } from "../../tool/src/org/antlr/v4/codegen/OutputModelController.js";
-import type { ActionAST } from "../../tool/src/org/antlr/v4/tool/ast/ActionAST.js";
-import type { AltAST } from "../../tool/src/org/antlr/v4/tool/ast/AltAST.js";
-import type { BlockAST } from "../../tool/src/org/antlr/v4/tool/ast/BlockAST.js";
-import type { GrammarAST } from "../../tool/src/org/antlr/v4/tool/ast/GrammarAST.js";
+import { CodeBlockForAlt } from "../codegen/model/CodeBlockForAlt.js";
+import { PlusBlock } from "../codegen/model/PlusBlock.js";
+import type { SrcOp } from "../codegen/model/SrcOp.js";
+import { StarBlock } from "../codegen/model/StarBlock.js";
+import { OutputModelController } from "../codegen/OutputModelController.js";
+import type { ActionAST } from "../tool/ast/ActionAST.js";
+import type { AltAST } from "../tool/ast/AltAST.js";
+import type { BlockAST } from "../tool/ast/BlockAST.js";
+import type { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { EarlyExitException } from "../antlr3/EarlyExitException.js";
 import { NoViableAltException } from "../antlr3/NoViableAltException.js";
 import { RecognizerSharedState } from "../antlr3/RecognizerSharedState.js";
