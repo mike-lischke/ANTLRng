@@ -48,6 +48,7 @@
         "lint:fix": "eslint \"./tool/src/**/*.ts\" --fix",
         "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage",
         "generate-tool-parsers": "./build/generate-tool-parsers.sh",
+        "generate-test-parsers": "./build/generate-test-parsers.sh",
         "generate-unicode-data": "node --no-warnings  --loader ts-node/esm ./build/generate-unicode-data.ts"
     }
 }
