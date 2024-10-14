@@ -40,7 +40,7 @@ export class GrammarTransformPipeline {
     }
 
     /** Utility visitor that sets grammar ptr in each node */
-    public static setGrammarPtr(g: Grammar, tree: GrammarAST): void {
+    public static setGrammarPtr(g: Grammar, tree: GrammarAST | null): void {
         // ensure each node has pointer to surrounding grammar
         const v = new TreeVisitor(new GrammarASTAdaptor());
         v.visit(tree, new class implements TreeVisitorAction<GrammarAST> {
@@ -354,7 +354,7 @@ export class GrammarTransformPipeline {
                 let hasNewOption = false;
                 for (const [key] of imp.ast!.getOptions()) {
                     const importOption = imp.ast!.getOptionString(key);
-                    if (importOption === null) {
+                    if (!importOption) {
                         continue;
                     }
 

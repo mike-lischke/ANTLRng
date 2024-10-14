@@ -94,7 +94,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
      *  seems like this will yield start=i and stop=i-1 in a nil node.
      *  Might be useful info so I'll not force to be i..i.
      */
-    public setTokenBoundaries(t: Tree | null, startToken: Token, stopToken: Token): void {
+    public setTokenBoundaries(t: Tree | null, startToken: Token | null, stopToken: Token | null): void {
         if (t === null) {
             return;
         }
@@ -129,7 +129,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
         return (t as Tree).getTokenStopIndex();
     }
 
-    public override getText(t: Tree): string | null {
+    public override getText(t: Tree | null): string | null {
         if (t === null) {
             return null;
         }
@@ -158,7 +158,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
         return null; // no idea what to do
     }
 
-    public override getChild(t: Tree, i: number): Tree | null {
+    public override getChild(t: Tree | null, i: number): Tree | null {
         if (t === null) {
             return null;
         }

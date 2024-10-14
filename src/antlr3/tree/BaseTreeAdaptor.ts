@@ -52,7 +52,7 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
             }
 
             case 3: {
-                const [tokenType, fromToken, text] = args as [number, Token, string];
+                const [tokenType, fromToken, text] = args as [number, Token | null, string];
 
                 if (fromToken === null) {
                     return this.create(tokenType, text);
@@ -92,7 +92,11 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
         return new CommonErrorNode(input, start, stop, e);
     }
 
-    public isNil(tree: Tree): boolean {
+    public isNil(tree: Tree | null): boolean {
+        if (tree === null) {
+            return true;
+        }
+
         return tree.isNil();
     }
 
@@ -193,9 +197,8 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
      * Transform ^(nil x) to x and nil to null
      */
     public rulePostProcessing(root: Tree): Tree | null {
-        //System.out.println("rulePostProcessing: "+((Tree)root).toStringTree());
         let r: Tree | null = root;
-        if (r !== null && r.isNil()) {
+        if (r.isNil()) {
             if (r.getChildCount() === 0) {
                 r = null;
             } else if (r.getChildCount() === 1) {

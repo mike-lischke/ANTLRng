@@ -136,6 +136,20 @@ export interface TreeAdaptor {
     becomeRoot(newRoot: Tree, oldRoot: Tree): Tree;
 
     /**
+     * Create a node for newRoot make it the root of oldRoot.
+     *  If oldRoot is a nil root, just copy or move the children to newRoot.
+     *  If not a nil root, make oldRoot a child of newRoot.
+     *
+     *  Return node created for newRoot.
+     *
+     *  Be advised: when debugging ASTs, the DebugTreeAdaptor manually
+     *  calls create(Token child) and then plain becomeRoot(node, node)
+     *  because it needs to trap calls to create, but it can't since it delegates
+     *  to not inherits from the TreeAdaptor.
+     */
+    becomeRoot(newRoot: Token, oldRoot: unknown): unknown;
+
+    /**
      * Given the root of the subtree created for this rule, post process
      *  it to do any simplifications or whatever you want.  A required
      *  behavior is to convert ^(nil singleSubtree) to singleSubtree
@@ -158,22 +172,6 @@ export interface TreeAdaptor {
      *  Even becomeRoot is an issue.  Uses MurmurHash usually.
      */
     getUniqueID(node: Tree): number;
-
-    // R e w r i t e  R u l e s
-
-    /**
-     * Create a node for newRoot make it the root of oldRoot.
-     *  If oldRoot is a nil root, just copy or move the children to newRoot.
-     *  If not a nil root, make oldRoot a child of newRoot.
-     *
-     *  Return node created for newRoot.
-     *
-     *  Be advised: when debugging ASTs, the DebugTreeAdaptor manually
-     *  calls create(Token child) and then plain becomeRoot(node, node)
-     *  because it needs to trap calls to create, but it can't since it delegates
-     *  to not inherits from the TreeAdaptor.
-     */
-    becomeRoot(newRoot: Token, oldRoot: unknown): unknown;
 
     // C o n t e n t
 
