@@ -8,7 +8,8 @@ import { Target } from "../Target.js";
 
 export class TypeScriptTarget extends Target {
 
-    /** source:
+    /**
+     * source:
      * https://github.com/microsoft/TypeScript/blob/fad889283e710ee947e8412e173d2c050107a3c1/src/compiler/scanner.ts
      */
     protected static readonly reservedWords = new Set([

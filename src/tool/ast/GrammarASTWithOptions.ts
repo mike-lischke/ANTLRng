@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { GrammarAST } from "./GrammarAST.js";
 import { ActionAST } from "./ActionAST.js";
 import { CharSupport } from "../../misc/CharSupport.js";

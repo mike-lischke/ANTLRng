@@ -3,9 +3,39 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { ATN, ATNDeserializer, ATNState, LexerActionType, Token, Transition } from "antlr4ng";
+import { ATN, ATNDeserializer, ATNState, LexerActionType, Token } from "antlr4ng";
 
 import { Character } from "../src/support/Character.js";
+
+const serializationNamesATN: readonly string[] = Object.freeze([
+    "INVALID",
+    "BASIC",
+    "RULE_START",
+    "BLOCK_START",
+    "PLUS_BLOCK_START",
+    "STAR_BLOCK_START",
+    "TOKEN_START",
+    "RULE_STOP",
+    "BLOCK_END",
+    "STAR_LOOP_BACK",
+    "STAR_LOOP_ENTRY",
+    "PLUS_LOOP_BACK",
+    "LOOP_END"
+]);
+
+const serializationNamesTransition: readonly string[] = Object.freeze([
+    "INVALID",
+    "EPSILON",
+    "RANGE",
+    "RULE",
+    "PREDICATE",
+    "ATOM",
+    "ACTION",
+    "SET",
+    "NOT_SET",
+    "WILDCARD",
+    "PRECEDENCE"
+]);
 
 /**
  * Make human readable set of ints from serialized ATN like this (for debugging / testing):
@@ -37,7 +67,10 @@ export class ATNDescriber {
 
     /**
      * For testing really; gives a human readable version of the ATN
-     * @param data
+     *
+     * @param data The serialized ATN data.
+     *
+     * @returns A human readable version of the ATN.
      */
     public decode(data: Int32Array): string {
         let result = "";
@@ -76,7 +109,7 @@ export class ATNDescriber {
                 }
             }
 
-            result += i + ":" + ATNState.serializationNames.get(stype) + " " + ruleIndex + arg + "\n";
+            result += i + ":" + serializationNamesATN[stype] + " " + ruleIndex + arg + "\n";
         }
 
         // this code is meant to model the form of ATNDeserializer.deserialize,
@@ -112,7 +145,7 @@ export class ATNDescriber {
         }
 
         const numBMPSets = data[p++];
-        p = this.appendSets(result, data, p, numBMPSets);
+        [p, result] = this.appendSets(result, data, p, numBMPSets);
         const nedges = data[p++];
         for (let i = 0; i < nedges; i++) {
             const src = data[p];
@@ -121,7 +154,7 @@ export class ATNDescriber {
             const arg1 = data[p + 3];
             const arg2 = data[p + 4];
             const arg3 = data[p + 5];
-            result += src + "->" + trg + " " + Transition.serializationNames.get(ttype) + " " + arg1 + "," + arg2 +
+            result += src + "->" + trg + " " + serializationNamesTransition[ttype] + " " + arg1 + "," + arg2 +
                 "," + arg3 + "\n";
             p += 6;
         }
@@ -157,31 +190,31 @@ export class ATNDescriber {
         if (this.atn.grammarType === ATN.LEXER &&
             t >= Character.MIN_VALUE && t <= Character.MAX_VALUE) {
             switch (t) {
-                case "\n": {
+                case 0x0A: { // '\n'
                     return "'\\n'";
                 }
 
-                case "\r": {
+                case 0x0D: { // '\r'
                     return "'\\r'";
                 }
 
-                case "\t": {
+                case 0x09: { // '\t'
                     return "'\\t'";
                 }
 
-                case "\b": {
+                case 0x08: { // '\b'
                     return "'\\b'";
                 }
 
-                case "\f": {
+                case 0x0C: { // '\f'
                     return "'\\f'";
                 }
 
-                case "\\": {
+                case 0x5C: { // '\\'
                     return "'\\\\'";
                 }
 
-                case "'": {
+                case 0x27: { // '\''
                     return "'\\''";
                 }
 
@@ -192,7 +225,7 @@ export class ATNDescriber {
                     }
                     // turn on the bit above max "\uFFFF" value so that we pad with zeros
                     // then only take last 4 digits
-                    const hex = number.toHexString(t | 0x10000).toUpperCase().substring(1, 5);
+                    const hex = Number(t | 0x10000).toString(16).toUpperCase().substring(1, 5);
                     const unicodeStr = "'\\u" + hex + "'";
 
                     return unicodeStr;
@@ -201,35 +234,37 @@ export class ATNDescriber {
             }
         }
 
-        if (this.tokenNames !== null && t >= 0 && t < this.tokenNames.size()) {
-            return this.tokenNames.get(t);
+        if (t >= 0 && t < this.tokenNames.length) {
+            return this.tokenNames[t];
         }
 
-        return string.valueOf(t);
+        return t.toString();
     }
 
-    private appendSets(buf: StringBuilder, data: Int32Array, p: number, nsets: number): number {
+    private appendSets(input: string, data: Int32Array, p: number, nsets: number): [number, string] {
+        let result = "";
+
         for (let i = 0; i < nsets; i++) {
             const nintervals = data[p++];
-            buf.append(i).append(":");
+            result += `${i}:`;
             const containsEof = data[p++] !== 0;
             if (containsEof) {
-                buf.append(this.getTokenName(Token.EOF));
+                result += this.getTokenName(Token.EOF);
             }
 
             for (let j = 0; j < nintervals; j++) {
                 if (containsEof || j > 0) {
-                    buf.append(", ");
+                    result += ", ";
                 }
 
                 const a = data[p++];
                 const b = data[p++];
-                buf.append(this.getTokenName(a)).append("..").append(this.getTokenName(b));
+                result += `${this.getTokenName(a)}..${this.getTokenName(b)}`;
             }
-            buf.append("\n");
+            result += "\n";
         }
 
-        return p;
+        return [p, result];
     }
 
 }

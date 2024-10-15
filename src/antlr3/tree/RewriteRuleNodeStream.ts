@@ -7,7 +7,8 @@
 import { RewriteRuleElementStream } from "./RewriteRuleElementStream.js";
 import type { Tree } from "./Tree.js";
 
-/** Queues up nodes matched on left side of -&gt; in a tree parser. This is
+/**
+ * Queues up nodes matched on left side of -&gt; in a tree parser. This is
  *  the analog of RewriteRuleTokenStream for normal parsers.
  */
 export class RewriteRuleNodeStream extends RewriteRuleElementStream {

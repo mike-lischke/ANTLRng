@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param */
+
 import { RecognitionException, type TokenStream } from "antlr4ng";
 
 import { RecognizerSharedState } from "../RecognizerSharedState.js";

@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-returns */
+
 import { Token } from "antlr4ng";
 import { writeFileSync } from "fs";
 import { AutoIndentWriter, ST, StringWriter, type IST, type STGroup } from "stringtemplate4ts";

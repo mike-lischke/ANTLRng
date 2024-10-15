@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import {
     ActionTransition, ATN, ATNState, AtomTransition, CodePointTransitions, CommonToken, IntervalSet, IntStream, Lexer,
     LexerAction, LexerChannelAction, LexerCustomAction, LexerModeAction, LexerMoreAction, LexerPopModeAction,
@@ -307,7 +309,8 @@ export class LexerATNFactory extends ParserATNFactory {
         return { left, right };
     }
 
-    /** For a lexer, a string is a sequence of char to match.  That is,
+    /**
+     * For a lexer, a string is a sequence of char to match.  That is,
      *  "fog" is treated as 'f' 'o' 'g' not as a single transition in
      *  the DFA.  Machine== o-'f'-&gt;o-'o'-&gt;o-'g'-&gt;o and has n+1 states
      *  for n characters.

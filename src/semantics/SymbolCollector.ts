@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param */
+
 import { HashSet } from "antlr4ng";
 
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";

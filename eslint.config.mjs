@@ -89,6 +89,72 @@ export default tslint.config(
                     "beforeBlockComment": false,
                 }
             ],
+            "@stylistic/prefer-regexp-exec": "off",
+            "@typescript-eslint/naming-convention": [
+                "error",
+                {
+                    "selector": "default",
+                    "format": [
+                        "camelCase"
+                    ],
+                    "filter": {
+                        "regex": "^_",
+                        "match": false
+                    }
+                },
+                {
+                    "selector": "class",
+                    "format": [
+                        "PascalCase"
+                    ]
+                },
+                {
+                    "selector": "typeParameter",
+                    "format": [
+                        "PascalCase"
+                    ]
+                },
+                {
+                    "selector": "enum",
+                    "format": [
+                        "PascalCase"
+                    ]
+                },
+                {
+                    "selector": "enumMember",
+                    "format": [
+                        "PascalCase"
+                    ]
+                },
+                {
+                    "selector": "typeAlias",
+                    "format": [
+                        "PascalCase"
+                    ]
+                },
+                {
+                    "selector": "interface",
+                    "format": [
+                        "PascalCase"
+                    ]
+                },
+                {
+                    "selector": "property",
+                    "format": [
+                        "camelCase",
+                        "UPPER_CASE"
+                    ]
+                },
+                {
+                    "selector": "property",
+                    "format": null,
+                    "filter": {
+                        "regex": "^['\"].*['\"]$",
+                        "match": false
+                    }
+                }
+            ],
+
             "lines-between-class-members": "off", // Should be on, but handles overload signatures incorrectly.
 
             "@typescript-eslint/adjacent-overload-signatures": "error",

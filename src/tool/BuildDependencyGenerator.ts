@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-returns */
+
 import { STGroupFile, type STGroup } from "stringtemplate4ts";
 import type { IST } from "stringtemplate4ts";
 

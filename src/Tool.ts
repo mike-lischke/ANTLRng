@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { ATNSerializer, CharStream, CommonTokenStream } from "antlr4ng";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import path, { basename } from "path";

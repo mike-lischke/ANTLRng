@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-returns */
+
 import { Target } from "../Target.js";
 
 export class JavaTarget extends Target {

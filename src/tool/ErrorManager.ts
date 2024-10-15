@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { ErrorBuffer, STGroup, STGroupFile } from "stringtemplate4ts";
 
 import type { RecognitionException, Token } from "antlr4ng";

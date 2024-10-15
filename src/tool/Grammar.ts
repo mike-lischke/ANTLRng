@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, DFA, Interval, IntervalSet, LexerInterpreter, ParserInterpreter,
     SemanticContext, Token, TokenStream, Vocabulary,

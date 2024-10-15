@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 // cspell: disable
 
 import { Token } from "antlr4ng";
@@ -98,26 +100,26 @@ export class TreeWizard {
     protected adaptor: TreeAdaptor;
     protected tokenNameToTypeMap?: Map<string | null, number>;
 
-    public constructor(adaptorOrTokenNames: TreeAdaptor | (string | null)[]);
+    public constructor(adaptorOrTokenNames: TreeAdaptor | Array<string | null>);
     public constructor(adaptor: TreeAdaptor, tokenNameToTypeMap: Map<string, number>);
-    // eslint-disable-next-line @typescript-eslint/unified-signatures
-    public constructor(adaptor: TreeAdaptor, tokenNames: (string | null)[]);
+     
+    public constructor(adaptor: TreeAdaptor, tokenNames: Array<string | null>);
     public constructor(...args: unknown[]) {
         let adaptor: TreeAdaptor;
         let tokenNameToTypeMap: Map<string | null, number> | undefined;
-        let tokenNames: (string | null)[];
+        let tokenNames: Array<string | null>;
 
         if (args.length === 1) {
             if (Array.isArray(args[0])) {
                 adaptor = new CommonTreeAdaptor();
-                tokenNames = args[0] as (string | null)[];
+                tokenNames = args[0] as Array<string | null>;
             } else {
                 adaptor = args[0] as TreeAdaptor;
             }
         } else {
             adaptor = args[0] as TreeAdaptor;
             if (Array.isArray(args[1])) {
-                tokenNames = args[1] as (string | null)[];
+                tokenNames = args[1] as Array<string | null>;
                 tokenNameToTypeMap = this.computeTokenTypes(tokenNames);
             } else {
                 tokenNameToTypeMap = args[1] as Map<string, number>;
@@ -177,7 +179,7 @@ export class TreeWizard {
     /**
      * Compute a map that is an inverted index of tokenNames (which maps int token types to names).
      */
-    public computeTokenTypes(tokenNames: (string | null)[]): Map<string | null, number> {
+    public computeTokenTypes(tokenNames: Array<string | null>): Map<string | null, number> {
         const m = new Map<string | null, number>();
 
         for (let ttype = 0; ttype < tokenNames.length; ttype++) {
@@ -272,7 +274,7 @@ export class TreeWizard {
      *  with visit(t, ttype, visitor) so nil-rooted patterns are not allowed.
      *  Patterns with wildcard roots are also not allowed.
      */
-    // eslint-disable-next-line @typescript-eslint/unified-signatures
+     
     public visit<T extends Tree>(t: T, pattern: string, visitor: TreeWizard.ContextVisitor): void;
     public visit<T extends Tree>(...args: unknown[]): void {
         const [t, typeOrPattern, visitor] = args as [T, number | string, TreeWizard.ContextVisitor];
@@ -435,7 +437,6 @@ export class TreeWizard {
     }
 
 }
-
 
 export namespace TreeWizard {
     export interface ContextVisitor {

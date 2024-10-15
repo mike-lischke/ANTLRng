@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { ATNState, IntervalSet, RecognitionException } from "antlr4ng";
 
 import { CommonTreeNodeStream } from "../../antlr3/tree/CommonTreeNodeStream.js";
@@ -162,7 +164,8 @@ export class RuleFunction extends OutputModelObject {
         }
     }
 
-    /** for all alts, find which ref X or r needs List
+    /**
+        for all alts, find which ref X or r needs List
        Must see across alts. If any alt needs X or r as list, then
        define as list.
      */

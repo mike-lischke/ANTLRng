@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { type IComparable } from "antlr4ng";
 
 import { Alternative } from "./Alternative.js";

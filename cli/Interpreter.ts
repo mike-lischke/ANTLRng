@@ -4,6 +4,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
+
 import { readFile } from "fs/promises";
 import { createWriteStream } from "fs";
 import { Option, program } from "commander";

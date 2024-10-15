@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { Token, Vocabulary } from "antlr4ng";
 import { CharSupport } from "./CharSupport.js";
 

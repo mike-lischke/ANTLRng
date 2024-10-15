@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-returns */
+
 import type { TreeNodeStream } from "../../antlr3/tree/TreeNodeStream.js";
 import { GrammarTreeVisitor } from "../../tree-walkers/GrammarTreeVisitor.js";
 

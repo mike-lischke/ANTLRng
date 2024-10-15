@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { CommonToken, IntervalSet, type TokenStream } from "antlr4ng";
 import { STGroupFile, type STGroup } from "stringtemplate4ts";
 
@@ -26,7 +28,8 @@ enum Associativity {
     Right = "right"
 };
 
-/** Using a tree walker on the rules, determine if a rule is directly left-recursive and if it follows
+/**
+ * Using a tree walker on the rules, determine if a rule is directly left-recursive and if it follows
  *  our pattern.
  */
 export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {

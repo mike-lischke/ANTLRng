@@ -6,7 +6,8 @@
 
 import { RecognitionException, type IntStream } from "antlr4ng";
 
-/** A semantic predicate failed during validation.  Validation of predicates
+/**
+ * A semantic predicate failed during validation.  Validation of predicates
  *  occurs when normally parsing the alternative just like matching a token.
  *  Disambiguating predicate evaluation occurs when we hoist a predicate into
  *  a prediction decision.

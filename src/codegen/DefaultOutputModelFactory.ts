@@ -17,7 +17,8 @@ import { Alternative } from "../tool/Alternative.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Rule } from "../tool/Rule.js";
 
-/** Create output objects for elements *within* rule functions except
+/**
+ * Create output objects for elements *within* rule functions except
  *  buildOutputModel() which builds outer/root model object and any
  *  objects such as RuleFunction that surround elements in rule
  *  functions.

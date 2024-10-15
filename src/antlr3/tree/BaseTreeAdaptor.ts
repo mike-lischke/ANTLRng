@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 // cspell: disable
 
 import { isToken, type RecognitionException, type Token, type TokenStream } from "antlr4ng";

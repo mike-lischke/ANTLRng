@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import { IntervalSet, LL1Analyzer, Token } from "antlr4ng";
 import { Utils } from "../misc/Utils.js";
 import { ErrorType } from "../tool/ErrorType.js";

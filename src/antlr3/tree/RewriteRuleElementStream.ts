@@ -4,10 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 
-/** A generic list of elements tracked in an alternative to be used in
+/**
+ * A generic list of elements tracked in an alternative to be used in
  *  a -&gt; rewrite rule.  We need to subclass to fill in the next() method,
  *  which returns either an AST node wrapped around a token payload or
  *  an existing subtree.
@@ -21,7 +24,8 @@ import type { TreeAdaptor } from "./TreeAdaptor.js";
  *  TODO: add mechanism to detect/puke on modification after reading from stream
  */
 export abstract class RewriteRuleElementStream {
-    /** Cursor 0..n-1.  If singleElement!=null, cursor is 0 until you next(),
+    /**
+     * Cursor 0..n-1.  If singleElement!=null, cursor is 0 until you next(),
      *  which bumps it to 1 meaning no more elements.
      */
     protected cursor = 0;
@@ -29,7 +33,8 @@ export abstract class RewriteRuleElementStream {
     /** The list of tokens or subtrees we are tracking */
     protected elements: Tree[];
 
-    /** Once a node / subtree has been used in a stream, it must be dup'd
+    /**
+     * Once a node / subtree has been used in a stream, it must be dup'd
      *  from then on.  Streams are reset after subrules so that the streams
      *  can be reused in future subrules.  So, reset must set a dirty bit.
      *  If dirty, then next() always returns a dup.
@@ -41,7 +46,8 @@ export abstract class RewriteRuleElementStream {
      */
     protected dirty = false;
 
-    /** The element or stream description; usually has name of the token or
+    /**
+     * The element or stream description; usually has name of the token or
      *  rule reference that this list tracks.  Can include rule name too, but
      *  the exception would track that info.
      */
@@ -54,7 +60,8 @@ export abstract class RewriteRuleElementStream {
         this.elements = elements ?? [];
     }
 
-    /** Reset the condition of this stream so that it appears we have
+    /**
+     * Reset the condition of this stream so that it appears we have
      *  not consumed any of its elements.  Elements themselves are untouched.
      *  Once we reset the stream, any future use will need duplicates.  Set
      *  the dirty bit.
@@ -70,7 +77,8 @@ export abstract class RewriteRuleElementStream {
         }
     }
 
-    /** Return the next element in the stream.  If out of elements, throw
+    /**
+     * Return the next element in the stream.  If out of elements, throw
      *  an exception unless size()==1.  If size is 1, then return elements[0].
      *  Return a duplicate node/subtree if stream is out of elements and
      *  size==1.  If we've already used the element, dup (dirty bit set).
@@ -101,7 +109,8 @@ export abstract class RewriteRuleElementStream {
         return this.elementDescription;
     }
 
-    /** do the work of getting the next element, making sure that it's
+    /**
+     * do the work of getting the next element, making sure that it's
      *  a tree node or subtree. Throw an exception
      *  if the stream is empty or we're out of elements and size > 1.
      *  protected so you can override in a subclass if necessary.
@@ -134,14 +143,16 @@ export abstract class RewriteRuleElementStream {
         return o;
     }
 
-    /** Ensure stream emits trees; tokens must be converted to AST nodes.
+    /**
+     * Ensure stream emits trees; tokens must be converted to AST nodes.
      *  AST nodes can be passed through unmolested.
      */
     protected toTree(el: Tree): Tree {
         return el;
     }
 
-    /** When constructing trees, sometimes we need to dup a token or AST
+    /**
+     * When constructing trees, sometimes we need to dup a token or AST
      * 	subtree.  Dup'ing a token means just creating another AST node
      *  around it.  For trees, you must call the adaptor.dupTree() unless
      *  the element is for a tree root; then it must be a node dup.

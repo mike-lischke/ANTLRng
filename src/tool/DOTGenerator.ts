@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import {
     ATNConfig, ATNState, AbstractPredicateTransition, ActionTransition, AtomTransition, BlockEndState, BlockStartState,
     DFA, DFAState, DecisionState, NotSetTransition, PlusBlockStartState, PlusLoopbackState,

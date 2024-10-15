@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 // cspell: ignore unnnn
 
 import { RuntimeMetaData, Token } from "antlr4ng";
@@ -56,7 +58,8 @@ export abstract class Target {
         return this.gen;
     }
 
-    /** ANTLR tool should check output templates / target are compatible with tool code generation.
+    /**
+     * ANTLR tool should check output templates / target are compatible with tool code generation.
      *  For now, a simple string match used on x.y of x.y.z scheme. We use a method to avoid mismatches
      *  between a template called VERSION. This value is checked against Tool.VERSION during load of templates.
      *
@@ -91,7 +94,8 @@ export abstract class Target {
         return this.reservedWords.has(identifier) ? this.escapeWord(identifier) : identifier;
     }
 
-    /** Get a meaningful name for a token type useful during code generation.
+    /**
+     * Get a meaningful name for a token type useful during code generation.
      *  Literals without associated names are converted to the string equivalent
      *  of their integer values. Used to generate x==ID and x==34 type comparisons
      *  etc...  Essentially we are looking for the most obvious way to refer
@@ -117,7 +121,8 @@ export abstract class Target {
         return labels;
     }
 
-    /** Given a random string of unicode chars, return a new string with
+    /**
+     * Given a random string of unicode chars, return a new string with
      *  optionally appropriate quote characters for target language and possibly
      *  with some escaped characters.  For example, if the incoming string has
      *  actual newline characters, the output of this method would convert them
@@ -318,7 +323,8 @@ export abstract class Target {
         return st.render();
     }
 
-    /** If we know which actual function, we can provide the actual ctx type.
+    /**
+     * If we know which actual function, we can provide the actual ctx type.
      *  This will contain implicit labels etc...  From outside, though, we
      *  see only ParserRuleContext unless there are externally visible stuff
      *  like args, locals, explicit labels, etc...
@@ -390,7 +396,8 @@ export abstract class Target {
         return this.getTokenTypeAsTargetLabel(this.getCodeGenerator().g!, ttype);
     }
 
-    /** Generate TParser.java and TLexer.java from T.g4 if combined, else
+    /**
+     * Generate TParser.java and TLexer.java from T.g4 if combined, else
      *  just use T.java as output regardless of type.
      */
     public getRecognizerFileName(header: boolean): string {
@@ -400,9 +407,10 @@ export abstract class Target {
         return recognizerName + extST.render();
     }
 
-    /** A given grammar T, return the listener name such as
+    /**
+     * A given grammar T, return the listener name such as
      *  TListener.java, if we're using the Java target.
-       */
+     */
     public getListenerFileName(header: boolean): string {
 
         /* assert gen.g.name != null; */
@@ -412,9 +420,10 @@ export abstract class Target {
         return listenerName + extST.render();
     }
 
-    /** A given grammar T, return the visitor name such as
+    /**
+     * A given grammar T, return the visitor name such as
      *  TVisitor.java, if we're using the Java target.
-       */
+     */
     public getVisitorFileName(header: boolean): string {
 
         /* assert gen.g.name != null; */
@@ -424,9 +433,10 @@ export abstract class Target {
         return listenerName + extST.render();
     }
 
-    /** A given grammar T, return a blank listener implementation
+    /**
+     * A given grammar T, return a blank listener implementation
      *  such as TBaseListener.java, if we're using the Java target.
-       */
+     */
     public getBaseListenerFileName(header: boolean): string {
 
         /* assert gen.g.name != null; */
@@ -436,9 +446,10 @@ export abstract class Target {
         return listenerName + extST.render();
     }
 
-    /** A given grammar T, return a blank listener implementation
+    /**
+     * A given grammar T, return a blank listener implementation
      *  such as TBaseListener.java, if we're using the Java target.
-       */
+     */
     public getBaseVisitorFileName(header: boolean): string {
 
         /* assert gen.g.name != null; */
@@ -470,13 +481,14 @@ export abstract class Target {
      *
      * @see SerializedATN#getSegments
      *
-     * @return the serialized ATN segment limit
+     * @returns the serialized ATN segment limit
      */
     public getSerializedATNSegmentLimit(): number {
         return Number.MAX_VALUE;
     }
 
-    /** How many bits should be used to do inline token type tests? Java assumes
+    /**
+     * How many bits should be used to do inline token type tests? Java assumes
      *  a 64-bit word for bitsets.  Must be a valid wordsize for your target like
      *  8, 16, 32, 64, etc...
      *

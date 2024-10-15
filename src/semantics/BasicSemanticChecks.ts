@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import type { Token } from "antlr4ng";
 
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";

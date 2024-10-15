@@ -10,7 +10,8 @@ import { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { OutputModelObject } from "./model/OutputModelObject.js";
 
-/** Convert an output model tree to template hierarchy by walking
+/**
+ * Convert an output model tree to template hierarchy by walking
  *  the output model. Each output model object has a corresponding template
  *  of the same name.  An output model object can have nested objects.
  *  We identify those nested objects by the list of arguments in the template

@@ -4,6 +4,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
+
 /*
    eslint-disable @typescript-eslint/no-base-to-string , @typescript-eslint/no-unsafe-function-type,
    @typescript-eslint/no-unsafe-return

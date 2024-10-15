@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param */
+
 import { IntervalSet } from "antlr4ng";
 
 import { Character } from "../support/Character.js";

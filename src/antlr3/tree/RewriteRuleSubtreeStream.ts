@@ -4,12 +4,15 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-returns */
+
 import { RewriteRuleElementStream } from "./RewriteRuleElementStream.js";
 import type { Tree } from "./Tree.js";
 
 export class RewriteRuleSubtreeStream extends RewriteRuleElementStream {
 
-    /** Treat next element as a single node even if it's a subtree.
+    /**
+     * Treat next element as a single node even if it's a subtree.
      *  This is used instead of next() when the result has to be a
      *  tree root node.  Also prevents us from duplicating recently-added
      *  children; e.g., ^(type ID)+ adds ID to type and then 2nd iteration

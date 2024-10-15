@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
+
 import type { IST } from "stringtemplate4ts";
 
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
@@ -48,9 +50,10 @@ import { StarBlock } from "./model/StarBlock.js";
 import { VisitorFile } from "./model/VisitorFile.js";
 import { CodeBlock } from "./model/decl/CodeBlock.js";
 
-/** This receives events from SourceGenTriggers.g and asks factory to do work.
+/**
+ * This receives events from SourceGenTriggers.g and asks factory to do work.
  *  Then runs extensions in order on resulting SrcOps to get final list.
- **/
+ */
 export class OutputModelController {
 
     /** Who does the work? Doesn't have to be CoreOutputModelFactory. */
@@ -59,7 +62,8 @@ export class OutputModelController {
     /** Post-processing CodeGeneratorExtension objects; done in order given. */
     public extensions = new Array<CodeGeneratorExtension>();
 
-    /** While walking code in rules, this is set to the tree walker that
+    /**
+     * While walking code in rules, this is set to the tree walker that
      *  triggers actions.
      */
     public walker: SourceGenTriggers;
@@ -81,7 +85,8 @@ export class OutputModelController {
         this.extensions.push(ext);
     }
 
-    /** Build a file with a parser containing rule functions. Use the
+    /**
+     * Build a file with a parser containing rule functions. Use the
      *  controller as factory in SourceGenTriggers so it triggers codegen
      *  extensions too, not just the factory functions in this factory.
      */
@@ -163,7 +168,8 @@ export class OutputModelController {
         return new Lexer(this.delegate, file);
     }
 
-    /** Create RuleFunction per rule and update sempreds,actions of parser
+    /**
+     * Create RuleFunction per rule and update sempreds,actions of parser
      *  output object with stuff found in r.
      */
     public buildRuleFunction(parser: Parser, r: Rule): void {

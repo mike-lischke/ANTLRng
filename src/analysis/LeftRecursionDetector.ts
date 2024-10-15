@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/* eslint-disable jsdoc/require-param */
+
 import {
     ATN, ATNState, HashSet, RuleStartState, RuleStopState, RuleTransition
 } from "antlr4ng";

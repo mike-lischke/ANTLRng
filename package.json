@@ -45,8 +45,8 @@
     },
     "scripts": {
         "run": "node --no-warnings --loader ts-node/esm src/runner.ts",
-        "lint": "eslint \"./tool/src/**/*.ts\"",
-        "lint:fix": "eslint \"./tool/src/**/*.ts\" --fix",
+        "lint": "eslint \"./src/**/*.ts\"",
+        "lint:fix": "eslint \"./src/**/*.ts\" --fix",
         "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage",
         "generate-tool-parsers": "./build/generate-tool-parsers.sh",
         "generate-test-parsers": "./build/generate-test-parsers.sh",
