@@ -4,6 +4,7 @@
  */
 
 import { getCategory, isAlphabetic, isDigit, isLowerCase, isUpperCase, isWhiteSpace } from "unicode-properties";
+import { UnicodeBlockConstants } from "../generated/UnicodeData.js";
 
 /**
  * This class is a partial implementation of Java's Character class from the jree package and
@@ -217,28 +218,48 @@ export class Character {
     /** General category "Lu" in the Unicode specification. */
     public static readonly UPPERCASE_LETTER = 53;
 
-    public static readonly Subset = class {
-        protected constructor(public name: string) { }
+    public static readonly UnicodeBlock = class extends UnicodeBlockConstants {
+        /**
+         * @param c The character/codepoint to check.
+         *
+         * @returns the value representing the Unicode block containing the given character, or -1 if the
+         * character is not a member of a defined block.
+         */
+        public static of(c: string | number): number {
+            const codePoint = typeof c === "string" ? c.codePointAt(0)! : c;
+            for (const [block, range] of this.ranges) {
+                if (range[0] <= codePoint && codePoint <= range[1]) {
+                    return block;
+                }
+            }
 
-        public equals(obj: unknown): boolean {
-            return obj === this;
-        }
-    };
-
-    public static readonly UnicodeBlock = class {
-        public static readonly BASIC_LATIN = 1;
-
-        public static of = (_c: number): number => {
-            return 0;
+            return -1;
         };
 
-    };
+        /**
+         * @param name The name of the Unicode block.
+         *
+         * @returns the UnicodeBlock number with the given name or -1 if no Unicode block with that name could be
+         *          found. Block names are determined by The Unicode Standard.
+         *
+         * This method accepts block names in the following forms:
+         * 1. Canonical block names as defined by the Unicode Standard. For example, the standard defines a
+         *    "Basic Latin" block. Therefore, this method accepts "Basic Latin" as a valid block name. The documentation
+         *    of each UnicodeBlock provides the canonical name.
+         * 2. Canonical block names with all spaces removed. For example, "BasicLatin" is a valid block name for the
+         *    "Basic Latin" block.
+         * 3. The text representation of each constant UnicodeBlock identifier. For example, this method will return
+         *    the BASIC_LATIN block if provided with the "BASIC_LATIN" name. This form replaces all spaces and hyphens
+         *    in the canonical name with underscores.
+         *
+         * Finally, character case is ignored for all of the valid block name forms. For example, "BASIC_LATIN" and
+         * "basic_latin" are both valid block names. The en_US locale's case mapping rules are used to provide
+         * case-insensitive string comparisons for block name validation.
+         */
+        public static forName(name: string): number {
+            const block = this.names.get(name.toLowerCase().replace(/[ _-] /g, ""));
 
-    public static readonly UnicodeScript = class {
-        public static readonly BASIC_LATIN = 1;
-
-        public static of = (_c: number): number => {
-            return 0;
+            return block ?? -1;
         };
     };
 
@@ -422,7 +443,7 @@ export class Character {
     /**
      * Determines whether the specified character (Unicode code point) is in the supplementary character range.
      *
-     * @param c The character to check.
+     * @param codePoint The character to check.
      *
      * @returns True, if the character is in the supplementary character range, otherwise false.
      */
@@ -531,4 +552,4 @@ export class Character {
     public static charCount(codePoint: number): number {
         return codePoint >= 0x10000 ? 2 : 1;
     }
-}
+};

@@ -6,33 +6,34 @@
 import eslint from "@eslint/js";
 import tslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
-import typescriptEslintParser from "@typescript-eslint/parser";
+import jsdoc from "eslint-plugin-jsdoc";
+import preferArrow from "eslint-plugin-prefer-arrow";
+import importPlugin from "eslint-plugin-import";
 
 export default tslint.config(
     eslint.configs.recommended,
     ...tslint.configs.strictTypeChecked,
     ...tslint.configs.stylisticTypeChecked,
+    jsdoc.configs["flat/recommended"],
     {
         plugins: {
-            "@stylistic": stylistic
+            "@stylistic": stylistic,
+            "jsdoc": jsdoc,
+            "prefer-arrow": preferArrow,
+            "import": importPlugin,
         },
         languageOptions: {
-            parser: typescriptEslintParser,
+            parser: tslint.parser,
             parserOptions: {
                 projectService: {
-                    allowDefaultProject: ["*.js", "*.mjs", "*.ts"],
+                    defaultProject: "tsconfig.json",
+                    allowDefaultProject: ["*.mjs", "jest.config.ts"],
+                    project: "tsconfig.json",
                 },
                 tsconfigRootDir: import.meta.dirname,
-                project: [
-                    "./tsconfig.json",
-                    "./tests/tsconfig.json"
-                ],
-                allowDefaultProject: [
-                    "./tests"
-                ]
+                sourceType: "module",
             },
         },
-        ignores: ["src/generated/*"],
         rules: {
             "no-fallthrough": [
                 "warn",
@@ -161,6 +162,23 @@ export default tslint.config(
             "@typescript-eslint/prefer-return-this-type": "off",
             "@typescript-eslint/no-invalid-void-type": "off",
             "@typescript-eslint/unified-signatures": "off",
+            "jsdoc/check-alignment": "error",
+            "jsdoc/check-indentation": "off",
+            "jsdoc/require-param-type": "off",
+            "jsdoc/require-returns-type": "off",
+            "jsdoc/tag-lines": [
+                // Have to switch this off, as it is not good enough to be used.
+                "off"
+            ],
+            "prefer-arrow/prefer-arrow-functions": [
+                "warn",
+                {
+                    "disallowPrototype": true,
+                    "singleReturnOnly": false,
+                    "classPropertiesAllowed": false
+                }
+            ],
+
         },
-    },
+    }
 );

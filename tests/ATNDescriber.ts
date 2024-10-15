@@ -3,11 +3,12 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { Token, Transition, LexerActionType, ATNState, ATNDeserializer, ATN } from "antlr4ng";
+import { ATN, ATNDeserializer, ATNState, LexerActionType, Token, Transition } from "antlr4ng";
 
 import { Character } from "../src/support/Character.js";
 
-/** Make human readable set of ints from serialized ATN like this (for debugging / testing):
+/**
+ * Make human readable set of ints from serialized ATN like this (for debugging / testing):
  *
  * max type 1
  * 0:TOKEN_START -1
@@ -34,25 +35,29 @@ export class ATNDescriber {
         this.tokenNames = tokenNames;
     }
 
-    /** For testing really; gives a human readable version of the ATN */
+    /**
+     * For testing really; gives a human readable version of the ATN
+     * @param data
+     */
     public decode(data: Int32Array): string {
-        const buf = new StringBuilder();
+        let result = "";
         let p = 0;
         const version = data[p++];
         if (version !== ATNDeserializer.SERIALIZED_VERSION) {
-            const reason = string.format("Could not deserialize ATN with version %d (expected %d).", version, ATNDeserializer.SERIALIZED_VERSION);
-            throw new Error(reason));
+            throw new Error(`Could not deserialize ATN with version ${version} (expected ` +
+                `${ATNDeserializer.SERIALIZED_VERSION}).`);
         }
 
         p++; // skip grammarType
         const maxType = data[p++];
-        buf.append("max type ").append(maxType).append("\n");
+        result += "max type " + maxType + "\n";
         const nstates = data[p++];
         for (let i = 0; i < nstates; i++) {
             const stype = data[p++];
             if (stype === ATNState.INVALID_TYPE) {
                 continue;
             }
+
             // ignore bad type of states
             let ruleIndex = data[p++];
             if (ruleIndex === Character.MAX_VALUE) {
@@ -63,51 +68,51 @@ export class ATNDescriber {
             if (stype === ATNState.LOOP_END) {
                 const loopBackStateNumber = data[p++];
                 arg = " " + loopBackStateNumber;
-            }
-            else {
-                if (stype === ATNState.PLUS_BLOCK_START || stype === ATNState.STAR_BLOCK_START || stype === ATNState.BLOCK_START) {
+            } else {
+                if (stype === ATNState.PLUS_BLOCK_START || stype === ATNState.STAR_BLOCK_START
+                    || stype === ATNState.BLOCK_START) {
                     const endStateNumber = data[p++];
                     arg = " " + endStateNumber;
                 }
             }
 
-            buf.append(i).append(":")
-                .append(ATNState.serializationNames.get(stype)).append(" ")
-                .append(ruleIndex).append(arg).append("\n");
+            result += i + ":" + ATNState.serializationNames.get(stype) + " " + ruleIndex + arg + "\n";
         }
+
         // this code is meant to model the form of ATNDeserializer.deserialize,
         // since both need to be updated together whenever a change is made to
         // the serialization format. The "dead" code is only used in debugging
         // and testing scenarios, so the form you see here was kept for
         // improved maintainability.
-        // start
         const numNonGreedyStates = data[p++];
         for (let i = 0; i < numNonGreedyStates; i++) {
-            const stateNumber = data[p++];
+            const _stateNumber = data[p++];
         }
+
         const numPrecedenceStates = data[p++];
         for (let i = 0; i < numPrecedenceStates; i++) {
-            const stateNumber = data[p++];
+            const _stateNumber = data[p++];
         }
-        // finish
+
         const nrules = data[p++];
         for (let i = 0; i < nrules; i++) {
             const s = data[p++];
-            if (this.atn.grammarType === ATNType.LEXER) {
+            if (this.atn.grammarType === ATN.LEXER) {
                 const arg1 = data[p++];
-                buf.append("rule ").append(i).append(":").append(s).append(" ").append(arg1).append("\n");
-            }
-            else {
-                buf.append("rule ").append(i).append(":").append(s).append("\n");
+                result += "rule " + i + ":" + s + " " + arg1 + "\n";
+            } else {
+                result += "rule " + i + ":" + s + "\n";
             }
         }
+
         const nmodes = data[p++];
         for (let i = 0; i < nmodes; i++) {
             const s = data[p++];
-            buf.append("mode ").append(i).append(":").append(s).append("\n");
+            result += "mode " + i + ":" + s + "\n";
         }
+
         const numBMPSets = data[p++];
-        p = this.appendSets(buf, data, p, numBMPSets);
+        p = this.appendSets(result, data, p, numBMPSets);
         const nedges = data[p++];
         for (let i = 0; i < nedges; i++) {
             const src = data[p];
@@ -116,18 +121,18 @@ export class ATNDescriber {
             const arg1 = data[p + 3];
             const arg2 = data[p + 4];
             const arg3 = data[p + 5];
-            buf.append(src).append("->").append(trg)
-                .append(" ").append(Transition.serializationNames.get(ttype))
-                .append(" ").append(arg1).append(",").append(arg2).append(",").append(arg3)
-                .append("\n");
+            result += src + "->" + trg + " " + Transition.serializationNames.get(ttype) + " " + arg1 + "," + arg2 +
+                "," + arg3 + "\n";
             p += 6;
         }
+
         const ndecisions = data[p++];
         for (let i = 0; i < ndecisions; i++) {
             const s = data[p++];
-            buf.append(i).append(":").append(s).append("\n");
+            result += i + ":" + s + "\n";
         }
-        if (this.atn.grammarType === ATNType.LEXER) {
+
+        if (this.atn.grammarType === ATN.LEXER) {
             // this code is meant to model the form of ATNDeserializer.deserialize,
             // since both need to be updated together whenever a change is made to
             // the serialization format. The "dead" code is only used in debugging
@@ -135,13 +140,13 @@ export class ATNDescriber {
             // improved maintainability.
             const lexerActionCount = data[p++];
             for (let i = 0; i < lexerActionCount; i++) {
-                const actionType = LexerActionType.values()[data[p++]];
-                const data1 = data[p++];
-                const data2 = data[p++];
+                const _actionType = data[p++] as unknown as typeof LexerActionType;
+                const _data1 = data[p++];
+                const _data2 = data[p++];
             }
         }
 
-        return buf.toString();
+        return result.toString();
     }
 
     public getTokenName(t: number): string {

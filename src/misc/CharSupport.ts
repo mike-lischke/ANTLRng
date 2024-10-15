@@ -21,7 +21,9 @@ export class CharSupport {
     public static readonly ANTLRLiteralCharValueEscape: string[] = [];
 
     /**
-     * Return a string representing the escaped char for code c.  E.g., If c
+     * @param c The code point to convert to an ANTLR char literal.
+     *
+     * @returns a string representing the escaped char for code c.  E.g., If c
      *  has value 0x100, you will get "\\u0100".  ASCII gets the usual
      *  char (non-hex) representation.  Non-ASCII characters are spit out
      *  as \\uXXXX or \\u{XXXXXX} escapes.
@@ -65,7 +67,10 @@ export class CharSupport {
     /**
      * Given a literal like (the 3 char sequence with single quotes) 'a',
      * return the int value of 'a'. Convert escape sequences here also.
-     * Return -1 if not single char.
+     *
+     * @param literal The char literal to convert.
+     *
+     * @returns the code point value of the char literal or -1 if not a single char literal.
      */
     public static getCharValueFromGrammarCharLiteral(literal: string): number {
         if (literal.length < 3) {
@@ -137,8 +142,11 @@ export class CharSupport {
     }
 
     /**
-     * Given char x or \\t or \\u1234 return the char value;
-     * Unnecessary escapes like '\{' yield -1.
+     * Given char x or \\t or \\u1234 return the char value. Unnecessary escapes like '\{' yield -1.
+     *
+     * @param cstr The char to convert.
+     *
+     * @returns the code point value of the char or -1 if not a single char literal.
      */
     public static getCharValueFromCharInGrammarLiteral(cstr: string): number {
         switch (cstr.length) {
