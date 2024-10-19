@@ -6,7 +6,7 @@
 
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ErrorType } from "./ErrorType.js";
-import { INVALID_TOKEN } from "../misc/Utils.js";
+import { InvalidToken } from "../misc/Utils.js";
 
 /**
  * A generic message from the tool such as "file not found" type errors; there
@@ -29,9 +29,9 @@ export class ToolMessage extends ANTLRMessage {
             if (rest[0] instanceof Error) {
                 const [errorType, e, rest] = args as [ErrorType, Error, unknown[]];
 
-                super(errorType, e, INVALID_TOKEN, rest);
+                super(errorType, e, InvalidToken, rest);
             } else {
-                super(errorType, null, INVALID_TOKEN, rest);
+                super(errorType, null, InvalidToken, rest);
             }
         }
     }

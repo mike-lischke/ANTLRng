@@ -31,6 +31,7 @@ export interface TreeNodeStream extends IntStream {
      * instead of a {@link Token}. Makes code generation identical for both
      * parser and tree grammars.</p>
      */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     LT(k: number): Tree | null;
 
     /**

@@ -21,7 +21,9 @@ export abstract class ContextGetterDecl extends Decl { // assume no args
     /**
      * Not used for output; just used to distinguish between decl types to avoid duplicates.
      */
-    public getArgType(): string { return ""; }
+    public getArgType(): string {
+        return ""; 
+    }
 
     public override hashCode(): number {
         let hash = MurmurHash.initialize();

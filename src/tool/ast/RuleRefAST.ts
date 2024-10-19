@@ -8,9 +8,8 @@ import { CommonToken, type Token } from "antlr4ng";
 
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class RuleRefAST extends GrammarASTWithOptions implements RuleElementAST {
+export class RuleRefAST extends GrammarASTWithOptions {
     public constructor(node: RuleRefAST);
     public constructor(t: Token);
     public constructor(type: number, t?: Token);

@@ -14,7 +14,7 @@ import {
 } from "stringtemplate4ts";
 
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
-import { Tool } from "../Tool.js";
+import { antlrVersion } from "../grammar-options.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import { Utils } from "../misc/Utils.js";
 import { Character } from "../support/Character.js";
@@ -26,6 +26,7 @@ import { CodeGenerator } from "./CodeGenerator.js";
 import { UnicodeEscapes } from "./UnicodeEscapes.js";
 import { RuleFunction } from "./model/RuleFunction.js";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export type char = number;
 
 export abstract class Target {
@@ -52,7 +53,9 @@ export abstract class Target {
         return Target.defaultCharValueEscape;
     }
 
-    public getLanguage(): string { return this.gen.language; }
+    public getLanguage(): string {
+        return this.gen.language; 
+    }
 
     public getCodeGenerator(): CodeGenerator {
         return this.gen;
@@ -64,11 +67,9 @@ export abstract class Target {
      *  between a template called VERSION. This value is checked against Tool.VERSION during load of templates.
      *
      *  This additional method forces all targets 4.3 and beyond to add this method.
-     *
-     * @since 4.3
      */
     public getVersion(): string {
-        return Tool.VERSION;
+        return antlrVersion;
     }
 
     public getTemplates(): STGroup {
@@ -78,9 +79,9 @@ export abstract class Target {
         if (!templates) {
             const version = this.getVersion();
             const theirVersion = RuntimeMetaData.getMajorMinorVersion(version);
-            const ourVersion = RuntimeMetaData.getMajorMinorVersion(Tool.VERSION);
+            const ourVersion = RuntimeMetaData.getMajorMinorVersion(antlrVersion);
             if (theirVersion !== ourVersion) {
-                this.gen.tool.errMgr.toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, Tool.VERSION,
+                this.gen.tool.errMgr.toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, antlrVersion,
                     language);
             }
             templates = this.loadTemplates();
@@ -489,12 +490,12 @@ export abstract class Target {
 
     /**
      * How many bits should be used to do inline token type tests? Java assumes
-     *  a 64-bit word for bitsets.  Must be a valid wordsize for your target like
+     *  a 64-bit word for bitsets.  Must be a valid word size for your target like
      *  8, 16, 32, 64, etc...
-     *
-     *  @since 4.5
      */
-    public getInlineTestSetWordSize(): number { return 64; }
+    public getInlineTestSetWordSize(): number {
+        return 64; 
+    }
 
     public grammarSymbolCausesIssueInGeneratedCode(idNode: GrammarAST): boolean {
         switch (idNode.getParent()?.getType()) {
@@ -545,23 +546,14 @@ export abstract class Target {
         return this.loadTemplatesHelper(false) !== undefined;
     }
 
-    /**
-     * @since 4.3
-     */
     public wantsBaseListener(): boolean {
         return true;
     }
 
-    /**
-     * @since 4.3
-     */
     public wantsBaseVisitor(): boolean {
         return true;
     }
 
-    /**
-     * @since 4.3
-     */
     public supportsOverloadedMethods(): boolean {
         return true;
     }
@@ -632,10 +624,6 @@ export abstract class Target {
             }
 
             public runTimeError(msg: STMessage): void {
-                this.reportError(msg);
-            }
-
-            public IOError(msg: STMessage): void {
                 this.reportError(msg);
             }
 

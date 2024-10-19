@@ -3,7 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import packageJson from "../package.json";
+// @ts-expect-error, when setting node module resolution to Node16, tsc raises an error for the import assertion.
+import packageJson from "../package.json" with { type: "json" };
 
 import { Option, program } from "commander";
 
@@ -26,6 +27,8 @@ export interface IToolParameters {
     log?: boolean,
 }
 
+export const antlrVersion = packageJson.version;
+
 const parseBoolean = (value: string | null): boolean => {
     if (value == null) {
         return false;
@@ -43,13 +46,13 @@ const parseKeyValuePair = (input: string): { key: string, value: string; } => {
 };
 
 program
-    .argument("grammar1 grammar2 ...", "A list of grammar files.")
+    .option("grammar1 grammar2 ...", "A list of grammar files.")
     .option("-o, --output-directory <path>", "specify output directory where all output is generated")
     .option("-lib, --lib-directory <path>", "specify location of grammars, tokens files")
     .option<boolean>("-atn, --generate-atn-dot [boolean]",
         "Generate rule augmented transition network diagrams.", parseBoolean, false)
     .option("-e, --encoding", "Specify grammar file encoding; e.g., ucs-2.", "utf-8")
-    .addOption(new Option("-f, --message-format", "Specify output style for messages in antlr, gnu, vs2005.")
+    .addOption(new Option("-mf, --message-format", "Specify output style for messages in antlr, gnu, vs2005.")
         .choices(["antlr", "gnu", "vs2005"]).default("antlr"))
     .option<boolean>("-lm, --long-messages [boolean]",
         "Show exception details when available for errors and warnings.", parseBoolean, false)

@@ -369,14 +369,14 @@ export class SymbolChecks {
         }
 
         if (prevLabelPair.element.getText() !== labelPair.element.getText() &&
-            (prevLabelPair.type === LabelType.RULE_LABEL || prevLabelPair.type === LabelType.RULE_LIST_LABEL) &&
-            (labelPair.type === LabelType.RULE_LABEL || labelPair.type === LabelType.RULE_LIST_LABEL)) {
+            (prevLabelPair.type === LabelType.RuleLabel || prevLabelPair.type === LabelType.RuleListLabel) &&
+            (labelPair.type === LabelType.RuleLabel || labelPair.type === LabelType.RuleListLabel)) {
 
             const token = r instanceof LeftRecursiveRule
                 ? (r.ast.getChild(0) as GrammarAST).getToken()
                 : labelPair.label.token;
-            const prevLabelOp = prevLabelPair.type === LabelType.RULE_LIST_LABEL ? "+=" : "=";
-            const labelOp = labelPair.type === LabelType.RULE_LIST_LABEL ? "+=" : "=";
+            const prevLabelOp = prevLabelPair.type === LabelType.RuleListLabel ? "+=" : "=";
+            const labelOp = labelPair.type === LabelType.RuleListLabel ? "+=" : "=";
             this.errMgr.grammarError(ErrorType.LABEL_TYPE_CONFLICT, this.g.fileName, token,
                 labelPair.label.getText() + labelOp + labelPair.element.getText(),
                 prevLabelPair.label.getText() + prevLabelOp + prevLabelPair.element.getText());

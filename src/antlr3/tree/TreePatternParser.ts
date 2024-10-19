@@ -62,8 +62,7 @@ export class TreePatternParser {
                 if (subtree) {
                     this.adaptor.addChild(root, subtree);
                 }
-            }
-            else {
+            } else {
                 const child = this.parseNode();
                 if (child === null) {
                     return null;

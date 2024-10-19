@@ -5,10 +5,10 @@
  */
 
 export enum DictType {
-    ARG,
-    RET,
-    LOCAL,
-    TOKEN,
-    PREDEFINED_RULE,
-    PREDEFINED_LEXER_RULE
+    Argument,
+    Return,
+    Local,
+    Token,
+    PredefinedRule,
+    PredefinedLexerRule
 };

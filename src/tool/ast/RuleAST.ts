@@ -30,7 +30,7 @@ export class RuleAST extends GrammarASTWithOptions {
     }
 
     public getRuleName(): string | null {
-        const nameNode = this.getChild(0) as GrammarAST;
+        const nameNode = this.getChild(0) as GrammarAST | null;
         if (nameNode !== null) {
             return nameNode.getText();
         }

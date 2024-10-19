@@ -50,8 +50,7 @@ export class ListenerFile extends OutputFile {
                     this.listenerNames.add(key);
                     this.listenerLabelRuleNames.set(key, r.name);
                 }
-            }
-            else {
+            } else {
                 // only add rule context if no labels
                 this.listenerNames.add(r.name);
             }

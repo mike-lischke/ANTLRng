@@ -26,7 +26,7 @@ export abstract class Recognizer extends OutputModelObject {
      * @deprecated This field is provided only for compatibility with code
      * generation targets which have not yet been updated to use
      * {@link #literalNames} and {@link #symbolicNames}.
-     * @Deprecated
+     * @deprecated
      */
     public tokenNames: Array<string | null>;
 

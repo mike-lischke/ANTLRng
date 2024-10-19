@@ -111,8 +111,7 @@ export class SemanticPipeline {
         this.g.importTokensFromTokensFile();
         if (this.g.isLexer()) {
             this.assignLexerTokenTypes(this.g, collector.tokensDefs);
-        }
-        else {
+        } else {
             this.assignTokenTypes(this.g, collector.tokensDefs,
                 collector.tokenIDRefs, collector.terminals);
         }

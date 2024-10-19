@@ -8,9 +8,8 @@ import type { Token } from "antlr4ng";
 
 import { GrammarAST } from "./GrammarAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class NotAST extends GrammarAST implements RuleElementAST {
+export class NotAST extends GrammarAST {
 
     public constructor(typeOrNode: number | NotAST, t?: Token) {
         if (typeOrNode instanceof NotAST) {

@@ -251,8 +251,7 @@ export class BuildDependencyGenerator {
                 const escSpaces = outputDir.replace(" ", "\\ ");
 
                 return escSpaces + "/" + fileName;
-            }
-            else {
+            } else {
                 return outputDir + "/" + fileName;
             }
         }

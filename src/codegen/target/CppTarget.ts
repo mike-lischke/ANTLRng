@@ -49,7 +49,9 @@ export class CppTarget extends Target {
         return CppTarget.targetCharValueEscape;
     }
 
-    public override needsHeader(): boolean { return true; }
+    public override needsHeader(): boolean {
+        return true; 
+    }
 
     public override getRecognizerFileName(header: boolean): string {
         const extST = this.getTemplates().getInstanceOf(header ? "headerFileExtension" : "codeFileExtension")!;

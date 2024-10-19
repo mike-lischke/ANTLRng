@@ -8,9 +8,8 @@ import type { Token } from "antlr4ng";
 
 import { GrammarAST } from "./GrammarAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class RangeAST extends GrammarAST implements RuleElementAST {
+export class RangeAST extends GrammarAST {
 
     public constructor(nodeOrToken: RangeAST | Token) {
         super(nodeOrToken);

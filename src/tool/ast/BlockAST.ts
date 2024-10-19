@@ -8,9 +8,8 @@ import type { Token } from "antlr4ng";
 
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class BlockAST extends GrammarASTWithOptions implements RuleElementAST {
+export class BlockAST extends GrammarASTWithOptions {
     // TODO: maybe I need a Subrule object like Rule so these options mov to that?
     /** What are the default options for a subrule? */
     public static readonly defaultBlockOptions = new Map<string, string>();

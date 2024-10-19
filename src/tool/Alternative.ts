@@ -63,7 +63,7 @@ export class Alternative implements AttributeResolver {
         }
 
         const anyLabelDef = this.getAnyLabelDef(x);
-        if (anyLabelDef !== null && anyLabelDef.type === LabelType.TOKEN_LABEL) {
+        if (anyLabelDef !== null && anyLabelDef.type === LabelType.TokenLabel) {
             return true;
         }
 
@@ -80,7 +80,7 @@ export class Alternative implements AttributeResolver {
         }
         // rule ref in this alt?
         const anyLabelDef = this.getAnyLabelDef(x);
-        if (anyLabelDef !== null && anyLabelDef.type === LabelType.RULE_LABEL) {
+        if (anyLabelDef !== null && anyLabelDef.type === LabelType.RuleLabel) {
             return true;
         }
 
@@ -106,7 +106,7 @@ export class Alternative implements AttributeResolver {
         const [x, y, _node] = args as [string, string, ActionAST];
 
         if (this.tokenRefs.get(x)) { // token ref in this alt?
-            return this.rule.getPredefinedScope(LabelType.TOKEN_LABEL)?.get(y) ?? null;
+            return this.rule.getPredefinedScope(LabelType.TokenLabel)?.get(y) ?? null;
         }
 
         if (this.ruleRefs.get(x)) { // rule ref in this alt?
@@ -115,7 +115,7 @@ export class Alternative implements AttributeResolver {
         }
 
         const anyLabelDef = this.getAnyLabelDef(x);
-        if (anyLabelDef !== null && anyLabelDef.type === LabelType.RULE_LABEL) {
+        if (anyLabelDef !== null && anyLabelDef.type === LabelType.RuleLabel) {
             return this.rule.g.getRule(anyLabelDef.element.getText()!)!.resolveRetvalOrProperty(y);
         } else {
             if (anyLabelDef !== null) {
@@ -135,16 +135,16 @@ export class Alternative implements AttributeResolver {
         const anyLabelDef = this.getAnyLabelDef(x);
 
         return anyLabelDef !== null &&
-            (anyLabelDef.type === LabelType.TOKEN_LABEL ||
-                anyLabelDef.type === LabelType.RULE_LABEL);
+            (anyLabelDef.type === LabelType.TokenLabel ||
+                anyLabelDef.type === LabelType.RuleLabel);
     }
 
     public resolvesToListLabel(x: string, node: ActionAST): boolean {
         const anyLabelDef = this.getAnyLabelDef(x);
 
         return anyLabelDef !== null &&
-            (anyLabelDef.type === LabelType.RULE_LIST_LABEL ||
-                anyLabelDef.type === LabelType.TOKEN_LIST_LABEL);
+            (anyLabelDef.type === LabelType.RuleListLabel ||
+                anyLabelDef.type === LabelType.TokenListLabel);
     }
 
     public getAnyLabelDef(x: string): LabelElementPair | null {
@@ -163,7 +163,7 @@ export class Alternative implements AttributeResolver {
         }
 
         const anyLabelDef = this.getAnyLabelDef(x);
-        if (anyLabelDef && anyLabelDef.type === LabelType.RULE_LABEL) {
+        if (anyLabelDef && anyLabelDef.type === LabelType.RuleLabel) {
             return this.rule.g.getRule(anyLabelDef.element.getText()!);
         }
 

@@ -5,9 +5,9 @@
 */
 
 export enum LabelType {
-    RULE_LABEL = 0,
-    TOKEN_LABEL = 1,
-    RULE_LIST_LABEL = 2,
-    TOKEN_LIST_LABEL = 3,
-    LEXER_STRING_LABEL = 4 // used in lexer for x='a'
+    RuleLabel = 0,
+    TokenLabel = 1,
+    RuleListLabel = 2,
+    TokenListLabel = 3,
+    LexerStringLabel = 4 // used in lexer for x='a'
 }

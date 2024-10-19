@@ -28,16 +28,16 @@ export class LabelElementPair {
         // compute general case for label type
         if (element.getFirstDescendantWithType(LabelElementPair.tokenTypeForTokens) !== null) {
             if (labelOp === ANTLRv4Parser.ASSIGN) {
-                this.type = LabelType.TOKEN_LABEL;
+                this.type = LabelType.TokenLabel;
             } else {
-                this.type = LabelType.TOKEN_LIST_LABEL;
+                this.type = LabelType.TokenListLabel;
             }
         } else {
             if (element.getFirstDescendantWithType(ANTLRv4Parser.RULE_REF) !== null) {
                 if (labelOp === ANTLRv4Parser.ASSIGN) {
-                    this.type = LabelType.RULE_LABEL;
+                    this.type = LabelType.RuleLabel;
                 } else {
-                    this.type = LabelType.RULE_LIST_LABEL;
+                    this.type = LabelType.RuleListLabel;
                 }
 
             }
@@ -47,7 +47,7 @@ export class LabelElementPair {
         if (g.isLexer()) {
             if (element.getFirstDescendantWithType(ANTLRv4Parser.STRING_LITERAL) !== null) {
                 if (labelOp === ANTLRv4Parser.ASSIGN) {
-                    this.type = LabelType.LEXER_STRING_LABEL;
+                    this.type = LabelType.LexerStringLabel;
                 }
 
             }

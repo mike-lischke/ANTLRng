@@ -44,8 +44,6 @@ import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
 import { RuleAST } from "./tool/ast/RuleAST.js";
 
 export class Tool {
-    public static readonly VERSION = "10.0.0";
-
     public static readonly GRAMMAR_EXTENSION = ".g4";
     public static readonly LEGACY_GRAMMAR_EXTENSION = ".g";
 
@@ -275,12 +273,12 @@ export class Tool {
         const ruleToAST = new Map<string, RuleAST>();
         for (const r of rules) {
             const ruleAST = r as RuleAST;
-            const ID = ruleAST.getChild(0) as GrammarAST;
-            const ruleName = ID.getText()!;
+            const id = ruleAST.getChild(0) as GrammarAST;
+            const ruleName = id.getText()!;
             const prev = ruleToAST.get(ruleName);
             if (prev) {
                 const prevChild = prev.getChild(0) as GrammarAST;
-                g.tool.errMgr.grammarError(ErrorType.RULE_REDEFINITION, g.fileName, ID.getToken(), ruleName,
+                g.tool.errMgr.grammarError(ErrorType.RULE_REDEFINITION, g.fileName, id.getToken(), ruleName,
                     prevChild.getToken()!.line);
                 redefinition = true;
                 continue;
@@ -624,15 +622,13 @@ export class Tool {
         }
     }
 
-    public version(): void {
-        this.info("ANTLR Parser Generator Version " + Tool.VERSION);
-    }
-
     public exit(e: number): void {
         process.exit(e);
     }
 
-    public panic(): void { throw new Error("ANTLR panic"); }
+    public panic(): void {
+        throw new Error("ANTLR panic"); 
+    }
 
     protected writeDOTFile(g: Grammar, rulOrName: Rule | string, dot: string): void {
         const name = rulOrName instanceof Rule ? rulOrName.g.name + "." + rulOrName.name : rulOrName;

@@ -25,7 +25,7 @@ export class AttributeDict {
      *  of predefined attributes.  I keep this out of the {@link Token}
      *  interface to avoid a runtime type leakage.
      */
-    public static readonly predefinedTokenDict = new AttributeDict(DictType.TOKEN);
+    public static readonly predefinedTokenDict = new AttributeDict(DictType.Token);
 
     public name: string;
     public ast: GrammarAST;

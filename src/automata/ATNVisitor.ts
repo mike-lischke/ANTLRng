@@ -13,10 +13,14 @@ import { ATNState } from "antlr4ng";
  */
 export class ATNVisitor {
     public visit(s: ATNState): void {
-        this.visit_(s, new Set<number>());
+        this.doVisit(s, new Set<number>());
     }
 
-    public visit_(s: ATNState, visited: Set<number>): void {
+    public visitState(s: ATNState): void {
+        // intentionally empty
+    }
+
+    private doVisit(s: ATNState, visited: Set<number>): void {
         if (visited.has(s.stateNumber)) {
             return;
         }
@@ -25,11 +29,8 @@ export class ATNVisitor {
 
         this.visitState(s);
         for (const t of s.transitions) {
-            this.visit_(t.target, visited);
+            this.doVisit(t.target, visited);
         }
     }
 
-    public visitState(s: ATNState): void {
-        // intentionally empty
-    }
 }

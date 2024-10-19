@@ -9,9 +9,8 @@ import type { Token } from "antlr4ng";
 import { GrammarAST } from "./GrammarAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { QuantifierAST } from "./QuantifierAST.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class StarBlockAST extends GrammarAST implements RuleElementAST, QuantifierAST {
+export class StarBlockAST extends GrammarAST implements QuantifierAST {
     private readonly _greedy: boolean;
 
     public constructor(node: StarBlockAST);

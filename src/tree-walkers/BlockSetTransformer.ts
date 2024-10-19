@@ -6,7 +6,7 @@
 
 // $ANTLR 3.5.3 org/antlr/v4/parse/BlockSetTransformer.g
 
-/* eslint-disable max-len */
+/* eslint-disable max-len, @typescript-eslint/naming-convention */
 // cspell: disable
 
 import { RecognitionException } from "antlr4ng";
@@ -215,9 +215,13 @@ export class BlockSetTransformer extends TreeRewriter {
         return this.adaptor;
     }
 
-    public override getTokenNames(): string[] { return BlockSetTransformer.tokenNames; }
+    public override getTokenNames(): string[] {
+        return BlockSetTransformer.tokenNames; 
+    }
 
-    public override getGrammarFileName(): string { return "org/antlr/v4/parse/BlockSetTransformer.g"; }
+    public override getGrammarFileName(): string {
+        return "org/antlr/v4/parse/BlockSetTransformer.g"; 
+    }
 
     // $ANTLR start "topdown"
     // org/antlr/v4/parse/BlockSetTransformer.g:63:1: topdown : ( ^( RULE (id= TOKEN_REF |id= RULE_REF ) ( . )+ ) | setAlt | ebnfBlockSet | blockSet );
@@ -310,13 +314,10 @@ export class BlockSetTransformer extends TreeRewriter {
                             const LA1_0 = this.input!.LA(1);
                             if ((LA1_0 === BlockSetTransformer.TOKEN_REF)) {
                                 alt1 = 1;
-                            }
-                            else {
+                            } else {
                                 if ((LA1_0 === BlockSetTransformer.RULE_REF)) {
                                     alt1 = 2;
-                                }
-
-                                else {
+                                } else {
                                     if (this.state.backtracking > 0) {
                                         this.state.failed = true;
 
@@ -398,8 +399,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 const LA2_0 = this.input!.LA(1);
                                 if (((LA2_0 >= BlockSetTransformer.ACTION && LA2_0 <= BlockSetTransformer.WILDCARD))) {
                                     alt2 = 1;
-                                }
-                                else {
+                                } else {
                                     if ((LA2_0 === GrammarTreeVisitor.UP)) {
                                         alt2 = 2;
                                     }
@@ -609,7 +609,9 @@ export class BlockSetTransformer extends TreeRewriter {
                     _first_0 = ALT6;
                 }
 
-                if (this.state.backtracking === 1) { this.currentAlt = (retval.start as GrammarAST); }
+                if (this.state.backtracking === 1) {
+                    this.currentAlt = (retval.start as GrammarAST); 
+                }
                 if (this.state.backtracking === 1) {
                     retval.tree = _first_0;
                     if (this.adaptor.getParent(retval.tree) !== null && this.adaptor.isNil(this.adaptor.getParent(retval.tree))) {
@@ -799,7 +801,9 @@ export class BlockSetTransformer extends TreeRewriter {
 
             }
 
-            if (this.state.backtracking === 1) { retval.tree = this.adaptor.dupNode((retval.start as GrammarAST)) as GrammarAST; }
+            if (this.state.backtracking === 1) {
+                retval.tree = this.adaptor.dupNode((retval.start as GrammarAST)) as GrammarAST; 
+            }
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
@@ -1538,13 +1542,10 @@ export class BlockSetTransformer extends TreeRewriter {
                     const LA11_1 = this.input!.LA(2);
                     if ((LA11_1 === GrammarTreeVisitor.DOWN)) {
                         alt11 = 1;
-                    }
-                    else {
+                    } else {
                         if ((LA11_1 === GrammarTreeVisitor.UP)) {
                             alt11 = 2;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -1563,8 +1564,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
                     }
 
-                }
-                else {
+                } else {
                     if ((LA11_0 === BlockSetTransformer.TOKEN_REF) && !inLexer) {
                         const LA11_2 = this.input!.LA(2);
                         if ((LA11_2 === GrammarTreeVisitor.DOWN)) {
@@ -2108,9 +2108,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                             }
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -2130,9 +2128,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
                         }
 
-                    }
-
-                    else {
+                    } else {
                         if (this.state.backtracking > 0) {
                             this.state.failed = true;
 
@@ -2150,9 +2146,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     if (this.state.backtracking > 0) {
                         this.state.failed = true;
 

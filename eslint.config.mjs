@@ -50,6 +50,7 @@ export default tslint.config(
                     "code": 120
                 }
             ],
+            "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
             "@stylistic/padding-line-between-statements": [
                 "error",
                 {
@@ -235,6 +236,12 @@ export default tslint.config(
             "jsdoc/tag-lines": [
                 // Have to switch this off, as it is not good enough to be used.
                 "off"
+            ],
+            "jsdoc/no-undefined-types": [
+                "off", // Requires a comment syntax incompatible with VS Code.
+                {
+                    "markVariablesAsUsed": false
+                }
             ],
             "prefer-arrow/prefer-arrow-functions": [
                 "warn",

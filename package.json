@@ -1,6 +1,6 @@
 {
     "name": "antlr-ng",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Next generation ANTLR Tool",
     "type": "module",
     "author": "Mike Lischke",
@@ -44,7 +44,7 @@
         "typescript-eslint": "8.7.0"
     },
     "scripts": {
-        "run": "node --no-warnings --loader ts-node/esm src/runner.ts",
+        "run": "node --no-warnings --loader ts-node/esm src/runner.ts --version",
         "lint": "eslint \"./src/**/*.ts\"",
         "lint:fix": "eslint \"./src/**/*.ts\" --fix",
         "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage",

@@ -17,8 +17,7 @@ export class CommonErrorNode extends CommonTree {
     public stop: Token;
     public trappedException: RecognitionException;
 
-    public constructor(input: TokenStream, start: Token, stop: Token,
-        e: RecognitionException) {
+    public constructor(input: TokenStream, start: Token, stop: Token | null, e: RecognitionException) {
         super();
 
         if (stop === null ||

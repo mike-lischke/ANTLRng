@@ -392,8 +392,8 @@ export class OutputModelController {
         return blk;
     }
 
-    public ruleRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] {
-        let ops = this.delegate.ruleRef(ID, label, args)!;
+    public ruleRef(id: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] {
+        let ops = this.delegate.ruleRef(id, label, args)!;
         for (const ext of this.extensions) {
             ops = ext.ruleRef(ops);
         }
@@ -401,8 +401,8 @@ export class OutputModelController {
         return ops;
     }
 
-    public tokenRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] {
-        let ops = this.delegate.tokenRef(ID, label, args)!;
+    public tokenRef(id: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] {
+        let ops = this.delegate.tokenRef(id, label, args)!;
         for (const ext of this.extensions) {
             ops = ext.tokenRef(ops);
         }
@@ -410,8 +410,8 @@ export class OutputModelController {
         return ops;
     }
 
-    public stringRef(ID: GrammarAST, label: GrammarAST | null): SrcOp[] {
-        let ops = this.delegate.stringRef(ID, label)!;
+    public stringRef(id: GrammarAST, label: GrammarAST | null): SrcOp[] {
+        let ops = this.delegate.stringRef(id, label)!;
         for (const ext of this.extensions) {
             ops = ext.stringRef(ops);
         }
@@ -483,10 +483,10 @@ export class OutputModelController {
         return c;
     }
 
-    public needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean {
-        let needs = this.delegate.needsImplicitLabel(ID, op);
+    public needsImplicitLabel(id: GrammarAST, op: LabeledOp): boolean {
+        let needs = this.delegate.needsImplicitLabel(id, op);
         for (const ext of this.extensions) {
-            needs ||= ext.needsImplicitLabel(ID, op);
+            needs ||= ext.needsImplicitLabel(id, op);
         }
 
         return needs;
@@ -544,5 +544,7 @@ export class OutputModelController {
         return this.currentOuterMostAlternativeBlock;
     }
 
-    public getCodeBlockLevel(): number { return this.codeBlockLevel; }
+    public getCodeBlockLevel(): number {
+        return this.codeBlockLevel;
+    }
 }

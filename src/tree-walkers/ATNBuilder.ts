@@ -6,7 +6,7 @@
 
 // $ANTLR 3.5.3 org/antlr/v4/parse/ATNBuilder.g
 
-/* eslint-disable max-len */
+/* eslint-disable max-len, @typescript-eslint/naming-convention */
 // cspell: disable
 
 import { RecognitionException } from "antlr4ng";
@@ -251,8 +251,7 @@ export class ATNBuilder extends TreeParser {
                                     const LA1_0 = this.input!.LA(1);
                                     if (((LA1_0 >= ATNBuilder.ACTION && LA1_0 <= ATNBuilder.WILDCARD))) {
                                         alt1 = 1;
-                                    }
-                                    else {
+                                    } else {
                                         if ((LA1_0 === GrammarTreeVisitor.UP)) {
                                             alt1 = 2;
                                         }
@@ -374,8 +373,7 @@ export class ATNBuilder extends TreeParser {
                                     const LA4_0 = this.input!.LA(1);
                                     if (((LA4_0 >= ATNBuilder.ACTION && LA4_0 <= ATNBuilder.WILDCARD))) {
                                         alt4 = 1;
-                                    }
-                                    else {
+                                    } else {
                                         if ((LA4_0 === GrammarTreeVisitor.UP)) {
                                             alt4 = 2;
                                         }
@@ -699,13 +697,10 @@ export class ATNBuilder extends TreeParser {
             const LA12_0 = this.input!.LA(1);
             if ((LA12_0 === ATNBuilder.LEXER_ACTION_CALL)) {
                 alt12 = 1;
-            }
-            else {
+            } else {
                 if ((LA12_0 === ATNBuilder.ID)) {
                     alt12 = 2;
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 12, 0, this.input);
                     throw nvae;
@@ -767,8 +762,7 @@ export class ATNBuilder extends TreeParser {
                 if (this.input!.LA(1) === ATNBuilder.ID || this.input!.LA(1) === ATNBuilder.INT) {
                     this.input!.consume();
                     this.state.errorRecovery = false;
-                }
-                else {
+                } else {
                     const mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
@@ -841,13 +835,10 @@ export class ATNBuilder extends TreeParser {
                         const LA13_4 = this.input!.LA(2);
                         if ((LA13_4 === GrammarTreeVisitor.DOWN)) {
                             alt13 = 6;
-                        }
-                        else {
+                        } else {
                             if (((LA13_4 >= GrammarTreeVisitor.UP && LA13_4 <= ATNBuilder.ACTION) || LA13_4 === ATNBuilder.ASSIGN || LA13_4 === ATNBuilder.DOT || LA13_4 === ATNBuilder.LEXER_CHAR_SET || LA13_4 === ATNBuilder.NOT || LA13_4 === ATNBuilder.PLUS_ASSIGN || LA13_4 === ATNBuilder.RANGE || LA13_4 === ATNBuilder.RULE_REF || LA13_4 === ATNBuilder.SEMPRED || LA13_4 === ATNBuilder.STRING_LITERAL || LA13_4 === ATNBuilder.TOKEN_REF || (LA13_4 >= ATNBuilder.BLOCK && LA13_4 <= ATNBuilder.CLOSURE) || (LA13_4 >= ATNBuilder.OPTIONAL && LA13_4 <= ATNBuilder.POSITIVE_CLOSURE) || (LA13_4 >= ATNBuilder.SET && LA13_4 <= ATNBuilder.WILDCARD))) {
                                 alt13 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -871,13 +862,10 @@ export class ATNBuilder extends TreeParser {
                         const LA13_5 = this.input!.LA(2);
                         if ((LA13_5 === GrammarTreeVisitor.DOWN)) {
                             alt13 = 7;
-                        }
-                        else {
+                        } else {
                             if (((LA13_5 >= GrammarTreeVisitor.UP && LA13_5 <= ATNBuilder.ACTION) || LA13_5 === ATNBuilder.ASSIGN || LA13_5 === ATNBuilder.DOT || LA13_5 === ATNBuilder.LEXER_CHAR_SET || LA13_5 === ATNBuilder.NOT || LA13_5 === ATNBuilder.PLUS_ASSIGN || LA13_5 === ATNBuilder.RANGE || LA13_5 === ATNBuilder.RULE_REF || LA13_5 === ATNBuilder.SEMPRED || LA13_5 === ATNBuilder.STRING_LITERAL || LA13_5 === ATNBuilder.TOKEN_REF || (LA13_5 >= ATNBuilder.BLOCK && LA13_5 <= ATNBuilder.CLOSURE) || (LA13_5 >= ATNBuilder.OPTIONAL && LA13_5 <= ATNBuilder.POSITIVE_CLOSURE) || (LA13_5 >= ATNBuilder.SET && LA13_5 <= ATNBuilder.WILDCARD))) {
                                 alt13 = 5;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -1051,13 +1039,10 @@ export class ATNBuilder extends TreeParser {
             const LA14_0 = this.input!.LA(1);
             if ((LA14_0 === ATNBuilder.DOT || LA14_0 === ATNBuilder.RANGE || LA14_0 === ATNBuilder.RULE_REF || LA14_0 === ATNBuilder.STRING_LITERAL || LA14_0 === ATNBuilder.TOKEN_REF || (LA14_0 >= ATNBuilder.SET && LA14_0 <= ATNBuilder.WILDCARD))) {
                 alt14 = 1;
-            }
-            else {
+            } else {
                 if ((LA14_0 === ATNBuilder.NOT)) {
                     alt14 = 2;
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 14, 0, this.input);
                     throw nvae;
@@ -1120,13 +1105,10 @@ export class ATNBuilder extends TreeParser {
             const LA15_0 = this.input!.LA(1);
             if ((LA15_0 === ATNBuilder.ASSIGN)) {
                 alt15 = 1;
-            }
-            else {
+            } else {
                 if ((LA15_0 === ATNBuilder.PLUS_ASSIGN)) {
                     alt15 = 2;
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 15, 0, this.input);
                     throw nvae;
@@ -1384,15 +1366,12 @@ export class ATNBuilder extends TreeParser {
                         const LA18_1 = this.input!.LA(2);
                         if ((LA18_1 === GrammarTreeVisitor.DOWN)) {
                             alt18 = 1;
-                        }
-                        else {
+                        } else {
                             if ((LA18_1 === GrammarTreeVisitor.UP || LA18_1 === ATNBuilder.LEXER_CHAR_SET
                                 || LA18_1 === ATNBuilder.RANGE || LA18_1 === ATNBuilder.STRING_LITERAL
                                 || LA18_1 === ATNBuilder.TOKEN_REF)) {
                                 alt18 = 3;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -1416,15 +1395,12 @@ export class ATNBuilder extends TreeParser {
                         const LA18_2 = this.input!.LA(2);
                         if ((LA18_2 === GrammarTreeVisitor.DOWN)) {
                             alt18 = 2;
-                        }
-                        else {
+                        } else {
                             if ((LA18_2 === GrammarTreeVisitor.UP || LA18_2 === ATNBuilder.LEXER_CHAR_SET
                                 || LA18_2 === ATNBuilder.RANGE || LA18_2 === ATNBuilder.STRING_LITERAL
                                 || LA18_2 === ATNBuilder.TOKEN_REF)) {
                                 alt18 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -1567,13 +1543,10 @@ export class ATNBuilder extends TreeParser {
                                 const LA19_10 = this.input!.LA(4);
                                 if ((LA19_10 === ATNBuilder.STRING_LITERAL || LA19_10 === ATNBuilder.TOKEN_REF)) {
                                     alt19 = 2;
-                                }
-                                else {
+                                } else {
                                     if ((LA19_10 === ATNBuilder.RULE_REF)) {
                                         alt19 = 3;
-                                    }
-
-                                    else {
+                                    } else {
                                         const nvaeMark = this.input!.mark();
                                         const lastIndex = this.input!.index;
                                         try {
@@ -1589,9 +1562,7 @@ export class ATNBuilder extends TreeParser {
                                     }
                                 }
 
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -1606,9 +1577,7 @@ export class ATNBuilder extends TreeParser {
                                 }
                             }
 
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             const lastIndex = this.input!.index;
                             try {
@@ -1630,8 +1599,7 @@ export class ATNBuilder extends TreeParser {
                         const LA19_3 = this.input!.LA(2);
                         if ((LA19_3 === GrammarTreeVisitor.DOWN)) {
                             alt19 = 4;
-                        }
-                        else {
+                        } else {
                             if ((LA19_3 === ATNBuilder.EOF || (LA19_3 >= GrammarTreeVisitor.UP && LA19_3 <= ATNBuilder.ACTION) || LA19_3 === ATNBuilder.ASSIGN || LA19_3 === ATNBuilder.DOT || LA19_3 === ATNBuilder.LEXER_CHAR_SET || LA19_3 === ATNBuilder.NOT || LA19_3 === ATNBuilder.PLUS_ASSIGN || LA19_3 === ATNBuilder.RANGE || LA19_3 === ATNBuilder.RULE_REF || LA19_3 === ATNBuilder.SEMPRED || LA19_3 === ATNBuilder.STRING_LITERAL || LA19_3 === ATNBuilder.TOKEN_REF || (LA19_3 >= ATNBuilder.BLOCK && LA19_3 <= ATNBuilder.CLOSURE) || (LA19_3 >= ATNBuilder.OPTIONAL && LA19_3 <= ATNBuilder.POSITIVE_CLOSURE) || (LA19_3 >= ATNBuilder.SET && LA19_3 <= ATNBuilder.WILDCARD))) {
                                 alt19 = 5;
                             } else {
@@ -1823,13 +1791,10 @@ export class ATNBuilder extends TreeParser {
                                 const LA23_4 = this.input!.LA(4);
                                 if ((LA23_4 === ATNBuilder.ELEMENT_OPTIONS)) {
                                     alt23 = 1;
-                                }
-                                else {
+                                } else {
                                     if ((LA23_4 === GrammarTreeVisitor.UP)) {
                                         alt23 = 2;
-                                    }
-
-                                    else {
+                                    } else {
                                         const nvaeMark = this.input!.mark();
                                         const lastIndex = this.input!.index;
                                         try {
@@ -1880,13 +1845,10 @@ export class ATNBuilder extends TreeParser {
                         }
 
                     }
-                }
-                else {
+                } else {
                     if ((LA23_1 === ATNBuilder.EOF || (LA23_1 >= GrammarTreeVisitor.UP && LA23_1 <= ATNBuilder.ACTION) || LA23_1 === ATNBuilder.ASSIGN || LA23_1 === ATNBuilder.DOT || LA23_1 === ATNBuilder.LEXER_CHAR_SET || LA23_1 === ATNBuilder.NOT || LA23_1 === ATNBuilder.PLUS_ASSIGN || LA23_1 === ATNBuilder.RANGE || LA23_1 === ATNBuilder.RULE_REF || LA23_1 === ATNBuilder.SEMPRED || LA23_1 === ATNBuilder.STRING_LITERAL || LA23_1 === ATNBuilder.TOKEN_REF || (LA23_1 >= ATNBuilder.BLOCK && LA23_1 <= ATNBuilder.CLOSURE) || (LA23_1 >= ATNBuilder.OPTIONAL && LA23_1 <= ATNBuilder.POSITIVE_CLOSURE) || (LA23_1 >= ATNBuilder.SET && LA23_1 <= ATNBuilder.WILDCARD))) {
                         alt23 = 3;
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         const lastIndex = this.input!.index;
                         try {
@@ -1901,9 +1863,7 @@ export class ATNBuilder extends TreeParser {
                     }
                 }
 
-            }
-
-            else {
+            } else {
                 const nvae =
                     new NoViableAltException("", 23, 0, this.input);
                 throw nvae;
@@ -1944,8 +1904,7 @@ export class ATNBuilder extends TreeParser {
                                 const LA21_0 = this.input!.LA(1);
                                 if (((LA21_0 >= ATNBuilder.ACTION && LA21_0 <= ATNBuilder.WILDCARD))) {
                                     alt21 = 1;
-                                }
-                                else {
+                                } else {
                                     if ((LA21_0 === GrammarTreeVisitor.UP)) {
                                         alt21 = 2;
                                     }
@@ -2082,13 +2041,10 @@ export class ATNBuilder extends TreeParser {
                 const LA24_1 = this.input!.LA(2);
                 if ((LA24_1 === GrammarTreeVisitor.DOWN)) {
                     alt24 = 1;
-                }
-                else {
+                } else {
                     if ((LA24_1 === ATNBuilder.EOF || (LA24_1 >= GrammarTreeVisitor.UP && LA24_1 <= ATNBuilder.ACTION) || LA24_1 === ATNBuilder.ASSIGN || LA24_1 === ATNBuilder.DOT || LA24_1 === ATNBuilder.LEXER_CHAR_SET || LA24_1 === ATNBuilder.NOT || LA24_1 === ATNBuilder.PLUS_ASSIGN || LA24_1 === ATNBuilder.RANGE || LA24_1 === ATNBuilder.RULE_REF || LA24_1 === ATNBuilder.SEMPRED || LA24_1 === ATNBuilder.STRING_LITERAL || LA24_1 === ATNBuilder.TOKEN_REF || (LA24_1 >= ATNBuilder.BLOCK && LA24_1 <= ATNBuilder.CLOSURE) || (LA24_1 >= ATNBuilder.OPTIONAL && LA24_1 <= ATNBuilder.POSITIVE_CLOSURE) || (LA24_1 >= ATNBuilder.SET && LA24_1 <= ATNBuilder.WILDCARD))) {
                         alt24 = 2;
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         const lastIndex = this.input!.index;
                         try {
@@ -2102,8 +2058,7 @@ export class ATNBuilder extends TreeParser {
                     }
                 }
 
-            }
-            else {
+            } else {
                 if ((LA24_0 === ATNBuilder.TOKEN_REF)) {
                     const LA24_2 = this.input!.LA(2);
                     if ((LA24_2 === GrammarTreeVisitor.DOWN)) {
@@ -2112,13 +2067,10 @@ export class ATNBuilder extends TreeParser {
                             const LA24_7 = this.input!.LA(4);
                             if (((LA24_7 >= ATNBuilder.ACTION && LA24_7 <= ATNBuilder.WILDCARD))) {
                                 alt24 = 3;
-                            }
-                            else {
+                            } else {
                                 if (((LA24_7 >= GrammarTreeVisitor.DOWN && LA24_7 <= GrammarTreeVisitor.UP))) {
                                     alt24 = 4;
-                                }
-
-                                else {
+                                } else {
                                     const nvaeMark = this.input!.mark();
                                     const lastIndex = this.input!.index;
                                     try {
@@ -2134,13 +2086,10 @@ export class ATNBuilder extends TreeParser {
                                 }
                             }
 
-                        }
-                        else {
+                        } else {
                             if (((LA24_5 >= ATNBuilder.ACTION && LA24_5 <= ATNBuilder.ACTION_STRING_LITERAL) || (LA24_5 >= ATNBuilder.ARG_OR_CHARSET && LA24_5 <= ATNBuilder.WILDCARD))) {
                                 alt24 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -2156,13 +2105,10 @@ export class ATNBuilder extends TreeParser {
                             }
                         }
 
-                    }
-                    else {
+                    } else {
                         if ((LA24_2 === ATNBuilder.EOF || (LA24_2 >= GrammarTreeVisitor.UP && LA24_2 <= ATNBuilder.ACTION) || LA24_2 === ATNBuilder.ASSIGN || LA24_2 === ATNBuilder.DOT || LA24_2 === ATNBuilder.LEXER_CHAR_SET || LA24_2 === ATNBuilder.NOT || LA24_2 === ATNBuilder.PLUS_ASSIGN || LA24_2 === ATNBuilder.RANGE || LA24_2 === ATNBuilder.RULE_REF || LA24_2 === ATNBuilder.SEMPRED || LA24_2 === ATNBuilder.STRING_LITERAL || LA24_2 === ATNBuilder.TOKEN_REF || (LA24_2 >= ATNBuilder.BLOCK && LA24_2 <= ATNBuilder.CLOSURE) || (LA24_2 >= ATNBuilder.OPTIONAL && LA24_2 <= ATNBuilder.POSITIVE_CLOSURE) || (LA24_2 >= ATNBuilder.SET && LA24_2 <= ATNBuilder.WILDCARD))) {
                             alt24 = 5;
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             const lastIndex = this.input!.index;
                             try {
@@ -2176,9 +2122,7 @@ export class ATNBuilder extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 24, 0, this.input);
                     throw nvae;
@@ -2324,8 +2268,7 @@ export class ATNBuilder extends TreeParser {
             const LA26_0 = this.input!.LA(1);
             if ((LA26_0 === ATNBuilder.ID)) {
                 alt26 = 1;
-            }
-            else {
+            } else {
                 if ((LA26_0 === ATNBuilder.ASSIGN)) {
                     const LA26_2 = this.input!.LA(2);
                     if ((LA26_2 === GrammarTreeVisitor.DOWN)) {
@@ -2376,9 +2319,7 @@ export class ATNBuilder extends TreeParser {
                                 }
 
                             }
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             const lastIndex = this.input!.index;
                             try {
@@ -2393,9 +2334,7 @@ export class ATNBuilder extends TreeParser {
                             }
                         }
 
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         const lastIndex = this.input!.index;
                         try {
@@ -2408,9 +2347,7 @@ export class ATNBuilder extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 26, 0, this.input);
                     throw nvae;

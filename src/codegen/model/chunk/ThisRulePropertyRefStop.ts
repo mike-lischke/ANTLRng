@@ -4,10 +4,10 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { TokenPropertyRef } from "./TokenPropertyRef.js";
+import { RulePropertyRef } from "./RulePropertyRef.js";
 import { StructDecl } from "../decl/StructDecl.js";
 
-export class TokenPropertyRef_index extends TokenPropertyRef {
+export class ThisRulePropertyRefStop extends RulePropertyRef {
     public constructor(ctx: StructDecl, label: string) {
         super(ctx, label);
     }

@@ -663,7 +663,9 @@ export class Grammar implements AttributeResolver {
         return Array.from(delegates.values());
     }
 
-    public getImportedGrammars(): Grammar[] { return this.importedGrammars; }
+    public getImportedGrammars(): Grammar[] {
+        return this.importedGrammars; 
+    }
 
     public getImplicitLexer(): LexerGrammar {
         return this.implicitLexer;

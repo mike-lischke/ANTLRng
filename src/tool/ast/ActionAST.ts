@@ -10,11 +10,11 @@ import { AttributeResolver } from "../AttributeResolver.js";
 import { GrammarAST } from "./GrammarAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class ActionAST extends GrammarASTWithOptions implements RuleElementAST {
+export class ActionAST extends GrammarASTWithOptions {
     public resolver: AttributeResolver;
     public chunks: Token[];
+
     // Alt, rule, grammar space
     protected scope: GrammarAST | null = null; // useful for ANTLR IDE developers
 

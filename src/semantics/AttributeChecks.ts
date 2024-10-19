@@ -210,7 +210,7 @@ export class AttributeChecks implements ActionSplitterListener {
 
         if (labels) { // it's a label ref. is it a rule label?
             const anyLabelDef = labels[0];
-            if (anyLabelDef.type === LabelType.RULE_LABEL) {
+            if (anyLabelDef.type === LabelType.RuleLabel) {
                 return this.g.getRule(anyLabelDef.element.getText()!);
             }
         }

@@ -666,7 +666,7 @@ export class ParserATNFactory implements IATNFactory {
         throw new Error("This element is not allowed in parsers.");
     }
 
-    public lexerCallCommand(ID: GrammarAST, arg: GrammarAST): IStatePair {
+    public lexerCallCommand(_id: GrammarAST, arg: GrammarAST): IStatePair {
         throw new Error("This element is not allowed in parsers.");
     }
 

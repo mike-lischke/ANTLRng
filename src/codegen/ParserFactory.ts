@@ -52,7 +52,9 @@ import { TokenListDecl } from "./model/decl/TokenListDecl.js";
 import { grammarOptions } from "../grammar-options.js";
 
 export class ParserFactory extends DefaultOutputModelFactory {
-    public constructor(gen: CodeGenerator) { super(gen); }
+    public constructor(gen: CodeGenerator) {
+        super(gen);
+    }
 
     public override parserFile(fileName: string): ParserFile {
         return new ParserFile(this, fileName);
@@ -65,8 +67,7 @@ export class ParserFactory extends DefaultOutputModelFactory {
     public override rule(r: Rule): RuleFunction {
         if (r instanceof LeftRecursiveRule) {
             return new LeftRecursiveRuleFunction(this, r);
-        }
-        else {
+        } else {
             const rf = new RuleFunction(this, r);
 
             return rf;
@@ -99,11 +100,11 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return [new SemPred(this, ast)];
     }
 
-    public override ruleRef(ID: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] {
-        const invokeOp = new InvokeRule(this, ID, label);
+    public override ruleRef(id: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] {
+        const invokeOp = new InvokeRule(this, id, label);
         // If no manual label and action refs as token/rule not label, we need to define implicit label
-        if (this.controller.needsImplicitLabel(ID, invokeOp)) {
-            this.defineImplicitLabel(ID, invokeOp);
+        if (this.controller.needsImplicitLabel(id, invokeOp)) {
+            this.defineImplicitLabel(id, invokeOp);
         }
 
         const listLabelOp = this.getAddToListOpIfListLabelPresent(invokeOp, label);
@@ -111,24 +112,24 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return [invokeOp, listLabelOp!];
     }
 
-    public override tokenRef(ID: GrammarAST, labelAST: GrammarAST, args: GrammarAST): SrcOp[] {
-        const matchOp = new MatchToken(this, ID as TerminalAST);
+    public override tokenRef(id: GrammarAST, labelAST: GrammarAST, args: GrammarAST): SrcOp[] {
+        const matchOp = new MatchToken(this, id as TerminalAST);
 
         const label = labelAST.getText()!;
         const rf = this.getCurrentRuleFunction()!;
         if (labelAST.parent?.getType() === ANTLRv4Parser.PLUS_ASSIGN) {
             // add Token _X and List<Token> X decls
-            this.defineImplicitLabel(ID, matchOp); // adds _X
+            this.defineImplicitLabel(id, matchOp); // adds _X
             const l = this.getTokenListLabelDecl(label);
-            rf.addContextDecl(ID.getAltLabel()!, l);
+            rf.addContextDecl(id.getAltLabel()!, l);
         } else {
             const d = this.getTokenLabelDecl(label);
             matchOp.labels.push(d);
-            rf.addContextDecl(ID.getAltLabel()!, d);
+            rf.addContextDecl(id.getAltLabel()!, d);
         }
 
-        if (this.controller.needsImplicitLabel(ID, matchOp)) {
-            this.defineImplicitLabel(ID, matchOp);
+        if (this.controller.needsImplicitLabel(id, matchOp)) {
+            this.defineImplicitLabel(id, matchOp);
         }
 
         const listLabelOp = this.getAddToListOpIfListLabelPresent(matchOp, labelAST);
@@ -318,10 +319,10 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return [new TestSetInline(this, blkAST, look, this.gen.getTarget().getInlineTestSetWordSize())];
     }
 
-    public override needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean {
+    public override needsImplicitLabel(id: GrammarAST, op: LabeledOp): boolean {
         const currentOuterMostAlt = this.getCurrentOuterMostAlt();
-        const actionRefsAsToken = currentOuterMostAlt.tokenRefsInActions.has(ID.getText()!);
-        const actionRefsAsRule = currentOuterMostAlt.ruleRefsInActions.has(ID.getText()!);
+        const actionRefsAsToken = currentOuterMostAlt.tokenRefsInActions.has(id.getText()!);
+        const actionRefsAsRule = currentOuterMostAlt.ruleRefsInActions.has(id.getText()!);
 
         return op.getLabels().length === 0 && (actionRefsAsToken || actionRefsAsRule);
     }

@@ -4,7 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Tool } from "../../Tool.js";
 import { Grammar } from "../../tool/Grammar.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -14,7 +13,6 @@ import { OutputModelObject } from "./OutputModelObject.js";
 export abstract class OutputFile extends OutputModelObject {
     public readonly fileName: string;
     public readonly grammarFileName: string;
-    public readonly antlrVersion: string;
     public readonly tokenLabelType?: string;
     public readonly inputSymbolType?: string;
 
@@ -23,7 +21,6 @@ export abstract class OutputFile extends OutputModelObject {
         this.fileName = fileName;
         const g = factory.getGrammar()!;
         this.grammarFileName = g.fileName.replace("\\", "/");
-        this.antlrVersion = Tool.VERSION;
         this.tokenLabelType = g.getOptionString("TokenLabelType");
         this.inputSymbolType = this.tokenLabelType;
     }

@@ -63,31 +63,31 @@ export class SymbolCollector extends GrammarTreeVisitor {
         this.visitGrammar(ast);
     }
 
-    public override globalNamedAction(scope: GrammarAST, ID: GrammarAST, action: ActionAST): void {
+    public override globalNamedAction(scope: GrammarAST, id: GrammarAST, action: ActionAST): void {
         action.setScope(scope);
-        this.namedActions.push(ID.getParent() as GrammarAST);
+        this.namedActions.push(id.getParent() as GrammarAST);
         action.resolver = this.g;
     }
 
-    public override defineToken(ID: GrammarAST): void {
-        this.terminals.push(ID);
-        this.tokenIDRefs.push(ID);
-        this.tokensDefs.push(ID);
+    public override defineToken(id: GrammarAST): void {
+        this.terminals.push(id);
+        this.tokenIDRefs.push(id);
+        this.tokensDefs.push(id);
     }
 
-    public override defineChannel(ID: GrammarAST): void {
-        this.channelDefs.push(ID);
+    public override defineChannel(id: GrammarAST): void {
+        this.channelDefs.push(id);
     }
 
-    public override discoverRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], arg: ActionAST,
+    public override discoverRule(rule: RuleAST, id: GrammarAST, modifiers: GrammarAST[], arg: ActionAST,
         returns: ActionAST, throws: GrammarAST, options: GrammarAST, locals: ActionAST, actions: GrammarAST[],
         block: GrammarAST): void {
-        this.currentRule = this.g.getRule(ID.getText()!);
+        this.currentRule = this.g.getRule(id.getText()!);
     }
 
-    public override discoverLexerRule(rule: RuleAST, ID: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
+    public override discoverLexerRule(rule: RuleAST, id: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
         block: GrammarAST): void {
-        this.currentRule = this.g.getRule(ID.getText()!);
+        this.currentRule = this.g.getRule(id.getText()!);
     }
 
     public override discoverOuterAlt(alt: AltAST): void {
@@ -115,14 +115,14 @@ export class SymbolCollector extends GrammarTreeVisitor {
         action.resolver = this.currentRule!;
     }
 
-    public override label(op: GrammarAST, ID: GrammarAST, element: GrammarAST): void {
-        const lp = new LabelElementPair(this.g, ID, element, op.getType());
+    public override label(op: GrammarAST, id: GrammarAST, element: GrammarAST): void {
+        const lp = new LabelElementPair(this.g, id, element, op.getType());
 
-        const list = this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.get(ID.getText()!);
+        const list = this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.get(id.getText()!);
         if (list) {
             list.push(lp);
         } else {
-            this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.set(ID.getText()!, [lp]);
+            this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.set(id.getText()!, [lp]);
         }
     }
 
@@ -164,20 +164,20 @@ export class SymbolCollector extends GrammarTreeVisitor {
         }
     }
 
-    public override grammarOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override grammarOption(_id: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    public override ruleOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override ruleOption(_id: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
-    public override blockOption(ID: GrammarAST, valueAST: GrammarAST): void {
+    public override blockOption(_id: GrammarAST, valueAST: GrammarAST): void {
         this.setActionResolver(valueAST);
     }
 
     public override elementOption(t: GrammarASTWithOptions): GrammarTreeVisitor.elementOption_return;
-    public override elementOption(t: GrammarASTWithOptions, ID: GrammarAST, valueAST: GrammarAST): void;
+    public override elementOption(t: GrammarASTWithOptions, id: GrammarAST, valueAST: GrammarAST): void;
     public override elementOption(...args: unknown[]): GrammarTreeVisitor.elementOption_return | void {
         if (args.length === 3) {
             this.setActionResolver(args[2] as GrammarAST);

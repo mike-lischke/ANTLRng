@@ -372,8 +372,7 @@ export class DOTGenerator {
 
             if (s instanceof BlockStartState) {
                 stateLabel += "&rarr;\\n";
-            }
-            else {
+            } else {
                 if (s instanceof BlockEndState) {
                     stateLabel += "&larr;\\n";
                 }

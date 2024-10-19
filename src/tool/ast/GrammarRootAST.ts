@@ -102,6 +102,8 @@ export class GrammarRootAST extends GrammarASTWithOptions {
         return v.visit(this);
     }
 
-    public override dupNode(): GrammarRootAST { return new GrammarRootAST(this); }
+    public override dupNode(): GrammarRootAST {
+        return new GrammarRootAST(this); 
+    }
 
 }

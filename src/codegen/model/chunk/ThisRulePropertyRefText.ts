@@ -5,9 +5,9 @@
  */
 
 import { StructDecl } from "../decl/StructDecl.js";
-import { TokenPropertyRef } from "./TokenPropertyRef.js";
+import { RulePropertyRef } from "./RulePropertyRef.js";
 
-export class TokenPropertyRef_type extends TokenPropertyRef {
+export class ThisRulePropertyRefText extends RulePropertyRef {
     public constructor(ctx: StructDecl, label: string) {
         super(ctx, label);
     }

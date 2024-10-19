@@ -25,55 +25,55 @@ import { NonLocalAttrRef } from "./model/chunk/NonLocalAttrRef.js";
 import { QRetValueRef } from "./model/chunk/QRetValueRef.js";
 import { RetValueRef } from "./model/chunk/RetValueRef.js";
 import { RulePropertyRef } from "./model/chunk/RulePropertyRef.js";
-import { RulePropertyRef_ctx } from "./model/chunk/RulePropertyRef_ctx.js";
-import { RulePropertyRef_parser } from "./model/chunk/RulePropertyRef_parser.js";
-import { RulePropertyRef_start } from "./model/chunk/RulePropertyRef_start.js";
-import { RulePropertyRef_stop } from "./model/chunk/RulePropertyRef_stop.js";
-import { RulePropertyRef_text } from "./model/chunk/RulePropertyRef_text.js";
+import { RulePropertyRefCtx } from "./model/chunk/RulePropertyRefCtx.js";
+import { RulePropertyRefParser } from "./model/chunk/RulePropertyRefParser.js";
+import { RulePropertyRefStart } from "./model/chunk/RulePropertyRefStart.js";
+import { RulePropertyRefStop } from "./model/chunk/RulePropertyRefStop.js";
+import { RulePropertyRefText } from "./model/chunk/RulePropertyRefText.js";
 import { SetAttr } from "./model/chunk/SetAttr.js";
 import { SetNonLocalAttr } from "./model/chunk/SetNonLocalAttr.js";
-import { ThisRulePropertyRef_ctx } from "./model/chunk/ThisRulePropertyRef_ctx.js";
-import { ThisRulePropertyRef_parser } from "./model/chunk/ThisRulePropertyRef_parser.js";
-import { ThisRulePropertyRef_start } from "./model/chunk/ThisRulePropertyRef_start.js";
-import { ThisRulePropertyRef_stop } from "./model/chunk/ThisRulePropertyRef_stop.js";
-import { ThisRulePropertyRef_text } from "./model/chunk/ThisRulePropertyRef_text.js";
+import { ThisRulePropertyRefCtx } from "./model/chunk/ThisRulePropertyRefCtx.js";
+import { ThisRulePropertyRefParser } from "./model/chunk/ThisRulePropertyRefParser.js";
+import { ThisRulePropertyRefStart } from "./model/chunk/ThisRulePropertyRefStart.js";
+import { ThisRulePropertyRefStop } from "./model/chunk/ThisRulePropertyRefStop.js";
+import { ThisRulePropertyRefText } from "./model/chunk/ThisRulePropertyRefText.js";
 import { TokenPropertyRef } from "./model/chunk/TokenPropertyRef.js";
-import { TokenPropertyRef_channel } from "./model/chunk/TokenPropertyRef_channel.js";
-import { TokenPropertyRef_index } from "./model/chunk/TokenPropertyRef_index.js";
-import { TokenPropertyRef_int } from "./model/chunk/TokenPropertyRef_int.js";
-import { TokenPropertyRef_line } from "./model/chunk/TokenPropertyRef_line.js";
-import { TokenPropertyRef_pos } from "./model/chunk/TokenPropertyRef_pos.js";
-import { TokenPropertyRef_text } from "./model/chunk/TokenPropertyRef_text.js";
-import { TokenPropertyRef_type } from "./model/chunk/TokenPropertyRef_type.js";
+import { TokenPropertyRefChannel } from "./model/chunk/TokenPropertyRefChannel.js";
+import { TokenPropertyRefIndex } from "./model/chunk/TokenPropertyRefIndex.js";
+import { TokenPropertyRefInt } from "./model/chunk/TokenPropertyRefInt.js";
+import { TokenPropertyRefLine } from "./model/chunk/TokenPropertyRefLine.js";
+import { TokenPropertyRefPos } from "./model/chunk/TokenPropertyRefPos.js";
+import { TokenPropertyRefText } from "./model/chunk/TokenPropertyRefText.js";
+import { TokenPropertyRefType } from "./model/chunk/TokenPropertyRefType.js";
 import { TokenRef } from "./model/chunk/TokenRef.js";
 import { StructDecl } from "./model/decl/StructDecl.js";
 import { DictType } from "../tool/DictType.js";
 
 export class ActionTranslator implements ActionSplitterListener {
     public static readonly thisRulePropToModelMap = new Map<string, typeof RulePropertyRef>([
-        ["start", ThisRulePropertyRef_start],
-        ["stop", ThisRulePropertyRef_stop],
-        ["text", ThisRulePropertyRef_text],
-        ["ctx", ThisRulePropertyRef_ctx],
-        ["parser", ThisRulePropertyRef_parser],
+        ["start", ThisRulePropertyRefStart],
+        ["stop", ThisRulePropertyRefStop],
+        ["text", ThisRulePropertyRefText],
+        ["ctx", ThisRulePropertyRefCtx],
+        ["parser", ThisRulePropertyRefParser],
     ]);
 
     public static readonly rulePropToModelMap = new Map<string, typeof RulePropertyRef>([
-        ["start", RulePropertyRef_start],
-        ["stop", RulePropertyRef_stop],
-        ["text", RulePropertyRef_text],
-        ["ctx", RulePropertyRef_ctx],
-        ["parser", RulePropertyRef_parser],
+        ["start", RulePropertyRefStart],
+        ["stop", RulePropertyRefStop],
+        ["text", RulePropertyRefText],
+        ["ctx", RulePropertyRefCtx],
+        ["parser", RulePropertyRefParser],
     ]);
 
     public static readonly tokenPropToModelMap = new Map<string, typeof TokenPropertyRef>([
-        ["text", TokenPropertyRef_text],
-        ["type", TokenPropertyRef_type],
-        ["line", TokenPropertyRef_line],
-        ["index", TokenPropertyRef_index],
-        ["pos", TokenPropertyRef_pos],
-        ["channel", TokenPropertyRef_channel],
-        ["int", TokenPropertyRef_int],
+        ["text", TokenPropertyRefText],
+        ["type", TokenPropertyRefType],
+        ["line", TokenPropertyRefLine],
+        ["index", TokenPropertyRefIndex],
+        ["pos", TokenPropertyRefPos],
+        ["channel", TokenPropertyRefChannel],
+        ["int", TokenPropertyRefInt],
     ]);
 
     protected readonly gen: CodeGenerator;
@@ -148,22 +148,22 @@ export class ActionTranslator implements ActionSplitterListener {
         const escapedName = this.target.escapeIfNeeded(name);
         if (a !== null) {
             switch (a.dict.type) {
-                case DictType.ARG: {
+                case DictType.Argument: {
                     this.chunks.push(new ArgRef(this.nodeContext, name, escapedName));
                     break;
                 }
 
-                case DictType.RET: {
+                case DictType.Return: {
                     this.chunks.push(new RetValueRef(this.rf!.ruleCtx, name, escapedName));
                     break;
                 }
 
-                case DictType.LOCAL: {
+                case DictType.Local: {
                     this.chunks.push(new LocalRef(this.nodeContext, name, escapedName));
                     break;
                 }
 
-                case DictType.PREDEFINED_RULE: {
+                case DictType.PredefinedRule: {
                     this.chunks.push(this.getRulePropertyRef(undefined, x));
                     break;
                 }
@@ -228,24 +228,24 @@ export class ActionTranslator implements ActionSplitterListener {
         }
 
         switch (a.dict.type) {
-            case DictType.ARG: {
+            case DictType.Argument: {
                 this.chunks.push(new ArgRef(this.nodeContext, y, this.target.escapeIfNeeded(y)));
                 break;
             }
 
             // has to be current rule
-            case DictType.RET: {
+            case DictType.Return: {
                 this.chunks.push(new QRetValueRef(this.nodeContext, this.getRuleLabel(x), y,
                     this.target.escapeIfNeeded(y)));
                 break;
             }
 
-            case DictType.PREDEFINED_RULE: {
+            case DictType.PredefinedRule: {
                 this.chunks.push(this.getRulePropertyRef(x, y));
                 break;
             }
 
-            case DictType.TOKEN: {
+            case DictType.Token: {
                 this.chunks.push(this.getTokenPropertyRef(x, y));
                 break;
             }

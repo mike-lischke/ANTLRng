@@ -9,8 +9,6 @@
 import { Token, Vocabulary } from "antlr4ng";
 import { CharSupport } from "./CharSupport.js";
 
-export const INVALID_TOKEN_NAME = "<INVALID>";
-
 /** A generic constructor type. */
 export type Constructor<T = unknown> = new (...args: unknown[]) => T;
 
@@ -31,7 +29,7 @@ export const getTokenDisplayName = (ttype: number, vocabulary: Vocabulary, isLex
     }
 
     if (ttype === Token.INVALID_TYPE) {
-        return INVALID_TOKEN_NAME;
+        return "<INVALID>";
     }
 
     const result = vocabulary.getDisplayName(ttype);

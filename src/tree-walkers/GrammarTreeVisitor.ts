@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable max-len */
+/* eslint-disable max-len, @typescript-eslint/naming-convention */
 // cspell: disable
 
 import { RecognitionException } from "antlr4ng";
@@ -691,8 +691,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     } else {
                         throw re;
                     }
-                }
-                finally {
+                } finally {
                     // do for sure before leaving
                 }
 
@@ -793,8 +792,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -815,13 +813,10 @@ export class GrammarTreeVisitor extends TreeParser {
             const LA3_0 = this.input!.LA(1);
             if ((LA3_0 === GrammarTreeVisitor.AT || LA3_0 === GrammarTreeVisitor.CHANNELS || LA3_0 === GrammarTreeVisitor.IMPORT || LA3_0 === GrammarTreeVisitor.OPTIONS || LA3_0 === GrammarTreeVisitor.TOKENS_SPEC)) {
                 alt3 = 1;
-            }
-            else {
+            } else {
                 if ((LA3_0 === GrammarTreeVisitor.RULES)) {
                     alt3 = 2;
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 3, 0, this.input);
                     throw nvae;
@@ -890,8 +885,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1021,8 +1015,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1086,8 +1079,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1143,8 +1135,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1250,8 +1241,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1322,8 +1312,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1392,8 +1381,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1427,8 +1415,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1497,8 +1484,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1532,8 +1518,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1596,8 +1581,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1633,8 +1617,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 const LA11_3 = this.input!.LA(3);
                                 if ((LA11_3 === GrammarTreeVisitor.RULE_REF)) {
                                     alt11 = 1;
-                                }
-                                else {
+                                } else {
                                     if ((LA11_3 === GrammarTreeVisitor.TOKEN_REF)) {
                                         alt11 = 2;
                                     }
@@ -1689,8 +1672,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1758,8 +1740,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1866,8 +1847,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2054,8 +2034,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     const LA21_0 = this.input!.LA(1);
                     if ((LA21_0 === GrammarTreeVisitor.OPTIONS)) {
                         alt21 = 1;
-                    }
-                    else {
+                    } else {
                         if ((LA21_0 === GrammarTreeVisitor.AT)) {
                             alt21 = 2;
                         }
@@ -2124,8 +2103,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2205,8 +2183,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2246,8 +2223,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2285,8 +2261,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2321,8 +2296,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2357,8 +2331,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2424,8 +2397,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2461,8 +2433,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2484,8 +2455,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 if (this.input!.LA(1) === GrammarTreeVisitor.FRAGMENT || (this.input!.LA(1) >= GrammarTreeVisitor.PRIVATE && this.input!.LA(1) <= GrammarTreeVisitor.PUBLIC)) {
                     this.input!.consume();
                     this.state.errorRecovery = false;
-                }
-                else {
+                } else {
                     const mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
@@ -2500,8 +2470,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2574,8 +2543,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2648,8 +2616,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2685,8 +2652,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2722,8 +2688,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2744,13 +2709,10 @@ export class GrammarTreeVisitor extends TreeParser {
             const LA28_0 = this.input!.LA(1);
             if ((LA28_0 === GrammarTreeVisitor.LEXER_ALT_ACTION)) {
                 alt28 = 1;
-            }
-            else {
+            } else {
                 if ((LA28_0 === GrammarTreeVisitor.ALT)) {
                     alt28 = 2;
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 28, 0, this.input);
                     throw nvae;
@@ -2832,8 +2794,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2902,8 +2863,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -2956,13 +2916,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA30_3 = this.input!.LA(2);
                         if ((LA30_3 === TreeParser.DOWN)) {
                             alt30 = 5;
-                        }
-                        else {
+                        } else {
                             if (((LA30_3 >= TreeParser.UP && LA30_3 <= GrammarTreeVisitor.ACTION) || LA30_3 === GrammarTreeVisitor.LEXER_CHAR_SET || LA30_3 === GrammarTreeVisitor.NOT || LA30_3 === GrammarTreeVisitor.RANGE || LA30_3 === GrammarTreeVisitor.RULE_REF || LA30_3 === GrammarTreeVisitor.SEMPRED || LA30_3 === GrammarTreeVisitor.STRING_LITERAL || LA30_3 === GrammarTreeVisitor.TOKEN_REF || (LA30_3 >= GrammarTreeVisitor.BLOCK && LA30_3 <= GrammarTreeVisitor.CLOSURE) || LA30_3 === GrammarTreeVisitor.EPSILON || (LA30_3 >= GrammarTreeVisitor.OPTIONAL && LA30_3 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA30_3 >= GrammarTreeVisitor.SET && LA30_3 <= GrammarTreeVisitor.WILDCARD))) {
                                 alt30 = 3;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -2984,13 +2941,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA30_4 = this.input!.LA(2);
                         if ((LA30_4 === TreeParser.DOWN)) {
                             alt30 = 6;
-                        }
-                        else {
+                        } else {
                             if (((LA30_4 >= TreeParser.UP && LA30_4 <= GrammarTreeVisitor.ACTION) || LA30_4 === GrammarTreeVisitor.LEXER_CHAR_SET || LA30_4 === GrammarTreeVisitor.NOT || LA30_4 === GrammarTreeVisitor.RANGE || LA30_4 === GrammarTreeVisitor.RULE_REF || LA30_4 === GrammarTreeVisitor.SEMPRED || LA30_4 === GrammarTreeVisitor.STRING_LITERAL || LA30_4 === GrammarTreeVisitor.TOKEN_REF || (LA30_4 >= GrammarTreeVisitor.BLOCK && LA30_4 <= GrammarTreeVisitor.CLOSURE) || LA30_4 === GrammarTreeVisitor.EPSILON || (LA30_4 >= GrammarTreeVisitor.OPTIONAL && LA30_4 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA30_4 >= GrammarTreeVisitor.SET && LA30_4 <= GrammarTreeVisitor.WILDCARD))) {
                                 alt30 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -3116,8 +3070,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -3208,8 +3161,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -3255,13 +3207,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA33_4 = this.input!.LA(2);
                         if ((LA33_4 === TreeParser.DOWN)) {
                             alt33 = 4;
-                        }
-                        else {
+                        } else {
                             if (((LA33_4 >= TreeParser.UP && LA33_4 <= GrammarTreeVisitor.ACTION) || LA33_4 === GrammarTreeVisitor.LEXER_CHAR_SET || LA33_4 === GrammarTreeVisitor.NOT || LA33_4 === GrammarTreeVisitor.RANGE || LA33_4 === GrammarTreeVisitor.RULE_REF || LA33_4 === GrammarTreeVisitor.SEMPRED || LA33_4 === GrammarTreeVisitor.STRING_LITERAL || LA33_4 === GrammarTreeVisitor.TOKEN_REF || (LA33_4 >= GrammarTreeVisitor.BLOCK && LA33_4 <= GrammarTreeVisitor.CLOSURE) || LA33_4 === GrammarTreeVisitor.EPSILON || (LA33_4 >= GrammarTreeVisitor.OPTIONAL && LA33_4 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA33_4 >= GrammarTreeVisitor.SET && LA33_4 <= GrammarTreeVisitor.WILDCARD))) {
                                 alt33 = 5;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -3410,8 +3359,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -3434,13 +3382,10 @@ export class GrammarTreeVisitor extends TreeParser {
                 const LA34_1 = this.input!.LA(2);
                 if ((LA34_1 === TreeParser.DOWN)) {
                     alt34 = 2;
-                }
-                else {
+                } else {
                     if ((LA34_1 === GrammarTreeVisitor.EOF)) {
                         alt34 = 1;
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         try {
                             this.input!.consume();
@@ -3453,19 +3398,15 @@ export class GrammarTreeVisitor extends TreeParser {
                     }
                 }
 
-            }
-            else {
+            } else {
                 if ((LA34_0 === GrammarTreeVisitor.SEMPRED)) {
                     const LA34_2 = this.input!.LA(2);
                     if ((LA34_2 === TreeParser.DOWN)) {
                         alt34 = 4;
-                    }
-                    else {
+                    } else {
                         if ((LA34_2 === GrammarTreeVisitor.EOF)) {
                             alt34 = 3;
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             try {
                                 this.input!.consume();
@@ -3478,9 +3419,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 34, 0, this.input);
                     throw nvae;
@@ -3547,8 +3486,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -3686,8 +3624,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -3709,8 +3646,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 if (this.input!.LA(1) === GrammarTreeVisitor.ID || this.input!.LA(1) === GrammarTreeVisitor.INT) {
                     this.input!.consume();
                     this.state.errorRecovery = false;
-                }
-                else {
+                } else {
                     const mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
@@ -3782,13 +3718,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA40_4 = this.input!.LA(2);
                         if ((LA40_4 === TreeParser.DOWN)) {
                             alt40 = 6;
-                        }
-                        else {
+                        } else {
                             if (((LA40_4 >= TreeParser.UP && LA40_4 <= GrammarTreeVisitor.ACTION) || LA40_4 === GrammarTreeVisitor.ASSIGN || LA40_4 === GrammarTreeVisitor.DOT || LA40_4 === GrammarTreeVisitor.NOT || LA40_4 === GrammarTreeVisitor.PLUS_ASSIGN || LA40_4 === GrammarTreeVisitor.RANGE || LA40_4 === GrammarTreeVisitor.RULE_REF || LA40_4 === GrammarTreeVisitor.SEMPRED || LA40_4 === GrammarTreeVisitor.STRING_LITERAL || LA40_4 === GrammarTreeVisitor.TOKEN_REF || (LA40_4 >= GrammarTreeVisitor.BLOCK && LA40_4 <= GrammarTreeVisitor.CLOSURE) || (LA40_4 >= GrammarTreeVisitor.OPTIONAL && LA40_4 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA40_4 >= GrammarTreeVisitor.SET && LA40_4 <= GrammarTreeVisitor.WILDCARD))) {
                                 alt40 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -3810,13 +3743,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA40_5 = this.input!.LA(2);
                         if ((LA40_5 === TreeParser.DOWN)) {
                             alt40 = 7;
-                        }
-                        else {
+                        } else {
                             if (((LA40_5 >= TreeParser.UP && LA40_5 <= GrammarTreeVisitor.ACTION) || LA40_5 === GrammarTreeVisitor.ASSIGN || LA40_5 === GrammarTreeVisitor.DOT || LA40_5 === GrammarTreeVisitor.NOT || LA40_5 === GrammarTreeVisitor.PLUS_ASSIGN || LA40_5 === GrammarTreeVisitor.RANGE || LA40_5 === GrammarTreeVisitor.RULE_REF || LA40_5 === GrammarTreeVisitor.SEMPRED || LA40_5 === GrammarTreeVisitor.STRING_LITERAL || LA40_5 === GrammarTreeVisitor.TOKEN_REF || (LA40_5 >= GrammarTreeVisitor.BLOCK && LA40_5 <= GrammarTreeVisitor.CLOSURE) || (LA40_5 >= GrammarTreeVisitor.OPTIONAL && LA40_5 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA40_5 >= GrammarTreeVisitor.SET && LA40_5 <= GrammarTreeVisitor.WILDCARD))) {
                                 alt40 = 5;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -3847,13 +3777,10 @@ export class GrammarTreeVisitor extends TreeParser {
                             const LA40_12 = this.input!.LA(3);
                             if ((LA40_12 === GrammarTreeVisitor.SET)) {
                                 alt40 = 9;
-                            }
-                            else {
+                            } else {
                                 if ((LA40_12 === GrammarTreeVisitor.BLOCK)) {
                                     alt40 = 10;
-                                }
-
-                                else {
+                                } else {
                                     const nvaeMark = this.input!.mark();
                                     try {
                                         for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
@@ -3868,9 +3795,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 }
                             }
 
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             try {
                                 this.input!.consume();
@@ -4031,8 +3956,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4053,21 +3977,17 @@ export class GrammarTreeVisitor extends TreeParser {
             const LA41_0 = this.input!.LA(1);
             if ((LA41_0 === GrammarTreeVisitor.DOT || LA41_0 === GrammarTreeVisitor.RULE_REF || LA41_0 === GrammarTreeVisitor.STRING_LITERAL || LA41_0 === GrammarTreeVisitor.TOKEN_REF || (LA41_0 >= GrammarTreeVisitor.SET && LA41_0 <= GrammarTreeVisitor.WILDCARD))) {
                 alt41 = 1;
-            }
-            else {
+            } else {
                 if ((LA41_0 === GrammarTreeVisitor.NOT)) {
                     const LA41_2 = this.input!.LA(2);
                     if ((LA41_2 === TreeParser.DOWN)) {
                         const LA41_3 = this.input!.LA(3);
                         if ((LA41_3 === GrammarTreeVisitor.SET)) {
                             alt41 = 2;
-                        }
-                        else {
+                        } else {
                             if ((LA41_3 === GrammarTreeVisitor.BLOCK)) {
                                 alt41 = 3;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
@@ -4082,9 +4002,7 @@ export class GrammarTreeVisitor extends TreeParser {
                             }
                         }
 
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         try {
                             this.input!.consume();
@@ -4096,9 +4014,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 41, 0, this.input);
                     throw nvae;
@@ -4160,8 +4076,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4186,8 +4101,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 if (this.input!.LA(1) === GrammarTreeVisitor.ASSIGN || this.input!.LA(1) === GrammarTreeVisitor.PLUS_ASSIGN) {
                     this.input!.consume();
                     this.state.errorRecovery = false;
-                }
-                else {
+                } else {
                     const mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
@@ -4211,8 +4125,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4233,13 +4146,10 @@ export class GrammarTreeVisitor extends TreeParser {
             const LA42_0 = this.input!.LA(1);
             if ((LA42_0 === GrammarTreeVisitor.CLOSURE || (LA42_0 >= GrammarTreeVisitor.OPTIONAL && LA42_0 <= GrammarTreeVisitor.POSITIVE_CLOSURE))) {
                 alt42 = 1;
-            }
-            else {
+            } else {
                 if ((LA42_0 === GrammarTreeVisitor.BLOCK)) {
                     alt42 = 2;
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 42, 0, this.input);
                     throw nvae;
@@ -4289,8 +4199,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4311,13 +4220,10 @@ export class GrammarTreeVisitor extends TreeParser {
             const LA43_0 = this.input!.LA(1);
             if ((LA43_0 === GrammarTreeVisitor.CLOSURE || (LA43_0 >= GrammarTreeVisitor.OPTIONAL && LA43_0 <= GrammarTreeVisitor.POSITIVE_CLOSURE))) {
                 alt43 = 1;
-            }
-            else {
+            } else {
                 if ((LA43_0 === GrammarTreeVisitor.BLOCK)) {
                     alt43 = 2;
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 43, 0, this.input);
                     throw nvae;
@@ -4367,8 +4273,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4402,8 +4307,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4425,8 +4329,7 @@ export class GrammarTreeVisitor extends TreeParser {
                 if (this.input!.LA(1) === GrammarTreeVisitor.CLOSURE || (this.input!.LA(1) >= GrammarTreeVisitor.OPTIONAL && this.input!.LA(1) <= GrammarTreeVisitor.POSITIVE_CLOSURE)) {
                     this.input!.consume();
                     this.state.errorRecovery = false;
-                }
-                else {
+                } else {
                     const mse = new MismatchedSetException(null, this.input);
                     throw mse;
                 }
@@ -4441,8 +4344,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4473,13 +4375,10 @@ export class GrammarTreeVisitor extends TreeParser {
                                 const LA44_9 = this.input!.LA(4);
                                 if ((LA44_9 === GrammarTreeVisitor.STRING_LITERAL || LA44_9 === GrammarTreeVisitor.TOKEN_REF)) {
                                     alt44 = 1;
-                                }
-                                else {
+                                } else {
                                     if ((LA44_9 === GrammarTreeVisitor.RULE_REF)) {
                                         alt44 = 2;
-                                    }
-
-                                    else {
+                                    } else {
                                         const nvaeMark = this.input!.mark();
                                         try {
                                             for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
@@ -4494,9 +4393,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                     }
                                 }
 
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
@@ -4510,9 +4407,7 @@ export class GrammarTreeVisitor extends TreeParser {
                                 }
                             }
 
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             try {
                                 this.input!.consume();
@@ -4533,13 +4428,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA44_2 = this.input!.LA(2);
                         if ((LA44_2 === TreeParser.DOWN)) {
                             alt44 = 3;
-                        }
-                        else {
+                        } else {
                             if ((LA44_2 === GrammarTreeVisitor.EOF || (LA44_2 >= TreeParser.UP && LA44_2 <= GrammarTreeVisitor.ACTION) || LA44_2 === GrammarTreeVisitor.ASSIGN || LA44_2 === GrammarTreeVisitor.DOT || LA44_2 === GrammarTreeVisitor.NOT || LA44_2 === GrammarTreeVisitor.PLUS_ASSIGN || LA44_2 === GrammarTreeVisitor.RANGE || LA44_2 === GrammarTreeVisitor.RULE_REF || LA44_2 === GrammarTreeVisitor.SEMPRED || LA44_2 === GrammarTreeVisitor.STRING_LITERAL || LA44_2 === GrammarTreeVisitor.TOKEN_REF || (LA44_2 >= GrammarTreeVisitor.BLOCK && LA44_2 <= GrammarTreeVisitor.CLOSURE) || (LA44_2 >= GrammarTreeVisitor.OPTIONAL && LA44_2 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA44_2 >= GrammarTreeVisitor.SET && LA44_2 <= GrammarTreeVisitor.WILDCARD))) {
                                 alt44 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -4689,8 +4581,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4759,8 +4650,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -4791,13 +4681,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA46_1 = this.input!.LA(2);
                         if ((LA46_1 === TreeParser.DOWN)) {
                             alt46 = 1;
-                        }
-                        else {
+                        } else {
                             if ((LA46_1 === TreeParser.UP || LA46_1 === GrammarTreeVisitor.LEXER_CHAR_SET || LA46_1 === GrammarTreeVisitor.RANGE || LA46_1 === GrammarTreeVisitor.STRING_LITERAL || LA46_1 === GrammarTreeVisitor.TOKEN_REF)) {
                                 alt46 = 3;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -4819,13 +4706,10 @@ export class GrammarTreeVisitor extends TreeParser {
                         const LA46_2 = this.input!.LA(2);
                         if ((LA46_2 === TreeParser.DOWN)) {
                             alt46 = 2;
-                        }
-                        else {
+                        } else {
                             if ((LA46_2 === TreeParser.UP || LA46_2 === GrammarTreeVisitor.LEXER_CHAR_SET || LA46_2 === GrammarTreeVisitor.RANGE || LA46_2 === GrammarTreeVisitor.STRING_LITERAL || LA46_2 === GrammarTreeVisitor.TOKEN_REF)) {
                                 alt46 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 try {
                                     this.input!.consume();
@@ -4951,8 +4835,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -5090,8 +4973,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -5176,8 +5058,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -5213,8 +5094,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -5242,13 +5122,10 @@ export class GrammarTreeVisitor extends TreeParser {
                 const LA53_1 = this.input!.LA(2);
                 if ((LA53_1 === TreeParser.DOWN)) {
                     alt53 = 1;
-                }
-                else {
+                } else {
                     if ((LA53_1 === GrammarTreeVisitor.EOF || (LA53_1 >= TreeParser.UP && LA53_1 <= GrammarTreeVisitor.ACTION) || LA53_1 === GrammarTreeVisitor.ASSIGN || LA53_1 === GrammarTreeVisitor.DOT || LA53_1 === GrammarTreeVisitor.LEXER_CHAR_SET || LA53_1 === GrammarTreeVisitor.NOT || LA53_1 === GrammarTreeVisitor.PLUS_ASSIGN || LA53_1 === GrammarTreeVisitor.RANGE || LA53_1 === GrammarTreeVisitor.RULE_REF || LA53_1 === GrammarTreeVisitor.SEMPRED || LA53_1 === GrammarTreeVisitor.STRING_LITERAL || LA53_1 === GrammarTreeVisitor.TOKEN_REF || (LA53_1 >= GrammarTreeVisitor.BLOCK && LA53_1 <= GrammarTreeVisitor.CLOSURE) || LA53_1 === GrammarTreeVisitor.EPSILON || (LA53_1 >= GrammarTreeVisitor.OPTIONAL && LA53_1 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA53_1 >= GrammarTreeVisitor.SET && LA53_1 <= GrammarTreeVisitor.WILDCARD))) {
                         alt53 = 2;
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         try {
                             this.input!.consume();
@@ -5261,19 +5138,15 @@ export class GrammarTreeVisitor extends TreeParser {
                     }
                 }
 
-            }
-            else {
+            } else {
                 if ((LA53_0 === GrammarTreeVisitor.TOKEN_REF)) {
                     const LA53_2 = this.input!.LA(2);
                     if ((LA53_2 === TreeParser.DOWN)) {
                         alt53 = 3;
-                    }
-                    else {
+                    } else {
                         if ((LA53_2 === GrammarTreeVisitor.EOF || (LA53_2 >= TreeParser.UP && LA53_2 <= GrammarTreeVisitor.ACTION) || LA53_2 === GrammarTreeVisitor.ASSIGN || LA53_2 === GrammarTreeVisitor.DOT || LA53_2 === GrammarTreeVisitor.LEXER_CHAR_SET || LA53_2 === GrammarTreeVisitor.NOT || LA53_2 === GrammarTreeVisitor.PLUS_ASSIGN || LA53_2 === GrammarTreeVisitor.RANGE || LA53_2 === GrammarTreeVisitor.RULE_REF || LA53_2 === GrammarTreeVisitor.SEMPRED || LA53_2 === GrammarTreeVisitor.STRING_LITERAL || LA53_2 === GrammarTreeVisitor.TOKEN_REF || (LA53_2 >= GrammarTreeVisitor.BLOCK && LA53_2 <= GrammarTreeVisitor.CLOSURE) || LA53_2 === GrammarTreeVisitor.EPSILON || (LA53_2 >= GrammarTreeVisitor.OPTIONAL && LA53_2 <= GrammarTreeVisitor.POSITIVE_CLOSURE) || (LA53_2 >= GrammarTreeVisitor.SET && LA53_2 <= GrammarTreeVisitor.WILDCARD))) {
                             alt53 = 4;
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             try {
                                 this.input!.consume();
@@ -5286,9 +5159,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 53, 0, this.input);
                     throw nvae;
@@ -5359,8 +5230,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -5424,8 +5294,7 @@ export class GrammarTreeVisitor extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 

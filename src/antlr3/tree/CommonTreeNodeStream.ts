@@ -126,7 +126,7 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
         return this.adaptor.getType(o) === Token.EOF;
     }
 
-    public setUniqueNavigationNodes(uniqueNavigationNodes: boolean): void { }
+    public setUniqueNavigationNodes(uniqueNavigationNodes: boolean): void { /**/ }
 
     public getTreeSource(): unknown {
         return this.root;
@@ -166,9 +166,6 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
      *  Switch back with pop().
      */
     public push(index: number): void {
-        if (this.calls === null) {
-            this.calls = [];
-        }
         this.calls.push(this.p); // save current index
         this.seek(index);
     }
@@ -228,9 +225,7 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
     // TREE REWRITE INTERFACE
 
     public replaceChildren(parent: Tree, startChildIndex: number, stopChildIndex: number, t: Tree): void {
-        if (parent !== null) {
-            this.adaptor.replaceChildren(parent, startChildIndex, stopChildIndex, t);
-        }
+        this.adaptor.replaceChildren(parent, startChildIndex, stopChildIndex, t);
     }
 
     /*public toString(start: Tree, stop: Tree): string {

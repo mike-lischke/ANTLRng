@@ -9,13 +9,12 @@ import type { Token } from "antlr4ng";
 import { GrammarAST } from "./GrammarAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { QuantifierAST } from "./QuantifierAST.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class OptionalBlockAST extends GrammarAST implements RuleElementAST, QuantifierAST {
+export class OptionalBlockAST extends GrammarAST implements QuantifierAST {
     private readonly _greedy: boolean;
 
     public constructor(node: OptionalBlockAST);
-    public constructor(type: number, t: Token, nonGreedy: Token);
+    public constructor(type: number, t: Token, nonGreedy: Token | null);
     public constructor(...args: unknown[]) {
         switch (args.length) {
             case 1: {
@@ -28,7 +27,7 @@ export class OptionalBlockAST extends GrammarAST implements RuleElementAST, Quan
             }
 
             case 3: {
-                const [type, t, nonGreedy] = args as [number, Token, Token];
+                const [type, t, nonGreedy] = args as [number, Token, Token | null];
 
                 super(type, t);
                 this._greedy = nonGreedy === null;

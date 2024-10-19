@@ -90,10 +90,8 @@ export class Graph {
         }
 
         visited.add(n);
-        if (n.edges) {
-            for (const target of n.edges) {
-                this.dfs(target, visited, sorted);
-            }
+        for (const target of n.edges) {
+            this.dfs(target, visited, sorted);
         }
 
         sorted.push(n.payload);

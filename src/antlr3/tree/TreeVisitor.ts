@@ -34,8 +34,7 @@ export class TreeVisitor {
      *
      *  Return result of applying post action to this node.
      */
-    public visit<T extends Tree>(t: T | null, action: TreeVisitorAction<T>): T | null {
-        // System.out.println("visit "+((Tree)t).toStringTree());
+    public visit<T extends Tree>(t: T | null, action: TreeVisitorAction<T> | null): T | null {
         const isNil = this.adaptor.isNil(t);
         if (action !== null && !isNil) {
             t = action.pre(t); // if rewritten, walk children of new t

@@ -7,7 +7,6 @@
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
 import { GrammarAST } from "./GrammarAST.js";
-import { ActionAST } from "./ActionAST.js";
 import { CharSupport } from "../../misc/CharSupport.js";
 import { ErrorType } from "../ErrorType.js";
 
@@ -24,7 +23,7 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
             return value;
         }
 
-        if (value instanceof ActionAST) {
+        if ("resolver" in value) { // ActionAST, cannot use instanceof here because of circular dependency.
             return value.getText() ?? undefined;
         } else {
             let v = value.getText();

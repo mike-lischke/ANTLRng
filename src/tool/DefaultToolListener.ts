@@ -11,7 +11,9 @@ import { ANTLRToolListener } from "./ANTLRToolListener.js";
 export class DefaultToolListener implements ANTLRToolListener {
     public tool: Tool;
 
-    public constructor(tool: Tool) { this.tool = tool; }
+    public constructor(tool: Tool) {
+        this.tool = tool; 
+    }
 
     public info(msg: string): void {
         if (this.tool.errMgr.formatWantsSingleLineMessage()) {

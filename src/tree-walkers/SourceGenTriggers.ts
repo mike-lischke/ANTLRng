@@ -23,7 +23,7 @@ import { GrammarTreeVisitor } from "./GrammarTreeVisitor.js";
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable max-len */
+/* eslint-disable max-len, @typescript-eslint/naming-convention */
 // cspell: disable
 
 export class SourceGenTriggers extends TreeParser {
@@ -188,8 +188,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
     }
@@ -229,8 +228,7 @@ export class SourceGenTriggers extends TreeParser {
                                 const LA1_0 = this.input!.LA(1);
                                 if (((LA1_0 >= SourceGenTriggers.ACTION && LA1_0 <= SourceGenTriggers.WILDCARD))) {
                                     alt1 = 1;
-                                }
-                                else {
+                                } else {
                                     if ((LA1_0 === GrammarTreeVisitor.UP)) {
                                         alt1 = 2;
                                     }
@@ -328,8 +326,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -367,8 +364,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -519,8 +515,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -582,13 +577,10 @@ export class SourceGenTriggers extends TreeParser {
                         const LA8_4 = this.input!.LA(2);
                         if ((LA8_4 === GrammarTreeVisitor.DOWN)) {
                             alt8 = 6;
-                        }
-                        else {
+                        } else {
                             if (((LA8_4 >= GrammarTreeVisitor.UP && LA8_4 <= SourceGenTriggers.ACTION) || LA8_4 === SourceGenTriggers.ASSIGN || LA8_4 === SourceGenTriggers.DOT || LA8_4 === SourceGenTriggers.NOT || LA8_4 === SourceGenTriggers.PLUS_ASSIGN || LA8_4 === SourceGenTriggers.RANGE || LA8_4 === SourceGenTriggers.RULE_REF || LA8_4 === SourceGenTriggers.SEMPRED || LA8_4 === SourceGenTriggers.STRING_LITERAL || LA8_4 === SourceGenTriggers.TOKEN_REF || (LA8_4 >= SourceGenTriggers.BLOCK && LA8_4 <= SourceGenTriggers.CLOSURE) || (LA8_4 >= SourceGenTriggers.OPTIONAL && LA8_4 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA8_4 >= SourceGenTriggers.SET && LA8_4 <= SourceGenTriggers.WILDCARD))) {
                                 alt8 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -611,13 +603,10 @@ export class SourceGenTriggers extends TreeParser {
                         const LA8_5 = this.input!.LA(2);
                         if ((LA8_5 === GrammarTreeVisitor.DOWN)) {
                             alt8 = 7;
-                        }
-                        else {
+                        } else {
                             if (((LA8_5 >= GrammarTreeVisitor.UP && LA8_5 <= SourceGenTriggers.ACTION) || LA8_5 === SourceGenTriggers.ASSIGN || LA8_5 === SourceGenTriggers.DOT || LA8_5 === SourceGenTriggers.NOT || LA8_5 === SourceGenTriggers.PLUS_ASSIGN || LA8_5 === SourceGenTriggers.RANGE || LA8_5 === SourceGenTriggers.RULE_REF || LA8_5 === SourceGenTriggers.SEMPRED || LA8_5 === SourceGenTriggers.STRING_LITERAL || LA8_5 === SourceGenTriggers.TOKEN_REF || (LA8_5 >= SourceGenTriggers.BLOCK && LA8_5 <= SourceGenTriggers.CLOSURE) || (LA8_5 >= SourceGenTriggers.OPTIONAL && LA8_5 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA8_5 >= SourceGenTriggers.SET && LA8_5 <= SourceGenTriggers.WILDCARD))) {
                                 alt8 = 5;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -739,8 +728,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -774,13 +762,10 @@ export class SourceGenTriggers extends TreeParser {
                         const LA9_5 = this.input!.LA(4);
                         if ((LA9_5 === SourceGenTriggers.DOT || LA9_5 === SourceGenTriggers.NOT || LA9_5 === SourceGenTriggers.RANGE || LA9_5 === SourceGenTriggers.RULE_REF || LA9_5 === SourceGenTriggers.STRING_LITERAL || LA9_5 === SourceGenTriggers.TOKEN_REF || (LA9_5 >= SourceGenTriggers.SET && LA9_5 <= SourceGenTriggers.WILDCARD))) {
                             alt9 = 1;
-                        }
-                        else {
+                        } else {
                             if ((LA9_5 === SourceGenTriggers.BLOCK)) {
                                 alt9 = 3;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -796,9 +781,7 @@ export class SourceGenTriggers extends TreeParser {
                             }
                         }
 
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         const lastIndex = this.input!.index;
                         try {
@@ -813,9 +796,7 @@ export class SourceGenTriggers extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvaeMark = this.input!.mark();
                     const lastIndex = this.input!.index;
                     try {
@@ -837,13 +818,10 @@ export class SourceGenTriggers extends TreeParser {
                             const LA9_6 = this.input!.LA(4);
                             if ((LA9_6 === SourceGenTriggers.DOT || LA9_6 === SourceGenTriggers.NOT || LA9_6 === SourceGenTriggers.RANGE || LA9_6 === SourceGenTriggers.RULE_REF || LA9_6 === SourceGenTriggers.STRING_LITERAL || LA9_6 === SourceGenTriggers.TOKEN_REF || (LA9_6 >= SourceGenTriggers.SET && LA9_6 <= SourceGenTriggers.WILDCARD))) {
                                 alt9 = 2;
-                            }
-                            else {
+                            } else {
                                 if ((LA9_6 === SourceGenTriggers.BLOCK)) {
                                     alt9 = 4;
-                                }
-
-                                else {
+                                } else {
                                     const nvaeMark = this.input!.mark();
                                     const lastIndex = this.input!.index;
                                     try {
@@ -859,9 +837,7 @@ export class SourceGenTriggers extends TreeParser {
                                 }
                             }
 
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             const lastIndex = this.input!.index;
                             try {
@@ -876,9 +852,7 @@ export class SourceGenTriggers extends TreeParser {
                             }
                         }
 
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         const lastIndex = this.input!.index;
                         try {
@@ -891,9 +865,7 @@ export class SourceGenTriggers extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 9, 0, this.input);
                     throw nvae;
@@ -979,8 +951,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1137,8 +1108,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1207,8 +1177,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1256,13 +1225,10 @@ export class SourceGenTriggers extends TreeParser {
                                 const LA13_11 = this.input!.LA(4);
                                 if ((LA13_11 === SourceGenTriggers.STRING_LITERAL || LA13_11 === SourceGenTriggers.TOKEN_REF)) {
                                     alt13 = 3;
-                                }
-                                else {
+                                } else {
                                     if ((LA13_11 === SourceGenTriggers.RULE_REF)) {
                                         alt13 = 4;
-                                    }
-
-                                    else {
+                                    } else {
                                         const nvaeMark = this.input!.mark();
                                         const lastIndex = this.input!.index;
                                         try {
@@ -1278,9 +1244,7 @@ export class SourceGenTriggers extends TreeParser {
                                     }
                                 }
 
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -1295,9 +1259,7 @@ export class SourceGenTriggers extends TreeParser {
                                 }
                             }
 
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             const lastIndex = this.input!.index;
                             try {
@@ -1319,13 +1281,10 @@ export class SourceGenTriggers extends TreeParser {
                         const LA13_4 = this.input!.LA(2);
                         if ((LA13_4 === GrammarTreeVisitor.DOWN)) {
                             alt13 = 5;
-                        }
-                        else {
+                        } else {
                             if (((LA13_4 >= GrammarTreeVisitor.UP && LA13_4 <= SourceGenTriggers.ACTION) || LA13_4 === SourceGenTriggers.ASSIGN || LA13_4 === SourceGenTriggers.DOT || LA13_4 === SourceGenTriggers.NOT || LA13_4 === SourceGenTriggers.PLUS_ASSIGN || LA13_4 === SourceGenTriggers.RANGE || LA13_4 === SourceGenTriggers.RULE_REF || LA13_4 === SourceGenTriggers.SEMPRED || LA13_4 === SourceGenTriggers.STRING_LITERAL || LA13_4 === SourceGenTriggers.TOKEN_REF || (LA13_4 >= SourceGenTriggers.BLOCK && LA13_4 <= SourceGenTriggers.CLOSURE) || (LA13_4 >= SourceGenTriggers.OPTIONAL && LA13_4 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA13_4 >= SourceGenTriggers.SET && LA13_4 <= SourceGenTriggers.WILDCARD))) {
                                 alt13 = 6;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -1501,8 +1460,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1580,8 +1538,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1613,8 +1570,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1642,13 +1598,10 @@ export class SourceGenTriggers extends TreeParser {
                 const LA16_1 = this.input!.LA(2);
                 if ((LA16_1 === GrammarTreeVisitor.DOWN)) {
                     alt16 = 1;
-                }
-                else {
+                } else {
                     if (((LA16_1 >= GrammarTreeVisitor.UP && LA16_1 <= SourceGenTriggers.ACTION) || LA16_1 === SourceGenTriggers.ASSIGN || LA16_1 === SourceGenTriggers.DOT || LA16_1 === SourceGenTriggers.NOT || LA16_1 === SourceGenTriggers.PLUS_ASSIGN || LA16_1 === SourceGenTriggers.RANGE || LA16_1 === SourceGenTriggers.RULE_REF || LA16_1 === SourceGenTriggers.SEMPRED || LA16_1 === SourceGenTriggers.STRING_LITERAL || LA16_1 === SourceGenTriggers.TOKEN_REF || (LA16_1 >= SourceGenTriggers.BLOCK && LA16_1 <= SourceGenTriggers.CLOSURE) || (LA16_1 >= SourceGenTriggers.OPTIONAL && LA16_1 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA16_1 >= SourceGenTriggers.SET && LA16_1 <= SourceGenTriggers.WILDCARD))) {
                         alt16 = 2;
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         const lastIndex = this.input!.index;
                         try {
@@ -1662,8 +1615,7 @@ export class SourceGenTriggers extends TreeParser {
                     }
                 }
 
-            }
-            else {
+            } else {
                 if ((LA16_0 === SourceGenTriggers.TOKEN_REF)) {
                     const LA16_2 = this.input!.LA(2);
                     if ((LA16_2 === GrammarTreeVisitor.DOWN)) {
@@ -1672,13 +1624,10 @@ export class SourceGenTriggers extends TreeParser {
                             const LA16_7 = this.input!.LA(4);
                             if (((LA16_7 >= SourceGenTriggers.ACTION && LA16_7 <= SourceGenTriggers.WILDCARD))) {
                                 alt16 = 3;
-                            }
-                            else {
+                            } else {
                                 if (((LA16_7 >= GrammarTreeVisitor.DOWN && LA16_7 <= GrammarTreeVisitor.UP))) {
                                     alt16 = 4;
-                                }
-
-                                else {
+                                } else {
                                     const nvaeMark = this.input!.mark();
                                     const lastIndex = this.input!.index;
                                     try {
@@ -1694,13 +1643,10 @@ export class SourceGenTriggers extends TreeParser {
                                 }
                             }
 
-                        }
-                        else {
+                        } else {
                             if (((LA16_5 >= SourceGenTriggers.ACTION && LA16_5 <= SourceGenTriggers.ACTION_STRING_LITERAL) || (LA16_5 >= SourceGenTriggers.ARG_OR_CHARSET && LA16_5 <= SourceGenTriggers.WILDCARD))) {
                                 alt16 = 4;
-                            }
-
-                            else {
+                            } else {
                                 const nvaeMark = this.input!.mark();
                                 const lastIndex = this.input!.index;
                                 try {
@@ -1716,13 +1662,10 @@ export class SourceGenTriggers extends TreeParser {
                             }
                         }
 
-                    }
-                    else {
+                    } else {
                         if (((LA16_2 >= GrammarTreeVisitor.UP && LA16_2 <= SourceGenTriggers.ACTION) || LA16_2 === SourceGenTriggers.ASSIGN || LA16_2 === SourceGenTriggers.DOT || LA16_2 === SourceGenTriggers.NOT || LA16_2 === SourceGenTriggers.PLUS_ASSIGN || LA16_2 === SourceGenTriggers.RANGE || LA16_2 === SourceGenTriggers.RULE_REF || LA16_2 === SourceGenTriggers.SEMPRED || LA16_2 === SourceGenTriggers.STRING_LITERAL || LA16_2 === SourceGenTriggers.TOKEN_REF || (LA16_2 >= SourceGenTriggers.BLOCK && LA16_2 <= SourceGenTriggers.CLOSURE) || (LA16_2 >= SourceGenTriggers.OPTIONAL && LA16_2 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA16_2 >= SourceGenTriggers.SET && LA16_2 <= SourceGenTriggers.WILDCARD))) {
                             alt16 = 5;
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             const lastIndex = this.input!.index;
                             try {
@@ -1736,9 +1679,7 @@ export class SourceGenTriggers extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 16, 0, this.input);
                     throw nvae;
@@ -1814,8 +1755,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
 
@@ -1879,8 +1819,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
     }
@@ -1895,8 +1834,7 @@ export class SourceGenTriggers extends TreeParser {
             const LA18_0 = this.input!.LA(1);
             if ((LA18_0 === SourceGenTriggers.ID)) {
                 alt18 = 1;
-            }
-            else {
+            } else {
                 if ((LA18_0 === SourceGenTriggers.ASSIGN)) {
                     const LA18_2 = this.input!.LA(2);
                     if ((LA18_2 === GrammarTreeVisitor.DOWN)) {
@@ -1947,9 +1885,7 @@ export class SourceGenTriggers extends TreeParser {
                                 }
 
                             }
-                        }
-
-                        else {
+                        } else {
                             const nvaeMark = this.input!.mark();
                             const lastIndex = this.input!.index;
                             try {
@@ -1964,9 +1900,7 @@ export class SourceGenTriggers extends TreeParser {
                             }
                         }
 
-                    }
-
-                    else {
+                    } else {
                         const nvaeMark = this.input!.mark();
                         const lastIndex = this.input!.index;
                         try {
@@ -1979,9 +1913,7 @@ export class SourceGenTriggers extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     const nvae =
                         new NoViableAltException("", 18, 0, this.input);
                     throw nvae;
@@ -2059,8 +1991,7 @@ export class SourceGenTriggers extends TreeParser {
             } else {
                 throw re;
             }
-        }
-        finally {
+        } finally {
             // do for sure before leaving
         }
     };;

@@ -27,7 +27,7 @@ export class TreeIterator {
     public down: Tree;
     public eof: Tree;
     protected adaptor: TreeAdaptor;
-    protected root: Tree;
+    protected root: Tree | null;
     protected tree: Tree | null;
     protected firstTime = true;
 
@@ -71,7 +71,7 @@ export class TreeIterator {
             return this.root !== null;
         }
 
-        if (this.nodes !== null && this.nodes.size > 0) {
+        if (this.nodes.size > 0) {
             return true;
         }
 
@@ -98,7 +98,7 @@ export class TreeIterator {
             return this.tree;
         }
         // if any queued up, use those first
-        if (this.nodes !== null && this.nodes.size > 0) {
+        if (this.nodes.size > 0) {
             return this.nodes.remove();
         }
 

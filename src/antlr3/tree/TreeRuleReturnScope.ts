@@ -25,5 +25,7 @@ export class TreeRuleReturnScope {
      * Has a value potentially if output=template; Don't use StringTemplate
      * type as it then causes a dependency with ST lib.
      */
-    public getTemplate(): unknown { return null; }
+    public getTemplate(): unknown {
+        return null; 
+    }
 }

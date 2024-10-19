@@ -106,8 +106,7 @@ export class CharSupport {
                                 return null; // invalid escape sequence.
                             }
                         }
-                    }
-                    else {
+                    } else {
                         for (end = i + 2; end < i + 6; end++) {
                             if (end > n) {
                                 return null;

@@ -21,7 +21,7 @@ import type { TreeRuleReturnScope } from "./TreeRuleReturnScope.js";
 
 // cspell: disable
 
-interface fptr {
+interface Fptr {
     rule(): unknown;
 }
 
@@ -32,14 +32,18 @@ export class TreeRewriter extends TreeParser {
     protected originalTokenStream: TokenStream;
     protected originalAdaptor: TreeAdaptor;
 
-    private topdown_fptr = new class implements fptr {
+    private topdown_fptr = new class implements Fptr {
         public constructor(private $outer: TreeRewriter) { }
-        public rule(): unknown { return this.$outer.topdown(); }
+        public rule(): unknown {
+            return this.$outer.topdown(); 
+        }
     }(this);
 
-    private bottomup_ftpr = new class implements fptr {
+    private bottomup_ftpr = new class implements Fptr {
         public constructor(private $outer: TreeRewriter) { }
-        public rule(): unknown { return this.$outer.bottomup(); }
+        public rule(): unknown {
+            return this.$outer.bottomup(); 
+        }
     }(this);
 
     public constructor(input: TreeNodeStream, state?: RecognizerSharedState) {
@@ -49,7 +53,7 @@ export class TreeRewriter extends TreeParser {
         this.originalTokenStream = input.getTokenStream();
     }
 
-    public applyOnce(t: Tree | null, whichRule: fptr): Tree | null {
+    public applyOnce(t: Tree | null, whichRule: Fptr): Tree | null {
         if (t === null) {
             return null;
         }
@@ -77,7 +81,9 @@ export class TreeRewriter extends TreeParser {
                 return t;
             }
         } catch (e) {
-            if (e instanceof RecognitionException) { ; } else {
+            if (e instanceof RecognitionException) {
+                ; 
+            } else {
                 throw e;
             }
         }
@@ -85,7 +91,7 @@ export class TreeRewriter extends TreeParser {
         return t;
     }
 
-    public applyRepeatedly(t: Tree | null, whichRule: fptr): Tree | null {
+    public applyRepeatedly(t: Tree | null, whichRule: Fptr): Tree | null {
         let treeChanged = true;
         while (treeChanged) {
             const u = this.applyOnce(t, whichRule);
@@ -102,8 +108,12 @@ export class TreeRewriter extends TreeParser {
         const v = new TreeVisitor(new CommonTreeAdaptor());
         const actions = new class implements TreeVisitorAction<Tree> {
             public constructor(private $outer: TreeRewriter) { }
-            public pre(t: Tree): Tree | null { return this.$outer.applyOnce(t, this.$outer.topdown_fptr); }
-            public post(t: Tree): Tree | null { return this.$outer.applyRepeatedly(t, this.$outer.bottomup_ftpr); }
+            public pre(t: Tree): Tree | null {
+                return this.$outer.applyOnce(t, this.$outer.topdown_fptr); 
+            }
+            public post(t: Tree): Tree | null {
+                return this.$outer.applyRepeatedly(t, this.$outer.bottomup_ftpr); 
+            }
         }(this);
         t = v.visit(t, actions);
 
@@ -121,6 +131,10 @@ export class TreeRewriter extends TreeParser {
     // methods the downup strategy uses to do the up and down rules.
     // to override, just define tree grammar rule topdown and turn on
     // filter=true.
-    public topdown(): Tree | null { return null; }
-    public bottomup(): Tree | null { return null; }
+    public topdown(): Tree | null {
+        return null; 
+    }
+    public bottomup(): Tree | null {
+        return null; 
+    }
 }

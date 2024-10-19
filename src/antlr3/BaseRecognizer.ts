@@ -494,9 +494,7 @@ export abstract class BaseRecognizer {
             console.log(" backtracking=" + this.state.backtracking);
             if (this.state.failed) {
                 console.log(" failed");
-            }
-
-            else {
+            } else {
                 console.log(" succeeded");
             }
 

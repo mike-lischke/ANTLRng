@@ -20,10 +20,8 @@ export class GrammarSyntaxMessage extends ANTLRMessage {
         antlrException: RecognitionException, ...args: unknown[]) {
         super(type, antlrException, offendingToken, args);
         this.fileName = fileName;
-        if (offendingToken !== null) {
-            this.line = offendingToken.line;
-            this.charPosition = offendingToken.column;
-        }
+        this.line = offendingToken.line;
+        this.charPosition = offendingToken.column;
     }
 
     public override getCause(): RecognitionException {

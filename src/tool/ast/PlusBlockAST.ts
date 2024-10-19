@@ -9,9 +9,8 @@ import type { Token } from "antlr4ng";
 import { GrammarAST } from "./GrammarAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { QuantifierAST } from "./QuantifierAST.js";
-import { RuleElementAST } from "./RuleElementAST.js";
 
-export class PlusBlockAST extends GrammarAST implements RuleElementAST, QuantifierAST {
+export class PlusBlockAST extends GrammarAST implements QuantifierAST {
     private readonly _greedy: boolean;
 
     public constructor(node: PlusBlockAST);
@@ -28,7 +27,7 @@ export class PlusBlockAST extends GrammarAST implements RuleElementAST, Quantifi
             }
 
             case 3: {
-                const [type, t, nonGreedy] = args as [number, Token, Token];
+                const [type, t, nonGreedy] = args as [number, Token, Token | null];
 
                 super(type, t);
                 this._greedy = nonGreedy === null;

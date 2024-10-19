@@ -6,8 +6,8 @@
 
 // cspell: ignore Dname
 
+import { antlrVersion } from "../grammar-options.js";
 import { ErrorSeverity } from "./ErrorSeverity.js";
-import { Tool } from "../Tool.js";
 
 export class ErrorType {
     /*
@@ -162,7 +162,7 @@ export class ErrorType {
      * `version`
      */
     public static readonly CANNOT_CREATE_TARGET_GENERATOR =
-        new ErrorType(31, "ANTLR cannot generate <arg> code as of version " + Tool.VERSION,
+        new ErrorType(31, "ANTLR cannot generate <arg> code as of version " + antlrVersion,
             ErrorSeverity.ErrorOneOff, "CANNOT_CREATE_TARGET_GENERATOR");
 
     /**
@@ -1359,6 +1359,7 @@ export class ErrorType {
      * </ul>
      */
     public readonly msg: string;
+
     /**
      * The error or warning number.
      *
@@ -1366,6 +1367,7 @@ export class ErrorType {
      * use in a release should not be altered or reassigned.
      */
     public readonly code: number;
+
     /**
      * The error severity.
      */

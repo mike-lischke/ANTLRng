@@ -11,7 +11,8 @@ import { CommonToken, Token } from "antlr4ng";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { Character } from "../support/Character.js";
 
-export const INVALID_TOKEN = CommonToken.fromType(Token.INVALID_TYPE);
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const InvalidToken = CommonToken.fromType(Token.INVALID_TYPE);
 
 export type Constructor<T> = new (...args: unknown[]) => T;
 

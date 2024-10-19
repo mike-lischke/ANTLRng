@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable max-len */
+/* eslint-disable max-len, @typescript-eslint/naming-convention */
 // cspell: disable
 
 import type { AltAST } from "../tool/ast/AltAST.js";
@@ -263,7 +263,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                             return isLeftRec;
                         }
 
-                        if (this.state.backtracking === 0) { this.setReturnValues(a); }
+                        if (this.state.backtracking === 0) {
+                            this.setReturnValues(a); 
+                        }
                         this.match(this.input!, GrammarTreeVisitor.UP, null);
 
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -332,8 +334,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 const LA5_0 = this.input!.LA(1);
                 if ((LA5_0 === LeftRecursiveRuleWalker.OPTIONS)) {
                     alt5 = 1;
-                }
-                else {
+                } else {
                     if ((LA5_0 === LeftRecursiveRuleWalker.AT)) {
                         alt5 = 2;
                     }
@@ -365,8 +366,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                                     const LA4_0 = this.input!.LA(1);
                                     if (((LA4_0 >= LeftRecursiveRuleWalker.ACTION && LA4_0 <= LeftRecursiveRuleWalker.PUBLIC))) {
                                         alt4 = 1;
-                                    }
-                                    else {
+                                    } else {
                                         if ((LA4_0 === GrammarTreeVisitor.UP)) {
                                             alt4 = 2;
                                         }
@@ -717,7 +717,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                                     retval.isLeftRec = true;
                                 }
                             }
-                            if (this.state.backtracking === 0) { this.currentOuterAltNumber++; }
+                            if (this.state.backtracking === 0) {
+                                this.currentOuterAltNumber++; 
+                            }
                         }
                         break;
                     }
@@ -767,8 +769,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             } else {
                 if ((this.synpred2_LeftRecursiveRuleWalker())) {
                     alt9 = 2;
-                }
-                else {
+                } else {
                     if ((this.synpred3_LeftRecursiveRuleWalker())) {
                         alt9 = 3;
                     } else {
@@ -800,7 +801,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return retval;
                     }
 
-                    if (this.state.backtracking === 0) { this.binaryAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); retval.isLeftRec = true; }
+                    if (this.state.backtracking === 0) {
+                        this.binaryAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); retval.isLeftRec = true; 
+                    }
                 }
                 break;
             }
@@ -816,7 +819,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return retval;
                     }
 
-                    if (this.state.backtracking === 0) { this.prefixAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); }
+                    if (this.state.backtracking === 0) {
+                        this.prefixAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); 
+                    }
                 }
                 break;
             }
@@ -832,7 +837,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return retval;
                     }
 
-                    if (this.state.backtracking === 0) { this.suffixAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); retval.isLeftRec = true; }
+                    if (this.state.backtracking === 0) {
+                        this.suffixAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); retval.isLeftRec = true; 
+                    }
                 }
                 break;
             }
@@ -848,7 +855,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return retval;
                     }
 
-                    if (this.state.backtracking === 0) { this.otherAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); }
+                    if (this.state.backtracking === 0) {
+                        this.otherAlt((retval.start as GrammarAST) as AltAST, this.currentOuterAltNumber); 
+                    }
                 }
                 break;
             }
@@ -994,7 +1003,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 return;
             }
 
-            if (this.state.backtracking === 0) { this.setAltAssoc(ALT2 as AltAST, this.currentOuterAltNumber); }
+            if (this.state.backtracking === 0) {
+                this.setAltAssoc(ALT2 as AltAST, this.currentOuterAltNumber); 
+            }
         }
 
     }
@@ -1136,7 +1147,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 return;
             }
 
-            if (this.state.backtracking === 0) { this.setAltAssoc(ALT3 as AltAST, this.currentOuterAltNumber); }
+            if (this.state.backtracking === 0) {
+                this.setAltAssoc(ALT3 as AltAST, this.currentOuterAltNumber); 
+            }
         }
 
     }
@@ -1249,7 +1262,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 return;
             }
 
-            if (this.state.backtracking === 0) { this.setAltAssoc(ALT4 as AltAST, this.currentOuterAltNumber); }
+            if (this.state.backtracking === 0) {
+                this.setAltAssoc(ALT4 as AltAST, this.currentOuterAltNumber); 
+            }
         }
 
     }
@@ -1557,13 +1572,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA21_3 = this.input!.LA(2);
                     if ((LA21_3 === GrammarTreeVisitor.DOWN)) {
                         alt21 = 4;
-                    }
-                    else {
+                    } else {
                         if ((LA21_3 === GrammarTreeVisitor.UP)) {
                             alt21 = 3;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -1591,13 +1603,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA21_4 = this.input!.LA(2);
                     if ((LA21_4 === GrammarTreeVisitor.DOWN)) {
                         alt21 = 5;
-                    }
-                    else {
+                    } else {
                         if ((LA21_4 === GrammarTreeVisitor.UP)) {
                             alt21 = 6;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -1664,7 +1673,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    if (this.state.backtracking === 0) { t = s; }
+                    if (this.state.backtracking === 0) {
+                        t = s; 
+                    }
                     this.match(this.input!, GrammarTreeVisitor.UP, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -1707,7 +1718,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    if (this.state.backtracking === 0) { t = s; }
+                    if (this.state.backtracking === 0) {
+                        t = s; 
+                    }
                     this.match(this.input!, GrammarTreeVisitor.UP, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -1728,7 +1741,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    if (this.state.backtracking === 0) { t = b; }
+                    if (this.state.backtracking === 0) {
+                        t = b; 
+                    }
                 }
                 break;
             }
@@ -1764,7 +1779,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    if (this.state.backtracking === 0) { t = b; }
+                    if (this.state.backtracking === 0) {
+                        t = b; 
+                    }
                 }
                 break;
             }
@@ -1800,7 +1817,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    if (this.state.backtracking === 0) { t = c; }
+                    if (this.state.backtracking === 0) {
+                        t = c; 
+                    }
                 }
                 break;
             }
@@ -1814,7 +1833,9 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    if (this.state.backtracking === 0) { t = c; }
+                    if (this.state.backtracking === 0) {
+                        t = c; 
+                    }
                 }
                 break;
             }
@@ -1901,8 +1922,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         const LA23_0 = this.input!.LA(1);
         if ((LA23_0 === LeftRecursiveRuleWalker.ID)) {
             alt23 = 1;
-        }
-        else {
+        } else {
             if ((LA23_0 === LeftRecursiveRuleWalker.ASSIGN)) {
                 const LA23_2 = this.input!.LA(2);
                 if ((LA23_2 === GrammarTreeVisitor.DOWN)) {
@@ -1958,9 +1978,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                             }
 
                         }
-                    }
-
-                    else {
+                    } else {
                         if (this.state.backtracking > 0) {
                             this.state.failed = true;
 
@@ -1980,9 +1998,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         }
                     }
 
-                }
-
-                else {
+                } else {
                     if (this.state.backtracking > 0) {
                         this.state.failed = true;
 
@@ -2000,9 +2016,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     }
                 }
 
-            }
-
-            else {
+            } else {
                 if (this.state.backtracking > 0) {
                     this.state.failed = true;
 
@@ -2209,13 +2223,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA25_1 = this.input!.LA(2);
                     if ((LA25_1 === GrammarTreeVisitor.DOWN)) {
                         alt25 = 1;
-                    }
-                    else {
+                    } else {
                         if (((LA25_1 >= GrammarTreeVisitor.UP && LA25_1 <= LeftRecursiveRuleWalker.ACTION) || LA25_1 === LeftRecursiveRuleWalker.ASSIGN || LA25_1 === LeftRecursiveRuleWalker.DOT || LA25_1 === LeftRecursiveRuleWalker.NOT || LA25_1 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA25_1 === LeftRecursiveRuleWalker.RANGE || LA25_1 === LeftRecursiveRuleWalker.RULE_REF || LA25_1 === LeftRecursiveRuleWalker.SEMPRED || LA25_1 === LeftRecursiveRuleWalker.STRING_LITERAL || LA25_1 === LeftRecursiveRuleWalker.TOKEN_REF || (LA25_1 >= LeftRecursiveRuleWalker.BLOCK && LA25_1 <= LeftRecursiveRuleWalker.CLOSURE) || LA25_1 === LeftRecursiveRuleWalker.EPSILON || (LA25_1 >= LeftRecursiveRuleWalker.OPTIONAL && LA25_1 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA25_1 >= LeftRecursiveRuleWalker.SET && LA25_1 <= LeftRecursiveRuleWalker.WILDCARD))) {
                             alt25 = 7;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -2623,13 +2634,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA26_1 = this.input!.LA(2);
                     if ((LA26_1 === GrammarTreeVisitor.DOWN)) {
                         alt26 = 4;
-                    }
-                    else {
+                    } else {
                         if (((LA26_1 >= GrammarTreeVisitor.UP && LA26_1 <= LeftRecursiveRuleWalker.ACTION) || LA26_1 === LeftRecursiveRuleWalker.ASSIGN || LA26_1 === LeftRecursiveRuleWalker.DOT || LA26_1 === LeftRecursiveRuleWalker.NOT || LA26_1 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA26_1 === LeftRecursiveRuleWalker.RANGE || LA26_1 === LeftRecursiveRuleWalker.RULE_REF || LA26_1 === LeftRecursiveRuleWalker.SEMPRED || LA26_1 === LeftRecursiveRuleWalker.STRING_LITERAL || LA26_1 === LeftRecursiveRuleWalker.TOKEN_REF || (LA26_1 >= LeftRecursiveRuleWalker.BLOCK && LA26_1 <= LeftRecursiveRuleWalker.CLOSURE) || LA26_1 === LeftRecursiveRuleWalker.EPSILON || (LA26_1 >= LeftRecursiveRuleWalker.OPTIONAL && LA26_1 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA26_1 >= LeftRecursiveRuleWalker.SET && LA26_1 <= LeftRecursiveRuleWalker.WILDCARD))) {
                             alt26 = 1;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -2657,13 +2665,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA26_2 = this.input!.LA(2);
                     if ((LA26_2 === GrammarTreeVisitor.DOWN)) {
                         alt26 = 5;
-                    }
-                    else {
+                    } else {
                         if (((LA26_2 >= GrammarTreeVisitor.UP && LA26_2 <= LeftRecursiveRuleWalker.ACTION) || LA26_2 === LeftRecursiveRuleWalker.ASSIGN || LA26_2 === LeftRecursiveRuleWalker.DOT || LA26_2 === LeftRecursiveRuleWalker.NOT || LA26_2 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA26_2 === LeftRecursiveRuleWalker.RANGE || LA26_2 === LeftRecursiveRuleWalker.RULE_REF || LA26_2 === LeftRecursiveRuleWalker.SEMPRED || LA26_2 === LeftRecursiveRuleWalker.STRING_LITERAL || LA26_2 === LeftRecursiveRuleWalker.TOKEN_REF || (LA26_2 >= LeftRecursiveRuleWalker.BLOCK && LA26_2 <= LeftRecursiveRuleWalker.CLOSURE) || LA26_2 === LeftRecursiveRuleWalker.EPSILON || (LA26_2 >= LeftRecursiveRuleWalker.OPTIONAL && LA26_2 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA26_2 >= LeftRecursiveRuleWalker.SET && LA26_2 <= LeftRecursiveRuleWalker.WILDCARD))) {
                             alt26 = 2;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -2832,8 +2837,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             const LA27_1 = this.input!.LA(2);
             if ((LA27_1 === GrammarTreeVisitor.DOWN)) {
                 alt27 = 1;
-            }
-            else {
+            } else {
                 if ((LA27_1 === GrammarTreeVisitor.UP || LA27_1 === LeftRecursiveRuleWalker.STRING_LITERAL || LA27_1 === LeftRecursiveRuleWalker.TOKEN_REF)) {
                     alt27 = 3;
                 } else {
@@ -2855,19 +2859,15 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 }
             }
 
-        }
-        else {
+        } else {
             if ((LA27_0 === LeftRecursiveRuleWalker.TOKEN_REF)) {
                 const LA27_2 = this.input!.LA(2);
                 if ((LA27_2 === GrammarTreeVisitor.DOWN)) {
                     alt27 = 2;
-                }
-                else {
+                } else {
                     if ((LA27_2 === GrammarTreeVisitor.UP || LA27_2 === LeftRecursiveRuleWalker.STRING_LITERAL || LA27_2 === LeftRecursiveRuleWalker.TOKEN_REF)) {
                         alt27 = 4;
-                    }
-
-                    else {
+                    } else {
                         if (this.state.backtracking > 0) {
                             this.state.failed = true;
 
@@ -2887,9 +2887,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     }
                 }
 
-            }
-
-            else {
+            } else {
                 if (this.state.backtracking > 0) {
                     this.state.failed = true;
 
@@ -3397,13 +3395,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA35_2 = this.input!.LA(2);
                     if ((LA35_2 === GrammarTreeVisitor.DOWN)) {
                         alt35 = 2;
-                    }
-                    else {
+                    } else {
                         if (((LA35_2 >= GrammarTreeVisitor.UP && LA35_2 <= LeftRecursiveRuleWalker.ACTION) || LA35_2 === LeftRecursiveRuleWalker.ASSIGN || LA35_2 === LeftRecursiveRuleWalker.DOT || LA35_2 === LeftRecursiveRuleWalker.NOT || LA35_2 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA35_2 === LeftRecursiveRuleWalker.RANGE || LA35_2 === LeftRecursiveRuleWalker.RULE_REF || LA35_2 === LeftRecursiveRuleWalker.SEMPRED || LA35_2 === LeftRecursiveRuleWalker.STRING_LITERAL || LA35_2 === LeftRecursiveRuleWalker.TOKEN_REF || (LA35_2 >= LeftRecursiveRuleWalker.BLOCK && LA35_2 <= LeftRecursiveRuleWalker.CLOSURE) || LA35_2 === LeftRecursiveRuleWalker.EPSILON || (LA35_2 >= LeftRecursiveRuleWalker.OPTIONAL && LA35_2 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA35_2 >= LeftRecursiveRuleWalker.SET && LA35_2 <= LeftRecursiveRuleWalker.WILDCARD))) {
                             alt35 = 3;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -3431,13 +3426,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA35_3 = this.input!.LA(2);
                     if ((LA35_3 === GrammarTreeVisitor.DOWN)) {
                         alt35 = 4;
-                    }
-                    else {
+                    } else {
                         if (((LA35_3 >= GrammarTreeVisitor.UP && LA35_3 <= LeftRecursiveRuleWalker.ACTION) || LA35_3 === LeftRecursiveRuleWalker.ASSIGN || LA35_3 === LeftRecursiveRuleWalker.DOT || LA35_3 === LeftRecursiveRuleWalker.NOT || LA35_3 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA35_3 === LeftRecursiveRuleWalker.RANGE || LA35_3 === LeftRecursiveRuleWalker.RULE_REF || LA35_3 === LeftRecursiveRuleWalker.SEMPRED || LA35_3 === LeftRecursiveRuleWalker.STRING_LITERAL || LA35_3 === LeftRecursiveRuleWalker.TOKEN_REF || (LA35_3 >= LeftRecursiveRuleWalker.BLOCK && LA35_3 <= LeftRecursiveRuleWalker.CLOSURE) || LA35_3 === LeftRecursiveRuleWalker.EPSILON || (LA35_3 >= LeftRecursiveRuleWalker.OPTIONAL && LA35_3 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA35_3 >= LeftRecursiveRuleWalker.SET && LA35_3 <= LeftRecursiveRuleWalker.WILDCARD))) {
                             alt35 = 5;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 
@@ -3465,13 +3457,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     const LA35_4 = this.input!.LA(2);
                     if ((LA35_4 === GrammarTreeVisitor.DOWN)) {
                         alt35 = 6;
-                    }
-                    else {
+                    } else {
                         if (((LA35_4 >= GrammarTreeVisitor.UP && LA35_4 <= LeftRecursiveRuleWalker.ACTION) || LA35_4 === LeftRecursiveRuleWalker.ASSIGN || LA35_4 === LeftRecursiveRuleWalker.DOT || LA35_4 === LeftRecursiveRuleWalker.NOT || LA35_4 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA35_4 === LeftRecursiveRuleWalker.RANGE || LA35_4 === LeftRecursiveRuleWalker.RULE_REF || LA35_4 === LeftRecursiveRuleWalker.SEMPRED || LA35_4 === LeftRecursiveRuleWalker.STRING_LITERAL || LA35_4 === LeftRecursiveRuleWalker.TOKEN_REF || (LA35_4 >= LeftRecursiveRuleWalker.BLOCK && LA35_4 <= LeftRecursiveRuleWalker.CLOSURE) || LA35_4 === LeftRecursiveRuleWalker.EPSILON || (LA35_4 >= LeftRecursiveRuleWalker.OPTIONAL && LA35_4 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA35_4 >= LeftRecursiveRuleWalker.SET && LA35_4 <= LeftRecursiveRuleWalker.WILDCARD))) {
                             alt35 = 7;
-                        }
-
-                        else {
+                        } else {
                             if (this.state.backtracking > 0) {
                                 this.state.failed = true;
 

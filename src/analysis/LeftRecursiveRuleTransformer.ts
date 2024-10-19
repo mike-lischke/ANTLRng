@@ -117,7 +117,7 @@ export class LeftRecursiveRuleTransformer {
         }
 
         // replace old rule's AST; first create text of altered rule
-        const RULES = ast.getFirstChildWithType(ANTLRv4Parser.RULE_REF) as GrammarAST;
+        const rules = ast.getFirstChildWithType(ANTLRv4Parser.RULE_REF) as GrammarAST;
         const newRuleText = leftRecursiveRuleWalker.getArtificialOpPrecRule();
 
         // now parse within the context of the grammar that originally created
@@ -134,7 +134,7 @@ export class LeftRecursiveRuleTransformer {
         (t.getChild(0) as GrammarAST).token = (prevRuleAST.getChild(0) as GrammarAST).getToken();
 
         // update grammar AST and set rule's AST.
-        RULES.setChild(prevRuleAST.getChildIndex(), t);
+        rules.setChild(prevRuleAST.getChildIndex(), t);
         r.ast = t;
 
         // Reduce sets in newly created rule tree
@@ -180,7 +180,7 @@ export class LeftRecursiveRuleTransformer {
         const arg = r.ast.getFirstChildWithType(ANTLRv4Parser.BEGIN_ARGUMENT) as ActionAST | null;
         if (arg !== null) {
             r.args = ScopeParser.parseTypedArgList(arg, arg.getText()!, this.g);
-            r.args.type = DictType.ARG;
+            r.args.type = DictType.Argument;
             r.args.ast = arg;
             arg.resolver = r.alt[1]; // todo: isn't this Rule or something?
         }

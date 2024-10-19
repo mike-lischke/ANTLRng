@@ -31,7 +31,7 @@ export class Rule implements AttributeResolver, IComparable {
      *
      *  These must be consistent with ActionTranslator.rulePropToModelMap, ...
      */
-    public static readonly predefinedRulePropertiesDict = new AttributeDict(DictType.PREDEFINED_RULE);
+    public static readonly predefinedRulePropertiesDict = new AttributeDict(DictType.PredefinedRule);
 
     public static readonly validLexerCommands = new Set<string>();
 
@@ -147,7 +147,7 @@ export class Rule implements AttributeResolver, IComparable {
             }
         }
 
-        const d = this.getPredefinedScope(LabelType.RULE_LABEL);
+        const d = this.getPredefinedScope(LabelType.RuleLabel);
 
         return d?.get(y) ?? null;
     }
@@ -260,7 +260,7 @@ export class Rule implements AttributeResolver, IComparable {
 
             const anyLabelDef = this.getAnyLabelDef(x);
             if (anyLabelDef !== null) {
-                if (anyLabelDef.type === LabelType.RULE_LABEL) {
+                if (anyLabelDef.type === LabelType.RuleLabel) {
                     return this.g.getRule(anyLabelDef.element.getText()!)?.resolveRetvalOrProperty(y) ?? null;
                 } else {
                     const scope = this.getPredefinedScope(anyLabelDef.type);
@@ -300,7 +300,7 @@ export class Rule implements AttributeResolver, IComparable {
             }
         }
 
-        const properties = this.getPredefinedScope(LabelType.RULE_LABEL);
+        const properties = this.getPredefinedScope(LabelType.RuleLabel);
 
         return properties?.get(x) ?? null;
     }
@@ -309,21 +309,21 @@ export class Rule implements AttributeResolver, IComparable {
         const anyLabelDef = this.getAnyLabelDef(x);
 
         return anyLabelDef !== null &&
-            (anyLabelDef.type === LabelType.RULE_LABEL ||
-                anyLabelDef.type === LabelType.TOKEN_LABEL);
+            (anyLabelDef.type === LabelType.RuleLabel ||
+                anyLabelDef.type === LabelType.TokenLabel);
     }
 
     public resolvesToListLabel(x: string, node: ActionAST): boolean {
         const anyLabelDef = this.getAnyLabelDef(x);
 
         return anyLabelDef !== null &&
-            (anyLabelDef.type === LabelType.RULE_LIST_LABEL ||
-                anyLabelDef.type === LabelType.TOKEN_LIST_LABEL);
+            (anyLabelDef.type === LabelType.RuleListLabel ||
+                anyLabelDef.type === LabelType.TokenListLabel);
     }
 
     public resolvesToToken(x: string, node: ActionAST): boolean {
         const anyLabelDef = this.getAnyLabelDef(x);
-        if (anyLabelDef !== null && anyLabelDef.type === LabelType.TOKEN_LABEL) {
+        if (anyLabelDef !== null && anyLabelDef.type === LabelType.TokenLabel) {
             return true;
         }
 
@@ -344,7 +344,7 @@ export class Rule implements AttributeResolver, IComparable {
         }
 
         const anyLabelDef = this.getAnyLabelDef(x);
-        if (anyLabelDef !== null && anyLabelDef.type === LabelType.RULE_LABEL) {
+        if (anyLabelDef !== null && anyLabelDef.type === LabelType.RuleLabel) {
             return this.g.getRule(anyLabelDef.element.getText()!) ?? null;
         }
 

@@ -35,10 +35,10 @@ import { ParserATNFactory } from "./ParserATNFactory.js";
 import { RangeBorderCharactersData } from "./RangeBorderCharactersData.js";
 
 enum Mode {
-    NONE,
-    ERROR,
-    PREV_CODE_POINT,
-    PREV_PROPERTY,
+    None,
+    Error,
+    PrevCodePoint,
+    PrevProperty,
 };
 
 export class LexerATNFactory extends ParserATNFactory {
@@ -61,8 +61,8 @@ export class LexerATNFactory extends ParserATNFactory {
 
     public static CharSetParseState = class CharSetParseState {
 
-        public static readonly NONE = new CharSetParseState(Mode.NONE, false, -1, new IntervalSet());
-        public static readonly ERROR = new CharSetParseState(Mode.ERROR, false, -1, new IntervalSet());
+        public static readonly NONE = new CharSetParseState(Mode.None, false, -1, new IntervalSet());
+        public static readonly ERROR = new CharSetParseState(Mode.Error, false, -1, new IntervalSet());
 
         public readonly mode: Mode;
         public readonly inRange: boolean;
@@ -235,12 +235,12 @@ export class LexerATNFactory extends ParserATNFactory {
         return h;
     }
 
-    public override lexerCallCommand(ID: GrammarAST, arg: GrammarAST): IStatePair {
-        return this.lexerCallCommandOrCommand(ID, arg);
+    public override lexerCallCommand(id: GrammarAST, arg: GrammarAST): IStatePair {
+        return this.lexerCallCommandOrCommand(id, arg);
     }
 
-    public override lexerCommand(ID: GrammarAST): IStatePair {
-        return this.lexerCallCommandOrCommand(ID, null);
+    public override lexerCommand(id: GrammarAST): IStatePair {
+        return this.lexerCallCommandOrCommand(id, null);
     }
 
     public override range(a: GrammarAST, b: GrammarAST): IStatePair {
@@ -359,7 +359,7 @@ export class LexerATNFactory extends ParserATNFactory {
 
         const n = chars.length;
         for (let i = 0; i < n;) {
-            if (state.mode === Mode.ERROR) {
+            if (state.mode === Mode.Error) {
                 return new IntervalSet();
             }
 
@@ -398,8 +398,8 @@ export class LexerATNFactory extends ParserATNFactory {
                 }
                 offset = escapeParseResult.parseLength;
             } else {
-                if (c === 0x2D && !state.inRange && i !== 0 && i !== n - 1 && state.mode !== Mode.NONE) {
-                    if (state.mode === Mode.PREV_PROPERTY) {
+                if (c === 0x2D && !state.inRange && i !== 0 && i !== n - 1 && state.mode !== Mode.None) {
+                    if (state.mode === Mode.PrevProperty) {
                         this.g.tool.errMgr.grammarError(ErrorType.UNICODE_PROPERTY_NOT_ALLOWED_IN_RANGE,
                             this.g.fileName, charSetAST.getToken(), charSetAST.getText()!);
                         state = LexerATNFactory.CharSetParseState.ERROR;
@@ -415,7 +415,7 @@ export class LexerATNFactory extends ParserATNFactory {
             i += offset;
         }
 
-        if (state.mode === Mode.ERROR) {
+        if (state.mode === Mode.Error) {
             return new IntervalSet();
         }
 
@@ -482,19 +482,19 @@ export class LexerATNFactory extends ParserATNFactory {
         return true;
     }
 
-    private lexerCallCommandOrCommand(ID: GrammarAST, arg: GrammarAST | null): IStatePair {
-        const lexerAction = this.createLexerAction(ID, arg);
+    private lexerCallCommandOrCommand(id: GrammarAST, arg: GrammarAST | null): IStatePair {
+        const lexerAction = this.createLexerAction(id, arg);
         if (lexerAction !== null) {
-            return this.action(ID, lexerAction);
+            return this.action(id, lexerAction);
         }
 
         // fall back to standard action generation for the command
-        const cmdST = this.codegenTemplates.getInstanceOf("Lexer" + CharSupport.capitalize(ID.getText()!) +
+        const cmdST = this.codegenTemplates.getInstanceOf("Lexer" + CharSupport.capitalize(id.getText()!) +
             "Command");
         if (cmdST === null) {
-            this.g.tool.errMgr.grammarError(ErrorType.INVALID_LEXER_COMMAND, this.g.fileName, ID.token, ID.getText()!);
+            this.g.tool.errMgr.grammarError(ErrorType.INVALID_LEXER_COMMAND, this.g.fileName, id.token, id.getText()!);
 
-            return this.epsilon(ID);
+            return this.epsilon(id);
         }
 
         const callCommand = arg !== null;
@@ -503,9 +503,9 @@ export class LexerATNFactory extends ParserATNFactory {
             const errorType = callCommand
                 ? ErrorType.UNWANTED_LEXER_COMMAND_ARGUMENT
                 : ErrorType.MISSING_LEXER_COMMAND_ARGUMENT;
-            this.g.tool.errMgr.grammarError(errorType, this.g.fileName, ID.token, ID.getText()!);
+            this.g.tool.errMgr.grammarError(errorType, this.g.fileName, id.token, id.getText()!);
 
-            return this.epsilon(ID);
+            return this.epsilon(id);
         }
 
         if (callCommand) {
@@ -533,7 +533,7 @@ export class LexerATNFactory extends ParserATNFactory {
             state = LexerATNFactory.CharSetParseState.NONE;
         } else {
             this.applyPrevState(charSetAST, set, state);
-            state = new LexerATNFactory.CharSetParseState(Mode.PREV_CODE_POINT, false, codePoint, new IntervalSet());
+            state = new LexerATNFactory.CharSetParseState(Mode.PrevCodePoint, false, codePoint, new IntervalSet());
         }
 
         return state;
@@ -551,7 +551,7 @@ export class LexerATNFactory extends ParserATNFactory {
             return LexerATNFactory.CharSetParseState.ERROR;
         } else {
             this.applyPrevState(charSetAST, set, state);
-            state = new LexerATNFactory.CharSetParseState(Mode.PREV_PROPERTY, false, -1, property);
+            state = new LexerATNFactory.CharSetParseState(Mode.PrevProperty, false, -1, property);
         }
 
         return state;
@@ -559,17 +559,17 @@ export class LexerATNFactory extends ParserATNFactory {
 
     private applyPrevState(charSetAST: GrammarAST, set: IntervalSet, state: LexerATNFactory.CharSetParseState): void {
         switch (state.mode) {
-            case Mode.NONE:
-            case Mode.ERROR: {
+            case Mode.None:
+            case Mode.Error: {
                 break;
             }
 
-            case Mode.PREV_CODE_POINT: {
+            case Mode.PrevCodePoint: {
                 this.checkCharAndAddToSet(charSetAST, set, state.prevCodePoint);
                 break;
             }
 
-            case Mode.PREV_PROPERTY: {
+            case Mode.PrevProperty: {
                 set.addSet(state.prevProperty);
                 break;
             }
@@ -682,9 +682,9 @@ export class LexerATNFactory extends ParserATNFactory {
         }
     }
 
-    private createLexerAction(ID: GrammarAST, arg: GrammarAST | null): LexerAction | null {
-        const command = ID.getText()!;
-        this.checkCommands(command, ID.getToken());
+    private createLexerAction(id: GrammarAST, arg: GrammarAST | null): LexerAction | null {
+        const command = id.getText()!;
+        this.checkCommands(command, id.getToken());
 
         switch (command) {
             case "skip": {

@@ -68,25 +68,39 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
 
     // Convenience methods
 
-    public override getGrammar(): Grammar | null { return this.g ?? null; }
+    public override getGrammar(): Grammar | null {
+        return this.g ?? null; 
+    }
 
-    public override getGenerator(): CodeGenerator { return this.gen; }
+    public override getGenerator(): CodeGenerator {
+        return this.gen; 
+    }
 
-    public override getRoot(): OutputModelObject | null { return this.controller.getRoot(); }
+    public override getRoot(): OutputModelObject | null {
+        return this.controller.getRoot(); 
+    }
 
     public override getCurrentRuleFunction(): RuleFunction | undefined {
         return this.controller.getCurrentRuleFunction();
     }
 
-    public override getCurrentOuterMostAlt(): Alternative { return this.controller.getCurrentOuterMostAlt(); }
+    public override getCurrentOuterMostAlt(): Alternative {
+        return this.controller.getCurrentOuterMostAlt(); 
+    }
 
-    public override getCurrentBlock(): CodeBlock { return this.controller.getCurrentBlock(); }
+    public override getCurrentBlock(): CodeBlock {
+        return this.controller.getCurrentBlock(); 
+    }
 
     public override getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt {
         return this.controller.getCurrentOuterMostAlternativeBlock();
     }
 
-    public override getCodeBlockLevel(): number { return this.controller.codeBlockLevel; }
+    public override getCodeBlockLevel(): number {
+        return this.controller.codeBlockLevel; 
+    }
 
-    public override getTreeLevel(): number { return this.controller.treeLevel; }
+    public override getTreeLevel(): number {
+        return this.controller.treeLevel; 
+    }
 }
