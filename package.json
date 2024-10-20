@@ -44,6 +44,7 @@
         "typescript-eslint": "8.7.0"
     },
     "scripts": {
+        "build": "npm run generate-tool-parsers && npm run generate-test-parsers && npm run generate-unicode-data",
         "run": "node --no-warnings --loader ts-node/esm src/runner.ts --version",
         "lint": "eslint \"./src/**/*.ts\"",
         "lint:fix": "eslint \"./src/**/*.ts\" --fix",
