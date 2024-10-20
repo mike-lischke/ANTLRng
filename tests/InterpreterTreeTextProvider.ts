@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
- * Use of this file is governed by the BSD 3-clause license that
- * can be found in the LICENSE.txt file in the project root.
+ * Copyright (c) Mike Lischke. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
 import { ErrorNode, Trees, type ParseTree } from "antlr4ng";
 
-export class InterpreterTreeTextProvider implements TreeTextProvider {
+export class InterpreterTreeTextProvider {
     public ruleNames: string[];
     public constructor(ruleNames: string[]) {
         this.ruleNames = ruleNames;

@@ -1,137 +1,88 @@
+/*
+ * Copyright (c) Mike Lischke. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ */
 
-/* eslint-disable jsdoc/require-returns, jsdoc/require-param */
-
-
-import { TokenStream, TokenSource, Token, RuleContext, IntStream, CommonToken, IntegerList, Interval } from "antlr4ng";
-
-
+import { TokenStream, TokenSource, Token, ParserRuleContext, IntStream, CommonToken, Interval } from "antlr4ng";
 
 export class MockIntTokenStream implements TokenStream {
 
-    public types: IntegerList;
+    public types: number[];
     protected p = 0;
 
-    public constructor(types: IntegerList) { this.types = types; }
-
-
-    public consume(): void { this.p++; }
-
-
-    public LA(i: number): number { return this.LT(i).getType(); }
-
-
-    public mark(): number {
-        return this.index();
+    public constructor(types: number[]) {
+        this.types = types;
     }
 
+    public consume(): void {
+        this.p++;
+    }
 
-    public index(): number { return this.p; }
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    public LA(i: number): number {
+        return this.LT(i).type;
+    }
 
+    public mark(): number {
+        return this.index;
+    }
+
+    public get index(): number {
+        return this.p;
+    }
 
     public release(marker: number): void {
         this.seek(marker);
     }
 
-
     public seek(index: number): void {
         this.p = index;
     }
 
-
-    public size(): number {
-        return this.types.size();
+    public get size(): number {
+        return this.types.length;
     }
-
 
     public getSourceName(): string {
         return IntStream.UNKNOWN_SOURCE_NAME;
     }
 
-
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     public LT(i: number): Token {
         let t: CommonToken;
-        let rawIndex = this.p + i - 1;
-        if (rawIndex >= this.types.size()) {
-            t = new CommonToken(Token.EOF);
-        }
-
-        else {
-            t = new CommonToken(this.types.get(rawIndex));
+        const rawIndex = this.p + i - 1;
+        if (rawIndex >= this.types.length) {
+            t = CommonToken.fromType(Token.EOF);
+        } else {
+            t = CommonToken.fromType(this.types[rawIndex]);
         }
 
         t.setTokenIndex(rawIndex);
+
         return t;
     }
 
-
     public get(i: number): Token {
-        return new org.antlr.v4.runtime.CommonToken(this.types.get(i));
+        return CommonToken.fromType(this.types[i]);
     }
 
-
-    public getTokenSource(): TokenSource {
-        return null;
+    public get tokenSource(): TokenSource {
+        throw new Error("can't give token source");
     }
 
-
-
-    public getText(): string;
-
-
-
-    public getText(interval: Interval): string;
-
-
-
-    public getText(ctx: RuleContext): string;
-
-
-
-    public getText(start: Token, stop: Token): string;
-    public getText(...args: unknown[]): string {
-        switch (args.length) {
-            case 0: {
-
-                throw new UnsupportedOperationException("can't give strings");
-
-
-                break;
-            }
-
-            case 1: {
-                const [interval] = args as [Interval];
-
-
-                throw new UnsupportedOperationException("can't give strings");
-
-
-                break;
-            }
-
-            case 1: {
-                const [ctx] = args as [RuleContext];
-
-
-                throw new UnsupportedOperationException("can't give strings");
-
-
-                break;
-            }
-
-            case 2: {
-                const [start, stop] = args as [Token, Token];
-
-
-                throw new UnsupportedOperationException("can't give strings");
-
-
-                break;
-            }
-
-            default: {
-                throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-            }
-        }
+    public getText(): string {
+        throw new Error("can't give strings");
     }
 
+    public getTextFromInterval(interval: Interval): string {
+        throw new Error("can't give strings");
+    }
+
+    public getTextFromContext(ctx: ParserRuleContext): string {
+        throw new Error("can't give strings");
+    }
+
+    public getTextFromRange(start: Token, stop: Token): string {
+        throw new Error("can't give strings");
+    }
 }

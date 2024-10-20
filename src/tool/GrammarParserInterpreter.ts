@@ -245,7 +245,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
         // Create a new parser interpreter to parse the ambiguous sub phrase
         const parser = GrammarParserInterpreter.deriveTempParserInterpreter(g, originalParser, tokens);
 
-        const decisionState = originalParser.atn.decisionToState[decision];
+        const decisionState = originalParser.#atn.decisionToState[decision];
 
         for (let alt = 1; alt <= decisionState.transitions.length; alt++) {
             // re-parse entire input for all ambiguous alternatives
@@ -294,7 +294,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
         if (originalParser instanceof ParserInterpreter) {
             try {
                 const ctor = originalParser.constructor as Constructor<ParserInterpreter>;
-                parser = new ctor(g, originalParser.atn, originalParser.tokenStream);
+                parser = new ctor(g, originalParser.#atn, originalParser.tokenStream);
             } catch (e) {
                 if (e instanceof Error) {
                     throw new Error("can't create parser to match incoming " + originalParser.constructor.name, e);
@@ -304,7 +304,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
             }
         } else { // must've been a generated parser
             parser = new ParserInterpreter(originalParser.grammarFileName, originalParser.vocabulary,
-                originalParser.ruleNames, originalParser.atn, tokens);
+                originalParser.ruleNames, originalParser.#atn, tokens);
         }
 
         parser.inputStream = tokens;
@@ -327,10 +327,10 @@ export class GrammarParserInterpreter extends ParserInterpreter {
      */
     public findOuterMostDecisionStates(): BitSet {
         const track = new BitSet();
-        const numberOfDecisions = this.atn.getNumberOfDecisions();
+        const numberOfDecisions = this.#atn.getNumberOfDecisions();
         for (let i = 0; i < numberOfDecisions; i++) {
-            const decisionState = this.atn.getDecisionState(i)!;
-            const startState = this.atn.ruleToStartState[decisionState.ruleIndex];
+            const decisionState = this.#atn.getDecisionState(i)!;
+            const startState = this.#atn.ruleToStartState[decisionState.ruleIndex];
             // Look for StarLoopEntryState that is in any left recursive rule
             if (decisionState instanceof StarLoopEntryState) {
                 const loopEntry = decisionState;
@@ -412,7 +412,7 @@ export class GrammarParserInterpreter extends ParserInterpreter {
         if (this.decisionStatesThatSetOuterAltNumInContext.get(p.stateNumber)) {
             ctx.outerAltNum = predictedAlt;
             const r = this.g.getRule(p.ruleIndex)!;
-            if (this.atn.ruleToStartState[r.index]?.isLeftRecursiveRule) {
+            if (this.#atn.ruleToStartState[r.index]?.isLeftRecursiveRule) {
                 let alts = this.stateToAltsMap[p.stateNumber];
                 const lr = this.g.getRule(p.ruleIndex)! as LeftRecursiveRule;
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
