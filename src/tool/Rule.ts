@@ -8,12 +8,13 @@
 
 import { type IComparable } from "antlr4ng";
 
+import { MurmurHash } from "../support/MurmurHash.js";
+import type { IRule } from "../types.js";
 import { Alternative } from "./Alternative.js";
-import { Attribute } from "./Attribute.js";
 import { AttributeDict } from "./AttributeDict.js";
 import { AttributeResolver } from "./AttributeResolver.js";
-import { DictType } from "./DictType.js";
 import { Grammar } from "./Grammar.js";
+import { IAttribute } from "./IAttribute.js";
 import { LabelElementPair } from "./LabelElementPair.js";
 import { LabelType } from "./LabelType.js";
 import { ActionAST } from "./ast/ActionAST.js";
@@ -21,19 +22,15 @@ import { AltAST } from "./ast/AltAST.js";
 import { GrammarAST } from "./ast/GrammarAST.js";
 import { PredAST } from "./ast/PredAST.js";
 import { RuleAST } from "./ast/RuleAST.js";
-import { MurmurHash } from "../support/MurmurHash.js";
 
-export class Rule implements AttributeResolver, IComparable {
+export class Rule implements AttributeResolver, IComparable, IRule {
+    public static readonly validLexerCommands = new Set<string>([
+        "mode", "pushMode", "type", "channel",
+        "popMode", "skip", "more"
+    ]);
 
-    /**
-     * Rule refs have a predefined set of attributes as well as
-     *  the return values and args.
-     *
-     *  These must be consistent with ActionTranslator.rulePropToModelMap, ...
-     */
-    public static readonly predefinedRulePropertiesDict = new AttributeDict(DictType.PredefinedRule);
-
-    public static readonly validLexerCommands = new Set<string>();
+    /** A discriminator to distinguish between different rule types without creating a circular dependency. */
+    public readonly ruleType: string = "Rule";
 
     public readonly name: string;
     public modifiers?: GrammarAST[];
@@ -139,7 +136,7 @@ export class Rule implements AttributeResolver, IComparable {
         }
     }
 
-    public resolveRetvalOrProperty(y: string): Attribute | null {
+    public resolveRetvalOrProperty(y: string): IAttribute | null {
         if (this.retvals) {
             const a = this.retvals.get(y);
             if (a) {
@@ -251,10 +248,10 @@ export class Rule implements AttributeResolver, IComparable {
     }
 
     /** $x Attribute: rule arguments, return values, predefined rule prop. */
-    public resolveToAttribute(x: string, node: ActionAST | null): Attribute | null;
+    public resolveToAttribute(x: string, node: ActionAST | null): IAttribute | null;
     /** $x.y Attribute: x is surrounding rule, label ref (in any alts) */
-    public resolveToAttribute(x: string, y: string, node: ActionAST | null): Attribute | null;
-    public resolveToAttribute(...args: unknown[]): Attribute | null {
+    public resolveToAttribute(x: string, y: string, node: ActionAST | null): IAttribute | null;
+    public resolveToAttribute(...args: unknown[]): IAttribute | null {
         if (args.length === 3) {
             const [x, y, _node] = args as [string, string, ActionAST | null];
 
@@ -404,24 +401,5 @@ export class Rule implements AttributeResolver, IComparable {
         }
 
         return buf + "}";
-    }
-
-    static {
-        Rule.predefinedRulePropertiesDict.add(new Attribute("parser"));
-        Rule.predefinedRulePropertiesDict.add(new Attribute("text"));
-        Rule.predefinedRulePropertiesDict.add(new Attribute("start"));
-        Rule.predefinedRulePropertiesDict.add(new Attribute("stop"));
-        Rule.predefinedRulePropertiesDict.add(new Attribute("ctx"));
-
-        // CALLS
-        Rule.validLexerCommands.add("mode");
-        Rule.validLexerCommands.add("pushMode");
-        Rule.validLexerCommands.add("type");
-        Rule.validLexerCommands.add("channel");
-
-        // ACTIONS
-        Rule.validLexerCommands.add("popMode");
-        Rule.validLexerCommands.add("skip");
-        Rule.validLexerCommands.add("more");
     }
 }

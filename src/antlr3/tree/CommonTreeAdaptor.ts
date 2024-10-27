@@ -11,7 +11,7 @@
 import { CommonToken, Token } from "antlr4ng";
 
 import { BaseTreeAdaptor } from "./BaseTreeAdaptor.js";
-import { CommonTree } from "./CommonTree.js";
+import { CommonTree } from "../../tree/CommonTree.js";
 import type { Tree } from "./Tree.js";
 
 /**
@@ -33,21 +33,21 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
      *  I could use reflection to prevent having to override this
      *  but reflection is slow.
      */
-    public override dupNode(t: Tree): Tree {
+    public override dupNode(t: CommonTree): CommonTree {
         return t.dupNode();
     }
 
-    public override create(payload: Token | null): Tree;
-    public override create(tokenType: number, text: string): Tree;
-    public override create(tokenType: number, fromToken: Token, text?: string): Tree;
-    public override create(...args: unknown[]): Tree {
+    public override create(payload: Token | null): CommonTree;
+    public override create(tokenType: number, text: string): CommonTree;
+    public override create(tokenType: number, fromToken: Token, text?: string): CommonTree;
+    public override create(...args: unknown[]): CommonTree {
         if (args.length === 1) {
             const [payload] = args as [Token | null];
 
             return new CommonTree(payload ?? undefined);
         }
 
-        return super.create.apply(this, args) as Tree;
+        return super.create.apply(this, args) as CommonTree;
     }
 
     /**
@@ -94,7 +94,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
      *  seems like this will yield start=i and stop=i-1 in a nil node.
      *  Might be useful info so I'll not force to be i..i.
      */
-    public setTokenBoundaries(t: Tree | null, startToken: Token | null, stopToken: Token | null): void {
+    public setTokenBoundaries(t: CommonTree | null, startToken: Token | null, stopToken: Token | null): void {
         if (t === null) {
             return;
         }
@@ -129,7 +129,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
         return (t as Tree).getTokenStopIndex();
     }
 
-    public override getText(t: Tree | null): string | null {
+    public override getText(t: CommonTree | null): string | null {
         if (t === null) {
             return null;
         }
@@ -137,12 +137,12 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
         return t.getText();
     }
 
-    public override getType(t: Tree | null): number {
+    public override getType(t: CommonTree | null): number {
         if (t === null) {
             return Token.INVALID_TYPE;
         }
 
-        return (t).getType();
+        return t.getType();
     }
 
     /**
@@ -150,15 +150,15 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
      *  you are not using CommonTree, then you must
      *  override this in your own adaptor.
      */
-    public getToken(t: Tree): Token | null {
-        if (t instanceof CommonTree) {
-            return t.getToken();
+    public getToken(t: CommonTree | null): Token | null {
+        if (t) {
+            return t.token ?? null;
         }
 
         return null; // no idea what to do
     }
 
-    public override getChild(t: Tree | null, i: number): Tree | null {
+    public override getChild(t: CommonTree | null, i: number): CommonTree | null {
         if (t === null) {
             return null;
         }
@@ -166,7 +166,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
         return t.getChild(i);
     }
 
-    public override getChildCount(t: Tree | null): number {
+    public override getChildCount(t: CommonTree | null): number {
         if (t === null) {
             return 0;
         }
@@ -174,7 +174,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
         return t.getChildCount();
     }
 
-    public override getParent(t: Tree | null): Tree | null {
+    public override getParent(t: CommonTree | null): CommonTree | null {
         if (t === null) {
             return null;
         }

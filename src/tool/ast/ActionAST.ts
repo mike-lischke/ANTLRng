@@ -12,6 +12,8 @@ import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
 
 export class ActionAST extends GrammarASTWithOptions {
+    public override readonly astType: string = "ActionAST";
+
     public resolver: AttributeResolver;
     public chunks: Token[];
 

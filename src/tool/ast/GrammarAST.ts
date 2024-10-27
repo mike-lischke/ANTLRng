@@ -8,18 +8,20 @@
 
 import { ATNState, CommonToken, IntervalSet, Token, type BitSet } from "antlr4ng";
 
-import { CommonTree } from "../../antlr3/tree/CommonTree.js";
-import type { Tree } from "../../antlr3/tree/Tree.js";
 import { ANTLRv4Parser } from "../../generated/ANTLRv4Parser.js";
 
 import { CommonTreeNodeStream } from "../../antlr3/tree/CommonTreeNodeStream.js";
-import { GrammarASTAdaptor } from "../../parse/GrammarASTAdaptor.js";
-import { Grammar } from "../Grammar.js";
-import { AltAST } from "./AltAST.js";
-import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
-import { RuleAST } from "./RuleAST.js";
+import { CommonTree } from "../../tree/CommonTree.js";
 
-export class GrammarAST extends CommonTree {
+import { ClassFactory } from "../../ClassFactory.js";
+import type { IGrammarAST } from "../../types.js";
+import type { Grammar } from "../Grammar.js";
+import type { AltAST } from "./AltAST.js";
+import type { GrammarASTVisitor } from "./GrammarASTVisitor.js";
+
+export class GrammarAST extends CommonTree implements IGrammarAST {
+    /** A discriminator to distinguish between different grammar AST types without creating a circular dependency. */
+    public readonly astType: string = "GrammarAST";
 
     /** For error msgs, nice to know which grammar this AST lives in */
     // TODO: try to remove
@@ -63,7 +65,7 @@ export class GrammarAST extends CommonTree {
     }
 
     public getChildrenAsArray(): GrammarAST[] {
-        return this.children as GrammarAST[];
+        return this.getChildren() as GrammarAST[];
     }
 
     public getNodesWithType(typeOrTypes: number | IntervalSet | null): GrammarAST[] {
@@ -81,7 +83,7 @@ export class GrammarAST extends CommonTree {
                 nodes.push(t);
             }
 
-            if (t.children.length > 0) {
+            if (t.getChildren().length > 0) {
                 work.push(...t.getChildrenAsArray());
             }
         }
@@ -90,7 +92,7 @@ export class GrammarAST extends CommonTree {
     }
 
     public getAllChildrenWithType(type: number): GrammarAST[] {
-        return this.children.filter((t) => {
+        return this.getChildren().filter((t) => {
             return t.getType() === type;
         }) as GrammarAST[];
     }
@@ -107,7 +109,7 @@ export class GrammarAST extends CommonTree {
             return this;
         }
 
-        for (const child of this.children) {
+        for (const child of this.getChildren()) {
             const result = (child as GrammarAST).getNodeWithTokenIndex(index);
             if (result !== null) {
                 return result;
@@ -117,7 +119,7 @@ export class GrammarAST extends CommonTree {
         return null;
     }
 
-    public getOutermostAltNode(): AltAST | null {
+    /*public getOutermostAltNode(): AltAST | null {
         if (this instanceof AltAST && this.parent?.parent instanceof RuleAST) {
             return this as AltAST;
         }
@@ -127,7 +129,7 @@ export class GrammarAST extends CommonTree {
         }
 
         return null;
-    }
+    }*/
 
     /**
      * Walk ancestors of this node until we find ALT with
@@ -157,14 +159,14 @@ export class GrammarAST extends CommonTree {
         return null;
     }
 
-    public override deleteChild(i: number): Tree | null;
-    public override deleteChild(t: Tree): boolean;
-    public override deleteChild(param: number | Tree): Tree | null | boolean {
+    public override deleteChild(i: number): CommonTree | null;
+    public override deleteChild(t: CommonTree): boolean;
+    public override deleteChild(param: number | CommonTree): CommonTree | null | boolean {
         if (typeof param === "number") {
             return super.deleteChild(param);
         }
 
-        for (const c of this.children) {
+        for (const c of this.getChildren()) {
             if (c === param) {
                 super.deleteChild(param.getChildIndex());
 
@@ -185,7 +187,7 @@ export class GrammarAST extends CommonTree {
                 return this;
             }
 
-            for (const c of this.children) {
+            for (const c of this.getChildren()) {
                 const t = c as GrammarAST;
                 if (t.token?.type === typeOrTypes) {
                     return t;
@@ -205,7 +207,7 @@ export class GrammarAST extends CommonTree {
             return this;
         }
 
-        for (const c of this.children) {
+        for (const c of this.getChildren()) {
             const t = c as GrammarAST;
             if (t.token && typeOrTypes.get(t.token.type)) {
                 return t;
@@ -238,21 +240,21 @@ export class GrammarAST extends CommonTree {
 
     public dupTree(): GrammarAST {
         const input = this.token!.inputStream;
-        const adaptor = new GrammarASTAdaptor(input ?? undefined);
+        const adaptor = ClassFactory.createGrammarASTAdaptor(input ?? undefined);
 
         return adaptor.dupTree(this) as GrammarAST;
     }
 
     public toTokenString(): string {
         const input = this.token!.inputStream;
-        const adaptor = new GrammarASTAdaptor(input ?? undefined);
+        const adaptor = ClassFactory.createGrammarASTAdaptor(input ?? undefined);
         const nodes = new CommonTreeNodeStream(adaptor, this);
 
         let buf = "";
         let o = nodes.LT(1) as GrammarAST;
         let type = adaptor.getType(o);
         while (type !== Token.EOF) {
-            buf += " " + o.getText()!;
+            buf += " " + o.getText();
             nodes.consume();
             o = nodes.LT(1) as GrammarAST;
             type = adaptor.getType(o);
@@ -272,7 +274,7 @@ export class GrammarAST extends CommonTree {
         }
 
         // walk all children of root.
-        this.children.forEach((child: GrammarAST) => {
+        this.getChildren().forEach((child: GrammarAST) => {
             child.doGetNodesWithTypePreorderDFS(nodes, types);
         });
     }

@@ -7,8 +7,8 @@
 // cspell: disable
 
 import type { IntStream, TokenStream } from "antlr4ng";
+import type { CommonTree } from "../../tree/CommonTree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
-import type { Tree } from "./Tree.js";
 
 /** A stream of tree nodes, accessing nodes from a tree of some kind */
 export interface TreeNodeStream extends IntStream {
@@ -17,7 +17,7 @@ export interface TreeNodeStream extends IntStream {
      *  If you don't want to buffer up nodes, then this method makes no
      *  sense for you.
      */
-    get(i: number): Tree;
+    get(i: number): CommonTree;
 
     /**
      * Get tree node at current input pointer + {@code k} ahead where
@@ -32,7 +32,7 @@ export interface TreeNodeStream extends IntStream {
      * parser and tree grammars.</p>
      */
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    LT(k: number): Tree | null;
+    LT(k: number): CommonTree | null;
 
     /**
      * Where is this stream pulling nodes from?  This is not the name, but

@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { Attribute } from "../../../tool/Attribute.js";
+import type { IAttribute } from "../../../tool/IAttribute.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { Decl } from "./Decl.js";
 
@@ -13,7 +13,7 @@ export class AttributeDecl extends Decl {
 
     public initValue?: string;
 
-    public constructor(factory: OutputModelFactory, a: Attribute) {
+    public constructor(factory: OutputModelFactory, a: IAttribute) {
         super(factory, a.name!, a.decl);
         this.type = a.type!;
         this.initValue = a.initValue;

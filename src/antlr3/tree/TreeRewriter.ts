@@ -8,16 +8,16 @@
 
 import { RecognitionException, type TokenStream } from "antlr4ng";
 
-import { RecognizerSharedState } from "../RecognizerSharedState.js";
+import { createRecognizerSharedState, IRecognizerSharedState } from "../IRecognizerSharedState.js";
 import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
 import { CommonTreeNodeStream } from "./CommonTreeNodeStream.js";
 import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import type { TreeNodeStream } from "./TreeNodeStream.js";
 import { TreeParser } from "./TreeParser.js";
+import type { TreeRuleReturnScope } from "./TreeRuleReturnScope.js";
 import { TreeVisitor } from "./TreeVisitor.js";
 import type { TreeVisitorAction } from "./TreeVisitorAction.js";
-import type { TreeRuleReturnScope } from "./TreeRuleReturnScope.js";
 
 // cspell: disable
 
@@ -35,19 +35,19 @@ export class TreeRewriter extends TreeParser {
     private topdown_fptr = new class implements Fptr {
         public constructor(private $outer: TreeRewriter) { }
         public rule(): unknown {
-            return this.$outer.topdown(); 
+            return this.$outer.topdown();
         }
     }(this);
 
     private bottomup_ftpr = new class implements Fptr {
         public constructor(private $outer: TreeRewriter) { }
         public rule(): unknown {
-            return this.$outer.bottomup(); 
+            return this.$outer.bottomup();
         }
     }(this);
 
-    public constructor(input: TreeNodeStream, state?: RecognizerSharedState) {
-        state ??= new RecognizerSharedState();
+    public constructor(input: TreeNodeStream, state?: IRecognizerSharedState) {
+        state ??= createRecognizerSharedState();
         super(input, state);
         this.originalAdaptor = input.getTreeAdaptor();
         this.originalTokenStream = input.getTokenStream();
@@ -60,7 +60,7 @@ export class TreeRewriter extends TreeParser {
 
         try {
             // share TreeParser object but not parsing-related state
-            this.state = new RecognizerSharedState();
+            this.state = createRecognizerSharedState();
             this.input = new CommonTreeNodeStream(this.originalAdaptor, t);
             (this.input as CommonTreeNodeStream).setTokenStream(this.originalTokenStream);
             this.setBacktrackingLevel(1);
@@ -82,7 +82,7 @@ export class TreeRewriter extends TreeParser {
             }
         } catch (e) {
             if (e instanceof RecognitionException) {
-                ; 
+                ;
             } else {
                 throw e;
             }
@@ -109,10 +109,10 @@ export class TreeRewriter extends TreeParser {
         const actions = new class implements TreeVisitorAction<Tree> {
             public constructor(private $outer: TreeRewriter) { }
             public pre(t: Tree): Tree | null {
-                return this.$outer.applyOnce(t, this.$outer.topdown_fptr); 
+                return this.$outer.applyOnce(t, this.$outer.topdown_fptr);
             }
             public post(t: Tree): Tree | null {
-                return this.$outer.applyRepeatedly(t, this.$outer.bottomup_ftpr); 
+                return this.$outer.applyRepeatedly(t, this.$outer.bottomup_ftpr);
             }
         }(this);
         t = v.visit(t, actions);
@@ -132,9 +132,9 @@ export class TreeRewriter extends TreeParser {
     // to override, just define tree grammar rule topdown and turn on
     // filter=true.
     public topdown(): Tree | null {
-        return null; 
+        return null;
     }
     public bottomup(): Tree | null {
-        return null; 
+        return null;
     }
 }

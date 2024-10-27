@@ -6,12 +6,15 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
-import { ATNSerializer, CharStream, CommonTokenStream } from "antlr4ng";
+import { ATNSerializer, CharStream, CommonTokenStream, type ParserRuleContext, type TokenStream } from "antlr4ng";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import path, { basename } from "path";
 
-import { ANTLRv4Parser } from "./generated/ANTLRv4Parser.js";
+import {
+    ANTLRv4Parser, GrammarSpecContext, type IdentifierContext, type OptionContext, type RuleSpecContext
+} from "./generated/ANTLRv4Parser.js";
 
+import { ClassFactory } from "./ClassFactory.js";
 import { UndefChecker } from "./UndefChecker.js";
 import { AnalysisPipeline } from "./analysis/AnalysisPipeline.js";
 import { IATNFactory } from "./automata/IATNFactory.js";
@@ -25,25 +28,20 @@ import { GrammarASTAdaptor } from "./parse/GrammarASTAdaptor.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";
 import { SemanticPipeline } from "./semantics/SemanticPipeline.js";
-import { GrammarType } from "./support/GrammarType.js";
 import { LogManager } from "./support/LogManager.js";
-import { ANTLRMessage } from "./tool/ANTLRMessage.js";
-import { ANTLRToolListener } from "./tool/ANTLRToolListener.js";
 import { BuildDependencyGenerator } from "./tool/BuildDependencyGenerator.js";
 import { DOTGenerator } from "./tool/DOTGenerator.js";
-import { DefaultToolListener } from "./tool/DefaultToolListener.js";
 import { ErrorManager } from "./tool/ErrorManager.js";
 import { ErrorType } from "./tool/ErrorType.js";
-import { Grammar } from "./tool/Grammar.js";
+import type { Grammar } from "./tool/Grammar.js";
 import { GrammarTransformPipeline } from "./tool/GrammarTransformPipeline.js";
-import { LexerGrammar } from "./tool/LexerGrammar.js";
+import type { LexerGrammar } from "./tool/LexerGrammar.js";
 import { Rule } from "./tool/Rule.js";
 import { GrammarAST } from "./tool/ast/GrammarAST.js";
-import { GrammarASTErrorNode } from "./tool/ast/GrammarASTErrorNode.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
-import { RuleAST } from "./tool/ast/RuleAST.js";
+import type { IGrammar, ITool } from "./types.js";
 
-export class Tool {
+export class Tool implements ITool {
     public static readonly GRAMMAR_EXTENSION = ".g4";
     public static readonly LEGACY_GRAMMAR_EXTENSION = ".g";
 
@@ -53,7 +51,6 @@ export class Tool {
 
     public readonly args: string[];
 
-    public errMgr: ErrorManager;
     public logMgr = new LogManager();
 
     // helper vars for option management
@@ -61,24 +58,10 @@ export class Tool {
 
     protected grammarFiles = new Array<string>();
 
-    protected listeners = new Array<ANTLRToolListener>();
-
-    /**
-     * Track separately so if someone adds a listener, it's the only one
-     * instead of it and the default stderr listener.
-     */
-    protected defaultListener = new DefaultToolListener(this);
-
     private readonly importedGrammars = new Map<string, Grammar>();
 
     public constructor(args?: string[]) {
         this.args = args ?? [];
-        this.errMgr = new ErrorManager(this);
-
-        const format = grammarOptions.msgFormat;
-        if (format) {
-            this.errMgr.setFormat(format);
-        }
     }
 
     public static main(args: string[]): void {
@@ -91,27 +74,12 @@ export class Tool {
                     const logName = antlr.logMgr.save();
                     console.log("wrote " + logName);
                 } catch (ioe) {
-                    antlr.errMgr.toolError(ErrorType.INTERNAL_ERROR, ioe);
+                    ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, ioe);
                 }
             }
         }
 
         antlr.exit(0);
-    }
-
-    /** Manually get option node from tree; return null if not defined. */
-    public static findOptionValueAST(root: GrammarRootAST, option: string): GrammarAST | null {
-        const options = root.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
-        if (options !== null && options.getChildCount() > 0) {
-            for (const o of options.getChildren()) {
-                const c = o as GrammarAST;
-                if (c.getType() === ANTLRv4Parser.ASSIGN && c.getChild(0)?.getText() === option) {
-                    return c.getChild(1) as GrammarAST;
-                }
-            }
-        }
-
-        return null;
     }
 
     public static generateInterpreterData(g: Grammar): string {
@@ -146,17 +114,32 @@ export class Tool {
         return content.toString();
     }
 
+    /** Manually get option node from tree; return null if not defined. */
+    private static findOptionValueAST(root: GrammarRootAST, option: string): GrammarAST | null {
+        const options = root.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options !== null && options.getChildCount() > 0) {
+            for (const o of options.getChildren()) {
+                const c = o as GrammarAST;
+                if (c.getType() === ANTLRv4Parser.ASSIGN && c.getChild(0)?.getText() === option) {
+                    return c.getChild(1) as GrammarAST;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public processGrammarsOnCommandLine(): void {
         const sortedGrammars = this.sortGrammarByTokenVocab(this.grammarFiles);
 
         for (const t of sortedGrammars) {
             const g = this.createGrammar(t);
-            g.fileName = t.fileName;
+            // TODO: g.fileName = t.fileName;
             if (grammarOptions.generateDependencies) {
                 const dep = new BuildDependencyGenerator(this, g);
                 console.log(dep.getDependencies().render());
             } else {
-                if (this.errMgr.getNumErrors() === 0) {
+                if (ErrorManager.get().errors === 0) {
                     this.process(g, true);
                 }
             }
@@ -177,11 +160,11 @@ export class Tool {
         transform.process();
 
         let lexerGrammar: LexerGrammar;
-        let lexerAST: GrammarRootAST | null;
-        if (g.ast !== null && g.ast.grammarType === GrammarType.Combined && !g.ast.hasErrors) {
-            lexerAST = transform.extractImplicitLexer(g); // alters g.ast
-            if (lexerAST !== null) {
-                lexerGrammar = new LexerGrammar(this, lexerAST);
+        let lexerContext: GrammarSpecContext | undefined;
+        if (g.parseTree?.grammarDecl().grammarType().GRAMMAR()) {
+            lexerContext = transform.extractImplicitLexer(g); // alters g.ast
+            if (lexerContext) {
+                lexerGrammar = ClassFactory.createLexerGrammar(this, lexerContext);
                 lexerGrammar.fileName = g.fileName;
                 lexerGrammar.originalGrammar = g;
                 g.implicitLexer = lexerGrammar;
@@ -196,7 +179,7 @@ export class Tool {
     }
 
     public processNonCombinedGrammar(g: Grammar, genCode: boolean): void {
-        if (g.ast === null || g.ast.hasErrors) {
+        if (!g.parseTree) {
             return;
         }
 
@@ -205,13 +188,13 @@ export class Tool {
             return;
         }
 
-        const prevErrors = this.errMgr.getNumErrors();
+        const prevErrors = ErrorManager.get().errors;
 
         // MAKE SURE GRAMMAR IS SEMANTICALLY CORRECT (FILL IN GRAMMAR OBJECT)
         const sem = new SemanticPipeline(g);
         sem.process();
 
-        if (this.errMgr.getNumErrors() > prevErrors) {
+        if (ErrorManager.get().errors > prevErrors) {
             return;
         }
 
@@ -236,7 +219,7 @@ export class Tool {
                 const fileName = this.getOutputFile(g, g.name + ".interp");
                 writeFileSync(fileName, interpFile);
             } catch (ioe) {
-                this.errMgr.toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
+                ErrorManager.get().toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
             }
         }
 
@@ -264,57 +247,74 @@ export class Tool {
      */
     public checkForRuleIssues(g: Grammar): boolean {
         // check for redefined rules
-        const rules: GrammarAST[] = [];
-        for (const mode of g.ast!.getAllChildrenWithType(ANTLRv4Parser.MODE)) {
-            rules.push(...mode.getAllChildrenWithType(ANTLRv4Parser.RULE_REF));
-        }
+        const rules: ParserRuleContext[] = [];
+        g.parseTree!.rules().ruleSpec().forEach((ruleSpec: RuleSpecContext) => {
+            if (ruleSpec.parserRuleSpec()) {
+                rules.push(ruleSpec.parserRuleSpec()!);
+            } else if (ruleSpec.lexerRuleSpec()) {
+                rules.push(ruleSpec.lexerRuleSpec()!);
+            }
+        });
+        g.parseTree!.modeSpec().forEach((modeSpec) => {
+            modeSpec.lexerRuleSpec().forEach((lexerRuleSpec) => {
+                rules.push(lexerRuleSpec);
+            });
+        });
 
         let redefinition = false;
-        const ruleToAST = new Map<string, RuleAST>();
-        for (const r of rules) {
-            const ruleAST = r as RuleAST;
-            const id = ruleAST.getChild(0) as GrammarAST;
-            const ruleName = id.getText()!;
-            const prev = ruleToAST.get(ruleName);
+        const ruleToContext = new Map<string, ParserRuleContext>();
+        for (const rule of rules) {
+            const id = rule.getChild(0) as GrammarAST;
+            const ruleName = id.getText();
+            const prev = ruleToContext.get(ruleName);
             if (prev) {
                 const prevChild = prev.getChild(0) as GrammarAST;
-                g.tool.errMgr.grammarError(ErrorType.RULE_REDEFINITION, g.fileName, id.getToken(), ruleName,
-                    prevChild.getToken()!.line);
+                ErrorManager.get().grammarError(ErrorType.RULE_REDEFINITION, g.fileName, id.token!, ruleName,
+                    prevChild.token!.line);
                 redefinition = true;
                 continue;
             }
-            ruleToAST.set(ruleName, ruleAST);
+            ruleToContext.set(ruleName, rule);
         }
 
         const chk = new UndefChecker(g.isLexer());
-        chk.visitGrammar(g.ast!);
+        chk.visitGrammar(g.parseTree!);
 
         return redefinition; // || chk.badRef;
     }
 
-    public sortGrammarByTokenVocab(fileNames: string[]): GrammarRootAST[] {
+    public sortGrammarByTokenVocab(fileNames: string[]): GrammarSpecContext[] {
         const g = new Graph();
-        const roots = new Array<GrammarRootAST>();
+        const roots = new Array<GrammarSpecContext>();
         for (const fileName of fileNames) {
             const t = this.parseGrammar(fileName);
-            if (t === null || t instanceof GrammarASTErrorNode) {
-                continue;
-            }
-            // came back as error node
-            if ((t).hasErrors) {
+            if (!t) {
                 continue;
             }
 
-            const root = t;
+            const root = t[0];
             roots.push(root);
-            root.fileName = fileName;
-            const grammarName = root.getChild(0)!.getText()!;
+            // TODO: root.fileName = fileName;
+            const grammarName = root.grammarDecl().identifier().getText();
 
-            const tokenVocabNode = Tool.findOptionValueAST(root, "tokenVocab");
+            // Look for tokenVocab option in the grammar
+            let tokenVocabNode: OptionContext | undefined;
+            const prequels = root.prequelConstruct();
+            prequels.forEach((prequel) => {
+                if (prequel.optionsSpec()) {
+                    const options = prequel.optionsSpec()!.option();
+                    for (const option of options) {
+                        if (option.identifier().getText() === "tokenVocab") {
+                            tokenVocabNode = option;
+                            break;
+                        }
+                    }
+                }
+            });
 
             // Make grammars depend on any tokenVocab options.
             if (tokenVocabNode) {
-                let vocabName = tokenVocabNode.getText()!;
+                let vocabName = tokenVocabNode.optionValue().getText();
 
                 // Strip quote characters if any.
                 const len = vocabName.length;
@@ -338,12 +338,11 @@ export class Tool {
         }
 
         const sortedGrammarNames = g.sort();
-        //		System.out.println("sortedGrammarNames="+sortedGrammarNames);
 
-        const sortedRoots = new Array<GrammarRootAST>();
+        const sortedRoots = new Array<GrammarSpecContext>();
         for (const grammarName of sortedGrammarNames) {
             for (const root of roots) {
-                if (root.getGrammarName() === grammarName) {
+                if (root.grammarDecl().identifier().getText() === grammarName) {
                     sortedRoots.push(root);
                     break;
                 }
@@ -360,21 +359,21 @@ export class Tool {
         use it for error handling and generally knowing from where a rule
         comes from.
      */
-    public createGrammar(ast: GrammarRootAST): Grammar {
-        let g: Grammar;
-        if (ast.grammarType === GrammarType.Lexer) {
-            g = new LexerGrammar(this, ast);
+    public createGrammar(context: GrammarSpecContext): IGrammar {
+        let g: IGrammar;
+        if (context.grammarDecl().grammarType().LEXER() !== null) {
+            g = ClassFactory.createLexerGrammar(this, context);
         } else {
-            g = new Grammar(this, ast);
+            g = ClassFactory.createGrammar(this, context);
         }
 
         // ensure each node has pointer to surrounding grammar
-        GrammarTransformPipeline.setGrammarPtr(g, ast);
+        // TODO: GrammarTransformPipeline.setGrammarPtr(g, context);
 
         return g;
     }
 
-    public parseGrammar(fileName: string): GrammarRootAST | null {
+    public parseGrammar(fileName: string): [GrammarSpecContext, TokenStream] | undefined {
         try {
             const fullPath = path.join(this.inputDirectory, fileName);
             const content = readFileSync(fullPath, { encoding: grammarOptions.grammarEncoding as BufferEncoding });
@@ -382,7 +381,7 @@ export class Tool {
 
             return this.parse(fileName, input);
         } catch (ioe) {
-            this.errMgr.toolError(ErrorType.CANNOT_OPEN_FILE, ioe, fileName);
+            ErrorManager.get().toolError(ErrorType.CANNOT_OPEN_FILE, ioe, fileName);
             throw ioe;
         }
     }
@@ -394,8 +393,8 @@ export class Tool {
      *  getImplicitLexer() on returned grammar.
      */
     public loadGrammar(fileName: string): Grammar {
-        const grammarRootAST = this.parseGrammar(fileName)!;
-        const g = this.createGrammar(grammarRootAST);
+        const [grammarSpecContext] = this.parseGrammar(fileName)!;
+        const g = this.createGrammar(grammarSpecContext);
         g.fileName = fileName;
         this.process(g, false);
 
@@ -408,8 +407,8 @@ export class Tool {
      * @param g The grammar to import.
      * @param nameNode The node associated with the imported grammar name.
      */
-    public loadImportedGrammar(g: Grammar, nameNode: GrammarAST): Grammar | null {
-        const name = nameNode.getText()!;
+    public loadImportedGrammar(g: Grammar, nameNode: IdentifierContext): Grammar | null {
+        const name = nameNode.getText();
         let imported = this.importedGrammars.get(name);
         if (!imported) {
             g.tool.logInfo({ component: "grammar", msg: `load ${name} from ${g.fileName}` });
@@ -423,7 +422,8 @@ export class Tool {
             }
 
             if (!importedFile) {
-                this.errMgr.grammarError(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR, g.fileName, nameNode.getToken(), name);
+                ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR, g.fileName, nameNode.start,
+                    name);
 
                 return null;
             }
@@ -431,24 +431,24 @@ export class Tool {
             const grammarEncoding = grammarOptions.grammarEncoding as BufferEncoding;
             const content = readFileSync(importedFile, { encoding: grammarEncoding });
             const input = CharStream.fromString(content.toString());
-            const root = this.parse(g.fileName, input);
-            if (root === null) {
+            const result = this.parse(g.fileName, input);
+            if (!result) {
                 return null;
             }
 
-            imported = this.createGrammar(root);
+            imported = this.createGrammar(result[0]);
             imported.fileName = importedFile;
-            this.importedGrammars.set(root.getGrammarName()!, imported);
+            this.importedGrammars.set(result[0].grammarDecl().identifier().getText(), imported);
         }
 
         return imported;
     }
 
-    public parseGrammarFromString(grammar: string): GrammarRootAST | null {
+    public parseGrammarFromString(grammar: string): [GrammarSpecContext, TokenStream] | undefined {
         return this.parse("<string>", CharStream.fromString(grammar));
     }
 
-    public parse(fileName: string, input: CharStream): GrammarRootAST | null {
+    public parse(fileName: string, input: CharStream): [GrammarSpecContext, TokenStream] | undefined {
         const adaptor = new GrammarASTAdaptor(input);
         const lexer = new ToolANTLRLexer(input, this);
         const tokens = new CommonTokenStream(lexer);
@@ -457,13 +457,8 @@ export class Tool {
         //p.setTreeAdaptor(adaptor);
 
         const root = p.grammarSpec();
-        if (root instanceof GrammarRootAST) {
-            root.hasErrors = p.numberOfSyntaxErrors > 0;
 
-            return (root);
-        }
-
-        return null;
+        return p.numberOfSyntaxErrors > 0 ? undefined : [root, tokens];
     }
 
     public generateATNs(g: Grammar): void {
@@ -479,7 +474,7 @@ export class Tool {
                     const dot = dotGenerator.getDOTFromState(g.atn.ruleToStartState[r.index]!, g.isLexer());
                     this.writeDOTFile(g, r, dot);
                 } catch (ioe) {
-                    this.errMgr.toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
+                    ErrorManager.get().toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
                     throw ioe;
                 }
             }
@@ -562,64 +557,7 @@ export class Tool {
     }
 
     public getNumErrors(): number {
-        return this.errMgr.getNumErrors();
-    }
-
-    public addListener(tl: ANTLRToolListener): void {
-        this.listeners.push(tl);
-    }
-
-    public removeListener(tl: ANTLRToolListener): void {
-        const index = this.listeners.indexOf(tl);
-        if (index >= 0) {
-            this.listeners.splice(index, 1);
-        }
-    }
-
-    public removeListeners(): void {
-        this.listeners = [];
-    }
-
-    public getListeners(): ANTLRToolListener[] {
-        return this.listeners;
-    }
-
-    public info(msg: string): void {
-        if (this.listeners.length === 0) {
-            this.defaultListener.info(msg);
-
-            return;
-        }
-
-        for (const l of this.listeners) {
-            l.info(msg);
-        }
-    }
-
-    public error(msg: ANTLRMessage): void {
-        if (this.listeners.length === 0) {
-            this.defaultListener.error(msg);
-
-            return;
-        }
-
-        for (const l of this.listeners) {
-            l.error(msg);
-        }
-    }
-
-    public warning(msg: ANTLRMessage): void {
-        if (this.listeners.length === 0) {
-            this.defaultListener.warning(msg);
-        } else {
-            for (const l of this.listeners) {
-                l.warning(msg);
-            }
-        }
-
-        if (grammarOptions.warningsAreErrors) {
-            this.errMgr.emit(ErrorType.WARNING_TREATED_AS_ERROR, new ANTLRMessage(ErrorType.WARNING_TREATED_AS_ERROR));
-        }
+        return ErrorManager.get().errors;
     }
 
     public exit(e: number): void {
@@ -627,12 +565,18 @@ export class Tool {
     }
 
     public panic(): void {
-        throw new Error("ANTLR panic"); 
+        throw new Error("ANTLR panic");
     }
 
     protected writeDOTFile(g: Grammar, rulOrName: Rule | string, dot: string): void {
         const name = rulOrName instanceof Rule ? rulOrName.g.name + "." + rulOrName.name : rulOrName;
         const fileName = this.getOutputFile(g, name + ".dot");
         writeFileSync(fileName, dot);
+    }
+
+    static {
+        ClassFactory.createTool = () => {
+            return new Tool();
+        };
     }
 }

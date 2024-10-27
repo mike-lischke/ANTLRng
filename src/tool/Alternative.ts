@@ -6,7 +6,8 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
-import type { Attribute } from "./Attribute.js";
+import type { IAlternative } from "../types.js";
+import type { IAttribute } from "./IAttribute.js";
 import { AttributeResolver } from "./AttributeResolver.js";
 import { LabelElementPair } from "./LabelElementPair.js";
 import { LabelType } from "./LabelType.js";
@@ -17,7 +18,7 @@ import { GrammarAST } from "./ast/GrammarAST.js";
 import { TerminalAST } from "./ast/TerminalAST.js";
 
 /** An outermost alternative for a rule.  We don't track inner alternatives. */
-export class Alternative implements AttributeResolver {
+export class Alternative implements AttributeResolver, IAlternative {
     public rule: Rule;
 
     public ast: AltAST;
@@ -90,13 +91,13 @@ export class Alternative implements AttributeResolver {
     /**
        $x Attribute: rule arguments, return values, predefined rule prop.
      */
-    public resolveToAttribute(x: string, node: ActionAST): Attribute | null;
+    public resolveToAttribute(x: string, node: ActionAST): IAttribute | null;
     /**
      * $x.y, x can be surrounding rule, token/rule/label ref. y is visible
      *  attr in that dictionary.  Can't see args on rule refs.
      */
-    public resolveToAttribute(x: string, y: string, node: ActionAST): Attribute | null;
-    public resolveToAttribute(...args: unknown[]): Attribute | null {
+    public resolveToAttribute(x: string, y: string, node: ActionAST): IAttribute | null;
+    public resolveToAttribute(...args: unknown[]): IAttribute | null {
         if (args.length === 2) {
             const [x, node] = args as [string, ActionAST];
 

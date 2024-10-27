@@ -9,46 +9,45 @@
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, DFA, Interval, IntervalSet, LexerInterpreter, ParserInterpreter,
     SemanticContext, Token, TokenStream, Vocabulary,
+    type ParserRuleContext,
 } from "antlr4ng";
 
-import type { Tree } from "../antlr3/tree/Tree.js";
+import { ANTLRv4Parser, type DelegateGrammarContext, type GrammarSpecContext } from "..//generated/ANTLRv4Parser.js";
 import { TreeVisitor } from "../antlr3/tree/TreeVisitor.js";
 import { TreeWizard } from "../antlr3/tree/TreeWizard.js";
-import { ANTLRv4Parser } from "..//generated/ANTLRv4Parser.js";
+
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
 
-import { Tool } from "../Tool.js";
-import { LeftRecursiveRuleTransformer } from "../analysis/LeftRecursiveRuleTransformer.js";
-import { ParserATNFactory } from "../automata/ParserATNFactory.js";
+import { ClassFactory } from "../ClassFactory.js";
+
+import { targetLanguages, type SupportedLanguage } from "../codegen/CodeGenerator.js";
+import { Constants } from "../constants.js";
+
 import { CharSupport } from "../misc/CharSupport.js";
 import { Utils } from "../misc/Utils.js";
-import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
+
 import { TokenVocabParser } from "../parse/TokenVocabParser.js";
-import { Character } from "../support/Character.js";
+import { GrammarType } from "../support/GrammarType.js";
+import type { IGrammar, ITool } from "../types.js";
+
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
-import type { Attribute } from "./Attribute.js";
-import { AttributeDict } from "./AttributeDict.js";
-import { AttributeResolver } from "./AttributeResolver.js";
-import type { ErrorManager } from "./ErrorManager.js";
+import type { AttributeDict } from "./AttributeDict.js";
+import type { AttributeResolver } from "./AttributeResolver.js";
+import { ErrorManager } from "./ErrorManager.js";
 import { ErrorType } from "./ErrorType.js";
-import { GrammarParserInterpreter } from "./GrammarParserInterpreter.js";
-import { LeftRecursiveRule } from "./LeftRecursiveRule.js";
-import { LexerGrammar } from "./LexerGrammar.js";
-import { Rule } from "./Rule.js";
-import { ActionAST } from "./ast/ActionAST.js";
-import { GrammarAST } from "./ast/GrammarAST.js";
-import { GrammarASTWithOptions } from "./ast/GrammarASTWithOptions.js";
-import { GrammarRootAST } from "./ast/GrammarRootAST.js";
-import { PredAST } from "./ast/PredAST.js";
-import { RuleAST } from "./ast/RuleAST.js";
-import { TerminalAST } from "./ast/TerminalAST.js";
-import { GrammarType } from "../support/GrammarType.js";
-import { targetLanguages, type SupportedLanguage } from "../codegen/CodeGenerator.js";
+import type { GrammarParserInterpreter } from "./GrammarParserInterpreter.js";
+import type { IAttribute } from "./IAttribute.js";
+import type { LexerGrammar } from "./LexerGrammar.js";
+import type { Rule } from "./Rule.js";
+import type { ActionAST } from "./ast/ActionAST.js";
+import type { GrammarAST } from "./ast/GrammarAST.js";
+import type { GrammarASTWithOptions } from "./ast/GrammarASTWithOptions.js";
+import type { GrammarRootAST } from "./ast/GrammarRootAST.js";
+import type { PredAST } from "./ast/PredAST.js";
+import type { TerminalAST } from "./ast/TerminalAST.js";
 
-export class Grammar implements AttributeResolver {
-    public static readonly GRAMMAR_FROM_STRING_NAME = "<string>";
-
+export class Grammar implements IGrammar, AttributeResolver {
     /**
      * This value is used in the following situations to indicate that a token
      * type does not have an associated name which can be directly referenced in
@@ -78,8 +77,8 @@ export class Grammar implements AttributeResolver {
 
     public static readonly lexerRuleOptions = new Set<string>([
         Grammar.caseInsensitiveOptionName,
-        LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME,
-        LeftRecursiveRuleTransformer.TOKENINDEX_OPTION_NAME,
+        Constants.PRECEDENCE_OPTION_NAME,
+        Constants.TOKENINDEX_OPTION_NAME,
     ]);
 
     public static readonly parseRuleOptions = new Set<string>();
@@ -104,20 +103,21 @@ export class Grammar implements AttributeResolver {
 
     public static readonly AUTO_GENERATED_TOKEN_NAME_PREFIX = "T__";
 
+    public readonly grammarType: string = "grammar";
+
     public name: string;
-    public ast: GrammarRootAST | null;
+    public parseTree?: GrammarSpecContext;
 
     /** Track token stream used to create this grammar */
-
     public readonly tokenStream: TokenStream;
 
     /**
      * If we transform grammar, track original unaltered token stream.
-     *  This is set to the same value as tokenStream when tokenStream is
-     *  initially set.
+     * This is set to the same value as tokenStream when tokenStream is
+     * initially set.
      *
-     *  If this field differs from tokenStream, then we have transformed
-     *  the grammar.
+     * If this field differs from tokenStream, then we have transformed
+     * the grammar.
      */
     public originalTokenStream: TokenStream;
 
@@ -135,7 +135,7 @@ export class Grammar implements AttributeResolver {
 
     /** If we're imported, who imported us? If null, implies grammar is root */
     public parent: Grammar | null = null;
-    public importedGrammars: Grammar[];
+    public importedGrammars: Grammar[] = [];
 
     /**
      * All rules defined in this specific grammar, not imported. Also does
@@ -144,13 +144,13 @@ export class Grammar implements AttributeResolver {
     public rules = new Map<string, Rule>();
     public indexToRule = new Array<Rule>(); // used to invent rule names for 'keyword', ';', ... (0..n-1)
 
-    public stateToGrammarRegionMap: Map<number, Interval> | null = null;
+    public stateToGrammarRegionMap?: Map<number, Interval>;
 
     public decisionDFAs = new Map<number, DFA>();
 
     public decisionLOOK: IntervalSet[][];
 
-    public readonly tool: Tool;
+    public readonly tool: ITool;
 
     /**
      * Map token like {@code ID} (but not literals like {@code 'while'}) to its
@@ -240,7 +240,7 @@ export class Grammar implements AttributeResolver {
      */
     #atn?: ATN;
 
-    public constructor(tool: Tool, ast: GrammarRootAST);
+    public constructor(tool: ITool, ast: GrammarSpecContext);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
     public constructor(grammarText: string, listener?: ANTLRToolListener);
     /** For testing; builds trees, does sem anal */
@@ -249,22 +249,22 @@ export class Grammar implements AttributeResolver {
     public constructor(fileName: string, grammarText: string, tokenVocabSource: Grammar | undefined,
         listener: ANTLRToolListener);
     public constructor(...args: unknown[]) {
-        if (args.length === 2 && args[0] instanceof Tool) {
-            [this.tool, this.ast] = args as [Tool, GrammarRootAST];
-            this.name = (this.ast.getChild(0)!).getText()!;
-            this.tokenStream = this.ast.tokenStream;
+        if (args.length === 2 && typeof args[0] !== "string") {
+            [this.tool, this.parseTree] = args as [ITool, GrammarSpecContext];
+            this.name = (this.parseTree.getChild(0)!).getText()!;
+            // TODO: this.tokenStream = this.parseTree.tokenStream;
             this.originalTokenStream = this.tokenStream;
 
             this.initTokenSymbolTables();
         } else {
             // This branch for all testing scenarios. Must at least give the grammar text.
-            let fileName = Grammar.GRAMMAR_FROM_STRING_NAME;
+            let fileName = Constants.GRAMMAR_FROM_STRING_NAME;
             let grammarText = args[0] as string;
             let listener: ANTLRToolListener | undefined;
             let tokenVocabSource: LexerGrammar | undefined;
             if (args.length > 1) {
-                if (args[1] instanceof LexerGrammar) {
-                    tokenVocabSource = args[1];
+                if (args[1] instanceof Grammar && args[1].grammarType === "lexerGrammar") {
+                    tokenVocabSource = args[1] as LexerGrammar;
                 } else {
                     listener = args[1] as ANTLRToolListener;
                 }
@@ -283,7 +283,7 @@ export class Grammar implements AttributeResolver {
 
             this.text = grammarText;
             this.fileName = fileName;
-            this.tool = new Tool();
+            this.tool = ClassFactory.createTool();
 
             const hush = {
                 info: (msg: string): void => { /* ignored */ },
@@ -291,30 +291,31 @@ export class Grammar implements AttributeResolver {
                 warning: (msg: ANTLRMessage): void => { /* ignored */ },
             };
 
-            this.tool.addListener(hush); // we want to hush errors/warnings
+            ErrorManager.get().addListener(hush); // we want to hush errors/warnings
             if (listener) {
-                this.tool.addListener(listener);
+                ErrorManager.get().addListener(listener);
             }
             const input = CharStream.fromString(grammarText);
             input.name = fileName;
 
-            this.ast = this.tool.parse(fileName, input);
-            if (this.ast === null) {
-                throw new Error("Unsupported operation");
+            const result = this.tool.parse(fileName, input);
+            if (!result) {
+                throw new Error("Could not parse grammar");
             }
 
-            this.tokenStream = this.ast.tokenStream;
+            this.parseTree = result[0];
+            this.tokenStream = result[1];
             this.originalTokenStream = this.tokenStream;
 
             // ensure each node has pointer to surrounding grammar
-            const v = new TreeVisitor(new GrammarASTAdaptor());
-            v.visit(this.ast, {
-                pre: (t: Tree): Tree => {
-                    (t as GrammarAST).g = this;
+            const v = new TreeVisitor();
+            v.visit(this.parseTree, {
+                pre: (t): ParserRuleContext | null => {
+                    // TODO: (t as GrammarAST).g = this;
 
                     return t;
                 },
-                post: (t: Tree): Tree => {
+                post: (t: ParserRuleContext): ParserRuleContext => {
                     return t;
                 },
             });
@@ -331,14 +332,9 @@ export class Grammar implements AttributeResolver {
 
     /** convenience method for Tool.loadGrammar() */
     public static load(fileName: string): Grammar {
-        const antlr = new Tool();
+        const antlr = ClassFactory.createTool();
 
         return antlr.loadGrammar(fileName);
-    }
-
-    /** Is id a valid token name? Does id start with an uppercase letter? */
-    public static isTokenName(id: string): boolean {
-        return Character.isUpperCase(id.charCodeAt(0));
     }
 
     public static getGrammarTypeToFileNameSuffix(type: GrammarType): string {
@@ -377,9 +373,9 @@ export class Grammar implements AttributeResolver {
         for (const o of options.getChildren()) {
             const c = o as GrammarAST;
             if (c.getType() === ANTLRv4Parser.ASSIGN) {
-                t.setOption(c.getChild(0)!.getText()!, c.getChild(1) as GrammarAST);
+                t.setOption(c.getChild(0)!.getText(), c.getChild(1) as GrammarAST);
             } else {
-                t.setOption(c.getText()!, null); // no arg such as ID<VarNodeType>
+                t.setOption(c.getText(), null); // no arg such as ID<VarNodeType>
             }
         }
     }
@@ -397,7 +393,7 @@ export class Grammar implements AttributeResolver {
             "(RULE %name:TOKEN_REF (BLOCK (LEXER_ALT_ACTION (ALT %lit:STRING_LITERAL) (LEXER_ACTION_CALL . .) .)))",
             // TODO: allow doc comment in there
         ];
-        const adaptor = new GrammarASTAdaptor(ast.token!.inputStream ?? undefined);
+        const adaptor = ClassFactory.createGrammarASTAdaptor(ast.token!.inputStream ?? undefined);
         const wiz = new TreeWizard(adaptor, ANTLRv4Parser.symbolicNames);
         const lexerRuleToStringLiteral = new Array<[GrammarAST, GrammarAST]>();
 
@@ -423,47 +419,6 @@ export class Grammar implements AttributeResolver {
         return lexerRuleToStringLiteral;
     }
 
-    public static getStateToGrammarRegionMap(ast: GrammarRootAST,
-        grammarTokenTypes: IntervalSet | null): Map<number, Interval> {
-        const stateToGrammarRegionMap = new Map<number, Interval>();
-
-        const nodes = ast.getNodesWithType(grammarTokenTypes);
-        for (const n of nodes) {
-            if (n.atnState) {
-                let tokenRegion = Interval.of(n.getTokenStartIndex(), n.getTokenStopIndex());
-                let ruleNode = null;
-
-                // RULEs, BLOCKs of transformed recursive rules point to original token interval
-                switch (n.getType()) {
-                    case ANTLRv4Parser.RULE_REF: {
-                        ruleNode = n;
-                        break;
-                    }
-
-                    case ANTLRv4Parser.LPAREN:
-                    case ANTLRv4Parser.STAR: {
-                        ruleNode = n.getAncestor(ANTLRv4Parser.RULE_REF);
-                        break;
-                    }
-
-                    default:
-
-                }
-                if (ruleNode instanceof RuleAST) {
-                    const ruleName = (ruleNode).getRuleName()!;
-                    const r = ast.g.getRule(ruleName);
-                    if (r instanceof LeftRecursiveRule) {
-                        const originalAST = (r).getOriginalAST();
-                        tokenRegion = Interval.of(originalAST.getTokenStartIndex(), originalAST.getTokenStopIndex());
-                    }
-                }
-                stateToGrammarRegionMap.set(n.atnState.stateNumber, tokenRegion);
-            }
-        }
-
-        return stateToGrammarRegionMap;
-    }
-
     protected static defAlias(r: GrammarAST, pattern: string, wiz: TreeWizard,
         lexerRuleToStringLiteral: Array<[GrammarAST, GrammarAST]>): boolean {
         const nodes = new Map<string, GrammarAST>();
@@ -480,27 +435,32 @@ export class Grammar implements AttributeResolver {
     }
 
     public loadImportedGrammars(visited: Set<string>): void {
-        if (this.ast === null) {
+        if (!this.parseTree) {
             return;
         }
 
-        const i = this.ast.getFirstChildWithType(ANTLRv4Parser.IMPORT) as GrammarAST | null;
-        if (i === null) {
+        const imports: DelegateGrammarContext[] = [];
+        this.parseTree.prequelConstruct().forEach((prequel) => {
+            prequel.delegateGrammars()?.delegateGrammar().forEach((dg) => {
+                imports.push(dg);
+            });
+        });
+
+        if (imports.length === 0) {
             return;
         }
 
         visited.add(this.name);
         this.importedGrammars = new Array<Grammar>();
-        for (const c of i.getChildren()) {
-            let t = c as GrammarAST;
-            let importedGrammarName = null;
-            if (t.getType() === ANTLRv4Parser.ASSIGN) {
-                t = t.getChild(1) as GrammarAST;
-                importedGrammarName = t.getText();
+        for (const t of imports) {
+            let identifier;
+            let importedGrammarName;
+            if (t.ASSIGN()) {
+                identifier = t.identifier(1)!;
+                importedGrammarName = t.identifier(1)?.getText();
             } else {
-                if (t.getType() === ANTLRv4Parser.ID) {
-                    importedGrammarName = t.getText();
-                }
+                identifier = t.identifier(0)!;
+                importedGrammarName = t.identifier(0)?.getText();
             }
 
             if (!importedGrammarName || visited.has(importedGrammarName)) { // ignore circular refs
@@ -509,13 +469,10 @@ export class Grammar implements AttributeResolver {
 
             let g: Grammar;
             try {
-                g = this.tool.loadImportedGrammar(this, t)!;
+                g = this.tool.loadImportedGrammar(this, identifier)!;
             } catch {
-                this.tool.errMgr.grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR,
-                    importedGrammarName,
-                    t.getToken(),
-                    importedGrammarName,
-                    this.name);
+                ErrorManager.get().grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR, importedGrammarName,
+                    t.start, importedGrammarName, this.name);
                 continue;
             }
 
@@ -527,13 +484,13 @@ export class Grammar implements AttributeResolver {
 
     public defineAction(atAST: GrammarAST): void {
         if (atAST.getChildCount() === 2) {
-            const name = atAST.getChild(0)!.getText()!;
+            const name = atAST.getChild(0)!.getText();
             this.namedActions.set(name, atAST.getChild(1) as ActionAST);
         } else {
             const scope = atAST.getChild(0)!.getText();
             const grammarType = this.getTypeString();
             if (scope === grammarType || (scope === "parser" && grammarType === "combined")) {
-                const name = atAST.getChild(1)!.getText()!;
+                const name = atAST.getChild(1)!.getText();
                 this.namedActions.set(name, atAST.getChild(2) as ActionAST);
             }
         }
@@ -634,7 +591,7 @@ export class Grammar implements AttributeResolver {
 
     public get atn(): ATN {
         if (!this.#atn) {
-            const factory = new ParserATNFactory(this);
+            const factory = ClassFactory.createParserATNFactory(this);
             this.#atn = factory.createATN();
         }
 
@@ -664,7 +621,7 @@ export class Grammar implements AttributeResolver {
     }
 
     public getImportedGrammars(): Grammar[] {
-        return this.importedGrammars; 
+        return this.importedGrammars;
     }
 
     public getImplicitLexer(): LexerGrammar {
@@ -725,7 +682,7 @@ export class Grammar implements AttributeResolver {
         }
 
         if (this.isCombined() || (this.isLexer())) {
-            suffix = Grammar.getGrammarTypeToFileNameSuffix(this.getType());
+            suffix = Grammar.getGrammarTypeToFileNameSuffix(this.type);
         }
 
         return qualifiedName + suffix;
@@ -990,7 +947,7 @@ export class Grammar implements AttributeResolver {
         const indexToPredMap = new Map<number, PredAST>();
         for (const r of this.rules.values()) {
             for (const a of r.actions) {
-                if (a instanceof PredAST) {
+                if (a.astType === "PredAST") {
                     indexToPredMap.set(this.sempreds.get(a)!, a);
                 }
             }
@@ -1005,7 +962,7 @@ export class Grammar implements AttributeResolver {
         }
         const actionAST = this.indexToPredMap.get(pred.predIndex)!;
 
-        return actionAST.getText()!;
+        return actionAST.getText();
     }
 
     /**
@@ -1221,12 +1178,12 @@ export class Grammar implements AttributeResolver {
 
     // no isolated attr at grammar action level
 
-    public resolveToAttribute(x: string, node: ActionAST): Attribute;
+    public resolveToAttribute(x: string, node: ActionAST): IAttribute;
 
     // no $x.y makes sense here
 
-    public resolveToAttribute(x: string, y: string, node: ActionAST): Attribute | null;
-    public resolveToAttribute(...args: unknown[]): Attribute | null {
+    public resolveToAttribute(x: string, y: string, node: ActionAST): IAttribute | null;
+    public resolveToAttribute(...args: unknown[]): IAttribute | null {
         return null;
     }
 
@@ -1253,7 +1210,7 @@ export class Grammar implements AttributeResolver {
      *  default scope should be "parser".
      */
     public getDefaultActionScope(): string | null {
-        switch (this.getType()) {
+        switch (this.type) {
             case GrammarType.Lexer: {
                 return "lexer";
             }
@@ -1270,40 +1227,35 @@ export class Grammar implements AttributeResolver {
         return null;
     }
 
-    public getType(): GrammarType {
-        if (this.ast !== null) {
-            return this.ast.grammarType;
+    public get type(): GrammarType {
+        if (this.parseTree) {
+            const grammarType = this.parseTree.grammarDecl().grammarType();
+            if (!grammarType.LEXER()) {
+                return grammarType.PARSER() ? GrammarType.Parser : GrammarType.Combined;
+            }
         }
 
         return GrammarType.Lexer;
     }
 
-    public getTokenStream(): TokenStream | null {
-        if (this.ast !== null) {
-            return this.ast.tokenStream;
-        }
-
-        return null;
-    }
-
     public isLexer(): boolean {
-        return this.getType() === GrammarType.Lexer;
+        return this.type === GrammarType.Lexer;
     }
 
     public isParser(): boolean {
-        return this.getType() === GrammarType.Parser;
+        return this.type === GrammarType.Parser;
     }
 
     public isCombined(): boolean {
-        return this.getType() === GrammarType.Combined;
+        return this.type === GrammarType.Combined;
     }
 
     public getTypeString(): string | null {
-        if (this.ast === null) {
+        if (!this.parseTree) {
             return null;
         }
 
-        return ANTLRv4Parser.symbolicNames[this.getType()]!.toLowerCase();
+        return ANTLRv4Parser.symbolicNames[this.type]!.toLowerCase();
     }
 
     public getLanguage(): SupportedLanguage {
@@ -1316,25 +1268,18 @@ export class Grammar implements AttributeResolver {
     }
 
     public getOptionString(key: string): string | undefined {
-        return this.ast!.getOptionString(key);
+        return undefined;
+        //TODO: return this.parseTree!.getOptionString(key);
     }
 
     public getStringLiterals(): Set<string> {
         const strings = new Set<string>();
         const collector = new class extends GrammarTreeVisitor {
-            public constructor(private readonly $outer: Grammar) {
-                super();
-            }
-
             public override stringRef(ref: TerminalAST): void {
-                strings.add(ref.getText()!);
+                strings.add(ref.getText());
             }
-
-            public override getErrorManager(): ErrorManager {
-                return this.$outer.tool.errMgr;
-            }
-        }(this);
-        collector.visitGrammar(this.ast!);
+        }();
+        collector.visitGrammar(this.parseTree!);
 
         return strings;
     }
@@ -1342,18 +1287,6 @@ export class Grammar implements AttributeResolver {
     public setLookaheadDFA(decision: number, lookaheadDFA: DFA): void {
         this.decisionDFAs.set(decision, lookaheadDFA);
     };
-
-    /**
-     * Given an ATN state number, return the token index range within the grammar from which that ATN state was derived.
-     */
-    public getStateToGrammarRegion(atnStateNumber: number): Interval {
-        if (this.stateToGrammarRegionMap === null) {
-            // map all nodes with non-null atn state ptr
-            this.stateToGrammarRegionMap = Grammar.getStateToGrammarRegionMap(this.ast!, null);
-        }
-
-        return this.stateToGrammarRegionMap.get(atnStateNumber)!;
-    }
 
     public createLexerInterpreter(input: CharStream): LexerInterpreter {
         if (this.isParser()) {
@@ -1386,7 +1319,7 @@ export class Grammar implements AttributeResolver {
         const serialized = ATNSerializer.getSerialized(this.#atn!);
         const deserializedATN = new ATNDeserializer().deserialize(serialized);
 
-        return new GrammarParserInterpreter(this, deserializedATN, tokenStream);
+        return ClassFactory.createGrammarParserInterpreter(this, deserializedATN, tokenStream);
     }
 
     public createParserInterpreter(tokenStream: TokenStream): ParserInterpreter {
@@ -1410,6 +1343,10 @@ export class Grammar implements AttributeResolver {
     }
 
     static {
+        ClassFactory.createGrammar = (tool: ITool, grammar: GrammarSpecContext): IGrammar => {
+            return new Grammar(tool, grammar);
+        };
+
         Grammar.parserOptions.add("superClass");
         Grammar.parserOptions.add("contextSuperClass");
         Grammar.parserOptions.add("TokenLabelType");
@@ -1420,18 +1357,18 @@ export class Grammar implements AttributeResolver {
         Grammar.parserOptions.add(Grammar.caseInsensitiveOptionName);
 
         Grammar.tokenOptions.add("assoc");
-        Grammar.tokenOptions.add(LeftRecursiveRuleTransformer.TOKENINDEX_OPTION_NAME);
+        Grammar.tokenOptions.add(Constants.TOKENINDEX_OPTION_NAME);
 
-        Grammar.semPredOptions.add(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME);
+        Grammar.semPredOptions.add(Constants.PRECEDENCE_OPTION_NAME);
         Grammar.semPredOptions.add("fail");
 
         Grammar.doNotCopyOptionsToLexer.add("superClass");
         Grammar.doNotCopyOptionsToLexer.add("TokenLabelType");
         Grammar.doNotCopyOptionsToLexer.add("tokenVocab");
 
-        Grammar.grammarAndLabelRefTypeToScope.set("parser:RULE_LABEL", Rule.predefinedRulePropertiesDict);
-        Grammar.grammarAndLabelRefTypeToScope.set("parser:TOKEN_LABEL", AttributeDict.predefinedTokenDict);
-        Grammar.grammarAndLabelRefTypeToScope.set("combined:RULE_LABEL", Rule.predefinedRulePropertiesDict);
-        Grammar.grammarAndLabelRefTypeToScope.set("combined:TOKEN_LABEL", AttributeDict.predefinedTokenDict);
+        Grammar.grammarAndLabelRefTypeToScope.set("parser:RULE_LABEL", Constants.predefinedRulePropertiesDict);
+        Grammar.grammarAndLabelRefTypeToScope.set("parser:TOKEN_LABEL", Constants.predefinedTokenDict);
+        Grammar.grammarAndLabelRefTypeToScope.set("combined:RULE_LABEL", Constants.predefinedRulePropertiesDict);
+        Grammar.grammarAndLabelRefTypeToScope.set("combined:TOKEN_LABEL", Constants.predefinedTokenDict);
     }
 }

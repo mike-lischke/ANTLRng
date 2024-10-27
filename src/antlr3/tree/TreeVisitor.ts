@@ -8,21 +8,16 @@
 
 // cspell: disable
 
-import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
-import type { Tree } from "./Tree.js";
-import type { TreeAdaptor } from "./TreeAdaptor.js";
+import type { ParserRuleContext } from "antlr4ng";
+
+import { ANTLRv4ParserVisitor } from "../../generated/ANTLRv4ParserVisitor.js";
+
 import type { TreeVisitorAction } from "./TreeVisitorAction.js";
 
 /**
  * Do a depth first walk of a tree, applying pre() and post() actions as we discover and finish nodes.
  */
-export class TreeVisitor {
-    protected adaptor: TreeAdaptor;
-
-    public constructor(adaptor?: TreeAdaptor) {
-        this.adaptor = adaptor ?? new CommonTreeAdaptor();
-    }
-
+export class TreeVisitor extends ANTLRv4ParserVisitor<ParserRuleContext> {
     /**
      * Visit every node in tree t and trigger an action for each node
      *  before/after having visited all of its children.
@@ -34,24 +29,27 @@ export class TreeVisitor {
      *
      *  Return result of applying post action to this node.
      */
-    public visit<T extends Tree>(t: T | null, action: TreeVisitorAction<T> | null): T | null {
-        const isNil = this.adaptor.isNil(t);
-        if (action !== null && !isNil) {
-            t = action.pre(t); // if rewritten, walk children of new t
+    public override visit(t: ParserRuleContext,
+        action?: TreeVisitorAction<ParserRuleContext>): ParserRuleContext | null {
+        const isNil = t.start === null;
+        let result: ParserRuleContext | null = t;
+        if (action && !isNil) {
+            result = action.pre(t); // if rewritten, walk children of new t
         }
 
-        for (let i = 0; i < this.adaptor.getChildCount(t!); i++) {
-            const child = this.adaptor.getChild(t!, i)!;
+        for (let i = 0; i < t.getChildCount(); i++) {
+            const child = t.children[i] as ParserRuleContext;
             const visitResult = this.visit(child, action);
-            const childAfterVisit = this.adaptor.getChild(t!, i);
+            const childAfterVisit = t.children[i];
             if (visitResult !== childAfterVisit) { // result & child differ?
-                this.adaptor.setChild(t!, i, visitResult!);
+                t.children[i] = visitResult!;
             }
         }
-        if (action !== null && !isNil) {
-            t = action.post(t);
+
+        if (action && !isNil) {
+            result = action.post(t);
         }
 
-        return t;
+        return result;
     }
 }

@@ -10,7 +10,6 @@ import { ActionSplitter } from "../generated/ActionSplitter.js";
 
 import { Alternative } from "../tool/Alternative.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
-import type { ErrorManager } from "../tool/ErrorManager.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Rule } from "../tool/Rule.js";
 import { BlankActionSplitterListener } from "./BlankActionSplitterListener.js";
@@ -24,7 +23,6 @@ export class ActionSniffer extends BlankActionSplitterListener {
     public alt: Alternative; // null if action outside of alt; could be in rule
     public node: ActionAST;
     public actionToken: Token; // token within action
-    public errMgr: ErrorManager;
 
     public constructor(g: Grammar, r: Rule, alt: Alternative, node: ActionAST, actionToken: Token) {
         super();
@@ -34,7 +32,6 @@ export class ActionSniffer extends BlankActionSplitterListener {
         this.alt = alt;
         this.node = node;
         this.actionToken = actionToken;
-        this.errMgr = g.tool.errMgr;
     }
 
     public examineAction(): void {

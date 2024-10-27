@@ -4,6 +4,7 @@
  */
 
 import { CharStream, Token } from "antlr4ng";
+import { describe, expect, it } from "vitest";
 
 import { ActionSplitter } from "../src/generated/ActionSplitter.js";
 

@@ -16,6 +16,10 @@ export default tslint.config(
     ...tslint.configs.stylisticTypeChecked,
     jsdoc.configs["flat/recommended"],
     {
+        // This must be in its own object to avoid a bug in the ESLint parser.
+        ignores: ["src/generated/*"],
+    },
+    {
         plugins: {
             "@stylistic": stylistic,
             "jsdoc": jsdoc,
@@ -51,6 +55,8 @@ export default tslint.config(
                 }
             ],
             "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
+            "curly": ["error", "all"],
+            "arrow-body-style": ["error", "always"],
             "@stylistic/padding-line-between-statements": [
                 "error",
                 {
@@ -229,18 +235,26 @@ export default tslint.config(
             "@typescript-eslint/prefer-return-this-type": "off",
             "@typescript-eslint/no-invalid-void-type": "off",
             "@typescript-eslint/unified-signatures": "off",
+            "@typescript-eslint/no-empty-object-type": "off",
+            "@typescript-eslint/explicit-member-accessibility": "error",
+            "@typescript-eslint/prefer-for-of": "error",
+            "@typescript-eslint/prefer-function-type": "error",
+            "@typescript-eslint/no-deprecated": "off",
             "jsdoc/check-alignment": "error",
             "jsdoc/check-indentation": "off",
             "jsdoc/require-param-type": "off",
             "jsdoc/require-returns-type": "off",
-            "jsdoc/tag-lines": [
-                // Have to switch this off, as it is not good enough to be used.
-                "off"
-            ],
             "jsdoc/no-undefined-types": [
                 "off", // Requires a comment syntax incompatible with VS Code.
                 {
                     "markVariablesAsUsed": false
+                }
+            ],
+            "jsdoc/tag-lines": [
+                "error",
+                "any",
+                {
+                    "startLines": 1
                 }
             ],
             "prefer-arrow/prefer-arrow-functions": [

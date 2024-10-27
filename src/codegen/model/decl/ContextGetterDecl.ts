@@ -11,8 +11,8 @@ import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { Decl } from "./Decl.js";
 
 export abstract class ContextGetterDecl extends Decl { // assume no args
-
     public readonly signature: boolean;
+
     public constructor(factory: OutputModelFactory, name: string, signature?: boolean) {
         super(factory, name);
         this.signature = signature ?? false;
@@ -22,7 +22,7 @@ export abstract class ContextGetterDecl extends Decl { // assume no args
      * Not used for output; just used to distinguish between decl types to avoid duplicates.
      */
     public getArgType(): string {
-        return ""; 
+        return "";
     }
 
     public override hashCode(): number {

@@ -4,8 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Alternative } from "../../tool/Alternative.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
+import type { IAlternative } from "../../types.js";
+import type { OutputModelFactory } from "../OutputModelFactory.js";
 import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
 
 /**
@@ -23,9 +23,9 @@ export class CodeBlockForOuterMostAlt extends CodeBlockForAlt {
     /**
      * The alternative.
      */
-    public alt: Alternative;
+    public alt: IAlternative;
 
-    public constructor(factory: OutputModelFactory, alt: Alternative) {
+    public constructor(factory: OutputModelFactory, alt: IAlternative) {
         super(factory);
         this.alt = alt;
         this.altLabel = alt.ast.altLabel?.getText() ?? undefined;

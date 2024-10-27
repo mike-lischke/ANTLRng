@@ -4,19 +4,16 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Tool } from "../Tool.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
+import type { ErrorManager } from "./ErrorManager.js";
 
 export class DefaultToolListener implements ANTLRToolListener {
-    public tool: Tool;
-
-    public constructor(tool: Tool) {
-        this.tool = tool; 
+    public constructor(private manager: ErrorManager) {
     }
 
     public info(msg: string): void {
-        if (this.tool.errMgr.formatWantsSingleLineMessage()) {
+        if (this.manager.formatWantsSingleLineMessage()) {
             msg = msg.replace("\n", " ");
         }
 
@@ -24,10 +21,10 @@ export class DefaultToolListener implements ANTLRToolListener {
     }
 
     public error(msg: ANTLRMessage): void {
-        const msgST = this.tool.errMgr.getMessageTemplate(msg);
+        const msgST = this.manager.getMessageTemplate(msg);
         if (msgST) {
             let outputMsg = msgST.render();
-            if (this.tool.errMgr.formatWantsSingleLineMessage()) {
+            if (this.manager.formatWantsSingleLineMessage()) {
                 outputMsg = outputMsg.replace("\n", " ");
             }
 
@@ -36,10 +33,10 @@ export class DefaultToolListener implements ANTLRToolListener {
     }
 
     public warning(msg: ANTLRMessage): void {
-        const msgST = this.tool.errMgr.getMessageTemplate(msg);
+        const msgST = this.manager.getMessageTemplate(msg);
         if (msgST) {
             let outputMsg = msgST.render();
-            if (this.tool.errMgr.formatWantsSingleLineMessage()) {
+            if (this.manager.formatWantsSingleLineMessage()) {
                 outputMsg = outputMsg.replace("\n", " ");
             }
 

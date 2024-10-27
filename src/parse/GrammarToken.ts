@@ -18,10 +18,7 @@ export class GrammarToken extends CommonToken {
     public constructor(g: Grammar, oldToken: Token) {
         const source: [TokenSource | null, CharStream | null] = [oldToken.tokenSource, oldToken.inputStream];
 
-        super({
-            ...oldToken,
-            source,
-        });
+        super({ ...oldToken, source });
         this.g = g;
     }
 

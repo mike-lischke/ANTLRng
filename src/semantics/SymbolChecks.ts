@@ -8,17 +8,17 @@
 
 import { Token } from "antlr4ng";
 
-import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
+import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 
-import type { CommonTree } from "../antlr3/tree/CommonTree.js";
+import type { CommonTree } from "../tree/CommonTree.js";
 
 import { LexerATNFactory } from "../automata/LexerATNFactory.js";
 import { AltAST } from "../tool/ast/AltAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
 import { AttributeDict } from "../tool/AttributeDict.js";
-import type { ErrorManager } from "../tool/ErrorManager.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LabelElementPair } from "../tool/LabelElementPair.js";
@@ -37,7 +37,6 @@ import { SymbolCollector } from "./SymbolCollector.js";
  */
 export class SymbolChecks {
 
-    public errMgr: ErrorManager;
     protected g: Grammar;
     protected collector: SymbolCollector;
     protected nameToRuleMap = new Map<string, Rule>();
@@ -49,7 +48,6 @@ export class SymbolChecks {
     public constructor(g: Grammar, collector: SymbolCollector) {
         this.g = g;
         this.collector = collector;
-        this.errMgr = g.tool.errMgr;
 
         for (const tokenId of collector.tokenIDRefs) {
             this.tokenIDs.add(tokenId.getText()!);
@@ -95,8 +93,7 @@ export class SymbolChecks {
             if (!scopeActions.has(name)) {
                 scopeActions.add(name);
             } else {
-                this.errMgr.grammarError(ErrorType.ACTION_REDEFINITION,
-                    this.g.fileName, nameNode.token, name);
+                ErrorManager.get().grammarError(ErrorType.ACTION_REDEFINITION, this.g.fileName, nameNode.token, name);
             }
         }
     }
@@ -149,27 +146,27 @@ export class SymbolChecks {
         const name = labelID.getText()!;
         if (this.nameToRuleMap.has(name)) {
             const errorType = ErrorType.LABEL_CONFLICTS_WITH_RULE;
-            this.errMgr.grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
+            ErrorManager.get().grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
         }
 
         if (this.tokenIDs.has(name)) {
             const errorType = ErrorType.LABEL_CONFLICTS_WITH_TOKEN;
-            this.errMgr.grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
+            ErrorManager.get().grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
         }
 
         if (r.args?.get(name)) {
             const errorType = ErrorType.LABEL_CONFLICTS_WITH_ARG;
-            this.errMgr.grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
+            ErrorManager.get().grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
         }
 
         if (r.retvals?.get(name)) {
             const errorType = ErrorType.LABEL_CONFLICTS_WITH_RETVAL;
-            this.errMgr.grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
+            ErrorManager.get().grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
         }
 
         if (r.locals?.get(name)) {
             const errorType = ErrorType.LABEL_CONFLICTS_WITH_LOCAL;
-            this.errMgr.grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
+            ErrorManager.get().grammarError(errorType, this.g.fileName, labelID.token, name, r.name);
         }
     }
 
@@ -197,13 +194,13 @@ export class SymbolChecks {
             for (const modeName of lexerGrammar.modes.keys()) {
                 if (modeName !== "DEFAULT_MODE" && this.reservedNames.has(modeName)) {
                     const rule = lexerGrammar.modes.get(modeName)![0];
-                    g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName,
+                    ErrorManager.get().grammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName,
                         rule.ast.parent!.getToken(), modeName);
                 }
 
                 if (g.getTokenType(modeName) !== Token.INVALID_TYPE) {
                     const rule = lexerGrammar.modes.get(modeName)![0];
-                    g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_TOKEN, g.fileName,
+                    ErrorManager.get().grammarError(ErrorType.MODE_CONFLICTS_WITH_TOKEN, g.fileName,
                         rule.ast.parent!.getToken(), modeName);
                 }
             }
@@ -262,9 +259,9 @@ export class SymbolChecks {
             const r = g.getRule(ruleName);
             const arg = ref.getFirstChildWithType(ANTLRv4Parser.BEGIN_ACTION) as GrammarAST | null;
             if (arg !== null && r?.args === undefined) {
-                this.errMgr.grammarError(ErrorType.RULE_HAS_NO_ARGS, g.fileName, ref.token, ruleName);
+                ErrorManager.get().grammarError(ErrorType.RULE_HAS_NO_ARGS, g.fileName, ref.token, ruleName);
             } else if (arg === null && r?.args !== undefined) {
-                this.errMgr.grammarError(ErrorType.MISSING_RULE_ARGS, g.fileName, ref.token, ruleName);
+                ErrorManager.get().grammarError(ErrorType.MISSING_RULE_ARGS, g.fileName, ref.token, ruleName);
             }
         }
     }
@@ -276,11 +273,11 @@ export class SymbolChecks {
             g.tool.logInfo({ component: "semantics", msg: grammar.getText()! + "." + rule.getText()! });
             const delegate = g.getImportedGrammar(grammar.getText()!);
             if (delegate === null) {
-                this.errMgr.grammarError(ErrorType.NO_SUCH_GRAMMAR_SCOPE, g.fileName, grammar.token, grammar.getText(),
-                    rule.getText());
+                ErrorManager.get().grammarError(ErrorType.NO_SUCH_GRAMMAR_SCOPE, g.fileName, grammar.token,
+                    grammar.getText(), rule.getText());
             } else if (g.getRule(grammar.getText()!, rule.getText()!) === null) {
-                this.errMgr.grammarError(ErrorType.NO_SUCH_RULE_IN_SCOPE, g.fileName, rule.token, grammar.getText(),
-                    rule.getText());
+                ErrorManager.get().grammarError(ErrorType.NO_SUCH_RULE_IN_SCOPE, g.fileName, rule.token,
+                    grammar.getText(), rule.getText());
             }
         }
     }
@@ -293,7 +290,7 @@ export class SymbolChecks {
 
         for (const attribute of attributes.attributes.values()) {
             if (ruleNames.has(attribute.name!)) {
-                this.errMgr.grammarError(errorType, this.g.fileName,
+                ErrorManager.get().grammarError(errorType, this.g.fileName,
                     attribute.token ?? (r.ast.getChild(0) as GrammarAST).token, attribute.name, r.name);
             }
         }
@@ -307,7 +304,7 @@ export class SymbolChecks {
 
         const conflictingKeys = attributes.intersection(referenceAttributes);
         for (const key of conflictingKeys) {
-            this.errMgr.grammarError(errorType, this.g.fileName,
+            ErrorManager.get().grammarError(errorType, this.g.fileName,
                 attributes.get(key)?.token ?? (r.ast.getChild(0) as GrammarAST).token, key, r.name);
         }
     }
@@ -315,7 +312,7 @@ export class SymbolChecks {
     protected checkReservedNames(rules: Rule[]): void {
         for (const rule of rules) {
             if (this.reservedNames.has(rule.name)) {
-                this.errMgr.grammarError(ErrorType.RESERVED_RULE_NAME, this.g.fileName,
+                ErrorManager.get().grammarError(ErrorType.RESERVED_RULE_NAME, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
             }
         }
@@ -364,8 +361,8 @@ export class SymbolChecks {
             const token = r instanceof LeftRecursiveRule
                 ? (r.ast.getChild(0) as GrammarAST).getToken()
                 : labelPair.label.token;
-            this.errMgr.grammarError(ErrorType.LABEL_TYPE_CONFLICT, this.g.fileName, token, labelPair.label.getText(),
-                labelPair.type + "!=" + prevLabelPair.type);
+            ErrorManager.get().grammarError(ErrorType.LABEL_TYPE_CONFLICT, this.g.fileName, token,
+                labelPair.label.getText(), labelPair.type + "!=" + prevLabelPair.type);
         }
 
         if (prevLabelPair.element.getText() !== labelPair.element.getText() &&
@@ -377,7 +374,7 @@ export class SymbolChecks {
                 : labelPair.label.token;
             const prevLabelOp = prevLabelPair.type === LabelType.RuleListLabel ? "+=" : "=";
             const labelOp = labelPair.type === LabelType.RuleListLabel ? "+=" : "=";
-            this.errMgr.grammarError(ErrorType.LABEL_TYPE_CONFLICT, this.g.fileName, token,
+            ErrorManager.get().grammarError(ErrorType.LABEL_TYPE_CONFLICT, this.g.fileName, token,
                 labelPair.label.getText() + labelOp + labelPair.element.getText(),
                 prevLabelPair.label.getText() + prevLabelOp + prevLabelPair.element.getText());
         }
@@ -442,7 +439,7 @@ export class SymbolChecks {
             for (let j = secondTokenInd; j < secondTokenStringValues.length; j++) {
                 const str2 = secondTokenStringValues[j];
                 if (str1 === str2) {
-                    this.errMgr.grammarError(ErrorType.TOKEN_UNREACHABLE, g.fileName,
+                    ErrorManager.get().grammarError(ErrorType.TOKEN_UNREACHABLE, g.fileName,
                         (rule2.ast.getChild(0) as GrammarAST).token, rule2.name, str2, rule1.name);
                 }
             }

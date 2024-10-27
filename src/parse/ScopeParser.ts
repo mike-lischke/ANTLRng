@@ -12,11 +12,12 @@ import { BaseRecognizer } from "../antlr3/BaseRecognizer.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 
 import { Character } from "../support/Character.js";
-import { Attribute } from "../tool/Attribute.js";
+import { ActionAST } from "../tool/ast/ActionAST.js";
+import { IAttribute } from "../tool/IAttribute.js";
 import { AttributeDict } from "../tool/AttributeDict.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
-import { ActionAST } from "../tool/ast/ActionAST.js";
 
 /**
  * Parse args, return values, locals
@@ -66,7 +67,7 @@ export class ScopeParser {
      * but if the separator is ',' you cannot use ',' in the init value
      * unless you escape use "\," escape.
      */
-    public static parseAttributeDef(action: ActionAST, decl: [string | null, number], g: Grammar): Attribute | null {
+    public static parseAttributeDef(action: ActionAST, decl: [string | null, number], g: Grammar): IAttribute | null {
         if (decl[0] === null) {
             return null;
         }
@@ -140,7 +141,7 @@ export class ScopeParser {
         return attr;
     }
 
-    public static _parsePrefixDecl(attr: Attribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
+    public static _parsePrefixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
         // walk backwards looking for start of an ID
         let inID = false;
         let start = -1;
@@ -164,7 +165,7 @@ export class ScopeParser {
         }
 
         if (start < 0) {
-            g.tool.errMgr.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token, decl);
+            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token, decl);
         }
 
         // walk forward looking for end of an ID
@@ -199,7 +200,7 @@ export class ScopeParser {
         return [start, stop];
     }
 
-    public static _parsePostfixDecl(attr: Attribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
+    public static _parsePostfixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
         let start = -1;
         let stop = -1;
         const colon = decl.indexOf(":");
@@ -216,7 +217,7 @@ export class ScopeParser {
 
         if (start === -1) {
             start = 0;
-            g.tool.errMgr.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token, decl);
+            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token, decl);
         }
 
         // look for stop of name

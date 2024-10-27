@@ -8,7 +8,7 @@
 
 import { Interval, Token, type RecognitionException, type TokenStream } from "antlr4ng";
 
-import { CommonTree } from "./CommonTree.js";
+import { CommonTree } from "../../tree/CommonTree.js";
 
 /** A node representing erroneous token range in token stream */
 export class CommonErrorNode extends CommonTree {

@@ -9,7 +9,6 @@
 import { MurmurHash } from "../../../support/MurmurHash.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { SrcOp } from "../SrcOp.js";
-import { ContextGetterDecl } from "./ContextGetterDecl.js";
 import { StructDecl } from "./StructDecl.js";
 
 export class Decl extends SrcOp {
@@ -45,7 +44,7 @@ export class Decl extends SrcOp {
         }
 
         // A() and label A are different
-        if (obj instanceof ContextGetterDecl) {
+        if ("signature" in obj) { // ContextGetterDecl
             return false;
         }
 

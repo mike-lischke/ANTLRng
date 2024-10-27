@@ -13,6 +13,7 @@ import { CharSupport } from "../misc/CharSupport.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Character } from "../support/Character.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 
 export class ATNOptimizer {
     private constructor() {
@@ -90,7 +91,7 @@ export class ATNOptimizer {
                             for (let v = a; v <= b; v++) {
                                 if (matchSet.contains(v)) {
                                     // TODO: Token is missing (i.e. position in source is not displayed).
-                                    g.tool.errMgr.grammarError(ErrorType.CHARACTERS_COLLISION_IN_SET, g.fileName,
+                                    ErrorManager.get().grammarError(ErrorType.CHARACTERS_COLLISION_IN_SET, g.fileName,
                                         null,
                                         CharSupport.getANTLRCharLiteralForChar(v),
                                         CharSupport.getIntervalSetEscapedString(matchSet));

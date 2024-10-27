@@ -4,23 +4,24 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { Rule } from "./Rule.js";
-import { Grammar } from "./Grammar.js";
-import { ANTLRToolListener } from "./ANTLRToolListener.js";
-import { Tool } from "../Tool.js";
-import { GrammarRootAST } from "./ast/GrammarRootAST.js";
+import { ClassFactory } from "../ClassFactory.js";
+import type { GrammarSpecContext } from "../generated/ANTLRv4Parser.js";
+import type { IGrammarRootAST, ILexerGrammar, IRule, ITool } from "../types.js";
 
-export class LexerGrammar extends Grammar {
-    public static readonly DEFAULT_MODE_NAME = "DEFAULT_MODE";
+import { ANTLRToolListener } from "./ANTLRToolListener.js";
+import { Grammar } from "./Grammar.js";
+
+export class LexerGrammar extends Grammar implements ILexerGrammar {
+    public override readonly grammarType = "lexerGrammar";
 
     /** The grammar from which this lexer grammar was derived (if implicit) */
     public implicitLexerOwner: Grammar;
 
     /** DEFAULT_MODE rules are added first due to grammar syntax order */
-    public modes = new Map<string, Rule[]>();
+    public modes = new Map<string, IRule[]>();
 
     public constructor(grammarText: string);
-    public constructor(tool: Tool, ast: GrammarRootAST);
+    public constructor(tool: ITool, ast: GrammarSpecContext);
     public constructor(grammarText: string, listener: ANTLRToolListener);
     public constructor(fileName: string, grammarText: string, listener: ANTLRToolListener);
     public constructor(...args: unknown[]) {
@@ -41,7 +42,7 @@ export class LexerGrammar extends Grammar {
 
                     break;
                 } else {
-                    const [tool, ast] = args as [Tool, GrammarRootAST];
+                    const [tool, ast] = args as [ITool, GrammarSpecContext];
 
                     super(tool, ast);
 
@@ -63,7 +64,7 @@ export class LexerGrammar extends Grammar {
         }
     }
 
-    public override defineRule(r: Rule): boolean {
+    public override defineRule(r: IRule): boolean {
         if (!super.defineRule(r) || !r.mode) {
             return false;
         }
@@ -78,7 +79,7 @@ export class LexerGrammar extends Grammar {
         return true;
     }
 
-    public override undefineRule(r: Rule): boolean {
+    public override undefineRule(r: IRule): boolean {
         if (!super.undefineRule(r) || !r.mode) {
             return false;
         }
@@ -96,5 +97,11 @@ export class LexerGrammar extends Grammar {
         ruleList.splice(index, 1);
 
         return true;
+    }
+
+    static {
+        ClassFactory.createLexerGrammar = (tool: ITool, ast: GrammarSpecContext) => {
+            return new LexerGrammar(tool, ast);
+        };
     }
 }

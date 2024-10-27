@@ -8,7 +8,6 @@
 
 import { CommonToken, Token } from "antlr4ng";
 
-import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { Character } from "../support/Character.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -33,15 +32,6 @@ export class Utils {
         lines.sort();
 
         return lines.join("\n");
-    }
-
-    public static nodesToStrings<T extends GrammarAST>(nodes: T[]): string[] {
-        const a = new Array<string>();
-        for (const t of nodes) {
-            a.push(t.getText()!);
-        }
-
-        return a;
     }
 
     public static capitalize(s: string): string {

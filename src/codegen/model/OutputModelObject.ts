@@ -4,14 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { OutputModelFactory } from "../OutputModelFactory.js";
-import { GrammarAST } from "../../tool/ast/GrammarAST.js";
+import type { IGrammarAST } from "../../types.js";
+import type { OutputModelFactory } from "../OutputModelFactory.js";
 
 export abstract class OutputModelObject {
     public factory?: OutputModelFactory;
-    public ast?: GrammarAST;
+    public ast?: IGrammarAST;
 
-    public constructor(factory?: OutputModelFactory, ast?: GrammarAST) {
+    public constructor(factory?: OutputModelFactory, ast?: IGrammarAST) {
         this.factory = factory;
         this.ast = ast;
     }

@@ -22,6 +22,7 @@ import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
 import { RuleRefAST } from "../tool/ast/RuleRefAST.js";
 import { LeftRecursiveRuleAltInfo } from "./LeftRecursiveRuleAltInfo.js";
 import { LeftRecursiveRuleTransformer } from "./LeftRecursiveRuleTransformer.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 
 enum Associativity {
     Left = "left",
@@ -52,7 +53,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public altAssociativity = new Map<number, Associativity>();
 
-    static readonly #templateGroupFile = "../../../../../templates/LeftRecursiveRules.stg";
+    static readonly #templateGroupFile = "../../templates/LeftRecursiveRules.stg";
     static readonly #recRuleTemplates = new STGroupFile(LeftRecursiveRuleAnalyzer.#templateGroupFile);
 
     public constructor(ruleAST: GrammarAST, tool: Tool, ruleName: string, language: SupportedLanguage) {
@@ -119,14 +120,14 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
                 if (a === Associativity.Left.toString()) {
                     assoc = Associativity.Left;
                 } else {
-                    this.tool.errMgr.grammarError(ErrorType.ILLEGAL_OPTION_VALUE, t.g.fileName,
+                    ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION_VALUE, t.g.fileName,
                         t.getOptionAST("assoc")!.getToken(), "assoc", assoc);
                 }
             }
         }
 
         if (this.altAssociativity.get(alt) && this.altAssociativity.get(alt) !== assoc) {
-            this.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, "all operators of alt " + alt +
+            ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, "all operators of alt " + alt +
                 " of left-recursive rule must have same associativity");
         }
         this.altAssociativity.set(alt, assoc);

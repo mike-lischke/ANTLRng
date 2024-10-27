@@ -12,11 +12,12 @@ import {
     CommonToken, Token, type BitSet, type IntStream, type RecognitionException,
 } from "antlr4ng";
 
+import { Constants } from "../../constants.js";
 import { BaseRecognizer } from "../BaseRecognizer.js";
+import type { IRecognizerSharedState } from "../IRecognizerSharedState.js";
+import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import type { TreeNodeStream } from "./TreeNodeStream.js";
-import type { Tree } from "./Tree.js";
-import type { RecognizerSharedState } from "../RecognizerSharedState.js";
 
 /**
  * A parser for a stream of tree nodes.  "tree grammars" result in a subclass
@@ -24,30 +25,26 @@ import type { RecognizerSharedState } from "../RecognizerSharedState.js";
  *  the BaseRecognizer superclass.
  */
 export class TreeParser extends BaseRecognizer {
-    public static readonly EOR_TOKEN_TYPE: number = 1;
-    public static readonly DOWN = -2; // Token.DOWN;
-    public static readonly UP = -3; // Token.UP;
-
     // precompiled regex used by inContext
-    protected static dotdot = /.*[^.]\\.\\.[^.].*/g;
-    protected static doubleEtc = /.*\\.\\.\\.\\s+\\.\\.\\..*/g;
+    static #dotdot = /.*[^.]\\.\\.[^.].*/g;
+    static #doubleEtc = /.*\\.\\.\\.\\s+\\.\\.\\..*/g;
 
-    protected input?: TreeNodeStream;
+    #input?: TreeNodeStream;
 
-    public constructor(input?: TreeNodeStream, state?: RecognizerSharedState) {
+    public constructor(input?: TreeNodeStream, state?: IRecognizerSharedState) {
         super(state);
-        this.input = input;
+        this.#input = input;
     }
 
     /**
      * The worker for inContext. It's static and full of parameters for testing purposes.
      */
     public static inContext(adaptor: TreeAdaptor, tokenNames: string[], t: Tree | null, context: string): boolean {
-        if (context.match(TreeParser.dotdot)) { // don't allow "..", must be "..."
+        if (context.match(TreeParser.#dotdot)) { // don't allow "..", must be "..."
             throw new Error("invalid syntax: ..");
         }
 
-        if (context.match(TreeParser.doubleEtc)) { // don't allow double "..."
+        if (context.match(TreeParser.#doubleEtc)) { // don't allow double "..."
             throw new Error("invalid syntax: ... ...");
         }
 
@@ -109,20 +106,19 @@ export class TreeParser extends BaseRecognizer {
 
     public override reset(): void {
         super.reset(); // reset all recognizer state variables
-        this.input?.seek(0); // rewind the input
+        this.#input!.seek(0); // rewind the input
     }
 
-    /** Set the input stream */
-    public setTreeNodeStream(input: TreeNodeStream): void {
-        this.input = input;
+    public set input(input: TreeNodeStream) {
+        this.#input = input;
     }
 
-    public getTreeNodeStream(): TreeNodeStream | undefined {
-        return this.input;
+    public get input(): TreeNodeStream {
+        return this.#input!;
     }
 
     public getSourceName(): string {
-        return this.input?.getSourceName() ?? "";
+        return this.#input!.getSourceName();
     }
 
     /**
@@ -134,7 +130,7 @@ export class TreeParser extends BaseRecognizer {
         this.state.errorRecovery = false;
         this.state.failed = false;
 
-        const stream = this.input ?? input as TreeNodeStream;
+        const stream = this.#input ?? input as TreeNodeStream;
         let look = stream.LT(1)!;
         if (stream.getTreeAdaptor().getChildCount(look) === 0) {
             input.consume(); // not subtree, consume 1 node and return
@@ -145,14 +141,14 @@ export class TreeParser extends BaseRecognizer {
         // must count nesting level to get right UP
         let level = 0;
         let tokenType = stream.getTreeAdaptor().getType(look);
-        while (tokenType !== Token.EOF && !(tokenType === TreeParser.UP && level === 0)) {
+        while (tokenType !== Token.EOF && !(tokenType === Constants.UP && level === 0)) {
             input.consume();
             look = stream.LT(1)!;
             tokenType = stream.getTreeAdaptor().getType(look);
-            if (tokenType === TreeParser.DOWN) {
+            if (tokenType === Constants.DOWN) {
                 level++;
             } else {
-                if (tokenType === TreeParser.UP) {
+                if (tokenType === Constants.UP) {
                     level--;
                 }
             }
@@ -199,15 +195,15 @@ export class TreeParser extends BaseRecognizer {
      *  There is no way to force the first node to be the root.
      */
     public inContext(context: string): boolean {
-        return TreeParser.inContext(this.input!.getTreeAdaptor(), this.getTokenNames(), this.input!.LT(1), context);
+        return TreeParser.inContext(this.#input!.getTreeAdaptor(), this.getTokenNames(), this.#input!.LT(1), context);
     }
 
     public override traceIn(ruleName: string, ruleIndex: number): void {
-        super.traceIn(ruleName, ruleIndex, this.input!.LT(1));
+        super.traceIn(ruleName, ruleIndex, this.#input!.LT(1));
     }
 
     public override traceOut(ruleName: string, ruleIndex: number): void {
-        super.traceOut(ruleName, ruleIndex, this.input!.LT(1));
+        super.traceOut(ruleName, ruleIndex, this.#input!.LT(1));
     }
 
     /**
@@ -228,7 +224,7 @@ export class TreeParser extends BaseRecognizer {
     protected override getMissingSymbol(input: IntStream, e: RecognitionException, expectedTokenType: number,
         follow: BitSet): Tree {
         const tokenText = "<missing " + this.getTokenNames()[expectedTokenType] + ">";
-        const adaptor = this.input!.getTreeAdaptor();
+        const adaptor = this.#input!.getTreeAdaptor();
 
         return adaptor.create(CommonToken.fromType(expectedTokenType, tokenText));
     }

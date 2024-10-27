@@ -10,8 +10,8 @@
 
 import { isToken, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
 
+import type { CommonTree } from "../../tree/CommonTree.js";
 import { CommonErrorNode } from "./CommonErrorNode.js";
-import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 
 /** A TreeAdaptor that works with any Tree implementation. */
@@ -21,13 +21,13 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
      *  track ourselves.  That's ok, it's only for debugging, though it's
      *  expensive: we have to create a hashtable with all tree nodes in it.
      */
-    protected treeToUniqueIDMap = new Map<Tree, number>();
+    protected treeToUniqueIDMap = new Map<CommonTree, number>();
     protected uniqueNodeID = 1;
 
-    public create(payload: Token | null): Tree;
-    public create(tokenType: number, text: string): Tree;
-    public create(tokenType: number, fromToken: Token, text?: string): Tree;
-    public create(...args: unknown[]): Tree {
+    public create(payload: Token | null): CommonTree;
+    public create(tokenType: number, text: string): CommonTree;
+    public create(tokenType: number, fromToken: Token, text?: string): CommonTree;
+    public create(...args: unknown[]): CommonTree {
         if (args.length === 1) {
             // Simulate an abstract method for an overloaded method.
             throw new Error("Abstract method called: BaseTreeAdaptor.create(Token)");
@@ -71,7 +71,7 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
         }
     }
 
-    public nil(): Tree {
+    public nil(): CommonTree {
         return this.create(null);
     }
 
@@ -88,11 +88,11 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
      *  subclass your own tree node class to avoid class cast exception.
      */
     public errorNode(input: TokenStream, start: Token, stop: Token,
-        e: RecognitionException): Tree {
+        e: RecognitionException): CommonTree {
         return new CommonErrorNode(input, start, stop, e);
     }
 
-    public isNil(tree: Tree | null): boolean {
+    public isNil(tree: CommonTree | null): boolean {
         if (tree === null) {
             return true;
         }
@@ -105,7 +105,7 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
      *  tree (not just Tree interface).  It invokes the adaptor routines
      *  not the tree node routines to do the construction.
      */
-    public dupTree(t: Tree, parent?: Tree): Tree {
+    public dupTree(t: CommonTree, parent?: CommonTree): CommonTree {
         const newTree = this.dupNode(t);
 
         // ensure new subtree root has parent/child index set
@@ -132,7 +132,7 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
      *  make sure that this is consistent with have the user will build
      *  ASTs.
      */
-    public addChild(t: Tree, child: Tree): void {
+    public addChild(t: CommonTree, child: CommonTree): void {
         t.addChild(child);
     }
 
@@ -163,7 +163,7 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
      *  constructing these nodes so we should have this control for
      *  efficiency.
      */
-    public becomeRoot(newRoot: Tree | Token, oldRoot: Tree | null): Tree {
+    public becomeRoot(newRoot: CommonTree | Token, oldRoot: CommonTree | null): CommonTree {
         if (isToken(newRoot)) {
             newRoot = this.create(newRoot);
         }
@@ -196,8 +196,8 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
     /**
      * Transform ^(nil x) to x and nil to null
      */
-    public rulePostProcessing(root: Tree): Tree | null {
-        let r: Tree | null = root;
+    public rulePostProcessing(root: CommonTree): CommonTree | null {
+        let r: CommonTree | null = root;
         if (r.isNil()) {
             if (r.getChildCount() === 0) {
                 r = null;
@@ -214,14 +214,14 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
     }
 
     public getType(t: unknown): number {
-        return (t as Tree).getType();
+        return (t as CommonTree).getType();
     }
 
     public setType(t: unknown, type: number): void {
         throw new Error("don't know enough about Tree node");
     }
 
-    public getText(t: Tree): string | null {
+    public getText(t: CommonTree): string | null {
         return t.getText();
     }
 
@@ -229,23 +229,23 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
         throw new Error("don't know enough about Tree node");
     }
 
-    public getChild(t: Tree, i: number): Tree | null {
+    public getChild(t: CommonTree, i: number): CommonTree | null {
         return t.getChild(i);
     }
 
     public setChild(t: unknown, i: number, child: unknown): void {
-        (t as Tree).setChild(i, child as Tree);
+        (t as CommonTree).setChild(i, child as CommonTree);
     }
 
-    public deleteChild(t: Tree, i: number): Tree | null {
+    public deleteChild(t: CommonTree, i: number): CommonTree | null {
         return t.deleteChild(i);
     }
 
     public getChildCount(t: unknown): number {
-        return (t as Tree).getChildCount();
+        return (t as CommonTree).getChildCount();
     }
 
-    public getUniqueID(node: Tree): number {
+    public getUniqueID(node: CommonTree): number {
         const prevID = this.treeToUniqueIDMap.get(node);
         if (prevID) {
             return prevID;
@@ -285,18 +285,19 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
      */
     public abstract createToken(fromToken: Token): Token;
 
-    public abstract dupNode(treeNode: Tree): Tree;
+    public abstract dupNode(treeNode: CommonTree): CommonTree;
 
-    public abstract getParent(t: Tree | null): Tree | null;
-    public abstract setParent(t: Tree | null, parent: Tree | null): void;
+    public abstract getParent(t: CommonTree | null): CommonTree | null;
+    public abstract setParent(t: CommonTree | null, parent: CommonTree | null): void;
 
-    public abstract getChildIndex(t: Tree): number;
-    public abstract setChildIndex(t: Tree, index: number): void;
+    public abstract getChildIndex(t: CommonTree): number;
+    public abstract setChildIndex(t: CommonTree, index: number): void;
 
-    public abstract getToken(t: Tree): Token | null;
-    public abstract setTokenBoundaries(t: Tree, startToken: Token, stopToken: Token): void;
-    public abstract getTokenStartIndex(t: Tree): number;
-    public abstract getTokenStopIndex(t: Tree): number;
+    public abstract getToken(t: CommonTree): Token | null;
+    public abstract setTokenBoundaries(t: CommonTree, startToken: Token, stopToken: Token): void;
+    public abstract getTokenStartIndex(t: CommonTree): number;
+    public abstract getTokenStopIndex(t: CommonTree): number;
 
-    public abstract replaceChildren(parent: Tree, startChildIndex: number, stopChildIndex: number, t: Tree): void;
+    public abstract replaceChildren(parent: CommonTree, startChildIndex: number, stopChildIndex: number,
+        t: CommonTree): void;
 }

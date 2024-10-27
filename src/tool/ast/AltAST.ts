@@ -6,10 +6,10 @@
 
 import { Token } from "antlr4ng";
 
-import { LeftRecursiveRuleAltInfo } from "../../analysis/LeftRecursiveRuleAltInfo.js";
-import { Alternative } from "../Alternative.js";
-import { GrammarAST } from "./GrammarAST.js";
-import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
+import { type LeftRecursiveRuleAltInfo } from "../../analysis/LeftRecursiveRuleAltInfo.js";
+import { type Alternative } from "../Alternative.js";
+import { type GrammarAST } from "./GrammarAST.js";
+import { type GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
 
 /** Any ALT (which can be child of ALT_REWRITE node) */

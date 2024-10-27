@@ -16,6 +16,7 @@ import { SourceGenTriggers } from "../tree-walkers/SourceGenTriggers.js";
 import { Utils } from "../misc/Utils.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
 import { Alternative } from "../tool/Alternative.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LeftRecursiveRule } from "../tool/LeftRecursiveRule.js";
@@ -279,7 +280,7 @@ export class OutputModelController {
                 altActionST.add("isListLabel", altInfo.isListLabel);
             } else {
                 if (altInfo.isListLabel) {
-                    this.delegate.getGenerator()!.tool.errMgr.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE,
+                    ErrorManager.get().toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE,
                         templateName, "isListLabel");
                 }
             }

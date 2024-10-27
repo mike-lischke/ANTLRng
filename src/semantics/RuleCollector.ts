@@ -17,7 +17,6 @@ import { AltAST } from "../tool/ast/AltAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { DictType } from "../tool/DictType.js";
-import type { ErrorManager } from "../tool/ErrorManager.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LeftRecursiveRule } from "../tool/LeftRecursiveRule.js";
 import { Rule } from "../tool/Rule.js";
@@ -26,7 +25,6 @@ export class RuleCollector extends GrammarTreeVisitor {
 
     /** which grammar are we checking */
     public g: Grammar;
-    public errMgr: ErrorManager;
 
     // stuff to collect. this is the output
     public nameToRuleMap = new Map<string, Rule>();
@@ -38,11 +36,6 @@ export class RuleCollector extends GrammarTreeVisitor {
         super();
 
         this.g = g;
-        this.errMgr = g.tool.errMgr;
-    }
-
-    public override getErrorManager(): ErrorManager {
-        return this.errMgr;
     }
 
     public process(ast: GrammarAST): void {

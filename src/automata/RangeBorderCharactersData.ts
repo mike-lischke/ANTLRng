@@ -4,8 +4,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { CommonTree } from "../antlr3/tree/CommonTree.js";
+import type { CommonTree } from "../tree/CommonTree.js";
 import { Character } from "../support/Character.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 
@@ -45,7 +46,7 @@ export class RangeBorderCharactersData {
             }
 
             if (notImpliedCharacters.length > 0) {
-                grammar.tool.errMgr.grammarError(ErrorType.RANGE_PROBABLY_CONTAINS_NOT_IMPLIED_CHARACTERS,
+                ErrorManager.get().grammarError(ErrorType.RANGE_PROBABLY_CONTAINS_NOT_IMPLIED_CHARACTERS,
                     grammar.fileName, tree.getToken(), from, to, notImpliedCharacters.toString());
             }
         }

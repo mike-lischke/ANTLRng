@@ -6,9 +6,9 @@
 
 /* eslint-disable jsdoc/require-param */
 
-import { OutputModelFactory } from "../../OutputModelFactory.js";
+import { type OutputModelFactory } from "../../OutputModelFactory.js";
 import { SrcOp } from "../SrcOp.js";
-import { Decl } from "./Decl.js";
+import { type Decl } from "./Decl.js";
 
 export class CodeBlock extends SrcOp {
     public codeBlockLevel: number;

@@ -11,7 +11,7 @@ import { ActionSplitter } from "../generated/ActionSplitter.js";
 import { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
 import { Alternative } from "../tool/Alternative.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
-import type { ErrorManager } from "../tool/ErrorManager.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LabelType } from "../tool/LabelType.js";
@@ -27,7 +27,6 @@ export class AttributeChecks implements ActionSplitterListener {
     public alt: Alternative | null; // null if action outside of alt; could be in rule
     public node: ActionAST;
     public actionText?: string;
-    public errMgr: ErrorManager;
 
     public constructor(g: Grammar, r: Rule | null, alt: Alternative | null, node: ActionAST, actionText?: string) {
         this.g = g;
@@ -35,7 +34,6 @@ export class AttributeChecks implements ActionSplitterListener {
         this.alt = alt;
         this.node = node;
         this.actionText = actionText;
-        this.errMgr = g.tool.errMgr;
     }
 
     public static checkAllAttributeExpressions(g: Grammar): void {
@@ -87,7 +85,8 @@ export class AttributeChecks implements ActionSplitterListener {
 
     public qualifiedAttr(expr: string, x: string, y: string): void {
         if (this.g.isLexer()) {
-            this.errMgr.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, null, x + "." + y, expr);
+            ErrorManager.get().grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, null, x + "." + y,
+                expr);
 
             return;
         }
@@ -103,23 +102,23 @@ export class AttributeChecks implements ActionSplitterListener {
             const ruleRef = this.isolatedRuleRef(x);
             if (ruleRef) {
                 if (ruleRef.args?.get(y) !== null) {
-                    this.g.tool.errMgr.grammarError(ErrorType.INVALID_RULE_PARAMETER_REF, this.g.fileName, null, y,
+                    ErrorManager.get().grammarError(ErrorType.INVALID_RULE_PARAMETER_REF, this.g.fileName, null, y,
                         ruleRef.name, expr);
                 } else {
-                    this.errMgr.grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y, ruleRef.name,
-                        expr);
+                    ErrorManager.get().grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y,
+                        ruleRef.name, expr);
                 }
             } else if (!this.node.resolver.resolvesToAttributeDict(x, this.node)) {
-                this.errMgr.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, null, x, expr);
+                ErrorManager.get().grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, null, x, expr);
             } else {
-                this.errMgr.grammarError(ErrorType.UNKNOWN_ATTRIBUTE_IN_SCOPE, this.g.fileName, null, y, expr);
+                ErrorManager.get().grammarError(ErrorType.UNKNOWN_ATTRIBUTE_IN_SCOPE, this.g.fileName, null, y, expr);
             }
         }
     }
 
     public setAttr(expr: string, x: string, rhs: string): void {
         if (this.g.isLexer()) {
-            this.errMgr.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION,
+            ErrorManager.get().grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION,
                 this.g.fileName, null, x, expr);
 
             return;
@@ -131,14 +130,14 @@ export class AttributeChecks implements ActionSplitterListener {
                 errorType = ErrorType.ASSIGNMENT_TO_LIST_LABEL;
             }
 
-            this.errMgr.grammarError(errorType, this.g.fileName, null, x, expr);
+            ErrorManager.get().grammarError(errorType, this.g.fileName, null, x, expr);
         }
         new AttributeChecks(this.g, this.r, this.alt, this.node, rhs).examineAction();
     }
 
     public attr(expr: string, x: string): void {
         if (this.g.isLexer()) {
-            this.errMgr.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, null, x, expr);
+            ErrorManager.get().grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, null, x, expr);
 
             return;
         }
@@ -153,31 +152,32 @@ export class AttributeChecks implements ActionSplitterListener {
             }
 
             if (this.isolatedRuleRef(x) !== null) {
-                this.errMgr.grammarError(ErrorType.ISOLATED_RULE_REF,
+                ErrorManager.get().grammarError(ErrorType.ISOLATED_RULE_REF,
                     this.g.fileName, null, x, expr);
 
                 return;
             }
-            this.errMgr.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, null, x, expr);
+            ErrorManager.get().grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, null, x, expr);
         }
     }
 
     public nonLocalAttr(expr: string, x: string, y: string): void {
         const r = this.g.getRule(x);
         if (r === null) {
-            this.errMgr.grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF,
+            ErrorManager.get().grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF,
                 this.g.fileName, null, x, y, expr);
         } else if (r.resolveToAttribute(y, null) === null) {
-            this.errMgr.grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y, x, expr);
+            ErrorManager.get().grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y, x, expr);
         }
     }
 
     public setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
         const r = this.g.getRule(x);
         if (r === null) {
-            this.errMgr.grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF, this.g.fileName, null, x, y, expr);
+            ErrorManager.get().grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF, this.g.fileName, null, x, y,
+                expr);
         } else if (r.resolveToAttribute(y, null) === null) {
-            this.errMgr.grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y, x, expr);
+            ErrorManager.get().grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y, x, expr);
         }
     }
 

@@ -6,15 +6,17 @@
 
 import { CommonToken, type CharStream, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
 
-import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { CommonTreeAdaptor } from "../antlr3/tree/CommonTreeAdaptor.js";
+import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 
+import { ClassFactory } from "../ClassFactory.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { GrammarASTErrorNode } from "../tool/ast/GrammarASTErrorNode.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
+import type { IGrammarASTAdaptor } from "../types.js";
 
-export class GrammarASTAdaptor extends CommonTreeAdaptor {
+export class GrammarASTAdaptor extends CommonTreeAdaptor implements IGrammarASTAdaptor {
     protected input?: CharStream; // where we can find chars ref'd by tokens in tree
 
     public constructor(input?: CharStream) {
@@ -68,5 +70,11 @@ export class GrammarASTAdaptor extends CommonTreeAdaptor {
     public override errorNode(input: TokenStream, start: Token, stop: Token,
         e: RecognitionException): GrammarASTErrorNode {
         return new GrammarASTErrorNode(input, start, stop, e);
+    }
+
+    static {
+        ClassFactory.createGrammarASTAdaptor = (input: CharStream) => {
+            return new GrammarASTAdaptor(input);
+        };
     }
 }

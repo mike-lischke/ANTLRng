@@ -10,8 +10,9 @@ import { ActionAST } from "./ActionAST.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 
 export class PredAST extends ActionAST {
-    public constructor(node: PredAST);
+    public override readonly astType: string = "PredAST";
 
+    public constructor(node: PredAST);
     public constructor(t: Token);
     public constructor(type: number, t?: Token);
     public constructor(...args: unknown[]) {

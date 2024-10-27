@@ -8,10 +8,11 @@ import { type Token, type TokenStream } from "antlr4ng";
 
 import { grammarOptions } from "../../grammar-options.js";
 import type { GrammarType } from "../../support/GrammarType.js";
+import type { IGrammarRootAST } from "../../types.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
 
-export class GrammarRootAST extends GrammarASTWithOptions {
+export class GrammarRootAST extends GrammarASTWithOptions implements IGrammarRootAST {
     public grammarType: GrammarType;
     public hasErrors: boolean;
 
@@ -103,7 +104,7 @@ export class GrammarRootAST extends GrammarASTWithOptions {
     }
 
     public override dupNode(): GrammarRootAST {
-        return new GrammarRootAST(this); 
+        return new GrammarRootAST(this);
     }
 
 }

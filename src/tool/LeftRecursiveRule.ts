@@ -15,6 +15,8 @@ import type { GrammarAST } from "./ast/GrammarAST.js";
 import { RuleAST } from "./ast/RuleAST.js";
 
 export class LeftRecursiveRule extends Rule {
+    public override readonly ruleType: string = "LeftRecursiveRule";
+
     public recPrimaryAlts: LeftRecursiveRuleAltInfo[];
     public recOpAlts: Map<number, LeftRecursiveRuleAltInfo>;
     public originalAST: RuleAST;

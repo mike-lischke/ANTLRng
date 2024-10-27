@@ -4,27 +4,27 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { OutputModelController } from "./OutputModelController.js";
-import { CodeGenerator } from "./CodeGenerator.js";
-import { Choice } from "./model/Choice.js";
-import { CodeBlockForAlt } from "./model/CodeBlockForAlt.js";
-import { CodeBlockForOuterMostAlt } from "./model/CodeBlockForOuterMostAlt.js";
-import { LabeledOp } from "./model/LabeledOp.js";
-import { Lexer } from "./model/Lexer.js";
-import { LexerFile } from "./model/LexerFile.js";
-import { OutputModelObject } from "./model/OutputModelObject.js";
-import { Parser } from "./model/Parser.js";
-import { ParserFile } from "./model/ParserFile.js";
-import { RuleFunction } from "./model/RuleFunction.js";
-import { SrcOp } from "./model/SrcOp.js";
-import { CodeBlock } from "./model/decl/CodeBlock.js";
-import { IntervalSet } from "antlr4ng";
-import { Alternative } from "../tool/Alternative.js";
-import { Grammar } from "../tool/Grammar.js";
-import { Rule } from "../tool/Rule.js";
-import { ActionAST } from "../tool/ast/ActionAST.js";
-import { BlockAST } from "../tool/ast/BlockAST.js";
-import { GrammarAST } from "../tool/ast/GrammarAST.js";
+import type { OutputModelController } from "./OutputModelController.js";
+import type { CodeGenerator } from "./CodeGenerator.js";
+import type { Choice } from "./model/Choice.js";
+import type { CodeBlockForAlt } from "./model/CodeBlockForAlt.js";
+import type { CodeBlockForOuterMostAlt } from "./model/CodeBlockForOuterMostAlt.js";
+import type { LabeledOp } from "./model/LabeledOp.js";
+import type { Lexer } from "./model/Lexer.js";
+import type { LexerFile } from "./model/LexerFile.js";
+import type { OutputModelObject } from "./model/OutputModelObject.js";
+import type { Parser } from "./model/Parser.js";
+import type { ParserFile } from "./model/ParserFile.js";
+import type { RuleFunction } from "./model/RuleFunction.js";
+import type { SrcOp } from "./model/SrcOp.js";
+import type { CodeBlock } from "./model/decl/CodeBlock.js";
+import type { IntervalSet } from "antlr4ng";
+import type { Alternative } from "../tool/Alternative.js";
+import type { Grammar } from "../tool/Grammar.js";
+import type { Rule } from "../tool/Rule.js";
+import type { ActionAST } from "../tool/ast/ActionAST.js";
+import type { BlockAST } from "../tool/ast/BlockAST.js";
+import type { GrammarAST } from "../tool/ast/GrammarAST.js";
 
 export interface OutputModelFactory {
     getGrammar(): Grammar | null;

@@ -45,19 +45,19 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Run selected Jest test",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": [
-                "t",
-            ],
+            "name": "Debug Current Test File",
+            "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
             "args": [
-                "--",
-                "-i",
-                "${file}",
-                "-t",
-                "--no-coverage"
+                "run",
+                "${relativeFile}"
+            ],
+            "autoAttachChildProcesses": true,
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**"
             ],
             "console": "integratedTerminal",
-        },
+            "smartStep": true
+        }
     ]
 }

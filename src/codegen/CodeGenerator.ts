@@ -18,6 +18,8 @@ import { OutputModelController } from "./OutputModelController.js";
 import { OutputModelWalker } from "./OutputModelWalker.js";
 import { ParserFactory } from "./ParserFactory.js";
 import { Target } from "./Target.js";
+import { Constants } from "../constants.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 
 // Possible targets:
 import { CppTarget } from "./target/CppTarget.js";
@@ -38,12 +40,6 @@ export type SupportedLanguage = typeof targetLanguages[number];
 
 /**  General controller for code gen.  Can instantiate sub generator(s). */
 export class CodeGenerator {
-    public static readonly TEMPLATE_ROOT = "org/antlr/v4/tool/templates/codegen";
-    public static readonly VOCAB_FILE_EXTENSION = ".tokens";
-    public static readonly vocabFilePattern =
-        "<tokens.keys:{t | <t>=<tokens.(t)>\n}>" +
-        "<literals.keys:{t | <t>=<literals.(t)>\n}>";
-
     public readonly g?: Grammar;
 
     public readonly tool: Tool;
@@ -53,6 +49,10 @@ export class CodeGenerator {
     public lineWidth = 72;
 
     private target: Target;
+
+    static readonly #vocabFilePattern =
+        "<tokens.keys:{t | <t>=<tokens.(t)>\n}>" +
+        "<literals.keys:{t | <t>=<literals.(t)>\n}>";
 
     static #languageMap = new Map<SupportedLanguage, new (generator: CodeGenerator) => Target>([
         ["Cpp", CppTarget],
@@ -181,7 +181,7 @@ export class CodeGenerator {
             writeFileSync(fileName, w.toString(), "utf8");
         } catch (cause) {
             if (cause instanceof Error) {
-                this.tool.errMgr.toolError(ErrorType.CANNOT_WRITE_FILE, cause, fileName);
+                ErrorManager.get().toolError(ErrorType.CANNOT_WRITE_FILE, cause, fileName);
             } else {
                 throw cause;
             }
@@ -233,7 +233,7 @@ export class CodeGenerator {
      * Returns undefined if no ".tokens" file should be generated.
      */
     public getVocabFileName(): string | undefined {
-        return this.g!.name + CodeGenerator.VOCAB_FILE_EXTENSION;
+        return this.g!.name + Constants.VOCAB_FILE_EXTENSION;
     }
 
     public getHeaderFileName(): string | undefined {
@@ -256,7 +256,7 @@ export class CodeGenerator {
      *  This is independent of the target language and used by antlr internally.
      */
     protected getTokenVocabOutput(): ST {
-        const vocabFileST = new ST(CodeGenerator.vocabFilePattern);
+        const vocabFileST = new ST(CodeGenerator.#vocabFilePattern);
         const tokens = new Map<string, number>();
 
         // Make constants for the token names.

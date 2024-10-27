@@ -6,12 +6,13 @@
 
 /* eslint-disable jsdoc/require-returns */
 
-import { GrammarAST } from "../../tool/ast/GrammarAST.js";
-import { OutputModelFactory } from "../OutputModelFactory.js";
-import { CodeBlockForOuterMostAlt } from "./CodeBlockForOuterMostAlt.js";
-import { CodeBlock } from "./decl/CodeBlock.js";
+import { isCodeBlockForOuterMostAlt } from "../../support/helpers.js";
+import { type GrammarAST } from "../../tool/ast/GrammarAST.js";
+import type { ICodeBlockForOuterMostAlt } from "../../types.js";
+import { type OutputModelFactory } from "../OutputModelFactory.js";
+import { type CodeBlock } from "./decl/CodeBlock.js";
 import { OutputModelObject } from "./OutputModelObject.js";
-import { RuleFunction } from "./RuleFunction.js";
+import { type RuleFunction } from "./RuleFunction.js";
 
 export abstract class SrcOp extends OutputModelObject {
 
@@ -39,14 +40,14 @@ export abstract class SrcOp extends OutputModelObject {
     }
 
     /** Walk upwards in model tree, looking for outer alt's code block */
-    public getOuterMostAltCodeBlock(): CodeBlockForOuterMostAlt | undefined {
-        if (this instanceof CodeBlockForOuterMostAlt) {
-            return this as CodeBlockForOuterMostAlt;
+    public getOuterMostAltCodeBlock(): ICodeBlockForOuterMostAlt | undefined {
+        if (isCodeBlockForOuterMostAlt(this)) {
+            return this;
         }
 
         let p = this.enclosingBlock;
         while (p) {
-            if (p instanceof CodeBlockForOuterMostAlt) {
+            if (isCodeBlockForOuterMostAlt(p)) {
                 return p;
             }
 

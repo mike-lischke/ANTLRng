@@ -1,20 +1,21 @@
 import { RecognitionException } from "antlr4ng";
 
+import { EarlyExitException } from "../antlr3/EarlyExitException.js";
+import { IRecognizerSharedState } from "../antlr3/IRecognizerSharedState.js";
+import { NoViableAltException } from "../antlr3/NoViableAltException.js";
+import type { TreeNodeStream } from "../antlr3/tree/TreeNodeStream.js";
+import { TreeParser } from "../antlr3/tree/TreeParser.js";
+import { TreeRuleReturnScope } from "../antlr3/tree/TreeRuleReturnScope.js";
 import { CodeBlockForAlt } from "../codegen/model/CodeBlockForAlt.js";
 import { PlusBlock } from "../codegen/model/PlusBlock.js";
 import type { SrcOp } from "../codegen/model/SrcOp.js";
 import { StarBlock } from "../codegen/model/StarBlock.js";
 import { OutputModelController } from "../codegen/OutputModelController.js";
+import { Constants } from "../constants.js";
 import type { ActionAST } from "../tool/ast/ActionAST.js";
 import type { AltAST } from "../tool/ast/AltAST.js";
 import type { BlockAST } from "../tool/ast/BlockAST.js";
 import type { GrammarAST } from "../tool/ast/GrammarAST.js";
-import { EarlyExitException } from "../antlr3/EarlyExitException.js";
-import { NoViableAltException } from "../antlr3/NoViableAltException.js";
-import { RecognizerSharedState } from "../antlr3/RecognizerSharedState.js";
-import type { TreeNodeStream } from "../antlr3/tree/TreeNodeStream.js";
-import { TreeParser } from "../antlr3/tree/TreeParser.js";
-import { TreeRuleReturnScope } from "../antlr3/tree/TreeRuleReturnScope.js";
 import { GrammarTreeVisitor } from "./GrammarTreeVisitor.js";
 
 /*
@@ -140,8 +141,8 @@ export class SourceGenTriggers extends TreeParser {
     public controller?: OutputModelController;
     public hasLookaheadBlock: boolean;
 
-    public constructor(input: TreeNodeStream, stateOrController?: RecognizerSharedState | OutputModelController) {
-        let state: RecognizerSharedState | undefined;
+    public constructor(input: TreeNodeStream, stateOrController?: IRecognizerSharedState | OutputModelController) {
+        let state: IRecognizerSharedState | undefined;
         let controller: OutputModelController | undefined;
 
         if (stateOrController instanceof OutputModelController) {
@@ -184,7 +185,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -206,11 +207,11 @@ export class SourceGenTriggers extends TreeParser {
             // ./SourceGenTriggers.g:62:5: ( ^(blk= BLOCK ( ^( OPTIONS ( . )+ ) )? ( alternative )+ ) )
             // ./SourceGenTriggers.g:62:7: ^(blk= BLOCK ( ^( OPTIONS ( . )+ ) )? ( alternative )+ )
             {
-                blk = this.match(this.input!, SourceGenTriggers.BLOCK, null) as GrammarAST;
-                this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                blk = this.match(this.input, SourceGenTriggers.BLOCK, null) as GrammarAST;
+                this.match(this.input, Constants.DOWN, null);
                 // ./SourceGenTriggers.g:62:20: ( ^( OPTIONS ( . )+ ) )?
                 let alt2 = 2;
-                const LA2_0 = this.input!.LA(1);
+                const LA2_0 = this.input.LA(1);
                 if ((LA2_0 === SourceGenTriggers.OPTIONS)) {
                     alt2 = 1;
                 }
@@ -218,18 +219,18 @@ export class SourceGenTriggers extends TreeParser {
                     case 1: {
                         // ./SourceGenTriggers.g:62:21: ^( OPTIONS ( . )+ )
                         {
-                            this.match(this.input!, SourceGenTriggers.OPTIONS, null);
-                            this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                            this.match(this.input, SourceGenTriggers.OPTIONS, null);
+                            this.match(this.input, Constants.DOWN, null);
                             // ./SourceGenTriggers.g:62:31: ( . )+
                             let cnt1 = 0;
                             loop1:
                             while (true) {
                                 let alt1 = 2;
-                                const LA1_0 = this.input!.LA(1);
+                                const LA1_0 = this.input.LA(1);
                                 if (((LA1_0 >= SourceGenTriggers.ACTION && LA1_0 <= SourceGenTriggers.WILDCARD))) {
                                     alt1 = 1;
                                 } else {
-                                    if ((LA1_0 === GrammarTreeVisitor.UP)) {
+                                    if ((LA1_0 === Constants.UP)) {
                                         alt1 = 2;
                                     }
                                 }
@@ -238,7 +239,7 @@ export class SourceGenTriggers extends TreeParser {
                                     case 1: {
                                         // ./SourceGenTriggers.g:62:31: .
                                         {
-                                            this.matchAny(this.input!);
+                                            this.matchAny(this.input);
                                         }
                                         break;
                                     }
@@ -256,7 +257,7 @@ export class SourceGenTriggers extends TreeParser {
                                 cnt1++;
                             }
 
-                            this.match(this.input!, GrammarTreeVisitor.UP, null);
+                            this.match(this.input, Constants.UP, null);
 
                         }
                         break;
@@ -272,7 +273,7 @@ export class SourceGenTriggers extends TreeParser {
                 loop3:
                 while (true) {
                     let alt3 = 2;
-                    const LA3_0 = this.input!.LA(1);
+                    const LA3_0 = this.input.LA(1);
                     if ((LA3_0 === SourceGenTriggers.ALT)) {
                         alt3 = 1;
                     }
@@ -303,7 +304,7 @@ export class SourceGenTriggers extends TreeParser {
                     cnt3++;
                 }
 
-                this.match(this.input!, GrammarTreeVisitor.UP, null);
+                this.match(this.input, Constants.UP, null);
 
                 if (alts.length === 1 && ebnfRoot === null) {
                     return alts;
@@ -322,7 +323,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -337,7 +338,7 @@ export class SourceGenTriggers extends TreeParser {
     // ./SourceGenTriggers.g:79:1: alternative returns [CodeBlockForAlt altCodeBlock, List<SrcOp> ops] : a= alt[outerMost] ;
     public alternative(): SourceGenTriggers.alternative_return {
         const retval = new SourceGenTriggers.alternative_return();
-        retval.start = this.input!.LT(1);
+        retval.start = this.input.LT(1);
 
         let a = null;
 
@@ -360,7 +361,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -375,7 +376,7 @@ export class SourceGenTriggers extends TreeParser {
     // ./SourceGenTriggers.g:89:1: alt[boolean outerMost] returns [CodeBlockForAlt altCodeBlock, List<SrcOp> ops] : ( ^( ALT ( elementOptions )? ( element )+ ) | ^( ALT ( elementOptions )? EPSILON ) );
     public alt(outerMost: boolean): SourceGenTriggers.alt_return {
         const retval = new SourceGenTriggers.alt_return();
-        retval.start = this.input!.LT(1);
+        retval.start = this.input.LT(1);
 
         let element2 = null;
 
@@ -389,7 +390,7 @@ export class SourceGenTriggers extends TreeParser {
             // ./SourceGenTriggers.g:95:2: ( ^( ALT ( elementOptions )? ( element )+ ) | ^( ALT ( elementOptions )? EPSILON ) )
             let alt7 = 2;
             //alt7 = this.dfa7.predict(this.input!);
-            alt7 = this.input!.LA(1); // This is wrong! Just to silence eslint and tsc for the moment.
+            alt7 = this.input.LA(1); // This is wrong! Just to silence eslint and tsc for the moment.
             switch (alt7) {
                 case 1: {
                     // ./SourceGenTriggers.g:95:4: ^( ALT ( elementOptions )? ( element )+ )
@@ -401,11 +402,11 @@ export class SourceGenTriggers extends TreeParser {
                         retval.altCodeBlock.ops = retval.ops = elems;
                         this.controller!.setCurrentBlock(retval.altCodeBlock);
 
-                        this.match(this.input!, SourceGenTriggers.ALT, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ALT, null);
+                        this.match(this.input, Constants.DOWN, null);
                         // ./SourceGenTriggers.g:102:10: ( elementOptions )?
                         let alt4 = 2;
-                        const LA4_0 = this.input!.LA(1);
+                        const LA4_0 = this.input.LA(1);
                         if ((LA4_0 === SourceGenTriggers.ELEMENT_OPTIONS)) {
                             alt4 = 1;
                         }
@@ -430,7 +431,7 @@ export class SourceGenTriggers extends TreeParser {
                         loop5:
                         while (true) {
                             let alt5 = 2;
-                            const LA5_0 = this.input!.LA(1);
+                            const LA5_0 = this.input.LA(1);
                             if ((LA5_0 === SourceGenTriggers.ACTION || LA5_0 === SourceGenTriggers.ASSIGN || LA5_0 === SourceGenTriggers.DOT || LA5_0 === SourceGenTriggers.NOT || LA5_0 === SourceGenTriggers.PLUS_ASSIGN || LA5_0 === SourceGenTriggers.RANGE || LA5_0 === SourceGenTriggers.RULE_REF || LA5_0 === SourceGenTriggers.SEMPRED || LA5_0 === SourceGenTriggers.STRING_LITERAL || LA5_0 === SourceGenTriggers.TOKEN_REF || (LA5_0 >= SourceGenTriggers.BLOCK && LA5_0 <= SourceGenTriggers.CLOSURE) || (LA5_0 >= SourceGenTriggers.OPTIONAL && LA5_0 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA5_0 >= SourceGenTriggers.SET && LA5_0 <= SourceGenTriggers.WILDCARD))) {
                                 alt5 = 1;
                             }
@@ -464,7 +465,7 @@ export class SourceGenTriggers extends TreeParser {
                             cnt5++;
                         }
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                     }
                     break;
@@ -473,11 +474,11 @@ export class SourceGenTriggers extends TreeParser {
                 case 2: {
                     // ./SourceGenTriggers.g:104:4: ^( ALT ( elementOptions )? EPSILON )
                     {
-                        this.match(this.input!, SourceGenTriggers.ALT, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ALT, null);
+                        this.match(this.input, Constants.DOWN, null);
                         // ./SourceGenTriggers.g:104:10: ( elementOptions )?
                         let alt6 = 2;
-                        const LA6_0 = this.input!.LA(1);
+                        const LA6_0 = this.input.LA(1);
                         if ((LA6_0 === SourceGenTriggers.ELEMENT_OPTIONS)) {
                             alt6 = 1;
                         }
@@ -497,8 +498,8 @@ export class SourceGenTriggers extends TreeParser {
 
                         }
 
-                        this.match(this.input!, SourceGenTriggers.EPSILON, null);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, SourceGenTriggers.EPSILON, null);
+                        this.match(this.input, Constants.UP, null);
 
                         retval.altCodeBlock = this.controller!.epsilon(this.controller!.getCurrentOuterMostAlt(), outerMost);
                     }
@@ -511,7 +512,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -539,7 +540,7 @@ export class SourceGenTriggers extends TreeParser {
         try {
             // ./SourceGenTriggers.g:109:2: ( labeledElement | atom[null,false] | subrule | ACTION | SEMPRED | ^( ACTION elementOptions ) | ^( SEMPRED elementOptions ) )
             let alt8 = 7;
-            switch (this.input!.LA(1)) {
+            switch (this.input.LA(1)) {
                 case GrammarTreeVisitor.ASSIGN:
                 case GrammarTreeVisitor.PLUS_ASSIGN: {
                     {
@@ -574,22 +575,22 @@ export class SourceGenTriggers extends TreeParser {
 
                 case GrammarTreeVisitor.ACTION: {
                     {
-                        const LA8_4 = this.input!.LA(2);
-                        if ((LA8_4 === GrammarTreeVisitor.DOWN)) {
+                        const LA8_4 = this.input.LA(2);
+                        if ((LA8_4 === Constants.DOWN)) {
                             alt8 = 6;
                         } else {
-                            if (((LA8_4 >= GrammarTreeVisitor.UP && LA8_4 <= SourceGenTriggers.ACTION) || LA8_4 === SourceGenTriggers.ASSIGN || LA8_4 === SourceGenTriggers.DOT || LA8_4 === SourceGenTriggers.NOT || LA8_4 === SourceGenTriggers.PLUS_ASSIGN || LA8_4 === SourceGenTriggers.RANGE || LA8_4 === SourceGenTriggers.RULE_REF || LA8_4 === SourceGenTriggers.SEMPRED || LA8_4 === SourceGenTriggers.STRING_LITERAL || LA8_4 === SourceGenTriggers.TOKEN_REF || (LA8_4 >= SourceGenTriggers.BLOCK && LA8_4 <= SourceGenTriggers.CLOSURE) || (LA8_4 >= SourceGenTriggers.OPTIONAL && LA8_4 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA8_4 >= SourceGenTriggers.SET && LA8_4 <= SourceGenTriggers.WILDCARD))) {
+                            if (((LA8_4 >= Constants.UP && LA8_4 <= SourceGenTriggers.ACTION) || LA8_4 === SourceGenTriggers.ASSIGN || LA8_4 === SourceGenTriggers.DOT || LA8_4 === SourceGenTriggers.NOT || LA8_4 === SourceGenTriggers.PLUS_ASSIGN || LA8_4 === SourceGenTriggers.RANGE || LA8_4 === SourceGenTriggers.RULE_REF || LA8_4 === SourceGenTriggers.SEMPRED || LA8_4 === SourceGenTriggers.STRING_LITERAL || LA8_4 === SourceGenTriggers.TOKEN_REF || (LA8_4 >= SourceGenTriggers.BLOCK && LA8_4 <= SourceGenTriggers.CLOSURE) || (LA8_4 >= SourceGenTriggers.OPTIONAL && LA8_4 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA8_4 >= SourceGenTriggers.SET && LA8_4 <= SourceGenTriggers.WILDCARD))) {
                                 alt8 = 4;
                             } else {
-                                const nvaeMark = this.input!.mark();
-                                const lastIndex = this.input!.index;
+                                const nvaeMark = this.input.mark();
+                                const lastIndex = this.input.index;
                                 try {
-                                    this.input!.consume();
+                                    this.input.consume();
                                     const nvae = new NoViableAltException("", 8, 4, this.input);
                                     throw nvae;
                                 } finally {
-                                    this.input!.seek(lastIndex);
-                                    this.input!.release(nvaeMark);
+                                    this.input.seek(lastIndex);
+                                    this.input.release(nvaeMark);
                                 }
                             }
                         }
@@ -600,22 +601,22 @@ export class SourceGenTriggers extends TreeParser {
 
                 case GrammarTreeVisitor.SEMPRED: {
                     {
-                        const LA8_5 = this.input!.LA(2);
-                        if ((LA8_5 === GrammarTreeVisitor.DOWN)) {
+                        const LA8_5 = this.input.LA(2);
+                        if ((LA8_5 === Constants.DOWN)) {
                             alt8 = 7;
                         } else {
-                            if (((LA8_5 >= GrammarTreeVisitor.UP && LA8_5 <= SourceGenTriggers.ACTION) || LA8_5 === SourceGenTriggers.ASSIGN || LA8_5 === SourceGenTriggers.DOT || LA8_5 === SourceGenTriggers.NOT || LA8_5 === SourceGenTriggers.PLUS_ASSIGN || LA8_5 === SourceGenTriggers.RANGE || LA8_5 === SourceGenTriggers.RULE_REF || LA8_5 === SourceGenTriggers.SEMPRED || LA8_5 === SourceGenTriggers.STRING_LITERAL || LA8_5 === SourceGenTriggers.TOKEN_REF || (LA8_5 >= SourceGenTriggers.BLOCK && LA8_5 <= SourceGenTriggers.CLOSURE) || (LA8_5 >= SourceGenTriggers.OPTIONAL && LA8_5 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA8_5 >= SourceGenTriggers.SET && LA8_5 <= SourceGenTriggers.WILDCARD))) {
+                            if (((LA8_5 >= Constants.UP && LA8_5 <= SourceGenTriggers.ACTION) || LA8_5 === SourceGenTriggers.ASSIGN || LA8_5 === SourceGenTriggers.DOT || LA8_5 === SourceGenTriggers.NOT || LA8_5 === SourceGenTriggers.PLUS_ASSIGN || LA8_5 === SourceGenTriggers.RANGE || LA8_5 === SourceGenTriggers.RULE_REF || LA8_5 === SourceGenTriggers.SEMPRED || LA8_5 === SourceGenTriggers.STRING_LITERAL || LA8_5 === SourceGenTriggers.TOKEN_REF || (LA8_5 >= SourceGenTriggers.BLOCK && LA8_5 <= SourceGenTriggers.CLOSURE) || (LA8_5 >= SourceGenTriggers.OPTIONAL && LA8_5 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA8_5 >= SourceGenTriggers.SET && LA8_5 <= SourceGenTriggers.WILDCARD))) {
                                 alt8 = 5;
                             } else {
-                                const nvaeMark = this.input!.mark();
-                                const lastIndex = this.input!.index;
+                                const nvaeMark = this.input.mark();
+                                const lastIndex = this.input.index;
                                 try {
-                                    this.input!.consume();
+                                    this.input.consume();
                                     const nvae = new NoViableAltException("", 8, 5, this.input);
                                     throw nvae;
                                 } finally {
-                                    this.input!.seek(lastIndex);
-                                    this.input!.release(nvaeMark);
+                                    this.input.seek(lastIndex);
+                                    this.input.release(nvaeMark);
                                 }
                             }
                         }
@@ -671,7 +672,7 @@ export class SourceGenTriggers extends TreeParser {
                 case 4: {
                     // ./SourceGenTriggers.g:112:6: ACTION
                     {
-                        ACTION6 = this.match(this.input!, SourceGenTriggers.ACTION, null) as GrammarAST;
+                        ACTION6 = this.match(this.input, SourceGenTriggers.ACTION, null) as GrammarAST;
                         omos = this.controller!.action(ACTION6 as ActionAST);
                     }
                     break;
@@ -680,7 +681,7 @@ export class SourceGenTriggers extends TreeParser {
                 case 5: {
                     // ./SourceGenTriggers.g:113:6: SEMPRED
                     {
-                        SEMPRED7 = this.match(this.input!, SourceGenTriggers.SEMPRED, null) as GrammarAST;
+                        SEMPRED7 = this.match(this.input, SourceGenTriggers.SEMPRED, null) as GrammarAST;
                         omos = this.controller!.sempred(SEMPRED7 as ActionAST);
                     }
                     break;
@@ -689,13 +690,13 @@ export class SourceGenTriggers extends TreeParser {
                 case 6: {
                     // ./SourceGenTriggers.g:114:4: ^( ACTION elementOptions )
                     {
-                        ACTION8 = this.match(this.input!, SourceGenTriggers.ACTION, null) as GrammarAST;
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                        ACTION8 = this.match(this.input, SourceGenTriggers.ACTION, null) as GrammarAST;
+                        this.match(this.input, Constants.DOWN, null);
                         this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = this.controller!.action(ACTION8 as ActionAST);
                     }
@@ -705,13 +706,13 @@ export class SourceGenTriggers extends TreeParser {
                 case 7: {
                     // ./SourceGenTriggers.g:115:6: ^( SEMPRED elementOptions )
                     {
-                        SEMPRED9 = this.match(this.input!, SourceGenTriggers.SEMPRED, null) as GrammarAST;
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                        SEMPRED9 = this.match(this.input, SourceGenTriggers.SEMPRED, null) as GrammarAST;
+                        this.match(this.input, Constants.DOWN, null);
                         this.pushFollow(null);
                         this.elementOptions();
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = this.controller!.sempred(SEMPRED9 as ActionAST);
                     }
@@ -724,7 +725,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -753,115 +754,115 @@ export class SourceGenTriggers extends TreeParser {
         try {
             // ./SourceGenTriggers.g:119:2: ( ^( ASSIGN ID atom[$ID,false] ) | ^( PLUS_ASSIGN ID atom[$ID,false] ) | ^( ASSIGN ID block[$ID,null] ) | ^( PLUS_ASSIGN ID block[$ID,null] ) )
             let alt9 = 4;
-            const LA9_0 = this.input!.LA(1);
+            const LA9_0 = this.input.LA(1);
             if ((LA9_0 === SourceGenTriggers.ASSIGN)) {
-                const LA9_1 = this.input!.LA(2);
-                if ((LA9_1 === GrammarTreeVisitor.DOWN)) {
-                    const LA9_3 = this.input!.LA(3);
+                const LA9_1 = this.input.LA(2);
+                if ((LA9_1 === Constants.DOWN)) {
+                    const LA9_3 = this.input.LA(3);
                     if ((LA9_3 === SourceGenTriggers.ID)) {
-                        const LA9_5 = this.input!.LA(4);
+                        const LA9_5 = this.input.LA(4);
                         if ((LA9_5 === SourceGenTriggers.DOT || LA9_5 === SourceGenTriggers.NOT || LA9_5 === SourceGenTriggers.RANGE || LA9_5 === SourceGenTriggers.RULE_REF || LA9_5 === SourceGenTriggers.STRING_LITERAL || LA9_5 === SourceGenTriggers.TOKEN_REF || (LA9_5 >= SourceGenTriggers.SET && LA9_5 <= SourceGenTriggers.WILDCARD))) {
                             alt9 = 1;
                         } else {
                             if ((LA9_5 === SourceGenTriggers.BLOCK)) {
                                 alt9 = 3;
                             } else {
-                                const nvaeMark = this.input!.mark();
-                                const lastIndex = this.input!.index;
+                                const nvaeMark = this.input.mark();
+                                const lastIndex = this.input.index;
                                 try {
                                     for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
-                                        this.input!.consume();
+                                        this.input.consume();
                                     }
                                     const nvae = new NoViableAltException("", 9, 5, this.input);
                                     throw nvae;
                                 } finally {
-                                    this.input!.seek(lastIndex);
-                                    this.input!.release(nvaeMark);
+                                    this.input.seek(lastIndex);
+                                    this.input.release(nvaeMark);
                                 }
                             }
                         }
 
                     } else {
-                        const nvaeMark = this.input!.mark();
-                        const lastIndex = this.input!.index;
+                        const nvaeMark = this.input.mark();
+                        const lastIndex = this.input.index;
                         try {
                             for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
-                                this.input!.consume();
+                                this.input.consume();
                             }
                             const nvae = new NoViableAltException("", 9, 3, this.input);
                             throw nvae;
                         } finally {
-                            this.input!.seek(lastIndex);
-                            this.input!.release(nvaeMark);
+                            this.input.seek(lastIndex);
+                            this.input.release(nvaeMark);
                         }
                     }
 
                 } else {
-                    const nvaeMark = this.input!.mark();
-                    const lastIndex = this.input!.index;
+                    const nvaeMark = this.input.mark();
+                    const lastIndex = this.input.index;
                     try {
-                        this.input!.consume();
+                        this.input.consume();
                         const nvae = new NoViableAltException("", 9, 1, this.input);
                         throw nvae;
                     } finally {
-                        this.input!.seek(lastIndex);
-                        this.input!.release(nvaeMark);
+                        this.input.seek(lastIndex);
+                        this.input.release(nvaeMark);
                     }
                 }
 
             } else {
                 if ((LA9_0 === SourceGenTriggers.PLUS_ASSIGN)) {
-                    const LA9_2 = this.input!.LA(2);
-                    if ((LA9_2 === GrammarTreeVisitor.DOWN)) {
-                        const LA9_4 = this.input!.LA(3);
+                    const LA9_2 = this.input.LA(2);
+                    if ((LA9_2 === Constants.DOWN)) {
+                        const LA9_4 = this.input.LA(3);
                         if ((LA9_4 === SourceGenTriggers.ID)) {
-                            const LA9_6 = this.input!.LA(4);
+                            const LA9_6 = this.input.LA(4);
                             if ((LA9_6 === SourceGenTriggers.DOT || LA9_6 === SourceGenTriggers.NOT || LA9_6 === SourceGenTriggers.RANGE || LA9_6 === SourceGenTriggers.RULE_REF || LA9_6 === SourceGenTriggers.STRING_LITERAL || LA9_6 === SourceGenTriggers.TOKEN_REF || (LA9_6 >= SourceGenTriggers.SET && LA9_6 <= SourceGenTriggers.WILDCARD))) {
                                 alt9 = 2;
                             } else {
                                 if ((LA9_6 === SourceGenTriggers.BLOCK)) {
                                     alt9 = 4;
                                 } else {
-                                    const nvaeMark = this.input!.mark();
-                                    const lastIndex = this.input!.index;
+                                    const nvaeMark = this.input.mark();
+                                    const lastIndex = this.input.index;
                                     try {
                                         for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
-                                            this.input!.consume();
+                                            this.input.consume();
                                         }
                                         const nvae = new NoViableAltException("", 9, 6, this.input);
                                         throw nvae;
                                     } finally {
-                                        this.input!.seek(lastIndex);
-                                        this.input!.release(nvaeMark);
+                                        this.input.seek(lastIndex);
+                                        this.input.release(nvaeMark);
                                     }
                                 }
                             }
 
                         } else {
-                            const nvaeMark = this.input!.mark();
-                            const lastIndex = this.input!.index;
+                            const nvaeMark = this.input.mark();
+                            const lastIndex = this.input.index;
                             try {
                                 for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
-                                    this.input!.consume();
+                                    this.input.consume();
                                 }
                                 const nvae = new NoViableAltException("", 9, 4, this.input);
                                 throw nvae;
                             } finally {
-                                this.input!.seek(lastIndex);
-                                this.input!.release(nvaeMark);
+                                this.input.seek(lastIndex);
+                                this.input.release(nvaeMark);
                             }
                         }
 
                     } else {
-                        const nvaeMark = this.input!.mark();
-                        const lastIndex = this.input!.index;
+                        const nvaeMark = this.input.mark();
+                        const lastIndex = this.input.index;
                         try {
-                            this.input!.consume();
+                            this.input.consume();
                             const nvae = new NoViableAltException("", 9, 2, this.input);
                             throw nvae;
                         } finally {
-                            this.input!.seek(lastIndex);
-                            this.input!.release(nvaeMark);
+                            this.input.seek(lastIndex);
+                            this.input.release(nvaeMark);
                         }
                     }
 
@@ -876,14 +877,14 @@ export class SourceGenTriggers extends TreeParser {
                 case 1: {
                     // ./SourceGenTriggers.g:119:4: ^( ASSIGN ID atom[$ID,false] )
                     {
-                        this.match(this.input!, SourceGenTriggers.ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        ID10 = this.match(this.input!, SourceGenTriggers.ID, null) as GrammarAST;
+                        this.match(this.input, SourceGenTriggers.ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        ID10 = this.match(this.input, SourceGenTriggers.ID, null) as GrammarAST;
                         this.pushFollow(null);
                         atom11 = this.atom(ID10, false);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = atom11;
                     }
@@ -893,14 +894,14 @@ export class SourceGenTriggers extends TreeParser {
                 case 2: {
                     // ./SourceGenTriggers.g:120:4: ^( PLUS_ASSIGN ID atom[$ID,false] )
                     {
-                        this.match(this.input!, SourceGenTriggers.PLUS_ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        ID12 = this.match(this.input!, SourceGenTriggers.ID, null) as GrammarAST;
+                        this.match(this.input, SourceGenTriggers.PLUS_ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        ID12 = this.match(this.input, SourceGenTriggers.ID, null) as GrammarAST;
                         this.pushFollow(null);
                         atom13 = this.atom(ID12, false);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = atom13;
                     }
@@ -910,14 +911,14 @@ export class SourceGenTriggers extends TreeParser {
                 case 3: {
                     // ./SourceGenTriggers.g:121:4: ^( ASSIGN ID block[$ID,null] )
                     {
-                        this.match(this.input!, SourceGenTriggers.ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        ID14 = this.match(this.input!, SourceGenTriggers.ID, null) as GrammarAST;
+                        this.match(this.input, SourceGenTriggers.ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        ID14 = this.match(this.input, SourceGenTriggers.ID, null) as GrammarAST;
                         this.pushFollow(null);
                         block15 = this.block(ID14, null);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = block15;
                     }
@@ -927,14 +928,14 @@ export class SourceGenTriggers extends TreeParser {
                 case 4: {
                     // ./SourceGenTriggers.g:122:4: ^( PLUS_ASSIGN ID block[$ID,null] )
                     {
-                        this.match(this.input!, SourceGenTriggers.PLUS_ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        ID16 = this.match(this.input!, SourceGenTriggers.ID, null) as GrammarAST;
+                        this.match(this.input, SourceGenTriggers.PLUS_ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        ID16 = this.match(this.input, SourceGenTriggers.ID, null) as GrammarAST;
                         this.pushFollow(null);
                         block17 = this.block(ID16, null);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = block17;
                     }
@@ -947,7 +948,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -971,7 +972,7 @@ export class SourceGenTriggers extends TreeParser {
         try {
             // ./SourceGenTriggers.g:126:2: ( ^( OPTIONAL b= block[null,$OPTIONAL] ) | ( ^(op= CLOSURE b= block[null,null] ) | ^(op= POSITIVE_CLOSURE b= block[null,null] ) ) | block[null, null] )
             let alt11 = 3;
-            switch (this.input!.LA(1)) {
+            switch (this.input.LA(1)) {
                 case GrammarTreeVisitor.OPTIONAL: {
                     {
                         alt11 = 1;
@@ -1005,13 +1006,13 @@ export class SourceGenTriggers extends TreeParser {
                 case 1: {
                     // ./SourceGenTriggers.g:126:4: ^( OPTIONAL b= block[null,$OPTIONAL] )
                     {
-                        OPTIONAL18 = this.match(this.input!, SourceGenTriggers.OPTIONAL, null) as GrammarAST;
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                        OPTIONAL18 = this.match(this.input, SourceGenTriggers.OPTIONAL, null) as GrammarAST;
+                        this.match(this.input, Constants.DOWN, null);
                         this.pushFollow(null);
                         const b = this.block(null, OPTIONAL18);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = b;
 
@@ -1025,7 +1026,7 @@ export class SourceGenTriggers extends TreeParser {
                     {
                         // ./SourceGenTriggers.g:130:4: ( ^(op= CLOSURE b= block[null,null] ) | ^(op= POSITIVE_CLOSURE b= block[null,null] ) )
                         let alt10 = 2;
-                        const LA10_0 = this.input!.LA(1);
+                        const LA10_0 = this.input.LA(1);
                         if ((LA10_0 === SourceGenTriggers.CLOSURE)) {
                             alt10 = 1;
                         } else {
@@ -1042,13 +1043,13 @@ export class SourceGenTriggers extends TreeParser {
                             case 1: {
                                 // ./SourceGenTriggers.g:130:6: ^(op= CLOSURE b= block[null,null] )
                                 {
-                                    op = this.match(this.input!, SourceGenTriggers.CLOSURE, null) as GrammarAST;
-                                    this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                                    op = this.match(this.input, SourceGenTriggers.CLOSURE, null) as GrammarAST;
+                                    this.match(this.input, Constants.DOWN, null);
                                     this.pushFollow(null);
                                     b = this.block(null, null);
                                     this.state._fsp--;
 
-                                    this.match(this.input!, GrammarTreeVisitor.UP, null);
+                                    this.match(this.input, Constants.UP, null);
 
                                 }
                                 break;
@@ -1057,13 +1058,13 @@ export class SourceGenTriggers extends TreeParser {
                             case 2: {
                                 // ./SourceGenTriggers.g:131:5: ^(op= POSITIVE_CLOSURE b= block[null,null] )
                                 {
-                                    op = this.match(this.input!, SourceGenTriggers.POSITIVE_CLOSURE, null) as GrammarAST;
-                                    this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                                    op = this.match(this.input, SourceGenTriggers.POSITIVE_CLOSURE, null) as GrammarAST;
+                                    this.match(this.input, Constants.DOWN, null);
                                     this.pushFollow(null);
                                     b = this.block(null, null);
                                     this.state._fsp--;
 
-                                    this.match(this.input!, GrammarTreeVisitor.UP, null);
+                                    this.match(this.input, Constants.UP, null);
 
                                 }
                                 break;
@@ -1104,7 +1105,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1128,14 +1129,14 @@ export class SourceGenTriggers extends TreeParser {
             // ./SourceGenTriggers.g:147:5: ( ^( SET ( atom[label,invert] )+ ) )
             // ./SourceGenTriggers.g:147:7: ^( SET ( atom[label,invert] )+ )
             {
-                SET20 = this.match(this.input!, SourceGenTriggers.SET, null) as GrammarAST;
-                this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                SET20 = this.match(this.input, SourceGenTriggers.SET, null) as GrammarAST;
+                this.match(this.input, Constants.DOWN, null);
                 // ./SourceGenTriggers.g:147:13: ( atom[label,invert] )+
                 let cnt12 = 0;
                 loop12:
                 while (true) {
                     let alt12 = 2;
-                    const LA12_0 = this.input!.LA(1);
+                    const LA12_0 = this.input.LA(1);
                     if ((LA12_0 === SourceGenTriggers.DOT || LA12_0 === SourceGenTriggers.NOT || LA12_0 === SourceGenTriggers.RANGE || LA12_0 === SourceGenTriggers.RULE_REF || LA12_0 === SourceGenTriggers.STRING_LITERAL || LA12_0 === SourceGenTriggers.TOKEN_REF || (LA12_0 >= SourceGenTriggers.SET && LA12_0 <= SourceGenTriggers.WILDCARD))) {
                         alt12 = 1;
                     }
@@ -1165,7 +1166,7 @@ export class SourceGenTriggers extends TreeParser {
                     cnt12++;
                 }
 
-                this.match(this.input!, GrammarTreeVisitor.UP, null);
+                this.match(this.input, Constants.UP, null);
 
                 omos = this.controller!.set(SET20, label, invert);
             }
@@ -1173,7 +1174,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1201,7 +1202,7 @@ export class SourceGenTriggers extends TreeParser {
         try {
             // ./SourceGenTriggers.g:161:2: ( ^( NOT a= atom[$label, true] ) | range[label] | ^( DOT ID terminal[$label] ) | ^( DOT ID ruleref[$label] ) | ^( WILDCARD . ) | WILDCARD | terminal[label] | ruleref[label] | blockSet[$label, invert] )
             let alt13 = 9;
-            switch (this.input!.LA(1)) {
+            switch (this.input.LA(1)) {
                 case GrammarTreeVisitor.NOT: {
                     {
                         alt13 = 1;
@@ -1218,57 +1219,57 @@ export class SourceGenTriggers extends TreeParser {
 
                 case GrammarTreeVisitor.DOT: {
                     {
-                        const LA13_3 = this.input!.LA(2);
-                        if ((LA13_3 === GrammarTreeVisitor.DOWN)) {
-                            const LA13_8 = this.input!.LA(3);
+                        const LA13_3 = this.input.LA(2);
+                        if ((LA13_3 === Constants.DOWN)) {
+                            const LA13_8 = this.input.LA(3);
                             if ((LA13_8 === SourceGenTriggers.ID)) {
-                                const LA13_11 = this.input!.LA(4);
+                                const LA13_11 = this.input.LA(4);
                                 if ((LA13_11 === SourceGenTriggers.STRING_LITERAL || LA13_11 === SourceGenTriggers.TOKEN_REF)) {
                                     alt13 = 3;
                                 } else {
                                     if ((LA13_11 === SourceGenTriggers.RULE_REF)) {
                                         alt13 = 4;
                                     } else {
-                                        const nvaeMark = this.input!.mark();
-                                        const lastIndex = this.input!.index;
+                                        const nvaeMark = this.input.mark();
+                                        const lastIndex = this.input.index;
                                         try {
                                             for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
-                                                this.input!.consume();
+                                                this.input.consume();
                                             }
                                             const nvae = new NoViableAltException("", 13, 11, this.input);
                                             throw nvae;
                                         } finally {
-                                            this.input!.seek(lastIndex);
-                                            this.input!.release(nvaeMark);
+                                            this.input.seek(lastIndex);
+                                            this.input.release(nvaeMark);
                                         }
                                     }
                                 }
 
                             } else {
-                                const nvaeMark = this.input!.mark();
-                                const lastIndex = this.input!.index;
+                                const nvaeMark = this.input.mark();
+                                const lastIndex = this.input.index;
                                 try {
                                     for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
-                                        this.input!.consume();
+                                        this.input.consume();
                                     }
                                     const nvae = new NoViableAltException("", 13, 8, this.input);
                                     throw nvae;
                                 } finally {
-                                    this.input!.seek(lastIndex);
-                                    this.input!.release(nvaeMark);
+                                    this.input.seek(lastIndex);
+                                    this.input.release(nvaeMark);
                                 }
                             }
 
                         } else {
-                            const nvaeMark = this.input!.mark();
-                            const lastIndex = this.input!.index;
+                            const nvaeMark = this.input.mark();
+                            const lastIndex = this.input.index;
                             try {
-                                this.input!.consume();
+                                this.input.consume();
                                 const nvae = new NoViableAltException("", 13, 3, this.input);
                                 throw nvae;
                             } finally {
-                                this.input!.seek(lastIndex);
-                                this.input!.release(nvaeMark);
+                                this.input.seek(lastIndex);
+                                this.input.release(nvaeMark);
                             }
                         }
 
@@ -1278,22 +1279,22 @@ export class SourceGenTriggers extends TreeParser {
 
                 case GrammarTreeVisitor.WILDCARD: {
                     {
-                        const LA13_4 = this.input!.LA(2);
-                        if ((LA13_4 === GrammarTreeVisitor.DOWN)) {
+                        const LA13_4 = this.input.LA(2);
+                        if ((LA13_4 === Constants.DOWN)) {
                             alt13 = 5;
                         } else {
-                            if (((LA13_4 >= GrammarTreeVisitor.UP && LA13_4 <= SourceGenTriggers.ACTION) || LA13_4 === SourceGenTriggers.ASSIGN || LA13_4 === SourceGenTriggers.DOT || LA13_4 === SourceGenTriggers.NOT || LA13_4 === SourceGenTriggers.PLUS_ASSIGN || LA13_4 === SourceGenTriggers.RANGE || LA13_4 === SourceGenTriggers.RULE_REF || LA13_4 === SourceGenTriggers.SEMPRED || LA13_4 === SourceGenTriggers.STRING_LITERAL || LA13_4 === SourceGenTriggers.TOKEN_REF || (LA13_4 >= SourceGenTriggers.BLOCK && LA13_4 <= SourceGenTriggers.CLOSURE) || (LA13_4 >= SourceGenTriggers.OPTIONAL && LA13_4 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA13_4 >= SourceGenTriggers.SET && LA13_4 <= SourceGenTriggers.WILDCARD))) {
+                            if (((LA13_4 >= Constants.UP && LA13_4 <= SourceGenTriggers.ACTION) || LA13_4 === SourceGenTriggers.ASSIGN || LA13_4 === SourceGenTriggers.DOT || LA13_4 === SourceGenTriggers.NOT || LA13_4 === SourceGenTriggers.PLUS_ASSIGN || LA13_4 === SourceGenTriggers.RANGE || LA13_4 === SourceGenTriggers.RULE_REF || LA13_4 === SourceGenTriggers.SEMPRED || LA13_4 === SourceGenTriggers.STRING_LITERAL || LA13_4 === SourceGenTriggers.TOKEN_REF || (LA13_4 >= SourceGenTriggers.BLOCK && LA13_4 <= SourceGenTriggers.CLOSURE) || (LA13_4 >= SourceGenTriggers.OPTIONAL && LA13_4 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA13_4 >= SourceGenTriggers.SET && LA13_4 <= SourceGenTriggers.WILDCARD))) {
                                 alt13 = 6;
                             } else {
-                                const nvaeMark = this.input!.mark();
-                                const lastIndex = this.input!.index;
+                                const nvaeMark = this.input.mark();
+                                const lastIndex = this.input.index;
                                 try {
-                                    this.input!.consume();
+                                    this.input.consume();
                                     const nvae = new NoViableAltException("", 13, 4, this.input);
                                     throw nvae;
                                 } finally {
-                                    this.input!.seek(lastIndex);
-                                    this.input!.release(nvaeMark);
+                                    this.input.seek(lastIndex);
+                                    this.input.release(nvaeMark);
                                 }
                             }
                         }
@@ -1335,13 +1336,13 @@ export class SourceGenTriggers extends TreeParser {
                 case 1: {
                     // ./SourceGenTriggers.g:161:4: ^( NOT a= atom[$label, true] )
                     {
-                        this.match(this.input!, SourceGenTriggers.NOT, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.NOT, null);
+                        this.match(this.input, Constants.DOWN, null);
                         this.pushFollow(null);
                         a = this.atom(label, true);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = a;
                     }
@@ -1363,14 +1364,14 @@ export class SourceGenTriggers extends TreeParser {
                 case 3: {
                     // ./SourceGenTriggers.g:163:4: ^( DOT ID terminal[$label] )
                     {
-                        this.match(this.input!, SourceGenTriggers.DOT, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.match(this.input!, SourceGenTriggers.ID, null);
+                        this.match(this.input, SourceGenTriggers.DOT, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
                         this.pushFollow(null);
                         this.terminal(label);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                     }
                     break;
@@ -1379,14 +1380,14 @@ export class SourceGenTriggers extends TreeParser {
                 case 4: {
                     // ./SourceGenTriggers.g:164:4: ^( DOT ID ruleref[$label] )
                     {
-                        this.match(this.input!, SourceGenTriggers.DOT, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.match(this.input!, SourceGenTriggers.ID, null);
+                        this.match(this.input, SourceGenTriggers.DOT, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
                         this.pushFollow(null);
                         this.ruleref(label);
                         this.state._fsp--;
 
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, Constants.UP, null);
 
                     }
                     break;
@@ -1395,10 +1396,10 @@ export class SourceGenTriggers extends TreeParser {
                 case 5: {
                     // ./SourceGenTriggers.g:165:7: ^( WILDCARD . )
                     {
-                        WILDCARD22 = this.match(this.input!, SourceGenTriggers.WILDCARD, null) as GrammarAST;
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.matchAny(this.input!);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        WILDCARD22 = this.match(this.input, SourceGenTriggers.WILDCARD, null) as GrammarAST;
+                        this.match(this.input, Constants.DOWN, null);
+                        this.matchAny(this.input);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = this.controller!.wildcard(WILDCARD22, label);
                     }
@@ -1408,7 +1409,7 @@ export class SourceGenTriggers extends TreeParser {
                 case 6: {
                     // ./SourceGenTriggers.g:166:7: WILDCARD
                     {
-                        WILDCARD23 = this.match(this.input!, SourceGenTriggers.WILDCARD, null) as GrammarAST;
+                        WILDCARD23 = this.match(this.input, SourceGenTriggers.WILDCARD, null) as GrammarAST;
                         omos = this.controller!.wildcard(WILDCARD23, label);
                     }
                     break;
@@ -1456,7 +1457,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1481,12 +1482,12 @@ export class SourceGenTriggers extends TreeParser {
             // ./SourceGenTriggers.g:173:5: ( ^( RULE_REF ( ARG_ACTION )? ( elementOptions )? ) )
             // ./SourceGenTriggers.g:173:7: ^( RULE_REF ( ARG_ACTION )? ( elementOptions )? )
             {
-                RULE_REF27 = this.match(this.input!, SourceGenTriggers.RULE_REF, null) as GrammarAST;
-                if (this.input!.LA(1) === GrammarTreeVisitor.DOWN) {
-                    this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                RULE_REF27 = this.match(this.input, SourceGenTriggers.RULE_REF, null) as GrammarAST;
+                if (this.input.LA(1) === Constants.DOWN) {
+                    this.match(this.input, Constants.DOWN, null);
                     // ./SourceGenTriggers.g:173:18: ( ARG_ACTION )?
                     let alt14 = 2;
-                    const LA14_0 = this.input!.LA(1);
+                    const LA14_0 = this.input.LA(1);
                     if ((LA14_0 === SourceGenTriggers.ARG_ACTION)) {
                         alt14 = 1;
                     }
@@ -1494,7 +1495,7 @@ export class SourceGenTriggers extends TreeParser {
                         case 1: {
                             // ./SourceGenTriggers.g:173:18: ARG_ACTION
                             {
-                                ARG_ACTION28 = this.match(this.input!, SourceGenTriggers.ARG_ACTION, null) as GrammarAST;
+                                ARG_ACTION28 = this.match(this.input, SourceGenTriggers.ARG_ACTION, null) as GrammarAST;
                             }
                             break;
                         }
@@ -1505,7 +1506,7 @@ export class SourceGenTriggers extends TreeParser {
 
                     // ./SourceGenTriggers.g:173:30: ( elementOptions )?
                     let alt15 = 2;
-                    const LA15_0 = this.input!.LA(1);
+                    const LA15_0 = this.input.LA(1);
                     if ((LA15_0 === SourceGenTriggers.ELEMENT_OPTIONS)) {
                         alt15 = 1;
                     }
@@ -1525,7 +1526,7 @@ export class SourceGenTriggers extends TreeParser {
 
                     }
 
-                    this.match(this.input!, GrammarTreeVisitor.UP, null);
+                    this.match(this.input, Constants.UP, null);
                 }
 
                 omos = this.controller!.ruleRef(RULE_REF27, label, ARG_ACTION28);
@@ -1534,7 +1535,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1555,18 +1556,18 @@ export class SourceGenTriggers extends TreeParser {
             // ./SourceGenTriggers.g:177:5: ( ^( RANGE a= STRING_LITERAL b= STRING_LITERAL ) )
             // ./SourceGenTriggers.g:177:7: ^( RANGE a= STRING_LITERAL b= STRING_LITERAL )
             {
-                this.match(this.input!, SourceGenTriggers.RANGE, null);
-                this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                this.match(this.input!, SourceGenTriggers.STRING_LITERAL, null);
-                this.match(this.input!, SourceGenTriggers.STRING_LITERAL, null);
-                this.match(this.input!, GrammarTreeVisitor.UP, null);
+                this.match(this.input, SourceGenTriggers.RANGE, null);
+                this.match(this.input, Constants.DOWN, null);
+                this.match(this.input, SourceGenTriggers.STRING_LITERAL, null);
+                this.match(this.input, SourceGenTriggers.STRING_LITERAL, null);
+                this.match(this.input, Constants.UP, null);
 
             }
 
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1593,52 +1594,52 @@ export class SourceGenTriggers extends TreeParser {
         try {
             // ./SourceGenTriggers.g:181:5: ( ^( STRING_LITERAL . ) | STRING_LITERAL | ^( TOKEN_REF ARG_ACTION . ) | ^( TOKEN_REF . ) | TOKEN_REF )
             let alt16 = 5;
-            const LA16_0 = this.input!.LA(1);
+            const LA16_0 = this.input.LA(1);
             if ((LA16_0 === SourceGenTriggers.STRING_LITERAL)) {
-                const LA16_1 = this.input!.LA(2);
-                if ((LA16_1 === GrammarTreeVisitor.DOWN)) {
+                const LA16_1 = this.input.LA(2);
+                if ((LA16_1 === Constants.DOWN)) {
                     alt16 = 1;
                 } else {
-                    if (((LA16_1 >= GrammarTreeVisitor.UP && LA16_1 <= SourceGenTriggers.ACTION) || LA16_1 === SourceGenTriggers.ASSIGN || LA16_1 === SourceGenTriggers.DOT || LA16_1 === SourceGenTriggers.NOT || LA16_1 === SourceGenTriggers.PLUS_ASSIGN || LA16_1 === SourceGenTriggers.RANGE || LA16_1 === SourceGenTriggers.RULE_REF || LA16_1 === SourceGenTriggers.SEMPRED || LA16_1 === SourceGenTriggers.STRING_LITERAL || LA16_1 === SourceGenTriggers.TOKEN_REF || (LA16_1 >= SourceGenTriggers.BLOCK && LA16_1 <= SourceGenTriggers.CLOSURE) || (LA16_1 >= SourceGenTriggers.OPTIONAL && LA16_1 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA16_1 >= SourceGenTriggers.SET && LA16_1 <= SourceGenTriggers.WILDCARD))) {
+                    if (((LA16_1 >= Constants.UP && LA16_1 <= SourceGenTriggers.ACTION) || LA16_1 === SourceGenTriggers.ASSIGN || LA16_1 === SourceGenTriggers.DOT || LA16_1 === SourceGenTriggers.NOT || LA16_1 === SourceGenTriggers.PLUS_ASSIGN || LA16_1 === SourceGenTriggers.RANGE || LA16_1 === SourceGenTriggers.RULE_REF || LA16_1 === SourceGenTriggers.SEMPRED || LA16_1 === SourceGenTriggers.STRING_LITERAL || LA16_1 === SourceGenTriggers.TOKEN_REF || (LA16_1 >= SourceGenTriggers.BLOCK && LA16_1 <= SourceGenTriggers.CLOSURE) || (LA16_1 >= SourceGenTriggers.OPTIONAL && LA16_1 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA16_1 >= SourceGenTriggers.SET && LA16_1 <= SourceGenTriggers.WILDCARD))) {
                         alt16 = 2;
                     } else {
-                        const nvaeMark = this.input!.mark();
-                        const lastIndex = this.input!.index;
+                        const nvaeMark = this.input.mark();
+                        const lastIndex = this.input.index;
                         try {
-                            this.input!.consume();
+                            this.input.consume();
                             const nvae = new NoViableAltException("", 16, 1, this.input);
                             throw nvae;
                         } finally {
-                            this.input!.seek(lastIndex);
-                            this.input!.release(nvaeMark);
+                            this.input.seek(lastIndex);
+                            this.input.release(nvaeMark);
                         }
                     }
                 }
 
             } else {
                 if ((LA16_0 === SourceGenTriggers.TOKEN_REF)) {
-                    const LA16_2 = this.input!.LA(2);
-                    if ((LA16_2 === GrammarTreeVisitor.DOWN)) {
-                        const LA16_5 = this.input!.LA(3);
+                    const LA16_2 = this.input.LA(2);
+                    if ((LA16_2 === Constants.DOWN)) {
+                        const LA16_5 = this.input.LA(3);
                         if ((LA16_5 === SourceGenTriggers.ARG_ACTION)) {
-                            const LA16_7 = this.input!.LA(4);
+                            const LA16_7 = this.input.LA(4);
                             if (((LA16_7 >= SourceGenTriggers.ACTION && LA16_7 <= SourceGenTriggers.WILDCARD))) {
                                 alt16 = 3;
                             } else {
-                                if (((LA16_7 >= GrammarTreeVisitor.DOWN && LA16_7 <= GrammarTreeVisitor.UP))) {
+                                if (((LA16_7 >= Constants.DOWN && LA16_7 <= Constants.UP))) {
                                     alt16 = 4;
                                 } else {
-                                    const nvaeMark = this.input!.mark();
-                                    const lastIndex = this.input!.index;
+                                    const nvaeMark = this.input.mark();
+                                    const lastIndex = this.input.index;
                                     try {
                                         for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
-                                            this.input!.consume();
+                                            this.input.consume();
                                         }
                                         const nvae = new NoViableAltException("", 16, 7, this.input);
                                         throw nvae;
                                     } finally {
-                                        this.input!.seek(lastIndex);
-                                        this.input!.release(nvaeMark);
+                                        this.input.seek(lastIndex);
+                                        this.input.release(nvaeMark);
                                     }
                                 }
                             }
@@ -1647,34 +1648,34 @@ export class SourceGenTriggers extends TreeParser {
                             if (((LA16_5 >= SourceGenTriggers.ACTION && LA16_5 <= SourceGenTriggers.ACTION_STRING_LITERAL) || (LA16_5 >= SourceGenTriggers.ARG_OR_CHARSET && LA16_5 <= SourceGenTriggers.WILDCARD))) {
                                 alt16 = 4;
                             } else {
-                                const nvaeMark = this.input!.mark();
-                                const lastIndex = this.input!.index;
+                                const nvaeMark = this.input.mark();
+                                const lastIndex = this.input.index;
                                 try {
                                     for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
-                                        this.input!.consume();
+                                        this.input.consume();
                                     }
                                     const nvae = new NoViableAltException("", 16, 5, this.input);
                                     throw nvae;
                                 } finally {
-                                    this.input!.seek(lastIndex);
-                                    this.input!.release(nvaeMark);
+                                    this.input.seek(lastIndex);
+                                    this.input.release(nvaeMark);
                                 }
                             }
                         }
 
                     } else {
-                        if (((LA16_2 >= GrammarTreeVisitor.UP && LA16_2 <= SourceGenTriggers.ACTION) || LA16_2 === SourceGenTriggers.ASSIGN || LA16_2 === SourceGenTriggers.DOT || LA16_2 === SourceGenTriggers.NOT || LA16_2 === SourceGenTriggers.PLUS_ASSIGN || LA16_2 === SourceGenTriggers.RANGE || LA16_2 === SourceGenTriggers.RULE_REF || LA16_2 === SourceGenTriggers.SEMPRED || LA16_2 === SourceGenTriggers.STRING_LITERAL || LA16_2 === SourceGenTriggers.TOKEN_REF || (LA16_2 >= SourceGenTriggers.BLOCK && LA16_2 <= SourceGenTriggers.CLOSURE) || (LA16_2 >= SourceGenTriggers.OPTIONAL && LA16_2 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA16_2 >= SourceGenTriggers.SET && LA16_2 <= SourceGenTriggers.WILDCARD))) {
+                        if (((LA16_2 >= Constants.UP && LA16_2 <= SourceGenTriggers.ACTION) || LA16_2 === SourceGenTriggers.ASSIGN || LA16_2 === SourceGenTriggers.DOT || LA16_2 === SourceGenTriggers.NOT || LA16_2 === SourceGenTriggers.PLUS_ASSIGN || LA16_2 === SourceGenTriggers.RANGE || LA16_2 === SourceGenTriggers.RULE_REF || LA16_2 === SourceGenTriggers.SEMPRED || LA16_2 === SourceGenTriggers.STRING_LITERAL || LA16_2 === SourceGenTriggers.TOKEN_REF || (LA16_2 >= SourceGenTriggers.BLOCK && LA16_2 <= SourceGenTriggers.CLOSURE) || (LA16_2 >= SourceGenTriggers.OPTIONAL && LA16_2 <= SourceGenTriggers.POSITIVE_CLOSURE) || (LA16_2 >= SourceGenTriggers.SET && LA16_2 <= SourceGenTriggers.WILDCARD))) {
                             alt16 = 5;
                         } else {
-                            const nvaeMark = this.input!.mark();
-                            const lastIndex = this.input!.index;
+                            const nvaeMark = this.input.mark();
+                            const lastIndex = this.input.index;
                             try {
-                                this.input!.consume();
+                                this.input.consume();
                                 const nvae = new NoViableAltException("", 16, 2, this.input);
                                 throw nvae;
                             } finally {
-                                this.input!.seek(lastIndex);
-                                this.input!.release(nvaeMark);
+                                this.input.seek(lastIndex);
+                                this.input.release(nvaeMark);
                             }
                         }
                     }
@@ -1690,10 +1691,10 @@ export class SourceGenTriggers extends TreeParser {
                 case 1: {
                     // ./SourceGenTriggers.g:181:8: ^( STRING_LITERAL . )
                     {
-                        STRING_LITERAL29 = this.match(this.input!, SourceGenTriggers.STRING_LITERAL, null) as GrammarAST;
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.matchAny(this.input!);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        STRING_LITERAL29 = this.match(this.input, SourceGenTriggers.STRING_LITERAL, null) as GrammarAST;
+                        this.match(this.input, Constants.DOWN, null);
+                        this.matchAny(this.input);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = this.controller!.stringRef(STRING_LITERAL29, label);
                     }
@@ -1703,7 +1704,7 @@ export class SourceGenTriggers extends TreeParser {
                 case 2: {
                     // ./SourceGenTriggers.g:182:7: STRING_LITERAL
                     {
-                        STRING_LITERAL30 = this.match(this.input!, SourceGenTriggers.STRING_LITERAL, null) as GrammarAST;
+                        STRING_LITERAL30 = this.match(this.input, SourceGenTriggers.STRING_LITERAL, null) as GrammarAST;
                         omos = this.controller!.stringRef(STRING_LITERAL30, label);
                     }
                     break;
@@ -1712,11 +1713,11 @@ export class SourceGenTriggers extends TreeParser {
                 case 3: {
                     // ./SourceGenTriggers.g:183:7: ^( TOKEN_REF ARG_ACTION . )
                     {
-                        TOKEN_REF31 = this.match(this.input!, SourceGenTriggers.TOKEN_REF, null) as GrammarAST;
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        ARG_ACTION32 = this.match(this.input!, SourceGenTriggers.ARG_ACTION, null) as GrammarAST;
-                        this.matchAny(this.input!);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        TOKEN_REF31 = this.match(this.input, SourceGenTriggers.TOKEN_REF, null) as GrammarAST;
+                        this.match(this.input, Constants.DOWN, null);
+                        ARG_ACTION32 = this.match(this.input, SourceGenTriggers.ARG_ACTION, null) as GrammarAST;
+                        this.matchAny(this.input);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = this.controller!.tokenRef(TOKEN_REF31, label, ARG_ACTION32);
                     }
@@ -1726,10 +1727,10 @@ export class SourceGenTriggers extends TreeParser {
                 case 4: {
                     // ./SourceGenTriggers.g:184:7: ^( TOKEN_REF . )
                     {
-                        TOKEN_REF33 = this.match(this.input!, SourceGenTriggers.TOKEN_REF, null) as GrammarAST;
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.matchAny(this.input!);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        TOKEN_REF33 = this.match(this.input, SourceGenTriggers.TOKEN_REF, null) as GrammarAST;
+                        this.match(this.input, Constants.DOWN, null);
+                        this.matchAny(this.input);
+                        this.match(this.input, Constants.UP, null);
 
                         omos = this.controller!.tokenRef(TOKEN_REF33, label, null);
                     }
@@ -1739,7 +1740,7 @@ export class SourceGenTriggers extends TreeParser {
                 case 5: {
                     // ./SourceGenTriggers.g:185:7: TOKEN_REF
                     {
-                        TOKEN_REF34 = this.match(this.input!, SourceGenTriggers.TOKEN_REF, null) as GrammarAST;
+                        TOKEN_REF34 = this.match(this.input, SourceGenTriggers.TOKEN_REF, null) as GrammarAST;
                         omos = this.controller!.tokenRef(TOKEN_REF34, label, null);
                     }
                     break;
@@ -1751,7 +1752,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1771,14 +1772,14 @@ export class SourceGenTriggers extends TreeParser {
             // ./SourceGenTriggers.g:189:5: ( ^( ELEMENT_OPTIONS ( elementOption )+ ) )
             // ./SourceGenTriggers.g:189:7: ^( ELEMENT_OPTIONS ( elementOption )+ )
             {
-                this.match(this.input!, SourceGenTriggers.ELEMENT_OPTIONS, null);
-                this.match(this.input!, GrammarTreeVisitor.DOWN, null);
+                this.match(this.input, SourceGenTriggers.ELEMENT_OPTIONS, null);
+                this.match(this.input, Constants.DOWN, null);
                 // ./SourceGenTriggers.g:189:25: ( elementOption )+
                 let cnt17 = 0;
                 loop17:
                 while (true) {
                     let alt17 = 2;
-                    const LA17_0 = this.input!.LA(1);
+                    const LA17_0 = this.input.LA(1);
                     if ((LA17_0 === SourceGenTriggers.ASSIGN || LA17_0 === SourceGenTriggers.ID)) {
                         alt17 = 1;
                     }
@@ -1808,14 +1809,14 @@ export class SourceGenTriggers extends TreeParser {
                     cnt17++;
                 }
 
-                this.match(this.input!, GrammarTreeVisitor.UP, null);
+                this.match(this.input, Constants.UP, null);
 
             }
 
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }
@@ -1831,16 +1832,16 @@ export class SourceGenTriggers extends TreeParser {
         try {
             // ./SourceGenTriggers.g:193:5: ( ID | ^( ASSIGN ID ID ) | ^( ASSIGN ID STRING_LITERAL ) | ^( ASSIGN ID ACTION ) | ^( ASSIGN ID INT ) )
             let alt18 = 5;
-            const LA18_0 = this.input!.LA(1);
+            const LA18_0 = this.input.LA(1);
             if ((LA18_0 === SourceGenTriggers.ID)) {
                 alt18 = 1;
             } else {
                 if ((LA18_0 === SourceGenTriggers.ASSIGN)) {
-                    const LA18_2 = this.input!.LA(2);
-                    if ((LA18_2 === GrammarTreeVisitor.DOWN)) {
-                        const LA18_3 = this.input!.LA(3);
+                    const LA18_2 = this.input.LA(2);
+                    if ((LA18_2 === Constants.DOWN)) {
+                        const LA18_3 = this.input.LA(3);
                         if ((LA18_3 === SourceGenTriggers.ID)) {
-                            switch (this.input!.LA(4)) {
+                            switch (this.input.LA(4)) {
                                 case GrammarTreeVisitor.ID: {
                                     {
                                         alt18 = 2;
@@ -1870,46 +1871,46 @@ export class SourceGenTriggers extends TreeParser {
                                 }
 
                                 default: {
-                                    const nvaeMark = this.input!.mark();
-                                    const lastIndex = this.input!.index;
+                                    const nvaeMark = this.input.mark();
+                                    const lastIndex = this.input.index;
                                     try {
                                         for (let nvaeConsume = 0; nvaeConsume < 4 - 1; nvaeConsume++) {
-                                            this.input!.consume();
+                                            this.input.consume();
                                         }
                                         const nvae = new NoViableAltException("", 18, 4, this.input);
                                         throw nvae;
                                     } finally {
-                                        this.input!.seek(lastIndex);
-                                        this.input!.release(nvaeMark);
+                                        this.input.seek(lastIndex);
+                                        this.input.release(nvaeMark);
                                     }
                                 }
 
                             }
                         } else {
-                            const nvaeMark = this.input!.mark();
-                            const lastIndex = this.input!.index;
+                            const nvaeMark = this.input.mark();
+                            const lastIndex = this.input.index;
                             try {
                                 for (let nvaeConsume = 0; nvaeConsume < 3 - 1; nvaeConsume++) {
-                                    this.input!.consume();
+                                    this.input.consume();
                                 }
                                 const nvae = new NoViableAltException("", 18, 3, this.input);
                                 throw nvae;
                             } finally {
-                                this.input!.seek(lastIndex);
-                                this.input!.release(nvaeMark);
+                                this.input.seek(lastIndex);
+                                this.input.release(nvaeMark);
                             }
                         }
 
                     } else {
-                        const nvaeMark = this.input!.mark();
-                        const lastIndex = this.input!.index;
+                        const nvaeMark = this.input.mark();
+                        const lastIndex = this.input.index;
                         try {
-                            this.input!.consume();
+                            this.input.consume();
                             const nvae = new NoViableAltException("", 18, 2, this.input);
                             throw nvae;
                         } finally {
-                            this.input!.seek(lastIndex);
-                            this.input!.release(nvaeMark);
+                            this.input.seek(lastIndex);
+                            this.input.release(nvaeMark);
                         }
                     }
 
@@ -1924,7 +1925,7 @@ export class SourceGenTriggers extends TreeParser {
                 case 1: {
                     // ./SourceGenTriggers.g:193:7: ID
                     {
-                        this.match(this.input!, SourceGenTriggers.ID, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
                     }
                     break;
                 }
@@ -1932,11 +1933,11 @@ export class SourceGenTriggers extends TreeParser {
                 case 2: {
                     // ./SourceGenTriggers.g:194:9: ^( ASSIGN ID ID )
                     {
-                        this.match(this.input!, SourceGenTriggers.ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.match(this.input!, SourceGenTriggers.ID, null);
-                        this.match(this.input!, SourceGenTriggers.ID, null);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, SourceGenTriggers.ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
+                        this.match(this.input, Constants.UP, null);
 
                     }
                     break;
@@ -1945,11 +1946,11 @@ export class SourceGenTriggers extends TreeParser {
                 case 3: {
                     // ./SourceGenTriggers.g:195:9: ^( ASSIGN ID STRING_LITERAL )
                     {
-                        this.match(this.input!, SourceGenTriggers.ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.match(this.input!, SourceGenTriggers.ID, null);
-                        this.match(this.input!, SourceGenTriggers.STRING_LITERAL, null);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, SourceGenTriggers.ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
+                        this.match(this.input, SourceGenTriggers.STRING_LITERAL, null);
+                        this.match(this.input, Constants.UP, null);
 
                     }
                     break;
@@ -1958,11 +1959,11 @@ export class SourceGenTriggers extends TreeParser {
                 case 4: {
                     // ./SourceGenTriggers.g:196:9: ^( ASSIGN ID ACTION )
                     {
-                        this.match(this.input!, SourceGenTriggers.ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.match(this.input!, SourceGenTriggers.ID, null);
-                        this.match(this.input!, SourceGenTriggers.ACTION, null);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, SourceGenTriggers.ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
+                        this.match(this.input, SourceGenTriggers.ACTION, null);
+                        this.match(this.input, Constants.UP, null);
 
                     }
                     break;
@@ -1971,11 +1972,11 @@ export class SourceGenTriggers extends TreeParser {
                 case 5: {
                     // ./SourceGenTriggers.g:197:9: ^( ASSIGN ID INT )
                     {
-                        this.match(this.input!, SourceGenTriggers.ASSIGN, null);
-                        this.match(this.input!, GrammarTreeVisitor.DOWN, null);
-                        this.match(this.input!, SourceGenTriggers.ID, null);
-                        this.match(this.input!, SourceGenTriggers.INT, null);
-                        this.match(this.input!, GrammarTreeVisitor.UP, null);
+                        this.match(this.input, SourceGenTriggers.ASSIGN, null);
+                        this.match(this.input, Constants.DOWN, null);
+                        this.match(this.input, SourceGenTriggers.ID, null);
+                        this.match(this.input, SourceGenTriggers.INT, null);
+                        this.match(this.input, Constants.UP, null);
 
                     }
                     break;
@@ -1987,7 +1988,7 @@ export class SourceGenTriggers extends TreeParser {
         } catch (re) {
             if (re instanceof RecognitionException) {
                 this.reportError(re);
-                this.recover(this.input!, re);
+                this.recover(this.input, re);
             } else {
                 throw re;
             }

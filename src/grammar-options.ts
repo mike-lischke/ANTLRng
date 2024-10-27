@@ -3,8 +3,9 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-// @ts-expect-error, when setting node module resolution to Node16, tsc raises an error for the import assertion.
-import packageJson from "../package.json" with { type: "json" };
+// ts-expect-error, when setting node module resolution to Node16, tsc raises an error for the import assertion.
+//import packageJson from "../package.json" with { type: "json" };
+const packageJson = await import("../package.json", { assert: { type: "json" } });
 
 import { Option, program } from "commander";
 
@@ -27,7 +28,7 @@ export interface IToolParameters {
     log?: boolean,
 }
 
-export const antlrVersion = packageJson.version;
+export const antlrVersion = packageJson.default.version;
 
 const parseBoolean = (value: string | null): boolean => {
     if (value == null) {
@@ -64,7 +65,7 @@ program
     .option<boolean>("-w, --warnings-are-errors", "Treat warnings as errors.", parseBoolean, false)
     .option<boolean>("-f, --force-atn", "Use the ATN simulator for all predictions.", parseBoolean, false)
     .option<boolean>("--log", "Dump lots of logging info to antlr-timestamp.log.", parseBoolean, false)
-    .version(`ANTLRng ${packageJson.version}`)
+    .version(`ANTLRng ${packageJson.default.version}`)
     .parse();
 
 export const grammarOptions = program.opts<IToolParameters>();

@@ -6,8 +6,9 @@
 
 // cspell: disable
 
-import type { BitSet, Token } from "antlr4ng";
-import { BaseRecognizer } from "./BaseRecognizer.js";
+import { BitSet, Token } from "antlr4ng";
+
+import { Constants } from "../constants.js";
 
 /**
  * The set of fields needed by an abstract recognizer to recognize input
@@ -17,21 +18,22 @@ import { BaseRecognizer } from "./BaseRecognizer.js";
  *  These fields are publically visible but the actual state pointer per
  *  parser is protected.
  */
-export class RecognizerSharedState {
+export interface IRecognizerSharedState {
     /**
      * Track the set of token types that can follow any rule invocation.
      *  Stack grows upwards.  When it hits the max, it grows 2x in size
      *  and keeps going.
      */
-    public following = new Array<BitSet | null>(BaseRecognizer.INITIAL_FOLLOW_STACK_SIZE);
-    public _fsp = -1;
+    following: Array<BitSet | null>;
+
+    _fsp: number;
 
     /**
      * This is true when we see an error and before having successfully
      *  matched a token.  Prevents generation of more than one error message
      *  per error.
      */
-    public errorRecovery = false;
+    errorRecovery: boolean;
 
     /**
      * The index into the input stream where the last error occurred.
@@ -40,22 +42,22 @@ export class RecognizerSharedState {
      * ad naseum.  This is a failsafe mechanism to guarantee that at least
      * one token/tree node is consumed for two errors.
      */
-    public lastErrorIndex = -1;
+    lastErrorIndex: number;
 
     /**
      * In lieu of a return value, this indicates that a rule or token
      * has failed to match.  Reset to false upon valid token match.
      */
-    public failed = false;
+    failed: boolean;
 
     /** Did the recognizer encounter a syntax error?  Track how many. */
-    public syntaxErrors = 0;
+    syntaxErrors: number;
 
     /**
      * If 0, no backtracking is going on.  Safe to exec actions etc...
      * If &gt;0 then it's the level of backtracking.
      */
-    public backtracking = 0;
+    backtracking: number;
 
     /**
      * An array[size num rules] of Map&lt;Integer,Integer&gt; that tracks
@@ -65,7 +67,7 @@ export class RecognizerSharedState {
      *
      * This is only used if rule memoization is on (which it is by default).
      */
-    public ruleMemo: Array<Map<number, number> | null> | null = null;
+    ruleMemo: Array<Map<number, number> | null> | null;
 
     // LEXER FIELDS (must be in same state object to avoid casting
     //               constantly in generated code and Lexer object) :(
@@ -79,53 +81,50 @@ export class RecognizerSharedState {
      * something nonnull so that the auto token emit mechanism will not
      * emit another token.
      */
-    public token: Token | null = null;
+    token: Token | null;
 
     /**
      * What character index in the stream did the current token start at?
      * Needed, for example, to get the text for current token.  Set at
      * the start of nextToken.
      */
-    public tokenStartCharIndex = -1;
+    tokenStartCharIndex: number;
 
     /** The line on which the first character of the token resides */
-    public tokenStartLine: number;
+    tokenStartLine: number;
 
     /** The character position of first character within the line */
-    public tokenStartCharPositionInLine: number;
+    tokenStartCharPositionInLine: number;
 
     /** The channel number for the current token */
-    public channel: number;
+    channel: number;
 
     /** The token type for the current token */
-    public type: number;
+    type: number;
 
     /**
      * You can set the text for the current token to override what is in
      * the input char buffer.  Use setText() or can set this instance var.
      */
-    public text: string;
-
-    public constructor(state?: RecognizerSharedState) {
-        if (state) {
-            this.following = state.following.slice();
-
-            this._fsp = state._fsp;
-            this.errorRecovery = state.errorRecovery;
-            this.lastErrorIndex = state.lastErrorIndex;
-            this.failed = state.failed;
-            this.syntaxErrors = state.syntaxErrors;
-            this.backtracking = state.backtracking;
-            if (state.ruleMemo) {
-                this.ruleMemo = state.ruleMemo.slice();
-            }
-            this.token = state.token;
-            this.tokenStartCharIndex = state.tokenStartCharIndex;
-            this.tokenStartCharPositionInLine = state.tokenStartCharPositionInLine;
-            this.channel = state.channel;
-            this.type = state.type;
-            this.text = state.text;
-        }
-    }
-
+    text: string;
 }
+
+export const createRecognizerSharedState = (): IRecognizerSharedState => {
+    return {
+        following: new Array<BitSet | null>(Constants.INITIAL_FOLLOW_STACK_SIZE),
+        _fsp: -1,
+        errorRecovery: false,
+        lastErrorIndex: -1,
+        failed: false,
+        syntaxErrors: 0,
+        backtracking: 0,
+        ruleMemo: null,
+        token: null,
+        tokenStartCharIndex: -1,
+        tokenStartLine: 0,
+        tokenStartCharPositionInLine: 0,
+        channel: Token.DEFAULT_CHANNEL,
+        type: Token.INVALID_TYPE,
+        text: "",
+    };
+};

@@ -6,8 +6,8 @@
 
 import type { RecognitionException, Token, TokenStream } from "antlr4ng";
 
-import { GrammarAST } from "./GrammarAST.js";
 import { CommonErrorNode } from "../../antlr3/tree/CommonErrorNode.js";
+import { GrammarAST } from "./GrammarAST.js";
 
 /** A node representing erroneous token range in token stream */
 export class GrammarASTErrorNode extends GrammarAST {

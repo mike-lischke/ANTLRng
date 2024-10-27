@@ -15,15 +15,14 @@ import {
 } from "antlr4ng";
 
 import { CommonTreeNodeStream } from "../antlr3/tree/CommonTreeNodeStream.js";
+import { Constants } from "../constants.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
-import { ATNBuilder } from "../tree-walkers/ATNBuilder.js";
-import { LeftRecursiveRuleTransformer } from "../analysis/LeftRecursiveRuleTransformer.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import type { Constructor } from "../misc/Utils.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
 import { UseDefAnalyzer } from "../semantics/UseDefAnalyzer.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
-import { Grammar } from "../tool/Grammar.js";
 import { LeftRecursiveRule } from "../tool/LeftRecursiveRule.js";
 import { LexerGrammar } from "../tool/LexerGrammar.js";
 import { Rule } from "../tool/Rule.js";
@@ -35,18 +34,21 @@ import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { QuantifierAST } from "../tool/ast/QuantifierAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
+import { ATNBuilder } from "../tree-walkers/ATNBuilder.js";
+import type { IGrammar, IParserATNFactory } from "../types.js";
 import { ATNOptimizer } from "./ATNOptimizer.js";
 import { IATNFactory, type IStatePair } from "./IATNFactory.js";
 import { TailEpsilonRemover } from "./TailEpsilonRemover.js";
+import { ClassFactory } from "../ClassFactory.js";
 
 /**
  * ATN construction routines triggered by ATNBuilder.g.
  *
  *  No side-effects. It builds an {@link ATN} object and returns it.
  */
-export class ParserATNFactory implements IATNFactory {
+export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
-    public readonly g: Grammar;
+    public readonly g: IGrammar;
 
     public readonly atn: ATN;
 
@@ -58,7 +60,7 @@ export class ParserATNFactory implements IATNFactory {
 
     protected readonly preventEpsilonOptionalBlocks = new Array<[Rule, ATNState, ATNState]>();
 
-    public constructor(g: Grammar) {
+    public constructor(g: IGrammar) {
         this.g = g;
 
         const atnType = g instanceof LexerGrammar ? ATN.LEXER : ATN.PARSER;
@@ -108,7 +110,7 @@ export class ParserATNFactory implements IATNFactory {
 
                 const analyzer = new LL1Analyzer();
                 if (analyzer.look(this.atn, startState, atnState2).contains(Token.EPSILON)) {
-                    this.g.tool.errMgr.grammarError(ErrorType.EPSILON_OPTIONAL, this.g.fileName,
+                    ErrorManager.get().grammarError(ErrorType.EPSILON_OPTIONAL, this.g.fileName,
                         (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
                     continue optionalCheck;
                 }
@@ -182,7 +184,7 @@ export class ParserATNFactory implements IATNFactory {
 
     /** Not valid for non-lexers. */
     public range(a: GrammarAST, b: GrammarAST): IStatePair | null {
-        this.g.tool.errMgr.grammarError(ErrorType.TOKEN_RANGE_IN_PARSER, this.g.fileName, a.getToken(),
+        ErrorManager.get().grammarError(ErrorType.TOKEN_RANGE_IN_PARSER, this.g.fileName, a.getToken(),
             a.getToken()?.text, b.getToken()?.text);
 
         // From a..b, yield ATN for just a.
@@ -222,7 +224,7 @@ export class ParserATNFactory implements IATNFactory {
     public _ruleRef(node: GrammarAST): IStatePair | null {
         const r = this.g.getRule(node.getText()!);
         if (r === null) {
-            this.g.tool.errMgr.grammarError(ErrorType.INTERNAL_ERROR, this.g.fileName, node.getToken(),
+            ErrorManager.get().grammarError(ErrorType.INTERNAL_ERROR, this.g.fileName, node.getToken(),
                 "Rule " + node.getText() + " undefined");
 
             return null;
@@ -233,9 +235,8 @@ export class ParserATNFactory implements IATNFactory {
         const right = this.newState(node);
         let precedence = 0;
         const ast = node as GrammarASTWithOptions;
-        if (ast.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME)) {
-            precedence = Number.parseInt(
-                ast.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME) ?? "0");
+        if (ast.getOptionString(Constants.PRECEDENCE_OPTION_NAME)) {
+            precedence = Number.parseInt(ast.getOptionString(Constants.PRECEDENCE_OPTION_NAME) ?? "0");
         }
         const call = new RuleTransition(start, r.index, precedence, right);
         left.addTransition(call);
@@ -287,9 +288,8 @@ export class ParserATNFactory implements IATNFactory {
         const right = this.newState(pred);
 
         let p: AbstractPredicateTransition;
-        if (pred.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME)) {
-            const precedence = Number.parseInt(
-                pred.getOptionString(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME) ?? "0");
+        if (pred.getOptionString(Constants.PRECEDENCE_OPTION_NAME)) {
+            const precedence = Number.parseInt(pred.getOptionString(Constants.PRECEDENCE_OPTION_NAME) ?? "0");
             p = new PrecedencePredicateTransition(right, precedence);
         } else {
             const isCtxDependent = UseDefAnalyzer.actionIsContextDependent(pred);
@@ -504,7 +504,7 @@ export class ParserATNFactory implements IATNFactory {
         const blkAST = plusAST.getChild(0) as BlockAST;
         if ((plusAST as QuantifierAST).isGreedy()) {
             if (this.expectNonGreedy(blkAST)) {
-                this.g.tool.errMgr.grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
+                ErrorManager.get().grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
                     plusAST.getToken(), plusAST.getToken()!.text);
             }
 
@@ -550,7 +550,7 @@ export class ParserATNFactory implements IATNFactory {
         const blkAST = starAST.getChild(0) as BlockAST;
         if ((starAST as QuantifierAST).isGreedy()) {
             if (this.expectNonGreedy(blkAST)) {
-                this.g.tool.errMgr.grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
+                ErrorManager.get().grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
                     starAST.getToken(), starAST.getToken()!.text);
             }
 
@@ -684,12 +684,12 @@ export class ParserATNFactory implements IATNFactory {
                 const errorType = rule instanceof LeftRecursiveRule
                     ? ErrorType.EPSILON_LR_FOLLOW
                     : ErrorType.EPSILON_CLOSURE;
-                this.g.tool.errMgr.grammarError(errorType, this.g.fileName,
+                ErrorManager.get().grammarError(errorType, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
             }
 
             if (lookahead.contains(Token.EOF)) {
-                this.g.tool.errMgr.grammarError(ErrorType.EOF_CLOSURE, this.g.fileName,
+                ErrorManager.get().grammarError(ErrorType.EOF_CLOSURE, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
             }
         }
@@ -757,5 +757,11 @@ export class ParserATNFactory implements IATNFactory {
             this.atn.ruleToStartState[r.index] = start;
             this.atn.ruleToStopState[r.index] = stop;
         }
+    }
+
+    static {
+        ClassFactory.createParserATNFactory = (g: IGrammar) => {
+            return new ParserATNFactory(g);
+        };
     }
 }

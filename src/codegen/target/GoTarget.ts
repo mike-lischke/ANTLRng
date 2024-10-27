@@ -67,7 +67,7 @@ export class GoTarget extends Target {
         const gen = this.getCodeGenerator();
         const g = gen.g!;
         let name: string;
-        switch (g.getType()) {
+        switch (g.type) {
             case GrammarType.Parser: {
                 name = g.name.endsWith("Parser") ? g.name.substring(0, g.name.length - 6) : g.name;
 

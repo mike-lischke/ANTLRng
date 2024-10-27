@@ -7,6 +7,7 @@
 import { ST, STGroup, type IST } from "stringtemplate4ts";
 
 import { Tool } from "../Tool.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { OutputModelObject } from "./model/OutputModelObject.js";
 
@@ -47,14 +48,14 @@ export class OutputModelWalker {
 
         const st = this.templates.getInstanceOf(templateName);
         if (st === null) {
-            this.tool.errMgr.toolError(ErrorType.CODE_GEN_TEMPLATES_INCOMPLETE, templateName);
+            ErrorManager.get().toolError(ErrorType.CODE_GEN_TEMPLATES_INCOMPLETE, templateName);
 
             return new ST("[" + templateName + " invalid]");
         }
 
         /*
                 if (!st.impl?.formalArguments) {
-                    this.tool.errMgr.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
+                    ErrorManager.get().toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
                     return st;
                 }
 
@@ -76,7 +77,7 @@ export class OutputModelWalker {
                     let fieldName = fi.getName();
 
                     if (!usedFieldNames.add(fieldName)) {
-                        this.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.getClass()
+                        ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.getClass()
                         .getSimpleName() + " has multiple fields named '" + fieldName + "'");
                         continue;
                     }
@@ -130,7 +131,7 @@ export class OutputModelWalker {
 
                     } catch (iae) {
                         if (iae instanceof IllegalAccessException) {
-                            this.tool.errMgr.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, fieldName);
+                            ErrorManager.get().toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, fieldName);
                         } else {
                             throw iae;
                         }

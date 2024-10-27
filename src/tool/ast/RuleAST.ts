@@ -8,13 +8,16 @@ import type { Token } from "antlr4ng";
 
 import { ANTLRv4Parser } from "../../generated/ANTLRv4Parser.js";
 
-import { Grammar } from "../Grammar.js";
-import { ActionAST } from "./ActionAST.js";
-import { GrammarAST } from "./GrammarAST.js";
-import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
+import { isTokenName } from "../../support/helpers.js";
+
+import type { ActionAST } from "./ActionAST.js";
+import type { GrammarAST } from "./GrammarAST.js";
+import type { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
 
 export class RuleAST extends GrammarASTWithOptions {
+    public override readonly astType: string = "RuleAST";
+
     public constructor(nodeOrTokenOrType: RuleAST | Token | number) {
         if (typeof nodeOrTokenOrType === "number") {
             super(nodeOrTokenOrType);
@@ -26,16 +29,13 @@ export class RuleAST extends GrammarASTWithOptions {
     public isLexerRule(): boolean {
         const name = this.getRuleName();
 
-        return name !== null && Grammar.isTokenName(name);
+        return name !== null && isTokenName(name);
     }
 
     public getRuleName(): string | null {
         const nameNode = this.getChild(0) as GrammarAST | null;
-        if (nameNode !== null) {
-            return nameNode.getText();
-        }
 
-        return null;
+        return nameNode?.getText() ?? null;
     }
 
     public override dupNode(): RuleAST {

@@ -8,11 +8,10 @@
 
 import { Token } from "antlr4ng";
 
+import { Constants } from "../../constants.js";
+import type { CommonTree } from "../../tree/CommonTree.js";
 import { FastQueue } from "../misc/FastQueue.js";
 import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
-import type { Tree } from "./Tree.js";
-import type { TreeAdaptor } from "./TreeAdaptor.js";
-import { TreeParser } from "./TreeParser.js";
 
 /**
  * Return a node stream from a doubly-linked tree whose nodes
@@ -23,40 +22,40 @@ import { TreeParser } from "./TreeParser.js";
 export class TreeIterator {
 
     // navigation nodes to return during walk and at end
-    public up: Tree;
-    public down: Tree;
-    public eof: Tree;
-    protected adaptor: TreeAdaptor;
-    protected root: Tree | null;
-    protected tree: Tree | null;
+    public up: CommonTree;
+    public down: CommonTree;
+    public eof: CommonTree;
+    protected adaptor: CommonTreeAdaptor;
+    protected root: CommonTree | null;
+    protected tree: CommonTree | null;
     protected firstTime = true;
 
     /**
      * If we emit UP/DOWN nodes, we need to spit out multiple nodes per
      *  next() call.
      */
-    protected nodes: FastQueue<Tree>;
+    protected nodes: FastQueue<CommonTree>;
 
-    public constructor(tree: Tree);
-    public constructor(adaptor: TreeAdaptor, tree: Tree);
+    public constructor(tree: CommonTree);
+    public constructor(adaptor: CommonTreeAdaptor, tree: CommonTree);
     public constructor(...args: unknown[]) {
         let tree;
         let adaptor;
 
         if (args.length === 1) {
-            [tree] = args as [Tree];
+            [tree] = args as [CommonTree];
 
             adaptor = new CommonTreeAdaptor();
         } else {
-            [adaptor, tree] = args as [TreeAdaptor, Tree];
+            [adaptor, tree] = args as [CommonTreeAdaptor, CommonTree];
         }
 
         this.adaptor = adaptor;
         this.tree = tree;
         this.root = tree;
-        this.nodes = new FastQueue<Tree>();
-        this.down = adaptor.create(TreeParser.DOWN, "DOWN");
-        this.up = adaptor.create(TreeParser.UP, "UP");
+        this.nodes = new FastQueue<CommonTree>();
+        this.down = adaptor.create(Constants.DOWN, "DOWN");
+        this.up = adaptor.create(Constants.UP, "UP");
         this.eof = adaptor.create(Token.EOF, "EOF");
     }
 
@@ -86,10 +85,10 @@ export class TreeIterator {
         return this.adaptor.getParent(this.tree) !== null; // back at root?
     }
 
-    public nextTree(): Tree | null {
+    public nextTree(): CommonTree | null {
         if (this.firstTime) { // initial condition
             this.firstTime = false;
-            if (this.adaptor.getChildCount(this.tree!) === 0) { // single node tree (special)
+            if (this.adaptor.getChildCount(this.tree) === 0) { // single node tree (special)
                 this.nodes.add(this.eof);
 
                 return this.tree;

@@ -5,7 +5,8 @@
  */
 
 import type { RecognitionException, Token, TokenStream } from "antlr4ng";
-import type { Tree } from "./Tree.js";
+
+import type { CommonTree } from "../../tree/CommonTree.js";
 
 // cspell: disable
 
@@ -29,7 +30,7 @@ export interface TreeAdaptor {
      *
      *  Override if you want another kind of node to be built.
      */
-    create(payload: Token | null): Tree;
+    create(payload: Token | null): CommonTree;
 
     /**
      * Create a new node derived from a token, with a new token type.
@@ -38,7 +39,7 @@ export interface TreeAdaptor {
      *
      *  This should invoke createToken(Token).
      */
-    create(tokenType: number, fromToken: Token): Tree;
+    create(tokenType: number, fromToken: Token): CommonTree;
 
     /**
      * Same as create(tokenType,fromToken) except set the text too.
@@ -47,7 +48,7 @@ export interface TreeAdaptor {
      *
      *  This should invoke createToken(Token).
      */
-    create(tokenType: number, fromToken: Token, text: string): Tree;
+    create(tokenType: number, fromToken: Token, text: string): CommonTree;
 
     /**
      * Create a new node derived from a token, with a new token type.
@@ -56,23 +57,23 @@ export interface TreeAdaptor {
      *
      *  This should invoke createToken(int,String).
      */
-    create(tokenType: number, text: string): Tree;
+    create(tokenType: number, text: string): CommonTree;
 
     /**
      * Duplicate a single tree node.
      *  Override if you want another kind of node to be built.
      */
-    dupNode(treeNode: Tree): Tree;
+    dupNode(treeNode: CommonTree): CommonTree;
 
     /** Duplicate tree recursively, using dupNode() for each node */
-    dupTree(tree: Tree): Tree;
+    dupTree(tree: CommonTree): CommonTree;
 
     /**
      * Return a nil node (an empty but non-null node) that can hold
      *  a list of element as the children.  If you want a flat tree (a list)
      *  use "t=adaptor.nil(); t.addChild(x); t.addChild(y);"
      */
-    nil(): Tree;
+    nil(): CommonTree;
 
     /**
      * Return a tree node representing an error.  This node records the
@@ -92,7 +93,7 @@ export interface TreeAdaptor {
     errorNode(input: TokenStream, start: Token, stop: Token, e: RecognitionException): unknown;
 
     /** Is tree considered a nil node used to make lists of child nodes? */
-    isNil(tree: Tree | null): boolean;
+    isNil(tree: CommonTree | null): boolean;
 
     /**
      * Add a child to the tree t.  If child is a flat tree (a list), make all
@@ -102,7 +103,7 @@ export interface TreeAdaptor {
      *  make sure that this is consistent with have the user will build
      *  ASTs.  Do nothing if t or child is null.
      */
-    addChild(t: Tree, child: Tree): void;
+    addChild(t: CommonTree, child: CommonTree): void;
 
     /**
      * If oldRoot is a nil root, just copy or move the children to newRoot.
@@ -131,7 +132,7 @@ export interface TreeAdaptor {
      *  constructing these nodes so we should have this control for
      *  efficiency.
      */
-    becomeRoot(newRoot: Tree, oldRoot: Tree): Tree;
+    becomeRoot(newRoot: CommonTree, oldRoot: CommonTree): CommonTree;
 
     /**
      * Create a node for newRoot make it the root of oldRoot.
@@ -161,7 +162,7 @@ export interface TreeAdaptor {
      *  This method is executed after all rule tree construction and right
      *  before setTokenBoundaries().
      */
-    rulePostProcessing(root: Tree): Tree | null;
+    rulePostProcessing(root: CommonTree): CommonTree | null;
 
     /**
      * For identifying trees.
@@ -169,20 +170,20 @@ export interface TreeAdaptor {
      *  How to identify nodes so we can say "add node to a prior node"?
      *  Even becomeRoot is an issue.  Uses MurmurHash usually.
      */
-    getUniqueID(node: Tree): number;
+    getUniqueID(node: CommonTree): number;
 
     // C o n t e n t
 
     /** For tree parsing, I need to know the token type of a node */
-    getType(t: Tree): number;
+    getType(t: CommonTree): number;
 
     /** Node constructors can set the type of a node */
-    setType(t: Tree, type: number): void;
+    setType(t: CommonTree, type: number): void;
 
-    getText(t: Tree): string | null;
+    getText(t: CommonTree): string | null;
 
     /** Node constructors can set the text of a node */
-    setText(t: Tree, text: string): void;
+    setText(t: CommonTree, text: string): void;
 
     /**
      * Return the token object from which this node was created.
@@ -194,7 +195,7 @@ export interface TreeAdaptor {
      *  the appropriate information and pass that back.  See
      *  BaseRecognizer.getErrorMessage().
      */
-    getToken(t: Tree | null): Token | null;
+    getToken(t: CommonTree | null): Token | null;
 
     /**
      * Where are the bounds in the input token stream for this node and
@@ -203,43 +204,43 @@ export interface TreeAdaptor {
      *  still usually have a nil root node just to hold the children list.
      *  That node would contain the start/stop indexes then.
      */
-    setTokenBoundaries(t: Tree, startToken: Token, stopToken: Token): void;
+    setTokenBoundaries(t: CommonTree, startToken: Token, stopToken: Token): void;
 
     /** Get the token start index for this subtree; return -1 if no such index */
-    getTokenStartIndex(t: Tree): number;
+    getTokenStartIndex(t: CommonTree): number;
 
     /** Get the token stop index for this subtree; return -1 if no such index */
-    getTokenStopIndex(t: Tree): number;
+    getTokenStopIndex(t: CommonTree): number;
 
     // N a v i g a t i o n  /  T r e e  P a r s i n g
 
     /** Get a child 0..n-1 node */
-    getChild(t: Tree, i: number): Tree | null;
+    getChild(t: CommonTree | null, i: number): CommonTree | null;
 
     /** Set ith child (0..n-1) to t; t must be non-null and non-nil node */
-    setChild(t: Tree, i: number, child: Tree): void;
+    setChild(t: CommonTree, i: number, child: CommonTree): void;
 
     /** Remove ith child and shift children down from right. */
-    deleteChild(t: Tree, i: number): Tree | null;
+    deleteChild(t: CommonTree, i: number): CommonTree | null;
 
     /** How many children?  If 0, then this is a leaf node */
-    getChildCount(t: Tree): number;
+    getChildCount(t: CommonTree): number;
 
     /**
      * Who is the parent node of this node; if null, implies node is root.
      *  If your node type doesn't handle this, it's ok but the tree rewrites
      *  in tree parsers need this functionality.
      */
-    getParent(t: Tree | null): Tree | null;
-    setParent(t: Tree, parent: Tree | null): void;
+    getParent(t: CommonTree | null): CommonTree | null;
+    setParent(t: CommonTree, parent: CommonTree | null): void;
 
     /**
      * What index is this node in the child list? Range: 0..n-1
      *  If your node type doesn't handle this, it's ok but the tree rewrites
      *  in tree parsers need this functionality.
      */
-    getChildIndex(t: Tree): number;
-    setChildIndex(t: Tree, index: number): void;
+    getChildIndex(t: CommonTree): number;
+    setChildIndex(t: CommonTree, index: number): void;
 
     /**
      * Replace from start to stop child index of parent with t, which might
@@ -249,5 +250,5 @@ export interface TreeAdaptor {
      *  If parent is null, don't do anything; must be at root of overall tree.
      *  Can't replace whatever points to the parent externally.  Do nothing.
      */
-    replaceChildren(parent: Tree, startChildIndex: number, stopChildIndex: number, t: Tree): void;
+    replaceChildren(parent: CommonTree, startChildIndex: number, stopChildIndex: number, t: CommonTree): void;
 }

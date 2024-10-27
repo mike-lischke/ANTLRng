@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { Attribute } from "./Attribute.js";
+import type { IAttribute } from "./IAttribute.js";
 import { ActionAST } from "./ast/ActionAST.js";
 
 /**
@@ -42,6 +42,6 @@ export interface AttributeResolver {
     resolvesToLabel(x: string, node: ActionAST): boolean;
     resolvesToAttributeDict(x: string, node: ActionAST): boolean;
     resolvesToToken(x: string, node: ActionAST): boolean;
-    resolveToAttribute(x: string, node: ActionAST): Attribute | null;
-    resolveToAttribute(x: string, y: string, node: ActionAST): Attribute | null;
+    resolveToAttribute(x: string, node: ActionAST): IAttribute | null;
+    resolveToAttribute(x: string, y: string, node: ActionAST): IAttribute | null;
 }

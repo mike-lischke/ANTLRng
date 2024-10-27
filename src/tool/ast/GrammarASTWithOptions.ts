@@ -6,11 +6,14 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
-import { GrammarAST } from "./GrammarAST.js";
 import { CharSupport } from "../../misc/CharSupport.js";
+import { ErrorManager } from "../ErrorManager.js";
 import { ErrorType } from "../ErrorType.js";
+import { GrammarAST } from "./GrammarAST.js";
 
 export abstract class GrammarASTWithOptions extends GrammarAST {
+    public override readonly astType: string = "GrammarASTWithOptions";
+
     #options = new Map<string, GrammarAST | null>();
 
     public setOption(key: string, node: GrammarAST | null): void {
@@ -30,7 +33,7 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
             if (v && (v.startsWith("'") || v.startsWith("\""))) {
                 v = CharSupport.getStringFromGrammarStringLiteral(v);
                 if (v === null) {
-                    this.g.tool.errMgr.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, this.g.fileName,
+                    ErrorManager.get().grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, this.g.fileName,
                         value.getToken(), value.getText()!);
                     v = "";
                 }

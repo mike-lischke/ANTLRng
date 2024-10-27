@@ -6,40 +6,33 @@
 
 /* eslint-disable jsdoc/require-param */
 
-import { Attribute } from "./Attribute.js";
+import { IAttribute } from "./IAttribute.js";
 import { DictType } from "./DictType.js";
-import { GrammarAST } from "./ast/GrammarAST.js";
+import type { GrammarAST } from "./ast/GrammarAST.js";
 
 /**
  * Track the attributes within retval, arg lists etc...
- *  <p>
- *  Each rule has potentially 3 scopes: return values,
- *  parameters, and an implicitly-named scope (i.e., a scope defined in a rule).
- *  Implicitly-defined scopes are named after the rule; rules and scopes then
- *  must live in the same name space--no collisions allowed.
+ * <p>
+ * Each rule has potentially 3 scopes: return values,
+ * parameters, and an implicitly-named scope (i.e., a scope defined in a rule).
+ * Implicitly-defined scopes are named after the rule; rules and scopes then
+ * must live in the same name space--no collisions allowed.
  */
 export class AttributeDict {
-
-    /**
-     * All {@link Token} scopes (token labels) share the same fixed scope of
-     *  of predefined attributes.  I keep this out of the {@link Token}
-     *  interface to avoid a runtime type leakage.
-     */
-    public static readonly predefinedTokenDict = new AttributeDict(DictType.Token);
 
     public name: string;
     public ast: GrammarAST;
     public type?: DictType;
 
-    /** The list of {@link Attribute} objects. */
+    /** The list of {@link IAttribute} objects. */
 
-    public readonly attributes = new Map<string, Attribute>();
+    public readonly attributes = new Map<string, IAttribute>();
 
     public constructor(type?: DictType) {
         this.type = type;
     }
 
-    public add(a: Attribute): Attribute {
+    public add(a: IAttribute): IAttribute {
         a.dict = this;
 
         this.attributes.set(a.name!, a);
@@ -47,7 +40,7 @@ export class AttributeDict {
         return a;
     }
 
-    public get(name: string): Attribute | null {
+    public get(name: string): IAttribute | null {
         return this.attributes.get(name) ?? null;
     }
 
@@ -80,15 +73,5 @@ export class AttributeDict {
 
     public toString(): string {
         return this.getName() + ":" + String(this.attributes);
-    }
-
-    static {
-        AttributeDict.predefinedTokenDict.add(new Attribute("text"));
-        AttributeDict.predefinedTokenDict.add(new Attribute("type"));
-        AttributeDict.predefinedTokenDict.add(new Attribute("line"));
-        AttributeDict.predefinedTokenDict.add(new Attribute("index"));
-        AttributeDict.predefinedTokenDict.add(new Attribute("pos"));
-        AttributeDict.predefinedTokenDict.add(new Attribute("channel"));
-        AttributeDict.predefinedTokenDict.add(new Attribute("int"));
     }
 }

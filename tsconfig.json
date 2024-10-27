@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ES2023",
+        "target": "ES2022",
         "module": "Node16",
         "moduleResolution": "Node16",
         "sourceMap": true,
@@ -28,6 +28,7 @@
         "tool/**/*.ts",
         "src/**/*.ts",
         "build/*.ts",
+        "vitest.config.ts"
     ],
     "exclude": [
         "node_modules",

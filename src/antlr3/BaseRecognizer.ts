@@ -10,8 +10,8 @@
 
 import { BitSet, RecognitionException, Token, type IntStream, type TokenStream } from "antlr4ng";
 
-import { RecognizerSharedState } from "./RecognizerSharedState.js";
-import { TreeParser } from "./tree/TreeParser.js";
+import { Constants } from "../constants.js";
+import { createRecognizerSharedState, type IRecognizerSharedState } from "./IRecognizerSharedState.js";
 import type { Tree } from "./tree/Tree.js";
 
 /**
@@ -21,16 +21,6 @@ import type { Tree } from "./tree/Tree.js";
  *  backtracking.
  */
 export abstract class BaseRecognizer {
-    public static readonly MEMO_RULE_FAILED = -2;
-    public static readonly MEMO_RULE_UNKNOWN = -1;
-    public static readonly INITIAL_FOLLOW_STACK_SIZE = 100;
-
-    // copies from Token object for convenience in actions
-    public static readonly DEFAULT_TOKEN_CHANNEL = Token.DEFAULT_CHANNEL;
-    public static readonly HIDDEN = Token.HIDDEN_CHANNEL;
-
-    public static readonly NEXT_TOKEN_RULE_NAME = "nextToken";
-
     /**
      * State of a lexer, parser, or tree parser are collected into a state
      *  object so the state can be shared.  This sharing is needed to
@@ -38,10 +28,10 @@ export abstract class BaseRecognizer {
      *  and other state variables.  It's a kind of explicit multiple
      *  inheritance via delegation of methods and shared state.
      */
-    protected state: RecognizerSharedState;
+    protected state: IRecognizerSharedState;
 
-    public constructor(state: RecognizerSharedState = new RecognizerSharedState()) {
-        this.state = state;
+    public constructor(state?: IRecognizerSharedState) {
+        this.state = state ?? createRecognizerSharedState();
     }
 
     /**
@@ -143,11 +133,11 @@ export abstract class BaseRecognizer {
         }
 
         // compute what can follow this grammar element reference
-        if (follow.get(TreeParser.EOR_TOKEN_TYPE)) {
+        if (follow.get(Constants.EOR_TOKEN_TYPE)) {
             const viableTokensFollowingThisRule = this.computeContextSensitiveRuleFOLLOW();
             follow.or(viableTokensFollowingThisRule);
             if (this.state._fsp >= 0) { // remove EOR if we're not the start symbol
-                follow.clear(TreeParser.EOR_TOKEN_TYPE);
+                follow.clear(Constants.EOR_TOKEN_TYPE);
             }
         }
 
@@ -158,7 +148,7 @@ export abstract class BaseRecognizer {
         // BitSet cannot handle negative numbers like -1 (EOF) so I leave EOR
         // in follow set to indicate that the fall of the start symbol is
         // in the set (EOF can follow).
-        if (follow.get(input.LA(1)) || follow.get(TreeParser.EOR_TOKEN_TYPE)) {
+        if (follow.get(input.LA(1)) || follow.get(Constants.EOR_TOKEN_TYPE)) {
             return true;
         }
 
@@ -410,7 +400,7 @@ export abstract class BaseRecognizer {
 
         const stopIndexI = this.state.ruleMemo![ruleIndex].get(ruleStartIndex);
         if (stopIndexI == null) {
-            return BaseRecognizer.MEMO_RULE_UNKNOWN;
+            return Constants.MEMO_RULE_UNKNOWN;
         }
 
         return stopIndexI;
@@ -428,11 +418,11 @@ export abstract class BaseRecognizer {
      */
     public alreadyParsedRule(input: IntStream, ruleIndex: number): boolean {
         const stopIndex = this.getRuleMemoization(ruleIndex, input.index);
-        if (stopIndex === BaseRecognizer.MEMO_RULE_UNKNOWN) {
+        if (stopIndex === Constants.MEMO_RULE_UNKNOWN) {
             return false;
         }
 
-        if (stopIndex === BaseRecognizer.MEMO_RULE_FAILED) {
+        if (stopIndex === Constants.MEMO_RULE_FAILED) {
             this.state.failed = true;
         } else {
             input.seek(stopIndex + 1); // jump to one past stop token
@@ -448,7 +438,7 @@ export abstract class BaseRecognizer {
     public memoize(input: IntStream,
         ruleIndex: number,
         ruleStartIndex: number): void {
-        const stopTokenIndex = this.state.failed ? BaseRecognizer.MEMO_RULE_FAILED : input.index - 1;
+        const stopTokenIndex = this.state.failed ? Constants.MEMO_RULE_FAILED : input.index - 1;
         if (this.state.ruleMemo === null) {
             console.error("!!!!!!!!! memo array is null for " + this.getGrammarFileName());
         }
@@ -667,11 +657,11 @@ export abstract class BaseRecognizer {
                 followSet.or(localFollowSet);
                 if (exact) {
                     // can we see end of rule?
-                    if (localFollowSet.get(TreeParser.EOR_TOKEN_TYPE)) {
+                    if (localFollowSet.get(Constants.EOR_TOKEN_TYPE)) {
                         // Only leave EOR in set if at top (start rule); this lets
                         // us know if have to include follow(start rule); i.e., EOF
                         if (i > 0) {
-                            followSet.clear(TreeParser.EOR_TOKEN_TYPE);
+                            followSet.clear(Constants.EOR_TOKEN_TYPE);
                         }
                     } else { // can't see end of rule, quit
                         break;

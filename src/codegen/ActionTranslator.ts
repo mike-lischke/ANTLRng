@@ -9,6 +9,8 @@ import { CharStream, type Token } from "antlr4ng";
 import { ActionSplitter } from "../generated/ActionSplitter.js";
 import { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
 
+import { DictType } from "../tool/DictType.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { CodeGenerator } from "./CodeGenerator.js";
@@ -47,7 +49,6 @@ import { TokenPropertyRefText } from "./model/chunk/TokenPropertyRefText.js";
 import { TokenPropertyRefType } from "./model/chunk/TokenPropertyRefType.js";
 import { TokenRef } from "./model/chunk/TokenRef.js";
 import { StructDecl } from "./model/decl/StructDecl.js";
-import { DictType } from "../tool/DictType.js";
 
 export class ActionTranslator implements ActionSplitterListener {
     public static readonly thisRulePropToModelMap = new Map<string, typeof RulePropertyRef>([
@@ -221,8 +222,7 @@ export class ActionTranslator implements ActionSplitterListener {
         const a = this.node.resolver.resolveToAttribute(x, y, this.node);
         if (a === null) {
             // Added in response to https://github.com/antlr/antlr4/issues/1211
-            this.gen.g?.tool.errMgr.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.gen.g.fileName, null,
-                x, "rule");
+            ErrorManager.get().grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.gen.g!.fileName, null, x, "rule");
 
             return;
         }

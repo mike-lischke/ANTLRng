@@ -10,27 +10,26 @@
 
 import { Token, type TokenStream } from "antlr4ng";
 
+import type { CommonTree } from "../../tree/CommonTree.js";
 import { LookaheadStream } from "../misc/LookaheadStream.js";
 import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
 import type { PositionTrackingStream } from "./PositionTrackingStream.js";
-import type { Tree } from "./Tree.js";
-import type { TreeAdaptor } from "./TreeAdaptor.js";
 import { TreeIterator } from "./TreeIterator.js";
 import type { TreeNodeStream } from "./TreeNodeStream.js";
 
-export class CommonTreeNodeStream extends LookaheadStream<Tree>
-    implements TreeNodeStream, PositionTrackingStream<Tree> {
+export class CommonTreeNodeStream extends LookaheadStream<CommonTree>
+    implements TreeNodeStream, PositionTrackingStream<CommonTree> {
     public static readonly DEFAULT_INITIAL_BUFFER_SIZE = 100;
     public static readonly INITIAL_CALL_STACK_SIZE = 10;
 
     /** Pull nodes from which tree? */
-    protected root: Tree;
+    protected root: CommonTree;
 
     /** If this tree (root) was created from a {@link TokenStream}, track it. */
     protected tokens: TokenStream;
 
     /** What {@link TreeAdaptor} was used to build these trees */
-    protected adaptor: TreeAdaptor;
+    protected adaptor: CommonTreeAdaptor;
 
     /** The {@link TreeIterator} we using. */
     protected it: TreeIterator;
@@ -53,21 +52,21 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
      * @see #hasPositionInformation
      * @see RecognitionException#extractInformationFromTreeNodeStream
      */
-    protected previousLocationElement: Tree | null;
+    protected previousLocationElement: CommonTree | null;
 
-    public constructor(tree: Tree);
-    public constructor(adaptor: TreeAdaptor, tree: Tree);
+    public constructor(tree: CommonTree);
+    public constructor(adaptor: CommonTreeAdaptor, tree: CommonTree);
     public constructor(...args: unknown[]) {
         super();
 
         if (args.length === 1) {
-            const [tree] = args as [Tree];
+            const [tree] = args as [CommonTree];
 
             this.adaptor = new CommonTreeAdaptor();
             this.root = tree;
             this.it = new TreeIterator(this.adaptor, this.root);
         } else {
-            const [adaptor, tree] = args as [TreeAdaptor, Tree];
+            const [adaptor, tree] = args as [CommonTreeAdaptor, CommonTree];
 
             this.root = tree;
             this.adaptor = adaptor;
@@ -88,7 +87,7 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
      * Pull elements from tree iterator.  Track tree level 0..max_level.
      *  If nil rooted tree, don't give initial nil and DOWN nor final UP.
      */
-    public nextElement(): Tree {
+    public nextElement(): CommonTree {
         let t = this.it.nextTree()!;
 
         if (t === this.it.up) {
@@ -113,7 +112,7 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
         return t;
     }
 
-    public override remove(): Tree {
+    public override remove(): CommonTree {
         const result = super.remove();
         if (this.p === 0 && this.hasPositionInformation(this.prevElement)) {
             this.previousLocationElement = this.prevElement;
@@ -122,7 +121,7 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
         return result;
     }
 
-    public isEOF(o: Tree): boolean {
+    public isEOF(o: CommonTree): boolean {
         return this.adaptor.getType(o) === Token.EOF;
     }
 
@@ -144,21 +143,21 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
         this.tokens = tokens;
     }
 
-    public getTreeAdaptor(): TreeAdaptor {
+    public getTreeAdaptor(): CommonTreeAdaptor {
         return this.adaptor;
     }
 
-    public setTreeAdaptor(adaptor: TreeAdaptor): void {
+    public setTreeAdaptor(adaptor: CommonTreeAdaptor): void {
         this.adaptor = adaptor;
     }
 
-    public get(i: number): Tree {
+    public get(i: number): CommonTree {
         throw new Error("Absolute node indexes are meaningless in an unbuffered stream");
     }
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
     public LA(i: number): number {
-        return this.adaptor.getType(this.LT(i)!);
+        return this.adaptor.getType(this.LT(i));
     }
 
     /**
@@ -189,7 +188,7 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
      *
      * @see #hasPositionInformation
      */
-    public getKnownPositionElement(allowApproximateLocation: boolean): Tree | null {
+    public getKnownPositionElement(allowApproximateLocation: boolean): CommonTree | null {
         let node = this.data[this.p];
         if (this.hasPositionInformation(node)) {
             return node;
@@ -209,7 +208,7 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
         return this.previousLocationElement;
     }
 
-    public hasPositionInformation(node: Tree | null): boolean {
+    public hasPositionInformation(node: CommonTree | null): boolean {
         const token = this.adaptor.getToken(node);
         if (token === null) {
             return false;
@@ -224,11 +223,11 @@ export class CommonTreeNodeStream extends LookaheadStream<Tree>
 
     // TREE REWRITE INTERFACE
 
-    public replaceChildren(parent: Tree, startChildIndex: number, stopChildIndex: number, t: Tree): void {
+    public replaceChildren(parent: CommonTree, startChildIndex: number, stopChildIndex: number, t: CommonTree): void {
         this.adaptor.replaceChildren(parent, startChildIndex, stopChildIndex, t);
     }
 
-    /*public toString(start: Tree, stop: Tree): string {
+    /*public toString(start: CommonTree, stop: CommonTree): string {
         // we'll have to walk from start to stop in tree; we're not keeping
         // a complete node stream buffer
         return "n/a";

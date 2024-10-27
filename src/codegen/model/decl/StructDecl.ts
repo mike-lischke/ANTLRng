@@ -5,7 +5,7 @@
  */
 
 import { grammarOptions } from "../../../grammar-options.js";
-import type { Attribute } from "../../../tool/Attribute.js";
+import type { IAttribute } from "../../../tool/IAttribute.js";
 import { Rule } from "../../../tool/Rule.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
 import { DispatchMethod } from "../DispatchMethod.js";
@@ -71,7 +71,7 @@ export class StructDecl extends Decl {
         }
     }
 
-    public addDecl(a: Decl | Attribute): void {
+    public addDecl(a: Decl | IAttribute): void {
         if (a instanceof Decl) {
             a.ctx = this;
 
@@ -101,7 +101,7 @@ export class StructDecl extends Decl {
         }
     }
 
-    public addDecls(attrList: Attribute[]): void {
+    public addDecls(attrList: IAttribute[]): void {
         for (const a of attrList) {
             this.addDecl(a);
         }

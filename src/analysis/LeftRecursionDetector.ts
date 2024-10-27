@@ -6,12 +6,12 @@
 
 /* eslint-disable jsdoc/require-param */
 
-import {
-    ATN, ATNState, HashSet, RuleStartState, RuleStopState, RuleTransition
-} from "antlr4ng";
+import { ATN, ATNState, HashSet, RuleStartState, RuleStopState, RuleTransition } from "antlr4ng";
 
-import { Grammar } from "../tool/Grammar.js";
-import { Rule } from "../tool/Rule.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
+import type { Grammar } from "../tool/Grammar.js";
+import { LeftRecursionCyclesMessage } from "../tool/LeftRecursionCyclesMessage.js";
+import type { Rule } from "../tool/Rule.js";
 
 export class LeftRecursionDetector {
     public atn: ATN;
@@ -55,7 +55,7 @@ export class LeftRecursionDetector {
             }
 
             if (this.listOfRecursiveCycles.length > 0) {
-                this.g.tool.errMgr.leftRecursionCycles(this.g.fileName, this.listOfRecursiveCycles);
+                this.leftRecursionCycles(this.g.fileName, this.listOfRecursiveCycles);
             }
 
             return;
@@ -134,5 +134,10 @@ export class LeftRecursionDetector {
             cycle.push(enclosingRule);
             this.listOfRecursiveCycles.push(cycle);
         }
+    }
+
+    private leftRecursionCycles(fileName: string, cycles: Rule[][]): void {
+        const msg = new LeftRecursionCyclesMessage(fileName, cycles);
+        ErrorManager.get().error(msg);
     }
 }

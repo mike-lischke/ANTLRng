@@ -10,6 +10,7 @@ import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
 
 import { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 
 export class ToolANTLRLexer extends ANTLRv4Lexer {
     public tool: Tool;
@@ -21,10 +22,10 @@ export class ToolANTLRLexer extends ANTLRv4Lexer {
 
     public displayRecognitionError(tokenNames: string[], e: RecognitionException): void {
         const msg = e.message;
-        this.tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, this.sourceName, e.offendingToken!, e, msg);
+        ErrorManager.get().syntaxError(ErrorType.SYNTAX_ERROR, this.sourceName, e.offendingToken!, e, msg);
     }
 
     public grammarError(errorType: ErrorType, token: Token, ...args: object[]): void {
-        this.tool.errMgr.grammarError(errorType, this.sourceName, token, args);
+        ErrorManager.get().grammarError(errorType, this.sourceName, token, args);
     }
 }

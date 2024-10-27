@@ -11,11 +11,11 @@ import { ATNState, IntervalSet, RecognitionException } from "antlr4ng";
 import { CommonTreeNodeStream } from "../../antlr3/tree/CommonTreeNodeStream.js";
 import { ANTLRv4Lexer } from "../../generated/ANTLRv4Lexer.js";
 
-import type { CommonTree } from "../../antlr3/tree/CommonTree.js";
+import type { CommonTree } from "../../tree/CommonTree.js";
 
 import { FrequencySet } from "../../misc/FrequencySet.js";
-import { Utils } from "../../misc/Utils.js";
 import { GrammarASTAdaptor } from "../../parse/GrammarASTAdaptor.js";
+import { ErrorManager } from "../../tool/ErrorManager.js";
 import { ErrorType } from "../../tool/ErrorType.js";
 import { Rule } from "../../tool/Rule.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
@@ -75,7 +75,7 @@ export class RuleFunction extends OutputModelObject {
         this.name = r.name;
         this.escapedName = factory.getGenerator()!.getTarget().escapeIfNeeded(r.name);
         this.rule = r;
-        this.modifiers = Utils.nodesToStrings(r.modifiers ?? []);
+        this.modifiers = this.nodesToStrings(r.modifiers ?? []);
 
         this.index = r.index;
 
@@ -219,7 +219,9 @@ export class RuleFunction extends OutputModelObject {
             const d = this.getDeclForAltElement(t, refLabelName, needsList.has(refLabelName),
                 !nonOptional.has(refLabelName));
 
-            d.forEach((decl) => decls.add(decl));
+            d.forEach((decl) => {
+                return decls.add(decl);
+            });
         }
 
         return decls;
@@ -263,6 +265,7 @@ export class RuleFunction extends OutputModelObject {
     /** Add decl to struct ctx for rule or alt if labeled */
     public addContextDecl(altLabel: string, d: Decl): void {
         const alt = d.getOuterMostAltCodeBlock();
+
         // if we found code blk and might be alt label, try to add to that label ctx
         if (alt && this.altLabelCtxs) {
             const altCtx = this.altLabelCtxs.get(altLabel);
@@ -282,7 +285,7 @@ export class RuleFunction extends OutputModelObject {
             const visitor = new ElementFrequenciesVisitor(new CommonTreeNodeStream(new GrammarASTAdaptor(), ast));
             visitor.outerAlternative();
             if (visitor.frequencies.length !== 1) {
-                this.factory!.getGrammar()!.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR);
+                ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR);
 
                 return [new FrequencySet<string>(), new FrequencySet<string>()];
             }
@@ -290,7 +293,7 @@ export class RuleFunction extends OutputModelObject {
             return [visitor.getMinFrequencies(), visitor.frequencies[0]];
         } catch (ex) {
             if (ex instanceof RecognitionException) {
-                this.factory!.getGrammar()!.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
+                ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, ex);
 
                 return [new FrequencySet<string>(), new FrequencySet<string>()];
             } else {
@@ -331,4 +334,14 @@ export class RuleFunction extends OutputModelObject {
         // Do not include tokens with auto generated names
         return tokenName === null || tokenName.startsWith("T__") ? null : tokenName;
     }
+
+    private nodesToStrings<T extends GrammarAST>(nodes: T[]): string[] {
+        const a = new Array<string>();
+        for (const t of nodes) {
+            a.push(t.getText()!);
+        }
+
+        return a;
+    }
+
 }

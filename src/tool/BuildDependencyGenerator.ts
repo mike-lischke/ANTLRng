@@ -93,7 +93,7 @@ export class BuildDependencyGenerator {
         const extST = this.generator.getTemplates().getInstanceOf("codeFileExtension");
         if (this.generator.getTemplates().isDefined("headerFile")) {
             headerExtST = this.generator.getTemplates().getInstanceOf("headerFileExtension");
-            const suffix = Grammar.getGrammarTypeToFileNameSuffix(this.g.getType());
+            const suffix = Grammar.getGrammarTypeToFileNameSuffix(this.g.type);
             const fileName = `${this.g.name}${suffix}${headerExtST?.render()}`;
             files.push(this.getOutputFile(fileName));
         }

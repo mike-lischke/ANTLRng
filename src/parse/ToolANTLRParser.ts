@@ -8,6 +8,7 @@ import { NoViableAltException, type Parser, type RecognitionException, type Toke
 
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { Tool } from "../Tool.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 
 /**
@@ -24,7 +25,7 @@ export class ToolANTLRParser extends ANTLRv4Parser {
 
     public displayRecognitionError(tokenNames: string[], e: RecognitionException): void {
         const msg = this.getParserErrorMessage(this, e);
-        this.tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, this.getSourceName(), e.offendingToken!, e, [msg]);
+        ErrorManager.get().syntaxError(ErrorType.SYNTAX_ERROR, this.getSourceName(), e.offendingToken!, e, [msg]);
     }
 
     public getParserErrorMessage(parser: Parser, e: RecognitionException): string {
@@ -39,6 +40,6 @@ export class ToolANTLRParser extends ANTLRv4Parser {
     }
 
     public grammarError(type: ErrorType, token: Token, ...args: unknown[]): void {
-        this.tool.errMgr.grammarError(type, this.getSourceName(), token, args);
+        ErrorManager.get().grammarError(type, this.getSourceName(), token, args);
     }
 }

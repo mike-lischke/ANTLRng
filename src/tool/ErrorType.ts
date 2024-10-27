@@ -19,18 +19,16 @@ export class ErrorType {
      *
      * > cannot write file `filename`: `reason`
      */
-    public static readonly CANNOT_WRITE_FILE =
-        new ErrorType(1, "cannot write file <arg>: <arg2>",
-            ErrorSeverity.Error, "CANNOT_WRITE_FILE");
+    public static readonly CANNOT_WRITE_FILE = new ErrorType(1, "cannot write file <arg>: <arg2>",
+        ErrorSeverity.Error, "CANNOT_WRITE_FILE");
 
     /**
      * Compiler Error 2.
      *
      * > unknown command-line option `option`
      */
-    public static readonly INVALID_CMDLINE_ARG =
-        new ErrorType(2, "unknown command-line option <arg>",
-            ErrorSeverity.Error, "INVALID_CMDLINE_ARG");
+    public static readonly INVALID_CMDLINE_ARG = new ErrorType(2, "unknown command-line option <arg>",
+        ErrorSeverity.Error, "INVALID_CMDLINE_ARG");
 
     /**
      * Compiler Error 3.

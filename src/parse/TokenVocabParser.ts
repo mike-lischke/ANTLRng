@@ -11,17 +11,18 @@ import { dirname, join } from "path";
 
 import { Token } from "antlr4ng";
 
-import { CodeGenerator } from "../codegen/CodeGenerator.js";
+import { Constants } from "../constants.js";
 import { grammarOptions } from "../grammar-options.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
-import { Grammar } from "../tool/Grammar.js";
+import type { IGrammar } from "../types.js";
 
 const linePattern = /([^\n]+?)[ \\t]*?=[ \\t]*?([0-9]+);/;
 
 export class TokenVocabParser {
-    protected readonly g: Grammar;
+    protected readonly g: IGrammar;
 
-    public constructor(g: Grammar) {
+    public constructor(g: IGrammar) {
         this.g = g;
     }
 
@@ -51,8 +52,8 @@ export class TokenVocabParser {
                 try {
                     tokenType = Number.parseInt(tokenTypeS);
                 } catch {
-                    tool.errMgr.toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
-                        vocabName + CodeGenerator.VOCAB_FILE_EXTENSION, " bad token type: " + tokenTypeS,
+                    ErrorManager.get().toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
+                        vocabName + Constants.VOCAB_FILE_EXTENSION, " bad token type: " + tokenTypeS,
                         lineNum);
                     tokenType = Token.INVALID_TYPE;
                 }
@@ -61,8 +62,8 @@ export class TokenVocabParser {
                 tokens.set(tokenID, tokenType);
                 maxTokenType = Math.max(maxTokenType, tokenType);
             } else if (tokenDef.length > 0) {
-                tool.errMgr.toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
-                    vocabName + CodeGenerator.VOCAB_FILE_EXTENSION, " bad token def: " + tokenDef, lineNum);
+                ErrorManager.get().toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
+                    vocabName + Constants.VOCAB_FILE_EXTENSION, " bad token def: " + tokenDef, lineNum);
             }
         }
 
@@ -82,9 +83,8 @@ export class TokenVocabParser {
             return "";
         }
 
-        const tool = this.g.tool;
         try {
-            let name = join(grammarOptions.libDirectory ?? ".", vocabName, CodeGenerator.VOCAB_FILE_EXTENSION);
+            let name = join(grammarOptions.libDirectory ?? ".", vocabName, Constants.VOCAB_FILE_EXTENSION);
             if (existsSync(name)) {
                 return readFileSync(name, "utf8");
             }
@@ -92,7 +92,7 @@ export class TokenVocabParser {
             // We did not find the vocab file in the lib directory, so we need to look for it in the output directory
             // which is where .tokens files are generated (in the base, not relative to the input location.)
             if (grammarOptions.outputDirectory) {
-                name = join(grammarOptions.outputDirectory, vocabName, CodeGenerator.VOCAB_FILE_EXTENSION);
+                name = join(grammarOptions.outputDirectory, vocabName, Constants.VOCAB_FILE_EXTENSION);
                 if (existsSync(name)) {
                     return readFileSync(name, "utf8");
                 }
@@ -101,24 +101,25 @@ export class TokenVocabParser {
             // Still not found? Use the grammar's subfolder then.
             name = dirname(this.g.fileName);
             if (name) {
-                name = join(name, vocabName, CodeGenerator.VOCAB_FILE_EXTENSION);
+                name = join(name, vocabName, Constants.VOCAB_FILE_EXTENSION);
                 if (existsSync(name)) {
                     return readFileSync(name, "utf8");
                 }
             }
 
             // File not found.
-            const inTree = this.g.ast?.getOptionAST("tokenVocab");
+            const inTree = this.g.parseTree?.getOptionAST("tokenVocab");
             const inTreeValue = inTree?.getToken()?.text;
             if (vocabName === inTreeValue) {
-                tool.errMgr.grammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR, this.g.fileName,
+                ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR, this.g.fileName,
                     inTree?.getToken() ?? null, inTreeValue);
             } else { // must be from -D option on cmd-line not token in tree
-                tool.errMgr.toolError(ErrorType.CANNOT_FIND_TOKENS_FILE_GIVEN_ON_CMDLINE, vocabName, this.g.name);
+                ErrorManager.get().toolError(ErrorType.CANNOT_FIND_TOKENS_FILE_GIVEN_ON_CMDLINE, vocabName,
+                    this.g.name);
             }
         } catch (e) {
             const message = e instanceof Error ? e.message : String(e);
-            tool.errMgr.toolError(ErrorType.ERROR_READING_TOKENS_FILE, e, vocabName, message);
+            ErrorManager.get().toolError(ErrorType.ERROR_READING_TOKENS_FILE, e, vocabName, message);
         }
 
         return "";

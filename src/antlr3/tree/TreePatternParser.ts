@@ -7,10 +7,10 @@
 // cspell: disable
 
 import { CommonToken, Token } from "antlr4ng";
+import type { CommonTree } from "../../tree/CommonTree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import { TreePatternLexer } from "./TreePatternLexer.js";
 import { TreeWizard } from "./TreeWizard.js";
-import type { Tree } from "./Tree.js";
 
 export class TreePatternParser {
     protected tokenizer: TreePatternLexer;
@@ -25,7 +25,7 @@ export class TreePatternParser {
         this.ttype = tokenizer.nextToken(); // kickstart
     }
 
-    public pattern(): Tree | null {
+    public pattern(): CommonTree | null {
         if (this.ttype === TreePatternLexer.BEGIN) {
             return this.parseTree();
         } else {
@@ -42,7 +42,7 @@ export class TreePatternParser {
         return null;
     }
 
-    public parseTree(): Tree | null {
+    public parseTree(): CommonTree | null {
         if (this.ttype !== TreePatternLexer.BEGIN) {
             throw new Error("no BEGIN");
         }
@@ -80,7 +80,7 @@ export class TreePatternParser {
         return root;
     }
 
-    public parseNode(): Tree | null {
+    public parseNode(): CommonTree | null {
         // "%label:" prefix
         let label = null;
         if (this.ttype === TreePatternLexer.PERCENT) {

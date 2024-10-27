@@ -17,7 +17,6 @@ import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
-import type { ErrorManager } from "../tool/ErrorManager.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LabelElementPair } from "../tool/LabelElementPair.js";
 import { Rule } from "../tool/Rule.js";
@@ -40,8 +39,6 @@ export class SymbolCollector extends GrammarTreeVisitor {
     public tokensDefs = new Array<GrammarAST>();
     public channelDefs = new Array<GrammarAST>();
 
-    public errMgr: ErrorManager;
-
     // context
     public currentRule: Rule | null = null;
 
@@ -52,11 +49,6 @@ export class SymbolCollector extends GrammarTreeVisitor {
         super();
 
         this.g = g;
-        this.errMgr = g.tool.errMgr;
-    }
-
-    public override getErrorManager(): ErrorManager {
-        return this.errMgr;
     }
 
     public process(ast: GrammarAST): void {

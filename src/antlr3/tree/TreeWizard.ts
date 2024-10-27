@@ -10,8 +10,7 @@
 
 import { Token } from "antlr4ng";
 
-import { CommonTree } from "./CommonTree.js";
-import type { Tree } from "./Tree.js";
+import { CommonTree } from "../../tree/CommonTree.js";
 import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import { TreePatternLexer } from "./TreePatternLexer.js";
@@ -56,17 +55,12 @@ export class TreeWizard {
         public label: string;
         public hasTextArg: boolean;
 
-        public declare children: Tree[];
         public declare startIndex: number;
         public declare stopIndex: number;
-        public declare node: Tree;
+        public declare node: CommonTree;
 
         public constructor(payload: Token) {
             super(payload);
-        }
-
-        public override createChildrenList(): Tree[] {
-            return super.createChildrenList();
         }
 
         public override toString(): string {
@@ -82,28 +76,27 @@ export class TreeWizard {
 
     /** This adaptor creates TreePattern objects for use during scan() */
     public static TreePatternTreeAdaptor = class TreePatternTreeAdaptor extends CommonTreeAdaptor {
-        public declare treeToUniqueIDMap: Map<Tree, number>;
+        public declare treeToUniqueIDMap: Map<CommonTree, number>;
         public declare uniqueNodeID;
 
-        public override create(payload: Token | null): Tree;
-        public override create(tokenType: number, text: string): Tree;
-        public override create(tokenType: number, fromToken: Token, text?: string): Tree;
-        public override create(...args: unknown[]): Tree {
+        public override create(payload: Token | null): CommonTree;
+        public override create(tokenType: number, text: string): CommonTree;
+        public override create(tokenType: number, fromToken: Token, text?: string): CommonTree;
+        public override create(...args: unknown[]): CommonTree {
             if (args.length === 1) {
                 return new TreeWizard.TreePattern(args[0] as Token);
             }
 
-            return super.create.apply(this, args) as Tree;
+            return super.create.apply(this, args) as CommonTree;
         }
     };
 
-    protected adaptor: TreeAdaptor;
+    protected adaptor: CommonTreeAdaptor;
     protected tokenNameToTypeMap?: Map<string | null, number>;
 
-    public constructor(adaptorOrTokenNames: TreeAdaptor | Array<string | null>);
-    public constructor(adaptor: TreeAdaptor, tokenNameToTypeMap: Map<string, number>);
-     
-    public constructor(adaptor: TreeAdaptor, tokenNames: Array<string | null>);
+    public constructor(adaptorOrTokenNames: CommonTreeAdaptor | Array<string | null>);
+    public constructor(adaptor: CommonTreeAdaptor, tokenNameToTypeMap: Map<string, number>);
+    public constructor(adaptor: CommonTreeAdaptor, tokenNames: Array<string | null>);
     public constructor(...args: unknown[]) {
         let adaptor: TreeAdaptor;
         let tokenNameToTypeMap: Map<string | null, number> | undefined;
@@ -126,7 +119,7 @@ export class TreeWizard {
             }
         }
 
-        this.adaptor = adaptor;
+        this.adaptor = adaptor as CommonTreeAdaptor;
         this.tokenNameToTypeMap = tokenNameToTypeMap;
     }
 
@@ -140,11 +133,11 @@ export class TreeWizard {
      *  I cannot rely on the tree node's equals() implementation as I make
      *  no constraints at all on the node types nor interface etc...
      */
-    public static equals(t1: Tree | null, t2: Tree | null, adaptor: TreeAdaptor): boolean {
+    public static equals(t1: CommonTree | null, t2: CommonTree | null, adaptor: CommonTreeAdaptor): boolean {
         return TreeWizard._equals(t1, t2, adaptor);
     }
 
-    protected static _equals(t1: Tree | null, t2: Tree | null, adaptor: TreeAdaptor): boolean {
+    protected static _equals(t1: CommonTree | null, t2: CommonTree | null, adaptor: CommonTreeAdaptor): boolean {
         if (t1 === null || t2 === null) {
             return false;
         }
@@ -212,19 +205,19 @@ export class TreeWizard {
      *
      *  TODO: save this index so that find and visit are faster
      */
-    public index(t: Tree): Map<number, Tree[]> {
-        const m = new Map<number, Tree[]>();
+    public index(t: CommonTree): Map<number, CommonTree[]> {
+        const m = new Map<number, CommonTree[]>();
         this._index(t, m);
 
         return m;
     }
 
     /** Return a List of tree nodes with token type ttype or matching a search pattern. */
-    public find(t: Tree, typeOrPattern: number | string): Tree[] | null {
+    public find(t: CommonTree, typeOrPattern: number | string): CommonTree[] | null {
         if (typeof typeOrPattern === "number") {
-            const nodes = new Array<Tree>();
+            const nodes = new Array<CommonTree>();
             this.visit(t, typeOrPattern, new class extends Visitor {
-                public override visit(t: Tree): void {
+                public override visit(t: CommonTree): void {
                     nodes.push(t);
                 }
             }());
@@ -232,7 +225,7 @@ export class TreeWizard {
             return nodes;
         }
 
-        const subtrees = new Array<Tree>();
+        const subtrees = new Array<CommonTree>();
         const tokenizer = new TreePatternLexer(typeOrPattern);
         const parser = new TreePatternParser(tokenizer, this, new TreeWizard.TreePatternTreeAdaptor());
         const tpattern = parser.pattern() as TreeWizard.TreePattern | null;
@@ -246,7 +239,7 @@ export class TreeWizard {
         this.visit(t, rootTokenType, new class implements TreeWizard.ContextVisitor {
             public constructor(private readonly $outer: TreeWizard) { };
 
-            public visit(t: Tree, parent: Tree, childIndex: number, labels: Map<string, Tree>): void {
+            public visit(t: CommonTree, parent: CommonTree, childIndex: number, labels: Map<string, CommonTree>): void {
                 if (this.$outer._parse(t, tpattern, null)) {
                     subtrees.push(t);
                 }
@@ -257,7 +250,7 @@ export class TreeWizard {
 
     }
 
-    public findFirst(t: Tree, typeOrPattern: number | string): Tree | null {
+    public findFirst(t: CommonTree, typeOrPattern: number | string): CommonTree | null {
         return null;
     }
 
@@ -267,16 +260,15 @@ export class TreeWizard {
      *  of the visitor action method is never set (it's null) since using
      *  a token type rather than a pattern doesn't let us set a label.
      */
-    public visit<T extends Tree>(t: T, ttype: number, visitor: TreeWizard.ContextVisitor): void;
+    public visit<T extends CommonTree>(t: T, ttype: number, visitor: TreeWizard.ContextVisitor): void;
     /**
      * For all subtrees that match the pattern, execute the visit action.
      *  The implementation uses the root node of the pattern in combination
      *  with visit(t, ttype, visitor) so nil-rooted patterns are not allowed.
      *  Patterns with wildcard roots are also not allowed.
      */
-     
-    public visit<T extends Tree>(t: T, pattern: string, visitor: TreeWizard.ContextVisitor): void;
-    public visit<T extends Tree>(...args: unknown[]): void {
+    public visit<T extends CommonTree>(t: T, pattern: string, visitor: TreeWizard.ContextVisitor): void;
+    public visit<T extends CommonTree>(...args: unknown[]): void {
         const [t, typeOrPattern, visitor] = args as [T, number | string, TreeWizard.ContextVisitor];
         if (typeof typeOrPattern === "number") {
             this._visit(t, null, 0, typeOrPattern, visitor);
@@ -296,7 +288,7 @@ export class TreeWizard {
             this.visit(t, rootTokenType, new class implements TreeWizard.ContextVisitor {
                 public constructor(private readonly $outer: TreeWizard) { };
 
-                public visit(t: Tree, parent: Tree, childIndex: number, unusedLabels: Map<string, Tree>): void {
+                public visit(t: CommonTree, parent: CommonTree, childIndex: number): void {
                     labels.clear();
                     if (this.$outer._parse(t, tpattern, labels)) {
                         visitor.visit(t, parent, childIndex, labels);
@@ -318,7 +310,7 @@ export class TreeWizard {
      *
      *  TODO: what's a better way to indicate bad pattern? Exceptions are a hassle
      */
-    public parse<T extends Tree>(t: T, pattern: string, labels?: Map<string, T>): boolean {
+    public parse<T extends CommonTree>(t: T, pattern: string, labels?: Map<string, T>): boolean {
         const tokenizer = new TreePatternLexer(pattern);
         const parser = new TreePatternParser(tokenizer, this, new TreeWizard.TreePatternTreeAdaptor());
         const tpattern = parser.pattern() as TreeWizard.TreePattern;
@@ -353,7 +345,7 @@ export class TreeWizard {
      * Compare type, structure, and text of two trees, assuming adaptor in
      *  this instance of a TreeWizard.
      */
-    public equals(t1: Tree, t2: Tree): boolean {
+    public equals(t1: CommonTree, t2: CommonTree): boolean {
         return TreeWizard._equals(t1, t2, this.adaptor);
     }
 
@@ -363,7 +355,8 @@ export class TreeWizard {
      *  text arguments on nodes.  Fill labels map with pointers to nodes
      *  in tree matched against nodes in pattern with labels.
      */
-    protected _parse(t1: Tree, tpattern: TreeWizard.TreePattern, labels: Map<string, Tree> | null): boolean {
+    protected _parse(t1: CommonTree, tpattern: TreeWizard.TreePattern,
+        labels: Map<string, CommonTree> | null): boolean {
         // check roots (wildcard matches anything)
         if (!(tpattern instanceof TreeWizard.WildcardTreePattern)) {
             if (this.adaptor.getType(t1) !== tpattern.getType()) {
@@ -401,11 +394,11 @@ export class TreeWizard {
     }
 
     /** Do the work for index */
-    protected _index(t: Tree, m: Map<number, Tree[]>): void {
+    protected _index(t: CommonTree, m: Map<number, CommonTree[]>): void {
         const ttype = this.adaptor.getType(t);
         let elements = m.get(ttype);
         if (!elements) {
-            elements = new Array<Tree>();
+            elements = new Array<CommonTree>();
             m.set(ttype, elements);
         }
 
@@ -420,7 +413,7 @@ export class TreeWizard {
     }
 
     /** Do the recursive work for visit */
-    protected _visit<T extends Tree>(t: T, parent: T | null, childIndex: number, ttype: number,
+    protected _visit<T extends CommonTree>(t: T, parent: T | null, childIndex: number, ttype: number,
         visitor: TreeWizard.ContextVisitor): void {
         if (this.adaptor.getType(t) === ttype) {
             visitor.visit(t, parent, childIndex, null);
@@ -441,7 +434,8 @@ export class TreeWizard {
 export namespace TreeWizard {
     export interface ContextVisitor {
         // TODO: should this be called visit or something else?
-        visit(t: Tree, parent: Tree | null, childIndex: number, labels: Map<string, Tree> | null): void;
+        visit(t: CommonTree, parent: CommonTree | null, childIndex: number,
+            labels: Map<string, CommonTree> | null): void;
     }
 
     export type TreePattern = InstanceType<typeof TreeWizard.TreePattern>;

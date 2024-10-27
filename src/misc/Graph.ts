@@ -7,7 +7,7 @@
 /* eslint-disable jsdoc/require-returns */
 
 /**
- * A generic graph with edges; Each node as a single Object payload.
+ * A generic graph with edges; Each node has a single Object payload.
  * This is only used to topologically sort a list of file dependencies at the moment.
  */
 export class Graph {

@@ -11,40 +11,23 @@ import { AttributeDict } from "./AttributeDict.js";
 /**
  * Track the names of attributes defined in arg lists, return values,scope blocks etc...
  */
-export class Attribute {
-
+export interface IAttribute {
     /** The entire declaration such as "String foo" or "x:int" */
-    public decl?: string;
+    decl?: string;
 
     /** The type; might be empty such as for Python which has no static typing */
-    public type: string | null = null;
+    type?: string;
 
     /** The name of the attribute "foo" */
-    public name?: string;
+    name?: string;
 
     /** A {@link Token} giving the position of the name of this attribute in the grammar. */
-    public token: Token | null = null;
+    token?: Token;
 
     /** The optional attribute initialization expression */
-    public initValue?: string;
+    initValue?: string;
 
     /** Who contains us? */
-    public dict: AttributeDict;
+    dict?: AttributeDict;
 
-    public constructor(name?: string, decl?: string) {
-        this.name = name;
-        this.decl = decl;
-    }
-
-    public toString(): string {
-        if (this.initValue) {
-            return this.name + ":" + this.type + "=" + this.initValue;
-        }
-
-        if (this.type) {
-            return this.name + ":" + this.type;
-        }
-
-        return this.name ?? "";
-    }
 }

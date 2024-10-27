@@ -18,6 +18,7 @@ import { antlrVersion } from "../grammar-options.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import { Utils } from "../misc/Utils.js";
 import { Character } from "../support/Character.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Rule } from "../tool/Rule.js";
@@ -54,7 +55,7 @@ export abstract class Target {
     }
 
     public getLanguage(): string {
-        return this.gen.language; 
+        return this.gen.language;
     }
 
     public getCodeGenerator(): CodeGenerator {
@@ -81,7 +82,7 @@ export abstract class Target {
             const theirVersion = RuntimeMetaData.getMajorMinorVersion(version);
             const ourVersion = RuntimeMetaData.getMajorMinorVersion(antlrVersion);
             if (theirVersion !== ourVersion) {
-                this.gen.tool.errMgr.toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, antlrVersion,
+                ErrorManager.get().toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, antlrVersion,
                     language);
             }
             templates = this.loadTemplates();
@@ -494,7 +495,7 @@ export abstract class Target {
      *  8, 16, 32, 64, etc...
      */
     public getInlineTestSetWordSize(): number {
-        return 64; 
+        return 64;
     }
 
     public grammarSymbolCausesIssueInGeneratedCode(idNode: GrammarAST): boolean {
@@ -636,7 +637,7 @@ export abstract class Target {
             };
 
             private reportError(msg: STMessage): void {
-                this.$outer.getCodeGenerator().tool.errMgr.toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.cause,
+                ErrorManager.get().toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.cause,
                     msg.toString());
             }
         }(this));
@@ -653,7 +654,7 @@ export abstract class Target {
             return new STGroupFile(groupFileName);
         } catch (e) {
             if (reportErrorIfFail) {
-                this.gen.tool.errMgr.toolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, e, this.getLanguage());
+                ErrorManager.get().toolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, e, this.getLanguage());
             }
 
             return undefined;

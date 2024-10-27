@@ -11,7 +11,7 @@ import type { Tree } from "./Tree.js";
 /**
  * This is identical to the {@link ParserRuleReturnScope} except that
  * the start property is a tree nodes not {@link Token} object
- * when you are parsing trees.  To be generic the tree node types
+ * when you are parsing trees. To be generic the tree node types
  * have to be {@link Object}.
  */
 export class TreeRuleReturnScope {
@@ -26,6 +26,6 @@ export class TreeRuleReturnScope {
      * type as it then causes a dependency with ST lib.
      */
     public getTemplate(): unknown {
-        return null; 
+        return null;
     }
 }
