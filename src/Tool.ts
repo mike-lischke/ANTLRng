@@ -6,13 +6,11 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
-import { ATNSerializer, CharStream, CommonTokenStream, type ParserRuleContext, type TokenStream } from "antlr4ng";
+import { ATNSerializer, CharStream, CommonTokenStream } from "antlr4ng";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import path, { basename } from "path";
 
-import {
-    ANTLRv4Parser, GrammarSpecContext, type IdentifierContext, type OptionContext, type RuleSpecContext
-} from "./generated/ANTLRv4Parser.js";
+import { ANTLRv4Parser } from "./generated/ANTLRv4Parser.js";
 
 import { ClassFactory } from "./ClassFactory.js";
 import { UndefChecker } from "./UndefChecker.js";
@@ -27,6 +25,7 @@ import { Graph } from "./misc/Graph.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";
 import { SemanticPipeline } from "./semantics/SemanticPipeline.js";
+import { GrammarType } from "./support/GrammarType.js";
 import { LogManager } from "./support/LogManager.js";
 import { ParseTreeToASTConverter } from "./support/ParseTreeToASTConverter.js";
 import { BuildDependencyGenerator } from "./tool/BuildDependencyGenerator.js";
@@ -39,6 +38,7 @@ import type { LexerGrammar } from "./tool/LexerGrammar.js";
 import { Rule } from "./tool/Rule.js";
 import { GrammarAST } from "./tool/ast/GrammarAST.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
+import type { RuleAST } from "./tool/ast/RuleAST.js";
 import type { IGrammar, ITool } from "./types.js";
 
 export class Tool implements ITool {
@@ -160,11 +160,11 @@ export class Tool implements ITool {
         transform.process();
 
         let lexerGrammar: LexerGrammar;
-        let lexerContext: GrammarSpecContext | undefined;
-        if (g.ast.grammarDecl().grammarType().GRAMMAR()) {
-            lexerContext = transform.extractImplicitLexer(g); // alters g.ast
-            if (lexerContext) {
-                lexerGrammar = ClassFactory.createLexerGrammar(this, lexerContext);
+        let lexerAST: GrammarRootAST | undefined;
+        if (g.ast.grammarType === GrammarType.Combined) {
+            lexerAST = transform.extractImplicitLexer(g); // alters g.ast
+            if (lexerAST) {
+                lexerGrammar = ClassFactory.createLexerGrammar(this, lexerAST);
                 lexerGrammar.fileName = g.fileName;
                 lexerGrammar.originalGrammar = g;
                 g.implicitLexer = lexerGrammar;
@@ -179,10 +179,6 @@ export class Tool implements ITool {
     }
 
     public processNonCombinedGrammar(g: Grammar, genCode: boolean): void {
-        if (!g.ast) {
-            return;
-        }
-
         const ruleFail = this.checkForRuleIssues(g);
         if (ruleFail) {
             return;
@@ -247,26 +243,18 @@ export class Tool implements ITool {
      */
     public checkForRuleIssues(g: Grammar): boolean {
         // check for redefined rules
-        const rules: ParserRuleContext[] = [];
-        g.ast.rules().ruleSpec().forEach((ruleSpec: RuleSpecContext) => {
-            if (ruleSpec.parserRuleSpec()) {
-                rules.push(ruleSpec.parserRuleSpec()!);
-            } else if (ruleSpec.lexerRuleSpec()) {
-                rules.push(ruleSpec.lexerRuleSpec()!);
-            }
-        });
-        g.ast.modeSpec().forEach((modeSpec) => {
-            modeSpec.lexerRuleSpec().forEach((lexerRuleSpec) => {
-                rules.push(lexerRuleSpec);
-            });
-        });
+        const rules: GrammarAST[] = [];
+        for (const mode of g.ast.getAllChildrenWithType(ANTLRv4Parser.MODE)) {
+            rules.push(...mode.getAllChildrenWithType(ANTLRv4Parser.RULE_REF));
+        }
 
         let redefinition = false;
-        const ruleToContext = new Map<string, ParserRuleContext>();
-        for (const rule of rules) {
-            const id = rule.getChild(0) as GrammarAST;
+        const ruleToAST = new Map<string, RuleAST>();
+        for (const r of rules) {
+            const ruleAST = r as RuleAST;
+            const id = ruleAST.getChild(0) as GrammarAST;
             const ruleName = id.getText();
-            const prev = ruleToContext.get(ruleName);
+            const prev = ruleToAST.get(ruleName);
             if (prev) {
                 const prevChild = prev.getChild(0) as GrammarAST;
                 ErrorManager.get().grammarError(ErrorType.RULE_REDEFINITION, g.fileName, id.token!, ruleName,
@@ -274,47 +262,33 @@ export class Tool implements ITool {
                 redefinition = true;
                 continue;
             }
-            ruleToContext.set(ruleName, rule);
+            ruleToAST.set(ruleName, ruleAST);
         }
 
         const chk = new UndefChecker(g.isLexer());
         chk.visitGrammar(g.ast);
 
-        return redefinition; // || chk.badRef;
+        return redefinition; //  || chk.errors;
     }
 
-    public sortGrammarByTokenVocab(fileNames: string[]): Array<GrammarSpecContext & { fileName: string; }> {
+    public sortGrammarByTokenVocab(fileNames: string[]): GrammarRootAST[] {
         const g = new Graph();
-        const roots = new Array<GrammarSpecContext & { fileName: string; }>();
+        const roots = new Array<GrammarRootAST>();
         for (const fileName of fileNames) {
-            const t = this.parseGrammar(fileName);
-            if (!t) {
+            const root = this.parseGrammar(fileName);
+            if (!root) {
                 continue;
             }
 
-            const root = t[0] as GrammarSpecContext & { fileName: string; };
             roots.push(root);
             root.fileName = fileName;
-            const grammarName = root.grammarDecl().identifier().getText();
+            const grammarName = root.getGrammarName()!;
 
-            // Look for tokenVocab option in the grammar
-            let tokenVocabNode: OptionContext | undefined;
-            const prequels = root.prequelConstruct();
-            prequels.forEach((prequel) => {
-                if (prequel.optionsSpec()) {
-                    const options = prequel.optionsSpec()!.option();
-                    for (const option of options) {
-                        if (option.identifier().getText() === "tokenVocab") {
-                            tokenVocabNode = option;
-                            break;
-                        }
-                    }
-                }
-            });
+            const tokenVocabNode = Tool.findOptionValueAST(root, "tokenVocab");
 
             // Make grammars depend on any tokenVocab options.
             if (tokenVocabNode) {
-                let vocabName = tokenVocabNode.optionValue().getText();
+                let vocabName = tokenVocabNode.getText();
 
                 // Strip quote characters if any.
                 const len = vocabName.length;
@@ -339,10 +313,10 @@ export class Tool implements ITool {
 
         const sortedGrammarNames = g.sort();
 
-        const sortedRoots = new Array<GrammarSpecContext & { fileName: string; }>();
+        const sortedRoots = new Array<GrammarRootAST>();
         for (const grammarName of sortedGrammarNames) {
             for (const root of roots) {
-                if (root.grammarDecl().identifier().getText() === grammarName) {
+                if (root.getGrammarName() === grammarName) {
                     sortedRoots.push(root);
                     break;
                 }
@@ -359,21 +333,21 @@ export class Tool implements ITool {
         use it for error handling and generally knowing from where a rule
         comes from.
      */
-    public createGrammar(context: GrammarSpecContext): IGrammar {
+    public createGrammar(grammarAST: GrammarRootAST): IGrammar {
         let g: IGrammar;
-        if (context.grammarDecl().grammarType().LEXER() !== null) {
-            g = ClassFactory.createLexerGrammar(this, context);
+        if (grammarAST.grammarType === GrammarType.Lexer) {
+            g = ClassFactory.createLexerGrammar(this, grammarAST);
         } else {
-            g = ClassFactory.createGrammar(this, context);
+            g = ClassFactory.createGrammar(this, grammarAST);
         }
 
         // ensure each node has pointer to surrounding grammar
-        // TODO: GrammarTransformPipeline.setGrammarPtr(g, context);
+        GrammarTransformPipeline.setGrammarPtr(g, grammarAST);
 
         return g;
     }
 
-    public parseGrammar(fileName: string): [GrammarSpecContext, TokenStream] | undefined {
+    public parseGrammar(fileName: string): GrammarRootAST | undefined {
         try {
             const fullPath = path.join(this.inputDirectory, fileName);
             const content = readFileSync(fullPath, { encoding: grammarOptions.grammarEncoding as BufferEncoding });
@@ -393,8 +367,8 @@ export class Tool implements ITool {
      *  getImplicitLexer() on returned grammar.
      */
     public loadGrammar(fileName: string): Grammar {
-        const [grammarSpecContext] = this.parseGrammar(fileName)!;
-        const g = this.createGrammar(grammarSpecContext);
+        const grammarAST = this.parseGrammar(fileName)!;
+        const g = this.createGrammar(grammarAST);
         g.fileName = fileName;
         this.process(g, false);
 
@@ -407,7 +381,7 @@ export class Tool implements ITool {
      * @param g The grammar to import.
      * @param nameNode The node associated with the imported grammar name.
      */
-    public loadImportedGrammar(g: Grammar, nameNode: IdentifierContext): Grammar | null {
+    public loadImportedGrammar(g: Grammar, nameNode: GrammarAST): Grammar | null {
         const name = nameNode.getText();
         let imported = this.importedGrammars.get(name);
         if (!imported) {
@@ -422,7 +396,7 @@ export class Tool implements ITool {
             }
 
             if (!importedFile) {
-                ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR, g.fileName, nameNode.start,
+                ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR, g.fileName, nameNode.token!,
                     name);
 
                 return null;
@@ -436,15 +410,15 @@ export class Tool implements ITool {
                 return null;
             }
 
-            imported = this.createGrammar(result[0]);
+            imported = this.createGrammar(result);
             imported.fileName = importedFile;
-            this.importedGrammars.set(result[0].grammarDecl().identifier().getText(), imported);
+            this.importedGrammars.set(result.getGrammarName()!, imported);
         }
 
         return imported;
     }
 
-    public parseGrammarFromString(grammar: string): [GrammarSpecContext, TokenStream] | undefined {
+    public parseGrammarFromString(grammar: string): GrammarRootAST | undefined {
         return this.parse("<string>", CharStream.fromString(grammar));
     }
 

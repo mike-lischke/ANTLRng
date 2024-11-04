@@ -8,10 +8,10 @@
 
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, DFA, Interval, IntervalSet, LexerInterpreter, ParserInterpreter,
-    ParserRuleContext, SemanticContext, Token, TokenStream, Vocabulary
+    SemanticContext, Token, TokenStream, Vocabulary
 } from "antlr4ng";
 
-import { ANTLRv4Parser, type DelegateGrammarContext, type GrammarSpecContext } from "..//generated/ANTLRv4Parser.js";
+import { ANTLRv4Parser } from "..//generated/ANTLRv4Parser.js";
 import { TreeWizard } from "../antlr3/tree/TreeWizard.js";
 
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
@@ -239,7 +239,7 @@ export class Grammar implements IGrammar, AttributeResolver {
      */
     #atn?: ATN;
 
-    public constructor(tool: ITool, context: GrammarSpecContext);
+    public constructor(tool: ITool, context: GrammarRootAST);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
     public constructor(grammarText: string, listener?: ANTLRToolListener);
     /** For testing; builds trees, does sem anal */
@@ -437,28 +437,23 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public loadImportedGrammars(visited: Set<string>): void {
-        const imports: DelegateGrammarContext[] = [];
-        this.ast.prequelConstruct().forEach((prequel) => {
-            prequel.delegateGrammars()?.delegateGrammar().forEach((dg) => {
-                imports.push(dg);
-            });
-        });
-
-        if (imports.length === 0) {
+        const i = this.ast.getFirstChildWithType(ANTLRv4Parser.IMPORT) as GrammarAST | null;
+        if (i === null) {
             return;
         }
 
         visited.add(this.name);
         this.importedGrammars = new Array<Grammar>();
-        for (const t of imports) {
-            let identifier;
-            let importedGrammarName;
-            if (t.ASSIGN()) {
-                identifier = t.identifier(1)!;
-                importedGrammarName = t.identifier(1)?.getText();
+        for (const c of i.getChildren()) {
+            let t = c as GrammarAST;
+            let importedGrammarName = null;
+            if (t.getType() === ANTLRv4Parser.ASSIGN) {
+                t = t.getChild(1) as GrammarAST;
+                importedGrammarName = t.getText();
             } else {
-                identifier = t.identifier(0)!;
-                importedGrammarName = t.identifier(0)?.getText();
+                if (t.getType() === ANTLRv4Parser.ID) {
+                    importedGrammarName = t.getText();
+                }
             }
 
             if (!importedGrammarName || visited.has(importedGrammarName)) { // ignore circular refs
@@ -467,10 +462,11 @@ export class Grammar implements IGrammar, AttributeResolver {
 
             let g: Grammar;
             try {
-                g = this.tool.loadImportedGrammar(this, identifier)!;
+                g = this.tool.loadImportedGrammar(this, t)!;
             } catch {
                 ErrorManager.get().grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR, importedGrammarName,
-                    t.start, importedGrammarName, this.name);
+                    t.token!, importedGrammarName, this.name);
+
                 continue;
             }
 
@@ -1322,27 +1318,6 @@ export class Grammar implements IGrammar, AttributeResolver {
             tokenStream);
     }
 
-    public getContextWithTokenIndex(index: number): ParserRuleContext | undefined {
-        const fromIndex = (context: ParserRuleContext): ParserRuleContext | undefined => {
-            if (context.start?.tokenIndex === index) {
-                return context;
-            }
-
-            for (const child of context.children) {
-                if (child instanceof ParserRuleContext) {
-                    const result = fromIndex(child);
-                    if (result !== undefined) {
-                        return result;
-                    }
-                }
-            }
-
-            return undefined;
-        };
-
-        return fromIndex(this.ast);
-    }
-
     protected initTokenSymbolTables(): void {
         this.tokenNameToTypeMap.set("EOF", Token.EOF);
 
@@ -1351,7 +1326,7 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     static {
-        ClassFactory.createGrammar = (tool: ITool, grammar: GrammarSpecContext): IGrammar => {
+        ClassFactory.createGrammar = (tool: ITool, grammar: GrammarRootAST): IGrammar => {
             return new Grammar(tool, grammar);
         };
 
