@@ -8,12 +8,10 @@
 
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, DFA, Interval, IntervalSet, LexerInterpreter, ParserInterpreter,
-    SemanticContext, Token, TokenStream, Vocabulary,
-    type ParserRuleContext,
+    ParserRuleContext, SemanticContext, Token, TokenStream, Vocabulary
 } from "antlr4ng";
 
 import { ANTLRv4Parser, type DelegateGrammarContext, type GrammarSpecContext } from "..//generated/ANTLRv4Parser.js";
-import { TreeVisitor } from "../antlr3/tree/TreeVisitor.js";
 import { TreeWizard } from "../antlr3/tree/TreeWizard.js";
 
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
@@ -106,7 +104,8 @@ export class Grammar implements IGrammar, AttributeResolver {
     public readonly grammarType: string = "grammar";
 
     public name: string;
-    public parseTree?: GrammarSpecContext;
+
+    public ast: GrammarRootAST;
 
     /** Track token stream used to create this grammar */
     public readonly tokenStream: TokenStream;
@@ -236,11 +235,11 @@ export class Grammar implements IGrammar, AttributeResolver {
 
     /**
      * The ATN that represents the grammar with edges labelled with tokens
-     *  or epsilon.  It is more suitable to analysis than an AST representation.
+     * or epsilon. It is more suitable to analysis than an AST representation.
      */
     #atn?: ATN;
 
-    public constructor(tool: ITool, ast: GrammarSpecContext);
+    public constructor(tool: ITool, context: GrammarSpecContext);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
     public constructor(grammarText: string, listener?: ANTLRToolListener);
     /** For testing; builds trees, does sem anal */
@@ -250,9 +249,9 @@ export class Grammar implements IGrammar, AttributeResolver {
         listener: ANTLRToolListener);
     public constructor(...args: unknown[]) {
         if (args.length === 2 && typeof args[0] !== "string") {
-            [this.tool, this.parseTree] = args as [ITool, GrammarSpecContext];
-            this.name = (this.parseTree.getChild(0)!).getText()!;
-            // TODO: this.tokenStream = this.parseTree.tokenStream;
+            [this.tool, this.ast] = args as [ITool, GrammarRootAST];
+            this.name = (this.ast.getChild(0)!).getText()!;
+            this.tokenStream = this.ast.tokenStream;
             this.originalTokenStream = this.tokenStream;
 
             this.initTokenSymbolTables();
@@ -298,17 +297,20 @@ export class Grammar implements IGrammar, AttributeResolver {
             const input = CharStream.fromString(grammarText);
             input.name = fileName;
 
-            const result = this.tool.parse(fileName, input);
-            if (!result) {
+            const root = this.tool.parse(fileName, input);
+            if (!root) {
                 throw new Error("Could not parse grammar");
             }
 
-            this.parseTree = result[0];
-            this.tokenStream = result[1];
+            this.ast = root;
+            // TODO: this.ast.inputStream = input;
+
+            this.tokenStream = root.tokenStream;
             this.originalTokenStream = this.tokenStream;
 
             // ensure each node has pointer to surrounding grammar
-            const v = new TreeVisitor();
+            // TODO: do we need this?
+            /*const v = new TreeVisitor();
             v.visit(this.parseTree, {
                 pre: (t): ParserRuleContext | null => {
                     // TODO: (t as GrammarAST).g = this;
@@ -318,7 +320,7 @@ export class Grammar implements IGrammar, AttributeResolver {
                 post: (t: ParserRuleContext): ParserRuleContext => {
                     return t;
                 },
-            });
+            });*/
             this.initTokenSymbolTables();
 
             if (tokenVocabSource) {
@@ -435,12 +437,8 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public loadImportedGrammars(visited: Set<string>): void {
-        if (!this.parseTree) {
-            return;
-        }
-
         const imports: DelegateGrammarContext[] = [];
-        this.parseTree.prequelConstruct().forEach((prequel) => {
+        this.ast.prequelConstruct().forEach((prequel) => {
             prequel.delegateGrammars()?.delegateGrammar().forEach((dg) => {
                 imports.push(dg);
             });
@@ -1228,14 +1226,7 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public get type(): GrammarType {
-        if (this.parseTree) {
-            const grammarType = this.parseTree.grammarDecl().grammarType();
-            if (!grammarType.LEXER()) {
-                return grammarType.PARSER() ? GrammarType.Parser : GrammarType.Combined;
-            }
-        }
-
-        return GrammarType.Lexer;
+        return this.ast.grammarType;
     }
 
     public isLexer(): boolean {
@@ -1251,10 +1242,6 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public getTypeString(): string | null {
-        if (!this.parseTree) {
-            return null;
-        }
-
         return ANTLRv4Parser.symbolicNames[this.type]!.toLowerCase();
     }
 
@@ -1279,7 +1266,7 @@ export class Grammar implements IGrammar, AttributeResolver {
                 strings.add(ref.getText());
             }
         }();
-        collector.visitGrammar(this.parseTree!);
+        collector.visitGrammar(this.ast);
 
         return strings;
     }
@@ -1333,6 +1320,27 @@ export class Grammar implements IGrammar, AttributeResolver {
 
         return new ParserInterpreter(this.fileName, this.getVocabulary(), this.getRuleNames(), deserializedATN,
             tokenStream);
+    }
+
+    public getContextWithTokenIndex(index: number): ParserRuleContext | undefined {
+        const fromIndex = (context: ParserRuleContext): ParserRuleContext | undefined => {
+            if (context.start?.tokenIndex === index) {
+                return context;
+            }
+
+            for (const child of context.children) {
+                if (child instanceof ParserRuleContext) {
+                    const result = fromIndex(child);
+                    if (result !== undefined) {
+                        return result;
+                    }
+                }
+            }
+
+            return undefined;
+        };
+
+        return fromIndex(this.ast);
     }
 
     protected initTokenSymbolTables(): void {

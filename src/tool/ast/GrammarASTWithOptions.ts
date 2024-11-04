@@ -27,19 +27,19 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
         }
 
         if ("resolver" in value) { // ActionAST, cannot use instanceof here because of circular dependency.
-            return value.getText() ?? undefined;
+            return value.getText();
         } else {
-            let v = value.getText();
+            let v: string | null = value.getText();
             if (v && (v.startsWith("'") || v.startsWith("\""))) {
                 v = CharSupport.getStringFromGrammarStringLiteral(v);
                 if (v === null) {
                     ErrorManager.get().grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, this.g.fileName,
-                        value.getToken(), value.getText()!);
+                        value.token!, value.getText());
                     v = "";
                 }
             }
 
-            return v ?? undefined;
+            return v;
         }
     }
 

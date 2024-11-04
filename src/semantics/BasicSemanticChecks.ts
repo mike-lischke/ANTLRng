@@ -106,7 +106,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     }
 
     public process(): void {
-        this.visitGrammar(this.g.parseTree!);
+        this.visitGrammar(this.g.ast!);
     };
 
     // Routines to route visitor traffic to the checking routines
@@ -169,7 +169,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     }
 
     public override grammarOption(id: GrammarAST, valueAST: GrammarAST): void {
-        this.checkOptions(this.g.parseTree!, id.token!, valueAST);
+        this.checkOptions(this.g.ast!, id.token!, valueAST);
     }
 
     public override ruleOption(id: GrammarAST, valueAST: GrammarAST): void {

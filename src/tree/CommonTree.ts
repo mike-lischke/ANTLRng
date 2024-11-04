@@ -11,7 +11,7 @@ import { Interval, ParseTree, Token, type ParseTreeVisitor, type Parser } from "
 /** A tree node that is wrapper for a Token object. */
 export class CommonTree implements ParseTree {
     /** A single token is the payload */
-    public readonly token?: Token;
+    public token?: Token;
 
     /** Who is the parent node of this node; if null, implies node is root */
     public parent: CommonTree | null = null;
@@ -25,7 +25,7 @@ export class CommonTree implements ParseTree {
     /** What index is this node in the child list? Range: 0..n-1 */
     #childIndex = -1;
 
-    #children: CommonTree[];
+    #children: CommonTree[] = [];
 
     public constructor(nodeOrToken?: CommonTree | Token) {
         if (nodeOrToken) {
@@ -388,7 +388,9 @@ export class CommonTree implements ParseTree {
         return visitor.visitChildren(this);
     }
 
-    public toStringTree(ruleNames: string[], recog: Parser): string {
+    public toStringTree(): string;
+    public toStringTree(ruleNames: string[], recog: Parser): string;
+    public toStringTree(ruleNames?: string[], recog?: Parser): string {
         return "";
     }
 

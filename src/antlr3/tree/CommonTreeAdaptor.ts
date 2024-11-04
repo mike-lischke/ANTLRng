@@ -37,14 +37,14 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
         return t.dupNode();
     }
 
-    public override create(payload: Token | null): CommonTree;
+    public override create(payload?: Token): CommonTree;
     public override create(tokenType: number, text: string): CommonTree;
     public override create(tokenType: number, fromToken: Token, text?: string): CommonTree;
     public override create(...args: unknown[]): CommonTree {
         if (args.length === 1) {
-            const [payload] = args as [Token | null];
+            const [payload] = args as [Token | undefined];
 
-            return new CommonTree(payload ?? undefined);
+            return new CommonTree(payload);
         }
 
         return super.create.apply(this, args) as CommonTree;

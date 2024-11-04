@@ -4,28 +4,23 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns */
-
-import type { Tree } from "./Tree.js";
+import type { CommonTree } from "../../tree/CommonTree.js";
 
 /**
  * This is identical to the {@link ParserRuleReturnScope} except that
  * the start property is a tree nodes not {@link Token} object
- * when you are parsing trees. To be generic the tree node types
- * have to be {@link Object}.
+ * when you are parsing trees.
  */
 export class TreeRuleReturnScope {
-
     /** First node or root node of tree matched for this rule. */
-    public start: Tree | null = null;
-    public stop: Tree | null = null;
-    public tree: Tree | null = null;
+    public start: CommonTree | null = null;
+    //public stop: CommonTree | null = null;
+    public tree: CommonTree | null = null;
+}
 
-    /**
-     * Has a value potentially if output=template; Don't use StringTemplate
-     * type as it then causes a dependency with ST lib.
-     */
-    public getTemplate(): unknown {
-        return null;
-    }
+export interface ITreeRuleReturnScope<T extends CommonTree> {
+    /** First node or root node of tree matched for this rule. */
+    start?: CommonTree;
+    //stop?: CommonTree;
+    tree?: T;
 }

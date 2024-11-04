@@ -8,16 +8,21 @@
 
 // cspell: disable
 
-import type { ParserRuleContext } from "antlr4ng";
-
-import { ANTLRv4ParserVisitor } from "../../generated/ANTLRv4ParserVisitor.js";
-
+import { CommonTree } from "../../tree/CommonTree.js";
+import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
+import type { TreeAdaptor } from "./TreeAdaptor.js";
 import type { TreeVisitorAction } from "./TreeVisitorAction.js";
 
 /**
  * Do a depth first walk of a tree, applying pre() and post() actions as we discover and finish nodes.
  */
-export class TreeVisitor extends ANTLRv4ParserVisitor<ParserRuleContext> {
+export class TreeVisitor {
+    protected adaptor: TreeAdaptor;
+
+    public constructor(adaptor?: TreeAdaptor) {
+        this.adaptor = adaptor ?? new CommonTreeAdaptor();
+    }
+
     /**
      * Visit every node in tree t and trigger an action for each node
      *  before/after having visited all of its children.
@@ -29,20 +34,19 @@ export class TreeVisitor extends ANTLRv4ParserVisitor<ParserRuleContext> {
      *
      *  Return result of applying post action to this node.
      */
-    public override visit(t: ParserRuleContext,
-        action?: TreeVisitorAction<ParserRuleContext>): ParserRuleContext | null {
-        const isNil = t.start === null;
-        let result: ParserRuleContext | null = t;
+    public visit(t: CommonTree, action?: TreeVisitorAction<CommonTree>): CommonTree {
+        const isNil = t.isNil();
+        let result: CommonTree = t;
         if (action && !isNil) {
             result = action.pre(t); // if rewritten, walk children of new t
         }
 
         for (let i = 0; i < t.getChildCount(); i++) {
-            const child = t.children[i] as ParserRuleContext;
+            const child = this.adaptor.getChild(t, i)!;
             const visitResult = this.visit(child, action);
-            const childAfterVisit = t.children[i];
+            const childAfterVisit = this.adaptor.getChild(t, i)!;
             if (visitResult !== childAfterVisit) { // result & child differ?
-                t.children[i] = visitResult!;
+                this.adaptor.setChild(t, i, visitResult); // update with new child
             }
         }
 

@@ -58,13 +58,13 @@ export class SemanticPipeline {
     }
 
     public process(): void {
-        if (this.g.parseTree === null) {
+        if (this.g.ast === null) {
             return;
         }
 
         // COLLECT RULE OBJECTS
         const ruleCollector = new RuleCollector(this.g);
-        ruleCollector.process(this.g.parseTree);
+        ruleCollector.process(this.g.ast);
 
         // DO BASIC / EASY SEMANTIC CHECKS
         let prevErrors = ErrorManager.get().errors;
@@ -76,7 +76,7 @@ export class SemanticPipeline {
 
         // TRANSFORM LEFT-RECURSIVE RULES
         prevErrors = ErrorManager.get().errors;
-        const transformer = new LeftRecursiveRuleTransformer(this.g.parseTree,
+        const transformer = new LeftRecursiveRuleTransformer(this.g.ast,
             Array.from(ruleCollector.nameToRuleMap.values()), this.g);
         transformer.translateLeftRecursiveRules();
 
@@ -92,7 +92,7 @@ export class SemanticPipeline {
 
         // COLLECT SYMBOLS: RULES, ACTIONS, TERMINALS, ...
         const collector = new SymbolCollector(this.g);
-        collector.process(this.g.parseTree);
+        collector.process(this.g.ast);
 
         // CHECK FOR SYMBOL COLLISIONS
         const symbolChecker = new SymbolChecks(this.g, collector);
@@ -141,7 +141,7 @@ export class SemanticPipeline {
 
     protected identifyStartRules(collector: SymbolCollector): void {
         for (const ref of collector.ruleRefs) {
-            const ruleName = ref.getText()!;
+            const ruleName = ref.getText();
             const r = this.g.getRule(ruleName);
             if (r !== null) {
                 r.isStartRule = false;
@@ -154,8 +154,8 @@ export class SemanticPipeline {
         const grammar = g.getOutermostGrammar(); // put in root, even if imported
         for (const def of tokensDefs) {
             // tokens { id (',' id)* } so must check IDs not TOKEN_REF
-            if (isTokenName(def.getText()!)) {
-                grammar.defineTokenName(def.getText()!);
+            if (isTokenName(def.getText())) {
+                grammar.defineTokenName(def.getText());
             }
         }
 
@@ -169,15 +169,15 @@ export class SemanticPipeline {
         }
 
         // FOR ALL X : 'xxx'; RULES, DEFINE 'xxx' AS TYPE X
-        const litAliases = Grammar.getStringLiteralAliasesFromLexerRules(g.parseTree!);
+        const litAliases = Grammar.getStringLiteralAliasesFromLexerRules(g.ast!);
         const conflictingLiterals = new Set<string>();
         if (litAliases !== null) {
             for (const [nameAST, litAST] of litAliases) {
-                if (!grammar.stringLiteralToTypeMap.has(litAST.getText()!)) {
-                    grammar.defineTokenAlias(nameAST.getText()!, litAST.getText()!);
+                if (!grammar.stringLiteralToTypeMap.has(litAST.getText())) {
+                    grammar.defineTokenAlias(nameAST.getText(), litAST.getText());
                 } else {
                     // oops two literal defs in two rules (within or across modes).
-                    conflictingLiterals.add(litAST.getText()!);
+                    conflictingLiterals.add(litAST.getText());
                 }
             }
 
@@ -224,22 +224,22 @@ export class SemanticPipeline {
 
         // create token types for tokens { A, B, C } ALIASES
         for (const alias of tokensDefs) {
-            if (g.getTokenType(alias.getText()!) !== Token.INVALID_TYPE) {
+            if (g.getTokenType(alias.getText()) !== Token.INVALID_TYPE) {
                 ErrorManager.get().grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token,
-                    alias.getText()!);
+                    alias.getText());
             }
 
-            g.defineTokenName(alias.getText()!);
+            g.defineTokenName(alias.getText());
         }
 
         // DEFINE TOKEN TYPES FOR TOKEN REFS LIKE ID, INT
         for (const idAST of tokenIDs) {
-            if (g.getTokenType(idAST.getText()!) === Token.INVALID_TYPE) {
+            if (g.getTokenType(idAST.getText()) === Token.INVALID_TYPE) {
                 ErrorManager.get().grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token,
-                    idAST.getText()!);
+                    idAST.getText());
             }
 
-            g.defineTokenName(idAST.getText()!);
+            g.defineTokenName(idAST.getText());
         }
 
         // VERIFY TOKEN TYPES FOR STRING LITERAL REFS LIKE 'while', ';'
@@ -248,9 +248,9 @@ export class SemanticPipeline {
                 continue;
             }
 
-            if (g.getTokenType(termAST.getText()!) === Token.INVALID_TYPE) {
+            if (g.getTokenType(termAST.getText()) === Token.INVALID_TYPE) {
                 ErrorManager.get().grammarError(ErrorType.IMPLICIT_STRING_DEFINITION, g.fileName, termAST.token,
-                    termAST.getText()!);
+                    termAST.getText());
             }
         }
 
@@ -268,7 +268,7 @@ export class SemanticPipeline {
     protected assignChannelTypes(g: Grammar, channelDefs: GrammarAST[]): void {
         const outermost = g.getOutermostGrammar();
         for (const channel of channelDefs) {
-            const channelName = channel.getText()!;
+            const channelName = channel.getText();
 
             // Channel names can't alias tokens or modes, because constant
             // values are also assigned to them and the ->channel(NAME) lexer
@@ -295,7 +295,7 @@ export class SemanticPipeline {
                 }
             }
 
-            outermost.defineChannelName(channel.getText()!);
+            outermost.defineChannelName(channel.getText());
         }
     }
 }

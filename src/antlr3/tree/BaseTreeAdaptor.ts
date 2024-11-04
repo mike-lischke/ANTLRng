@@ -24,11 +24,11 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
     protected treeToUniqueIDMap = new Map<CommonTree, number>();
     protected uniqueNodeID = 1;
 
-    public create(payload: Token | null): CommonTree;
+    public create(payload?: Token): CommonTree;
     public create(tokenType: number, text: string): CommonTree;
     public create(tokenType: number, fromToken: Token, text?: string): CommonTree;
     public create(...args: unknown[]): CommonTree {
-        if (args.length === 1) {
+        if (args.length < 2) {
             // Simulate an abstract method for an overloaded method.
             throw new Error("Abstract method called: BaseTreeAdaptor.create(Token)");
         }
@@ -72,7 +72,7 @@ export abstract class BaseTreeAdaptor implements TreeAdaptor {
     }
 
     public nil(): CommonTree {
-        return this.create(null);
+        return this.create();
     }
 
     /**

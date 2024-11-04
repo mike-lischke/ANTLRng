@@ -7,7 +7,7 @@
 /* eslint-disable max-len, @typescript-eslint/naming-convention */
 // cspell: disable
 
-import { RecognitionException, type ParserRuleContext } from "antlr4ng";
+import { RecognitionException } from "antlr4ng";
 
 import { EarlyExitException } from "../antlr3/EarlyExitException.js";
 import { createRecognizerSharedState, IRecognizerSharedState } from "../antlr3/IRecognizerSharedState.js";
@@ -20,7 +20,7 @@ import { TreeRuleReturnScope } from "../antlr3/tree/TreeRuleReturnScope.js";
 
 import { ClassFactory } from "../ClassFactory.js";
 import { Constants } from "../constants.js";
-import { ANTLRv4Parser, type GrammarSpecContext } from "../generated/ANTLRv4Parser.js";
+import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import type { ActionAST } from "../tool/ast/ActionAST.js";
 import type { AltAST } from "../tool/ast/AltAST.js";
 import type { GrammarAST } from "../tool/ast/GrammarAST.js";
@@ -333,11 +333,11 @@ export class GrammarTreeVisitor extends TreeParser {
         return "org/antlr/v4/parse/GrammarTreeVisitor.g";
     }
 
-    public visitGrammar(t: GrammarSpecContext): void {
+    public visitGrammar(t: GrammarRootAST): void {
         this.visit(t, ANTLRv4Parser.RULE_grammarSpec);
     }
 
-    public visit(t: ParserRuleContext, ruleIndex: number): void {
+    public visit(t: GrammarAST, ruleIndex: number): void {
         const nodes = new CommonTreeNodeStream(ClassFactory.createGrammarASTAdaptor(), t);
         this.input = nodes;
         try {

@@ -6,7 +6,7 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
-import type { Tree } from "./Tree.js";
+import type { CommonTree } from "../../tree/CommonTree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 
 /**
@@ -31,7 +31,7 @@ export abstract class RewriteRuleElementStream {
     protected cursor = 0;
 
     /** The list of tokens or subtrees we are tracking */
-    protected elements: Tree[];
+    protected elements: CommonTree[];
 
     /**
      * Once a node / subtree has been used in a stream, it must be dup'd
@@ -54,7 +54,7 @@ export abstract class RewriteRuleElementStream {
     protected elementDescription: string;
     protected adaptor: TreeAdaptor;
 
-    public constructor(adaptor: TreeAdaptor, elementDescription: string, elements?: Tree[]) {
+    public constructor(adaptor: TreeAdaptor, elementDescription: string, elements?: CommonTree[]) {
         this.elementDescription = elementDescription;
         this.adaptor = adaptor;
         this.elements = elements ?? [];
@@ -71,7 +71,7 @@ export abstract class RewriteRuleElementStream {
         this.dirty = true;
     }
 
-    public add(el: Tree | null): void {
+    public add(el: CommonTree | null): void {
         if (el) {
             this.elements.push(el);
         }
@@ -83,7 +83,7 @@ export abstract class RewriteRuleElementStream {
      *  Return a duplicate node/subtree if stream is out of elements and
      *  size==1.  If we've already used the element, dup (dirty bit set).
      */
-    public nextTree(): Tree {
+    public nextTree(): CommonTree {
         const n = this.size();
         if (this.dirty || (this.cursor >= n && n === 1)) {
             // if out of elements and size is 1, dup
@@ -115,7 +115,7 @@ export abstract class RewriteRuleElementStream {
      *  if the stream is empty or we're out of elements and size > 1.
      *  protected so you can override in a subclass if necessary.
      */
-    protected _next(): Tree {
+    protected _next(): CommonTree {
         const n = this.size();
         if (n === 0) {
             throw new Error(this.elementDescription);
@@ -147,7 +147,7 @@ export abstract class RewriteRuleElementStream {
      * Ensure stream emits trees; tokens must be converted to AST nodes.
      *  AST nodes can be passed through unmolested.
      */
-    protected toTree(el: Tree): Tree {
+    protected toTree(el: CommonTree): CommonTree {
         return el;
     }
 
@@ -157,6 +157,6 @@ export abstract class RewriteRuleElementStream {
      *  around it.  For trees, you must call the adaptor.dupTree() unless
      *  the element is for a tree root; then it must be a node dup.
      */
-    protected abstract dup(el: Tree): Tree;
+    protected abstract dup(el: CommonTree): CommonTree;
 
 }

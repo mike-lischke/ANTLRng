@@ -49,8 +49,9 @@ export class CommonTreeNodeStream extends LookaheadStream<CommonTree>
      * tracked in addition to {@link #prevElement} which may or may not contain
      * position information.
      *
-     * @see #hasPositionInformation
-     * @see RecognitionException#extractInformationFromTreeNodeStream
+     * see {@link hasPositionInformation}
+     *
+     * see {@link RecognitionException.extractInformationFromTreeNodeStream}
      */
     protected previousLocationElement: CommonTree | null;
 
@@ -64,14 +65,13 @@ export class CommonTreeNodeStream extends LookaheadStream<CommonTree>
 
             this.adaptor = new CommonTreeAdaptor();
             this.root = tree;
-            this.it = new TreeIterator(this.adaptor, this.root);
         } else {
             const [adaptor, tree] = args as [CommonTreeAdaptor, CommonTree];
 
             this.root = tree;
             this.adaptor = adaptor;
-            this.it = new TreeIterator(adaptor, this.root);
         }
+        this.it = new TreeIterator(this.adaptor, this.root);
     }
 
     public override reset(): void {

@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { CommonToken, type CharStream, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
+import { CommonToken, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
 
 import { CommonTreeAdaptor } from "../antlr3/tree/CommonTreeAdaptor.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
@@ -17,25 +17,14 @@ import { TerminalAST } from "../tool/ast/TerminalAST.js";
 import type { IGrammarASTAdaptor } from "../types.js";
 
 export class GrammarASTAdaptor extends CommonTreeAdaptor implements IGrammarASTAdaptor {
-    protected input?: CharStream; // where we can find chars ref'd by tokens in tree
-
-    public constructor(input?: CharStream) {
-        super();
-        this.input = input;
-    }
-
-    public override create(token: Token | null): GrammarAST;
+    public override create(token?: Token): GrammarAST;
     public override create(tokenType: number, text: string): GrammarAST;
     public override create(tokenType: number, fromToken: Token, text?: string): GrammarAST;
     public override create(...args: unknown[]): GrammarAST {
         if (args.length === 1) {
-            const [token] = args as [Token | null];
-            if (token) {
-                return new GrammarAST(token);
-            }
+            const [token] = args as [Token | undefined];
 
-            return new GrammarAST();
-
+            return new GrammarAST(token);
         }
 
         if (args.length === 2 && typeof args[1] === "string") {
@@ -55,8 +44,6 @@ export class GrammarASTAdaptor extends CommonTreeAdaptor implements IGrammarASTA
                 }
             }
 
-            // t.token!.inputStream = this.input;
-
             return t;
         }
 
@@ -73,8 +60,8 @@ export class GrammarASTAdaptor extends CommonTreeAdaptor implements IGrammarASTA
     }
 
     static {
-        ClassFactory.createGrammarASTAdaptor = (input: CharStream) => {
-            return new GrammarASTAdaptor(input);
+        ClassFactory.createGrammarASTAdaptor = () => {
+            return new GrammarASTAdaptor();
         };
     }
 }

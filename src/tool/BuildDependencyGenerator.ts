@@ -14,6 +14,7 @@ import { CodeGenerator } from "../codegen/CodeGenerator.js";
 import { grammarOptions } from "../grammar-options.js";
 import { GrammarType } from "../support/GrammarType.js";
 import { Grammar } from "./Grammar.js";
+import { Constants } from "../constants.js";
 
 /**
  * Given a grammar file, show the dependencies on .tokens etc...
@@ -104,7 +105,7 @@ export class BuildDependencyGenerator {
             const lexer = `${this.g.name}${suffix}${extST?.render()}`;
             files.push(this.getOutputFile(lexer));
 
-            const lexerTokens = this.g.name + suffix + CodeGenerator.VOCAB_FILE_EXTENSION;
+            const lexerTokens = this.g.name + suffix + Constants.VOCAB_FILE_EXTENSION;
             files.push(this.getOutputFile(lexerTokens));
 
             // TLexer.h
@@ -206,7 +207,7 @@ export class BuildDependencyGenerator {
         // handle token vocabulary loads
         const tokenVocab = this.g.getOptionString("tokenVocab");
         if (tokenVocab !== undefined) {
-            const fileName = tokenVocab + CodeGenerator.VOCAB_FILE_EXTENSION;
+            const fileName = tokenVocab + Constants.VOCAB_FILE_EXTENSION;
             let vocabFile: URL;
             const libDirectory = grammarOptions.libDirectory ?? ".";
             if (libDirectory === ".") {

@@ -5,46 +5,26 @@
  */
 
 /* eslint-disable jsdoc/require-param */
+// cspell: ignore topdown, bottomup
 
 import { RecognitionException, type TokenStream } from "antlr4ng";
 
+import type { CommonTree } from "../../tree/CommonTree.js";
 import { createRecognizerSharedState, IRecognizerSharedState } from "../IRecognizerSharedState.js";
 import { CommonTreeAdaptor } from "./CommonTreeAdaptor.js";
 import { CommonTreeNodeStream } from "./CommonTreeNodeStream.js";
-import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import type { TreeNodeStream } from "./TreeNodeStream.js";
 import { TreeParser } from "./TreeParser.js";
-import type { TreeRuleReturnScope } from "./TreeRuleReturnScope.js";
+import type { ITreeRuleReturnScope } from "./TreeRuleReturnScope.js";
 import { TreeVisitor } from "./TreeVisitor.js";
 import type { TreeVisitorAction } from "./TreeVisitorAction.js";
-
-// cspell: disable
-
-interface Fptr {
-    rule(): unknown;
-}
 
 export class TreeRewriter extends TreeParser {
 
     protected showTransformations = false;
-
     protected originalTokenStream: TokenStream;
     protected originalAdaptor: TreeAdaptor;
-
-    private topdown_fptr = new class implements Fptr {
-        public constructor(private $outer: TreeRewriter) { }
-        public rule(): unknown {
-            return this.$outer.topdown();
-        }
-    }(this);
-
-    private bottomup_ftpr = new class implements Fptr {
-        public constructor(private $outer: TreeRewriter) { }
-        public rule(): unknown {
-            return this.$outer.bottomup();
-        }
-    }(this);
 
     public constructor(input: TreeNodeStream, state?: IRecognizerSharedState) {
         state ??= createRecognizerSharedState();
@@ -53,25 +33,57 @@ export class TreeRewriter extends TreeParser {
         this.originalTokenStream = input.getTokenStream();
     }
 
-    public applyOnce(t: Tree | null, whichRule: Fptr): Tree | null {
-        if (t === null) {
-            return null;
-        }
+    public downUp(t: CommonTree, showTransformations?: boolean): CommonTree {
+        this.showTransformations = showTransformations ?? false;
+        const v = new TreeVisitor(new CommonTreeAdaptor());
+        const actions = new class implements TreeVisitorAction<CommonTree> {
+            public constructor(private $outer: TreeRewriter) {
+            }
 
+            public pre(t: CommonTree): CommonTree {
+                return this.$outer.applyOnce(t, this.$outer.topdown);
+            }
+
+            public post(t: CommonTree): CommonTree {
+                return this.$outer.applyRepeatedly(t);
+            }
+        }(this);
+        t = v.visit(t, actions);
+
+        return t;
+    }
+
+    /**
+     * Methods the down-up strategy uses to do the up and down rules.
+     * To override, just define tree grammar rule topdown and turn on
+     * filter=true.
+     *
+     * @returns the tree created from applying the down-up rules
+     */
+    protected topdown = (): ITreeRuleReturnScope<CommonTree> | undefined => {
+        return undefined;
+    };
+
+    protected bottomup = (): ITreeRuleReturnScope<CommonTree> | undefined => {
+        return undefined;
+    };
+
+    private applyOnce = (t: CommonTree, whichRule: () => ITreeRuleReturnScope<CommonTree> | undefined): CommonTree => {
         try {
             // share TreeParser object but not parsing-related state
             this.state = createRecognizerSharedState();
-            this.input = new CommonTreeNodeStream(this.originalAdaptor, t);
-            (this.input as CommonTreeNodeStream).setTokenStream(this.originalTokenStream);
+            const input = new CommonTreeNodeStream(this.originalAdaptor as CommonTreeAdaptor, t);
+            input.setTokenStream(this.originalTokenStream);
+            this.input = input;
+
             this.setBacktrackingLevel(1);
-            const r = whichRule.rule() as TreeRuleReturnScope | null;
+            const r = whichRule();
             this.setBacktrackingLevel(0);
             if (this.failed()) {
                 return t;
             }
 
-            if (this.showTransformations &&
-                r !== null && t !== r.tree && r.tree !== null) {
+            if (this.showTransformations && r && t !== r.tree && r.tree) {
                 this.reportTransformation(t, r.tree);
             }
 
@@ -81,41 +93,21 @@ export class TreeRewriter extends TreeParser {
                 return t;
             }
         } catch (e) {
-            if (e instanceof RecognitionException) {
-                ;
-            } else {
+            if (!(e instanceof RecognitionException)) {
                 throw e;
             }
         }
 
         return t;
-    }
+    };
 
-    public applyRepeatedly(t: Tree | null, whichRule: Fptr): Tree | null {
+    private applyRepeatedly(t: CommonTree): CommonTree {
         let treeChanged = true;
         while (treeChanged) {
-            const u = this.applyOnce(t, whichRule);
+            const u = this.applyOnce(t, this.bottomup);
             treeChanged = t !== u;
             t = u;
         }
-
-        return t;
-    }
-
-    public downUp(t: Tree | null, showTransformations?: boolean): Tree | null {
-        showTransformations ??= false;
-        this.showTransformations = showTransformations;
-        const v = new TreeVisitor(new CommonTreeAdaptor());
-        const actions = new class implements TreeVisitorAction<Tree> {
-            public constructor(private $outer: TreeRewriter) { }
-            public pre(t: Tree): Tree | null {
-                return this.$outer.applyOnce(t, this.$outer.topdown_fptr);
-            }
-            public post(t: Tree): Tree | null {
-                return this.$outer.applyRepeatedly(t, this.$outer.bottomup_ftpr);
-            }
-        }(this);
-        t = v.visit(t, actions);
 
         return t;
     }
@@ -124,17 +116,8 @@ export class TreeRewriter extends TreeParser {
      * Override this if you need transformation tracing to go somewhere
      *  other than stdout or if you're not using Tree-derived trees.
      */
-    public reportTransformation(oldTree: unknown, newTree: unknown): void {
-        console.log(`${(oldTree as Tree).toStringTree()} -> ${(newTree as Tree).toStringTree()}`);
+    private reportTransformation(oldTree: CommonTree, newTree: CommonTree): void {
+        console.log(`${oldTree.toStringTree()} -> ${newTree.toStringTree()}`);
     }
 
-    // methods the downup strategy uses to do the up and down rules.
-    // to override, just define tree grammar rule topdown and turn on
-    // filter=true.
-    public topdown(): Tree | null {
-        return null;
-    }
-    public bottomup(): Tree | null {
-        return null;
-    }
 }

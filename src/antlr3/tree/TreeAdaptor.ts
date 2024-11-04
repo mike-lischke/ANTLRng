@@ -30,7 +30,7 @@ export interface TreeAdaptor {
      *
      *  Override if you want another kind of node to be built.
      */
-    create(payload: Token | null): CommonTree;
+    create(payload?: Token): CommonTree;
 
     /**
      * Create a new node derived from a token, with a new token type.

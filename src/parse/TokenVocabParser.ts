@@ -108,7 +108,7 @@ export class TokenVocabParser {
             }
 
             // File not found.
-            const inTree = this.g.parseTree?.getOptionAST("tokenVocab");
+            const inTree = this.g.ast?.getOptionAST("tokenVocab");
             const inTreeValue = inTree?.getToken()?.text;
             if (vocabName === inTreeValue) {
                 ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR, this.g.fileName,

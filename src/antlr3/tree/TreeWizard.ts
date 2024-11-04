@@ -59,7 +59,7 @@ export class TreeWizard {
         public declare stopIndex: number;
         public declare node: CommonTree;
 
-        public constructor(payload: Token) {
+        public constructor(payload?: Token) {
             super(payload);
         }
 
@@ -79,12 +79,12 @@ export class TreeWizard {
         public declare treeToUniqueIDMap: Map<CommonTree, number>;
         public declare uniqueNodeID;
 
-        public override create(payload: Token | null): CommonTree;
+        public override create(payload?: Token): CommonTree;
         public override create(tokenType: number, text: string): CommonTree;
         public override create(tokenType: number, fromToken: Token, text?: string): CommonTree;
         public override create(...args: unknown[]): CommonTree {
-            if (args.length === 1) {
-                return new TreeWizard.TreePattern(args[0] as Token);
+            if (args.length < 2) {
+                return new TreeWizard.TreePattern(args[0] as Token | undefined);
             }
 
             return super.create.apply(this, args) as CommonTree;

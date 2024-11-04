@@ -24,11 +24,11 @@ import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
 import { CodeGenerator } from "./codegen/CodeGenerator.js";
 import { grammarOptions } from "./grammar-options.js";
 import { Graph } from "./misc/Graph.js";
-import { GrammarASTAdaptor } from "./parse/GrammarASTAdaptor.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";
 import { SemanticPipeline } from "./semantics/SemanticPipeline.js";
 import { LogManager } from "./support/LogManager.js";
+import { ParseTreeToASTConverter } from "./support/ParseTreeToASTConverter.js";
 import { BuildDependencyGenerator } from "./tool/BuildDependencyGenerator.js";
 import { DOTGenerator } from "./tool/DOTGenerator.js";
 import { ErrorManager } from "./tool/ErrorManager.js";
@@ -134,7 +134,7 @@ export class Tool implements ITool {
 
         for (const t of sortedGrammars) {
             const g = this.createGrammar(t);
-            // TODO: g.fileName = t.fileName;
+            g.fileName = t.fileName;
             if (grammarOptions.generateDependencies) {
                 const dep = new BuildDependencyGenerator(this, g);
                 console.log(dep.getDependencies().render());
@@ -161,7 +161,7 @@ export class Tool implements ITool {
 
         let lexerGrammar: LexerGrammar;
         let lexerContext: GrammarSpecContext | undefined;
-        if (g.parseTree?.grammarDecl().grammarType().GRAMMAR()) {
+        if (g.ast.grammarDecl().grammarType().GRAMMAR()) {
             lexerContext = transform.extractImplicitLexer(g); // alters g.ast
             if (lexerContext) {
                 lexerGrammar = ClassFactory.createLexerGrammar(this, lexerContext);
@@ -179,7 +179,7 @@ export class Tool implements ITool {
     }
 
     public processNonCombinedGrammar(g: Grammar, genCode: boolean): void {
-        if (!g.parseTree) {
+        if (!g.ast) {
             return;
         }
 
@@ -248,14 +248,14 @@ export class Tool implements ITool {
     public checkForRuleIssues(g: Grammar): boolean {
         // check for redefined rules
         const rules: ParserRuleContext[] = [];
-        g.parseTree!.rules().ruleSpec().forEach((ruleSpec: RuleSpecContext) => {
+        g.ast.rules().ruleSpec().forEach((ruleSpec: RuleSpecContext) => {
             if (ruleSpec.parserRuleSpec()) {
                 rules.push(ruleSpec.parserRuleSpec()!);
             } else if (ruleSpec.lexerRuleSpec()) {
                 rules.push(ruleSpec.lexerRuleSpec()!);
             }
         });
-        g.parseTree!.modeSpec().forEach((modeSpec) => {
+        g.ast.modeSpec().forEach((modeSpec) => {
             modeSpec.lexerRuleSpec().forEach((lexerRuleSpec) => {
                 rules.push(lexerRuleSpec);
             });
@@ -278,23 +278,23 @@ export class Tool implements ITool {
         }
 
         const chk = new UndefChecker(g.isLexer());
-        chk.visitGrammar(g.parseTree!);
+        chk.visitGrammar(g.ast);
 
         return redefinition; // || chk.badRef;
     }
 
-    public sortGrammarByTokenVocab(fileNames: string[]): GrammarSpecContext[] {
+    public sortGrammarByTokenVocab(fileNames: string[]): Array<GrammarSpecContext & { fileName: string; }> {
         const g = new Graph();
-        const roots = new Array<GrammarSpecContext>();
+        const roots = new Array<GrammarSpecContext & { fileName: string; }>();
         for (const fileName of fileNames) {
             const t = this.parseGrammar(fileName);
             if (!t) {
                 continue;
             }
 
-            const root = t[0];
+            const root = t[0] as GrammarSpecContext & { fileName: string; };
             roots.push(root);
-            // TODO: root.fileName = fileName;
+            root.fileName = fileName;
             const grammarName = root.grammarDecl().identifier().getText();
 
             // Look for tokenVocab option in the grammar
@@ -339,7 +339,7 @@ export class Tool implements ITool {
 
         const sortedGrammarNames = g.sort();
 
-        const sortedRoots = new Array<GrammarSpecContext>();
+        const sortedRoots = new Array<GrammarSpecContext & { fileName: string; }>();
         for (const grammarName of sortedGrammarNames) {
             for (const root of roots) {
                 if (root.grammarDecl().identifier().getText() === grammarName) {
@@ -448,17 +448,17 @@ export class Tool implements ITool {
         return this.parse("<string>", CharStream.fromString(grammar));
     }
 
-    public parse(fileName: string, input: CharStream): [GrammarSpecContext, TokenStream] | undefined {
-        const adaptor = new GrammarASTAdaptor(input);
-        const lexer = new ToolANTLRLexer(input, this);
+    public parse(fileName: string, input: CharStream): GrammarRootAST | undefined {
+        const lexer = new ToolANTLRLexer(input);
         const tokens = new CommonTokenStream(lexer);
-        //lexer.tokens = tokens;
         const p = new ToolANTLRParser(tokens, this);
-        //p.setTreeAdaptor(adaptor);
+        const grammarSpec = p.grammarSpec();
 
-        const root = p.grammarSpec();
+        if (p.numberOfSyntaxErrors > 0) {
+            return undefined;
+        }
 
-        return p.numberOfSyntaxErrors > 0 ? undefined : [root, tokens];
+        return ParseTreeToASTConverter.convertToAST(grammarSpec, tokens);
     }
 
     public generateATNs(g: Grammar): void {

@@ -11,26 +11,26 @@ import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { QuantifierAST } from "./QuantifierAST.js";
 
 export class StarBlockAST extends GrammarAST implements QuantifierAST {
-    private readonly _greedy: boolean;
+    private readonly greedy: boolean;
 
     public constructor(node: StarBlockAST);
-    public constructor(type: number, t: Token, nonGreedy: Token);
+    public constructor(type: number, t: Token, greedy: boolean);
     public constructor(...args: unknown[]) {
         if (typeof args[0] === "number") {
-            const [type, t, nonGreedy] = args as [number, Token, Token | null];
+            const [type, t, greedy] = args as [number, Token, boolean];
 
             super(type, t);
-            this._greedy = nonGreedy === null;
+            this.greedy = greedy;
         } else {
             const [node] = args as [StarBlockAST];
 
             super(node);
-            this._greedy = node._greedy;
+            this.greedy = node.greedy;
         }
     }
 
     public isGreedy(): boolean {
-        return this._greedy;
+        return this.greedy;
     }
 
     public override dupNode(): StarBlockAST {
