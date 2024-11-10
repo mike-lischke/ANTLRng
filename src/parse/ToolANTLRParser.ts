@@ -18,22 +18,6 @@ import { ErrorType } from "../tool/ErrorType.js";
  *  nothing in grammar associated with Tool so others can use in IDEs, ...
  */
 export class ToolANTLRParser extends ANTLRv4Parser {
-    // Below are a number of pseudo token values, for converting a parse tree to an AST.
-    public static readonly RULES = -5;
-    public static readonly RULE = -6;
-    public static readonly BLOCK = -7;
-    public static readonly ALT = -8;
-    public static readonly EPSILON = -9;
-    public static readonly ELEMENT_OPTIONS = -10;
-    public static readonly ARG_ACTION = -11;
-    public static readonly ACTION = -12;
-    public static readonly RULEMODIFIERS = -13;
-    public static readonly LEXER_ALT_ACTION = -14;
-    public static readonly LEXER_ACTION_CALL = -15;
-    public static readonly SET = -16;
-    public static readonly OPTIONAL = -17;
-    public static readonly PREDICATE_OPTIONS = -18;
-
     public tool: Tool;
 
     public constructor(input: TokenStream, tool: Tool) {

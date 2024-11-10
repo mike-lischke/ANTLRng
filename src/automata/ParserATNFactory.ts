@@ -15,7 +15,7 @@ import {
 } from "antlr4ng";
 
 import { CommonTreeNodeStream } from "../antlr3/tree/CommonTreeNodeStream.js";
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import type { Constructor } from "../misc/Utils.js";
@@ -111,7 +111,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
                 const analyzer = new LL1Analyzer();
                 if (analyzer.look(this.atn, startState, atnState2).contains(Token.EPSILON)) {
                     ErrorManager.get().grammarError(ErrorType.EPSILON_OPTIONAL, this.g.fileName,
-                        (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
+                        (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
                     continue optionalCheck;
                 }
             }
@@ -151,7 +151,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     public tokenRef(node: TerminalAST): IStatePair | null {
         const left = this.newState(node);
         const right = this.newState(node);
-        const ttype = this.g.getTokenType(node.getText()!);
+        const ttype = this.g.getTokenType(node.getText());
         left.addTransition(new AtomTransition(right, ttype));
         node.atnState = left;
 
@@ -168,7 +168,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         const right = this.newState(associatedAST);
         const set = new IntervalSet();
         for (const t of terminals) {
-            const ttype = this.g.getTokenType(t.getText()!);
+            const ttype = this.g.getTokenType(t.getText());
             set.addOne(ttype);
         }
 
@@ -184,8 +184,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
     /** Not valid for non-lexers. */
     public range(a: GrammarAST, b: GrammarAST): IStatePair | null {
-        ErrorManager.get().grammarError(ErrorType.TOKEN_RANGE_IN_PARSER, this.g.fileName, a.getToken(),
-            a.getToken()?.text, b.getToken()?.text);
+        ErrorManager.get().grammarError(ErrorType.TOKEN_RANGE_IN_PARSER, this.g.fileName, a.token!, a.token?.text,
+            b.token?.text);
 
         // From a..b, yield ATN for just a.
         return this.tokenRef(a as TerminalAST);
@@ -222,9 +222,9 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     }
 
     public _ruleRef(node: GrammarAST): IStatePair | null {
-        const r = this.g.getRule(node.getText()!);
+        const r = this.g.getRule(node.getText());
         if (r === null) {
-            ErrorManager.get().grammarError(ErrorType.INTERNAL_ERROR, this.g.fileName, node.getToken(),
+            ErrorManager.get().grammarError(ErrorType.INTERNAL_ERROR, this.g.fileName, node.token!,
                 "Rule " + node.getText() + " undefined");
 
             return null;
@@ -505,7 +505,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         if ((plusAST as QuantifierAST).isGreedy()) {
             if (this.expectNonGreedy(blkAST)) {
                 ErrorManager.get().grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
-                    plusAST.getToken(), plusAST.getToken()!.text);
+                    plusAST.token!, plusAST.token?.text);
             }
 
             this.epsilon(loop, blkStart);	// loop back to start
@@ -551,7 +551,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         if ((starAST as QuantifierAST).isGreedy()) {
             if (this.expectNonGreedy(blkAST)) {
                 ErrorManager.get().grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
-                    starAST.getToken(), starAST.getToken()!.text);
+                    starAST.token!, starAST.token?.text);
             }
 
             this.epsilon(entry, blkStart);	// loop enter edge (alt 1)
@@ -685,12 +685,12 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
                     ? ErrorType.EPSILON_LR_FOLLOW
                     : ErrorType.EPSILON_CLOSURE;
                 ErrorManager.get().grammarError(errorType, this.g.fileName,
-                    (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
+                    (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
             }
 
             if (lookahead.contains(Token.EOF)) {
                 ErrorManager.get().grammarError(ErrorType.EOF_CLOSURE, this.g.fileName,
-                    (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
+                    (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
             }
         }
     }
@@ -701,7 +701,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         const adaptor = new GrammarASTAdaptor();
         for (const r of rules) {
             // find rule's block
-            const blk = r.ast.getFirstChildWithType(ANTLRv4Parser.LPAREN) as GrammarAST;
+            const blk = r.ast.getFirstChildWithType(ANTLRv4Parser.BLOCK) as GrammarAST;
             const nodes = new CommonTreeNodeStream(adaptor, blk);
             const b = new ATNBuilder(nodes, this);
 
@@ -714,9 +714,9 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     protected getTokenType(atom: GrammarAST): number {
         let ttype: number;
         if (this.g.isLexer()) {
-            ttype = CharSupport.getCharValueFromGrammarCharLiteral(atom.getText()!);
+            ttype = CharSupport.getCharValueFromGrammarCharLiteral(atom.getText());
         } else {
-            ttype = this.g.getTokenType(atom.getText()!);
+            ttype = this.g.getTokenType(atom.getText());
         }
 
         return ttype;

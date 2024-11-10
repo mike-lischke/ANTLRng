@@ -10,9 +10,9 @@
 
 import { BitSet, RecognitionException, Token, type IntStream, type TokenStream } from "antlr4ng";
 
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
+import type { CommonTree } from "../tree/CommonTree.js";
 import { createRecognizerSharedState, type IRecognizerSharedState } from "./IRecognizerSharedState.js";
-import type { Tree } from "./tree/Tree.js";
 
 /**
  * A generic recognizer that can handle recognizers generated from
@@ -28,7 +28,7 @@ export abstract class BaseRecognizer {
      *  and other state variables.  It's a kind of explicit multiple
      *  inheritance via delegation of methods and shared state.
      */
-    protected state: IRecognizerSharedState;
+    public state: IRecognizerSharedState;
 
     public constructor(state?: IRecognizerSharedState) {
         this.state = state ?? createRecognizerSharedState();
@@ -69,7 +69,6 @@ export abstract class BaseRecognizer {
     /** reset the parser's state; subclasses must rewinds the input stream */
     public reset(): void {
         // wack everything related to error recovery
-        this.state._fsp = -1;
         this.state.errorRecovery = false;
         this.state.lastErrorIndex = -1;
         this.state.failed = false;
@@ -94,7 +93,7 @@ export abstract class BaseRecognizer {
      *  immediate exit from rule.  Rule would recover by resynchronizing
      *  to the set of symbols that can follow rule ref.
      */
-    public match(input: IntStream, ttype: number, follow: BitSet | null): Tree | null {
+    public match(input: IntStream, ttype: number, follow: BitSet | null): CommonTree | null {
         let matchedSymbol = this.getCurrentInputSymbol(input);
         if (input.LA(1) === ttype) {
             input.consume();
@@ -134,11 +133,7 @@ export abstract class BaseRecognizer {
 
         // compute what can follow this grammar element reference
         if (follow.get(Constants.EOR_TOKEN_TYPE)) {
-            const viableTokensFollowingThisRule = this.computeContextSensitiveRuleFOLLOW();
-            follow.or(viableTokensFollowingThisRule);
-            if (this.state._fsp >= 0) { // remove EOR if we're not the start symbol
-                follow.clear(Constants.EOR_TOKEN_TYPE);
-            }
+            // TODO: removal candidate
         }
 
         // if current token is consistent with what could come after set
@@ -272,28 +267,6 @@ export abstract class BaseRecognizer {
     /** Override this method to change where error messages go */
     public emitErrorMessage(msg: string): void {
         console.log(msg);
-    }
-
-    /**
-     * Recover from an error found on the input stream.  This is
-     *  for NoViableAlt and mismatched symbol exceptions.  If you enable
-     *  single token insertion and deletion, this will usually not
-     *  handle mismatched symbol exceptions but there could be a mismatched
-     *  token that the match() routine could not recover from.
-     */
-    public recover(input: IntStream, re: RecognitionException): void {
-        if (this.state.lastErrorIndex === input.index) {
-            // uh oh, another error at same token index; must be a case
-            // where LT(1) is in the recovery token set so nothing is
-            // consumed; consume a single token so at least to prevent
-            // an infinite loop; this is a failsafe.
-            input.consume();
-        }
-        this.state.lastErrorIndex = input.index;
-        const followSet = this.computeErrorRecoverySet();
-        this.beginResync();
-        this.consumeUntil(input, followSet);
-        this.endResync();
     }
 
     /**
@@ -492,187 +465,6 @@ export abstract class BaseRecognizer {
         console.log();
     }
 
-    /*  Compute the error recovery set for the current rule.  During
-     *  rule invocation, the parser pushes the set of tokens that can
-     *  follow that rule reference on the stack; this amounts to
-     *  computing FIRST of what follows the rule reference in the
-     *  enclosing rule. This local follow set only includes tokens
-     *  from within the rule; i.e., the FIRST computation done by
-     *  ANTLR stops at the end of a rule.
-     *
-     *  EXAMPLE
-     *
-     *  When you find a "no viable alt exception", the input is not
-     *  consistent with any of the alternatives for rule r.  The best
-     *  thing to do is to consume tokens until you see something that
-     *  can legally follow a call to r *or* any rule that called r.
-     *  You don't want the exact set of viable next tokens because the
-     *  input might just be missing a token--you might consume the
-     *  rest of the input looking for one of the missing tokens.
-     *
-     *  Consider grammar:
-     *
-     *  a : '[' b ']'
-     *    | '(' b ')'
-     *    ;
-     *  b : c '^' INT ;
-     *  c : ID
-     *    | INT
-     *    ;
-     *
-     *  At each rule invocation, the set of tokens that could follow
-     *  that rule is pushed on a stack.  Here are the various "local"
-     *  follow sets:
-     *
-     *  FOLLOW(b1_in_a) = FIRST(']') = ']'
-     *  FOLLOW(b2_in_a) = FIRST(')') = ')'
-     *  FOLLOW(c_in_b) = FIRST('^') = '^'
-     *
-     *  Upon erroneous input "[]", the call chain is
-     *
-     *  a -> b -> c
-     *
-     *  and, hence, the follow context stack is:
-     *
-     *  depth  local follow set     after call to rule
-     *    0         <EOF>                    a (from main())
-     *    1          ']'                     b
-     *    3          '^'                     c
-     *
-     *  Notice that ')' is not included, because b would have to have
-     *  been called from a different context in rule a for ')' to be
-     *  included.
-     *
-     *  For error recovery, we cannot consider FOLLOW(c)
-     *  (context-sensitive or otherwise).  We need the combined set of
-     *  all context-sensitive FOLLOW sets--the set of all tokens that
-     *  could follow any reference in the call chain.  We need to
-     *  resync to one of those tokens.  Note that FOLLOW(c)='^' and if
-     *  we resync'd to that token, we'd consume until EOF.  We need to
-     *  sync to context-sensitive FOLLOWs for a, b, and c: {']','^'}.
-     *  In this case, for input "[]", LA(1) is in this set so we would
-     *  not consume anything and after printing an error rule c would
-     *  return normally.  It would not find the required '^' though.
-     *  At this point, it gets a mismatched token error and throws an
-     *  exception (since LA(1) is not in the viable following token
-     *  set).  The rule exception handler tries to recover, but finds
-     *  the same recovery set and doesn't consume anything.  Rule b
-     *  exits normally returning to rule a.  Now it finds the ']' (and
-     *  with the successful match exits errorRecovery mode).
-     *
-     *  So, you cna see that the parser walks up call chain looking
-     *  for the token that was a member of the recovery set.
-     *
-     *  Errors are not generated in errorRecovery mode.
-     *
-     *  ANTLR's error recovery mechanism is based upon original ideas:
-     *
-     *  "Algorithms + Data Structures = Programs" by Niklaus Wirth
-     *
-     *  and
-     *
-     *  "A note on error recovery in recursive descent parsers":
-     *  http://portal.acm.org/citation.cfm?id=947902.947905
-     *
-     *  Later, Josef Grosch had some good ideas:
-     *
-     *  "Efficient and Comfortable Error Recovery in Recursive Descent
-     *  Parsers":
-     *  ftp://www.cocolab.com/products/cocktail/doca4.ps/ell.ps.zip
-     *
-     *  Like Grosch I implemented local FOLLOW sets that are combined
-     *  at run-time upon error to avoid overhead during parsing.
-     */
-    protected computeErrorRecoverySet(): BitSet {
-        return this.combineFollows(false);
-    }
-
-    /**
-     * Compute the context-sensitive FOLLOW set for current rule.
-     *  This is set of token types that can follow a specific rule
-     *  reference given a specific call chain.  You get the set of
-     *  viable tokens that can possibly come next (lookahead depth 1)
-     *  given the current call chain.  Contrast this with the
-     *  definition of plain FOLLOW for rule r:
-     *
-     *   FOLLOW(r)={x | S=&gt;*alpha r beta in G and x in FIRST(beta)}
-     *
-     *  where x in T* and alpha, beta in V*; T is set of terminals and
-     *  V is the set of terminals and nonterminals.  In other words,
-     *  FOLLOW(r) is the set of all tokens that can possibly follow
-     *  references to r in *any* sentential form (context).  At
-     *  runtime, however, we know precisely which context applies as
-     *  we have the call chain.  We may compute the exact (rather
-     *  than covering superset) set of following tokens.
-     *
-     *  For example, consider grammar:
-     *
-     *  stat : ID '=' expr ';'      // FOLLOW(stat)=={EOF}
-     *       | "return" expr '.'
-     *       ;
-     *  expr : atom ('+' atom)* ;   // FOLLOW(expr)=={';','.',')'}
-     *  atom : INT                  // FOLLOW(atom)=={'+',')',';','.'}
-     *       | '(' expr ')'
-     *       ;
-     *
-     *  The FOLLOW sets are all inclusive whereas context-sensitive
-     *  FOLLOW sets are precisely what could follow a rule reference.
-     *  For input input "i=(3);", here is the derivation:
-     *
-     *  stat =&gt; ID '=' expr ';'
-     *       =&gt; ID '=' atom ('+' atom)* ';'
-     *       =&gt; ID '=' '(' expr ')' ('+' atom)* ';'
-     *       =&gt; ID '=' '(' atom ')' ('+' atom)* ';'
-     *       =&gt; ID '=' '(' INT ')' ('+' atom)* ';'
-     *       =&gt; ID '=' '(' INT ')' ';'
-     *
-     *  At the "3" token, you'd have a call chain of
-     *
-     *    stat &rarr; expr &rarr; atom &rarr; expr &rarr; atom
-     *
-     *  What can follow that specific nested ref to atom?  Exactly ')'
-     *  as you can see by looking at the derivation of this specific
-     *  input.  Contrast this with the FOLLOW(atom)={'+',')',';','.'}.
-     *
-     *  You want the exact viable token set when recovering from a
-     *  token mismatch.  Upon token mismatch, if LA(1) is member of
-     *  the viable next token set, then you know there is most likely
-     *  a missing token in the input stream.  "Insert" one by just not
-     *  throwing an exception.
-     */
-    protected computeContextSensitiveRuleFOLLOW(): BitSet {
-        return this.combineFollows(true);
-    }
-
-    // what is exact? it seems to only add sets from above on stack
-    // if EOR is in set i.  When it sees a set w/o EOR, it stops adding.
-    // Why would we ever want them all?  Maybe no viable alt instead of
-    // mismatched token?
-    protected combineFollows(exact: boolean): BitSet {
-        const top = this.state._fsp;
-        const followSet = new BitSet();
-        for (let i = top; i >= 0; i--) {
-            const localFollowSet = this.state.following[i];
-            if (localFollowSet) {
-                followSet.or(localFollowSet);
-                if (exact) {
-                    // can we see end of rule?
-                    if (localFollowSet.get(Constants.EOR_TOKEN_TYPE)) {
-                        // Only leave EOR in set if at top (start rule); this lets
-                        // us know if have to include follow(start rule); i.e., EOF
-                        if (i > 0) {
-                            followSet.clear(Constants.EOR_TOKEN_TYPE);
-                        }
-                    } else { // can't see end of rule, quit
-                        break;
-                    }
-                }
-            }
-        }
-
-        return followSet;
-    }
-
     /**
      * Attempt to recover from a single missing or extra token.
      *
@@ -703,7 +495,7 @@ export abstract class BaseRecognizer {
      *  is in the set of tokens that can follow the ')' token
      *  reference in rule atom.  It can assume that you forgot the ')'.
      */
-    protected recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet | null): Tree | null {
+    protected recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet | null): CommonTree | null {
         let e = null;
         // if next token is what we are looking for then "delete" this token
         if (this.mismatchIsUnwantedToken(input, ttype)) {
@@ -754,7 +546,7 @@ export abstract class BaseRecognizer {
      *
      *  This is ignored for lexers.
      */
-    protected getCurrentInputSymbol(input: IntStream): Tree | null {
+    protected getCurrentInputSymbol(input: IntStream): CommonTree | null {
         return null;
     }
 
@@ -781,16 +573,8 @@ export abstract class BaseRecognizer {
     protected getMissingSymbol(input: IntStream,
         e: RecognitionException | null,
         expectedTokenType: number,
-        follow: BitSet | null): Tree | null {
+        follow: BitSet | null): CommonTree | null {
         return null;
-    }
-
-    /** Push a rule's follow set using our own hardcoded stack */
-    protected pushFollow(fset: BitSet | null): void {
-        if ((this.state._fsp + 1) >= this.state.following.length) {
-            this.state.following = this.state.following.slice();
-        }
-        this.state.following[++this.state._fsp] = fset;
     }
 
     public abstract getSourceName(): string;

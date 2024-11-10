@@ -159,12 +159,11 @@ export class Tool implements ITool {
         const transform = new GrammarTransformPipeline(g, this);
         transform.process();
 
-        let lexerGrammar: LexerGrammar;
         let lexerAST: GrammarRootAST | undefined;
         if (g.ast.grammarType === GrammarType.Combined) {
             lexerAST = transform.extractImplicitLexer(g); // alters g.ast
             if (lexerAST) {
-                lexerGrammar = ClassFactory.createLexerGrammar(this, lexerAST);
+                const lexerGrammar = ClassFactory.createLexerGrammar(this, lexerAST);
                 lexerGrammar.fileName = g.fileName;
                 lexerGrammar.originalGrammar = g;
                 g.implicitLexer = lexerGrammar;
@@ -173,7 +172,9 @@ export class Tool implements ITool {
             }
         }
 
-        g.importVocab(g.implicitLexer);
+        if (g.implicitLexer) {
+            g.importVocab(g.implicitLexer);
+        }
 
         this.processNonCombinedGrammar(g, genCode);
     }
@@ -194,7 +195,7 @@ export class Tool implements ITool {
             return;
         }
 
-        const codeGenerator = new CodeGenerator(this, g, g.getLanguage());
+        const codeGenerator = new CodeGenerator(this, g, g.getLanguage() ?? "Java");
 
         // BUILD ATN FROM AST
         let factory: IATNFactory;
@@ -243,9 +244,10 @@ export class Tool implements ITool {
      */
     public checkForRuleIssues(g: Grammar): boolean {
         // check for redefined rules
-        const rules: GrammarAST[] = [];
+        const rulesNode = g.ast.getFirstChildWithType(ANTLRv4Parser.RULES) as GrammarAST;
+        const rules: GrammarAST[] = [...rulesNode.getAllChildrenWithType(ANTLRv4Parser.RULE)];
         for (const mode of g.ast.getAllChildrenWithType(ANTLRv4Parser.MODE)) {
-            rules.push(...mode.getAllChildrenWithType(ANTLRv4Parser.RULE_REF));
+            rules.push(...mode.getAllChildrenWithType(ANTLRv4Parser.RULE));
         }
 
         let redefinition = false;
@@ -265,7 +267,7 @@ export class Tool implements ITool {
             ruleToAST.set(ruleName, ruleAST);
         }
 
-        const chk = new UndefChecker(g.isLexer());
+        const chk = new UndefChecker(g.isLexer(), ruleToAST);
         chk.visitGrammar(g.ast);
 
         return redefinition; //  || chk.errors;

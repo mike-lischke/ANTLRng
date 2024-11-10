@@ -540,7 +540,7 @@ export abstract class Target {
 
         }
 
-        return this.reservedWords.has(idNode.getText()!);
+        return this.reservedWords.has(idNode.getText());
     }
 
     public templatesExist(): boolean {
@@ -608,7 +608,7 @@ export abstract class Target {
      * @deprecated
      */
     protected visibleGrammarSymbolCausesIssueInGeneratedCode(idNode: GrammarAST): boolean {
-        return this.reservedWords.has(idNode.getText()!);
+        return this.reservedWords.has(idNode.getText());
     }
 
     protected loadTemplates(): STGroup {
@@ -647,8 +647,9 @@ export abstract class Target {
 
     private loadTemplatesHelper(reportErrorIfFail: boolean): STGroup | undefined {
         const language = this.getLanguage();
-        const groupFileName = CodeGenerator.TEMPLATE_ROOT + "/" + language + "/" + language +
-            STGroup.GROUP_FILE_EXTENSION;
+        const url = new URL("../../templates/codegen/" + language + "/" + language + STGroup.GROUP_FILE_EXTENSION,
+            import.meta.url);
+        const groupFileName = url.pathname;
 
         try {
             return new STGroupFile(groupFileName);

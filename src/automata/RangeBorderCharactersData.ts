@@ -4,11 +4,11 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { CommonTree } from "../tree/CommonTree.js";
 import { Character } from "../support/Character.js";
 import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
+import type { CommonTree } from "../tree/CommonTree.js";
 
 export class RangeBorderCharactersData {
     public readonly lowerFrom: number;
@@ -47,7 +47,7 @@ export class RangeBorderCharactersData {
 
             if (notImpliedCharacters.length > 0) {
                 ErrorManager.get().grammarError(ErrorType.RANGE_PROBABLY_CONTAINS_NOT_IMPLIED_CHARACTERS,
-                    grammar.fileName, tree.getToken(), from, to, notImpliedCharacters.toString());
+                    grammar.fileName, tree.token!, from, to, notImpliedCharacters.toString());
             }
         }
 

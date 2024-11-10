@@ -5,10 +5,10 @@
  */
 
 import { ClassFactory } from "../ClassFactory.js";
-import type { GrammarSpecContext } from "../generated/ANTLRv4Parser.js";
-import type { IGrammarRootAST, ILexerGrammar, IRule, ITool } from "../types.js";
+import type { ILexerGrammar, IRule, ITool } from "../types.js";
 
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
+import type { GrammarRootAST } from "./ast/GrammarRootAST.js";
 import { Grammar } from "./Grammar.js";
 
 export class LexerGrammar extends Grammar implements ILexerGrammar {
@@ -21,7 +21,7 @@ export class LexerGrammar extends Grammar implements ILexerGrammar {
     public modes = new Map<string, IRule[]>();
 
     public constructor(grammarText: string);
-    public constructor(tool: ITool, ast: GrammarSpecContext);
+    public constructor(tool: ITool, ast: GrammarRootAST);
     public constructor(grammarText: string, listener: ANTLRToolListener);
     public constructor(fileName: string, grammarText: string, listener: ANTLRToolListener);
     public constructor(...args: unknown[]) {
@@ -42,7 +42,7 @@ export class LexerGrammar extends Grammar implements ILexerGrammar {
 
                     break;
                 } else {
-                    const [tool, ast] = args as [ITool, GrammarSpecContext];
+                    const [tool, ast] = args as [ITool, GrammarRootAST];
 
                     super(tool, ast);
 
@@ -100,7 +100,7 @@ export class LexerGrammar extends Grammar implements ILexerGrammar {
     }
 
     static {
-        ClassFactory.createLexerGrammar = (tool: ITool, ast: GrammarSpecContext) => {
+        ClassFactory.createLexerGrammar = (tool: ITool, ast: GrammarRootAST) => {
             return new LexerGrammar(tool, ast);
         };
     }

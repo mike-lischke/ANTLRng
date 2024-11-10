@@ -4,8 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { IST, ST } from "stringtemplate4ts";
 import { CommonToken } from "antlr4ng";
+import type { IST, ST } from "stringtemplate4ts";
 
 import { ANTLRv4Parser } from "../../generated/ANTLRv4Parser.js";
 
@@ -31,7 +31,7 @@ export class Action extends RuleElement {
             super(factory, ast);
             const rf = factory.getCurrentRuleFunction() ?? null;
             if (ast) {
-                this.chunks = ActionTranslator.translateAction(factory, rf, ast.token, ast);
+                this.chunks = ActionTranslator.translateAction(factory, rf, ast.token!, ast);
             }
         } else {
             const [factory, ctx, action] = args as [OutputModelFactory, StructDecl, string | ST];

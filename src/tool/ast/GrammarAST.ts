@@ -44,10 +44,10 @@ export class GrammarAST extends CommonTree implements IGrammarAST {
                     nodeOrToken = CommonToken.fromType(type, ANTLRv4Parser.symbolicNames[type] ?? undefined);
                 } else {
                     nodeOrToken = CommonToken.fromToken(t);
-                    t.type = type;
+                    nodeOrToken.type = type;
 
                     if (text !== undefined) {
-                        t.text = text;
+                        nodeOrToken.text = text;
                     }
                 }
             } else {
@@ -239,15 +239,15 @@ export class GrammarAST extends CommonTree implements IGrammarAST {
     }
 
     public dupTree(): GrammarAST {
-        const input = this.token!.inputStream;
-        const adaptor = ClassFactory.createGrammarASTAdaptor(input ?? undefined);
+        const input = this.token!.inputStream!;
+        const adaptor = ClassFactory.createGrammarASTAdaptor(input);
 
         return adaptor.dupTree(this) as GrammarAST;
     }
 
     public toTokenString(): string {
-        const input = this.token!.inputStream;
-        const adaptor = ClassFactory.createGrammarASTAdaptor(input ?? undefined);
+        const input = this.token!.inputStream!;
+        const adaptor = ClassFactory.createGrammarASTAdaptor(input);
         const nodes = new CommonTreeNodeStream(adaptor, this);
 
         let buf = "";

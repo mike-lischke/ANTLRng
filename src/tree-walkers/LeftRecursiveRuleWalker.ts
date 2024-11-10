@@ -12,14 +12,13 @@ import { FailedPredicateException } from "../antlr3/FailedPredicateException.js"
 import { createRecognizerSharedState, IRecognizerSharedState } from "../antlr3/IRecognizerSharedState.js";
 import { MismatchedSetException } from "../antlr3/MismatchedSetException.js";
 import { NoViableAltException } from "../antlr3/NoViableAltException.js";
-import type { CommonTree } from "../tree/CommonTree.js";
 import type { TreeNodeStream } from "../antlr3/tree/TreeNodeStream.js";
 import { TreeParser } from "../antlr3/tree/TreeParser.js";
 import { TreeRuleReturnScope } from "../antlr3/tree/TreeRuleReturnScope.js";
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
+import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
 import type { AltAST } from "../tool/ast/AltAST.js";
 import type { GrammarAST } from "../tool/ast/GrammarAST.js";
-import { GrammarTreeVisitor } from "./GrammarTreeVisitor.js";
 
 /** Find left-recursive rules */
 export class LeftRecursiveRuleWalker extends TreeParser {
@@ -39,91 +38,6 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         "RULE", "RULEMODIFIERS", "RULES", "SET", "WILDCARD", "PRIVATE", "PROTECTED",
         "PUBLIC"
     ];
-    public static readonly EOF = -1;
-    public static readonly ACTION = 4;
-    public static readonly ACTION_CHAR_LITERAL = 5;
-    public static readonly ACTION_ESC = 6;
-    public static readonly ACTION_STRING_LITERAL = 7;
-    public static readonly ARG_ACTION = 8;
-    public static readonly ARG_OR_CHARSET = 9;
-    public static readonly ASSIGN = 10;
-    public static readonly AT = 11;
-    public static readonly CATCH = 12;
-    public static readonly CHANNELS = 13;
-    public static readonly COLON = 14;
-    public static readonly COLONCOLON = 15;
-    public static readonly COMMA = 16;
-    public static readonly COMMENT = 17;
-    public static readonly DOC_COMMENT = 18;
-    public static readonly DOLLAR = 19;
-    public static readonly DOT = 20;
-    public static readonly ERRCHAR = 21;
-    public static readonly ESC_SEQ = 22;
-    public static readonly FINALLY = 23;
-    public static readonly FRAGMENT = 24;
-    public static readonly GRAMMAR = 25;
-    public static readonly GT = 26;
-    public static readonly HEX_DIGIT = 27;
-    public static readonly ID = 28;
-    public static readonly IMPORT = 29;
-    public static readonly INT = 30;
-    public static readonly LEXER = 31;
-    public static readonly LEXER_CHAR_SET = 32;
-    public static readonly LOCALS = 33;
-    public static readonly LPAREN = 34;
-    public static readonly LT = 35;
-    public static readonly MODE = 36;
-    public static readonly NESTED_ACTION = 37;
-    public static readonly NLCHARS = 38;
-    public static readonly NOT = 39;
-    public static readonly NameChar = 40;
-    public static readonly NameStartChar = 41;
-    public static readonly OPTIONS = 42;
-    public static readonly OR = 43;
-    public static readonly PARSER = 44;
-    public static readonly PLUS = 45;
-    public static readonly PLUS_ASSIGN = 46;
-    public static readonly POUND = 47;
-    public static readonly QUESTION = 48;
-    public static readonly RANGE = 49;
-    public static readonly RARROW = 50;
-    public static readonly RBRACE = 51;
-    public static readonly RETURNS = 52;
-    public static readonly RPAREN = 53;
-    public static readonly RULE_REF = 54;
-    public static readonly SEMI = 55;
-    public static readonly SEMPRED = 56;
-    public static readonly SRC = 57;
-    public static readonly STAR = 58;
-    public static readonly STRING_LITERAL = 59;
-    public static readonly THROWS = 60;
-    public static readonly TOKENS_SPEC = 61;
-    public static readonly TOKEN_REF = 62;
-    public static readonly UNICODE_ESC = 63;
-    public static readonly UNICODE_EXTENDED_ESC = 64;
-    public static readonly UnicodeBOM = 65;
-    public static readonly WS = 66;
-    public static readonly WSCHARS = 67;
-    public static readonly WSNLCHARS = 68;
-    public static readonly ALT = 69;
-    public static readonly BLOCK = 70;
-    public static readonly CLOSURE = 71;
-    public static readonly COMBINED = 72;
-    public static readonly ELEMENT_OPTIONS = 73;
-    public static readonly EPSILON = 74;
-    public static readonly LEXER_ACTION_CALL = 75;
-    public static readonly LEXER_ALT_ACTION = 76;
-    public static readonly OPTIONAL = 77;
-    public static readonly POSITIVE_CLOSURE = 78;
-    public static readonly RULE = 79;
-    public static readonly RULEMODIFIERS = 80;
-    public static readonly RULES = 81;
-    public static readonly SET = 82;
-    public static readonly WILDCARD = 83;
-    public static readonly PRIVATE = 84;
-    public static readonly PROTECTED = 85;
-    public static readonly PUBLIC = 86;
-    // $ANTLR end "ruleModifier"
 
     public static ruleBlock_return = class ruleBlock_return extends TreeRuleReturnScope {
         public isLeftRec: boolean;
@@ -182,7 +96,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:69:2: ( ^(r= RULE id= RULE_REF ( ruleModifier )? ( ^( RETURNS a= ARG_ACTION ) )? ( ^( LOCALS ARG_ACTION ) )? ( ^( OPTIONS ( . )* ) | ^( AT ID ACTION ) )* ruleBlock exceptionGroup ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:69:4: ^(r= RULE id= RULE_REF ( ruleModifier )? ( ^( RETURNS a= ARG_ACTION ) )? ( ^( LOCALS ARG_ACTION ) )? ( ^( OPTIONS ( . )* ) | ^( AT ID ACTION ) )* ruleBlock exceptionGroup )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.RULE, null);
+            this.match(this.input, ANTLRv4Lexer.RULE, null);
 
             if (this.state.failed) {
                 return isLeftRec;
@@ -195,7 +109,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 return isLeftRec;
             }
 
-            id = this.match(this.input, LeftRecursiveRuleWalker.RULE_REF, null) as GrammarAST;
+            id = this.match(this.input, ANTLRv4Lexer.RULE_REF, null) as GrammarAST;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -209,16 +123,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:70:4: ( ruleModifier )?
             let alt1 = 2;
             const LA1_0 = this.input.LA(1);
-            if (((LA1_0 >= LeftRecursiveRuleWalker.PRIVATE && LA1_0 <= LeftRecursiveRuleWalker.PUBLIC))) {
+            if (((LA1_0 >= ANTLRv4Lexer.PRIVATE && LA1_0 <= ANTLRv4Lexer.PUBLIC))) {
                 alt1 = 1;
             }
             switch (alt1) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:70:4: ruleModifier
                     {
-                        this.pushFollow(null);
                         this.ruleModifier();
-                        this.state._fsp--;
 
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
@@ -236,14 +148,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:72:4: ( ^( RETURNS a= ARG_ACTION ) )?
             let alt2 = 2;
             const LA2_0 = this.input.LA(1);
-            if ((LA2_0 === LeftRecursiveRuleWalker.RETURNS)) {
+            if ((LA2_0 === ANTLRv4Lexer.RETURNS)) {
                 alt2 = 1;
             }
             switch (alt2) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:72:5: ^( RETURNS a= ARG_ACTION )
                     {
-                        this.match(this.input, LeftRecursiveRuleWalker.RETURNS, null);
+                        this.match(this.input, ANTLRv4Lexer.RETURNS, null);
 
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
@@ -257,7 +169,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                             return isLeftRec;
                         }
 
-                        a = this.match(this.input, LeftRecursiveRuleWalker.ARG_ACTION, null) as GrammarAST;
+                        a = this.match(this.input, ANTLRv4Lexer.ARG_ACTION, null) as GrammarAST;
 
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
@@ -285,14 +197,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:74:9: ( ^( LOCALS ARG_ACTION ) )?
             let alt3 = 2;
             const LA3_0 = this.input.LA(1);
-            if ((LA3_0 === LeftRecursiveRuleWalker.LOCALS)) {
+            if ((LA3_0 === ANTLRv4Lexer.LOCALS)) {
                 alt3 = 1;
             }
             switch (alt3) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:74:11: ^( LOCALS ARG_ACTION )
                     {
-                        this.match(this.input, LeftRecursiveRuleWalker.LOCALS, null);
+                        this.match(this.input, ANTLRv4Lexer.LOCALS, null);
 
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
@@ -306,7 +218,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                             return isLeftRec;
                         }
 
-                        this.match(this.input, LeftRecursiveRuleWalker.ARG_ACTION, null);
+                        this.match(this.input, ANTLRv4Lexer.ARG_ACTION, null);
 
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
@@ -333,10 +245,10 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt5 = 3;
                 const LA5_0 = this.input.LA(1);
-                if ((LA5_0 === LeftRecursiveRuleWalker.OPTIONS)) {
+                if ((LA5_0 === ANTLRv4Lexer.OPTIONS)) {
                     alt5 = 1;
                 } else {
-                    if ((LA5_0 === LeftRecursiveRuleWalker.AT)) {
+                    if ((LA5_0 === ANTLRv4Lexer.AT)) {
                         alt5 = 2;
                     }
                 }
@@ -345,7 +257,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:75:11: ^( OPTIONS ( . )* )
                         {
-                            this.match(this.input, LeftRecursiveRuleWalker.OPTIONS, null);
+                            this.match(this.input, ANTLRv4Lexer.OPTIONS, null);
 
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
@@ -365,7 +277,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                                 while (true) {
                                     let alt4 = 2;
                                     const LA4_0 = this.input.LA(1);
-                                    if (((LA4_0 >= LeftRecursiveRuleWalker.ACTION && LA4_0 <= LeftRecursiveRuleWalker.PUBLIC))) {
+                                    if (((LA4_0 >= ANTLRv4Lexer.ACTION && LA4_0 <= ANTLRv4Lexer.PUBLIC))) {
                                         alt4 = 1;
                                     } else {
                                         if ((LA4_0 === Constants.UP)) {
@@ -411,7 +323,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 2: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:76:11: ^( AT ID ACTION )
                         {
-                            this.match(this.input, LeftRecursiveRuleWalker.AT, null);
+                            this.match(this.input, ANTLRv4Lexer.AT, null);
 
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
@@ -425,14 +337,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                                 return isLeftRec;
                             }
 
-                            this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                            this.match(this.input, ANTLRv4Lexer.ID, null);
 
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return isLeftRec;
                             }
 
-                            this.match(this.input, LeftRecursiveRuleWalker.ACTION, null);
+                            this.match(this.input, ANTLRv4Lexer.ACTION, null);
 
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
@@ -457,9 +369,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 }
             }
 
-            this.pushFollow(null);
             ruleBlock1 = this.ruleBlock();
-            this.state._fsp--;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -469,9 +379,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             if (this.state.backtracking === 0) {
                 isLeftRec = ruleBlock1.isLeftRec;
             }
-            this.pushFollow(null);
             this.exceptionGroup();
-            this.state._fsp--;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -502,7 +410,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt6 = 2;
                 const LA6_0 = this.input.LA(1);
-                if ((LA6_0 === LeftRecursiveRuleWalker.CATCH)) {
+                if ((LA6_0 === ANTLRv4Lexer.CATCH)) {
                     alt6 = 1;
                 }
 
@@ -510,9 +418,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:84:7: exceptionHandler
                         {
-                            this.pushFollow(null);
                             this.exceptionHandler();
-                            this.state._fsp--;
 
                             if (this.state.failed) {
                                 return;
@@ -532,16 +438,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:84:25: ( finallyClause )?
             let alt7 = 2;
             const LA7_0 = this.input.LA(1);
-            if ((LA7_0 === LeftRecursiveRuleWalker.FINALLY)) {
+            if ((LA7_0 === ANTLRv4Lexer.FINALLY)) {
                 alt7 = 1;
             }
             switch (alt7) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:84:25: finallyClause
                     {
-                        this.pushFollow(null);
                         this.finallyClause();
-                        this.state._fsp--;
 
                         if (this.state.failed) {
                             return;
@@ -566,7 +470,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:88:2: ( ^( CATCH ARG_ACTION ACTION ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:88:4: ^( CATCH ARG_ACTION ACTION )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.CATCH, null);
+            this.match(this.input, ANTLRv4Lexer.CATCH, null);
 
             if (this.state.failed) {
                 return;
@@ -579,14 +483,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 return;
             }
 
-            this.match(this.input, LeftRecursiveRuleWalker.ARG_ACTION, null);
+            this.match(this.input, ANTLRv4Lexer.ARG_ACTION, null);
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
                 return;
             }
 
-            this.match(this.input, LeftRecursiveRuleWalker.ACTION, null);
+            this.match(this.input, ANTLRv4Lexer.ACTION, null);
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -611,7 +515,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:92:2: ( ^( FINALLY ACTION ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:92:4: ^( FINALLY ACTION )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.FINALLY, null);
+            this.match(this.input, ANTLRv4Lexer.FINALLY, null);
 
             if (this.state.failed) {
                 return;
@@ -624,7 +528,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 return;
             }
 
-            this.match(this.input, LeftRecursiveRuleWalker.ACTION, null);
+            this.match(this.input, ANTLRv4Lexer.ACTION, null);
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -649,8 +553,8 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:96:5: ( PUBLIC | PRIVATE | PROTECTED )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:
         {
-            if ((this.input.LA(1) >= LeftRecursiveRuleWalker.PRIVATE
-                && this.input.LA(1) <= LeftRecursiveRuleWalker.PUBLIC)) {
+            if ((this.input.LA(1) >= ANTLRv4Lexer.PRIVATE
+                && this.input.LA(1) <= ANTLRv4Lexer.PUBLIC)) {
                 this.input.consume();
                 this.state.errorRecovery = false;
                 this.state.failed = false;
@@ -679,7 +583,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:103:2: ( ^( BLOCK (o= outerAlternative )+ ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:103:4: ^( BLOCK (o= outerAlternative )+ )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.BLOCK, null);
+            this.match(this.input, ANTLRv4Lexer.BLOCK, null);
 
             if (this.state.failed) {
                 return retval;
@@ -697,7 +601,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt8 = 2;
                 const LA8_0 = this.input.LA(1);
-                if ((LA8_0 === LeftRecursiveRuleWalker.ALT)) {
+                if ((LA8_0 === ANTLRv4Lexer.ALT)) {
                     alt8 = 1;
                 }
 
@@ -705,9 +609,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:105:5: o= outerAlternative
                         {
-                            this.pushFollow(null);
                             o = this.outerAlternative();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -764,7 +666,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:114:5: ( ( binary )=> binary | ( prefix )=> prefix | ( suffix )=> suffix | nonLeftRecur )
         let alt9 = 4;
         const LA9_0 = this.input.LA(1);
-        if ((LA9_0 === LeftRecursiveRuleWalker.ALT)) {
+        if ((LA9_0 === ANTLRv4Lexer.ALT)) {
             if ((this.synpred1_LeftRecursiveRuleWalker())) {
                 alt9 = 1;
             } else {
@@ -794,9 +696,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:114:9: ( binary )=> binary
                 {
-                    this.pushFollow(null);
                     this.binary();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return retval;
@@ -812,9 +712,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:116:9: ( prefix )=> prefix
                 {
-                    this.pushFollow(null);
                     this.prefix();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return retval;
@@ -830,9 +728,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:118:9: ( suffix )=> suffix
                 {
-                    this.pushFollow(null);
                     this.suffix();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return retval;
@@ -848,9 +744,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:120:9: nonLeftRecur
                 {
-                    this.pushFollow(null);
                     this.nonLeftRecur();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return retval;
@@ -879,7 +773,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:2: ( ^( ALT ( elementOptions )? recurse ( element )* recurse ( epsilonElement )* ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:4: ^( ALT ( elementOptions )? recurse ( element )* recurse ( epsilonElement )* )
         {
-            ALT2 = this.match(this.input, LeftRecursiveRuleWalker.ALT, null) as GrammarAST;
+            ALT2 = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
 
             if (this.state.failed) {
                 return;
@@ -895,16 +789,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:11: ( elementOptions )?
             let alt10 = 2;
             const LA10_0 = this.input.LA(1);
-            if ((LA10_0 === LeftRecursiveRuleWalker.ELEMENT_OPTIONS)) {
+            if ((LA10_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
                 alt10 = 1;
             }
             switch (alt10) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:11: elementOptions
                     {
-                        this.pushFollow(null);
                         this.elementOptions();
-                        this.state._fsp--;
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
                             return;
@@ -918,9 +810,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
 
             }
 
-            this.pushFollow(null);
             this.recurse();
-            this.state._fsp--;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -932,14 +822,12 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt11 = 2;
                 //alt11 = this.dfa11.predict(this.input!);
-                alt11 = this.input.LA(1); // This is wrong! Just to silence eslint and tsc for the moment.
+                alt11 = this.input.LA(1);
                 switch (alt11) {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:35: element
                         {
-                            this.pushFollow(null);
                             this.element();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -956,9 +844,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 }
             }
 
-            this.pushFollow(null);
             this.recurse();
-            this.state._fsp--;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -970,7 +856,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt12 = 2;
                 const LA12_0 = this.input.LA(1);
-                if ((LA12_0 === LeftRecursiveRuleWalker.ACTION || LA12_0 === LeftRecursiveRuleWalker.SEMPRED || LA12_0 === LeftRecursiveRuleWalker.EPSILON)) {
+                if ((LA12_0 === ANTLRv4Lexer.ACTION || LA12_0 === ANTLRv4Lexer.SEMPRED || LA12_0 === ANTLRv4Lexer.EPSILON)) {
                     alt12 = 1;
                 }
 
@@ -978,9 +864,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:52: epsilonElement
                         {
-                            this.pushFollow(null);
                             this.epsilonElement();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -1020,7 +904,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:129:2: ( ^( ALT ( elementOptions )? ( element )+ recurse ( epsilonElement )* ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:129:4: ^( ALT ( elementOptions )? ( element )+ recurse ( epsilonElement )* )
         {
-            ALT3 = this.match(this.input, LeftRecursiveRuleWalker.ALT, null) as GrammarAST;
+            ALT3 = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
 
             if (this.state.failed) {
                 return;
@@ -1036,16 +920,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:129:11: ( elementOptions )?
             let alt13 = 2;
             const LA13_0 = this.input.LA(1);
-            if ((LA13_0 === LeftRecursiveRuleWalker.ELEMENT_OPTIONS)) {
+            if ((LA13_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
                 alt13 = 1;
             }
             switch (alt13) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:129:11: elementOptions
                     {
-                        this.pushFollow(null);
                         this.elementOptions();
-                        this.state._fsp--;
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
                             return;
@@ -1070,9 +952,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:130:4: element
                         {
-                            this.pushFollow(null);
                             this.element();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -1100,9 +980,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 cnt14++;
             }
 
-            this.pushFollow(null);
             this.recurse();
-            this.state._fsp--;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -1114,7 +992,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt15 = 2;
                 const LA15_0 = this.input.LA(1);
-                if ((LA15_0 === LeftRecursiveRuleWalker.ACTION || LA15_0 === LeftRecursiveRuleWalker.SEMPRED || LA15_0 === LeftRecursiveRuleWalker.EPSILON)) {
+                if ((LA15_0 === ANTLRv4Lexer.ACTION || LA15_0 === ANTLRv4Lexer.SEMPRED || LA15_0 === ANTLRv4Lexer.EPSILON)) {
                     alt15 = 1;
                 }
 
@@ -1122,9 +1000,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:131:12: epsilonElement
                         {
-                            this.pushFollow(null);
                             this.epsilonElement();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -1164,7 +1040,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:137:5: ( ^( ALT ( elementOptions )? recurse ( element )+ ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:137:9: ^( ALT ( elementOptions )? recurse ( element )+ )
         {
-            ALT4 = this.match(this.input, LeftRecursiveRuleWalker.ALT, null) as GrammarAST;
+            ALT4 = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
 
             if (this.state.failed) {
                 return;
@@ -1180,16 +1056,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:137:16: ( elementOptions )?
             let alt16 = 2;
             const LA16_0 = this.input.LA(1);
-            if ((LA16_0 === LeftRecursiveRuleWalker.ELEMENT_OPTIONS)) {
+            if ((LA16_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
                 alt16 = 1;
             }
             switch (alt16) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:137:16: elementOptions
                     {
-                        this.pushFollow(null);
                         this.elementOptions();
-                        this.state._fsp--;
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
                             return;
@@ -1203,9 +1077,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
 
             }
 
-            this.pushFollow(null);
             this.recurse();
-            this.state._fsp--;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this.state.failed) {
@@ -1218,7 +1090,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt17 = 2;
                 const LA17_0 = this.input.LA(1);
-                if ((LA17_0 === LeftRecursiveRuleWalker.ACTION || LA17_0 === LeftRecursiveRuleWalker.ASSIGN || LA17_0 === LeftRecursiveRuleWalker.DOT || LA17_0 === LeftRecursiveRuleWalker.NOT || LA17_0 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA17_0 === LeftRecursiveRuleWalker.RANGE || LA17_0 === LeftRecursiveRuleWalker.RULE_REF || LA17_0 === LeftRecursiveRuleWalker.SEMPRED || LA17_0 === LeftRecursiveRuleWalker.STRING_LITERAL || LA17_0 === LeftRecursiveRuleWalker.TOKEN_REF || (LA17_0 >= LeftRecursiveRuleWalker.BLOCK && LA17_0 <= LeftRecursiveRuleWalker.CLOSURE) || LA17_0 === LeftRecursiveRuleWalker.EPSILON || (LA17_0 >= LeftRecursiveRuleWalker.OPTIONAL && LA17_0 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA17_0 >= LeftRecursiveRuleWalker.SET && LA17_0 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                if ((LA17_0 === ANTLRv4Lexer.ACTION || LA17_0 === ANTLRv4Lexer.ASSIGN || LA17_0 === ANTLRv4Lexer.DOT || LA17_0 === ANTLRv4Lexer.NOT || LA17_0 === ANTLRv4Lexer.PLUS_ASSIGN || LA17_0 === ANTLRv4Lexer.RANGE || LA17_0 === ANTLRv4Lexer.RULE_REF || LA17_0 === ANTLRv4Lexer.SEMPRED || LA17_0 === ANTLRv4Lexer.STRING_LITERAL || LA17_0 === ANTLRv4Lexer.TOKEN_REF || (LA17_0 >= ANTLRv4Lexer.BLOCK && LA17_0 <= ANTLRv4Lexer.CLOSURE) || LA17_0 === ANTLRv4Lexer.EPSILON || (LA17_0 >= ANTLRv4Lexer.OPTIONAL && LA17_0 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA17_0 >= ANTLRv4Lexer.SET && LA17_0 <= ANTLRv4Lexer.WILDCARD))) {
                     alt17 = 1;
                 }
 
@@ -1226,9 +1098,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:137:40: element
                         {
-                            this.pushFollow(null);
                             this.element();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -1277,7 +1147,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:142:5: ( ^( ALT ( elementOptions )? ( element )+ ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:142:9: ^( ALT ( elementOptions )? ( element )+ )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.ALT, null);
+            this.match(this.input, ANTLRv4Lexer.ALT, null);
 
             if (this.state.failed) {
                 return;
@@ -1293,16 +1163,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:142:15: ( elementOptions )?
             let alt18 = 2;
             const LA18_0 = this.input.LA(1);
-            if ((LA18_0 === LeftRecursiveRuleWalker.ELEMENT_OPTIONS)) {
+            if ((LA18_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
                 alt18 = 1;
             }
             switch (alt18) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:142:15: elementOptions
                     {
-                        this.pushFollow(null);
                         this.elementOptions();
-                        this.state._fsp--;
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
                             return;
@@ -1322,7 +1190,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt19 = 2;
                 const LA19_0 = this.input.LA(1);
-                if ((LA19_0 === LeftRecursiveRuleWalker.ACTION || LA19_0 === LeftRecursiveRuleWalker.ASSIGN || LA19_0 === LeftRecursiveRuleWalker.DOT || LA19_0 === LeftRecursiveRuleWalker.NOT || LA19_0 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA19_0 === LeftRecursiveRuleWalker.RANGE || LA19_0 === LeftRecursiveRuleWalker.RULE_REF || LA19_0 === LeftRecursiveRuleWalker.SEMPRED || LA19_0 === LeftRecursiveRuleWalker.STRING_LITERAL || LA19_0 === LeftRecursiveRuleWalker.TOKEN_REF || (LA19_0 >= LeftRecursiveRuleWalker.BLOCK && LA19_0 <= LeftRecursiveRuleWalker.CLOSURE) || LA19_0 === LeftRecursiveRuleWalker.EPSILON || (LA19_0 >= LeftRecursiveRuleWalker.OPTIONAL && LA19_0 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA19_0 >= LeftRecursiveRuleWalker.SET && LA19_0 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                if ((LA19_0 === ANTLRv4Lexer.ACTION || LA19_0 === ANTLRv4Lexer.ASSIGN || LA19_0 === ANTLRv4Lexer.DOT || LA19_0 === ANTLRv4Lexer.NOT || LA19_0 === ANTLRv4Lexer.PLUS_ASSIGN || LA19_0 === ANTLRv4Lexer.RANGE || LA19_0 === ANTLRv4Lexer.RULE_REF || LA19_0 === ANTLRv4Lexer.SEMPRED || LA19_0 === ANTLRv4Lexer.STRING_LITERAL || LA19_0 === ANTLRv4Lexer.TOKEN_REF || (LA19_0 >= ANTLRv4Lexer.BLOCK && LA19_0 <= ANTLRv4Lexer.CLOSURE) || LA19_0 === ANTLRv4Lexer.EPSILON || (LA19_0 >= ANTLRv4Lexer.OPTIONAL && LA19_0 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA19_0 >= ANTLRv4Lexer.SET && LA19_0 <= ANTLRv4Lexer.WILDCARD))) {
                     alt19 = 1;
                 }
 
@@ -1330,9 +1198,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:142:31: element
                         {
-                            this.pushFollow(null);
                             this.element();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -1378,21 +1244,21 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:146:2: ( ^( ASSIGN ID recurseNoLabel ) | ^( PLUS_ASSIGN ID recurseNoLabel ) | recurseNoLabel )
         let alt20 = 3;
         switch (this.input.LA(1)) {
-            case GrammarTreeVisitor.ASSIGN: {
+            case ANTLRv4Lexer.ASSIGN: {
                 {
                     alt20 = 1;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.PLUS_ASSIGN: {
+            case ANTLRv4Lexer.PLUS_ASSIGN: {
                 {
                     alt20 = 2;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.RULE_REF: {
+            case ANTLRv4Lexer.RULE_REF: {
                 {
                     alt20 = 3;
                 }
@@ -1415,7 +1281,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:146:4: ^( ASSIGN ID recurseNoLabel )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -1428,16 +1294,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.recurseNoLabel();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -1457,7 +1321,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:147:4: ^( PLUS_ASSIGN ID recurseNoLabel )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.PLUS_ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.PLUS_ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -1470,16 +1334,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.recurseNoLabel();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -1499,9 +1361,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:148:4: recurseNoLabel
                 {
-                    this.pushFollow(null);
                     this.recurseNoLabel();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return;
@@ -1524,7 +1384,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:151:16: ({...}? RULE_REF )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:151:18: {...}? RULE_REF
         {
-            if ((this.input.LT(1) as CommonTree).getText() !== this.ruleName) {
+            if ((this.input.LT(1)!).getText() !== this.ruleName) {
                 if (this.state.backtracking > 0) {
                     this.state.failed = true;
 
@@ -1532,7 +1392,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 }
                 throw new FailedPredicateException(this.input, "recurseNoLabel", "((CommonTree)input.LT(1)).getText().equals(ruleName)");
             }
-            this.match(this.input, LeftRecursiveRuleWalker.RULE_REF, null);
+            this.match(this.input, ANTLRv4Lexer.RULE_REF, null);
 
             if (this.state.failed) {
                 return;
@@ -1554,21 +1414,21 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:154:2: ( ^( ASSIGN ID s= token ) | ^( PLUS_ASSIGN ID s= token ) |b= STRING_LITERAL | ^(b= STRING_LITERAL elementOptions ) | ^(c= TOKEN_REF elementOptions ) |c= TOKEN_REF )
         let alt21 = 6;
         switch (this.input.LA(1)) {
-            case GrammarTreeVisitor.ASSIGN: {
+            case ANTLRv4Lexer.ASSIGN: {
                 {
                     alt21 = 1;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.PLUS_ASSIGN: {
+            case ANTLRv4Lexer.PLUS_ASSIGN: {
                 {
                     alt21 = 2;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.STRING_LITERAL: {
+            case ANTLRv4Lexer.STRING_LITERAL: {
                 {
                     const LA21_3 = this.input.LA(2);
                     if ((LA21_3 === Constants.DOWN)) {
@@ -1599,7 +1459,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 break;
             }
 
-            case GrammarTreeVisitor.TOKEN_REF: {
+            case ANTLRv4Lexer.TOKEN_REF: {
                 {
                     const LA21_4 = this.input.LA(2);
                     if ((LA21_4 === Constants.DOWN)) {
@@ -1646,7 +1506,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:154:4: ^( ASSIGN ID s= token )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.ASSIGN, null);
 
                     if (this.state.failed) {
                         return t;
@@ -1659,16 +1519,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return t;
                     }
 
-                    this.pushFollow(null);
                     s = this.token();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return t;
@@ -1691,7 +1549,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:155:4: ^( PLUS_ASSIGN ID s= token )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.PLUS_ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.PLUS_ASSIGN, null);
 
                     if (this.state.failed) {
                         return t;
@@ -1704,16 +1562,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return t;
                     }
 
-                    this.pushFollow(null);
                     s = this.token();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return t;
@@ -1736,7 +1592,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:156:4: b= STRING_LITERAL
                 {
-                    b = this.match(this.input, LeftRecursiveRuleWalker.STRING_LITERAL, null) as GrammarAST;
+                    b = this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null) as GrammarAST;
 
                     if (this.state.failed) {
                         return t;
@@ -1752,7 +1608,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:157:7: ^(b= STRING_LITERAL elementOptions )
                 {
-                    b = this.match(this.input, LeftRecursiveRuleWalker.STRING_LITERAL, null) as GrammarAST;
+                    b = this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null) as GrammarAST;
 
                     if (this.state.failed) {
                         return t;
@@ -1765,9 +1621,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return t;
@@ -1790,7 +1644,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 5: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:158:7: ^(c= TOKEN_REF elementOptions )
                 {
-                    c = this.match(this.input, LeftRecursiveRuleWalker.TOKEN_REF, null) as GrammarAST;
+                    c = this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null) as GrammarAST;
 
                     if (this.state.failed) {
                         return t;
@@ -1803,9 +1657,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return t;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return t;
@@ -1828,7 +1680,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 6: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:159:4: c= TOKEN_REF
                 {
-                    c = this.match(this.input, LeftRecursiveRuleWalker.TOKEN_REF, null) as GrammarAST;
+                    c = this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null) as GrammarAST;
 
                     if (this.state.failed) {
                         return t;
@@ -1855,7 +1707,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:163:5: ( ^( ELEMENT_OPTIONS ( elementOption )* ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:163:7: ^( ELEMENT_OPTIONS ( elementOption )* )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.ELEMENT_OPTIONS, null);
+            this.match(this.input, ANTLRv4Lexer.ELEMENT_OPTIONS, null);
 
             if (this.state.failed) {
                 return;
@@ -1874,7 +1726,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 while (true) {
                     let alt22 = 2;
                     const LA22_0 = this.input.LA(1);
-                    if ((LA22_0 === LeftRecursiveRuleWalker.ASSIGN || LA22_0 === LeftRecursiveRuleWalker.ID)) {
+                    if ((LA22_0 === ANTLRv4Lexer.ASSIGN || LA22_0 === ANTLRv4Lexer.ID)) {
                         alt22 = 1;
                     }
 
@@ -1882,9 +1734,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         case 1: {
                             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:163:25: elementOption
                             {
-                                this.pushFollow(null);
                                 this.elementOption();
-                                this.state._fsp--;
                                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                 if (this.state.failed) {
                                     return;
@@ -1921,37 +1771,37 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:167:5: ( ID | ^( ASSIGN ID ID ) | ^( ASSIGN ID STRING_LITERAL ) | ^( ASSIGN ID ACTION ) | ^( ASSIGN ID INT ) )
         let alt23 = 5;
         const LA23_0 = this.input.LA(1);
-        if ((LA23_0 === LeftRecursiveRuleWalker.ID)) {
+        if ((LA23_0 === ANTLRv4Lexer.ID)) {
             alt23 = 1;
         } else {
-            if ((LA23_0 === LeftRecursiveRuleWalker.ASSIGN)) {
+            if ((LA23_0 === ANTLRv4Lexer.ASSIGN)) {
                 const LA23_2 = this.input.LA(2);
                 if ((LA23_2 === Constants.DOWN)) {
                     const LA23_3 = this.input.LA(3);
-                    if ((LA23_3 === LeftRecursiveRuleWalker.ID)) {
+                    if ((LA23_3 === ANTLRv4Lexer.ID)) {
                         switch (this.input.LA(4)) {
-                            case GrammarTreeVisitor.ID: {
+                            case ANTLRv4Lexer.ID: {
                                 {
                                     alt23 = 2;
                                 }
                                 break;
                             }
 
-                            case GrammarTreeVisitor.STRING_LITERAL: {
+                            case ANTLRv4Lexer.STRING_LITERAL: {
                                 {
                                     alt23 = 3;
                                 }
                                 break;
                             }
 
-                            case GrammarTreeVisitor.ACTION: {
+                            case ANTLRv4Lexer.ACTION: {
                                 {
                                     alt23 = 4;
                                 }
                                 break;
                             }
 
-                            case GrammarTreeVisitor.INT: {
+                            case ANTLRv4Lexer.INT: {
                                 {
                                     alt23 = 5;
                                 }
@@ -2033,7 +1883,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:167:7: ID
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     if (this.state.failed) {
                         return;
@@ -2046,7 +1896,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:168:9: ^( ASSIGN ID ID )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -2059,14 +1909,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
@@ -2087,7 +1937,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:169:9: ^( ASSIGN ID STRING_LITERAL )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -2100,14 +1950,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.STRING_LITERAL, null);
+                    this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
@@ -2128,7 +1978,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:170:9: ^( ASSIGN ID ACTION )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -2141,14 +1991,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ACTION, null);
+                    this.match(this.input, ANTLRv4Lexer.ACTION, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
@@ -2169,7 +2019,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 5: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:171:9: ^( ASSIGN ID INT )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -2182,14 +2032,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.INT, null);
+                    this.match(this.input, ANTLRv4Lexer.INT, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
@@ -2219,13 +2069,13 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:175:2: ( atom | ^( NOT element ) | ^( RANGE atom atom ) | ^( ASSIGN ID element ) | ^( PLUS_ASSIGN ID element ) | ^( SET ( setElement )+ ) | RULE_REF | ebnf | epsilonElement )
         let alt25 = 9;
         switch (this.input.LA(1)) {
-            case GrammarTreeVisitor.RULE_REF: {
+            case ANTLRv4Lexer.RULE_REF: {
                 {
                     const LA25_1 = this.input.LA(2);
                     if ((LA25_1 === Constants.DOWN)) {
                         alt25 = 1;
                     } else {
-                        if (((LA25_1 >= Constants.UP && LA25_1 <= LeftRecursiveRuleWalker.ACTION) || LA25_1 === LeftRecursiveRuleWalker.ASSIGN || LA25_1 === LeftRecursiveRuleWalker.DOT || LA25_1 === LeftRecursiveRuleWalker.NOT || LA25_1 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA25_1 === LeftRecursiveRuleWalker.RANGE || LA25_1 === LeftRecursiveRuleWalker.RULE_REF || LA25_1 === LeftRecursiveRuleWalker.SEMPRED || LA25_1 === LeftRecursiveRuleWalker.STRING_LITERAL || LA25_1 === LeftRecursiveRuleWalker.TOKEN_REF || (LA25_1 >= LeftRecursiveRuleWalker.BLOCK && LA25_1 <= LeftRecursiveRuleWalker.CLOSURE) || LA25_1 === LeftRecursiveRuleWalker.EPSILON || (LA25_1 >= LeftRecursiveRuleWalker.OPTIONAL && LA25_1 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA25_1 >= LeftRecursiveRuleWalker.SET && LA25_1 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                        if (((LA25_1 >= Constants.UP && LA25_1 <= ANTLRv4Lexer.ACTION) || LA25_1 === ANTLRv4Lexer.ASSIGN || LA25_1 === ANTLRv4Lexer.DOT || LA25_1 === ANTLRv4Lexer.NOT || LA25_1 === ANTLRv4Lexer.PLUS_ASSIGN || LA25_1 === ANTLRv4Lexer.RANGE || LA25_1 === ANTLRv4Lexer.RULE_REF || LA25_1 === ANTLRv4Lexer.SEMPRED || LA25_1 === ANTLRv4Lexer.STRING_LITERAL || LA25_1 === ANTLRv4Lexer.TOKEN_REF || (LA25_1 >= ANTLRv4Lexer.BLOCK && LA25_1 <= ANTLRv4Lexer.CLOSURE) || LA25_1 === ANTLRv4Lexer.EPSILON || (LA25_1 >= ANTLRv4Lexer.OPTIONAL && LA25_1 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA25_1 >= ANTLRv4Lexer.SET && LA25_1 <= ANTLRv4Lexer.WILDCARD))) {
                             alt25 = 7;
                         } else {
                             if (this.state.backtracking > 0) {
@@ -2250,64 +2100,64 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 break;
             }
 
-            case GrammarTreeVisitor.DOT:
-            case GrammarTreeVisitor.STRING_LITERAL:
-            case GrammarTreeVisitor.TOKEN_REF:
-            case GrammarTreeVisitor.WILDCARD: {
+            case ANTLRv4Lexer.DOT:
+            case ANTLRv4Lexer.STRING_LITERAL:
+            case ANTLRv4Lexer.TOKEN_REF:
+            case ANTLRv4Lexer.WILDCARD: {
                 {
                     alt25 = 1;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.NOT: {
+            case ANTLRv4Lexer.NOT: {
                 {
                     alt25 = 2;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.RANGE: {
+            case ANTLRv4Lexer.RANGE: {
                 {
                     alt25 = 3;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.ASSIGN: {
+            case ANTLRv4Lexer.ASSIGN: {
                 {
                     alt25 = 4;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.PLUS_ASSIGN: {
+            case ANTLRv4Lexer.PLUS_ASSIGN: {
                 {
                     alt25 = 5;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.SET: {
+            case ANTLRv4Lexer.SET: {
                 {
                     alt25 = 6;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.BLOCK:
-            case GrammarTreeVisitor.CLOSURE:
-            case GrammarTreeVisitor.OPTIONAL:
-            case GrammarTreeVisitor.POSITIVE_CLOSURE: {
+            case ANTLRv4Lexer.BLOCK:
+            case ANTLRv4Lexer.CLOSURE:
+            case ANTLRv4Lexer.OPTIONAL:
+            case ANTLRv4Lexer.POSITIVE_CLOSURE: {
                 {
                     alt25 = 8;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.ACTION:
-            case GrammarTreeVisitor.SEMPRED:
-            case GrammarTreeVisitor.EPSILON: {
+            case ANTLRv4Lexer.ACTION:
+            case ANTLRv4Lexer.SEMPRED:
+            case ANTLRv4Lexer.EPSILON: {
                 {
                     alt25 = 9;
                 }
@@ -2330,9 +2180,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:175:4: atom
                 {
-                    this.pushFollow(null);
                     this.atom();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return;
@@ -2345,7 +2193,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:176:4: ^( NOT element )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.NOT, null);
+                    this.match(this.input, ANTLRv4Lexer.NOT, null);
 
                     if (this.state.failed) {
                         return;
@@ -2358,9 +2206,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.element();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2380,7 +2226,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:177:4: ^( RANGE atom atom )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.RANGE, null);
+                    this.match(this.input, ANTLRv4Lexer.RANGE, null);
 
                     if (this.state.failed) {
                         return;
@@ -2393,17 +2239,13 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.atom();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.atom();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2423,7 +2265,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:178:4: ^( ASSIGN ID element )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -2436,16 +2278,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.element();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2465,7 +2305,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 5: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:179:4: ^( PLUS_ASSIGN ID element )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.PLUS_ASSIGN, null);
+                    this.match(this.input, ANTLRv4Lexer.PLUS_ASSIGN, null);
 
                     if (this.state.failed) {
                         return;
@@ -2478,16 +2318,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.element();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2507,7 +2345,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 6: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:180:7: ^( SET ( setElement )+ )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.SET, null);
+                    this.match(this.input, ANTLRv4Lexer.SET, null);
 
                     if (this.state.failed) {
                         return;
@@ -2526,7 +2364,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     while (true) {
                         let alt24 = 2;
                         const LA24_0 = this.input.LA(1);
-                        if ((LA24_0 === LeftRecursiveRuleWalker.STRING_LITERAL || LA24_0 === LeftRecursiveRuleWalker.TOKEN_REF)) {
+                        if ((LA24_0 === ANTLRv4Lexer.STRING_LITERAL || LA24_0 === ANTLRv4Lexer.TOKEN_REF)) {
                             alt24 = 1;
                         }
 
@@ -2534,9 +2372,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                             case 1: {
                                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:180:13: setElement
                                 {
-                                    this.pushFollow(null);
                                     this.setElement();
-                                    this.state._fsp--;
                                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                     if (this.state.failed) {
                                         return;
@@ -2578,7 +2414,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 7: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:181:9: RULE_REF
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.RULE_REF, null);
+                    this.match(this.input, ANTLRv4Lexer.RULE_REF, null);
 
                     if (this.state.failed) {
                         return;
@@ -2591,9 +2427,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 8: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:182:4: ebnf
                 {
-                    this.pushFollow(null);
                     this.ebnf();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return;
@@ -2606,9 +2440,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 9: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:183:4: epsilonElement
                 {
-                    this.pushFollow(null);
                     this.epsilonElement();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return;
@@ -2630,13 +2462,13 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:187:2: ( ACTION | SEMPRED | EPSILON | ^( ACTION elementOptions ) | ^( SEMPRED elementOptions ) )
         let alt26 = 5;
         switch (this.input.LA(1)) {
-            case GrammarTreeVisitor.ACTION: {
+            case ANTLRv4Lexer.ACTION: {
                 {
                     const LA26_1 = this.input.LA(2);
                     if ((LA26_1 === Constants.DOWN)) {
                         alt26 = 4;
                     } else {
-                        if (((LA26_1 >= Constants.UP && LA26_1 <= LeftRecursiveRuleWalker.ACTION) || LA26_1 === LeftRecursiveRuleWalker.ASSIGN || LA26_1 === LeftRecursiveRuleWalker.DOT || LA26_1 === LeftRecursiveRuleWalker.NOT || LA26_1 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA26_1 === LeftRecursiveRuleWalker.RANGE || LA26_1 === LeftRecursiveRuleWalker.RULE_REF || LA26_1 === LeftRecursiveRuleWalker.SEMPRED || LA26_1 === LeftRecursiveRuleWalker.STRING_LITERAL || LA26_1 === LeftRecursiveRuleWalker.TOKEN_REF || (LA26_1 >= LeftRecursiveRuleWalker.BLOCK && LA26_1 <= LeftRecursiveRuleWalker.CLOSURE) || LA26_1 === LeftRecursiveRuleWalker.EPSILON || (LA26_1 >= LeftRecursiveRuleWalker.OPTIONAL && LA26_1 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA26_1 >= LeftRecursiveRuleWalker.SET && LA26_1 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                        if (((LA26_1 >= Constants.UP && LA26_1 <= ANTLRv4Lexer.ACTION) || LA26_1 === ANTLRv4Lexer.ASSIGN || LA26_1 === ANTLRv4Lexer.DOT || LA26_1 === ANTLRv4Lexer.NOT || LA26_1 === ANTLRv4Lexer.PLUS_ASSIGN || LA26_1 === ANTLRv4Lexer.RANGE || LA26_1 === ANTLRv4Lexer.RULE_REF || LA26_1 === ANTLRv4Lexer.SEMPRED || LA26_1 === ANTLRv4Lexer.STRING_LITERAL || LA26_1 === ANTLRv4Lexer.TOKEN_REF || (LA26_1 >= ANTLRv4Lexer.BLOCK && LA26_1 <= ANTLRv4Lexer.CLOSURE) || LA26_1 === ANTLRv4Lexer.EPSILON || (LA26_1 >= ANTLRv4Lexer.OPTIONAL && LA26_1 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA26_1 >= ANTLRv4Lexer.SET && LA26_1 <= ANTLRv4Lexer.WILDCARD))) {
                             alt26 = 1;
                         } else {
                             if (this.state.backtracking > 0) {
@@ -2661,13 +2493,13 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 break;
             }
 
-            case GrammarTreeVisitor.SEMPRED: {
+            case ANTLRv4Lexer.SEMPRED: {
                 {
                     const LA26_2 = this.input.LA(2);
                     if ((LA26_2 === Constants.DOWN)) {
                         alt26 = 5;
                     } else {
-                        if (((LA26_2 >= Constants.UP && LA26_2 <= LeftRecursiveRuleWalker.ACTION) || LA26_2 === LeftRecursiveRuleWalker.ASSIGN || LA26_2 === LeftRecursiveRuleWalker.DOT || LA26_2 === LeftRecursiveRuleWalker.NOT || LA26_2 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA26_2 === LeftRecursiveRuleWalker.RANGE || LA26_2 === LeftRecursiveRuleWalker.RULE_REF || LA26_2 === LeftRecursiveRuleWalker.SEMPRED || LA26_2 === LeftRecursiveRuleWalker.STRING_LITERAL || LA26_2 === LeftRecursiveRuleWalker.TOKEN_REF || (LA26_2 >= LeftRecursiveRuleWalker.BLOCK && LA26_2 <= LeftRecursiveRuleWalker.CLOSURE) || LA26_2 === LeftRecursiveRuleWalker.EPSILON || (LA26_2 >= LeftRecursiveRuleWalker.OPTIONAL && LA26_2 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA26_2 >= LeftRecursiveRuleWalker.SET && LA26_2 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                        if (((LA26_2 >= Constants.UP && LA26_2 <= ANTLRv4Lexer.ACTION) || LA26_2 === ANTLRv4Lexer.ASSIGN || LA26_2 === ANTLRv4Lexer.DOT || LA26_2 === ANTLRv4Lexer.NOT || LA26_2 === ANTLRv4Lexer.PLUS_ASSIGN || LA26_2 === ANTLRv4Lexer.RANGE || LA26_2 === ANTLRv4Lexer.RULE_REF || LA26_2 === ANTLRv4Lexer.SEMPRED || LA26_2 === ANTLRv4Lexer.STRING_LITERAL || LA26_2 === ANTLRv4Lexer.TOKEN_REF || (LA26_2 >= ANTLRv4Lexer.BLOCK && LA26_2 <= ANTLRv4Lexer.CLOSURE) || LA26_2 === ANTLRv4Lexer.EPSILON || (LA26_2 >= ANTLRv4Lexer.OPTIONAL && LA26_2 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA26_2 >= ANTLRv4Lexer.SET && LA26_2 <= ANTLRv4Lexer.WILDCARD))) {
                             alt26 = 2;
                         } else {
                             if (this.state.backtracking > 0) {
@@ -2692,7 +2524,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 break;
             }
 
-            case GrammarTreeVisitor.EPSILON: {
+            case ANTLRv4Lexer.EPSILON: {
                 {
                     alt26 = 3;
                 }
@@ -2715,7 +2547,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:187:4: ACTION
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ACTION, null);
+                    this.match(this.input, ANTLRv4Lexer.ACTION, null);
 
                     if (this.state.failed) {
                         return;
@@ -2728,7 +2560,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:188:4: SEMPRED
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.SEMPRED, null);
+                    this.match(this.input, ANTLRv4Lexer.SEMPRED, null);
 
                     if (this.state.failed) {
                         return;
@@ -2741,7 +2573,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:189:4: EPSILON
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.EPSILON, null);
+                    this.match(this.input, ANTLRv4Lexer.EPSILON, null);
 
                     if (this.state.failed) {
                         return;
@@ -2754,7 +2586,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:190:4: ^( ACTION elementOptions )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.ACTION, null);
+                    this.match(this.input, ANTLRv4Lexer.ACTION, null);
 
                     if (this.state.failed) {
                         return;
@@ -2767,9 +2599,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2789,7 +2619,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 5: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:191:4: ^( SEMPRED elementOptions )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.SEMPRED, null);
+                    this.match(this.input, ANTLRv4Lexer.SEMPRED, null);
 
                     if (this.state.failed) {
                         return;
@@ -2802,9 +2632,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2834,12 +2662,12 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:195:2: ( ^( STRING_LITERAL elementOptions ) | ^( TOKEN_REF elementOptions ) | STRING_LITERAL | TOKEN_REF )
         let alt27 = 4;
         const LA27_0 = this.input.LA(1);
-        if ((LA27_0 === LeftRecursiveRuleWalker.STRING_LITERAL)) {
+        if ((LA27_0 === ANTLRv4Lexer.STRING_LITERAL)) {
             const LA27_1 = this.input.LA(2);
             if ((LA27_1 === Constants.DOWN)) {
                 alt27 = 1;
             } else {
-                if ((LA27_1 === Constants.UP || LA27_1 === LeftRecursiveRuleWalker.STRING_LITERAL || LA27_1 === LeftRecursiveRuleWalker.TOKEN_REF)) {
+                if ((LA27_1 === Constants.UP || LA27_1 === ANTLRv4Lexer.STRING_LITERAL || LA27_1 === ANTLRv4Lexer.TOKEN_REF)) {
                     alt27 = 3;
                 } else {
                     if (this.state.backtracking > 0) {
@@ -2861,12 +2689,12 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             }
 
         } else {
-            if ((LA27_0 === LeftRecursiveRuleWalker.TOKEN_REF)) {
+            if ((LA27_0 === ANTLRv4Lexer.TOKEN_REF)) {
                 const LA27_2 = this.input.LA(2);
                 if ((LA27_2 === Constants.DOWN)) {
                     alt27 = 2;
                 } else {
-                    if ((LA27_2 === Constants.UP || LA27_2 === LeftRecursiveRuleWalker.STRING_LITERAL || LA27_2 === LeftRecursiveRuleWalker.TOKEN_REF)) {
+                    if ((LA27_2 === Constants.UP || LA27_2 === ANTLRv4Lexer.STRING_LITERAL || LA27_2 === ANTLRv4Lexer.TOKEN_REF)) {
                         alt27 = 4;
                     } else {
                         if (this.state.backtracking > 0) {
@@ -2904,7 +2732,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:195:4: ^( STRING_LITERAL elementOptions )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.STRING_LITERAL, null);
+                    this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null);
 
                     if (this.state.failed) {
                         return;
@@ -2917,9 +2745,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2939,7 +2765,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:196:4: ^( TOKEN_REF elementOptions )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.TOKEN_REF, null);
+                    this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null);
 
                     if (this.state.failed) {
                         return;
@@ -2952,9 +2778,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -2974,7 +2798,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:197:4: STRING_LITERAL
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.STRING_LITERAL, null);
+                    this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null);
 
                     if (this.state.failed) {
                         return;
@@ -2987,7 +2811,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:198:4: TOKEN_REF
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.TOKEN_REF, null);
+                    this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null);
 
                     if (this.state.failed) {
                         return;
@@ -3009,28 +2833,28 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:201:5: ( block | ^( OPTIONAL block ) | ^( CLOSURE block ) | ^( POSITIVE_CLOSURE block ) )
         let alt28 = 4;
         switch (this.input.LA(1)) {
-            case GrammarTreeVisitor.BLOCK: {
+            case ANTLRv4Lexer.BLOCK: {
                 {
                     alt28 = 1;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.OPTIONAL: {
+            case ANTLRv4Lexer.OPTIONAL: {
                 {
                     alt28 = 2;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.CLOSURE: {
+            case ANTLRv4Lexer.CLOSURE: {
                 {
                     alt28 = 3;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.POSITIVE_CLOSURE: {
+            case ANTLRv4Lexer.POSITIVE_CLOSURE: {
                 {
                     alt28 = 4;
                 }
@@ -3053,9 +2877,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:201:9: block
                 {
-                    this.pushFollow(null);
                     this.block();
-                    this.state._fsp--;
 
                     if (this.state.failed) {
                         return;
@@ -3068,7 +2890,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:202:9: ^( OPTIONAL block )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.OPTIONAL, null);
+                    this.match(this.input, ANTLRv4Lexer.OPTIONAL, null);
 
                     if (this.state.failed) {
                         return;
@@ -3081,9 +2903,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.block();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -3103,7 +2923,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:203:9: ^( CLOSURE block )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.CLOSURE, null);
+                    this.match(this.input, ANTLRv4Lexer.CLOSURE, null);
 
                     if (this.state.failed) {
                         return;
@@ -3116,9 +2936,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.block();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -3138,7 +2956,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:204:9: ^( POSITIVE_CLOSURE block )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.POSITIVE_CLOSURE, null);
+                    this.match(this.input, ANTLRv4Lexer.POSITIVE_CLOSURE, null);
 
                     if (this.state.failed) {
                         return;
@@ -3151,9 +2969,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.block();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -3183,7 +2999,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:208:5: ( ^( BLOCK ( ACTION )? ( alternative )+ ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:208:7: ^( BLOCK ( ACTION )? ( alternative )+ )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.BLOCK, null);
+            this.match(this.input, ANTLRv4Lexer.BLOCK, null);
 
             if (this.state.failed) {
                 return;
@@ -3199,14 +3015,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:208:15: ( ACTION )?
             let alt29 = 2;
             const LA29_0 = this.input.LA(1);
-            if ((LA29_0 === LeftRecursiveRuleWalker.ACTION)) {
+            if ((LA29_0 === ANTLRv4Lexer.ACTION)) {
                 alt29 = 1;
             }
             switch (alt29) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:208:15: ACTION
                     {
-                        this.match(this.input, LeftRecursiveRuleWalker.ACTION, null);
+                        this.match(this.input, ANTLRv4Lexer.ACTION, null);
 
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
@@ -3227,7 +3043,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt30 = 2;
                 const LA30_0 = this.input.LA(1);
-                if ((LA30_0 === LeftRecursiveRuleWalker.ALT)) {
+                if ((LA30_0 === ANTLRv4Lexer.ALT)) {
                     alt30 = 1;
                 }
 
@@ -3235,9 +3051,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:208:23: alternative
                         {
-                            this.pushFollow(null);
                             this.alternative();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -3283,7 +3097,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:212:2: ( ^( ALT ( elementOptions )? ( element )+ ) )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:212:4: ^( ALT ( elementOptions )? ( element )+ )
         {
-            this.match(this.input, LeftRecursiveRuleWalker.ALT, null);
+            this.match(this.input, ANTLRv4Lexer.ALT, null);
 
             if (this.state.failed) {
                 return;
@@ -3299,16 +3113,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:212:10: ( elementOptions )?
             let alt31 = 2;
             const LA31_0 = this.input.LA(1);
-            if ((LA31_0 === LeftRecursiveRuleWalker.ELEMENT_OPTIONS)) {
+            if ((LA31_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
                 alt31 = 1;
             }
             switch (alt31) {
                 case 1: {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:212:10: elementOptions
                     {
-                        this.pushFollow(null);
                         this.elementOptions();
-                        this.state._fsp--;
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
                             return;
@@ -3328,7 +3140,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             while (true) {
                 let alt32 = 2;
                 const LA32_0 = this.input.LA(1);
-                if ((LA32_0 === LeftRecursiveRuleWalker.ACTION || LA32_0 === LeftRecursiveRuleWalker.ASSIGN || LA32_0 === LeftRecursiveRuleWalker.DOT || LA32_0 === LeftRecursiveRuleWalker.NOT || LA32_0 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA32_0 === LeftRecursiveRuleWalker.RANGE || LA32_0 === LeftRecursiveRuleWalker.RULE_REF || LA32_0 === LeftRecursiveRuleWalker.SEMPRED || LA32_0 === LeftRecursiveRuleWalker.STRING_LITERAL || LA32_0 === LeftRecursiveRuleWalker.TOKEN_REF || (LA32_0 >= LeftRecursiveRuleWalker.BLOCK && LA32_0 <= LeftRecursiveRuleWalker.CLOSURE) || LA32_0 === LeftRecursiveRuleWalker.EPSILON || (LA32_0 >= LeftRecursiveRuleWalker.OPTIONAL && LA32_0 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA32_0 >= LeftRecursiveRuleWalker.SET && LA32_0 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                if ((LA32_0 === ANTLRv4Lexer.ACTION || LA32_0 === ANTLRv4Lexer.ASSIGN || LA32_0 === ANTLRv4Lexer.DOT || LA32_0 === ANTLRv4Lexer.NOT || LA32_0 === ANTLRv4Lexer.PLUS_ASSIGN || LA32_0 === ANTLRv4Lexer.RANGE || LA32_0 === ANTLRv4Lexer.RULE_REF || LA32_0 === ANTLRv4Lexer.SEMPRED || LA32_0 === ANTLRv4Lexer.STRING_LITERAL || LA32_0 === ANTLRv4Lexer.TOKEN_REF || (LA32_0 >= ANTLRv4Lexer.BLOCK && LA32_0 <= ANTLRv4Lexer.CLOSURE) || LA32_0 === ANTLRv4Lexer.EPSILON || (LA32_0 >= ANTLRv4Lexer.OPTIONAL && LA32_0 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA32_0 >= ANTLRv4Lexer.SET && LA32_0 <= ANTLRv4Lexer.WILDCARD))) {
                     alt32 = 1;
                 }
 
@@ -3336,9 +3148,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                     case 1: {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:212:26: element
                         {
-                            this.pushFollow(null);
                             this.element();
-                            this.state._fsp--;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -3384,20 +3194,20 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:216:2: ( ^( RULE_REF ( ARG_ACTION )? ( elementOptions )? ) | ^( STRING_LITERAL elementOptions ) | STRING_LITERAL | ^( TOKEN_REF elementOptions ) | TOKEN_REF | ^( WILDCARD elementOptions ) | WILDCARD | ^( DOT ID element ) )
         let alt35 = 8;
         switch (this.input.LA(1)) {
-            case GrammarTreeVisitor.RULE_REF: {
+            case ANTLRv4Lexer.RULE_REF: {
                 {
                     alt35 = 1;
                 }
                 break;
             }
 
-            case GrammarTreeVisitor.STRING_LITERAL: {
+            case ANTLRv4Lexer.STRING_LITERAL: {
                 {
                     const LA35_2 = this.input.LA(2);
                     if ((LA35_2 === Constants.DOWN)) {
                         alt35 = 2;
                     } else {
-                        if (((LA35_2 >= Constants.UP && LA35_2 <= LeftRecursiveRuleWalker.ACTION) || LA35_2 === LeftRecursiveRuleWalker.ASSIGN || LA35_2 === LeftRecursiveRuleWalker.DOT || LA35_2 === LeftRecursiveRuleWalker.NOT || LA35_2 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA35_2 === LeftRecursiveRuleWalker.RANGE || LA35_2 === LeftRecursiveRuleWalker.RULE_REF || LA35_2 === LeftRecursiveRuleWalker.SEMPRED || LA35_2 === LeftRecursiveRuleWalker.STRING_LITERAL || LA35_2 === LeftRecursiveRuleWalker.TOKEN_REF || (LA35_2 >= LeftRecursiveRuleWalker.BLOCK && LA35_2 <= LeftRecursiveRuleWalker.CLOSURE) || LA35_2 === LeftRecursiveRuleWalker.EPSILON || (LA35_2 >= LeftRecursiveRuleWalker.OPTIONAL && LA35_2 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA35_2 >= LeftRecursiveRuleWalker.SET && LA35_2 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                        if (((LA35_2 >= Constants.UP && LA35_2 <= ANTLRv4Lexer.ACTION) || LA35_2 === ANTLRv4Lexer.ASSIGN || LA35_2 === ANTLRv4Lexer.DOT || LA35_2 === ANTLRv4Lexer.NOT || LA35_2 === ANTLRv4Lexer.PLUS_ASSIGN || LA35_2 === ANTLRv4Lexer.RANGE || LA35_2 === ANTLRv4Lexer.RULE_REF || LA35_2 === ANTLRv4Lexer.SEMPRED || LA35_2 === ANTLRv4Lexer.STRING_LITERAL || LA35_2 === ANTLRv4Lexer.TOKEN_REF || (LA35_2 >= ANTLRv4Lexer.BLOCK && LA35_2 <= ANTLRv4Lexer.CLOSURE) || LA35_2 === ANTLRv4Lexer.EPSILON || (LA35_2 >= ANTLRv4Lexer.OPTIONAL && LA35_2 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA35_2 >= ANTLRv4Lexer.SET && LA35_2 <= ANTLRv4Lexer.WILDCARD))) {
                             alt35 = 3;
                         } else {
                             if (this.state.backtracking > 0) {
@@ -3422,13 +3232,13 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 break;
             }
 
-            case GrammarTreeVisitor.TOKEN_REF: {
+            case ANTLRv4Lexer.TOKEN_REF: {
                 {
                     const LA35_3 = this.input.LA(2);
                     if ((LA35_3 === Constants.DOWN)) {
                         alt35 = 4;
                     } else {
-                        if (((LA35_3 >= Constants.UP && LA35_3 <= LeftRecursiveRuleWalker.ACTION) || LA35_3 === LeftRecursiveRuleWalker.ASSIGN || LA35_3 === LeftRecursiveRuleWalker.DOT || LA35_3 === LeftRecursiveRuleWalker.NOT || LA35_3 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA35_3 === LeftRecursiveRuleWalker.RANGE || LA35_3 === LeftRecursiveRuleWalker.RULE_REF || LA35_3 === LeftRecursiveRuleWalker.SEMPRED || LA35_3 === LeftRecursiveRuleWalker.STRING_LITERAL || LA35_3 === LeftRecursiveRuleWalker.TOKEN_REF || (LA35_3 >= LeftRecursiveRuleWalker.BLOCK && LA35_3 <= LeftRecursiveRuleWalker.CLOSURE) || LA35_3 === LeftRecursiveRuleWalker.EPSILON || (LA35_3 >= LeftRecursiveRuleWalker.OPTIONAL && LA35_3 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA35_3 >= LeftRecursiveRuleWalker.SET && LA35_3 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                        if (((LA35_3 >= Constants.UP && LA35_3 <= ANTLRv4Lexer.ACTION) || LA35_3 === ANTLRv4Lexer.ASSIGN || LA35_3 === ANTLRv4Lexer.DOT || LA35_3 === ANTLRv4Lexer.NOT || LA35_3 === ANTLRv4Lexer.PLUS_ASSIGN || LA35_3 === ANTLRv4Lexer.RANGE || LA35_3 === ANTLRv4Lexer.RULE_REF || LA35_3 === ANTLRv4Lexer.SEMPRED || LA35_3 === ANTLRv4Lexer.STRING_LITERAL || LA35_3 === ANTLRv4Lexer.TOKEN_REF || (LA35_3 >= ANTLRv4Lexer.BLOCK && LA35_3 <= ANTLRv4Lexer.CLOSURE) || LA35_3 === ANTLRv4Lexer.EPSILON || (LA35_3 >= ANTLRv4Lexer.OPTIONAL && LA35_3 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA35_3 >= ANTLRv4Lexer.SET && LA35_3 <= ANTLRv4Lexer.WILDCARD))) {
                             alt35 = 5;
                         } else {
                             if (this.state.backtracking > 0) {
@@ -3453,13 +3263,13 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 break;
             }
 
-            case GrammarTreeVisitor.WILDCARD: {
+            case ANTLRv4Lexer.WILDCARD: {
                 {
                     const LA35_4 = this.input.LA(2);
                     if ((LA35_4 === Constants.DOWN)) {
                         alt35 = 6;
                     } else {
-                        if (((LA35_4 >= Constants.UP && LA35_4 <= LeftRecursiveRuleWalker.ACTION) || LA35_4 === LeftRecursiveRuleWalker.ASSIGN || LA35_4 === LeftRecursiveRuleWalker.DOT || LA35_4 === LeftRecursiveRuleWalker.NOT || LA35_4 === LeftRecursiveRuleWalker.PLUS_ASSIGN || LA35_4 === LeftRecursiveRuleWalker.RANGE || LA35_4 === LeftRecursiveRuleWalker.RULE_REF || LA35_4 === LeftRecursiveRuleWalker.SEMPRED || LA35_4 === LeftRecursiveRuleWalker.STRING_LITERAL || LA35_4 === LeftRecursiveRuleWalker.TOKEN_REF || (LA35_4 >= LeftRecursiveRuleWalker.BLOCK && LA35_4 <= LeftRecursiveRuleWalker.CLOSURE) || LA35_4 === LeftRecursiveRuleWalker.EPSILON || (LA35_4 >= LeftRecursiveRuleWalker.OPTIONAL && LA35_4 <= LeftRecursiveRuleWalker.POSITIVE_CLOSURE) || (LA35_4 >= LeftRecursiveRuleWalker.SET && LA35_4 <= LeftRecursiveRuleWalker.WILDCARD))) {
+                        if (((LA35_4 >= Constants.UP && LA35_4 <= ANTLRv4Lexer.ACTION) || LA35_4 === ANTLRv4Lexer.ASSIGN || LA35_4 === ANTLRv4Lexer.DOT || LA35_4 === ANTLRv4Lexer.NOT || LA35_4 === ANTLRv4Lexer.PLUS_ASSIGN || LA35_4 === ANTLRv4Lexer.RANGE || LA35_4 === ANTLRv4Lexer.RULE_REF || LA35_4 === ANTLRv4Lexer.SEMPRED || LA35_4 === ANTLRv4Lexer.STRING_LITERAL || LA35_4 === ANTLRv4Lexer.TOKEN_REF || (LA35_4 >= ANTLRv4Lexer.BLOCK && LA35_4 <= ANTLRv4Lexer.CLOSURE) || LA35_4 === ANTLRv4Lexer.EPSILON || (LA35_4 >= ANTLRv4Lexer.OPTIONAL && LA35_4 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA35_4 >= ANTLRv4Lexer.SET && LA35_4 <= ANTLRv4Lexer.WILDCARD))) {
                             alt35 = 7;
                         } else {
                             if (this.state.backtracking > 0) {
@@ -3484,7 +3294,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                 break;
             }
 
-            case GrammarTreeVisitor.DOT: {
+            case ANTLRv4Lexer.DOT: {
                 {
                     alt35 = 8;
                 }
@@ -3507,7 +3317,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 1: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:216:4: ^( RULE_REF ( ARG_ACTION )? ( elementOptions )? )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.RULE_REF, null);
+                    this.match(this.input, ANTLRv4Lexer.RULE_REF, null);
 
                     if (this.state.failed) {
                         return;
@@ -3524,14 +3334,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:216:15: ( ARG_ACTION )?
                         let alt33 = 2;
                         const LA33_0 = this.input.LA(1);
-                        if ((LA33_0 === LeftRecursiveRuleWalker.ARG_ACTION)) {
+                        if ((LA33_0 === ANTLRv4Lexer.ARG_ACTION)) {
                             alt33 = 1;
                         }
                         switch (alt33) {
                             case 1: {
                                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:216:15: ARG_ACTION
                                 {
-                                    this.match(this.input, LeftRecursiveRuleWalker.ARG_ACTION, null);
+                                    this.match(this.input, ANTLRv4Lexer.ARG_ACTION, null);
 
                                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                     if (this.state.failed) {
@@ -3549,16 +3359,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:216:27: ( elementOptions )?
                         let alt34 = 2;
                         const LA34_0 = this.input.LA(1);
-                        if ((LA34_0 === LeftRecursiveRuleWalker.ELEMENT_OPTIONS)) {
+                        if ((LA34_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
                             alt34 = 1;
                         }
                         switch (alt34) {
                             case 1: {
                                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:216:27: elementOptions
                                 {
-                                    this.pushFollow(null);
                                     this.elementOptions();
-                                    this.state._fsp--;
                                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                     if (this.state.failed) {
                                         return;
@@ -3588,7 +3396,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 2: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:217:8: ^( STRING_LITERAL elementOptions )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.STRING_LITERAL, null);
+                    this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null);
 
                     if (this.state.failed) {
                         return;
@@ -3601,9 +3409,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -3623,7 +3429,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 3: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:218:4: STRING_LITERAL
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.STRING_LITERAL, null);
+                    this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null);
 
                     if (this.state.failed) {
                         return;
@@ -3636,7 +3442,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 4: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:219:7: ^( TOKEN_REF elementOptions )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.TOKEN_REF, null);
+                    this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null);
 
                     if (this.state.failed) {
                         return;
@@ -3649,9 +3455,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -3671,7 +3475,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 5: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:220:4: TOKEN_REF
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.TOKEN_REF, null);
+                    this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null);
 
                     if (this.state.failed) {
                         return;
@@ -3684,7 +3488,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 6: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:221:7: ^( WILDCARD elementOptions )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.WILDCARD, null);
+                    this.match(this.input, ANTLRv4Lexer.WILDCARD, null);
 
                     if (this.state.failed) {
                         return;
@@ -3697,9 +3501,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.elementOptions();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -3719,7 +3521,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 7: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:222:4: WILDCARD
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.WILDCARD, null);
+                    this.match(this.input, ANTLRv4Lexer.WILDCARD, null);
 
                     if (this.state.failed) {
                         return;
@@ -3732,7 +3534,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             case 8: {
                 // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:223:4: ^( DOT ID element )
                 {
-                    this.match(this.input, LeftRecursiveRuleWalker.DOT, null);
+                    this.match(this.input, ANTLRv4Lexer.DOT, null);
 
                     if (this.state.failed) {
                         return;
@@ -3745,16 +3547,14 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         return;
                     }
 
-                    this.match(this.input, LeftRecursiveRuleWalker.ID, null);
+                    this.match(this.input, ANTLRv4Lexer.ID, null);
 
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
                     }
 
-                    this.pushFollow(null);
                     this.element();
-                    this.state._fsp--;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return;
@@ -3782,9 +3582,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:114:9: ( binary )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:114:10: binary
         {
-            this.pushFollow(null);
             this.binary();
-            this.state._fsp--;
 
             if (this.state.failed) {
                 return;
@@ -3800,9 +3598,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:116:9: ( prefix )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:116:10: prefix
         {
-            this.pushFollow(null);
             this.prefix();
-            this.state._fsp--;
 
             if (this.state.failed) {
                 return;
@@ -3818,9 +3614,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:118:9: ( suffix )
         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:118:10: suffix
         {
-            this.pushFollow(null);
             this.suffix();
-            this.state._fsp--;
 
             if (this.state.failed) {
                 return;

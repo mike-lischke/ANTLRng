@@ -22,13 +22,14 @@ import { Grammar } from "./Grammar.js";
 export class DOTGenerator {
     public static readonly STRIP_NONREDUCED_STATES = false;
 
-    /** Library of output templates; use {@code <attrname>} format. */
-    public static readonly stLib = new STGroupFile("org/antlr/v4/tool/templates/dot/graphs.stg");
-
     protected arrowhead = "normal";
     protected rankdir = "LR";
 
     protected grammar: Grammar;
+
+    /** Library of output templates; use {@code <attrname>} format. */
+    static readonly #templateUrl = new URL("../../templates/dot/graphs.stg", import.meta.url);
+    static readonly #stLib = new STGroupFile(this.#templateUrl.pathname);
 
     /** This aspect is associated with a grammar */
     public constructor(grammar: Grammar) {
@@ -44,7 +45,7 @@ export class DOTGenerator {
 
         // The output DOT graph for visualization
         const markedStates = new Set<ATNState>();
-        const dot = DOTGenerator.stLib.getInstanceOf("atn");
+        const dot = DOTGenerator.#stLib.getInstanceOf("atn");
         if (!dot) {
             throw new Error("no such template: atn");
         }
@@ -78,7 +79,7 @@ export class DOTGenerator {
                     const rr = (edge);
 
                     // don't jump to other rules, but display edge to follow node
-                    edgeST = DOTGenerator.stLib.getInstanceOf("edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("edge");
                     if (!edgeST) {
                         throw new Error("no such template: edge");
                     }
@@ -99,21 +100,21 @@ export class DOTGenerator {
                 }
 
                 if (edge instanceof ActionTransition) {
-                    edgeST = DOTGenerator.stLib.getInstanceOf("action-edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("action-edge");
                     if (!edgeST) {
                         throw new Error("no such template: action-edge");
                     }
 
                     edgeST.add("label", this.getEdgeLabel(edge.toString()));
                 } else if (edge instanceof AbstractPredicateTransition) {
-                    edgeST = DOTGenerator.stLib.getInstanceOf("edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("edge");
                     if (!edgeST) {
                         throw new Error("no such template: edge");
                     }
 
                     edgeST.add("label", this.getEdgeLabel(String(edge)));
                 } else if (edge.isEpsilon) {
-                    edgeST = DOTGenerator.stLib.getInstanceOf("epsilon-edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("epsilon-edge");
                     if (!edgeST) {
                         throw new Error("no such template: epsilon-edge");
                     }
@@ -130,7 +131,7 @@ export class DOTGenerator {
 
                     edgeST.add("loopback", loopback);
                 } else if (edge instanceof AtomTransition) {
-                    edgeST = DOTGenerator.stLib.getInstanceOf("edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("edge");
                     if (!edgeST) {
                         throw new Error("no such template: edge");
                     }
@@ -144,7 +145,7 @@ export class DOTGenerator {
 
                     edgeST.add("label", this.getEdgeLabel(label));
                 } else if (edge instanceof SetTransition) {
-                    edgeST = DOTGenerator.stLib.getInstanceOf("edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("edge");
                     if (!edgeST) {
                         throw new Error("no such template: edge");
                     }
@@ -162,7 +163,7 @@ export class DOTGenerator {
 
                     edgeST.add("label", this.getEdgeLabel(label));
                 } else if (edge instanceof RangeTransition) {
-                    edgeST = DOTGenerator.stLib.getInstanceOf("edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("edge");
                     if (!edgeST) {
                         throw new Error("no such template: edge");
                     }
@@ -176,7 +177,7 @@ export class DOTGenerator {
 
                     edgeST.add("label", this.getEdgeLabel(label));
                 } else {
-                    edgeST = DOTGenerator.stLib.getInstanceOf("edge");
+                    edgeST = DOTGenerator.#stLib.getInstanceOf("edge");
                     if (!edgeST) {
                         throw new Error("no such template: edge");
                     }
@@ -203,7 +204,7 @@ export class DOTGenerator {
                 continue;
             }
 
-            const st = DOTGenerator.stLib.getInstanceOf("stopstate");
+            const st = DOTGenerator.#stLib.getInstanceOf("stopstate");
             if (!st) {
                 throw new Error("no such template: stopstate");
             }
@@ -218,7 +219,7 @@ export class DOTGenerator {
                 continue;
             }
 
-            const st = DOTGenerator.stLib.getInstanceOf("state");
+            const st = DOTGenerator.#stLib.getInstanceOf("state");
             if (!st) {
                 throw new Error("no such template: state");
             }
@@ -237,7 +238,7 @@ export class DOTGenerator {
             return "";
         }
 
-        const dot = DOTGenerator.stLib.getInstanceOf("dfa");
+        const dot = DOTGenerator.#stLib.getInstanceOf("dfa");
         if (!dot) {
             throw new Error("no such template: dfa");
         }
@@ -252,7 +253,7 @@ export class DOTGenerator {
                 continue;
             }
 
-            const st = DOTGenerator.stLib.getInstanceOf("stopstate");
+            const st = DOTGenerator.#stLib.getInstanceOf("stopstate");
             if (!st) {
                 throw new Error("no such template: stopstate");
             }
@@ -271,7 +272,7 @@ export class DOTGenerator {
                 continue;
             }
 
-            const st = DOTGenerator.stLib.getInstanceOf("state");
+            const st = DOTGenerator.#stLib.getInstanceOf("state");
             if (!st) {
                 throw new Error("no such template: state");
             }
@@ -296,7 +297,7 @@ export class DOTGenerator {
                     label = this.grammar.getTokenDisplayName(ttype)!;
                 }
 
-                const st = DOTGenerator.stLib.getInstanceOf("edge");
+                const st = DOTGenerator.#stLib.getInstanceOf("edge");
                 if (!st) {
                     throw new Error("no such template: edge");
                 }

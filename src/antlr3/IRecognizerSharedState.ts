@@ -6,9 +6,7 @@
 
 // cspell: disable
 
-import { BitSet, Token } from "antlr4ng";
-
-import { Constants } from "../constants.js";
+import { Token } from "antlr4ng";
 
 /**
  * The set of fields needed by an abstract recognizer to recognize input
@@ -19,15 +17,6 @@ import { Constants } from "../constants.js";
  *  parser is protected.
  */
 export interface IRecognizerSharedState {
-    /**
-     * Track the set of token types that can follow any rule invocation.
-     *  Stack grows upwards.  When it hits the max, it grows 2x in size
-     *  and keeps going.
-     */
-    following: Array<BitSet | null>;
-
-    _fsp: number;
-
     /**
      * This is true when we see an error and before having successfully
      *  matched a token.  Prevents generation of more than one error message
@@ -111,8 +100,6 @@ export interface IRecognizerSharedState {
 
 export const createRecognizerSharedState = (): IRecognizerSharedState => {
     return {
-        following: new Array<BitSet | null>(Constants.INITIAL_FOLLOW_STACK_SIZE),
-        _fsp: -1,
         errorRecovery: false,
         lastErrorIndex: -1,
         failed: false,

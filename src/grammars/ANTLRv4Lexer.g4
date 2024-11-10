@@ -47,6 +47,11 @@ lexer grammar ANTLRv4Lexer;
 
 options {
     superClass = LexerAdaptor;
+
+    // Using a predefined list of tokens here to ensure the same order of the tokens as they were defined
+    // in the old ANLTR3 tree parsers (to avoid having to change the tree parsers code).
+    // The actual values of the tokens doesn't matter, but the order does.
+    tokenVocab = predefined;
 }
 
 import LexBasic;

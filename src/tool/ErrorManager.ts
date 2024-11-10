@@ -66,7 +66,7 @@ export class ErrorManager {
      * Track separately so if someone adds a listener, it's the only one
      * instead of it and the default stderr listener.
      */
-    #defaultListener = new DefaultToolListener(this);
+    #defaultListener = new DefaultToolListener();
 
     private constructor() { // TODO: make this class only a holder of static methods and fields?
         this.errors = 0;

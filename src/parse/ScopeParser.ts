@@ -8,16 +8,16 @@
 
 import { CommonToken } from "antlr4ng";
 
-import { BaseRecognizer } from "../antlr3/BaseRecognizer.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 
+import { Constants } from "../Constants1.js";
 import { Character } from "../support/Character.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
-import { IAttribute } from "../tool/IAttribute.js";
 import { AttributeDict } from "../tool/AttributeDict.js";
 import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
+import { IAttribute } from "../tool/IAttribute.js";
 
 /**
  * Parse args, return values, locals
@@ -72,7 +72,7 @@ export class ScopeParser {
             return null;
         }
 
-        const attr = new Attribute();
+        const attr: IAttribute = {};
         let rightEdgeOfDeclarator = decl[0].length - 1;
         const equalsIndex = decl[0].indexOf("=");
         if (equalsIndex > 0) {
@@ -96,9 +96,9 @@ export class ScopeParser {
         const [idStart, idStop] = p;
         attr.decl = decl[0];
 
-        const actionText = action.getText()!;
-        const lines = new Int32Array(actionText.length);
-        const charPositionInLines = new Int32Array(actionText.length);
+        const actionText = action.getText();
+        const lines = new Array<number>(actionText.length);
+        const charPositionInLines = new Array<number>(actionText.length);
         for (let i = 0, line = 0, col = 0; i < actionText.length; i++, col++) {
             lines[i] = line;
             charPositionInLines[i] = col;
@@ -108,7 +108,7 @@ export class ScopeParser {
             }
         }
 
-        const charIndexes = new Int32Array(actionText.length);
+        const charIndexes = new Array<number>(actionText.length);
         for (let i = 0, j = 0; i < actionText.length; i++, j++) {
             charIndexes[j] = i;
             // skip comments
@@ -122,19 +122,19 @@ export class ScopeParser {
         const declOffset = charIndexes[decl[1]];
         const declLine = lines[declOffset + idStart];
 
-        const line = action.getToken()!.line + declLine;
+        const line = action.token!.line + declLine;
         let charPositionInLine = charPositionInLines[declOffset + idStart];
         if (declLine === 0) {
             /* offset for the start position of the ARG_ACTION token, plus 1
              * since the ARG_ACTION text had the leading '[' stripped before
              * reaching the scope parser.
              */
-            charPositionInLine += action.getToken()!.column + 1;
+            charPositionInLine += action.token!.column + 1;
         }
 
-        const offset = (action.getToken() as CommonToken).start;
-        attr.token = CommonToken.fromSource([null, action.getToken()!.inputStream], ANTLRv4Parser.ID,
-            BaseRecognizer.DEFAULT_TOKEN_CHANNEL, offset + declOffset + idStart + 1, offset + declOffset + idStop);
+        const offset = (action.token as CommonToken).start;
+        attr.token = CommonToken.fromSource([null, action.token!.inputStream], ANTLRv4Parser.ID,
+            Constants.DEFAULT_TOKEN_CHANNEL, offset + declOffset + idStart + 1, offset + declOffset + idStop);
         attr.token.line = line;
         attr.token.column = charPositionInLine;
 
@@ -165,7 +165,7 @@ export class ScopeParser {
         }
 
         if (start < 0) {
-            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token, decl);
+            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
         }
 
         // walk forward looking for end of an ID
@@ -194,7 +194,7 @@ export class ScopeParser {
 
         attr.type = attr.type.trim();
         if (attr.type.length === 0) {
-            attr.type = null;
+            attr.type = undefined;
         }
 
         return [start, stop];
@@ -217,7 +217,7 @@ export class ScopeParser {
 
         if (start === -1) {
             start = 0;
-            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token, decl);
+            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
         }
 
         // look for stop of name
@@ -249,7 +249,7 @@ export class ScopeParser {
         attr.type = attr.type.trim();
 
         if (attr.type.length === 0) {
-            attr.type = null;
+            attr.type = undefined;
         }
 
         return [start, stop];

@@ -11,7 +11,7 @@ import type { Token } from "antlr4ng";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
 
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
 import { Utils } from "../misc/Utils.js";
 import { Character } from "../support/Character.js";
 import { GrammarType } from "../support/GrammarType.js";
@@ -106,7 +106,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     }
 
     public process(): void {
-        this.visitGrammar(this.g.ast!);
+        this.visitGrammar(this.g.ast);
     };
 
     // Routines to route visitor traffic to the checking routines
@@ -137,7 +137,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
     public override modeDef(m: GrammarAST, id: GrammarAST): void {
         if (!this.g.isLexer()) {
-            ErrorManager.get().grammarError(ErrorType.MODE_NOT_IN_LEXER, this.g.fileName, id.token, id.token!.text,
+            ErrorManager.get().grammarError(ErrorType.MODE_NOT_IN_LEXER, this.g.fileName, id.token!, id.token!.text,
                 this.g);
         }
     }
@@ -169,15 +169,15 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     }
 
     public override grammarOption(id: GrammarAST, valueAST: GrammarAST): void {
-        this.checkOptions(this.g.ast!, id.token!, valueAST);
+        this.checkOptions(this.g.ast, id.token!, valueAST);
     }
 
     public override ruleOption(id: GrammarAST, valueAST: GrammarAST): void {
-        this.checkOptions(id.getAncestor(GrammarTreeVisitor.RULE) as GrammarAST, id.token!, valueAST);
+        this.checkOptions(id.getAncestor(ANTLRv4Parser.RULE) as GrammarAST, id.token!, valueAST);
     }
 
     public override blockOption(id: GrammarAST, valueAST: GrammarAST): void {
-        this.checkOptions(id.getAncestor(GrammarTreeVisitor.BLOCK) as GrammarAST, id.token!, valueAST);
+        this.checkOptions(id.getAncestor(ANTLRv4Parser.BLOCK) as GrammarAST, id.token!, valueAST);
     }
 
     public override defineToken(id: GrammarAST): void {
@@ -202,7 +202,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
             return;
         }
 
-        const blk = rule.getFirstChildWithType(ANTLRv4Parser.LPAREN) as BlockAST;
+        const blk = rule.getFirstChildWithType(ANTLRv4Parser.BLOCK) as BlockAST;
         const altCount = blk.getChildCount();
         const idAST = rule.getChild(0) as GrammarAST;
         for (let i = 0; i < altCount; i++) {
@@ -215,14 +215,14 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                 const r = this.ruleCollector.nameToRuleMap.get(Utils.decapitalize(altLabel));
                 if (r) {
                     ErrorManager.get().grammarError(ErrorType.ALT_LABEL_CONFLICTS_WITH_RULE, this.g.fileName,
-                        altAST.altLabel.token, altLabel, r.name);
+                        altAST.altLabel.token!, altLabel, r.name);
                 }
 
                 // Now verify that label X or x doesn't conflict with label
                 // in another rule. altLabelToRuleName has both X and x mapped.
                 const prevRuleForLabel = this.ruleCollector.altLabelToRuleName.get(altLabel);
                 if (prevRuleForLabel && prevRuleForLabel !== rule.getRuleName()) {
-                    ErrorManager.get().grammarError(ErrorType.ALT_LABEL_REDEF, this.g.fileName, altAST.altLabel.token,
+                    ErrorManager.get().grammarError(ErrorType.ALT_LABEL_REDEF, this.g.fileName, altAST.altLabel.token!,
                         altLabel, rule.getRuleName(), prevRuleForLabel);
                 }
             }
@@ -233,7 +233,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
         if (numAltLabels > 0 && altCount !== numAltLabels) {
             ErrorManager.get().grammarError(ErrorType.RULE_WITH_TOO_FEW_ALT_LABELS,
-                this.g.fileName, idAST.token, rule.getRuleName());
+                this.g.fileName, idAST.token!, rule.getRuleName());
         }
     }
 
@@ -241,7 +241,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         if (this.inFragmentRule) {
             const fileName = action.token!.inputStream!.getSourceName();
             const ruleName = this.currentRuleName;
-            ErrorManager.get().grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName, action.token, ruleName);
+            ErrorManager.get().grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName, action.token!, ruleName);
         }
     }
 
@@ -250,7 +250,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
             case ANTLRv4Parser.TOKEN_REF:
             case ANTLRv4Parser.STRING_LITERAL:
             case ANTLRv4Parser.RANGE:
-            //case ANTLRv4Parser.SET:
+            case ANTLRv4Parser.SET:
             case ANTLRv4Parser.NOT:
             case ANTLRv4Parser.RULE_REF:
             case ANTLRv4Parser.STAR: {
@@ -259,7 +259,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
             default: {
                 const fileName = id.token!.inputStream!.getSourceName();
-                ErrorManager.get().grammarError(ErrorType.LABEL_BLOCK_NOT_A_SET, fileName, id.token, id.getText());
+                ErrorManager.get().grammarError(ErrorType.LABEL_BLOCK_NOT_A_SET, fileName, id.token!, id.getText());
                 break;
             }
 
@@ -272,7 +272,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
     protected override exitMode(tree: GrammarAST): void {
         if (this.nonFragmentRuleCount === 0) {
-            let token = tree.getToken();
+            let token = tree.token!;
             let name = "?";
             if (tree.getChildCount() > 0) {
                 name = tree.getChild(0)?.getText() ?? "";
@@ -280,7 +280,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                     name = "?";
                 }
 
-                token = (tree.getChild(0) as GrammarAST).getToken();
+                token = (tree.getChild(0) as GrammarAST).token!;
             }
 
             ErrorManager.get().grammarError(ErrorType.MODE_WITHOUT_RULES, this.g.fileName, token, name, this.g);
@@ -298,7 +298,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                 ? ErrorType.CHANNELS_BLOCK_IN_COMBINED_GRAMMAR
                 : null;
         if (errorType !== null) {
-            ErrorManager.get().grammarError(errorType, this.g.fileName, tree.token);
+            ErrorManager.get().grammarError(errorType, this.g.fileName, tree.token!);
         }
     }
 
@@ -395,7 +395,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         if (this.inFragmentRule) {
             const fileName = tree.token?.inputStream?.getSourceName();
             const ruleName = this.currentRuleName;
-            ErrorManager.get().grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName ?? "<none>", tree.token,
+            ErrorManager.get().grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName ?? "<none>", tree.token!,
                 ruleName);
         }
     }
@@ -410,12 +410,12 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     protected checkElementIsOuterMostInSingleAlt(tree: GrammarAST): void {
         const alt = tree.parent!;
         const blk = alt.parent!;
-        const outerMostAlt = blk.parent!.getType() === GrammarTreeVisitor.RULE;
-        const rule = tree.getAncestor(GrammarTreeVisitor.RULE)!;
-        const fileName = tree.getToken()?.inputStream?.getSourceName();
+        const outerMostAlt = blk.parent!.getType() === ANTLRv4Parser.RULE;
+        const rule = tree.getAncestor(ANTLRv4Parser.RULE)!;
+        const fileName = tree.token?.inputStream?.getSourceName();
         if (!outerMostAlt || blk.getChildCount() > 1) {
             const e = ErrorType.LEXER_COMMAND_PLACEMENT_ISSUE;
-            ErrorManager.get().grammarError(e, fileName ?? "<none>", tree.getToken(), rule.getChild(0)!.getText());
+            ErrorManager.get().grammarError(e, fileName ?? "<none>", tree.token!, rule.getChild(0)!.getText());
 
         }
     }
@@ -423,7 +423,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     protected override enterTerminal(tree: GrammarAST): void {
         const text = tree.getText();
         if (text === "''") {
-            ErrorManager.get().grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, this.g.fileName, tree.token,
+            ErrorManager.get().grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, this.g.fileName, tree.token!,
                 "''");
         }
     }
@@ -433,17 +433,17 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         let optionsToCheck = null;
         const parentType = parent.getType();
         switch (parentType) {
-            case GrammarTreeVisitor.BLOCK: {
+            case ANTLRv4Parser.BLOCK: {
                 optionsToCheck = this.g.isLexer() ? Grammar.lexerBlockOptions : Grammar.parserBlockOptions;
                 break;
             }
 
-            case GrammarTreeVisitor.RULE: {
+            case ANTLRv4Parser.RULE: {
                 optionsToCheck = this.g.isLexer() ? Grammar.lexerRuleOptions : Grammar.parseRuleOptions;
                 break;
             }
 
-            case GrammarTreeVisitor.GRAMMAR: {
+            case ANTLRv4Parser.GRAMMAR: {
                 optionsToCheck = this.g.type === GrammarType.Lexer
                     ? Grammar.lexerOptions
                     : Grammar.parserOptions;
@@ -465,9 +465,9 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     /** Check option is appropriate for elem; parent of ID is ELEMENT_OPTIONS */
     protected checkElementOptions(elem: GrammarASTWithOptions, id: GrammarAST, valueAST: GrammarAST | null): boolean {
         if (this.checkAssocElementOption && id.getText() === "assoc") {
-            if (elem.getType() !== GrammarTreeVisitor.ALT) {
-                const optionID = id.token;
-                const fileName = optionID?.inputStream?.getSourceName();
+            if (elem.getType() !== ANTLRv4Parser.ALT) {
+                const optionID = id.token!;
+                const fileName = optionID.inputStream?.getSourceName();
                 ErrorManager.get().grammarError(ErrorType.UNRECOGNIZED_ASSOC_OPTION, fileName ?? "<none>", optionID,
                     this.currentRuleName);
             }
@@ -481,11 +481,11 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
             return this.checkTokenOptions(elem, id, valueAST);
         }
 
-        if (elem.getType() === GrammarTreeVisitor.ACTION) {
+        if (elem.getType() === ANTLRv4Parser.ACTION) {
             return false;
         }
 
-        if (elem.getType() === GrammarTreeVisitor.SEMPRED) {
+        if (elem.getType() === ANTLRv4Parser.SEMPRED) {
             const optionID = id.token!;
             const fileName = optionID.inputStream?.getSourceName();
             if (valueAST !== null && !Grammar.semPredOptions.has(optionID.text!)) {
@@ -562,7 +562,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                     }
                 }
             } else {
-                ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION_VALUE, this.g.fileName, valueAST.getToken(),
+                ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION_VALUE, this.g.fileName, valueAST.token!,
                     optionName, valueText);
             }
         }

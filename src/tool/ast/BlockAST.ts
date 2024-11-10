@@ -17,7 +17,7 @@ export class BlockAST extends GrammarASTWithOptions {
     public static readonly defaultLexerBlockOptions = new Map<string, string>();
 
     public constructor(node: BlockAST);
-    public constructor(t: Token);
+    public constructor(t: Token, text?: string);
     public constructor(type: number, t?: Token, text?: string);
     public constructor(...args: unknown[]) {
         if (args.length === 1) {
@@ -29,7 +29,15 @@ export class BlockAST extends GrammarASTWithOptions {
                 super(args[0] as Token); // or number, but that doesn't matter here.
             }
         } else {
-            const [type, t, text] = args as [number, Token | undefined, string | undefined];
+            let type;
+            let t;
+            let text;
+            if (typeof args[0] === "number") {
+                [type, t, text] = args as [number, Token | undefined, string | undefined];
+            } else {
+                [t, text] = args as [Token, string | undefined];
+                type = t.type;
+            }
             super(type, t, text);
         }
     }

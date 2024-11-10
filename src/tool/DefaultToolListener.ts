@@ -6,14 +6,11 @@
 
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
-import type { ErrorManager } from "./ErrorManager.js";
+import { ErrorManager } from "./ErrorManager.js";
 
 export class DefaultToolListener implements ANTLRToolListener {
-    public constructor(private manager: ErrorManager) {
-    }
-
     public info(msg: string): void {
-        if (this.manager.formatWantsSingleLineMessage()) {
+        if (ErrorManager.get().formatWantsSingleLineMessage()) {
             msg = msg.replace("\n", " ");
         }
 
@@ -21,10 +18,10 @@ export class DefaultToolListener implements ANTLRToolListener {
     }
 
     public error(msg: ANTLRMessage): void {
-        const msgST = this.manager.getMessageTemplate(msg);
+        const msgST = ErrorManager.get().getMessageTemplate(msg);
         if (msgST) {
             let outputMsg = msgST.render();
-            if (this.manager.formatWantsSingleLineMessage()) {
+            if (ErrorManager.get().formatWantsSingleLineMessage()) {
                 outputMsg = outputMsg.replace("\n", " ");
             }
 
@@ -33,10 +30,10 @@ export class DefaultToolListener implements ANTLRToolListener {
     }
 
     public warning(msg: ANTLRMessage): void {
-        const msgST = this.manager.getMessageTemplate(msg);
+        const msgST = ErrorManager.get().getMessageTemplate(msg);
         if (msgST) {
             let outputMsg = msgST.render();
-            if (this.manager.formatWantsSingleLineMessage()) {
+            if (ErrorManager.get().formatWantsSingleLineMessage()) {
                 outputMsg = outputMsg.replace("\n", " ");
             }
 

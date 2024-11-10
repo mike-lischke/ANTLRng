@@ -6,13 +6,15 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
+// cspell:ignore ruleref
+
 import { CharStream, CommonTokenStream, RecognitionException } from "antlr4ng";
 
+import { Constants } from "../Constants1.js";
 import { Tool } from "../Tool.js";
 import type { SupportedLanguage } from "../codegen/CodeGenerator.js";
-import { Constants } from "../constants.js";
 import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
-import { ANTLRv4Parser, type GrammarDeclContext } from "../generated/ANTLRv4Parser.js";
+import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
 import { ScopeParser } from "../parse/ScopeParser.js";
 import { ToolANTLRParser } from "../parse/ToolANTLRParser.js";
@@ -36,6 +38,7 @@ import { GrammarRootAST } from "../tool/ast/GrammarRootAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { LeftRecursiveRuleAltInfo } from "./LeftRecursiveRuleAltInfo.js";
 import { LeftRecursiveRuleAnalyzer } from "./LeftRecursiveRuleAnalyzer.js";
+import { ParseTreeToASTConverter } from "../support/ParseTreeToASTConverter.js";
 
 /**
  * Remove left-recursive rule refs, add precedence args to recursive rule refs.
@@ -57,7 +60,7 @@ export class LeftRecursiveRuleTransformer {
     }
 
     public translateLeftRecursiveRules(): void {
-        const language = this.g.getLanguage();
+        const language = this.g.getLanguage() ?? "Java";
 
         // translate all recursive rules
         const leftRecursiveRuleNames: string[] = [];
@@ -69,7 +72,7 @@ export class LeftRecursiveRuleTransformer {
                         leftRecursiveRuleNames.push(r.name);
                     } else { // better given an error that non-conforming left-recursion exists
                         ErrorManager.get().grammarError(ErrorType.NONCONFORMING_LR_RULE, this.g.fileName,
-                            (r.ast.getChild(0) as GrammarAST).token, r.name);
+                            (r.ast.getChild(0) as GrammarAST).token!, r.name);
                     }
                 }
             }
@@ -88,7 +91,7 @@ export class LeftRecursiveRuleTransformer {
             }
 
             // already has arg; must be in rewritten rule
-            if (leftRecursiveRuleNames.includes(rule.getText()!)) {
+            if (leftRecursiveRuleNames.includes(rule.getText())) {
                 // found ref to recursive rule not already rewritten with arg
                 rule.setOption(Constants.PRECEDENCE_OPTION_NAME,
                     new GrammarASTAdaptor().create(ANTLRv4Parser.INT, "0"));
@@ -97,10 +100,10 @@ export class LeftRecursiveRuleTransformer {
     }
 
     /** Return true if successful */
-    public translateLeftRecursiveRule(context: GrammarDeclContext, r: LeftRecursiveRule,
+    public translateLeftRecursiveRule(context: GrammarRootAST, r: LeftRecursiveRule,
         language: SupportedLanguage): boolean {
         const prevRuleAST = r.ast;
-        const ruleName = prevRuleAST.getChild(0)!.getText()!;
+        const ruleName = prevRuleAST.getChild(0)!.getText();
         const leftRecursiveRuleWalker = new LeftRecursiveRuleAnalyzer(prevRuleAST, this.tool, ruleName, language);
         let isLeftRec: boolean;
         try {
@@ -117,7 +120,7 @@ export class LeftRecursiveRuleTransformer {
         }
 
         // replace old rule's AST; first create text of altered rule
-        const rules = context.getFirstChildWithType(ANTLRv4Parser.RULE_REF) as GrammarAST;
+        const rules = context.getFirstChildWithType(ANTLRv4Parser.RULES) as GrammarAST;
         const newRuleText = leftRecursiveRuleWalker.getArtificialOpPrecRule();
 
         // now parse within the context of the grammar that originally created
@@ -131,7 +134,7 @@ export class LeftRecursiveRuleTransformer {
 
         // Reuse the name token from the original AST since it refers to the proper source location in the original
         // grammar.
-        (t.getChild(0) as GrammarAST).token = (prevRuleAST.getChild(0) as GrammarAST).getToken();
+        (t.getChild(0) as GrammarAST).token = (prevRuleAST.getChild(0) as GrammarAST).token;
 
         // update grammar AST and set rule's AST.
         rules.setChild(prevRuleAST.getChildIndex(), t);
@@ -143,20 +146,20 @@ export class LeftRecursiveRuleTransformer {
 
         // Rerun semantic checks on the new rule
         const ruleCollector = new RuleCollector(this.g);
-        // TODO: ruleCollector.visit(t, "ruleSpec");
+        ruleCollector.visit(t, ANTLRv4Parser.RULE_ruleSpec);
         const basics = new BasicSemanticChecks(this.g, ruleCollector);
         // disable the assoc element option checks because they are already
         // handled for the pre-transformed rule.
         basics.checkAssocElementOption = false;
 
-        // TODO: basics.visit(t, "ruleSpec");
+        basics.visit(t, ANTLRv4Parser.RULE_ruleSpec);
 
         // track recursive alt info for codegen
         r.recPrimaryAlts = new Array<LeftRecursiveRuleAltInfo>();
         r.recPrimaryAlts.push(...leftRecursiveRuleWalker.prefixAndOtherAlts);
         if (r.recPrimaryAlts.length === 0) {
             ErrorManager.get().grammarError(ErrorType.NO_NON_LR_ALTS, this.g.fileName,
-                (r.ast.getChild(0) as GrammarAST).getToken(), r.name);
+                (r.ast.getChild(0) as GrammarAST).token!, r.name);
         }
 
         r.recOpAlts = new Map<number, LeftRecursiveRuleAltInfo>();
@@ -179,7 +182,7 @@ export class LeftRecursiveRuleTransformer {
         // update Rule to just one alt and add prec alt
         const arg = r.ast.getFirstChildWithType(ANTLRv4Parser.BEGIN_ARGUMENT) as ActionAST | null;
         if (arg !== null) {
-            r.args = ScopeParser.parseTypedArgList(arg, arg.getText()!, this.g);
+            r.args = ScopeParser.parseTypedArgList(arg, arg.getText(), this.g);
             r.args.type = DictType.Argument;
             r.args.ast = arg;
             arg.resolver = r.alt[1]; // todo: isn't this Rule or something?
@@ -191,7 +194,7 @@ export class LeftRecursiveRuleTransformer {
             const labelOpNode = ast.getParent() as GrammarAST;
             const elementNode = labelOpNode.getChild(1) as GrammarAST;
             const lp = new LabelElementPair(this.g, ast, elementNode, labelOpNode.getType());
-            r.alt[1].labelDefs.set(ast.getText()!, [lp]);
+            r.alt[1].labelDefs.set(ast.getText(), [lp]);
         }
         // copy to rule from walker
         r.leftRecursiveRuleRefLabels = leftRecursiveRuleWalker.leftRecursiveRuleRefLabels;
@@ -204,20 +207,21 @@ export class LeftRecursiveRuleTransformer {
     public parseArtificialRule(g: Grammar, ruleText: string): RuleAST | undefined {
         const stream = CharStream.fromString(ruleText);
         const lexer = new ANTLRv4Lexer(stream);
-        const adaptor = new GrammarASTAdaptor(stream);
+        const adaptor = new GrammarASTAdaptor(lexer.inputStream);
         const tokens = new CommonTokenStream(lexer);
-        //lexer.tokens = tokens;
         const p = new ToolANTLRParser(tokens, this.tool);
-        //p.setTreeAdaptor(adaptor);
         const ruleStart = null;
-        try {
-            /*const r = p.rule();
-            const tree = r.getTree() as RuleAST;
-            ruleStart = r.getStart() as Token;
-            GrammarTransformPipeline.setGrammarPtr(g, tree);
-            GrammarTransformPipeline.augmentTokensWithOriginalPosition(g, tree);
 
-            return tree;*/
+        try {
+            const r = p.ruleSpec();
+            const root = new GrammarAST();
+            ParseTreeToASTConverter.convertRuleSpecToAST(r, root, adaptor);
+            const ruleAST = root.getChild(0) as RuleAST;
+
+            GrammarTransformPipeline.setGrammarPtr(g, ruleAST);
+            GrammarTransformPipeline.augmentTokensWithOriginalPosition(g, ruleAST);
+
+            return ruleAST;
         } catch (e) {
             ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, e, ruleStart,
                 "error parsing rule created during left-recursion detection: " + ruleText);

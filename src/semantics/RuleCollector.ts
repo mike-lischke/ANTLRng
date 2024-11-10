@@ -20,6 +20,7 @@ import { DictType } from "../tool/DictType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LeftRecursiveRule } from "../tool/LeftRecursiveRule.js";
 import { Rule } from "../tool/Rule.js";
+import type { GrammarRootAST } from "../tool/ast/GrammarRootAST.js";
 
 export class RuleCollector extends GrammarTreeVisitor {
 
@@ -38,7 +39,7 @@ export class RuleCollector extends GrammarTreeVisitor {
         this.g = g;
     }
 
-    public process(ast: GrammarAST): void {
+    public process(ast: GrammarRootAST): void {
         this.visitGrammar(ast);
     }
 
@@ -47,28 +48,28 @@ export class RuleCollector extends GrammarTreeVisitor {
         actions: GrammarAST[], block: GrammarAST): void {
         const numAlts = block.getChildCount();
         let r: Rule;
-        if (LeftRecursiveRuleAnalyzer.hasImmediateRecursiveRuleRefs(rule, id.getText()!)) {
-            r = new LeftRecursiveRule(this.g, id.getText()!, rule);
+        if (LeftRecursiveRuleAnalyzer.hasImmediateRecursiveRuleRefs(rule, id.getText())) {
+            r = new LeftRecursiveRule(this.g, id.getText(), rule);
         } else {
-            r = new Rule(this.g, id.getText()!, rule, numAlts);
+            r = new Rule(this.g, id.getText(), rule, numAlts);
         }
         this.nameToRuleMap.set(r.name, r);
 
         if (arg !== null) {
-            r.args = ScopeParser.parseTypedArgList(arg, arg.getText()!, this.g);
+            r.args = ScopeParser.parseTypedArgList(arg, arg.getText(), this.g);
             r.args.type = DictType.Argument;
             r.args.ast = arg;
             arg.resolver = r.alt[this.currentOuterAltNumber];
         }
 
         if (returns !== null) {
-            r.retvals = ScopeParser.parseTypedArgList(returns, returns.getText()!, this.g);
+            r.retvals = ScopeParser.parseTypedArgList(returns, returns.getText(), this.g);
             r.retvals.type = DictType.Return;
             r.retvals.ast = returns;
         }
 
         if (locals !== null) {
-            r.locals = ScopeParser.parseTypedArgList(locals, locals.getText()!, this.g);
+            r.locals = ScopeParser.parseTypedArgList(locals, locals.getText(), this.g);
             r.locals.type = DictType.Local;
             r.locals.ast = locals;
         }
@@ -76,7 +77,7 @@ export class RuleCollector extends GrammarTreeVisitor {
         for (const a of actions) {
             // a = ^(AT ID ACTION)
             const action = a.getChild(1) as ActionAST;
-            r.namedActions.set(a.getChild(0)!.getText()!, action);
+            r.namedActions.set(a.getChild(0)!.getText(), action);
             action.resolver = r;
         }
     }
@@ -84,7 +85,7 @@ export class RuleCollector extends GrammarTreeVisitor {
     public override discoverOuterAlt(alt: AltAST): void {
         if (alt.altLabel) {
             this.ruleToAltLabels.map(this.currentRuleName!, alt.altLabel);
-            const altLabel = alt.altLabel.getText()!;
+            const altLabel = alt.altLabel.getText();
             this.altLabelToRuleName.set(Utils.capitalize(altLabel), this.currentRuleName!);
             this.altLabelToRuleName.set(Utils.decapitalize(altLabel), this.currentRuleName!);
         }
@@ -112,7 +113,7 @@ export class RuleCollector extends GrammarTreeVisitor {
         }
 
         const numAlts = block.getChildCount();
-        const r = new Rule(this.g, id.getText()!, rule, numAlts, this.currentModeName!, currentCaseInsensitive);
+        const r = new Rule(this.g, id.getText(), rule, numAlts, this.currentModeName!, currentCaseInsensitive);
         if (modifiers.length != 0) {
             r.modifiers = modifiers;
         }
@@ -123,7 +124,7 @@ export class RuleCollector extends GrammarTreeVisitor {
     private getCaseInsensitiveValue(optionID: GrammarAST, valueAST: GrammarAST): boolean | null {
         const optionName = optionID.getText();
         if (optionName === Grammar.caseInsensitiveOptionName) {
-            const valueText = valueAST.getText()!;
+            const valueText = valueAST.getText();
             if (valueText === "true") {
                 return true;
             }

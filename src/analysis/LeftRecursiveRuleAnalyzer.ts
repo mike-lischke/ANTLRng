@@ -9,20 +9,20 @@
 import { CommonToken, IntervalSet, type TokenStream } from "antlr4ng";
 import { STGroupFile, type STGroup } from "stringtemplate4ts";
 
-import { CommonTreeNodeStream } from "../antlr3/tree/CommonTreeNodeStream.js";
-import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
-import { LeftRecursiveRuleWalker } from "../tree-walkers/LeftRecursiveRuleWalker.js";
+import { Constants } from "../Constants1.js";
 import { Tool } from "../Tool.js";
+import { CommonTreeNodeStream } from "../antlr3/tree/CommonTreeNodeStream.js";
 import { CodeGenerator, type SupportedLanguage } from "../codegen/CodeGenerator.js";
+import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { AltAST } from "../tool/ast/AltAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
 import { RuleRefAST } from "../tool/ast/RuleRefAST.js";
+import { LeftRecursiveRuleWalker } from "../tree-walkers/LeftRecursiveRuleWalker.js";
 import { LeftRecursiveRuleAltInfo } from "./LeftRecursiveRuleAltInfo.js";
-import { LeftRecursiveRuleTransformer } from "./LeftRecursiveRuleTransformer.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 
 enum Associativity {
     Left = "left",
@@ -42,7 +42,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
     public prefixAndOtherAlts = new Array<LeftRecursiveRuleAltInfo>();
 
     /** Pointer to ID node of ^(= ID element) */
-    public leftRecursiveRuleRefLabels = new Array<[GrammarAST, string]>();
+    public leftRecursiveRuleRefLabels = new Array<[GrammarAST, string | undefined]>();
 
     /** Tokens from which rule AST comes from */
     public readonly tokenStream: TokenStream;
@@ -53,8 +53,8 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public altAssociativity = new Map<number, Associativity>();
 
-    static readonly #templateGroupFile = "../../templates/LeftRecursiveRules.stg";
-    static readonly #recRuleTemplates = new STGroupFile(LeftRecursiveRuleAnalyzer.#templateGroupFile);
+    static readonly #templateGroupFile = new URL("../../templates/LeftRecursiveRules.stg", import.meta.url);
+    static readonly #recRuleTemplates = new STGroupFile(LeftRecursiveRuleAnalyzer.#templateGroupFile.pathname);
 
     public constructor(ruleAST: GrammarAST, tool: Tool, ruleName: string, language: SupportedLanguage) {
         super(new CommonTreeNodeStream(new GrammarASTAdaptor(ruleAST.token!.inputStream ?? undefined), ruleAST));
@@ -72,7 +72,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
      * Match (RULE RULE_REF (BLOCK (ALT .*) (ALT (ASSIGN ID RULE_REF[self]) .*) (ALT .*)))
      */
     public static hasImmediateRecursiveRuleRefs(t: GrammarAST, ruleName: string): boolean {
-        const blk = t.getFirstChildWithType(LeftRecursiveRuleAnalyzer.BLOCK) as GrammarAST | null;
+        const blk = t.getFirstChildWithType(ANTLRv4Parser.BLOCK) as GrammarAST | null;
         if (blk === null) {
             return false;
         }
@@ -85,18 +85,18 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
                 continue;
             }
 
-            if (first.getType() === LeftRecursiveRuleAnalyzer.ELEMENT_OPTIONS) {
+            if (first.getType() === ANTLRv4Parser.ELEMENT_OPTIONS) {
                 first = alt.getChild(1);
                 if (first === null) {
                     continue;
                 }
             }
-            if (first.getType() === LeftRecursiveRuleAnalyzer.RULE_REF && first.getText() === ruleName) {
+            if (first.getType() === ANTLRv4Parser.RULE_REF && first.getText() === ruleName) {
                 return true;
             }
 
             const ruleRef = first.getChild(1);
-            if (ruleRef !== null && ruleRef.getType() === LeftRecursiveRuleAnalyzer.RULE_REF &&
+            if (ruleRef !== null && ruleRef.getType() === ANTLRv4Parser.RULE_REF &&
                 ruleRef.getText() === ruleName) {
                 return true;
             }
@@ -121,7 +121,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
                     assoc = Associativity.Left;
                 } else {
                     ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION_VALUE, t.g.fileName,
-                        t.getOptionAST("assoc")!.getToken(), "assoc", assoc);
+                        t.getOptionAST("assoc")!.token!, "assoc", assoc);
                 }
             }
         }
@@ -135,14 +135,14 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public override binaryAlt(originalAltTree: AltAST, alt: number): void {
         let altTree = originalAltTree.dupTree() as AltAST;
-        const altLabel = altTree.altLabel!.getText()!;
+        const altLabel = altTree.altLabel!.getText();
 
         let label: string | undefined;
         let isListLabel = false;
         const lrLabel = this.stripLeftRecursion(altTree);
         if (lrLabel) {
-            label = lrLabel.getText() ?? undefined;
-            isListLabel = lrLabel.getParent()?.getType() === LeftRecursiveRuleAnalyzer.PLUS_ASSIGN;
+            label = lrLabel.getText();
+            isListLabel = lrLabel.getParent()?.getType() === ANTLRv4Parser.PLUS_ASSIGN;
             this.leftRecursiveRuleRefLabels.push([lrLabel, altLabel]);
         }
 
@@ -178,14 +178,14 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public override suffixAlt(originalAltTree: AltAST, alt: number): void {
         const altTree = originalAltTree.dupTree() as AltAST;
-        const altLabel = altTree.altLabel!.getText()!;
+        const altLabel = altTree.altLabel?.getText();
 
         let label: string | undefined;
         let isListLabel = false;
         const lrLabel = this.stripLeftRecursion(altTree);
         if (lrLabel) {
-            label = lrLabel.getText() ?? undefined;
-            isListLabel = lrLabel.getParent()?.getType() === LeftRecursiveRuleAnalyzer.PLUS_ASSIGN;
+            label = lrLabel.getText();
+            isListLabel = lrLabel.getParent()?.getType() === ANTLRv4Parser.PLUS_ASSIGN;
             this.leftRecursiveRuleRefLabels.push([lrLabel, altLabel]);
         }
         this.stripAltLabel(altTree);
@@ -237,7 +237,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
             predST.add("ruleName", this.ruleName);
             altST.add("pred", predST);
             altST.add("alt", altInfo);
-            altST.add("precOption", LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME);
+            altST.add("precOption", Constants.PRECEDENCE_OPTION_NAME);
             altST.add("opPrec", this.precedence(alt));
             ruleST.add("opAlts", altST);
         }
@@ -252,15 +252,15 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public addPrecedenceArgToRules(t: AltAST, prec: number): AltAST {
         // get all top-level rule refs from ALT
-        const outerAltRuleRefs = t.getNodesWithTypePreorderDFS(IntervalSet.of(LeftRecursiveRuleAnalyzer.RULE_REF,
-            LeftRecursiveRuleAnalyzer.RULE_REF));
+        const outerAltRuleRefs = t.getNodesWithTypePreorderDFS(IntervalSet.of(ANTLRv4Parser.RULE_REF,
+            ANTLRv4Parser.RULE_REF));
         for (const x of outerAltRuleRefs) {
             const ruleRef = x as RuleRefAST;
             const recursive = ruleRef.getText() === this.ruleName;
             const rightmost = ruleRef === outerAltRuleRefs[outerAltRuleRefs.length - 1];
             if (recursive && rightmost) {
                 const dummyValueNode = new GrammarAST(CommonToken.fromType(ANTLRv4Parser.INT, "" + prec));
-                ruleRef.setOption(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME, dummyValueNode);
+                ruleRef.setOption(Constants.PRECEDENCE_OPTION_NAME, dummyValueNode);
             }
         }
 
@@ -274,16 +274,16 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         let lrLabel: GrammarAST | undefined;
         let first = altAST.getChild(0) as GrammarAST;
         let leftRecurRuleIndex = 0;
-        if (first.getType() === LeftRecursiveRuleAnalyzer.ELEMENT_OPTIONS) {
+        if (first.getType() === ANTLRv4Parser.ELEMENT_OPTIONS) {
             first = altAST.getChild(1) as GrammarAST;
             leftRecurRuleIndex = 1;
         }
         const rRef = first.getChild(1); // if label=rule
-        if ((first.getType() === LeftRecursiveRuleAnalyzer.RULE_REF && first.getText() === this.ruleName)
-            || (rRef !== null && rRef.getType() === LeftRecursiveRuleAnalyzer.RULE_REF
+        if ((first.getType() === ANTLRv4Parser.RULE_REF && first.getText() === this.ruleName)
+            || (rRef !== null && rRef.getType() === ANTLRv4Parser.RULE_REF
                 && rRef.getText() === this.ruleName)) {
-            if (first.getType() === LeftRecursiveRuleAnalyzer.ASSIGN
-                || first.getType() === LeftRecursiveRuleAnalyzer.PLUS_ASSIGN) {
+            if (first.getType() === ANTLRv4Parser.ASSIGN
+                || first.getType() === ANTLRv4Parser.PLUS_ASSIGN) {
                 lrLabel = first.getChild(0) as GrammarAST;
             }
 
@@ -306,7 +306,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
         // find =>
         for (let i = stop; i >= start; i--) {
-            if (this.tokenStream.get(i).type === LeftRecursiveRuleAnalyzer.POUND) {
+            if (this.tokenStream.get(i).type === ANTLRv4Parser.POUND) {
                 altAST.setTokenStopIndex(i - 1);
 
                 return;
@@ -324,7 +324,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         // element options are added back according to the values in the map
         // returned by getOptions().
         const ignore = new IntervalSet();
-        const optionsSubTrees = t.getNodesWithType(LeftRecursiveRuleAnalyzer.ELEMENT_OPTIONS);
+        const optionsSubTrees = t.getNodesWithType(ANTLRv4Parser.ELEMENT_OPTIONS);
         for (const sub of optionsSubTrees) {
             ignore.addRange(sub.getTokenStartIndex(), sub.getTokenStopIndex());
         }
@@ -333,8 +333,8 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         // but do not support the ELEMENT_OPTIONS syntax. Make sure to not try
         // and add the tokenIndex option when writing these tokens.
         const noOptions = new IntervalSet();
-        const labeledSubTrees = t.getNodesWithType(IntervalSet.of(LeftRecursiveRuleAnalyzer.ASSIGN,
-            LeftRecursiveRuleAnalyzer.PLUS_ASSIGN));
+        const labeledSubTrees = t.getNodesWithType(IntervalSet.of(ANTLRv4Parser.PLUS_ASSIGN,
+            ANTLRv4Parser.PLUS_ASSIGN));
         for (const sub of labeledSubTrees) {
             noOptions.addOne(sub.getChild(0)!.getTokenStartIndex());
         }
@@ -354,9 +354,9 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
             if (!noOptions.contains(i)) {
                 const node = t.getNodeWithTokenIndex(tok.tokenIndex);
                 if (node !== null &&
-                    (tok.type === LeftRecursiveRuleAnalyzer.TOKEN_REF ||
-                        tok.type === LeftRecursiveRuleAnalyzer.STRING_LITERAL ||
-                        tok.type === LeftRecursiveRuleAnalyzer.RULE_REF)) {
+                    (tok.type === ANTLRv4Parser.TOKEN_REF ||
+                        tok.type === ANTLRv4Parser.STRING_LITERAL ||
+                        tok.type === ANTLRv4Parser.RULE_REF)) {
                     elementOptions += "tokenIndex=" + tok.tokenIndex;
                 }
 
@@ -378,8 +378,8 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
             i++; // move to the next token
 
             // Are there args on a rule?
-            if (tok.type === LeftRecursiveRuleAnalyzer.RULE_REF && i <= tokenStopIndex
-                && this.tokenStream.get(i).type === LeftRecursiveRuleAnalyzer.ARG_ACTION) {
+            if (tok.type === ANTLRv4Parser.RULE_REF && i <= tokenStopIndex
+                && this.tokenStream.get(i).type === ANTLRv4Parser.ARG_ACTION) {
                 result += "[" + this.tokenStream.get(i).text + "]";
                 i++;
             }

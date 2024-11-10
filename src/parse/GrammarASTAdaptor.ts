@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { CommonToken, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
+import { CommonToken, type CharStream, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
 
 import { CommonTreeAdaptor } from "../antlr3/tree/CommonTreeAdaptor.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
@@ -17,7 +17,15 @@ import { TerminalAST } from "../tool/ast/TerminalAST.js";
 import type { IGrammarASTAdaptor } from "../types.js";
 
 export class GrammarASTAdaptor extends CommonTreeAdaptor implements IGrammarASTAdaptor {
-    public override create(token?: Token): GrammarAST;
+    private inputStream?: CharStream;
+
+    public constructor(inputStream?: CharStream) {
+        super();
+
+        this.inputStream = inputStream;
+    }
+
+    public override create(token: Token): GrammarAST;
     public override create(tokenType: number, text: string): GrammarAST;
     public override create(tokenType: number, fromToken: Token, text?: string): GrammarAST;
     public override create(...args: unknown[]): GrammarAST {
@@ -44,6 +52,8 @@ export class GrammarASTAdaptor extends CommonTreeAdaptor implements IGrammarASTA
                 }
             }
 
+            t.token!.inputStream = this.inputStream ?? null;
+
             return t;
         }
 
@@ -60,8 +70,8 @@ export class GrammarASTAdaptor extends CommonTreeAdaptor implements IGrammarASTA
     }
 
     static {
-        ClassFactory.createGrammarASTAdaptor = () => {
-            return new GrammarASTAdaptor();
+        ClassFactory.createGrammarASTAdaptor = (input?: CharStream) => {
+            return new GrammarASTAdaptor(input);
         };
     }
 }

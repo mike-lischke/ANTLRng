@@ -36,9 +36,8 @@ export class TreeVisitor {
      */
     public visit(t: CommonTree, action?: TreeVisitorAction<CommonTree>): CommonTree {
         const isNil = t.isNil();
-        let result: CommonTree = t;
         if (action && !isNil) {
-            result = action.pre(t); // if rewritten, walk children of new t
+            t = action.pre(t); // if rewritten, walk children of new t
         }
 
         for (let i = 0; i < t.getChildCount(); i++) {
@@ -51,9 +50,9 @@ export class TreeVisitor {
         }
 
         if (action && !isNil) {
-            result = action.post(t);
+            t = action.post(t);
         }
 
-        return result;
+        return t;
     }
 }

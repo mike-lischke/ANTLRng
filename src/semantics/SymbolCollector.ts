@@ -6,14 +6,13 @@
 
 /* eslint-disable jsdoc/require-param */
 
-import { HashSet } from "antlr4ng";
-
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
 
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { AltAST } from "../tool/ast/AltAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
+import type { GrammarRootAST } from "../tool/ast/GrammarRootAST.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
@@ -35,7 +34,7 @@ export class SymbolCollector extends GrammarTreeVisitor {
     public qualifiedRuleRefs = new Array<GrammarAST>();
     public terminals = new Array<GrammarAST>();
     public tokenIDRefs = new Array<GrammarAST>();
-    public strings = new HashSet<string>();
+    public strings = new Set<string>();
     public tokensDefs = new Array<GrammarAST>();
     public channelDefs = new Array<GrammarAST>();
 
@@ -52,7 +51,7 @@ export class SymbolCollector extends GrammarTreeVisitor {
     }
 
     public process(ast: GrammarAST): void {
-        this.visitGrammar(ast);
+        this.visitGrammar(ast as GrammarRootAST);
     }
 
     public override globalNamedAction(scope: GrammarAST, id: GrammarAST, action: ActionAST): void {
@@ -74,12 +73,12 @@ export class SymbolCollector extends GrammarTreeVisitor {
     public override discoverRule(rule: RuleAST, id: GrammarAST, modifiers: GrammarAST[], arg: ActionAST,
         returns: ActionAST, throws: GrammarAST, options: GrammarAST, locals: ActionAST, actions: GrammarAST[],
         block: GrammarAST): void {
-        this.currentRule = this.g.getRule(id.getText()!);
+        this.currentRule = this.g.getRule(id.getText());
     }
 
     public override discoverLexerRule(rule: RuleAST, id: GrammarAST, modifiers: GrammarAST[], options: GrammarAST,
         block: GrammarAST): void {
-        this.currentRule = this.g.getRule(id.getText()!);
+        this.currentRule = this.g.getRule(id.getText());
     }
 
     public override discoverOuterAlt(alt: AltAST): void {
@@ -110,23 +109,23 @@ export class SymbolCollector extends GrammarTreeVisitor {
     public override label(op: GrammarAST, id: GrammarAST, element: GrammarAST): void {
         const lp = new LabelElementPair(this.g, id, element, op.getType());
 
-        const list = this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.get(id.getText()!);
+        const list = this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.get(id.getText());
         if (list) {
             list.push(lp);
         } else {
-            this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.set(id.getText()!, [lp]);
+            this.currentRule!.alt[this.currentOuterAltNumber].labelDefs.set(id.getText(), [lp]);
         }
     }
 
     public override stringRef(ref: TerminalAST): void {
         this.terminals.push(ref);
-        this.strings.add(ref.getText()!);
+        this.strings.add(ref.getText());
         if (this.currentRule) {
-            const list = this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.get(ref.getText()!);
+            const list = this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.get(ref.getText());
             if (list) {
                 list.push(ref);
             } else {
-                this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.set(ref.getText()!, [ref]);
+                this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.set(ref.getText(), [ref]);
             }
         }
     }
@@ -135,11 +134,11 @@ export class SymbolCollector extends GrammarTreeVisitor {
         this.terminals.push(ref);
         this.tokenIDRefs.push(ref);
         if (this.currentRule) {
-            const list = this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.get(ref.getText()!);
+            const list = this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.get(ref.getText());
             if (list) {
                 list.push(ref);
             } else {
-                this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.set(ref.getText()!, [ref]);
+                this.currentRule.alt[this.currentOuterAltNumber].tokenRefs.set(ref.getText(), [ref]);
             }
         }
     }
@@ -147,11 +146,11 @@ export class SymbolCollector extends GrammarTreeVisitor {
     public override ruleRef(ref: GrammarAST, arg: ActionAST): void {
         this.ruleRefs.push(ref);
         if (this.currentRule !== null) {
-            const list = this.currentRule.alt[this.currentOuterAltNumber].ruleRefs.get(ref.getText()!,);
+            const list = this.currentRule.alt[this.currentOuterAltNumber].ruleRefs.get(ref.getText(),);
             if (list) {
                 list.push(ref);
             } else {
-                this.currentRule.alt[this.currentOuterAltNumber].ruleRefs.set(ref.getText()!, [ref]);
+                this.currentRule.alt[this.currentOuterAltNumber].ruleRefs.set(ref.getText(), [ref]);
             }
         }
     }

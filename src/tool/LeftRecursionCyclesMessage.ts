@@ -16,13 +16,13 @@ export class LeftRecursionCyclesMessage extends ANTLRMessage {
         this.fileName = fileName;
     }
 
-    protected static getStartTokenOfFirstRule(cycles: Rule[][]): Token | null {
+    protected static getStartTokenOfFirstRule(cycles: Rule[][]): Token | undefined {
         for (const collection of cycles) {
             for (const rule of collection) {
-                return rule.ast.getToken();
+                return rule.ast.token;
             }
         }
 
-        return null;
+        return undefined;
     }
 }

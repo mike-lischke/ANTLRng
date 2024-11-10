@@ -41,7 +41,7 @@ export class CommonTreeAdaptor extends BaseTreeAdaptor {
     public override create(tokenType: number, text: string): CommonTree;
     public override create(tokenType: number, fromToken: Token, text?: string): CommonTree;
     public override create(...args: unknown[]): CommonTree {
-        if (args.length === 1) {
+        if (args.length < 2) {
             const [payload] = args as [Token | undefined];
 
             return new CommonTree(payload);

@@ -19,7 +19,7 @@ import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
 import { ClassFactory } from "../ClassFactory.js";
 
 import { targetLanguages, type SupportedLanguage } from "../codegen/CodeGenerator.js";
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
 
 import { CharSupport } from "../misc/CharSupport.js";
 import { Utils } from "../misc/Utils.js";
@@ -28,8 +28,15 @@ import { TokenVocabParser } from "../parse/TokenVocabParser.js";
 import { GrammarType } from "../support/GrammarType.js";
 import type { IGrammar, ITool } from "../types.js";
 
+import { TreeVisitor } from "../antlr3/tree/TreeVisitor.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
+import type { ActionAST } from "./ast/ActionAST.js";
+import type { GrammarAST } from "./ast/GrammarAST.js";
+import type { GrammarASTWithOptions } from "./ast/GrammarASTWithOptions.js";
+import type { GrammarRootAST } from "./ast/GrammarRootAST.js";
+import type { PredAST } from "./ast/PredAST.js";
+import type { TerminalAST } from "./ast/TerminalAST.js";
 import type { AttributeDict } from "./AttributeDict.js";
 import type { AttributeResolver } from "./AttributeResolver.js";
 import { ErrorManager } from "./ErrorManager.js";
@@ -38,12 +45,7 @@ import type { GrammarParserInterpreter } from "./GrammarParserInterpreter.js";
 import type { IAttribute } from "./IAttribute.js";
 import type { LexerGrammar } from "./LexerGrammar.js";
 import type { Rule } from "./Rule.js";
-import type { ActionAST } from "./ast/ActionAST.js";
-import type { GrammarAST } from "./ast/GrammarAST.js";
-import type { GrammarASTWithOptions } from "./ast/GrammarASTWithOptions.js";
-import type { GrammarRootAST } from "./ast/GrammarRootAST.js";
-import type { PredAST } from "./ast/PredAST.js";
-import type { TerminalAST } from "./ast/TerminalAST.js";
+import type { CommonTree } from "../tree/CommonTree.js";
 
 export class Grammar implements IGrammar, AttributeResolver {
     /**
@@ -127,7 +129,7 @@ export class Grammar implements IGrammar, AttributeResolver {
      * Was this parser grammar created from a COMBINED grammar?  If so,
      *  this is what we extracted.
      */
-    public implicitLexer: LexerGrammar;
+    public implicitLexer: LexerGrammar | undefined;
 
     /** If this is an extracted/implicit lexer, we point at original grammar */
     public originalGrammar: Grammar | null = null;
@@ -239,7 +241,7 @@ export class Grammar implements IGrammar, AttributeResolver {
      */
     #atn?: ATN;
 
-    public constructor(tool: ITool, context: GrammarRootAST);
+    public constructor(tool: ITool, ast: GrammarRootAST);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
     public constructor(grammarText: string, listener?: ANTLRToolListener);
     /** For testing; builds trees, does sem anal */
@@ -309,18 +311,17 @@ export class Grammar implements IGrammar, AttributeResolver {
             this.originalTokenStream = this.tokenStream;
 
             // ensure each node has pointer to surrounding grammar
-            // TODO: do we need this?
-            /*const v = new TreeVisitor();
-            v.visit(this.parseTree, {
-                pre: (t): ParserRuleContext | null => {
-                    // TODO: (t as GrammarAST).g = this;
+            const v = new TreeVisitor();
+            v.visit(this.ast, {
+                pre: (t): CommonTree => {
+                    (t as GrammarAST).g = this;
 
                     return t;
                 },
-                post: (t: ParserRuleContext): ParserRuleContext => {
+                post: (t: CommonTree): CommonTree => {
                     return t;
                 },
-            });*/
+            });
             this.initTokenSymbolTables();
 
             if (tokenVocabSource) {
@@ -395,7 +396,7 @@ export class Grammar implements IGrammar, AttributeResolver {
             "(RULE %name:TOKEN_REF (BLOCK (LEXER_ALT_ACTION (ALT %lit:STRING_LITERAL) (LEXER_ACTION_CALL . .) .)))",
             // TODO: allow doc comment in there
         ];
-        const adaptor = ClassFactory.createGrammarASTAdaptor(ast.token!.inputStream ?? undefined);
+        const adaptor = ClassFactory.createGrammarASTAdaptor(ast.token!.inputStream!);
         const wiz = new TreeWizard(adaptor, ANTLRv4Parser.symbolicNames);
         const lexerRuleToStringLiteral = new Array<[GrammarAST, GrammarAST]>();
 
@@ -616,10 +617,6 @@ export class Grammar implements IGrammar, AttributeResolver {
 
     public getImportedGrammars(): Grammar[] {
         return this.importedGrammars;
-    }
-
-    public getImplicitLexer(): LexerGrammar {
-        return this.implicitLexer;
     }
 
     /**
@@ -1241,13 +1238,13 @@ export class Grammar implements IGrammar, AttributeResolver {
         return ANTLRv4Parser.symbolicNames[this.type]!.toLowerCase();
     }
 
-    public getLanguage(): SupportedLanguage {
-        const language = this.getOptionString("language");
-        if (language || !targetLanguages.includes(language as SupportedLanguage)) {
+    public getLanguage(): SupportedLanguage | undefined {
+        const language = this.getOptionString("language") as SupportedLanguage | undefined;
+        if (language && !targetLanguages.includes(language)) {
             throw new Error("Unsupported language: " + language);
         }
 
-        return language as SupportedLanguage;
+        return language!;
     }
 
     public getOptionString(key: string): string | undefined {
@@ -1277,7 +1274,7 @@ export class Grammar implements IGrammar, AttributeResolver {
         }
 
         if (this.isCombined()) {
-            return this.implicitLexer.createLexerInterpreter(input);
+            return this.implicitLexer!.createLexerInterpreter(input);
         }
 
         const allChannels: string[] = [];

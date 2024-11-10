@@ -6,8 +6,8 @@
 
 /* eslint-disable jsdoc/require-returns */
 
+import type { CommonTree } from "../../tree/CommonTree.js";
 import { RewriteRuleElementStream } from "./RewriteRuleElementStream.js";
-import type { Tree } from "./Tree.js";
 
 export class RewriteRuleSubtreeStream extends RewriteRuleElementStream {
 
@@ -25,7 +25,7 @@ export class RewriteRuleSubtreeStream extends RewriteRuleElementStream {
      *  a proper way to refactor.  This needs to always call dup node
      *  and super.next() doesn't know which to call: dup node or dup tree.
      */
-    public nextNode(): Tree {
+    public nextNode(): CommonTree {
         const n = this.size();
         if (this.dirty || (this.cursor >= n && n === 1)) {
             // if out of elements and size is 1, dup (at most a single node
@@ -37,15 +37,16 @@ export class RewriteRuleSubtreeStream extends RewriteRuleElementStream {
 
         // test size above then fetch
         let tree = this._next();
-        while (this.adaptor.isNil(tree) && this.adaptor.getChildCount(tree) === 1)
+        while (this.adaptor.isNil(tree) && this.adaptor.getChildCount(tree) === 1) {
             tree = this.adaptor.getChild(tree, 0)!;
+        }
 
         const el = this.adaptor.dupNode(tree); // dup just the root (want node here)
 
         return el;
     }
 
-    protected dup(el: Tree): Tree {
+    protected dup(el: CommonTree): CommonTree {
         return this.adaptor.dupTree(el);
     }
 }

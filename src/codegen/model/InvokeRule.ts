@@ -33,7 +33,7 @@ export class InvokeRule extends RuleElement implements LabeledOp {
 
         const gen = factory.getGenerator();
         const target = gen.getTarget();
-        const identifier = ast.getText()!;
+        const identifier = ast.getText();
         const r = factory.getGrammar()!.getRule(identifier)!;
         this.name = r.name;
         this.escapedName = gen.getTarget().escapeIfNeeded(this.name);
@@ -44,7 +44,7 @@ export class InvokeRule extends RuleElement implements LabeledOp {
         if (labelAST !== null) {
             let decl: RuleContextDecl;
             // for x=r, define <rule-context-type> x and list_x
-            const label = labelAST.getText()!;
+            const label = labelAST.getText();
             if (labelAST.parent!.getType() === ANTLRv4Parser.PLUS_ASSIGN) {
                 factory.defineImplicitLabel(ast, this);
                 const listLabel = gen.getTarget().getListLabel(label);
@@ -58,7 +58,7 @@ export class InvokeRule extends RuleElement implements LabeledOp {
 
         const arg = ast.getFirstChildWithType(ANTLRv4Parser.BEGIN_ARGUMENT) as ActionAST | null;
         if (arg !== null) {
-            this.argExprsChunks = ActionTranslator.translateAction(factory, rf, arg.token, arg);
+            this.argExprsChunks = ActionTranslator.translateAction(factory, rf, arg.token!, arg);
         }
 
         // If action refs rule as rule name not label, we need to define implicit label

@@ -58,10 +58,6 @@ export class SemanticPipeline {
     }
 
     public process(): void {
-        if (this.g.ast === null) {
-            return;
-        }
-
         // COLLECT RULE OBJECTS
         const ruleCollector = new RuleCollector(this.g);
         ruleCollector.process(this.g.ast);
@@ -169,7 +165,7 @@ export class SemanticPipeline {
         }
 
         // FOR ALL X : 'xxx'; RULES, DEFINE 'xxx' AS TYPE X
-        const litAliases = Grammar.getStringLiteralAliasesFromLexerRules(g.ast!);
+        const litAliases = Grammar.getStringLiteralAliasesFromLexerRules(g.ast);
         const conflictingLiterals = new Set<string>();
         if (litAliases !== null) {
             for (const [nameAST, litAST] of litAliases) {
@@ -225,7 +221,7 @@ export class SemanticPipeline {
         // create token types for tokens { A, B, C } ALIASES
         for (const alias of tokensDefs) {
             if (g.getTokenType(alias.getText()) !== Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token,
+                ErrorManager.get().grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token!,
                     alias.getText());
             }
 
@@ -235,7 +231,7 @@ export class SemanticPipeline {
         // DEFINE TOKEN TYPES FOR TOKEN REFS LIKE ID, INT
         for (const idAST of tokenIDs) {
             if (g.getTokenType(idAST.getText()) === Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token,
+                ErrorManager.get().grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token!,
                     idAST.getText());
             }
 
@@ -249,7 +245,7 @@ export class SemanticPipeline {
             }
 
             if (g.getTokenType(termAST.getText()) === Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.IMPLICIT_STRING_DEFINITION, g.fileName, termAST.token,
+                ErrorManager.get().grammarError(ErrorType.IMPLICIT_STRING_DEFINITION, g.fileName, termAST.token!,
                     termAST.getText());
             }
         }
@@ -278,19 +274,19 @@ export class SemanticPipeline {
             // values in ANTLR grammar semantics.
 
             if (g.getTokenType(channelName) !== Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_TOKEN, g.fileName, channel.token,
+                ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_TOKEN, g.fileName, channel.token!,
                     channelName);
             }
 
             if (LexerATNFactory.COMMON_CONSTANTS.has(channelName)) {
                 ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName,
-                    channel.token, channelName);
+                    channel.token!, channelName);
             }
 
             if (outermost instanceof LexerGrammar) {
                 const lexerGrammar = outermost;
                 if (lexerGrammar.modes.has(channelName)) {
-                    ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_MODE, g.fileName, channel.token,
+                    ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_MODE, g.fileName, channel.token!,
                         channelName);
                 }
             }

@@ -4,8 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-returns */
-
 import type { TreeNodeStream } from "../../antlr3/tree/TreeNodeStream.js";
 import { GrammarTreeVisitor } from "../../tree-walkers/GrammarTreeVisitor.js";
 
@@ -14,7 +12,7 @@ import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { AltAST } from "../../tool/ast/AltAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { TerminalAST } from "../../tool/ast/TerminalAST.js";
-import type { ErrorManager } from "../../tool/ErrorManager.js";
+import { ANTLRv4Parser } from "../../generated/ANTLRv4Parser.js";
 
 export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
 
@@ -120,23 +118,18 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
         return result;
     }
 
-    /** During code gen, we can assume tree is in good shape */
-    public override getErrorManager(): ErrorManager {
-        return super.getErrorManager()!;
-    }
-
     public override tokenRef(ref: TerminalAST): void {
-        this.frequencies[0].add(ref.getText()!);
-        this.minFrequencies[0].add(ref.getText()!);
+        this.frequencies[0].add(ref.getText());
+        this.minFrequencies[0].add(ref.getText());
     }
 
     public override ruleRef(ref: GrammarAST, arg: ActionAST): void {
-        this.frequencies[0].add(ref.getText()!);
-        this.minFrequencies[0].add(ref.getText()!);
+        this.frequencies[0].add(ref.getText());
+        this.minFrequencies[0].add(ref.getText());
     }
 
     public override stringRef(ref: TerminalAST): void {
-        const tokenName = ref.g.getTokenName(Number.parseInt(ref.getText()!));
+        const tokenName = ref.g.getTokenName(Number.parseInt(ref.getText()));
 
         if (tokenName !== null && !tokenName.startsWith("T__")) {
             this.frequencies[0].add(tokenName);
@@ -202,14 +195,14 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
     }
 
     protected override exitSubrule(tree: GrammarAST): void {
-        if (tree.getType() === GrammarTreeVisitor.CLOSURE || tree.getType() === GrammarTreeVisitor.POSITIVE_CLOSURE) {
+        if (tree.getType() === ANTLRv4Parser.CLOSURE || tree.getType() === ANTLRv4Parser.POSITIVE_CLOSURE) {
             const set = this.frequencies[0];
             for (const key of set.keys()) {
                 set.set(key, 2);
             }
         }
 
-        if (tree.getType() === GrammarTreeVisitor.CLOSURE || tree.getType() === GrammarTreeVisitor.OPTIONAL) {
+        if (tree.getType() === ANTLRv4Parser.CLOSURE || tree.getType() === ANTLRv4Parser.OPTIONAL) {
             // Everything inside a closure is optional, so the minimum
             // number of occurrences for all elements is 0.
             this.minFrequencies[0].clear();
@@ -245,14 +238,14 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
     }
 
     protected override exitLexerSubrule(tree: GrammarAST): void {
-        if (tree.getType() === GrammarTreeVisitor.CLOSURE || tree.getType() === GrammarTreeVisitor.POSITIVE_CLOSURE) {
+        if (tree.getType() === ANTLRv4Parser.CLOSURE || tree.getType() === ANTLRv4Parser.POSITIVE_CLOSURE) {
             const set = this.frequencies[0];
             for (const key of set.keys()) {
                 set.set(key, 2);
             }
         }
 
-        if (tree.getType() === GrammarTreeVisitor.CLOSURE) {
+        if (tree.getType() === ANTLRv4Parser.CLOSURE) {
             // Everything inside a closure is optional, so the minimum
             // number of occurrences for all elements is 0.
             this.minFrequencies[0].clear();

@@ -148,7 +148,7 @@ export class ActionTranslator implements ActionSplitterListener {
         const name = x;
         const escapedName = this.target.escapeIfNeeded(name);
         if (a !== null) {
-            switch (a.dict.type) {
+            switch (a.dict!.type) {
                 case DictType.Argument: {
                     this.chunks.push(new ArgRef(this.nodeContext, name, escapedName));
                     break;
@@ -227,7 +227,7 @@ export class ActionTranslator implements ActionSplitterListener {
             return;
         }
 
-        switch (a.dict.type) {
+        switch (a.dict!.type) {
             case DictType.Argument: {
                 this.chunks.push(new ArgRef(this.nodeContext, y, this.target.escapeIfNeeded(y)));
                 break;

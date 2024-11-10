@@ -11,7 +11,7 @@ import { dirname, join } from "path";
 
 import { Token } from "antlr4ng";
 
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
 import { grammarOptions } from "../grammar-options.js";
 import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
@@ -108,11 +108,11 @@ export class TokenVocabParser {
             }
 
             // File not found.
-            const inTree = this.g.ast?.getOptionAST("tokenVocab");
-            const inTreeValue = inTree?.getToken()?.text;
+            const inTree = this.g.ast.getOptionAST("tokenVocab");
+            const inTreeValue = inTree?.token?.text;
             if (vocabName === inTreeValue) {
                 ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR, this.g.fileName,
-                    inTree?.getToken() ?? null, inTreeValue);
+                    inTree?.token ?? null, inTreeValue);
             } else { // must be from -D option on cmd-line not token in tree
                 ErrorManager.get().toolError(ErrorType.CANNOT_FIND_TOKENS_FILE_GIVEN_ON_CMDLINE, vocabName,
                     this.g.name);

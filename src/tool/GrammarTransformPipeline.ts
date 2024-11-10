@@ -14,12 +14,13 @@ import type { TreeVisitorAction } from "../antlr3/tree/TreeVisitorAction.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { BlockSetTransformer } from "../tree-walkers/BlockSetTransformer.js";
 
+import { Constants } from "../Constants1.js";
 import { Tool } from "../Tool.js";
-import { Constants } from "../constants.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
 import { GrammarToken } from "../parse/GrammarToken.js";
 import { GrammarType } from "../support/GrammarType.js";
 import { isTokenName } from "../support/helpers.js";
+import type { CommonTree } from "../tree/CommonTree.js";
 import { ErrorManager } from "./ErrorManager.js";
 import { ErrorType } from "./ErrorType.js";
 import { Grammar } from "./Grammar.js";
@@ -98,7 +99,7 @@ export class GrammarTransformPipeline {
         this.tool.logInfo({ component: "grammar", msg: `after: ${grammarRoot.toStringTree()}` });
     }
 
-    public reduceBlocksToSets(root: GrammarRootAST): void {
+    public reduceBlocksToSets(root: CommonTree): void {
         const nodes = new CommonTreeNodeStream(new GrammarASTAdaptor(), root);
         const adaptor = new GrammarASTAdaptor();
         const transformer = new BlockSetTransformer(nodes, this.g);

@@ -18,7 +18,7 @@ import { OutputModelController } from "./OutputModelController.js";
 import { OutputModelWalker } from "./OutputModelWalker.js";
 import { ParserFactory } from "./ParserFactory.js";
 import { Target } from "./Target.js";
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
 import { ErrorManager } from "../tool/ErrorManager.js";
 
 // Possible targets:
@@ -72,7 +72,7 @@ export class CodeGenerator {
         if (toolOrGrammar instanceof Grammar) {
             this.g = toolOrGrammar;
             this.tool = this.g.tool;
-            this.language = toolOrGrammar.getLanguage();
+            this.language = toolOrGrammar.getLanguage() ?? "Java";
         } else {
             this.g = g;
             this.tool = toolOrGrammar;

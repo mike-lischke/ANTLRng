@@ -12,10 +12,10 @@ import {
     CommonToken, Token, type BitSet, type IntStream, type RecognitionException,
 } from "antlr4ng";
 
-import { Constants } from "../../constants.js";
+import { Constants } from "../../Constants1.js";
+import type { CommonTree } from "../../tree/CommonTree.js";
 import { BaseRecognizer } from "../BaseRecognizer.js";
 import type { IRecognizerSharedState } from "../IRecognizerSharedState.js";
-import type { Tree } from "./Tree.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import type { TreeNodeStream } from "./TreeNodeStream.js";
 
@@ -39,7 +39,8 @@ export class TreeParser extends BaseRecognizer {
     /**
      * The worker for inContext. It's static and full of parameters for testing purposes.
      */
-    public static inContext(adaptor: TreeAdaptor, tokenNames: string[], t: Tree | null, context: string): boolean {
+    public static inContext(adaptor: TreeAdaptor, tokenNames: string[], t: CommonTree | null,
+        context: string): boolean {
         if (context.match(TreeParser.#dotdot)) { // don't allow "..", must be "..."
             throw new Error("invalid syntax: ..");
         }
@@ -90,8 +91,8 @@ export class TreeParser extends BaseRecognizer {
     }
 
     /** Helper for static inContext */
-    protected static getAncestor(adaptor: TreeAdaptor, tokenNames: string[], t: Tree | null,
-        goal: string): Tree | null {
+    protected static getAncestor(adaptor: TreeAdaptor, tokenNames: string[], t: CommonTree | null,
+        goal: string): CommonTree | null {
         while (t !== null) {
             const name = tokenNames[adaptor.getType(t)];
             if (name === goal) {
@@ -211,18 +212,18 @@ export class TreeParser extends BaseRecognizer {
      *  plus we want to alter the exception type.  Don't try to recover
      *  from tree parser errors inline...
      */
-    protected override recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet): Tree | null {
+    protected override recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet): CommonTree | null {
         //throw new InputMismatchException(ttype, input as TreeNodeStream);
 
         throw new Error("recoverFromMismatchedToken");
     }
 
-    protected override getCurrentInputSymbol(input: IntStream): Tree | null {
+    protected override getCurrentInputSymbol(input: IntStream): CommonTree | null {
         return (input as TreeNodeStream).LT(1);
     }
 
     protected override getMissingSymbol(input: IntStream, e: RecognitionException, expectedTokenType: number,
-        follow: BitSet): Tree {
+        follow: BitSet): CommonTree {
         const tokenText = "<missing " + this.getTokenNames()[expectedTokenType] + ">";
         const adaptor = this.#input!.getTreeAdaptor();
 

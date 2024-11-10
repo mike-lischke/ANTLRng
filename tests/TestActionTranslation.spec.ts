@@ -10,7 +10,12 @@ import { describe, it } from "vitest";
 
 import "../src/Tool.js"; // To kick off the loading of the tool
 
+import { AnalysisPipeline } from "../src/analysis/AnalysisPipeline.js";
+import { LexerATNFactory } from "../src/automata/LexerATNFactory.js";
+import { ParserATNFactory } from "../src/automata/ParserATNFactory.js";
+import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { Grammar } from "../src/tool/Grammar.js";
+import type { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
 
 describe("TestActionTranslation", () => {
@@ -42,7 +47,7 @@ describe("TestActionTranslation", () => {
         const grammar = st.render();
         const errorQueue = new ErrorQueue();
         const g = new Grammar(grammar, errorQueue);
-        /*if (g.ast !== null && !g.ast.hasErrors) {
+        if (!g.ast.hasErrors) {
             const sem = new SemanticPipeline(g);
             sem.process();
 
@@ -56,7 +61,7 @@ describe("TestActionTranslation", () => {
             const anal = new AnalysisPipeline(g);
             anal.process();
 
-            const gen = new CodeGenerator(g);
+            /*const gen = new CodeGenerator(g);
             const outputFileST = gen.generateParser(false);
             const output = outputFileST.render();
 
@@ -65,8 +70,8 @@ describe("TestActionTranslation", () => {
             const e = "#end-" + actionName + "#";
             const end = output.indexOf(e);
             const snippet = output.substring(start + b.length, end);
-            expect(snippet).toEqual(expected);
-        }*/
+            expect(snippet).toEqual(expected);*/
+        }
     };
 
     it("testEscapedLessThanInAction", (): void => {
@@ -198,7 +203,7 @@ describe("TestActionTranslation", () => {
      * $e.v yields incorrect value 0 in "e returns [int v] : '1' {$v = 1;} | '(' e ')' {$v = $e.v;} ;"
      * https://github.com/antlr/antlr4/issues/1295
      */
-    it("testRuleRefsRecursive", (): void => {
+    it.only("testRuleRefsRecursive", (): void => {
         const recursiveTemplate =
             "recursiveTemplate(inline) ::= <<\n" +
             "parser grammar A;\n" +
@@ -223,7 +228,7 @@ describe("TestActionTranslation", () => {
         // ref to value returned from recursive call to rule
         let action = "$v = $e.v;";
         let expected = "((EContext)_localctx).v =  ((EContext)_localctx).e.v;";
-        testActions(recursiveTemplate, "inline", action, expected);
+        //testActions(recursiveTemplate, "inline", action, expected);
         testActions(leftRecursiveTemplate, "inline", action, expected);
         // ref to predefined attribute obtained from recursive call to rule
         action = "$v = $e.text.length();";

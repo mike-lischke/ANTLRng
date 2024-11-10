@@ -4,21 +4,17 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/* eslint-disable jsdoc/require-param, jsdoc/require-returns */
-
-
-import { readFile } from "fs/promises";
-import { createWriteStream } from "fs";
 import { Option, program } from "commander";
+import { createWriteStream } from "fs";
+import { readFile } from "fs/promises";
 
 import { CharStream, CommonToken, CommonTokenStream, DecisionInfo, ParseInfo } from "antlr4ng";
 
-import { Tool } from "../Tool.js";
-import { ANTLRToolListener } from "../tool/ANTLRToolListener.js";
-import { DefaultToolListener } from "../tool/DefaultToolListener.js";
-import { Grammar } from "../tool/Grammar.js";
-import { GrammarParserInterpreter } from "../tool/GrammarParserInterpreter.js";
-import { LexerGrammar } from "../tool/LexerGrammar.js";
+import type { ANTLRToolListener } from "../src/tool/ANTLRToolListener.js";
+import { DefaultToolListener } from "../src/tool/DefaultToolListener.js";
+import { Grammar } from "../src/tool/Grammar.js";
+import type { GrammarParserInterpreter } from "../src/tool/GrammarParserInterpreter.js";
+import { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import { encodings, parseBoolean } from "./cli-options.js";
 
 /** CLI parameters for the interpreter tool. */
@@ -111,7 +107,7 @@ export class Interpreter {
 
         let g: Grammar;
         let lg = null;
-        const listener = new DefaultToolListener(new Tool());
+        const listener = new DefaultToolListener();
         if (interpreterOptions.grammarFileName) {
             const grammarContent = await readFile(interpreterOptions.grammarFileName, "utf8");
             g = new Interpreter.IgnoreTokenVocabGrammar(interpreterOptions.grammarFileName, grammarContent, undefined,

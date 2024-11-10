@@ -19,18 +19,16 @@ export class Constants {
     public static readonly PRECEDENCE_OPTION_NAME = "p";
     public static readonly TOKENINDEX_OPTION_NAME = "tokenIndex";
 
-    public static readonly TEMPLATE_ROOT = "org/antlr/v4/tool/templates/codegen";
     public static readonly VOCAB_FILE_EXTENSION = ".tokens";
 
     public static readonly GRAMMAR_FROM_STRING_NAME = "<string>";
 
-    public static readonly EOR_TOKEN_TYPE: number = 1;
-    public static readonly DOWN = -2;
-    public static readonly UP = -3;
+    public static readonly EOR_TOKEN_TYPE = 1;
+    public static readonly DOWN = 2;
+    public static readonly UP = 3;
 
     public static readonly MEMO_RULE_FAILED = -2;
     public static readonly MEMO_RULE_UNKNOWN = -1;
-    public static readonly INITIAL_FOLLOW_STACK_SIZE = 100;
 
     // copies from Token object for convenience in actions
     public static readonly DEFAULT_TOKEN_CHANNEL = Token.DEFAULT_CHANNEL;

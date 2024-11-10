@@ -65,7 +65,7 @@ export class AnalysisPipeline {
             const look = analyzer.look(this.g.atn, this.g.atn.ruleToStartState[rule.index]!, undefined);
             if (look.contains(Token.EPSILON)) {
                 ErrorManager.get().grammarError(ErrorType.EPSILON_TOKEN, this.g.fileName,
-                    (rule.ast.getChild(0) as GrammarAST).getToken(), rule.name);
+                    (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
             }
         }
     }

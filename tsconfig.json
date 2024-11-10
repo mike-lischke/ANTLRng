@@ -28,6 +28,7 @@
         "tool/**/*.ts",
         "src/**/*.ts",
         "build/*.ts",
+        "cli/*.ts",
         "vitest.config.ts"
     ],
     "exclude": [

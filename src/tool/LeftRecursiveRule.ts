@@ -22,7 +22,7 @@ export class LeftRecursiveRule extends Rule {
     public originalAST: RuleAST;
 
     /** Did we delete any labels on direct left-recur refs? Points at ID of ^(= ID el) */
-    public leftRecursiveRuleRefLabels = new Array<[GrammarAST, string]>();
+    public leftRecursiveRuleRefLabels = new Array<[GrammarAST, string | undefined]>();
 
     public constructor(g: Grammar, name: string, ast: RuleAST) {
         super(g, name, ast, 1);

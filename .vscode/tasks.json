@@ -9,7 +9,10 @@
                 "$tsc-watch"
             ],
             "group": "build",
-            "label": "tsc: watch"
+            "label": "tsc: watch",
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
         },
         {
             "label": "ESLint",

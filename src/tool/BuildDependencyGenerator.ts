@@ -14,7 +14,7 @@ import { CodeGenerator } from "../codegen/CodeGenerator.js";
 import { grammarOptions } from "../grammar-options.js";
 import { GrammarType } from "../support/GrammarType.js";
 import { Grammar } from "./Grammar.js";
-import { Constants } from "../constants.js";
+import { Constants } from "../Constants1.js";
 
 /**
  * Given a grammar file, show the dependencies on .tokens etc...
@@ -236,8 +236,8 @@ export class BuildDependencyGenerator {
             return;
         }
 
-        const fileName = "org/antlr/v4/tool/templates/depend.stg";
-        this.templates = new STGroupFile(fileName, "UTF-8");
+        const url = new URL("../../templates/depend.stg", import.meta.url);
+        this.templates = new STGroupFile(url.pathname, "UTF-8");
     }
 
     public getGenerator(): CodeGenerator {

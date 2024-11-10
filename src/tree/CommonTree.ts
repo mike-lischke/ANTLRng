@@ -28,8 +28,14 @@ export class CommonTree implements ParseTree {
     #children: CommonTree[] = [];
 
     public constructor(nodeOrToken?: CommonTree | Token) {
-        if (nodeOrToken) {
-            this.token = nodeOrToken instanceof CommonTree ? nodeOrToken.token : nodeOrToken;
+        if (nodeOrToken instanceof CommonTree) {
+            this.token = nodeOrToken.token;
+            this.startIndex = nodeOrToken.startIndex;
+            this.stopIndex = nodeOrToken.stopIndex;
+        } else if (nodeOrToken) {
+            this.token = nodeOrToken;
+            this.startIndex = nodeOrToken.tokenIndex;
+            this.stopIndex = nodeOrToken.tokenIndex;
         }
     }
 
@@ -191,7 +197,7 @@ export class CommonTree implements ParseTree {
             let j = 0; // index into new children
             for (let i = startChildIndex; i <= stopChildIndex; i++) {
                 const child = newChildren[j];
-                this.#children.splice(i, 0, child);
+                this.#children.splice(i, 1, child);
                 child.setParent(this);
                 child.setChildIndex(i);
                 j++;
