@@ -14,6 +14,8 @@ import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
 
 /** Any ALT (which can be child of ALT_REWRITE node) */
 export class AltAST extends GrammarASTWithOptions {
+    public override readonly astType: string = "AltAST";
+
     public alt: Alternative;
 
     /** If we transformed this alt from a left-recursive one, need info on it */

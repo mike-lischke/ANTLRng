@@ -333,8 +333,10 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
         // but do not support the ELEMENT_OPTIONS syntax. Make sure to not try
         // and add the tokenIndex option when writing these tokens.
         const noOptions = new IntervalSet();
-        const labeledSubTrees = t.getNodesWithType(IntervalSet.of(ANTLRv4Parser.PLUS_ASSIGN,
-            ANTLRv4Parser.PLUS_ASSIGN));
+        const typeSet = new IntervalSet();
+        typeSet.addOne(ANTLRv4Parser.ASSIGN);
+        typeSet.addOne(ANTLRv4Parser.PLUS_ASSIGN);
+        const labeledSubTrees = t.getNodesWithType(typeSet);
         for (const sub of labeledSubTrees) {
             noOptions.addOne(sub.getChild(0)!.getTokenStartIndex());
         }
@@ -357,7 +359,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
                     (tok.type === ANTLRv4Parser.TOKEN_REF ||
                         tok.type === ANTLRv4Parser.STRING_LITERAL ||
                         tok.type === ANTLRv4Parser.RULE_REF)) {
-                    elementOptions += "tokenIndex=" + tok.tokenIndex;
+                    // TODO elementOptions += "tokenIndex=" + tok.tokenIndex; unsupported 4 syntax
                 }
 
                 if (node instanceof GrammarASTWithOptions) {

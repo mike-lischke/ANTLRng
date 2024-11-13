@@ -15,11 +15,13 @@ import { Tool } from "../Tool.js";
 import type { SupportedLanguage } from "../codegen/CodeGenerator.js";
 import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
+import { OrderedHashMap } from "../misc/OrderedHashMap.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
 import { ScopeParser } from "../parse/ScopeParser.js";
 import { ToolANTLRParser } from "../parse/ToolANTLRParser.js";
 import { BasicSemanticChecks } from "../semantics/BasicSemanticChecks.js";
 import { RuleCollector } from "../semantics/RuleCollector.js";
+import { ParseTreeToASTConverter } from "../support/ParseTreeToASTConverter.js";
 import { isTokenName } from "../support/helpers.js";
 import { DictType } from "../tool/DictType.js";
 import { ErrorManager } from "../tool/ErrorManager.js";
@@ -38,7 +40,6 @@ import { GrammarRootAST } from "../tool/ast/GrammarRootAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { LeftRecursiveRuleAltInfo } from "./LeftRecursiveRuleAltInfo.js";
 import { LeftRecursiveRuleAnalyzer } from "./LeftRecursiveRuleAnalyzer.js";
-import { ParseTreeToASTConverter } from "../support/ParseTreeToASTConverter.js";
 
 /**
  * Remove left-recursive rule refs, add precedence args to recursive rule refs.
@@ -115,6 +116,7 @@ export class LeftRecursiveRuleTransformer {
                 throw re;
             }
         }
+
         if (!isLeftRec) {
             return false;
         }
@@ -162,7 +164,7 @@ export class LeftRecursiveRuleTransformer {
                 (r.ast.getChild(0) as GrammarAST).token!, r.name);
         }
 
-        r.recOpAlts = new Map<number, LeftRecursiveRuleAltInfo>();
+        r.recOpAlts = new OrderedHashMap<number, LeftRecursiveRuleAltInfo>();
         leftRecursiveRuleWalker.binaryAlts.forEach((value, key) => {
             r.recOpAlts.set(key, value);
         });
@@ -207,7 +209,6 @@ export class LeftRecursiveRuleTransformer {
     public parseArtificialRule(g: Grammar, ruleText: string): RuleAST | undefined {
         const stream = CharStream.fromString(ruleText);
         const lexer = new ANTLRv4Lexer(stream);
-        const adaptor = new GrammarASTAdaptor(lexer.inputStream);
         const tokens = new CommonTokenStream(lexer);
         const p = new ToolANTLRParser(tokens, this.tool);
         const ruleStart = null;
@@ -215,7 +216,7 @@ export class LeftRecursiveRuleTransformer {
         try {
             const r = p.ruleSpec();
             const root = new GrammarAST();
-            ParseTreeToASTConverter.convertRuleSpecToAST(r, root, adaptor);
+            ParseTreeToASTConverter.convertRuleSpecToAST(r, root);
             const ruleAST = root.getChild(0) as RuleAST;
 
             GrammarTransformPipeline.setGrammarPtr(g, ruleAST);
@@ -231,7 +232,7 @@ export class LeftRecursiveRuleTransformer {
     }
 
     /**
-     * <pre>
+     * ```
      * (RULE e int _p (returns int v)
      * 	(BLOCK
      * 	  (ALT
@@ -241,13 +242,13 @@ export class LeftRecursiveRuleTransformer {
      * 			(ALT ID))
      * 		(* (BLOCK
      *			(OPTIONS ...)
-     * 			(ALT {7 &gt;= $_p}? '*' (= b e) {$v = $a.v * $b.v;})
-     * 			(ALT {6 &gt;= $_p}? '+' (= b e) {$v = $a.v + $b.v;})
-     * 			(ALT {3 &gt;= $_p}? '++') (ALT {2 &gt;= $_p}? '--'))))))
-     * </pre>
+     * 			(ALT {7 >= $_p}? '*' (= b e) {$v = $a.v * $b.v;})
+     * 			(ALT {6 >= $_p}? '+' (= b e) {$v = $a.v + $b.v;})
+     * 			(ALT {3 >= $_p}? '++') (ALT {2 >= $_p}? '--'))))))
+     * ```
      */
     public setAltASTPointers(r: LeftRecursiveRule, t: RuleAST): void {
-        const ruleBlk = t.getFirstChildWithType(ANTLRv4Parser.LPAREN) as BlockAST;
+        const ruleBlk = t.getFirstChildWithType(ANTLRv4Parser.BLOCK) as BlockAST;
         const mainAlt = ruleBlk.getChild(0) as AltAST;
         const primaryBlk = mainAlt.getChild(0) as BlockAST;
         const opsBlk = mainAlt.getChild(1)!.getChild(0) as BlockAST; // (* BLOCK ...)
@@ -259,7 +260,7 @@ export class LeftRecursiveRuleTransformer {
         }
 
         for (let i = 0; i < r.recOpAlts.size; i++) {
-            const altInfo = r.recOpAlts.get(i)!;
+            const altInfo = r.recOpAlts.getElement(i)!;
             altInfo.altAST = opsBlk.getChild(i) as AltAST;
             altInfo.altAST.leftRecursiveAltInfo = altInfo;
             altInfo.originalAltAST!.leftRecursiveAltInfo = altInfo;

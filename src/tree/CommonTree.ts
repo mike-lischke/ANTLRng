@@ -17,10 +17,10 @@ export class CommonTree implements ParseTree {
     public parent: CommonTree | null = null;
 
     /** What token indexes bracket all tokens associated with this node and below? */
-    protected startIndex = -1;
+    public startIndex = -1;
 
     /** What token indexes bracket all tokens associated with this node and below? */
-    protected stopIndex = -1;
+    public stopIndex = -1;
 
     /** What index is this node in the child list? Range: 0..n-1 */
     #childIndex = -1;

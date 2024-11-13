@@ -7,6 +7,7 @@
 /* eslint-disable jsdoc/require-returns */
 
 import { LeftRecursiveRuleAltInfo } from "../analysis/LeftRecursiveRuleAltInfo.js";
+import type { OrderedHashMap } from "../misc/OrderedHashMap.js";
 import { Alternative } from "./Alternative.js";
 import { Grammar } from "./Grammar.js";
 import { Rule } from "./Rule.js";
@@ -18,7 +19,7 @@ export class LeftRecursiveRule extends Rule {
     public override readonly ruleType: string = "LeftRecursiveRule";
 
     public recPrimaryAlts: LeftRecursiveRuleAltInfo[];
-    public recOpAlts: Map<number, LeftRecursiveRuleAltInfo>;
+    public recOpAlts: OrderedHashMap<number, LeftRecursiveRuleAltInfo>;
     public originalAST: RuleAST;
 
     /** Did we delete any labels on direct left-recur refs? Points at ID of ^(= ID el) */
@@ -54,7 +55,7 @@ export class LeftRecursiveRule extends Rule {
 
         }
         for (let i = 0; i < this.recOpAlts.size; i++) {
-            const altInfo = this.recOpAlts.get(i)!;
+            const altInfo = this.recOpAlts.getElement(i)!;
             if (altInfo.altLabel === undefined) {
                 alts.push(altInfo.originalAltAST!);
             }
@@ -139,7 +140,7 @@ export class LeftRecursiveRule extends Rule {
         }
 
         for (let i = 0; i < this.recOpAlts.size; i++) {
-            const altInfo = this.recOpAlts.get(i)!;
+            const altInfo = this.recOpAlts.getElement(i)!;
             if (altInfo.altLabel !== undefined) {
                 let pairs = labels.get(altInfo.altLabel);
                 if (!pairs) {

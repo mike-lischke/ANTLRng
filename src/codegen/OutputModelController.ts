@@ -260,7 +260,7 @@ export class OutputModelController {
         // Insert code in front of each op alt to create specialized ctx if there was an alt label
         for (let i = 0; i < opAltsCode.length; i++) {
             let altActionST: IST;
-            const altInfo = r.recOpAlts.get(i)!;
+            const altInfo = r.recOpAlts.getElement(i)!;
             let templateName: string;
             if (altInfo.altLabel !== undefined) {
                 templateName = "recRuleLabeledAltStartAction";
