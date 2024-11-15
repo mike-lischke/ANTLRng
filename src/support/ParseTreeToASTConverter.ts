@@ -35,17 +35,17 @@ import { NotAST } from "../tool/ast/NotAST.js";
 import { OptionalBlockAST } from "../tool/ast/OptionalBlockAST.js";
 import { PlusBlockAST } from "../tool/ast/PlusBlockAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
+import { RuleRefAST } from "../tool/ast/RuleRefAST.js";
 import { SetAST } from "../tool/ast/SetAST.js";
 import { StarBlockAST } from "../tool/ast/StarBlockAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
 import { GrammarType } from "./GrammarType.js";
+import { Grammar } from "../tool/Grammar.js";
 
 /**
  * Converts a grammar spec parse tree into a grammar AST.
  */
 export class ParseTreeToASTConverter {
-    // TODO: Grammar.setNodeOptions($tree, options);
-
     /**
      * Converts the grammar parse tree to an abstract syntax tree (AST).
      * We simulate here the same tree structure as produced by the old ANTlR 3.x parser.
@@ -79,6 +79,11 @@ export class ParseTreeToASTConverter {
         this.convertPrequelConstructToAST(grammarSpec.prequelConstruct(), root);
         this.convertRulesToAST(grammarSpec.rules(), root);
         this.convertModeSpecToAST(grammarSpec.modeSpec(), root);
+
+        const options = root.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options) {
+            Grammar.setNodeOptions(root, options);
+        }
 
         return root;
     }
@@ -145,6 +150,12 @@ export class ParseTreeToASTConverter {
                 this.convertActionBlockToAST(ANTLRv4Lexer.ACTION,
                     parserRule.exceptionGroup().finallyClause()!.actionBlock(), finallyAST);
             }
+
+            const options = ruleAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+            if (options) {
+                Grammar.setNodeOptions(ruleAST, options);
+            }
+
         } else if (rule.lexerRuleSpec()) {
             this.convertLexerRuleSpecToAST(rule.lexerRuleSpec()!, ast);
         }
@@ -174,7 +185,7 @@ export class ParseTreeToASTConverter {
      * @param ast The parent AST node.
      */
     private static convertRulerefToAST(ruleref: RulerefContext, ast: GrammarAST): void {
-        const ruleRefAST = this.createASTNode(ANTLRv4Parser.RULE_REF, ruleref.RULE_REF());
+        const ruleRefAST = this.createVirtualASTNode(RuleRefAST, ANTLRv4Parser.RULE_REF, ruleref.RULE_REF());
         ast.addChild(ruleRefAST);
 
         if (ruleref.argActionBlock()) {
@@ -183,6 +194,11 @@ export class ParseTreeToASTConverter {
 
         if (ruleref.elementOptions()) {
             this.convertElementOptionsToAST(ruleref.elementOptions()!, ruleRefAST);
+        }
+
+        const options = ruleRefAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options) {
+            Grammar.setNodeOptions(ruleRefAST, options);
         }
     }
 
@@ -313,6 +329,12 @@ export class ParseTreeToASTConverter {
         });
 
         this.convertAltListToAST(block.altList(), blockAST);
+
+        const options = blockAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options) {
+            Grammar.setNodeOptions(blockAST, options);
+        }
+
     }
 
     private static convertEbnfSuffixToAST(ebnfSuffix: EbnfSuffixContext, ast: GrammarAST): GrammarAST | undefined {
@@ -346,7 +368,7 @@ export class ParseTreeToASTConverter {
 
     private static convertActionBlockToAST(astType: number, actionBlock: ParserRuleContext,
         ast: GrammarAST): ActionAST {
-        const token = this.createToken(astType, actionBlock);
+        const token = this.createToken(astType, actionBlock, actionBlock.getText());
         const actionAST = new ActionAST(token);
         ast.addChild(actionAST);
 
@@ -354,19 +376,34 @@ export class ParseTreeToASTConverter {
     }
 
     private static convertPredicateOptionsToAST(options: PredicateOptionsContext, ast: GrammarAST): void {
-        const predicateOptions = this.createASTNode(ANTLRv4Lexer.PREDICATE_OPTIONS, options);
+        // Predicate options are new in ANTLR4. Previously only element options existed. For left recursive rules
+        // they were introduced to support more than what element options do (namely actions and numbers on the RHS).
+        // The general syntax of both is the same (`<lhs = rhs>`). To allow easy use in the tree walkers we convert
+        // them to element options here.
+        const predicateOptions = this.createASTNode(ANTLRv4Lexer.ELEMENT_OPTIONS, options);
         ast.addChild(predicateOptions);
 
         options.predicateOption().forEach((option) => {
             if (option.elementOption()) {
                 this.convertElementOptionToAST(option.elementOption()!, predicateOptions);
-            } else {
+            } else if (option.ASSIGN()) {
                 const assign = this.createASTNode(ANTLRv4Parser.ASSIGN, option);
-                ast.addChild(assign);
+                predicateOptions.addChild(assign);
                 const id = this.createASTNode(ANTLRv4Parser.ID, option.identifier()!);
                 assign.addChild(id);
 
-                this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, option.actionBlock()!, assign);
+                if (option.actionBlock()) {
+                    this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, option.actionBlock()!, assign);
+                } else if (option.INT()) {
+                    const int = this.createASTNode(ANTLRv4Parser.INT, option.INT()!);
+                    assign.addChild(int);
+                } else if (option.STRING_LITERAL()) {
+                    const string = this.createASTNode(ANTLRv4Parser.STRING_LITERAL, option.STRING_LITERAL()!);
+                    assign.addChild(string);
+                }
+            } else {
+                const id = this.createASTNode(ANTLRv4Parser.ID, option.identifier()!);
+                predicateOptions.addChild(id);
             }
         });
     }
@@ -398,6 +435,12 @@ export class ParseTreeToASTConverter {
         lexerRuleBlock.lexerAltList().lexerAlt().forEach((lexerAlt) => {
             this.convertLexerAltToAST(lexerAlt, blockAST);
         });
+
+        const options = blockAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options) {
+            Grammar.setNodeOptions(blockAST, options);
+        }
+
     }
 
     private static convertLexerAltToAST(lexerAlt: LexerAltContext, ast: GrammarAST): void {
@@ -518,6 +561,11 @@ export class ParseTreeToASTConverter {
             if (terminalDef.elementOptions()) {
                 this.convertElementOptionsToAST(terminalDef.elementOptions()!, ast);
             }
+
+            const options = terminalAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+            if (options) {
+                Grammar.setNodeOptions(terminalAST, options);
+            }
         }
     }
 
@@ -601,6 +649,12 @@ export class ParseTreeToASTConverter {
         if (elementOptions) {
             this.convertElementOptionsToAST(elementOptions, dotAST);
         }
+
+        const options = dotAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options) {
+            Grammar.setNodeOptions(dotAST, options);
+        }
+
     }
 
     private static convertRuleActionToAST(ruleAction: RuleActionContext, ast: GrammarAST): void {
@@ -635,6 +689,11 @@ export class ParseTreeToASTConverter {
                 this.convertElementToAST(element, altAST);
 
             });
+        }
+
+        const options = altAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options) {
+            Grammar.setNodeOptions(altAST, options);
         }
 
         return altAST;
@@ -678,6 +737,12 @@ export class ParseTreeToASTConverter {
             if (element.predicateOptions()) {
                 this.convertPredicateOptionsToAST(element.predicateOptions()!, actionAST);
             }
+
+            const options = actionAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+            if (options) {
+                Grammar.setNodeOptions(actionAST, options);
+            }
+
         }
     }
 
@@ -723,11 +788,12 @@ export class ParseTreeToASTConverter {
         });
     }
 
-    private static createToken(type: number, context: ParserRuleContext | TerminalNode): CommonToken {
+    private static createToken(type: number, context: ParserRuleContext | TerminalNode, text?: string): CommonToken {
         if (context instanceof ParserRuleContext) {
             const token = CommonToken.fromSource([context.start!.tokenSource, context.start!.inputStream], type,
                 Constants.DEFAULT_TOKEN_CHANNEL, context.start!.start, context.start!.stop);
             token.tokenIndex = context.start!.tokenIndex;
+            token.text = text ?? "";
 
             return token;
         }
@@ -737,6 +803,7 @@ export class ParseTreeToASTConverter {
         const token = CommonToken.fromSource([symbol.tokenSource, symbol.inputStream], type,
             Constants.DEFAULT_TOKEN_CHANNEL, symbol.start, symbol.stop);
         token.tokenIndex = symbol.tokenIndex;
+        token.text = text ?? symbol.text ?? "";
 
         return token;
     }

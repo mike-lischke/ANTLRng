@@ -48,6 +48,5 @@ recRule(ruleName, argName, primaryAlts, opAlts, setResultAction,
 >>
 
 recRuleAlt(alt, precOption, opPrec, pred) ::= <<
-/* TODO: {<pred>}?\<<precOption>=<opPrec>\> <alt.altText>*/
-{<pred>}? <alt.altText>
+{<pred>}?\<<precOption>=<opPrec>\> <alt.altText>
 >>

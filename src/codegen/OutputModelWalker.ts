@@ -33,8 +33,7 @@ export class OutputModelWalker {
     protected tool: Tool;
     protected templates: STGroup;
 
-    public constructor(tool: Tool,
-        templates: STGroup) {
+    public constructor(tool: Tool, templates: STGroup) {
         this.tool = tool;
         this.templates = templates;
     }
@@ -53,90 +52,72 @@ export class OutputModelWalker {
             return new ST("[" + templateName + " invalid]");
         }
 
-        /*
-                if (!st.impl?.formalArguments) {
-                    ErrorManager.get().toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
-                    return st;
+        if (!st.impl?.formalArguments) {
+            ErrorManager.get().toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
+
+            return st;
+        }
+
+        const formalArgs = st.impl.formalArguments;
+
+        // PASS IN OUTPUT MODEL OBJECT TO TEMPLATE AS FIRST ARG
+        const [modelArgName] = [...formalArgs.keys()];
+        st.add(modelArgName, omo);
+
+        // COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH @ModelElement AND MAKE ST ATTRIBUTE
+        const usedFieldNames = new Set<string>();
+        const fields = Object.keys(omo);
+        for (const fieldName of fields) {
+            /* let annotation = fi.getAnnotation(ModelElement.class);
+            if (annotation === null) {
+                continue;
+            }*/
+
+            if (usedFieldNames.has(fieldName)) {
+                ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.constructor.name +
+                    " has multiple fields named '" + fieldName + "'");
+                continue;
+            }
+            usedFieldNames.add(fieldName);
+
+            // Just don't set fields w/o formal arg in target ST
+            if (!formalArgs.get(fieldName)) {
+                continue;
+            }
+
+            //const o = fi.get(omo);
+            const o = omo[fieldName];
+            if (o instanceof OutputModelObject) { // SINGLE MODEL OBJECT?
+                const nestedOmo = o;
+                const nestedST = this.walk(nestedOmo, header);
+                st.add(fieldName, nestedST);
+            } else {
+                if (Array.isArray(o)) {
+                    const nestedOmos = o as unknown[];
+                    for (const nestedOmo of nestedOmos) {
+                        if (nestedOmo === null) {
+                            continue;
+                        }
+
+                        const nestedST = this.walk(nestedOmo as OutputModelObject, header);
+                        st.add(fieldName, nestedST);
+                    }
+                } else {
+                    if (o instanceof Map) {
+                        const nestedOmoMap = o as Map<string, OutputModelObject>;
+                        const m = new Map<string, IST>();
+                        for (const [key, value] of nestedOmoMap) {
+                            const nestedST = this.walk(value, header);
+                            m.set(key, nestedST);
+                        }
+                        st.add(fieldName, m);
+                    } else if (o !== undefined) {
+                        ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR,
+                            "not recognized nested model element: " + fieldName);
+                    }
                 }
-
-                let formalArgs = st.impl.formalArguments;
-
-                // PASS IN OUTPUT MODEL OBJECT TO TEMPLATE AS FIRST ARG
-                let [modelArgName] = [...formalArgs.keys()];
-                st.add(modelArgName, omo);
-
-                // COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH  AND MAKE ST ATTRIBUTE
-                let usedFieldNames = new Set<string>();
-                let fields = Object.getOwnPropertyNames(omo.constructor.prototype);
-                for (let fi of fields) {
-                    let annotation = fi.getAnnotation(ModelElement.class);
-                    if (annotation === null) {
-                        continue;
-                    }
-
-                    let fieldName = fi.getName();
-
-                    if (!usedFieldNames.add(fieldName)) {
-                        ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.getClass()
-                        .getSimpleName() + " has multiple fields named '" + fieldName + "'");
-                        continue;
-                    }
-
-                    // Just don't set  fields w/o formal arg in target ST
-                    if (formalArgs.get(fieldName) === null) {
-                        continue;
-                    }
-
-                    try {
-                        let o = fi.get(omo);
-                        if (o instanceof OutputModelObject) {  // SINGLE MODEL OBJECT?
-                            let nestedOmo = o as OutputModelObject;
-                            let nestedST = this.walk(nestedOmo, header);
-                            st.add(fieldName, nestedST);
-                        }
-                        else {
-                            if (o instanceof Collection || o instanceof OutputModelObject[]) {
-                                // LIST OF MODEL OBJECTS?
-                                if (o instanceof OutputModelObject[]) {
-                                    o = Arrays.asList(o as OutputModelObject[]);
-                                }
-                                let nestedOmos = o as Array<unknown>;
-                                for (let nestedOmo of nestedOmos) {
-                                    if (nestedOmo === null) {
-                                        continue;
-                                    }
-
-                                    let nestedST = this.walk(nestedOmo as OutputModelObject, header);
-                                    st.add(fieldName, nestedST);
-                                }
-                            }
-                            else {
-                                if (o instanceof Map) {
-                                    let nestedOmoMap = o as Map<unknown, unknown>;
-                                    let m = new LinkedHashMap<Object, ST>();
-                                    for (let entry of nestedOmoMap.entrySet()) {
-                                        let nestedST = this.walk(entry.getValue() as OutputModelObject, header);
-                                        m.put(entry.getKey(), nestedST);
-                                    }
-                                    st.add(fieldName, m);
-                                }
-                                else {
-                                    if (o !== null) {
-                                    }
-                                }
-
-                            }
-
-                        }
-
-                    } catch (iae) {
-                        if (iae instanceof IllegalAccessException) {
-                            ErrorManager.get().toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, fieldName);
-                        } else {
-                            throw iae;
-                        }
-                    }
-                }*/
+            }
+        }
 
         return st;
     }

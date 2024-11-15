@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { antlrVersion } from "../../grammar-options.js";
 import { Grammar } from "../../tool/Grammar.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -15,6 +16,7 @@ export abstract class OutputFile extends OutputModelObject {
     public readonly grammarFileName: string;
     public readonly tokenLabelType?: string;
     public readonly inputSymbolType?: string;
+    public readonly ANTLRVersion = antlrVersion;
 
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory);

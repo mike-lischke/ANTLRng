@@ -85,11 +85,11 @@ export abstract class BlankOutputModelFactory implements OutputModelFactory {
         return null;
     }
 
-    public tokenRef(id: GrammarAST, label: GrammarAST, args: GrammarAST | null): SrcOp[] | null {
+    public tokenRef(id: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | null {
         return null;
     }
 
-    public stringRef(id: GrammarAST, label: GrammarAST): SrcOp[] | null {
+    public stringRef(id: GrammarAST, label: GrammarAST | null): SrcOp[] | null {
         return this.tokenRef(id, label, null);
     }
 

@@ -818,29 +818,16 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             }
 
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:35: ( element )*
-            loop11:
             while (true) {
-                let alt11 = 2;
-                //alt11 = this.dfa11.predict(this.input!);
-                alt11 = this.input.LA(1);
-                switch (alt11) {
-                    case 1: {
-                        // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:35: element
-                        {
-                            this.element();
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
-                                return;
-                            }
-
-                        }
-                        break;
+                const alt11 = this.input.LA(1);
+                if (alt11 === ANTLRv4Lexer.ASSIGN || alt11 === ANTLRv4Lexer.PLUS_ASSIGN) {
+                    this.element();
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                    if (this.state.failed) {
+                        return;
                     }
-
-                    default: {
-                        break loop11;
-                    }
-
+                } else {
+                    break;
                 }
             }
 
@@ -945,37 +932,26 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             let cnt14 = 0;
             loop14:
             while (true) {
-                let alt14 = 2;
-                // alt14 = this.dfa14.predict(this.input!);
-                alt14 = this.input.LA(1); // This is wrong! Just to silence eslint and tsc for the moment.
-                switch (alt14) {
-                    case 1: {
-                        // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:130:4: element
-                        {
-                            this.element();
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
-                                return;
-                            }
-
-                        }
-                        break;
+                const alt14 = this.input.LA(1);
+                if (alt14 === ANTLRv4Lexer.ASSIGN || alt14 === ANTLRv4Lexer.PLUS_ASSIGN) {
+                    // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:130:4: element
+                    this.element();
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                    if (this.state.failed) {
+                        return;
+                    }
+                } else {
+                    if (cnt14 >= 1) {
+                        break loop14;
                     }
 
-                    default: {
-                        if (cnt14 >= 1) {
-                            break loop14;
-                        }
+                    if (this.state.backtracking > 0) {
+                        this.state.failed = true;
 
-                        if (this.state.backtracking > 0) {
-                            this.state.failed = true;
-
-                            return;
-                        }
-                        const eee = new EarlyExitException(14, this.input);
-                        throw eee;
+                        return;
                     }
-
+                    const eee = new EarlyExitException(14, this.input);
+                    throw eee;
                 }
                 cnt14++;
             }

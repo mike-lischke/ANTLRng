@@ -74,9 +74,10 @@ export class OutputModelController {
     public treeLevel = -1;
     public root: OutputModelObject; // normally ParserFile, LexerFile, ...
     public currentRule = new Array<RuleFunction>();
-    public currentOuterMostAlt: Alternative;
     public currentBlock: CodeBlock;
     public currentOuterMostAlternativeBlock: CodeBlockForOuterMostAlt;
+
+    private currentOuterMostAlt: Alternative;
 
     public constructor(factory: OutputModelFactory) {
         this.delegate = factory;
@@ -298,8 +299,7 @@ export class OutputModelController {
         // TRIGGER factory functions for rule alts, elements
         const adaptor = new GrammarASTAdaptor(r.ast.token?.inputStream ?? undefined);
 
-        // XXX: Originally used BLOCK.
-        const blk = r.ast.getFirstChildWithType(ANTLRv4Parser.LPAREN) as GrammarAST;
+        const blk = r.ast.getFirstChildWithType(ANTLRv4Parser.BLOCK) as GrammarAST;
         const nodes = new CommonTreeNodeStream(adaptor, blk);
         this.walker = new SourceGenTriggers(nodes, this);
 

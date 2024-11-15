@@ -176,13 +176,18 @@ export class ErrorManager {
             throw new Error("Invalid number of arguments");
         }
 
-        const errorType = allArgs[0] as ErrorType;
+        const errorType = allArgs.shift() as ErrorType;
 
-        if (allArgs.length > 1) {
-            const [errorType, e, args] = allArgs as [ErrorType, Error, unknown[]];
-            msg = new ToolMessage(errorType, e, args);
+        if (allArgs.length > 0) {
+            const error = allArgs[0];
+            if (error instanceof Error) {
+                allArgs.shift();
+                msg = new ToolMessage(errorType, error, allArgs);
+            } else {
+                msg = new ToolMessage(errorType, ...allArgs);
+            }
         } else {
-            msg = new ToolMessage(allArgs[0] as ErrorType);
+            msg = new ToolMessage(errorType);
         }
 
         this.emit(errorType, msg);

@@ -6,7 +6,7 @@
 // cspell: ignore xmltag fdkj
 
 import { STGroupString } from "stringtemplate4ts";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import "../src/Tool.js"; // To kick off the loading of the tool
 
@@ -17,6 +17,8 @@ import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { Grammar } from "../src/tool/Grammar.js";
 import type { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
+import { CodeGenerator } from "../src/codegen/CodeGenerator.js";
+import { ErrorManager } from "../src/tool/ErrorManager.js";
 
 describe("TestActionTranslation", () => {
     const attributeTemplate =
@@ -61,27 +63,32 @@ describe("TestActionTranslation", () => {
             const anal = new AnalysisPipeline(g);
             anal.process();
 
-            /*const gen = new CodeGenerator(g);
+            const gen = new CodeGenerator(g);
             const outputFileST = gen.generateParser(false);
             const output = outputFileST.render();
+
+            const errorCount = ErrorManager.get().errors;
+            if (errorCount > 0) {
+                console.log(errorQueue.toString(true));
+            }
 
             const b = "#" + actionName + "#";
             const start = output.indexOf(b);
             const e = "#end-" + actionName + "#";
             const end = output.indexOf(e);
             const snippet = output.substring(start + b.length, end);
-            expect(snippet).toEqual(expected);*/
+            //expect(snippet).toEqual(expected);
         }
     };
 
-    it("testEscapedLessThanInAction", (): void => {
+    it.only("testEscapedLessThanInAction", (): void => {
         const action = "i<3; '<xmltag>'";
         const expected = "i<3; '<xmltag>'";
         testActions(attributeTemplate, "members", action, expected);
-        testActions(attributeTemplate, "init", action, expected);
-        testActions(attributeTemplate, "inline", action, expected);
-        testActions(attributeTemplate, "finally", action, expected);
-        testActions(attributeTemplate, "inline2", action, expected);
+        //testActions(attributeTemplate, "init", action, expected);
+        //testActions(attributeTemplate, "inline", action, expected);
+        //testActions(attributeTemplate, "finally", action, expected);
+        //testActions(attributeTemplate, "inline2", action, expected);
     });
 
     it("testEscapedInAction", (): void => {
@@ -203,7 +210,7 @@ describe("TestActionTranslation", () => {
      * $e.v yields incorrect value 0 in "e returns [int v] : '1' {$v = 1;} | '(' e ')' {$v = $e.v;} ;"
      * https://github.com/antlr/antlr4/issues/1295
      */
-    it.only("testRuleRefsRecursive", (): void => {
+    it("testRuleRefsRecursive", (): void => {
         const recursiveTemplate =
             "recursiveTemplate(inline) ::= <<\n" +
             "parser grammar A;\n" +

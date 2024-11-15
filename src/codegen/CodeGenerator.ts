@@ -100,9 +100,7 @@ export class CodeGenerator {
     }
 
     public generateParser(header?: boolean): IST {
-        if (!header) {
-            return this.generateParser(false);
-        }
+        header ??= false;
 
         return this.walk(this.createController().buildParserOutputModel(header), header);
     }
@@ -189,41 +187,31 @@ export class CodeGenerator {
     }
 
     public getRecognizerFileName(header?: boolean): string {
-        if (!header) {
-            return this.getRecognizerFileName(false);
-        }
+        header ??= false;
 
         return this.target.getRecognizerFileName(header);
     }
 
     public getListenerFileName(header?: boolean): string {
-        if (!header) {
-            return this.getListenerFileName(false);
-        }
+        header ??= false;
 
         return this.target.getListenerFileName(header);
     }
 
     public getVisitorFileName(header?: boolean): string {
-        if (!header) {
-            return this.getVisitorFileName(false);
-        }
+        header ??= false;
 
         return this.target.getVisitorFileName(header);
     }
 
     public getBaseListenerFileName(header?: boolean): string {
-        if (!header) {
-            return this.getBaseListenerFileName(false);
-        }
+        header ??= false;
 
         return this.target.getBaseListenerFileName(header);
     }
 
     public getBaseVisitorFileName(header?: boolean): string {
-        if (!header) {
-            return this.getBaseVisitorFileName(false);
-        }
+        header ??= false;
 
         return this.target.getBaseVisitorFileName(header);
     }

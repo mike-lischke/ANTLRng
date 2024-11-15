@@ -15,7 +15,7 @@ import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
 /** This is the root node for a grammar (for the top level grammarSpec rule). */
 export class GrammarRootAST extends GrammarASTWithOptions implements IGrammarRootAST {
     public grammarType: GrammarType;
-    public hasErrors: boolean;
+    public hasErrors = false;
 
     /** Track stream used to create this tree */
     public readonly tokenStream: TokenStream;

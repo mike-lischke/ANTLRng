@@ -359,7 +359,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
                     (tok.type === ANTLRv4Parser.TOKEN_REF ||
                         tok.type === ANTLRv4Parser.STRING_LITERAL ||
                         tok.type === ANTLRv4Parser.RULE_REF)) {
-                    // TODO elementOptions += "tokenIndex=" + tok.tokenIndex; unsupported 4 syntax
+                    elementOptions += "tokenIndex=" + tok.tokenIndex;
                 }
 
                 if (node instanceof GrammarASTWithOptions) {

@@ -259,6 +259,7 @@ export class Grammar implements IGrammar, AttributeResolver {
             this.initTokenSymbolTables();
         } else {
             // This branch for all testing scenarios. Must at least give the grammar text.
+            this.name = "Test";
             let fileName = Constants.GRAMMAR_FROM_STRING_NAME;
             let grammarText = args[0] as string;
             let listener: ANTLRToolListener | undefined;
@@ -1248,8 +1249,7 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public getOptionString(key: string): string | undefined {
-        return undefined;
-        //TODO: return this.parseTree!.getOptionString(key);
+        return this.ast.getOptionString(key);
     }
 
     public getStringLiterals(): Set<string> {

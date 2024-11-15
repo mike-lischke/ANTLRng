@@ -311,7 +311,7 @@ predicateOptions
 
 predicateOption
     : elementOption
-    | identifier ASSIGN actionBlock
+    | identifier ASSIGN (actionBlock | INT | STRING_LITERAL)
     ;
 
 labeledElement

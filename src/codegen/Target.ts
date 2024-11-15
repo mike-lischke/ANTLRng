@@ -50,7 +50,7 @@ export abstract class Target {
      * that the target language can hold them as a string.
      * Each target can have a different set in memory at same time.
      */
-    public getTargetCharValueEscape(): Map<char, string> {
+    public getTargetCharValueEscape(): Map<char, string> | undefined {
         return Target.defaultCharValueEscape;
     }
 
@@ -153,7 +153,7 @@ export abstract class Target {
 
         for (let i = 0; i < s.length;) {
             const c = s.codePointAt(i)!;
-            const escaped = (c <= Character.MAX_VALUE) ? this.getTargetCharValueEscape().get(Number(c)) : undefined;
+            const escaped = (c <= Character.MAX_VALUE) ? this.getTargetCharValueEscape()?.get(Number(c)) : undefined;
             if (c !== 0x27 && escaped) { // Don't escape single quotes in strings for Java.
                 result += escaped;
             } else {
@@ -287,7 +287,7 @@ export abstract class Target {
             return String(v);
         }
 
-        const escaped = this.getTargetCharValueEscape().get(v);
+        const escaped = this.getTargetCharValueEscape()?.get(v);
         if (escaped) {
             return escaped;
         }
@@ -502,8 +502,7 @@ export abstract class Target {
         switch (idNode.getParent()?.getType()) {
             case ANTLRv4Parser.ASSIGN: {
                 switch (idNode.getParent()?.getParent()?.getType()) {
-                    //case ANTLRv4Parser.ELEMENT_OPTIONS:
-                    case ANTLRv4Parser.LT: // TODO: is that the right replacement for ELEMENT_OPTIONS?
+                    case ANTLRv4Parser.ELEMENT_OPTIONS:
                     case ANTLRv4Parser.OPTIONS: {
                         return false;
                     }
@@ -517,14 +516,12 @@ export abstract class Target {
                 break;
             }
 
-            //case ANTLRv4Parser.ELEMENT_OPTIONS: {
             case ANTLRv4Parser.AT:
-            case ANTLRv4Parser.LT: { // TODO: is that the right replacement for ELEMENT_OPTIONS?
+            case ANTLRv4Parser.ELEMENT_OPTIONS: {
                 return false;
             }
 
-            //case ANTLRv4Parser.LEXER_ACTION_CALL: {
-            case ANTLRv4Parser.ACTION_CONTENT: { // TODO: is that the right replacement for LEXER_ACTION_CALL?
+            case ANTLRv4Parser.LEXER_ACTION_CALL: {
                 if (idNode.getChildIndex() === 0) {
                     // first child is the command name which is part of the ANTLR language
                     return false;
@@ -637,8 +634,7 @@ export abstract class Target {
             };
 
             private reportError(msg: STMessage): void {
-                ErrorManager.get().toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.cause,
-                    msg.toString());
+                ErrorManager.get().toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.toString());
             }
         }(this));
 

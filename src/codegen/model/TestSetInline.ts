@@ -14,7 +14,7 @@ import { TokenInfo } from "./TokenInfo.js";
 export class Bitset {
     public readonly shift: number;
     private readonly tokens: TokenInfo[] = [];
-    private calculated: bigint;
+    private calculated = 0n;
 
     public constructor(shift: number) {
         this.shift = shift;

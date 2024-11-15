@@ -69,7 +69,6 @@ export abstract class Recognizer extends OutputModelObject {
             this.superClass = new ActionText(undefined, g.getOptionString("superClass") ?? undefined);
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
         this.tokenNames = Recognizer.translateTokenStringsToTarget(g.getTokenDisplayNames(), gen);
         this.literalNames = Recognizer.translateTokenStringsToTarget(g.getTokenLiteralNames(), gen);
         this.symbolicNames = Recognizer.translateTokenStringsToTarget(g.getTokenSymbolicNames(), gen);

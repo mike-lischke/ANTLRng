@@ -363,7 +363,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         }
 
         switch (ebnfRoot.getType()) {
-            case ANTLRv4Parser.QUESTION: {
+            case ANTLRv4Parser.OPTIONAL: {
                 const start = this.newStateOfType(BasicBlockStartState, blkAST);
                 this.atn.defineDecisionState(start);
                 const h = this.makeBlock(start, blkAST, alts);
@@ -371,7 +371,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
                 return this.optional(ebnfRoot, h);
             }
 
-            case ANTLRv4Parser.STAR: {
+            case ANTLRv4Parser.CLOSURE: {
                 const star = this.newStateOfType(StarBlockStartState, ebnfRoot);
                 if (alts.length > 1) {
                     this.atn.defineDecisionState(star);
@@ -382,7 +382,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
                 return this.star(ebnfRoot, h);
             }
 
-            case ANTLRv4Parser.PLUS: {
+            case ANTLRv4Parser.POSITIVE_CLOSURE: {
                 const plus = this.newStateOfType(PlusBlockStartState, ebnfRoot);
                 if (alts.length > 1) {
                     this.atn.defineDecisionState(plus);

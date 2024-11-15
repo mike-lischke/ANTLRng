@@ -51,7 +51,7 @@ export class TreeParser extends BaseRecognizer {
 
         context = context.replaceAll("\\.\\.\\.", " ... "); // ensure spaces around ...
         context = context.trim();
-        const nodes = context.split("\\s+");
+        const nodes = context.split(/\s+/);
         let ni = nodes.length - 1;
         t = adaptor.getParent(t);
         while (ni >= 0 && t !== null) {
