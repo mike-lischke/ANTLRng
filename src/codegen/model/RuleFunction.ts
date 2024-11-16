@@ -14,6 +14,7 @@ import { ANTLRv4Lexer } from "../../generated/ANTLRv4Lexer.js";
 import type { CommonTree } from "../../tree/CommonTree.js";
 
 import { FrequencySet } from "../../misc/FrequencySet.js";
+import { ModelElement } from "../../misc/ModelElement.js";
 import { GrammarASTAdaptor } from "../../parse/GrammarASTAdaptor.js";
 import { ErrorManager } from "../../tool/ErrorManager.js";
 import { ErrorType } from "../../tool/ErrorType.js";
@@ -52,23 +53,32 @@ export class RuleFunction extends OutputModelObject {
     public readonly altToContext: AltLabelStructDecl[];
     public hasLookaheadBlock: boolean;
 
+    @ModelElement
     public code: SrcOp[];
 
+    @ModelElement
+    public locals = new Set<Decl>(); // TODO: move into ctx?
+
+    @ModelElement
     public args?: AttributeDecl[];
 
+    @ModelElement
     public ruleCtx: StructDecl;
 
+    @ModelElement
     public altLabelCtxs?: Map<string, AltLabelStructDecl>;
 
+    @ModelElement
     public namedActions: Map<string, Action>;
 
+    @ModelElement
     public finallyAction: Action;
 
+    @ModelElement
     public exceptions: ExceptionClause[];
 
+    @ModelElement
     public postamble: SrcOp[];
-
-    private locals = new Set<Decl>(); // TODO: move into ctx?
 
     public constructor(factory: OutputModelFactory, r: Rule) {
         super(factory);
@@ -230,7 +240,7 @@ export class RuleFunction extends OutputModelObject {
     public getDeclForAltElement(t: GrammarAST, refLabelName: string, needList: boolean, optional: boolean): Decl[] {
         const decls = new Array<Decl>();
         if (t.getType() === ANTLRv4Lexer.RULE_REF) {
-            const ruleRef = this.factory!.getGrammar()!.getRule(t.getText()!)!;
+            const ruleRef = this.factory!.getGrammar()!.getRule(t.getText())!;
             const ctxName = this.factory!.getGenerator()!.getTarget().getRuleFunctionContextStructName(ruleRef);
             if (needList) {
                 if (this.factory!.getGenerator()!.getTarget().supportsOverloadedMethods()) {
@@ -326,7 +336,7 @@ export class RuleFunction extends OutputModelObject {
     }
 
     private getName(token: GrammarAST): string | null {
-        const tokenText = token.getText()!;
+        const tokenText = token.getText();
         const tokenName = token.getType() !== ANTLRv4Lexer.STRING_LITERAL
             ? tokenText
             : token.g.getTokenName(Number.parseInt(tokenText));
@@ -338,7 +348,7 @@ export class RuleFunction extends OutputModelObject {
     private nodesToStrings<T extends GrammarAST>(nodes: T[]): string[] {
         const a = new Array<string>();
         for (const t of nodes) {
-            a.push(t.getText()!);
+            a.push(t.getText());
         }
 
         return a;

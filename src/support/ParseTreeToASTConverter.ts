@@ -809,7 +809,7 @@ export class ParseTreeToASTConverter {
     }
 
     private static createASTNode(astType: number, context: ParserRuleContext | TerminalNode): GrammarAST {
-        const token = this.createToken(astType, context);
+        const token = this.createToken(astType, context, context.getText());
 
         // The token determines the payload of the AST node as well as the start token index.
         const ast = new GrammarAST(token);

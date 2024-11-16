@@ -31,7 +31,7 @@ export abstract class OutputFile extends OutputModelObject {
         const namedActions = new Map<string, Action>();
         for (const name of g.namedActions.keys()) {
             const ast = g.namedActions.get(name)!;
-            if (filter?.(ast)) {
+            if (!filter || filter(ast)) {
                 namedActions.set(name, new Action(this.factory!, ast));
             }
         }

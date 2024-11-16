@@ -73,7 +73,7 @@ export class OutputModelWalker {
                 continue;
             }
 
-            console.log(`${omo.constructor.name}.${fieldName}`);
+            //console.log(`${omo.constructor.name}.${fieldName}`);
             if (usedFieldNames.has(fieldName)) {
                 ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.constructor.name +
                     " has multiple fields named '" + fieldName + "'");
@@ -86,17 +86,15 @@ export class OutputModelWalker {
                 continue;
             }
 
-            //const o = fi.get(omo);
             const o = omo[fieldName];
             if (o instanceof OutputModelObject) { // SINGLE MODEL OBJECT?
                 const nestedOmo = o;
                 const nestedST = this.walk(nestedOmo, header);
                 st.add(fieldName, nestedST);
             } else {
-                if (Array.isArray(o)) {
-                    const nestedObjects = o as unknown[];
-                    for (const nestedOmo of nestedObjects) {
-                        if (nestedOmo === null) {
+                if (o instanceof Set || Array.isArray(o)) {
+                    for (const nestedOmo of o) {
+                        if (!nestedOmo) {
                             continue;
                         }
 

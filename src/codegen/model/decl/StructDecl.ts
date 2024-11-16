@@ -30,8 +30,6 @@ export class StructDecl extends Decl {
     public derivedFromName: string; // rule name or label name
     public provideCopyFrom: boolean;
 
-    public dispatchMethods: DispatchMethod[] = [];
-
     // Track these separately; Go target needs to generate getters/setters
     // Do not make them templates; we only need the Decl object not the ST
     // built from it. Avoids adding args to StructDecl template
@@ -41,6 +39,9 @@ export class StructDecl extends Decl {
     public ruleContextDecls = new Set<Decl>();
     public ruleContextListDecls = new Set<Decl>();
     public attributeDecls = new Set<Decl>();
+
+    @ModelElement
+    public dispatchMethods: DispatchMethod[] = [];
 
     @ModelElement
     public attrs = new Set<Decl>();

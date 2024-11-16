@@ -850,8 +850,10 @@ export class Grammar implements IGrammar, AttributeResolver {
      * @see #getTokenDisplayName
      * @returns The display names of all tokens defined in the grammar.
      */
-    public getTokenDisplayNames(): string[] {
-        const tokenNames: string[] = [];
+    public getTokenDisplayNames(): Array<string | null> {
+        const numTokens = this.getMaxTokenType();
+        const tokenNames = new Array<string | null>(numTokens + 1);
+        tokenNames.fill(null);
         for (let i = 0; i < tokenNames.length; i++) {
             tokenNames[i] = this.getTokenDisplayName(i);
         }
@@ -863,7 +865,10 @@ export class Grammar implements IGrammar, AttributeResolver {
      * Gets the literal names assigned to tokens in the grammar.
      */
     public getTokenLiteralNames(): Array<string | null> {
-        const literalNames: Array<string | null> = [];
+        const numTokens = this.getMaxTokenType();
+        const literalNames = new Array<string | null>(numTokens + 1);
+        literalNames.fill(null);
+
         for (let i = 0; i < Math.min(literalNames.length, this.typeToStringLiteralList.length); i++) {
             literalNames[i] = this.typeToStringLiteralList[i];
         }
@@ -880,8 +885,11 @@ export class Grammar implements IGrammar, AttributeResolver {
     /**
      * Gets the symbolic names assigned to tokens in the grammar.
      */
-    public getTokenSymbolicNames(): string[] {
-        const symbolicNames: string[] = [];
+    public getTokenSymbolicNames(): Array<string | null> {
+        const numTokens = this.getMaxTokenType();
+        const symbolicNames = new Array<string | null>(numTokens + 1);
+        symbolicNames.fill(null);
+
         for (let i = 0; i < Math.min(symbolicNames.length, this.typeToTokenList.length); i++) {
             const name = this.typeToTokenList[i];
             if (!name || name.startsWith(Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX)) {
