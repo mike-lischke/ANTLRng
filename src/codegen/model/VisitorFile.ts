@@ -5,6 +5,7 @@
  */
 
 import { grammarOptions } from "../../grammar-options.js";
+import { ModelElement } from "../../misc/ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";
 import { OutputFile } from "./OutputFile.js";
@@ -28,8 +29,10 @@ export class VisitorFile extends OutputFile {
      */
     public visitorLabelRuleNames = new Map<string, string>();
 
+    @ModelElement
     public header: Action;
 
+    @ModelElement
     public namedActions: Map<string, Action>;
 
     public constructor(factory: OutputModelFactory, fileName: string) {
@@ -37,7 +40,7 @@ export class VisitorFile extends OutputFile {
 
         const g = factory.getGrammar()!;
         this.namedActions = this.buildNamedActions(g, (ast) => {
-            return ast.getScope() === null; 
+            return ast.getScope() === null;
         });
         this.parserName = g.getRecognizerName();
         this.grammarName = g.name;

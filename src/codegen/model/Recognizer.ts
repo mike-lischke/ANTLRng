@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { ModelElement } from "../../misc/ModelElement.js";
 import { Rule } from "../../tool/Rule.js";
 import { CodeGenerator } from "../CodeGenerator.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -35,10 +36,13 @@ export abstract class Recognizer extends OutputModelObject {
     public ruleNames: Set<string>;
     public rules: Rule[];
 
-    public superClass?: ActionChunk;
+    @ModelElement
+    public superClass: ActionChunk;
 
+    @ModelElement
     public atn: SerializedATN;
 
+    @ModelElement
     public sempredFuncs = new Map<Rule, RuleSempredFunction>();
 
     public constructor(factory: OutputModelFactory) {

@@ -5,6 +5,7 @@
  */
 
 import { grammarOptions } from "../../../grammar-options.js";
+import { ModelElement } from "../../../misc/ModelElement.js";
 import type { IAttribute } from "../../../tool/IAttribute.js";
 import { Rule } from "../../../tool/Rule.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
@@ -29,15 +30,7 @@ export class StructDecl extends Decl {
     public derivedFromName: string; // rule name or label name
     public provideCopyFrom: boolean;
 
-    public attrs = new Set<Decl>();
-    public getters = new Set<Decl>();
-    public ctorAttrs: AttributeDecl[] = [];
     public dispatchMethods: DispatchMethod[] = [];
-    public interfaces: OutputModelObject[] = [];
-    public extensionMembers: OutputModelObject[] = [];
-
-    // Used to generate method signatures in Go target interfaces
-    public signatures = new Set<Decl>();
 
     // Track these separately; Go target needs to generate getters/setters
     // Do not make them templates; we only need the Decl object not the ST
@@ -48,6 +41,25 @@ export class StructDecl extends Decl {
     public ruleContextDecls = new Set<Decl>();
     public ruleContextListDecls = new Set<Decl>();
     public attributeDecls = new Set<Decl>();
+
+    @ModelElement
+    public attrs = new Set<Decl>();
+
+    @ModelElement
+    public getters = new Set<Decl>();
+
+    @ModelElement
+    public ctorAttrs: AttributeDecl[] = [];
+
+    @ModelElement
+    public interfaces: OutputModelObject[] = [];
+
+    @ModelElement
+    public extensionMembers: OutputModelObject[] = [];
+
+    // Used to generate method signatures in Go target interfaces
+    @ModelElement
+    public signatures = new Set<Decl>();
 
     public constructor(factory: OutputModelFactory, r: Rule, name?: string) {
         super(factory, name ?? factory.getGenerator()!.getTarget().getRuleFunctionContextStructName(r));

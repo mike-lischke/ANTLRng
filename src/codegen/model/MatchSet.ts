@@ -5,6 +5,8 @@
  */
 
 import { SetTransition } from "antlr4ng";
+
+import { ModelElement } from "../../misc/ModelElement.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { CaptureNextTokenType } from "./CaptureNextTokenType.js";
@@ -13,9 +15,10 @@ import { MatchToken } from "./MatchToken.js";
 import { TestSetInline } from "./TestSetInline.js";
 
 export class MatchSet extends MatchToken {
-
+    @ModelElement
     public expr: TestSetInline;
 
+    @ModelElement
     public capture: CaptureNextTokenType;
 
     public constructor(factory: OutputModelFactory, ast: GrammarAST) {

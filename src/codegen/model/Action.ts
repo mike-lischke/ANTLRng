@@ -9,6 +9,7 @@ import type { IST, ST } from "stringtemplate4ts";
 
 import { ANTLRv4Parser } from "../../generated/ANTLRv4Parser.js";
 
+import { ModelElement } from "../../misc/ModelElement.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { ActionTranslator } from "../ActionTranslator.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -20,6 +21,7 @@ import { RuleElement } from "./RuleElement.js";
 
 export class Action extends RuleElement {
 
+    @ModelElement
     public chunks: ActionChunk[] = [];
 
     public constructor(factory: OutputModelFactory, ast?: ActionAST);

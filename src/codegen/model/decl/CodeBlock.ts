@@ -6,6 +6,7 @@
 
 /* eslint-disable jsdoc/require-param */
 
+import { ModelElement } from "../../../misc/ModelElement.js";
 import { type OutputModelFactory } from "../../OutputModelFactory.js";
 import { SrcOp } from "../SrcOp.js";
 import { type Decl } from "./Decl.js";
@@ -14,10 +15,13 @@ export class CodeBlock extends SrcOp {
     public codeBlockLevel: number;
     public treeLevel: number;
 
+    @ModelElement
     public locals = new Set<Decl>();
 
+    @ModelElement
     public preamble: SrcOp[] = [];
 
+    @ModelElement
     public ops: SrcOp[] = [];
 
     public constructor(factory: OutputModelFactory);

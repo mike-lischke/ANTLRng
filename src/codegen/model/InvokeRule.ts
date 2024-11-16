@@ -5,6 +5,7 @@
  */
 
 import { ANTLRv4Parser } from "../../generated/ANTLRv4Parser.js";
+import { ModelElement } from "../../misc/ModelElement.js";
 
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
@@ -23,6 +24,7 @@ export class InvokeRule extends RuleElement implements LabeledOp {
     public readonly labels = new Set<Decl>(); // TODO: should need just 1
     public readonly ctxName: string;
 
+    @ModelElement
     public argExprsChunks: ActionChunk[];
 
     public constructor(factory: ParserFactory, ast: GrammarAST, labelAST: GrammarAST | null) {

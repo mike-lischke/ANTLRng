@@ -5,6 +5,7 @@
  */
 
 import { DecisionState } from "antlr4ng";
+import { ModelElement } from "../../misc/ModelElement.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
@@ -13,9 +14,10 @@ import { SrcOp } from "./SrcOp.js";
 
 /** (A B C)? */
 export class LL1OptionalBlockSingleAlt extends LL1Choice {
-
+    @ModelElement
     public expr: SrcOp | null;
 
+    @ModelElement
     public followExpr: SrcOp[]; // might not work in template if size>1
 
     public constructor(factory: OutputModelFactory,

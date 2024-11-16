@@ -10,6 +10,7 @@ import { Tool } from "../Tool.js";
 import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { OutputModelObject } from "./model/OutputModelObject.js";
+import { isModelElement } from "../misc/ModelElement.js";
 
 /**
  * Convert an output model tree to template hierarchy by walking
@@ -64,15 +65,15 @@ export class OutputModelWalker {
         const [modelArgName] = [...formalArgs.keys()];
         st.add(modelArgName, omo);
 
-        // COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH @ModelElement AND MAKE ST ATTRIBUTE
+        // Compute templates for each nested model object. The original code uses an annotation to identify
+        // which fields are model objects. For now, we'll assume that all fields are model objects.
         const usedFieldNames = new Set<string>();
-        const fields = Object.keys(omo);
-        for (const fieldName of fields) {
-            /* let annotation = fi.getAnnotation(ModelElement.class);
-            if (annotation === null) {
+        for (const fieldName in omo) {
+            if (!isModelElement(omo, fieldName)) {
                 continue;
-            }*/
+            }
 
+            console.log(`${omo.constructor.name}.${fieldName}`);
             if (usedFieldNames.has(fieldName)) {
                 ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.constructor.name +
                     " has multiple fields named '" + fieldName + "'");
@@ -93,8 +94,8 @@ export class OutputModelWalker {
                 st.add(fieldName, nestedST);
             } else {
                 if (Array.isArray(o)) {
-                    const nestedOmos = o as unknown[];
-                    for (const nestedOmo of nestedOmos) {
+                    const nestedObjects = o as unknown[];
+                    for (const nestedOmo of nestedObjects) {
                         if (nestedOmo === null) {
                             continue;
                         }

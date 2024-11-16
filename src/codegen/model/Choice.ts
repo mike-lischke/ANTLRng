@@ -6,6 +6,7 @@
 
 import { IntervalSet } from "antlr4ng";
 
+import { ModelElement } from "../../misc/ModelElement.js";
 import { Utils } from "../../misc/Utils.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -34,8 +35,10 @@ export abstract class Choice extends RuleElement {
     public decision = -1;
     public label: Decl;
 
+    @ModelElement
     public alts: CodeBlockForAlt[] = [];
 
+    @ModelElement
     public preamble: SrcOp[] = [];
 
     public constructor(factory: OutputModelFactory,

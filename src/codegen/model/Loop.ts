@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { ModelElement } from "../../misc/ModelElement.js";
 import { GrammarAST } from "../../tool/ast/GrammarAST.js";
 import { QuantifierAST } from "../../tool/ast/QuantifierAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -16,6 +17,7 @@ export class Loop extends Choice {
     public loopBackStateNumber: number;
     public readonly exitAlt: number;
 
+    @ModelElement
     public iteration: SrcOp[] = [];
 
     public constructor(factory: OutputModelFactory,

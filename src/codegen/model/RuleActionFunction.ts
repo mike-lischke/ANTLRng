@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { ModelElement } from "../../misc/ModelElement.js";
 import { Rule } from "../../tool/Rule.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";
@@ -16,6 +17,7 @@ export class RuleActionFunction extends OutputModelObject {
     public readonly ruleIndex: number;
 
     /** Map actionIndex to Action */
+    @ModelElement
     public actions = new Map<number, Action>();
 
     public constructor(factory: OutputModelFactory, r: Rule, ctxType: string) {

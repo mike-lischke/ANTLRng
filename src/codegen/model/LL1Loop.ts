@@ -12,6 +12,7 @@ import { Choice } from "./Choice.js";
 import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
 import { OutputModelObject } from "./OutputModelObject.js";
 import { SrcOp } from "./SrcOp.js";
+import { ModelElement } from "../../misc/ModelElement.js";
 
 export abstract class LL1Loop extends Choice {
 
@@ -22,8 +23,10 @@ export abstract class LL1Loop extends Choice {
     public blockStartStateNumber: number;
     public loopBackStateNumber: number;
 
+    @ModelElement
     public loopExpr: OutputModelObject | null;
 
+    @ModelElement
     public iteration: SrcOp[] = [];
 
     public constructor(factory: OutputModelFactory,

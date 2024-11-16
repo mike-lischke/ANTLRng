@@ -5,6 +5,7 @@
  */
 
 import { grammarOptions } from "../../grammar-options.js";
+import { ModelElement } from "../../misc/ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";
 import { ActionChunk } from "./chunk/ActionChunk.js";
@@ -18,12 +19,16 @@ export class ParserFile extends OutputFile {
     public genListener: boolean; // from -listener cmd-line
     public genVisitor: boolean; // from -visitor cmd-line
 
+    public grammarName: string;
+
+    @ModelElement
     public parser: Parser;
 
+    @ModelElement
     public namedActions: Map<string, Action>;
 
+    @ModelElement
     public contextSuperClass: ActionChunk;
-    public grammarName: string;
 
     public constructor(factory: OutputModelFactory, fileName: string) {
         super(factory, fileName);

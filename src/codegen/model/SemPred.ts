@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { ModelElement } from "../../misc/ModelElement.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { ActionTranslator } from "../ActionTranslator.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -33,7 +34,7 @@ export class SemPred extends Action {
      * <p>
      * {@code {pred}?<fail={"Java literal"}>}</p>
      */
-
+    @ModelElement
     public failChunks: ActionChunk[];
 
     public constructor(factory: OutputModelFactory, ast: ActionAST) {

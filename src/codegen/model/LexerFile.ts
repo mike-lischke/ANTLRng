@@ -5,6 +5,7 @@
  */
 
 import { grammarOptions } from "../../grammar-options.js";
+import { ModelElement } from "../../misc/ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";
 import { Lexer } from "./Lexer.js";
@@ -16,8 +17,10 @@ export class LexerFile extends OutputFile {
     public genListener: boolean; // from -listener cmd-line
     public genVisitor: boolean; // from -visitor cmd-line
 
+    @ModelElement
     public lexer: Lexer;
 
+    @ModelElement
     public namedActions: Map<string, Action>;
 
     public constructor(factory: OutputModelFactory, fileName: string) {

@@ -11,9 +11,10 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { CodeBlockForAlt } from "./CodeBlockForAlt.js";
 import { Loop } from "./Loop.js";
 import { ThrowNoViableAlt } from "./ThrowNoViableAlt.js";
+import { ModelElement } from "../../misc/ModelElement.js";
 
 export class PlusBlock extends Loop {
-
+    @ModelElement
     public error: ThrowNoViableAlt;
 
     public constructor(factory: OutputModelFactory,
