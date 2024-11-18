@@ -4842,7 +4842,22 @@ export class GrammarTreeVisitor extends TreeParser {
                     if ((LA53_2 === Constants.DOWN)) {
                         alt53 = 3;
                     } else {
-                        if ((LA53_2 === ANTLRv4Lexer.EOF || (LA53_2 >= Constants.UP && LA53_2 <= ANTLRv4Lexer.ACTION) || LA53_2 === ANTLRv4Lexer.ASSIGN || LA53_2 === ANTLRv4Lexer.DOT || LA53_2 === ANTLRv4Lexer.LEXER_CHAR_SET || LA53_2 === ANTLRv4Lexer.NOT || LA53_2 === ANTLRv4Lexer.PLUS_ASSIGN || LA53_2 === ANTLRv4Lexer.RANGE || LA53_2 === ANTLRv4Lexer.RULE_REF || LA53_2 === ANTLRv4Lexer.SEMPRED || LA53_2 === ANTLRv4Lexer.STRING_LITERAL || LA53_2 === ANTLRv4Lexer.TOKEN_REF || (LA53_2 >= ANTLRv4Lexer.BLOCK && LA53_2 <= ANTLRv4Lexer.CLOSURE) || LA53_2 === ANTLRv4Lexer.EPSILON || (LA53_2 >= ANTLRv4Lexer.OPTIONAL && LA53_2 <= ANTLRv4Lexer.POSITIVE_CLOSURE) || (LA53_2 >= ANTLRv4Lexer.SET && LA53_2 <= ANTLRv4Lexer.WILDCARD))) {
+                        if ((LA53_2 === ANTLRv4Lexer.EOF
+                            || (LA53_2 >= Constants.UP && LA53_2 <= ANTLRv4Lexer.ACTION)
+                            || LA53_2 === ANTLRv4Lexer.ASSIGN
+                            || LA53_2 === ANTLRv4Lexer.DOT
+                            || LA53_2 === ANTLRv4Lexer.LEXER_CHAR_SET
+                            || LA53_2 === ANTLRv4Lexer.NOT
+                            || LA53_2 === ANTLRv4Lexer.PLUS_ASSIGN
+                            || LA53_2 === ANTLRv4Lexer.RANGE
+                            || LA53_2 === ANTLRv4Lexer.RULE_REF
+                            || LA53_2 === ANTLRv4Lexer.SEMPRED
+                            || LA53_2 === ANTLRv4Lexer.STRING_LITERAL
+                            || LA53_2 === ANTLRv4Lexer.TOKEN_REF
+                            || (LA53_2 >= ANTLRv4Lexer.BLOCK && LA53_2 <= ANTLRv4Lexer.CLOSURE)
+                            || LA53_2 === ANTLRv4Lexer.EPSILON
+                            || (LA53_2 >= ANTLRv4Lexer.OPTIONAL && LA53_2 <= ANTLRv4Lexer.POSITIVE_CLOSURE)
+                            || (LA53_2 >= ANTLRv4Lexer.SET && LA53_2 <= ANTLRv4Lexer.WILDCARD))) {
                             alt53 = 4;
                         } else {
                             const nvaeMark = this.input.mark();

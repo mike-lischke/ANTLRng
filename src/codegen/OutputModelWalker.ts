@@ -4,13 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { HashSet, OrderedHashSet } from "antlr4ng";
 import { ST, STGroup, type IST } from "stringtemplate4ts";
 
+import { isModelElement } from "../misc/ModelElement.js";
 import { Tool } from "../Tool.js";
 import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { OutputModelObject } from "./model/OutputModelObject.js";
-import { isModelElement } from "../misc/ModelElement.js";
 
 /**
  * Convert an output model tree to template hierarchy by walking
@@ -92,7 +93,7 @@ export class OutputModelWalker {
                 const nestedST = this.walk(nestedOmo, header);
                 st.add(fieldName, nestedST);
             } else {
-                if (o instanceof Set || Array.isArray(o)) {
+                if (o instanceof Set || o instanceof HashSet || o instanceof OrderedHashSet || Array.isArray(o)) {
                     for (const nestedOmo of o) {
                         if (!nestedOmo) {
                             continue;

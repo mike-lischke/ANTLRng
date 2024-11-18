@@ -58,6 +58,8 @@ export class LexerATNFactory extends ParserATNFactory {
         ["EOF", Lexer.EOF],
         //["MAX_CHAR_VALUE", Lexer.MAX_CHAR_VALUE], // TODO: are these constants needed?
         //["MIN_CHAR_VALUE", Lexer.MIN_CHAR_VALUE],
+        ["MAX_CHAR_VALUE", 0x1FFFF],
+        ["MIN_CHAR_VALUE", 0],
     ]);
 
     public static CharSetParseState = class CharSetParseState {
@@ -133,8 +135,8 @@ export class LexerATNFactory extends ParserATNFactory {
         this.codegenTemplates = codeGenerator.getTemplates();
     }
 
-    public static getCommonConstants(): MapIterator<string> {
-        return LexerATNFactory.COMMON_CONSTANTS.keys();
+    public static getCommonConstants(): Map<string, number> {
+        return LexerATNFactory.COMMON_CONSTANTS;
     }
 
     public override createATN(): ATN {

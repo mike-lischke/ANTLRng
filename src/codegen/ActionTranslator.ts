@@ -132,8 +132,8 @@ export class ActionTranslator implements ActionSplitterListener {
         }
 
         const input = CharStream.fromString(action);
-        //input.setLine(tokenWithinAction.getLine());
-        //input.setCharPositionInLine(tokenWithinAction.getCharPositionInLine());
+        // TODO: input.setLine(tokenWithinAction.getLine());
+        // TODO: input.setCharPositionInLine(tokenWithinAction.getCharPositionInLine());
         const trigger = new ActionSplitter(input);
 
         // forces eval, triggers listener methods

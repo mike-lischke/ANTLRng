@@ -4,11 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { ModelElement } from "../../../misc/ModelElement.js";
 import { StructDecl } from "../decl/StructDecl.js";
 import { ActionChunk } from "./ActionChunk.js";
 import { SymbolRefChunk } from "./SymbolRefChunk.js";
 
 export class SetAttr extends SymbolRefChunk {
+    @ModelElement
     public rhsChunks: ActionChunk[];
 
     public constructor(ctx: StructDecl, name: string, escapedName: string, rhsChunks: ActionChunk[]) {

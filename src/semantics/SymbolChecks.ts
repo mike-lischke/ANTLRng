@@ -53,9 +53,10 @@ export class SymbolChecks {
             this.tokenIDs.add(tokenId.getText());
         }
 
-        LexerATNFactory.getCommonConstants().forEach((value) => {
-            this.reservedNames.add(value);
+        LexerATNFactory.getCommonConstants().forEach((value, key) => {
+            this.reservedNames.add(key);
         });
+
     }
 
     public process(): void {
@@ -385,7 +386,8 @@ export class SymbolChecks {
      */
     private getSingleTokenValues(rule: Rule): string[] {
         const values: string[] = [];
-        for (const alt of rule.alt) {
+        for (let i = 1; i < rule.alt.length; i++) { // Index 0 is not used.
+            const alt = rule.alt[i];
             // select first alt if token has a command
             const rootNode = alt.ast.getChildCount() === 2 &&
                 alt.ast.getChild(0) instanceof AltAST && alt.ast.getChild(1) instanceof GrammarAST

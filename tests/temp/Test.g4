@@ -1,6 +1,6 @@
-grammar A;
+grammar Test;
 
-@members {#members#i<3; '<xmltag>'#end-members#}
+@members {#members#int \\$n; "\\$in string\\$"#end-members#}
 
 a[int x, int x1]
     returns[int y]
@@ -13,7 +13,7 @@ finally {
 #finally##end-finally#
 }
 
-b[int d1]
+b[int d]
     returns[int e]:
     {#inline2##end-inline2#}
 ;

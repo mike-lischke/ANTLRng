@@ -4,10 +4,12 @@
 * can be found in the LICENSE.txt file in the project root.
 */
 
+// The string values of this type appear in look up maps.
+// TODO: Change to enum.
 export enum LabelType {
-    RuleLabel = 0,
-    TokenLabel = 1,
-    RuleListLabel = 2,
-    TokenListLabel = 3,
-    LexerStringLabel = 4 // used in lexer for x='a'
+    RuleLabel = "RULE_LABEL",
+    TokenLabel = "TOKEN_LABEL",
+    RuleListLabel = "RULE_LIST_LABEL",
+    TokenListLabel = "TOKEN_LIST_LABEL",
+    LexerStringLabel = "LEXER_STRING_LABEL" // used in lexer for x='a'
 }

@@ -262,7 +262,7 @@ export class CommonTree implements ParseTree {
     public sanityCheckParentAndChildIndexes(...args: unknown[]): void {
         const parent = args[0] as CommonTree | undefined;
         const i = (args[1] ?? -1) as number;
-        if (parent !== this.parent) {
+        if (parent !== (this.parent ?? undefined)) {
             throw new Error(`parents don't match; expected ${parent} found ${this.parent}`);
         }
 

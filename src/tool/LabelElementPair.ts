@@ -12,11 +12,7 @@ import { LabelType } from "./LabelType.js";
 import { GrammarAST } from "./ast/GrammarAST.js";
 
 export class LabelElementPair {
-    public static readonly tokenTypeForTokens = new BitSet([
-        ANTLRv4Parser.TOKEN_REF,
-        ANTLRv4Parser.STRING_LITERAL,
-        ANTLRv4Parser.STAR,
-    ]);
+    public static readonly tokenTypeForTokens = new BitSet();
 
     public label: GrammarAST;
     public element: GrammarAST;
@@ -56,5 +52,11 @@ export class LabelElementPair {
 
     public toString(): string {
         return this.label.getText() + " " + this.type + " " + this.element.toString();
+    }
+
+    static {
+        LabelElementPair.tokenTypeForTokens.set(ANTLRv4Parser.TOKEN_REF);
+        LabelElementPair.tokenTypeForTokens.set(ANTLRv4Parser.STRING_LITERAL);
+        LabelElementPair.tokenTypeForTokens.set(ANTLRv4Parser.WILDCARD);
     }
 }

@@ -117,7 +117,7 @@ export class Alternative implements AttributeResolver, IAlternative {
 
         const anyLabelDef = this.getAnyLabelDef(x);
         if (anyLabelDef !== null && anyLabelDef.type === LabelType.RuleLabel) {
-            return this.rule.g.getRule(anyLabelDef.element.getText()!)!.resolveRetvalOrProperty(y);
+            return this.rule.g.getRule(anyLabelDef.element.getText())!.resolveRetvalOrProperty(y);
         } else {
             if (anyLabelDef !== null) {
                 const scope = this.rule.getPredefinedScope(anyLabelDef.type);
@@ -165,7 +165,7 @@ export class Alternative implements AttributeResolver, IAlternative {
 
         const anyLabelDef = this.getAnyLabelDef(x);
         if (anyLabelDef && anyLabelDef.type === LabelType.RuleLabel) {
-            return this.rule.g.getRule(anyLabelDef.element.getText()!);
+            return this.rule.g.getRule(anyLabelDef.element.getText());
         }
 
         return null;

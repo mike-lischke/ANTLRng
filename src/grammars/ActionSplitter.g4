@@ -17,17 +17,17 @@ import type { ActionSplitterListener } from "../parse/ActionSplitterListener.js"
 }
 
 @members {
-private readonly attrValueExpr = /[^=][^;]*/;
-private readonly ws = /[ \t\n\r]+/;
-private readonly id = /[a-zA-Z_][a-zA-Z0-9_]*/;
-private readonly setNonLocalAttr = new RegExp(`\\$(?<x>${this.id.source})::(<y>${this.id.source})\s?=(?<expr>${this.attrValueExpr.source});`);
-private readonly nonLocalAttr = new RegExp(`\\$(?<x>${this.id.source})::(?<y>${this.id.source})`);
-private readonly qualifiedAttr = new RegExp(`\\$(?<x>${this.id.source}).(?<y>${this.id.source})`);
-private readonly setAttr = new RegExp(`\\$(?<x>${this.id.source})\s?=(?<expr>${this.attrValueExpr.source});`);
-private readonly attr = new RegExp(`\\$(?<x>${this.id.source})`);
+static readonly #attrValueExpr = /[^=][^;]*/;
+static readonly #ws = /[ \t\n\r]+/;
+static readonly #id = /[a-zA-Z_][a-zA-Z0-9_]*/;
+static readonly #setNonLocalAttr = new RegExp(`\\$(?<x>${this.#id.source})::(<y>${this.#id.source})\s?=(?<expr>${this.#attrValueExpr.source});`);
+static readonly #nonLocalAttr = new RegExp(`\\$(?<x>${this.#id.source})::(?<y>${this.#id.source})`);
+static readonly #qualifiedAttr = new RegExp(`\\$(?<x>${this.#id.source}).(?<y>${this.#id.source})`);
+static readonly #setAttr = new RegExp(`\\$(?<x>${this.#id.source})\s?=(?<expr>${this.#attrValueExpr.source});`);
+static readonly #attr = new RegExp(`\\$(?<x>${this.#id.source})`);
 
 /** Force filtering (and return tokens). Sends token values to the delegate. */
-    public getActionTokens(delegate: ActionSplitterListener): Token[] {
+public getActionTokens(delegate: ActionSplitterListener): Token[] {
     const tokens = this.getAllTokens();
     for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i];
@@ -35,7 +35,9 @@ private readonly attr = new RegExp(`\\$(?<x>${this.id.source})`);
             case ActionSplitter.COMMENT:
             case ActionSplitter.LINE_COMMENT:
             case ActionSplitter.TEXT: {
-                delegate.text(t.text!);
+                // Replace $ with $.
+                const text = t.text!.replaceAll("\\$", "$");
+                delegate.text(text);
 
                 break;
             }
@@ -44,7 +46,7 @@ private readonly attr = new RegExp(`\\$(?<x>${this.id.source})`);
                 const text = t.text!;
 
                 // Parse the text and extract the named groups from the match result.
-                const match = text.match(this.setNonLocalAttr);
+                const match = text.match(ActionSplitter.#setNonLocalAttr);
                 if (match === null) {
                     throw new Error(`Mismatched input '${text}'`);
                 }
@@ -58,7 +60,7 @@ private readonly attr = new RegExp(`\\$(?<x>${this.id.source})`);
             case ActionSplitter.NONLOCAL_ATTR: {
                 const text = t.text!;
 
-                const match = text.match(this.nonLocalAttr);
+                const match = text.match(ActionSplitter.#nonLocalAttr);
                 if (match === null) {
                     throw new Error(`Mismatched input '${text}'`);
                 }
@@ -72,7 +74,7 @@ private readonly attr = new RegExp(`\\$(?<x>${this.id.source})`);
             case ActionSplitter.QUALIFIED_ATTR: {
                 let text = t.text!;
 
-                const match = text.match(this.qualifiedAttr);
+                const match = text.match(ActionSplitter.#qualifiedAttr);
                 if (match === null) {
                     throw new Error(`Mismatched input '${text}'`);
                 }
@@ -100,7 +102,7 @@ private readonly attr = new RegExp(`\\$(?<x>${this.id.source})`);
             case ActionSplitter.SET_ATTR: {
                 const text = t.text!;
 
-                const match = text.match(this.setAttr);
+                const match = text.match(ActionSplitter.#setAttr);
                 if (match === null) {
                     throw new Error(`Mismatched input '${text}'`);
                 }
@@ -114,7 +116,7 @@ private readonly attr = new RegExp(`\\$(?<x>${this.id.source})`);
             case ActionSplitter.ATTR: {
                 const text = t.text!;
 
-                const match = text.match(this.attr);
+                const match = text.match(ActionSplitter.#attr);
                 if (match === null) {
                     throw new Error(`Mismatched input '${text}'`);
                 }
@@ -154,7 +156,7 @@ ATTR: '$' ID;
 
 // Anything else is just random text
 
-TEXT: ( ~('\\' | '$') | '\\$' | '\\' ~('$') | {!this.isIDStartChar(this.inputStream.LA(2))}? '$')+;
+TEXT: (~'$' | '\\$' | '$' ~[a-zA-Z_])+;
 
 fragment ID: ('a' ..'z' | 'A' ..'Z' | '_') ('a' ..'z' | 'A' ..'Z' | '0' ..'9' | '_')*;
 

@@ -399,7 +399,7 @@ elementOptions
 
 elementOption
     : identifier
-    | identifier ASSIGN (identifier | STRING_LITERAL)
+    | identifier ASSIGN (identifier | STRING_LITERAL | INT)
     ;
 
 identifier

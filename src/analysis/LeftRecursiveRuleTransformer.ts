@@ -182,7 +182,7 @@ export class LeftRecursiveRuleTransformer {
         this.setAltASTPointers(r, t);
 
         // update Rule to just one alt and add prec alt
-        const arg = r.ast.getFirstChildWithType(ANTLRv4Parser.BEGIN_ARGUMENT) as ActionAST | null;
+        const arg = r.ast.getFirstChildWithType(ANTLRv4Parser.ARG_ACTION) as ActionAST | null;
         if (arg !== null) {
             r.args = ScopeParser.parseTypedArgList(arg, arg.getText(), this.g);
             r.args.type = DictType.Argument;

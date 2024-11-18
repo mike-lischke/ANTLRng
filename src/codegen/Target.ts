@@ -31,7 +31,18 @@ import { RuleFunction } from "./model/RuleFunction.js";
 export type char = number;
 
 export abstract class Target {
-    protected static readonly defaultCharValueEscape: Map<char, string>;
+    protected static readonly defaultCharValueEscape = new Map<char, string>([
+        [0x08, "\\b"],
+        [0x09, "\\t"],
+        [0x0A, "\\n"],
+        [0x0C, "\\f"],
+        [0x0D, "\\r"],
+        [0x1B, "\\e"],
+        [0x22, "\\\""],
+        [0x27, "\\'"],
+        [0x5C, "\\\\"]
+    ]);
+
     private static readonly languageTemplates = new Map<string, STGroup>();
 
     public constructor(protected gen: CodeGenerator) {
@@ -598,7 +609,7 @@ export abstract class Target {
     }
 
     protected escapeChar(v: number): string {
-        return v.toString(16).padStart(4, "0");
+        return `\\u${v.toString(16).padStart(4, "0")}`;
     }
 
     /**

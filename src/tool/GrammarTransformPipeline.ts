@@ -137,11 +137,11 @@ export class GrammarTransformPipeline {
         const actionRoots = root.getNodesWithType(ANTLRv4Parser.AT);
 
         // Compute list of rules in root grammar and ensure we have a RULES node
-        const rootRulesRoot = root.getFirstChildWithType(ANTLRv4Parser.RULE_REF) as GrammarAST;
+        const rootRulesRoot = root.getFirstChildWithType(ANTLRv4Parser.RULES) as GrammarAST;
         const rootRuleNames = new Set<string>();
 
         // make list of rules we have in root grammar
-        const rootRules = rootRulesRoot.getNodesWithType(ANTLRv4Parser.RULE_REF);
+        const rootRules = rootRulesRoot.getNodesWithType(ANTLRv4Parser.RULES);
         for (const r of rootRules) {
             rootRuleNames.add(r.getChild(0)!.getText());
         }
@@ -288,7 +288,7 @@ export class GrammarTransformPipeline {
                 }
 
                 let addedRules = 0;
-                const modeRules = m.getAllChildrenWithType(ANTLRv4Parser.RULE_REF);
+                const modeRules = m.getAllChildrenWithType(ANTLRv4Parser.RULES);
                 for (const r of modeRules) {
                     rootGrammar.tool.logInfo({ component: "grammar", msg: `imported rule: ${r.toStringTree()}` });
                     const ruleName = r.getChild(0)!.getText();
@@ -309,7 +309,7 @@ export class GrammarTransformPipeline {
 
             // COPY RULES
             // Rules copied in the mode copy phase are not copied again.
-            const rules = imp.ast.getNodesWithType(ANTLRv4Parser.RULE_REF);
+            const rules = imp.ast.getNodesWithType(ANTLRv4Parser.RULES);
             for (const r of rules) {
                 rootGrammar.tool.logInfo({ component: "grammar", msg: `imported rule: ${r.toStringTree()}` });
                 const name = r.getChild(0)!.getText();
@@ -416,14 +416,14 @@ export class GrammarTransformPipeline {
             combinedContext.deleteChild(r);
         }
 
-        const combinedRulesRoot = combinedContext.getFirstChildWithType(ANTLRv4Parser.RULE_REF) as GrammarAST | null;
+        const combinedRulesRoot = combinedContext.getFirstChildWithType(ANTLRv4Parser.RULES) as GrammarAST | null;
         if (combinedRulesRoot === null) {
             return lexerAST;
         }
 
         // MOVE lexer rules
 
-        const lexerRulesRoot = adaptor.create(ANTLRv4Parser.RULE_REF, "RULES");
+        const lexerRulesRoot = adaptor.create(ANTLRv4Parser.RULES, "RULES");
         lexerAST.addChild(lexerRulesRoot);
         const rulesWeMoved = new Array<GrammarAST>();
         let rules: GrammarASTWithOptions[];
@@ -471,9 +471,9 @@ export class GrammarTransformPipeline {
             const ruleName = combinedGrammar.getStringLiteralLexerRuleName(lit);
 
             // can't use wizard; need special node types
-            const litRule = new RuleAST(ANTLRv4Parser.RULE_REF);
-            const blk = new BlockAST(ANTLRv4Parser.LPAREN);
-            const alt = new AltAST(ANTLRv4Parser.OR);
+            const litRule = new RuleAST(ANTLRv4Parser.RULE);
+            const blk = new BlockAST(ANTLRv4Parser.BLOCK);
+            const alt = new AltAST(ANTLRv4Parser.ALT);
 
             const slit = new TerminalAST(CommonToken.fromType(ANTLRv4Parser.STRING_LITERAL, lit));
             alt.addChild(slit);

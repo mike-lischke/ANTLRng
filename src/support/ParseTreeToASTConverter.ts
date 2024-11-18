@@ -96,12 +96,13 @@ export class ParseTreeToASTConverter {
 
             ruleAST.addChild(this.createASTNode(ANTLRv4Parser.RULE_REF, parserRule.RULE_REF()));
             if (parserRule.argActionBlock()) {
-                this.convertActionBlockToAST(ANTLRv4Lexer.ARG_ACTION, parserRule.argActionBlock()!, ruleAST);
+                this.convertArgActionBlockToAST(ANTLRv4Lexer.ARG_ACTION, parserRule.argActionBlock()!, ruleAST);
             }
 
             if (parserRule.ruleReturns()) {
-                const returnsAST = this.createASTNode(ANTLRv4Parser.RETURNS, parserRule.ruleReturns()!);
-                this.convertActionBlockToAST(ANTLRv4Lexer.ARG_ACTION, parserRule.ruleReturns()!, returnsAST);
+                const returnsAST = this.createASTNode(ANTLRv4Parser.RETURNS, parserRule.ruleReturns()!.RETURNS());
+                this.convertArgActionBlockToAST(ANTLRv4Lexer.ARG_ACTION, parserRule.ruleReturns()!.argActionBlock(),
+                    returnsAST);
 
                 ruleAST.addChild(returnsAST);
             }
@@ -126,10 +127,7 @@ export class ParseTreeToASTConverter {
                 if (prequel.optionsSpec()) {
                     this.convertOptionsSpecToAST(prequel.optionsSpec()!, ruleAST);
                 } else if (prequel.ruleAction()) {
-                    const action = this.createASTNode(ANTLRv4Parser.AT, prequel.ruleAction()!.AT());
-                    ruleAST.addChild(action);
-                    action.addChild(this.createASTNode(ANTLRv4Parser.ID, prequel.ruleAction()!.identifier()));
-                    this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, prequel.ruleAction()!, action);
+                    this.convertRuleActionToAST(prequel.ruleAction()!, ruleAST);
                 }
             });
 
@@ -139,8 +137,13 @@ export class ParseTreeToASTConverter {
                 const exception = this.createASTNode(exceptionHandler.CATCH().symbol.type, exceptionHandler.CATCH());
                 ruleAST.addChild(exception);
 
-                const actionBlock = this.createASTNode(ANTLRv4Parser.ARG_ACTION, exceptionHandler.argActionBlock());
-                exception.addChild(actionBlock);
+                let actionAST = this.convertArgActionBlockToAST(ANTLRv4Lexer.ARG_ACTION,
+                    exceptionHandler.argActionBlock(), exception);
+                exception.addChild(actionAST);
+
+                actionAST = this.convertActionBlockToAST(ANTLRv4Lexer.ARG_ACTION,
+                    exceptionHandler.actionBlock(), exception);
+                exception.addChild(actionAST);
             });
 
             if (parserRule.exceptionGroup().finallyClause()) {
@@ -189,7 +192,7 @@ export class ParseTreeToASTConverter {
         ast.addChild(ruleRefAST);
 
         if (ruleref.argActionBlock()) {
-            this.convertActionBlockToAST(ANTLRv4Lexer.ARG_ACTION, ruleref.argActionBlock()!, ruleRefAST);
+            this.convertArgActionBlockToAST(ANTLRv4Lexer.ARG_ACTION, ruleref.argActionBlock()!, ruleRefAST);
         }
 
         if (ruleref.elementOptions()) {
@@ -375,6 +378,16 @@ export class ParseTreeToASTConverter {
         return actionAST;
     }
 
+    private static convertArgActionBlockToAST(astType: number, actionBlock: ParserRuleContext,
+        ast: GrammarAST): ActionAST {
+        const text = actionBlock.getText(); // Remove outer [].
+        const token = this.createToken(astType, actionBlock, text.substring(1, text.length - 1));
+        const actionAST = new ActionAST(token);
+        ast.addChild(actionAST);
+
+        return actionAST;
+    }
+
     private static convertPredicateOptionsToAST(options: PredicateOptionsContext, ast: GrammarAST): void {
         // Predicate options are new in ANTLR4. Previously only element options existed. For left recursive rules
         // they were introduced to support more than what element options do (namely actions and numbers on the RHS).
@@ -520,6 +533,9 @@ export class ParseTreeToASTConverter {
             if (elementOption.STRING_LITERAL()) {
                 const value = this.createASTNode(ANTLRv4Parser.STRING_LITERAL, elementOption.STRING_LITERAL()!);
                 assign.addChild(value);
+            } else if (elementOption.INT()) {
+                const value = this.createASTNode(ANTLRv4Parser.INT, elementOption.INT()!);
+                assign.addChild(value);
             } else {
                 const id = this.createASTNode(ANTLRv4Parser.ID, elementOption.identifier()[1]);
                 assign.addChild(id);
@@ -559,7 +575,7 @@ export class ParseTreeToASTConverter {
             ast.addChild(terminalAST);
 
             if (terminalDef.elementOptions()) {
-                this.convertElementOptionsToAST(terminalDef.elementOptions()!, ast);
+                this.convertElementOptionsToAST(terminalDef.elementOptions()!, terminalAST);
             }
 
             const options = terminalAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;

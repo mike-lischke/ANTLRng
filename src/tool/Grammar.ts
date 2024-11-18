@@ -681,7 +681,7 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public getStringLiteralLexerRuleName(_literal: string): string {
-        return `Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX${this.stringLiteralRuleNumber++}`;
+        return `${Grammar.AUTO_GENERATED_TOKEN_NAME_PREFIX}${this.stringLiteralRuleNumber++}`;
     }
 
     /** Return grammar directly imported by this grammar */
@@ -1244,7 +1244,18 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public getTypeString(): string | null {
-        return ANTLRv4Parser.symbolicNames[this.type]!.toLowerCase();
+        // XXX: Odd original code here. It uses the grammar type to look up a token name, wth?
+        // return ANTLRv4Parser.symbolicNames[this.type]!.toLowerCase();
+
+        if (this.isLexer()) {
+            return "lexer";
+        }
+
+        if (this.isParser()) {
+            return "parser";
+        }
+
+        return "combined";
     }
 
     public getLanguage(): SupportedLanguage | undefined {

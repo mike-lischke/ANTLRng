@@ -39,6 +39,10 @@ export class SerializedJavaATN extends SerializedATN {
         this.serializedAsString = this.segments[0]; // serializedAsString is valid if only one segment
     }
 
+    public get serialized(): string[] {
+        return this.serializedAsString;
+    };
+
     public override getSerialized(): object {
         return this.serializedAsString;
     }

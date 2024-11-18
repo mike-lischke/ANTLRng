@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { HashSet, OrderedHashSet } from "antlr4ng";
+
 import { grammarOptions } from "../../../grammar-options.js";
 import { ModelElement } from "../../../misc/ModelElement.js";
 import type { IAttribute } from "../../../tool/IAttribute.js";
@@ -33,21 +35,21 @@ export class StructDecl extends Decl {
     // Track these separately; Go target needs to generate getters/setters
     // Do not make them templates; we only need the Decl object not the ST
     // built from it. Avoids adding args to StructDecl template
-    public tokenDecls = new Set<Decl>();
-    public tokenTypeDecls = new Set<Decl>();
-    public tokenListDecls = new Set<Decl>();
-    public ruleContextDecls = new Set<Decl>();
-    public ruleContextListDecls = new Set<Decl>();
-    public attributeDecls = new Set<Decl>();
+    public tokenDecls = new OrderedHashSet<Decl>();
+    public tokenTypeDecls = new OrderedHashSet<Decl>();
+    public tokenListDecls = new OrderedHashSet<Decl>();
+    public ruleContextDecls = new OrderedHashSet<Decl>();
+    public ruleContextListDecls = new OrderedHashSet<Decl>();
+    public attributeDecls = new HashSet<Decl>();
 
     @ModelElement
     public dispatchMethods: DispatchMethod[] = [];
 
     @ModelElement
-    public attrs = new Set<Decl>();
+    public attrs = new OrderedHashSet<Decl>();
 
     @ModelElement
-    public getters = new Set<Decl>();
+    public getters = new OrderedHashSet<Decl>();
 
     @ModelElement
     public ctorAttrs: AttributeDecl[] = [];
@@ -60,7 +62,7 @@ export class StructDecl extends Decl {
 
     // Used to generate method signatures in Go target interfaces
     @ModelElement
-    public signatures = new Set<Decl>();
+    public signatures = new HashSet<Decl>();
 
     public constructor(factory: OutputModelFactory, r: Rule, name?: string) {
         super(factory, name ?? factory.getGenerator()!.getTarget().getRuleFunctionContextStructName(r));

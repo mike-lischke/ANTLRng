@@ -144,7 +144,7 @@ export class GrammarAST extends CommonTree implements IGrammarAST {
 
         for (let i = ancestors.length - 1; i >= 0; i--) {
             const p = ancestors[i] as GrammarAST;
-            if (p.getType() === ANTLRv4Parser.OR) {
+            if (p.getType() === ANTLRv4Parser.ALT) {
                 const a = p as AltAST;
                 if (a.altLabel) {
                     return a.altLabel.getText();

@@ -180,7 +180,7 @@ export class Rule implements AttributeResolver, IComparable, IRule {
         for (let i = 1; i <= this.numberOfAlts; i++) {
             for (const pairs of this.alt[i].labelDefs.values()) {
                 for (const p of pairs) {
-                    const text = p.label.getText()!;
+                    const text = p.label.getText();
                     let list = defs.get(text);
                     if (!list) {
                         list = [];
@@ -214,10 +214,10 @@ export class Rule implements AttributeResolver, IComparable, IRule {
         for (let i = 1; i <= this.numberOfAlts; i++) {
             const altLabel = this.alt[i].ast.altLabel;
             if (altLabel) {
-                let list = labels.get(altLabel.getText()!);
+                let list = labels.get(altLabel.getText());
                 if (!list) {
                     list = [];
-                    labels.set(altLabel.getText()!, list);
+                    labels.set(altLabel.getText(), list);
                 }
 
                 list.push([i, this.alt[i].ast]);
@@ -258,7 +258,7 @@ export class Rule implements AttributeResolver, IComparable, IRule {
             const anyLabelDef = this.getAnyLabelDef(x);
             if (anyLabelDef !== null) {
                 if (anyLabelDef.type === LabelType.RuleLabel) {
-                    return this.g.getRule(anyLabelDef.element.getText()!)?.resolveRetvalOrProperty(y) ?? null;
+                    return this.g.getRule(anyLabelDef.element.getText())?.resolveRetvalOrProperty(y) ?? null;
                 } else {
                     const scope = this.getPredefinedScope(anyLabelDef.type);
                     if (scope === null) {
@@ -342,7 +342,7 @@ export class Rule implements AttributeResolver, IComparable, IRule {
 
         const anyLabelDef = this.getAnyLabelDef(x);
         if (anyLabelDef !== null && anyLabelDef.type === LabelType.RuleLabel) {
-            return this.g.getRule(anyLabelDef.element.getText()!) ?? null;
+            return this.g.getRule(anyLabelDef.element.getText()) ?? null;
         }
 
         return this.g.getRule(x);

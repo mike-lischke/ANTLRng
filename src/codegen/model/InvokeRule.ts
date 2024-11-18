@@ -58,7 +58,7 @@ export class InvokeRule extends RuleElement implements LabeledOp {
             rf.addContextDecl(ast.getAltLabel()!, decl);
         }
 
-        const arg = ast.getFirstChildWithType(ANTLRv4Parser.BEGIN_ARGUMENT) as ActionAST | null;
+        const arg = ast.getFirstChildWithType(ANTLRv4Parser.ARG_ACTION) as ActionAST | null;
         if (arg !== null) {
             this.argExprsChunks = ActionTranslator.translateAction(factory, rf, arg.token!, arg);
         }

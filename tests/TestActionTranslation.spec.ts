@@ -18,6 +18,7 @@ import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { Grammar } from "../src/tool/Grammar.js";
 import type { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
+import { writeFileSync } from "node:fs";
 
 describe("TestActionTranslation", () => {
     const attributeTemplate =
@@ -64,7 +65,9 @@ describe("TestActionTranslation", () => {
 
             const gen = new CodeGenerator(g);
             const outputFileST = gen.generateParser(false);
-            const output = outputFileST.render();
+            const output = outputFileST.render(72);
+
+            writeFileSync("/Users/mike/Downloads/output.txt", output);
 
             const b = "#" + actionName + "#";
             const start = output.indexOf(b);
@@ -85,7 +88,7 @@ describe("TestActionTranslation", () => {
         testActions(attributeTemplate, "inline2", action, expected);
     });
 
-    it.skip("testEscapedInAction", (): void => {
+    it("testEscapedInAction", (): void => {
         const action = "int \\$n; \"\\$in string\\$\"";
         const expected = "int $n; \"$in string$\"";
         testActions(attributeTemplate, "members", action, expected);
@@ -99,7 +102,7 @@ describe("TestActionTranslation", () => {
      * Regression test for "in antlr v4 lexer, $ translation issue in action".
      * https://github.com/antlr/antlr4/issues/176
      */
-    it.skip("testUnescapedInAction", (): void => {
+    it("testUnescapedInAction", (): void => {
         const action = "\\$string$";
         const expected = "$string$";
         testActions(attributeTemplate, "members", action, expected);
@@ -131,7 +134,7 @@ describe("TestActionTranslation", () => {
         testActions(attributeTemplate, "inline2", action, expected);
     });
 
-    it.skip("testComplicatedArgParsingWithTranslation", (): void => {
+    it("testComplicatedArgParsingWithTranslation", (): void => {
         const action = "x, $ID.text+\"3242\", (*$ID).foo(21,33), 3.2+1, '\\n', " +
             "\"a,oo\\nick\", {bl, \"fdkj\"eck}";
         const expected =
@@ -140,43 +143,43 @@ describe("TestActionTranslation", () => {
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testArguments", (): void => {
+    it("testArguments", (): void => {
         const action = "$x; $ctx.x";
         const expected = "_localctx.x; _localctx.x";
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testReturnValue", (): void => {
+    it("testReturnValue", (): void => {
         const action = "$y; $ctx.y";
         const expected = "_localctx.y; _localctx.y";
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testReturnValueWithNumber", (): void => {
+    it("testReturnValueWithNumber", (): void => {
         const action = "$ctx.x1";
         const expected = "_localctx.x1";
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testReturnValuesCurrentRule", (): void => {
+    it("testReturnValuesCurrentRule", (): void => {
         const action = "$y; $ctx.y;";
         const expected = "_localctx.y; _localctx.y;";
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testReturnValues", (): void => {
+    it("testReturnValues", (): void => {
         const action = "$lab.e; $b.e; $y.e = \"\";";
         const expected = "((AContext)_localctx).lab.e; ((AContext)_localctx).b.e; _localctx.y.e = \"\";";
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testReturnWithMultipleRuleRefs", (): void => {
+    it("testReturnWithMultipleRuleRefs", (): void => {
         const action = "$c.x; $c.y;";
         const expected = "((AContext)_localctx).c.x; ((AContext)_localctx).c.y;";
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testTokenRefs", (): void => {
+    it("testTokenRefs", (): void => {
         const action = "$id; $ID; $id.text; $id.getText(); $id.line;";
         const expected = "((AContext)_localctx).id; ((AContext)_localctx).ID; (((AContext)_localctx).id!=" +
             "null?((AContext)_localctx).id.getText():null); ((AContext)_localctx).id.getText(); " +
@@ -184,7 +187,7 @@ describe("TestActionTranslation", () => {
         testActions(attributeTemplate, "inline", action, expected);
     });
 
-    it.skip("testRuleRefs", (): void => {
+    it("testRuleRefs", (): void => {
         const action = "$lab.start; $c.text;";
         const expected = "(((AContext)_localctx).lab!=null?(((AContext)_localctx).lab.start):null); " +
             "(((AContext)_localctx).c!=null?_input.getText(((AContext)_localctx).c.start,((AContext)_localctx)." +
@@ -193,7 +196,7 @@ describe("TestActionTranslation", () => {
     });
 
     /** Added in response to https://github.com/antlr/antlr4/issues/1211 */
-    it.skip("testUnknownAttr", (): void => {
+    it("testUnknownAttr", (): void => {
         const action = "$qqq.text";
         const expected = ""; // was causing an exception
         testActions(attributeTemplate, "inline", action, expected);
@@ -204,7 +207,7 @@ describe("TestActionTranslation", () => {
      * $e.v yields incorrect value 0 in "e returns [int v] : '1' {$v = 1;} | '(' e ')' {$v = $e.v;} ;"
      * https://github.com/antlr/antlr4/issues/1295
      */
-    it.skip("testRuleRefsRecursive", (): void => {
+    it("testRuleRefsRecursive", (): void => {
         const recursiveTemplate =
             "recursiveTemplate(inline) ::= <<\n" +
             "parser grammar A;\n" +
@@ -226,11 +229,13 @@ describe("TestActionTranslation", () => {
             "		 }\n" +
             "    ;\n" +
             ">>";
+
         // ref to value returned from recursive call to rule
         let action = "$v = $e.v;";
         let expected = "((EContext)_localctx).v =  ((EContext)_localctx).e.v;";
-        //testActions(recursiveTemplate, "inline", action, expected);
+        testActions(recursiveTemplate, "inline", action, expected);
         testActions(leftRecursiveTemplate, "inline", action, expected);
+
         // ref to predefined attribute obtained from recursive call to rule
         action = "$v = $e.text.length();";
         expected = "((EContext)_localctx).v =  (((EContext)_localctx).e!=null?_input.getText(((EContext)_localctx)." +
@@ -239,7 +244,7 @@ describe("TestActionTranslation", () => {
         testActions(leftRecursiveTemplate, "inline", action, expected);
     });
 
-    it.skip("testRefToTextAttributeForCurrentRule", (): void => {
+    it("testRefToTextAttributeForCurrentRule", (): void => {
         const action = "$ctx.text; $text";
 
         // this is the expected translation for all cases
@@ -256,6 +261,6 @@ describe("TestActionTranslation", () => {
             "grammar A;\n" +
             "a[] : 'a' ;\n" +
             "c : a[] c[] ;\n";
-        //const _g = new Grammar(gS);
+        const _g = new Grammar(gS);
     });
 });

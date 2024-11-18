@@ -184,7 +184,7 @@ export class ErrorManager {
                 allArgs.shift();
                 msg = new ToolMessage(errorType, error, allArgs);
             } else {
-                msg = new ToolMessage(errorType, ...allArgs);
+                msg = new ToolMessage(errorType, allArgs);
             }
         } else {
             msg = new ToolMessage(errorType);

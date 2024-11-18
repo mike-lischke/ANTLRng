@@ -31,24 +31,20 @@ import { IAttribute } from "../tool/IAttribute.js";
 export class ScopeParser {
     /**
      * Given an arg or retval scope definition list like
-     * <p>
-     * <code>
-     * Map&lt;String, String&gt;, int[] j3, char *foo32[3]
-     * </code>
-     * <p>
+     * ```
+     * Map<String, String>, int[] j3, char *foo32[3]
+     * ```
      * or
-     * <p>
-     * <code>
+     * ```
      * int i=3, j=a[34]+20
-     * </code>
-     * <p>
+     * ```
      * convert to an attribute scope.
      */
     public static parseTypedArgList(action: ActionAST, s: string, g: Grammar): AttributeDict {
         return this.parse(action, s, ",", g);
     }
 
-    public static parse(action: ActionAST, s: string, separator: string, g: Grammar): AttributeDict {
+    private static parse(action: ActionAST, s: string, separator: string, g: Grammar): AttributeDict {
         const dict = new AttributeDict();
         const decls = this.splitDecls(s, separator);
         for (const decl of decls) {
@@ -67,7 +63,7 @@ export class ScopeParser {
      * but if the separator is ',' you cannot use ',' in the init value
      * unless you escape use "\," escape.
      */
-    public static parseAttributeDef(action: ActionAST, decl: [string | null, number], g: Grammar): IAttribute | null {
+    private static parseAttributeDef(action: ActionAST, decl: [string | null, number], g: Grammar): IAttribute | null {
         if (decl[0] === null) {
             return null;
         }
@@ -87,10 +83,10 @@ export class ScopeParser {
         text = text.replaceAll("::", "");
         if (text.includes(":")) {
             // declarator has type appearing after the name like "x:T"
-            p = ScopeParser._parsePostfixDecl(attr, declarator, action, g);
+            p = ScopeParser.parsePostfixDecl(attr, declarator, action, g);
         } else {
             // declarator has type appearing before the name like "T x"
-            p = ScopeParser._parsePrefixDecl(attr, declarator, action, g);
+            p = ScopeParser.parsePrefixDecl(attr, declarator, action, g);
         }
 
         const [idStart, idStop] = p;
@@ -141,7 +137,7 @@ export class ScopeParser {
         return attr;
     }
 
-    public static _parsePrefixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
+    private static parsePrefixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
         // walk backwards looking for start of an ID
         let inID = false;
         let start = -1;
@@ -200,7 +196,7 @@ export class ScopeParser {
         return [start, stop];
     }
 
-    public static _parsePostfixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
+    private static parsePostfixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
         let start = -1;
         let stop = -1;
         const colon = decl.indexOf(":");
@@ -257,39 +253,39 @@ export class ScopeParser {
 
     /**
      * Given an argument list like
-     * <p>
+     * ```
      * x, (*a).foo(21,33), 3.2+1, '\n',
      * "a,oo\nick", {bl, "abc"eck}, ["cat\n,", x, 43]
-     * <p>
+     * ```
      * convert to a list of attributes.  Allow nested square brackets etc...
      * Set separatorChar to ';' or ',' or whatever you want.
      */
-    public static splitDecls(s: string, separatorChar: string): Array<[string, number]> {
+    private static splitDecls(s: string, separatorChar: string): Array<[string, number]> {
         const args = new Array<[string, number]>();
-        ScopeParser._splitArgumentList(s, 0, "", separatorChar, args);
+        ScopeParser.splitArgumentList(s, 0, -1, separatorChar.codePointAt(0)!, args);
 
         return args;
     }
 
-    public static _splitArgumentList(actionText: string | null, start: number, targetChar: string,
-        separatorChar: string, args: Array<[string, number]>): number {
+    private static splitArgumentList(actionText: string | null, start: number, targetChar: number,
+        separatorChar: number, args: Array<[string, number]>): number {
         if (actionText === null) {
             return -1;
         }
 
-        actionText = actionText.replaceAll("//[^\\n]*", "");
+        actionText = actionText.replaceAll(/\/\/[^\n]*/g, "");
         const n = actionText.length;
 
         let p = start;
         let last = p;
-        while (p < n && actionText[p] !== targetChar) {
-            const c = actionText.charAt(p);
+        while (p < n && actionText.codePointAt(p)! !== targetChar) {
+            const c = actionText.codePointAt(p)!;
             switch (c) {
-                case "'": {
+                case 0x27: { // single quote
                     p++;
-                    while (p < n && actionText.charAt(p) !== "'") {
-                        if (actionText.charAt(p) === "\\" && (p + 1) < n &&
-                            actionText.charAt(p + 1) === "'") {
+                    while (p < n && actionText.codePointAt(p) !== 0x27) {
+                        if (actionText.codePointAt(p) === 0x5C && (p + 1) < n &&
+                            actionText.codePointAt(p + 1) === 0x27) {
                             p++; // skip escaped quote
                         }
                         p++;
@@ -298,11 +294,11 @@ export class ScopeParser {
                     break;
                 }
 
-                case '"': {
+                case 0x22: { // double quote
                     p++;
-                    while (p < n && actionText.charAt(p) !== '"') {
-                        if (actionText.charAt(p) === "\\" && (p + 1) < n &&
-                            actionText.charAt(p + 1) === '"') {
+                    while (p < n && actionText.codePointAt(p) !== 0x22) {
+                        if (actionText.codePointAt(p) === 0x5C && (p + 1) < n &&
+                            actionText.codePointAt(p + 1) === 0x22) {
                             p++; // skip escaped quote
                         }
                         p++;
@@ -311,34 +307,34 @@ export class ScopeParser {
                     break;
                 }
 
-                case "(": {
-                    p = ScopeParser._splitArgumentList(actionText, p + 1, ")", separatorChar, args);
+                case 0x28: { // '('
+                    p = ScopeParser.splitArgumentList(actionText, p + 1, 0x23, separatorChar, args);
                     break;
                 }
 
-                case "{": {
-                    p = ScopeParser._splitArgumentList(actionText, p + 1, "}", separatorChar, args);
+                case 0x7B: { // '{'
+                    p = ScopeParser.splitArgumentList(actionText, p + 1, 0x7D, separatorChar, args);
                     break;
                 }
 
-                case "<": {
+                case 0x3C: { // '<'
                     if (actionText.indexOf(">", p + 1) >= p) {
                         // do we see a matching '>' ahead?  if so, hope it's a generic
                         // and not less followed by expr with greater than
-                        p = ScopeParser._splitArgumentList(actionText, p + 1, ">", separatorChar, args);
+                        p = ScopeParser.splitArgumentList(actionText, p + 1, 0x3E, separatorChar, args);
                     } else {
                         p++; // treat as normal char
                     }
                     break;
                 }
 
-                case "[": {
-                    p = ScopeParser._splitArgumentList(actionText, p + 1, "]", separatorChar, args);
+                case 0x5B: { // '['
+                    p = ScopeParser.splitArgumentList(actionText, p + 1, 0x5D, separatorChar, args);
                     break;
                 }
 
                 default: {
-                    if (c === separatorChar && targetChar === "") {
+                    if (c === separatorChar && targetChar === -1) {
                         const arg = actionText.substring(last, p);
                         let index = last;
                         while (index < p && Character.isWhitespace(actionText.codePointAt(index)!)) {
@@ -354,7 +350,7 @@ export class ScopeParser {
 
             }
         }
-        if (targetChar === "" && p <= n) {
+        if (targetChar === -1 && p <= n) {
             const arg = actionText.substring(last, p).trim();
             let index = last;
             while (index < p && Character.isWhitespace(actionText.codePointAt(index)!)) {
