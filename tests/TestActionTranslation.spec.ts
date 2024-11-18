@@ -18,7 +18,6 @@ import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { Grammar } from "../src/tool/Grammar.js";
 import type { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
-import { writeFileSync } from "node:fs";
 
 describe("TestActionTranslation", () => {
     const attributeTemplate =
@@ -67,7 +66,7 @@ describe("TestActionTranslation", () => {
             const outputFileST = gen.generateParser(false);
             const output = outputFileST.render(72);
 
-            writeFileSync("/Users/mike/Downloads/output.txt", output);
+            //writeFileSync("/Users/mike/Downloads/output.txt", output);
 
             const b = "#" + actionName + "#";
             const start = output.indexOf(b);
