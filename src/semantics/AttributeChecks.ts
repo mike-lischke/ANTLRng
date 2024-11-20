@@ -71,8 +71,8 @@ export class AttributeChecks implements ActionSplitterListener {
 
     public examineAction(): void {
         const input = CharStream.fromString(this.actionText ?? "");
-        //input.setLine(this.actionToken.getLine());
-        //input.setCharPositionInLine(this.actionToken.getCharPositionInLine());
+        // TODO: input.setLine(this.actionToken.getLine());
+        // TODO: input.setCharPositionInLine(this.actionToken.getCharPositionInLine());
         const splitter = new ActionSplitter(input);
 
         // forces eval, triggers listener methods
@@ -211,7 +211,7 @@ export class AttributeChecks implements ActionSplitterListener {
         if (labels) { // it's a label ref. is it a rule label?
             const anyLabelDef = labels[0];
             if (anyLabelDef.type === LabelType.RuleLabel) {
-                return this.g.getRule(anyLabelDef.element.getText()!);
+                return this.g.getRule(anyLabelDef.element.getText());
             }
         }
 

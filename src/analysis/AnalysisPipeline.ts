@@ -42,7 +42,7 @@ export class AnalysisPipeline {
 
     public process(): void {
         // LEFT-RECURSION CHECK
-        const lr = new LeftRecursionDetector(this.g, this.g.atn);
+        const lr = new LeftRecursionDetector(this.g, this.g.atn!);
         lr.check();
         if (lr.listOfRecursiveCycles.length !== 0) {
             return;
@@ -65,7 +65,7 @@ export class AnalysisPipeline {
             }
 
             const analyzer = new LL1Analyzer();
-            const look = analyzer.look(this.g.atn, this.g.atn.ruleToStartState[rule.index]!, undefined);
+            const look = analyzer.look(this.g.atn!, this.g.atn!.ruleToStartState[rule.index]!, undefined);
             if (look.contains(Token.EPSILON)) {
                 ErrorManager.get().grammarError(ErrorType.EPSILON_TOKEN, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
@@ -74,8 +74,8 @@ export class AnalysisPipeline {
     }
 
     protected processParser(): void {
-        this.g.decisionLOOK = new Array<IntervalSet[]>(this.g.atn.getNumberOfDecisions() + 1);
-        for (const s of this.g.atn.decisionToState) {
+        this.g.decisionLOOK = new Array<IntervalSet[]>(this.g.atn!.getNumberOfDecisions() + 1);
+        for (const s of this.g.atn!.decisionToState) {
             this.g.tool.logInfo({
                 component: "LL1",
                 msg: "\nDECISION " + s.decision + " in rule " + this.g.getRule(s.ruleIndex)?.name

@@ -5,8 +5,7 @@
 
 import {
     Parser, ParserRuleContext, TokenStream, ATN, ATNState, DecisionState, ParserATNSimulator, PredictionContextCache,
-    DFA,
-    type Vocabulary,
+    DFA, type Vocabulary,
 } from "antlr4ng";
 
 import type { Grammar } from "../src/tool/Grammar.js";

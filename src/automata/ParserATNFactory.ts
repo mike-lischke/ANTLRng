@@ -8,24 +8,21 @@
 
 import {
     ATN, ATNState, AbstractPredicateTransition, ActionTransition, AtomTransition, BasicBlockStartState,
-    BasicState, BlockEndState, BlockStartState, EpsilonTransition, IntervalSet, LL1Analyzer, LoopEndState,
+    BasicState,
+    BlockEndState, BlockStartState, EpsilonTransition, IntervalSet, LL1Analyzer, LoopEndState,
     NotSetTransition, PlusBlockStartState, PlusLoopbackState, PrecedencePredicateTransition, PredicateTransition,
     RuleStartState, RuleStopState, RuleTransition, SetTransition, StarBlockStartState, StarLoopEntryState,
     StarLoopbackState, Token, WildcardTransition
 } from "antlr4ng";
 
 import { CommonTreeNodeStream } from "../antlr3/tree/CommonTreeNodeStream.js";
+import { ClassFactory } from "../ClassFactory.js";
 import { Constants } from "../Constants1.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import type { Constructor } from "../misc/Utils.js";
 import { GrammarASTAdaptor } from "../parse/GrammarASTAdaptor.js";
 import { UseDefAnalyzer } from "../semantics/UseDefAnalyzer.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
-import { ErrorType } from "../tool/ErrorType.js";
-import { LeftRecursiveRule } from "../tool/LeftRecursiveRule.js";
-import { LexerGrammar } from "../tool/LexerGrammar.js";
-import { Rule } from "../tool/Rule.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { AltAST } from "../tool/ast/AltAST.js";
 import { BlockAST } from "../tool/ast/BlockAST.js";
@@ -34,12 +31,16 @@ import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { QuantifierAST } from "../tool/ast/QuantifierAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
+import { ErrorManager } from "../tool/ErrorManager.js";
+import { ErrorType } from "../tool/ErrorType.js";
+import { LeftRecursiveRule } from "../tool/LeftRecursiveRule.js";
+import { LexerGrammar } from "../tool/LexerGrammar.js";
+import { Rule } from "../tool/Rule.js";
 import { ATNBuilder } from "../tree-walkers/ATNBuilder.js";
 import type { IGrammar, IParserATNFactory } from "../types.js";
 import { ATNOptimizer } from "./ATNOptimizer.js";
 import { IATNFactory, type IStatePair } from "./IATNFactory.js";
 import { TailEpsilonRemover } from "./TailEpsilonRemover.js";
-import { ClassFactory } from "../ClassFactory.js";
 
 /**
  * ATN construction routines triggered by ATNBuilder.g.
@@ -149,8 +150,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     /** From label {@code A} build graph {@code o-A->o}. */
 
     public tokenRef(node: TerminalAST): IStatePair | null {
-        const left = this.newState(node);
-        const right = this.newState(node);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         const ttype = this.g.getTokenType(node.getText());
         left.addTransition(new AtomTransition(right, ttype));
         node.atnState = left;
@@ -164,8 +165,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
      *  This also handles {@code ~A}, converted to {@code ~{A}} set.
      */
     public set(associatedAST: GrammarAST, terminals: GrammarAST[], invert: boolean): IStatePair {
-        const left = this.newState(associatedAST);
-        const right = this.newState(associatedAST);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         const set = new IntervalSet();
         for (const t of terminals) {
             const ttype = this.g.getTokenType(t.getText());
@@ -231,8 +232,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         }
 
         const start = this.atn.ruleToStartState[r.index]!;
-        const left = this.newState(node);
-        const right = this.newState(node);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         let precedence = 0;
         const ast = node as GrammarASTWithOptions;
         if (ast.getOptionString(Constants.PRECEDENCE_OPTION_NAME)) {
@@ -260,8 +261,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         if (args.length === 1) {
             const [node] = args as [GrammarAST];
 
-            const left = this.newState(node);
-            const right = this.newState(node);
+            const left = this.newState(BasicState);
+            const right = this.newState(BasicState);
             this.epsilon(left, right);
             node.atnState = left;
 
@@ -284,8 +285,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
      *  the {@link ANTLRParser#SEMPRED} token.
      */
     public sempred(pred: PredAST): IStatePair {
-        const left = this.newState(pred);
-        const right = this.newState(pred);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
 
         let p: AbstractPredicateTransition;
         if (pred.getOptionString(Constants.PRECEDENCE_OPTION_NAME)) {
@@ -309,8 +310,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
      */
     public action(astOrString: ActionAST | string): IStatePair {
         if (astOrString instanceof ActionAST) {
-            const left = this.newState(astOrString);
-            const right = this.newState(astOrString);
+            const left = this.newState(BasicState);
+            const right = this.newState(BasicState);
             const a = new ActionTransition(right, this.currentRule!.index, -1, false);
             left.addTransition(a);
             astOrString.atnState = left;
@@ -354,7 +355,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
                 return h;
             }
 
-            const start = this.newStateOfType(BasicBlockStartState, blkAST);
+            const start = this.newState(BasicBlockStartState);
             if (alts.length > 1) {
                 this.atn.defineDecisionState(start);
             }
@@ -364,7 +365,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
         switch (ebnfRoot.getType()) {
             case ANTLRv4Parser.OPTIONAL: {
-                const start = this.newStateOfType(BasicBlockStartState, blkAST);
+                const start = this.newState(BasicBlockStartState);
                 this.atn.defineDecisionState(start);
                 const h = this.makeBlock(start, blkAST, alts);
 
@@ -372,7 +373,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
             }
 
             case ANTLRv4Parser.CLOSURE: {
-                const star = this.newStateOfType(StarBlockStartState, ebnfRoot);
+                const star = this.newState(StarBlockStartState);
                 if (alts.length > 1) {
                     this.atn.defineDecisionState(star);
                 }
@@ -383,7 +384,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
             }
 
             case ANTLRv4Parser.POSITIVE_CLOSURE: {
-                const plus = this.newStateOfType(PlusBlockStartState, ebnfRoot);
+                const plus = this.newState(PlusBlockStartState);
                 if (alts.length > 1) {
                     this.atn.defineDecisionState(plus);
                 }
@@ -491,10 +492,10 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         const blkEnd = blk.right as BlockEndState;
         this.preventEpsilonClosureBlocks.push([this.currentRule!, blkStart, blkEnd]);
 
-        const loop = this.newStateOfType(PlusLoopbackState, plusAST);
+        const loop = this.newState(PlusLoopbackState);
         loop.nonGreedy = !(plusAST as QuantifierAST).isGreedy();
         this.atn.defineDecisionState(loop);
-        const end = this.newStateOfType(LoopEndState, plusAST);
+        const end = this.newState(LoopEndState);
         blkStart.loopBackState = loop;
         end.loopBackState = loop;
 
@@ -539,11 +540,11 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         const blkEnd = elem.right as BlockEndState;
         this.preventEpsilonClosureBlocks.push([this.currentRule!, blkStart, blkEnd]);
 
-        const entry = this.newStateOfType(StarLoopEntryState, starAST);
+        const entry = this.newState(StarLoopEntryState);
         entry.nonGreedy = !(starAST as QuantifierAST).isGreedy();
         this.atn.defineDecisionState(entry);
-        const end = this.newStateOfType(LoopEndState, starAST);
-        const loop = this.newStateOfType(StarLoopbackState, starAST);
+        const end = this.newState(LoopEndState);
+        const loop = this.newState(StarLoopbackState);
         entry.loopBackState = loop;
         end.loopBackState = loop;
 
@@ -572,8 +573,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     /** Build an atom with all possible values in its label. */
 
     public wildcard(node: GrammarAST): IStatePair {
-        const left = this.newState(node);
-        const right = this.newState(node);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         left.addTransition(new WildcardTransition(right));
         node.atnState = left;
 
@@ -602,7 +603,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
      */
     public addEOFTransitionToStartRules(): number {
         let n = 0;
-        const eofTarget = this.newState(); // one unique EOF target for all rules
+        const eofTarget = this.newState(BasicState); // one unique EOF target for all rules
         for (const r of this.g.rules.values()) {
             const stop = this.atn.ruleToStopState[r.index]!;
             if (stop.transitions.length > 0) {
@@ -625,7 +626,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         return t;
     }
 
-    public newStateOfType<T extends ATNState>(nodeType: Constructor<T>, node?: GrammarAST): T {
+    public newState<T extends ATNState>(nodeType: Constructor<T>): T {
         try {
             const s = new nodeType();
             if (!this.currentRule) {
@@ -644,14 +645,6 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
             throw error;
         }
-    }
-
-    public newState(node?: GrammarAST): ATNState {
-        const n = new BasicState();
-        n.ruleIndex = this.currentRule!.index;
-        this.atn.addState(n);
-
-        return n;
     }
 
     public expectNonGreedy(blkAST: BlockAST): boolean {
@@ -723,7 +716,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     }
 
     protected makeBlock(start: BlockStartState, blkAST: BlockAST, alts: IStatePair[]): IStatePair {
-        const end = this.newStateOfType(BlockEndState, blkAST);
+        const end = this.newState(BlockEndState);
         start.endState = end;
         for (const alt of alts) {
             // hook alts up to decision block
@@ -748,8 +741,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         this.atn.ruleToStartState = new Array<RuleStartState>(this.g.rules.size);
         this.atn.ruleToStopState = new Array<RuleStopState>(this.g.rules.size);
         for (const r of this.g.rules.values()) {
-            const start = this.newStateOfType(RuleStartState, r.ast);
-            const stop = this.newStateOfType(RuleStopState, r.ast);
+            const start = this.newState(RuleStartState);
+            const stop = this.newState(RuleStopState);
             start.stopState = stop;
             start.isLeftRecursiveRule = r instanceof LeftRecursiveRule;
             start.ruleIndex = r.index;

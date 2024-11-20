@@ -98,7 +98,7 @@ export class UseDefAnalyzer {
                         calls = new Set<Rule>();
                         dependencies.set(r, calls);
                     }
-                    calls.add(g.getRule(tref.getText()!)!);
+                    calls.add(g.getRule(tref.getText())!);
                 }
             }
 

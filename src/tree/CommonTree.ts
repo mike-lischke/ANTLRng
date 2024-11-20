@@ -4,9 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-// cspell: disable
-
-import { Interval, ParseTree, Token, type ParseTreeVisitor, type Parser } from "antlr4ng";
+import { Interval, ParseTree, Token, type ParseTreeVisitor } from "antlr4ng";
 
 /** A tree node that is wrapper for a Token object. */
 export class CommonTree implements ParseTree {
@@ -394,12 +392,6 @@ export class CommonTree implements ParseTree {
         return visitor.visitChildren(this);
     }
 
-    public toStringTree(): string;
-    public toStringTree(ruleNames: string[], recog: Parser): string;
-    public toStringTree(ruleNames?: string[], recog?: Parser): string {
-        return "";
-    }
-
     public getSourceInterval(): Interval {
         return Interval.of(this.getTokenStartIndex(), this.getTokenStopIndex());
     }
@@ -463,6 +455,37 @@ export class CommonTree implements ParseTree {
         }
 
         return ancestors;
+    }
+
+    /**
+     * Print out a whole tree not just a node
+     *
+     * @returns A string representation of the tree.
+     */
+    public toStringTree(): string {
+        if (this.#children.length === 0) {
+            return this.toString();
+        }
+
+        let result = "";
+        if (!this.isNil()) {
+            result += `(${this.toString()} `;
+        }
+
+        for (let i = 0; i < this.#children.length; ++i) {
+            const t = this.#children[i];
+            if (i > 0) {
+                result += " ";
+            }
+
+            result += t.toStringTree();
+        }
+
+        if (!this.isNil()) {
+            result += ")";
+        }
+
+        return result;
     }
 
 }

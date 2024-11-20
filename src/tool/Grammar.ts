@@ -13,6 +13,7 @@ import {
 
 import { ANTLRv4Parser } from "..//generated/ANTLRv4Parser.js";
 import { TreeWizard } from "../antlr3/tree/TreeWizard.js";
+import { TreeVisitor } from "../antlr3/tree/TreeVisitor.js";
 
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
 
@@ -28,7 +29,6 @@ import { TokenVocabParser } from "../parse/TokenVocabParser.js";
 import { GrammarType } from "../support/GrammarType.js";
 import type { IGrammar, ITool } from "../types.js";
 
-import { TreeVisitor } from "../antlr3/tree/TreeVisitor.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
 import type { ActionAST } from "./ast/ActionAST.js";
@@ -215,6 +215,12 @@ export class Grammar implements IGrammar, AttributeResolver {
     /** Map the other direction upon demand */
     public indexToPredMap: Map<number, PredAST> | null = null;
 
+    /**
+     * The ATN that represents the grammar with edges labelled with tokens
+     * or epsilon. It is more suitable to analysis than an AST representation.
+     */
+    public atn?: ATN;
+
     protected ruleNumber = 0; // used to get rule indexes (0..n-1)
     protected stringLiteralRuleNumber = 0;
 
@@ -234,12 +240,6 @@ export class Grammar implements IGrammar, AttributeResolver {
      * {@link Token#MIN_USER_CHANNEL_VALUE} are assumed to be predefined.
      */
     protected maxChannelType = Token.MIN_USER_CHANNEL_VALUE - 1;
-
-    /**
-     * The ATN that represents the grammar with edges labelled with tokens
-     * or epsilon. It is more suitable to analysis than an AST representation.
-     */
-    #atn?: ATN;
 
     public constructor(tool: ITool, ast: GrammarRootAST);
     public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
@@ -329,9 +329,9 @@ export class Grammar implements IGrammar, AttributeResolver {
                 this.importVocab(tokenVocabSource);
             }
 
-            this.tool.process(this, false);
+            // In tests run this call explicitly to avoid side effects.
+            //this.tool.process(this, false);
         }
-
     }
 
     /** convenience method for Tool.loadGrammar() */
@@ -585,17 +585,14 @@ export class Grammar implements IGrammar, AttributeResolver {
         }
     }
 
-    public get atn(): ATN {
-        if (!this.#atn) {
+    // TODO: do we actually need this method?
+    public getATN(): ATN {
+        if (!this.atn) {
             const factory = ClassFactory.createParserATNFactory(this);
-            this.#atn = factory.createATN();
+            this.atn = factory.createATN();
         }
 
-        return this.#atn;
-    }
-
-    public set atn(atn: ATN) {
-        this.#atn = atn;
+        return this.atn;
     }
 
     /**
@@ -817,12 +814,7 @@ export class Grammar implements IGrammar, AttributeResolver {
      * @returns The names of all rules defined in the grammar.
      */
     public getRuleNames(): string[] {
-        const result: string[] = [];
-        for (const rule of this.rules.values()) {
-            result[rule.index] = rule.name;
-        }
-
-        return result;
+        return [...this.rules.keys()];
     }
 
     /**
@@ -1288,6 +1280,11 @@ export class Grammar implements IGrammar, AttributeResolver {
     };
 
     public createLexerInterpreter(input: CharStream): LexerInterpreter {
+        if (!this.atn) {
+            throw new Error("The ATN must be created before creating a lexer interpreter. " +
+                "Have you called `Grammar.tool.process()`?");
+        }
+
         if (this.isParser()) {
             throw new Error("A lexer interpreter can only be created for a lexer or combined grammar.");
         }
@@ -1302,7 +1299,7 @@ export class Grammar implements IGrammar, AttributeResolver {
         allChannels.push(...this.channelValueToNameList);
 
         // must run ATN through serializer to set some state flags
-        const serialized = ATNSerializer.getSerialized(this.#atn!);
+        const serialized = ATNSerializer.getSerialized(this.atn);
         const deserializedATN = new ATNDeserializer().deserialize(serialized);
 
         return new LexerInterpreter(this.fileName, this.getVocabulary(), this.getRuleNames(), allChannels,
@@ -1310,24 +1307,34 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public createGrammarParserInterpreter(tokenStream: TokenStream): GrammarParserInterpreter {
+        if (!this.atn) {
+            throw new Error("The ATN must be created before creating a lexer interpreter. " +
+                "Have you called `Grammar.tool.process()`?");
+        }
+
         if (this.isLexer()) {
             throw new Error("A parser interpreter can only be created for a parser or combined grammar.");
         }
 
         // must run ATN through serializer to set some state flags
-        const serialized = ATNSerializer.getSerialized(this.#atn!);
+        const serialized = ATNSerializer.getSerialized(this.atn);
         const deserializedATN = new ATNDeserializer().deserialize(serialized);
 
         return ClassFactory.createGrammarParserInterpreter(this, deserializedATN, tokenStream);
     }
 
     public createParserInterpreter(tokenStream: TokenStream): ParserInterpreter {
+        if (!this.atn) {
+            throw new Error("The ATN must be created before creating a lexer interpreter. " +
+                "Have you called `Grammar.tool.process()`?");
+        }
+
         if (this.isLexer()) {
             throw new Error("A parser interpreter can only be created for a parser or combined grammar.");
         }
 
         // must run ATN through serializer to set some state flags
-        const serialized = ATNSerializer.getSerialized(this.#atn!);
+        const serialized = ATNSerializer.getSerialized(this.atn);
         const deserializedATN = new ATNDeserializer().deserialize(serialized);
 
         return new ParserInterpreter(this.fileName, this.getVocabulary(), this.getRuleNames(), deserializedATN,

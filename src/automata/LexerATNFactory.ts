@@ -7,10 +7,10 @@
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
 import {
-    ActionTransition, ATN, ATNState, AtomTransition, CodePointTransitions, CommonToken, IntervalSet, IntStream, Lexer,
-    LexerAction, LexerChannelAction, LexerCustomAction, LexerModeAction, LexerMoreAction, LexerPopModeAction,
-    LexerPushModeAction, LexerSkipAction, LexerTypeAction, NotSetTransition, SetTransition, Token, TokensStartState,
-    Transition
+    ActionTransition, ATN, ATNState, AtomTransition, BasicState, CodePointTransitions, CommonToken, IntervalSet,
+    IntStream, Lexer, LexerAction, LexerChannelAction, LexerCustomAction, LexerModeAction, LexerMoreAction,
+    LexerPopModeAction, LexerPushModeAction, LexerSkipAction, LexerTypeAction, NotSetTransition, SetTransition, Token,
+    TokensStartState, Transition
 } from "antlr4ng";
 import type { STGroup } from "stringtemplate4ts";
 
@@ -141,10 +141,9 @@ export class LexerATNFactory extends ParserATNFactory {
 
     public override createATN(): ATN {
         // BUILD ALL START STATES (ONE PER MODE)
-        const modes = (this.g as LexerGrammar).modes.keys();
-        for (const modeName of modes) {
+        for (const [modeName] of (this.g as LexerGrammar).modes) {
             // create s0, start state; implied Tokens rule node
-            const startState = this.newStateOfType(TokensStartState);
+            const startState = this.newState(TokensStartState);
             this.atn.modeNameToStartState.set(modeName, startState);
             this.atn.modeToStartState.push(startState);
             this.atn.defineDecisionState(startState);
@@ -165,7 +164,7 @@ export class LexerATNFactory extends ParserATNFactory {
         }
 
         // LINK MODE START STATE TO EACH TOKEN RULE
-        for (const modeName of modes) {
+        for (const [modeName] of (this.g as LexerGrammar).modes) {
             const rules = (this.g as LexerGrammar).modes.get(modeName)!;
             const startState = this.atn.modeNameToStartState.get(modeName) ?? null;
             for (const r of rules) {
@@ -199,8 +198,8 @@ export class LexerATNFactory extends ParserATNFactory {
                 const [action] = args as [string];
 
                 if (action.trim().length === 0) {
-                    const left = this.newState();
-                    const right = this.newState();
+                    const left = this.newState(BasicState);
+                    const right = this.newState(BasicState);
                     this.epsilon(left, right);
 
                     return { left, right };
@@ -220,8 +219,8 @@ export class LexerATNFactory extends ParserATNFactory {
             [node, lexerAction] = args as [GrammarAST, LexerAction];
         }
 
-        const left = this.newState(node);
-        const right = this.newState(node);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         const isCtxDependent = false;
         const lexerActionIndex = this.getLexerActionIndex(lexerAction);
         const a = new ActionTransition(right, this.currentRule!.index, lexerActionIndex, isCtxDependent);
@@ -247,8 +246,8 @@ export class LexerATNFactory extends ParserATNFactory {
     }
 
     public override range(a: GrammarAST, b: GrammarAST): IStatePair {
-        const left = this.newState(a);
-        const right = this.newState(b);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         const t1 = CharSupport.getCharValueFromGrammarCharLiteral(a.getText());
         const t2 = CharSupport.getCharValueFromGrammarCharLiteral(b.getText());
         if (this.checkRange(a, b, t1, t2)) {
@@ -261,8 +260,8 @@ export class LexerATNFactory extends ParserATNFactory {
     }
 
     public override set(associatedAST: GrammarAST, alts: GrammarAST[], invert: boolean): IStatePair {
-        const left = this.newState(associatedAST);
-        const right = this.newState(associatedAST);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         const set = new IntervalSet();
         for (const t of alts) {
             if (t.getType() === ANTLRv4Parser.RANGE) {
@@ -322,7 +321,7 @@ export class LexerATNFactory extends ParserATNFactory {
      */
     public override stringLiteral(stringLiteralAST: TerminalAST): IStatePair {
         const chars = stringLiteralAST.getText();
-        const left = this.newState(stringLiteralAST);
+        const left = this.newState(BasicState);
         let right: ATNState | null;
         const s = CharSupport.getStringFromGrammarStringLiteral(chars);
         if (s === null) {
@@ -333,7 +332,7 @@ export class LexerATNFactory extends ParserATNFactory {
         let prev = left;
         right = null;
         for (const char of s) {
-            right = this.newState(stringLiteralAST);
+            right = this.newState(BasicState);
             const codePoint = char.codePointAt(0)!;
             prev.addTransition(this.createTransition(right, codePoint, codePoint, stringLiteralAST));
             prev = right;
@@ -345,8 +344,8 @@ export class LexerATNFactory extends ParserATNFactory {
 
     /** [Aa\t \u1234a-z\]\p{Letter}\-] char sets */
     public override charSetLiteral(charSetAST: GrammarAST): IStatePair {
-        const left = this.newState(charSetAST);
-        const right = this.newState(charSetAST);
+        const left = this.newState(BasicState);
+        const right = this.newState(BasicState);
         const set = this.getSetFromCharSetLiteral(charSetAST);
 
         left.addTransition(new SetTransition(right, set));
@@ -436,8 +435,8 @@ export class LexerATNFactory extends ParserATNFactory {
     public override tokenRef(node: TerminalAST): IStatePair | null {
         // Ref to EOF in lexer yields char transition on -1
         if (node.getText() === "EOF") {
-            const left = this.newState(node);
-            const right = this.newState(node);
+            const left = this.newState(BasicState);
+            const right = this.newState(BasicState);
             left.addTransition(new AtomTransition(right, IntStream.EOF));
 
             return { left, right };

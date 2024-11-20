@@ -107,7 +107,7 @@ export class Tool implements ITool {
         }
         content += "\n";
 
-        const serializedATN = ATNSerializer.getSerialized(g.atn);
+        const serializedATN = ATNSerializer.getSerialized(g.atn!);
         content += "atn:\n";
         content += serializedATN.toString();
 
@@ -434,7 +434,7 @@ export class Tool implements ITool {
             return undefined;
         }
 
-        return ParseTreeToASTConverter.convertToAST(grammarSpec, tokens);
+        return ParseTreeToASTConverter.convertGrammarSpecToAST(grammarSpec, tokens);
     }
 
     public generateATNs(g: Grammar): void {
@@ -447,7 +447,7 @@ export class Tool implements ITool {
         for (const ig of grammars) {
             for (const r of ig.rules.values()) {
                 try {
-                    const dot = dotGenerator.getDOTFromState(g.atn.ruleToStartState[r.index]!, g.isLexer());
+                    const dot = dotGenerator.getDOTFromState(g.atn!.ruleToStartState[r.index]!, g.isLexer());
                     this.writeDOTFile(g, r, dot);
                 } catch (ioe) {
                     ErrorManager.get().toolError(ErrorType.CANNOT_WRITE_FILE, ioe);

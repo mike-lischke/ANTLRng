@@ -48,6 +48,8 @@ describe("TestActionTranslation", () => {
         const grammar = st.render();
         const errorQueue = new ErrorQueue();
         const g = new Grammar(grammar, errorQueue);
+        g.tool.process(g, false);
+
         if (!g.ast.hasErrors) {
             const sem = new SemanticPipeline(g);
             sem.process();

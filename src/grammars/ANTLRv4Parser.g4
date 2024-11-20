@@ -184,7 +184,7 @@ ruleReturns
 // --------------
 // Exception spec
 throwsSpec
-    : THROWS identifier (COMMA identifier)*
+    : THROWS qualifiedIdentifier (COMMA qualifiedIdentifier)*
     ;
 
 localsSpec
@@ -398,11 +398,15 @@ elementOptions
     ;
 
 elementOption
-    : identifier
-    | identifier ASSIGN (identifier | STRING_LITERAL | INT)
+    : qualifiedIdentifier
+    | identifier ASSIGN (qualifiedIdentifier | STRING_LITERAL | INT)
     ;
 
 identifier
     : RULE_REF
     | TOKEN_REF
+    ;
+
+qualifiedIdentifier
+    : identifier (DOT identifier)*
     ;

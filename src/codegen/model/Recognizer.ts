@@ -64,7 +64,7 @@ export abstract class Recognizer extends OutputModelObject {
         this.ruleNames = new Set(g.rules.keys());
         this.rules = Array.from(g.rules.values());
         if (gen.getTarget() instanceof JavaTarget) {
-            this.atn = new SerializedJavaATN(factory, g.atn);
+            this.atn = new SerializedJavaATN(factory, g.atn!);
         } else {
             this.atn = new SerializedATN(factory, g.atn);
         }

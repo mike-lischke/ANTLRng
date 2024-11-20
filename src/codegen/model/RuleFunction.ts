@@ -121,7 +121,7 @@ export class RuleFunction extends OutputModelObject {
             this.exceptions.push(new ExceptionClause(factory, catchArg, catchAction));
         }
 
-        this.startState = factory.getGrammar()!.atn.ruleToStartState[r.index]!;
+        this.startState = factory.getGrammar()!.atn!.ruleToStartState[r.index]!;
     }
 
     public addContextGetters(factory: OutputModelFactory, r: Rule): void {

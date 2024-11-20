@@ -11,6 +11,7 @@ import { BlockAST } from "../tool/ast/BlockAST.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
+import type { Constructor } from "../misc/Utils.js";
 
 /**
  * A pair of states pointing to the left/right (start and end) states of a
@@ -27,7 +28,7 @@ export interface IATNFactory {
     createATN(): ATN;
     setCurrentRuleName(name: string): void;
     rule(ruleAST: GrammarAST, name: string, blk: IStatePair): IStatePair;
-    newState(): ATNState;
+    newState<T extends ATNState>(nodeType: Constructor<T>): T;
     label(t: IStatePair): IStatePair;
     listLabel(t: IStatePair): IStatePair;
     tokenRef(node: TerminalAST): IStatePair | null;
