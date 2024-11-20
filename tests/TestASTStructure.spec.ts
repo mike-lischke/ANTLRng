@@ -201,7 +201,7 @@ describe("TestASTStructure", () => {
         expect(actual).toBe(expecting);
     });
 
-    it.only("rule8", () => {
+    it("rule8", () => {
         const context = execParser("ruleSpec", "\n\ta[int i] throws a.b.c\n\t\t:\tA\n\t\t;\n\t", 115) as RuleSpecContext;
 
         const dummy = new GrammarAST();
