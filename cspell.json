@@ -81,6 +81,7 @@
         "codegen",
         "decapitalize",
         "ebnf",
+        "errornode",
         "graphviz",
         "interp",
         "javax",

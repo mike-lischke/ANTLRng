@@ -12,7 +12,7 @@ import { CharStream, CommonTokenStream, type Parser, type ParseTree } from "antl
 
 import { ANTLRv4Lexer } from "../src/generated/ANTLRv4Lexer.js";
 import {
-    ANTLRv4Parser, type DelegateGrammarsContext, type EbnfContext, type ElementContext, type GrammarSpecContext, type LexerElementContext, type RuleSpecContext
+    ANTLRv4Parser, type AtomContext, type DelegateGrammarsContext, type EbnfContext, type ElementContext, type GrammarSpecContext, type LabeledElementContext, type LexerElementContext, type RulerefContext, type RuleSpecContext
 } from "../src/generated/ANTLRv4Parser.js";
 import { ParseTreeToASTConverter } from "../src/support/ParseTreeToASTConverter.js";
 import { GrammarAST } from "../src/tool/ast/GrammarAST.js";
@@ -38,12 +38,12 @@ describe("TestASTStructure", () => {
         // TODO: is.setLine(scriptLine);
 
         const tokens = new CommonTokenStream(lexer);
+
+        /*tokens.fill();
+        const t = tokens.getTokens();*/
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
         const parser = new ANTLRv4Parser(tokens) as (ANTLRv4Parser & Record<string, Function>);
-
-        if (parser.numberOfSyntaxErrors > 0) {
-            throw new Error("The grammar file contains syntax errors.");
-        }
 
         // set up customized tree adaptor if necessary
         /*if (this.adaptorClassName !== null) {
@@ -52,7 +52,13 @@ describe("TestASTStructure", () => {
             m.invoke(parser, adaptorClass.newInstance());
         }*/
 
-        return callMethod(parser, ruleName) as ParseTree;
+        const result = callMethod(parser, ruleName) as ParseTree;
+
+        if (parser.numberOfSyntaxErrors > 0) {
+            throw new Error("The grammar file contains syntax errors.");
+        }
+
+        return result;
     };
 
     it("grammarSpec1", () => {
@@ -257,10 +263,10 @@ describe("TestASTStructure", () => {
     });
 
     it("element1", () => {
-        const context = execParser("element", "~A", 129) as ElementContext;
+        const context = execParser("atom", "~A", 129) as AtomContext;
 
         const dummy = new GrammarAST();
-        const ast = ParseTreeToASTConverter.convertElementToAST(context, dummy);
+        const ast = ParseTreeToASTConverter.convertAtomToAST(context, dummy);
 
         const actual = ast!.toStringTree();
         const expecting = "(~ (SET A))";
@@ -356,12 +362,12 @@ describe("TestASTStructure", () => {
     });
 
     it("element10", () => {
-        const context = execParser("element", "a[3]", 138) as ElementContext;
+        const context = execParser("ruleref", "a[3]", 138) as RulerefContext;
 
         const dummy = new GrammarAST();
-        const ast = ParseTreeToASTConverter.convertElementToAST(context, dummy);
+        const ast = ParseTreeToASTConverter.convertRulerefToAST(context, dummy);
 
-        const actual = ast!.toStringTree();
+        const actual = ast.toStringTree();
         const expecting = "(a 3)";
         expect(actual).toBe(expecting);
     });
@@ -378,12 +384,12 @@ describe("TestASTStructure", () => {
     });
 
     it("element12", () => {
-        const context = execParser("element", "x=ID", 140) as ElementContext;
+        const context = execParser("labeledElement", "x=ID", 140) as LabeledElementContext;
 
         const dummy = new GrammarAST();
-        const ast = ParseTreeToASTConverter.convertElementToAST(context, dummy);
+        const ast = ParseTreeToASTConverter.convertLabeledElementToAST(context, dummy);
 
-        const actual = ast!.toStringTree();
+        const actual = ast.toStringTree();
         const expecting = "(= x ID)";
         expect(actual).toBe(expecting);
     });
@@ -411,45 +417,45 @@ describe("TestASTStructure", () => {
     });
 
     it("element15", () => {
-        const context = execParser("element", "x=b", 143) as ElementContext;
+        const context = execParser("labeledElement", "x=b", 143) as LabeledElementContext;
 
         const dummy = new GrammarAST();
-        const ast = ParseTreeToASTConverter.convertElementToAST(context, dummy);
+        const ast = ParseTreeToASTConverter.convertLabeledElementToAST(context, dummy);
 
-        const actual = ast!.toStringTree();
+        const actual = ast.toStringTree();
         const expecting = "(= x b)";
         expect(actual).toBe(expecting);
     });
 
     it("element16", () => {
-        const context = execParser("element", "x=(A|B)", 144) as ElementContext;
+        const context = execParser("labeledElement", "x=(A|B)", 144) as LabeledElementContext;
 
         const dummy = new GrammarAST();
-        const ast = ParseTreeToASTConverter.convertElementToAST(context, dummy);
+        const ast = ParseTreeToASTConverter.convertLabeledElementToAST(context, dummy);
 
-        const actual = ast!.toStringTree();
+        const actual = ast.toStringTree();
         const expecting = "(= x (BLOCK (ALT A) (ALT B)))";
         expect(actual).toBe(expecting);
     });
 
     it("element17", () => {
-        const context = execParser("element", "x=~(A|B)", 145) as ElementContext;
+        const context = execParser("labeledElement", "x=~(A|B)", 145) as LabeledElementContext;
 
         const dummy = new GrammarAST();
-        const ast = ParseTreeToASTConverter.convertElementToAST(context, dummy);
+        const ast = ParseTreeToASTConverter.convertLabeledElementToAST(context, dummy);
 
-        const actual = ast!.toStringTree();
+        const actual = ast.toStringTree();
         const expecting = "(= x (~ (SET A B)))";
         expect(actual).toBe(expecting);
     });
 
     it("element18", () => {
-        const context = execParser("element", "x+=~(A|B)", 146) as ElementContext;
+        const context = execParser("labeledElement", "x+=~(A|B)", 146) as LabeledElementContext;
 
         const dummy = new GrammarAST();
-        const ast = ParseTreeToASTConverter.convertElementToAST(context, dummy);
+        const ast = ParseTreeToASTConverter.convertLabeledElementToAST(context, dummy);
 
-        const actual = ast!.toStringTree();
+        const actual = ast.toStringTree();
         const expecting = "(+= x (~ (SET A B)))";
         expect(actual).toBe(expecting);
     });

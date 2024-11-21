@@ -164,7 +164,7 @@ export class CommonTree implements ParseTree {
      * Delete children from start to stop and replace with t even if t is
      * a list (nil-root tree).  num of children can increase or decrease.
      * For huge child lists, inserting children can force walking rest of
-     * children to set their childindex; could be slow.
+     * children to set their child index; could be slow.
      *
      * @param startChildIndex The index to start deleting children.
      * @param stopChildIndex The index to stop deleting children.
