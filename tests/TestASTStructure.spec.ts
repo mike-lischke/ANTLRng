@@ -45,13 +45,6 @@ describe("TestASTStructure", () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
         const parser = new ANTLRv4Parser(tokens) as (ANTLRv4Parser & Record<string, Function>);
 
-        // set up customized tree adaptor if necessary
-        /*if (this.adaptorClassName !== null) {
-            const m = parserClass.getMethod("setTreeAdaptor", TreeAdaptor.class);
-            const adaptorClass = Class.forName(this.adaptorClassName).asSubclass(TreeAdaptor.class);
-            m.invoke(parser, adaptorClass.newInstance());
-        }*/
-
         const result = callMethod(parser, ruleName) as ParseTree;
 
         if (parser.numberOfSyntaxErrors > 0) {

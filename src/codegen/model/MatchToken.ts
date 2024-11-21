@@ -22,7 +22,7 @@ export class MatchToken extends RuleElement implements LabeledOp {
         if (ast instanceof TerminalAST) {
             const g = factory.getGrammar()!;
             const gen = factory.getGenerator()!;
-            this.ttype = g.getTokenType(ast.getText()!);
+            this.ttype = g.getTokenType(ast.getText());
             const target = gen.getTarget();
             this.name = target.getTokenTypeAsTargetLabel(g, this.ttype);
             this.escapedName = target.escapeIfNeeded(this.name);
