@@ -1,89 +1,20 @@
 /*
  * Copyright (c) Mike Lischke. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
- */
+*/
+
+// cspell: ignore inpc, insc
 
 /**
  * This class extracts necessary Unicode data from the Unicode database and generates a TypeScript file
- * with that data. The file is then used by the runtime to support Unicode properties and categories.
+ * with that data. The file is then used by the ANTLR tool to support Unicode properties and categories.
  */
 
 import { createWriteStream } from "fs";
 import { readdir, readFile, stat } from "fs/promises";
-import { join, dirname } from "path";
+import { dirname, join } from "path";
 
 import { IntervalSet } from "antlr4ng";
-
-const aliases = new Map<string, Map<string, string>>([
-    ["", new Map<string, string>([
-        // General properties.
-        ["uppercase_letter", "lu"],
-        ["lowercase_letter", "ll"],
-        ["titlecase_letter", "lt"],
-        ["cased_letter", "lc"],
-        ["modifier_letter", "lm"],
-        ["other_letter", "lo"],
-        ["letter", "l"],
-        ["nonspacing_mark", "mn"],
-        ["spacing_mark", "mc"],
-        ["enclosing_mark", "me"],
-        ["mark", "m"],
-        ["decimal_number", "nd"],
-        ["letter_number", "nl"],
-        ["other_number", "no"],
-        ["number", "n"],
-        ["connector_punctuation", "pc"],
-        ["dash_punctuation", "pd"],
-        ["open_punctuation", "ps"],
-        ["close_punctuation", "pe"],
-        ["initial_punctuation", "pi"],
-        ["final_punctuation", "pf"],
-        ["other_punctuation", "po"],
-        ["punctuation", "p"],
-        ["math_symbol", "sm"],
-        ["currency_symbol", "sc"],
-        ["modifier_symbol", "sk"],
-        ["other_symbol", "so"],
-        ["symbol", "s"],
-        ["space_separator", "zs"],
-        ["line_separator", "zl"],
-        ["paragraph_separator", "zp"],
-        ["separator", "z"],
-        ["control", "cc"],
-        ["format", "cf"],
-        ["surrogate", "cs"],
-        ["private_use", "co"],
-        ["unassigned", "cn"],
-        ["other", "c"],
-
-        // More values are loaded from the PropertyAliases.txt file.
-    ])],
-    ["bc", new Map<string, string>([ // BIDI classes.
-        ["left_to_right", "l"],
-        ["right_to_left", "r"],
-        ["arabic_letter", "al"],
-        ["european_number", "en"],
-        ["european_separator", "es"],
-        ["european_terminator", "et"],
-        ["arabic_number", "an"],
-        ["common_separator", "cs"],
-        ["nonspacing_mark", "nsm"],
-        ["boundary_neutral", "bn"],
-        ["paragraph_separator", "b"],
-        ["segment_separator", "s"],
-        ["white_space", "ws"],
-        ["other_neutral", "on"],
-        ["left_to_right_embedding", "lre"],
-        ["left_to_right_override", "lro"],
-        ["right_to_left_embedding", "rle"],
-        ["right_to_left_override", "rlo"],
-        ["pop_directional_format", "pdf"],
-        ["left_to_right_isolate", "lri"],
-        ["right_to_left_isolate", "rli"],
-        ["first_strong_isolate", "fsi"],
-        ["pop_directional_isolate", "pdi"],
-    ])],
-]);
 
 interface IUnicodeRange {
     begin: number;
@@ -95,8 +26,12 @@ interface IDataFileContent {
     default: IUnicodeRange[];
 }
 
-const packageName = "@unicode/unicode-15.1.0";
+const packageName = "@unicode/unicode-16.0.0";
 const sourceURL = join(dirname(import.meta.url), `../node_modules/${packageName}`).substring("file:".length);
+
+const propertyAliases = new Map<string, string>();
+const shortToLongPropertyNameMap = new Map<string, string>();
+const shortToLongPropertyValueMap = new Map<string, string>();
 
 const numberToHex = (value: number): string => {
     return value.toString(16).toUpperCase();
@@ -119,20 +54,118 @@ const intervalSetFromImport = async (file: string): Promise<IntervalSet> => {
     return set;
 };
 
+/**
+ * Loads the property aliases from the Unicode database and extracts all relevant parts.
+ *
+ * @returns A map with all aliases.
+ */
+const loadPropertyAliases = async (): Promise<void> => {
+    let propertyAliasesContent = await readFile(join(dirname(import.meta.url)
+        .substring("file:".length), "PropertyValueAliases.txt"), "utf8");
+
+    // Remove copyright header.
+    let end = propertyAliasesContent.indexOf("# ====");
+    end = propertyAliasesContent.indexOf("\n", end) + 1;
+    propertyAliasesContent = propertyAliasesContent.substring(end);
+
+    // Split into sections. A section begins with a line like "# General_Category" and ends with the next "#".
+    const sections: string[][] = [];
+    const lines = propertyAliasesContent.split("\n");
+    let currentSection: string[] = [];
+    for (const line of lines) {
+        if (line.length === 0) {
+            continue;
+        }
+
+        if (line.startsWith("#")) {
+            if (currentSection.length > 0) {
+                sections.push(currentSection);
+            }
+
+            currentSection = [];
+        }
+
+        currentSection.push(line);
+    }
+
+    for (const section of sections) {
+        // The first line is the section header and consists of "# " followed by the long property name and
+        // its abbreviation in parenthesis).
+        const line = section.shift()!;
+        const heading = line.toLowerCase().substring(2).trim();
+        const parts = heading.split(" ");
+        if (parts.length < 2) {
+            continue;
+        }
+
+        const longName = parts[0];
+        if (longName === "age") { // Not really a property.
+            continue;
+        }
+
+        const shortName = parts[1].substring(1, parts[1].length - 1).toLowerCase();
+        if (shortName !== longName) {
+            shortToLongPropertyNameMap.set(shortName, longName);
+        }
+
+        let addBinaryPropertyEntry = false;
+        for (const line of section) {
+            const parts = line.split(";");
+
+            // Each data line is of the form: property abbreviation; value abbreviation; value full; ...
+            if (parts.length < 3) {
+                continue;
+            }
+
+            // Ignore binary properties, which can only be switched on or off (indicated by true/false and their
+            // aliases). But add a lookup entry for them.
+            if (parts[1].trim().toLowerCase() === "n" || parts[1].trim().toLowerCase() === "y") {
+                addBinaryPropertyEntry = true;
+                continue;
+            }
+
+            // Canonical_Combining_Class is a special cases. It has an additional field in the second position,
+            // which we ignore here.
+            if (longName === "Canonical_Combining_Class" && parts.length > 3) {
+                parts.splice(2, 1);
+            }
+
+            const abbr = parts[1].trim().toLowerCase();
+            const full = parts[2].trim().toLowerCase();
+
+            // Don't override short property value names if they exist already.
+            // Scripts and blocks share a couple of them. Keep the one from the block section.
+            if (!shortToLongPropertyValueMap.has(full) && abbr !== full) {
+                shortToLongPropertyValueMap.set(abbr, full);
+            }
+
+            if (!propertyAliases.has(full)) {
+                propertyAliases.set(full, `${longName}=${full}`);
+            }
+        }
+
+        if (addBinaryPropertyEntry) {
+            propertyAliases.set(longName, `binary_property=${longName}`);
+        }
+    }
+};
+
 // Generate the Unicode data file.
 const targetPath = join(dirname(import.meta.url), "../src/generated/UnicodeData.ts").substring("file:".length);
 const writer = createWriteStream(targetPath);
 
 writer.write("// Data generated by build/generate-unicode-data.ts. Do not edit.\n\n");
+writer.write("/* eslint-disable */\n\n");
+writer.write("/* cspell: disable */\n\n");
 writer.write(`import { IntervalSet } from "antlr4ng";\n\n`);
 writer.write(`/** A mapping from a Unicode property type to a set of code points. */\n`);
 writer.write(`export const propertyCodePointRanges = new Map<string, IntervalSet>();\n\n`);
 
-const generateMap = async (basePath: string): Promise<void> => {
+const generateMap = async (basePath: string, alias?: string): Promise<void> => {
     console.log(`Generating map for ${basePath}...`);
 
-    const mainList = aliases.get("");
-    const abbr = mainList?.get(basePath.toLocaleLowerCase());
+    const name = basePath.toLocaleLowerCase();
+    const fullPropertyName = alias ?? name;
 
     // Enumerate all folders in the base path.
     const folderURL = join(sourceURL, basePath);
@@ -149,8 +182,7 @@ const generateMap = async (basePath: string): Promise<void> => {
         const set = await intervalSetFromImport(`${target}/ranges.js`);
         let counter = 0;
         for (const range of set) {
-            writer.write(`set.addRange(0x${numberToHex(range.start)}, ` +
-                `0x${numberToHex(range.stop)}); `);
+            writer.write(`set.addRange(0x${numberToHex(range.start)}, ` + `0x${numberToHex(range.stop)}); `);
             ++counter;
             if (counter === 5) {
                 writer.write("\n");
@@ -163,16 +195,7 @@ const generateMap = async (basePath: string): Promise<void> => {
         }
 
         const elementName = element.toLocaleLowerCase();
-        if (abbr) {
-            // Enumerated values.
-            const list = aliases.get(abbr);
-            const abbreviated = list?.get(elementName);
-            writer.write(`propertyCodePointRanges.set("${abbr}=${abbreviated ?? elementName}", set);\n\n`);
-        } else {
-            // Catalog properties, enumerated property names, general categories and binary properties.
-            const abbreviated = mainList?.get(elementName);
-            writer.write(`propertyCodePointRanges.set("${abbreviated ?? elementName}", set);\n\n`);
-        }
+        writer.write(`propertyCodePointRanges.set("${fullPropertyName}=${elementName}", set);\n\n`);
     }
 };
 
@@ -221,23 +244,6 @@ const generateBlocksMap = async (): Promise<void> => {
     writer.write("    ]);\n\n}\n\n");
 };
 
-let content = await readFile(join(dirname(import.meta.url).substring("file:".length), "PropertyAliases.txt"),
-    "utf8");
-const lines = content.split("\n");
-const list = aliases.get("");
-for (const line of lines) {
-    const parts = line.split(";");
-    if (parts.length < 2) {
-        continue;
-    }
-
-    const key = parts[1].trim().toLowerCase();
-    const value = parts[0].trim().toLowerCase();
-    if (list) {
-        list.set(key, value);
-    }
-}
-
 await generateBlocksMap();
 
 writer.write(`let set: IntervalSet; \n\n`);
@@ -251,9 +257,25 @@ await generateMap("Script");
 await generateMap("Script_Extensions");
 await generateMap("Word_Break");
 
-// Finally add the aliases. These were taken from the Java Unicode data generator (which uses ICU for that).
-content = await readFile(join(dirname(import.meta.url).substring("file:".length), "aliases.json"), "utf8");
-writer.write(`export const propertyAliases = new Map<string, string>(${content}); \n`);
+// Finally add the aliases.
+writer.write(`export const propertyAliases = new Map<string, string>([ \n`);
+await loadPropertyAliases();
+propertyAliases.forEach((value, key) => {
+    writer.write(`    ["${key}", "${value}"], \n`);
+});
+writer.write(`]); \n`);
+
+writer.write(`export const shortToLongPropertyNameMap = new Map<string, string>([ \n`);
+shortToLongPropertyNameMap.forEach((value, key) => {
+    writer.write(`    ["${key}", "${value}"], \n`);
+});
+writer.write(`]); \n`);
+
+writer.write(`export const shortToLongPropertyValueMap = new Map<string, string>([ \n`);
+shortToLongPropertyValueMap.forEach((value, key) => {
+    writer.write(`    ["${key}", "${value}"], \n`);
+});
+writer.write(`]); \n`);
 
 writer.close();
 

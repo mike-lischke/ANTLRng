@@ -193,7 +193,7 @@ export class SemanticPipeline {
     protected hasTypeOrMoreCommand(r: Rule): boolean {
         const ast = r.ast;
 
-        const altActionAst = ast.getFirstDescendantWithType(ANTLRv4Parser.RARROW) as GrammarAST | null;
+        const altActionAst = ast.getFirstDescendantWithType(ANTLRv4Parser.LEXER_ALT_ACTION) as GrammarAST | null;
         if (altActionAst === null) {
             // the rule isn't followed by any commands
             return false;

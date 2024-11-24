@@ -26,6 +26,7 @@
         "ᬠᬣᬦᬪᬫᬬᬭ"
     ],
     "ignoreWords": [
+        "ABFF",
         "Aplus",
         "Approximator",
         "CMDLINE",
@@ -42,6 +43,7 @@
         "LBRACK",
         "LLATN",
         "LPAREN",
+        "Mahajani",
         "Millis",
         "NONREDUCED",
         "NONSPACING",
@@ -132,6 +134,11 @@
         "xids"
     ],
     "ignorePaths": [
-        ".eslintrc.json"
+        ".eslintrc.json",
+        "build/aliases.json",
+        "build/script-aliases.json",
+        "build/property-aliases.txt",
+        "build/PropertyValueAliases.txt",
+        "src/generated/*"
     ]
 }

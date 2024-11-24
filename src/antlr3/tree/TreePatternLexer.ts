@@ -53,10 +53,10 @@ export class TreePatternLexer {
                 continue;
             }
 
-            if ((this.c >= 0x65 && this.c <= 0x7A) || (this.c >= 0x41 && this.c <= 0x5A) || this.c === 0x5F) {
+            if ((this.c >= 0x61 && this.c <= 0x7A) || (this.c >= 0x41 && this.c <= 0x5A) || this.c === 0x5F) {
                 this.sval += String.fromCodePoint(this.c);
                 this.consume();
-                while ((this.c >= 0x65 && this.c <= 0x7A) || (this.c >= 0x41 && this.c <= 0x5A) ||
+                while ((this.c >= 0x61 && this.c <= 0x7A) || (this.c >= 0x41 && this.c <= 0x5A) ||
                     (this.c >= 0x30 && this.c <= 0x39) || this.c === 0x5F) {
                     this.sval += String.fromCodePoint(this.c);
                     this.consume();

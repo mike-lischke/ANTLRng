@@ -401,7 +401,7 @@ export class Grammar implements IGrammar, AttributeResolver {
         const wiz = new TreeWizard(adaptor, ANTLRv4Parser.symbolicNames);
         const lexerRuleToStringLiteral = new Array<[GrammarAST, GrammarAST]>();
 
-        const ruleNodes = ast.getNodesWithType(ANTLRv4Parser.RULE_REF);
+        const ruleNodes = ast.getNodesWithType(ANTLRv4Parser.RULE);
         if (ruleNodes.length === 0) {
             return null;
         }

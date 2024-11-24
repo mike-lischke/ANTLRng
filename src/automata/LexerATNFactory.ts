@@ -355,24 +355,24 @@ export class LexerATNFactory extends ParserATNFactory {
     }
 
     public getSetFromCharSetLiteral(charSetAST: GrammarAST): IntervalSet {
-        const chars = charSetAST.getText().substring(1);
+        let text = charSetAST.getText();
+        text = text.substring(1, text.length - 1);
         const set = new IntervalSet();
         let state = LexerATNFactory.CharSetParseState.NONE;
 
-        const n = chars.length;
-        for (let i = 0; i < n;) {
+        for (let i = 0; i < text.length;) {
             if (state.mode === Mode.Error) {
                 return new IntervalSet();
             }
 
-            const c = chars.codePointAt(i)!;
+            const c = text.codePointAt(i)!;
             let offset = Character.charCount(c);
             if (c === 0x5C) { // \
-                const escapeParseResult = EscapeSequenceParsing.parseEscape(chars, i);
+                const escapeParseResult = EscapeSequenceParsing.parseEscape(text, i);
 
                 switch (escapeParseResult.type) {
                     case ResultType.Invalid: {
-                        const invalid = chars.substring(escapeParseResult.startOffset,
+                        const invalid = text.substring(escapeParseResult.startOffset,
                             escapeParseResult.startOffset + escapeParseResult.parseLength);
                         ErrorManager.get().grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
                             this.g.fileName, charSetAST.token!, invalid);
@@ -400,7 +400,7 @@ export class LexerATNFactory extends ParserATNFactory {
                 }
                 offset = escapeParseResult.parseLength;
             } else {
-                if (c === 0x2D && !state.inRange && i !== 0 && i !== n - 1 && state.mode !== Mode.None) {
+                if (c === 0x2D && !state.inRange && i !== 0 && i !== text.length - 1 && state.mode !== Mode.None) {
                     if (state.mode === Mode.PrevProperty) {
                         ErrorManager.get().grammarError(ErrorType.UNICODE_PROPERTY_NOT_ALLOWED_IN_RANGE,
                             this.g.fileName, charSetAST.token!, charSetAST.getText());

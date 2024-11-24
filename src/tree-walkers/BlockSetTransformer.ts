@@ -23,7 +23,7 @@ import type { TreeNodeStream } from "../antlr3/tree/TreeNodeStream.js";
 import { TreeRewriter } from "../antlr3/tree/TreeRewriter.js";
 import { type ITreeRuleReturnScope } from "../antlr3/tree/TreeRuleReturnScope.js";
 import { Constants } from "../Constants1.js";
-import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
+import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import { isTokenName } from "../support/helpers.js";
 import { AltAST } from "../tool/ast/AltAST.js";
@@ -36,7 +36,7 @@ export class BlockSetTransformer extends TreeRewriter {
     // Needed for context in the inContext method.
     public static readonly tokenNames = [
         "<invalid>", "<EOR>", "<DOWN>", "<UP>", "ACTION", "ACTION_CHAR_LITERAL", "ACTION_ESC", "ACTION_STRING_LITERAL",
-        "ARG_ACTION", "ARG_OR_CHARSET", "ASSIGN", "AT", "CATCH", "CHANNELS", "COLON", "COLONCOLON", "COMMA",
+        "ARG_ACTION", "ARG_OR_CHARSET", "ASSIGN", "AT", "CATCH", "CHANNELS", "COLON", "COLONCOLON", "COMMA", "UNUSED",
         "DOC_COMMENT", "DOLLAR", "DOT", "ERRCHAR", "ESC_SEQ", "FINALLY", "FRAGMENT", "GRAMMAR", "GT", "HEX_DIGIT", "ID",
         "IMPORT", "INT", "LEXER", "LEXER_CHAR_SET", "LOCALS", "LPAREN", "LT", "MODE", "NESTED_ACTION", "NLCHARS",
         "NOT", "NameChar", "NameStartChar", "OPTIONS", "OR", "PARSER", "PLUS", "PLUS_ASSIGN", "POUND", "QUESTION",
@@ -44,7 +44,7 @@ export class BlockSetTransformer extends TreeRewriter {
         "STRING_LITERAL", "THROWS", "TOKENS_SPEC", "TOKEN_REF", "UNICODE_ESC", "UNICODE_EXTENDED_ESC", "UnicodeBOM",
         "WS", "WSCHARS", "WSNLCHARS", "ALT", "BLOCK", "CLOSURE", "COMBINED", "ELEMENT_OPTIONS", "EPSILON",
         "LEXER_ACTION_CALL", "LEXER_ALT_ACTION", "OPTIONAL", "POSITIVE_CLOSURE", "RULE", "RULEMODIFIERS", "RULES",
-        "SET", "WILDCARD", "BLOCK_COMMENT", "LINE_COMMENT", "UNTERMINATED_STRING_LITERA", "BEGIN_ARGUMENT",
+        "SET", "WILDCARD", "BLOCK_COMMENT", "LINE_COMMENT", "UNTERMINATED_STRING_LITERAL", "BEGIN_ARGUMENT",
         "BEGIN_ACTION", "TOKENS", "LBRACE", "END_ARGUMENT", "UNTERMINATED_ARGUMENT", "ARGUMENT_CONTENT", "END_ACTION",
         "UNTERMINATED_ACTION", "ACTION_CONTENT", "UNTERMINATED_CHAR_SET", "PRIVATE", "PROTECTED", "PUBLIC",
         "PREDICATE_OPTIONS", "Argument", "TargetLanguageAction", "LexerCharSet",
@@ -102,30 +102,30 @@ export class BlockSetTransformer extends TreeRewriter {
             // org/antlr/v4/parse/BlockSetTransformer.g:64:5: ( ^( RULE (id= TOKEN_REF |id= RULE_REF ) ( . )+ ) | setAlt | ebnfBlockSet | blockSet )
             let alt3 = 4;
             switch (this.input.LA(1)) {
-                case ANTLRv4Lexer.RULE: {
+                case ANTLRv4Parser.RULE: {
                     {
                         alt3 = 1;
                     }
                     break;
                 }
 
-                case ANTLRv4Lexer.ALT: {
+                case ANTLRv4Parser.ALT: {
                     {
                         alt3 = 2;
                     }
                     break;
                 }
 
-                case ANTLRv4Lexer.CLOSURE:
-                case ANTLRv4Lexer.OPTIONAL:
-                case ANTLRv4Lexer.POSITIVE_CLOSURE: {
+                case ANTLRv4Parser.CLOSURE:
+                case ANTLRv4Parser.OPTIONAL:
+                case ANTLRv4Parser.POSITIVE_CLOSURE: {
                     {
                         alt3 = 3;
                     }
                     break;
                 }
 
-                case ANTLRv4Lexer.BLOCK: {
+                case ANTLRv4Parser.BLOCK: {
                     {
                         alt3 = 4;
                     }
@@ -152,7 +152,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             const _save_last_1 = _last;
                             let _first_1 = null;
                             _last = this.input.LT(1) as GrammarAST;
-                            RULE1 = this.match(this.input, ANTLRv4Lexer.RULE, null) as GrammarAST;
+                            RULE1 = this.match(this.input, ANTLRv4Parser.RULE, null) as GrammarAST;
                             if (this.state.failed) {
                                 return retval;
                             }
@@ -170,10 +170,10 @@ export class BlockSetTransformer extends TreeRewriter {
                             // org/antlr/v4/parse/BlockSetTransformer.g:64:14: (id= TOKEN_REF |id= RULE_REF )
                             let alt1 = 2;
                             const LA1_0 = this.input.LA(1);
-                            if ((LA1_0 === ANTLRv4Lexer.TOKEN_REF)) {
+                            if ((LA1_0 === ANTLRv4Parser.TOKEN_REF)) {
                                 alt1 = 1;
                             } else {
-                                if ((LA1_0 === ANTLRv4Lexer.RULE_REF)) {
+                                if ((LA1_0 === ANTLRv4Parser.RULE_REF)) {
                                     alt1 = 2;
                                 } else {
                                     if (this.state.backtracking > 0) {
@@ -191,7 +191,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                     // org/antlr/v4/parse/BlockSetTransformer.g:64:15: id= TOKEN_REF
                                     {
                                         _last = this.input.LT(1) as GrammarAST;
-                                        id = this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null) as GrammarAST;
+                                        id = this.match(this.input, ANTLRv4Parser.TOKEN_REF, null) as GrammarAST;
                                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                         if (this.state.failed) {
                                             return retval;
@@ -218,7 +218,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                     // org/antlr/v4/parse/BlockSetTransformer.g:64:28: id= RULE_REF
                                     {
                                         _last = this.input.LT(1) as GrammarAST;
-                                        id = this.match(this.input, ANTLRv4Lexer.RULE_REF, null) as GrammarAST;
+                                        id = this.match(this.input, ANTLRv4Parser.RULE_REF, null) as GrammarAST;
                                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                         if (this.state.failed) {
                                             return retval;
@@ -255,7 +255,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             while (true) {
                                 let alt2 = 2;
                                 const LA2_0 = this.input.LA(1);
-                                if (((LA2_0 >= ANTLRv4Lexer.ACTION && LA2_0 <= ANTLRv4Lexer.WILDCARD))) {
+                                if (((LA2_0 >= ANTLRv4Parser.ACTION && LA2_0 <= ANTLRv4Parser.WILDCARD))) {
                                     alt2 = 1;
                                 } else {
                                     if ((LA2_0 === Constants.UP)) {
@@ -448,7 +448,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     throw new FailedPredicateException(this.input, "setAlt", "inContext(\"RULE BLOCK\")");
                 }
                 const _last = this.input.LT(1) as GrammarAST;
-                ALT6 = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
+                ALT6 = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
 
                 if (this.state.failed) {
                     return retval;
@@ -564,11 +564,11 @@ export class BlockSetTransformer extends TreeRewriter {
                             // org/antlr/v4/parse/BlockSetTransformer.g:80:43: ^( BLOCK ^( ALT blockSet ) )
                             {
                                 let root_2 = new GrammarAST();
-                                root_2 = this.adaptor.becomeRoot(new BlockAST(ANTLRv4Lexer.BLOCK), root_2) as GrammarAST;
+                                root_2 = this.adaptor.becomeRoot(new BlockAST(ANTLRv4Parser.BLOCK), root_2) as GrammarAST;
                                 // org/antlr/v4/parse/BlockSetTransformer.g:80:61: ^( ALT blockSet )
                                 {
                                     let root_3 = new GrammarAST();
-                                    root_3 = this.adaptor.becomeRoot(new AltAST(ANTLRv4Lexer.ALT), root_3) as GrammarAST;
+                                    root_3 = this.adaptor.becomeRoot(new AltAST(ANTLRv4Parser.ALT), root_3) as GrammarAST;
                                     root_3.addChild(stream_blockSet.nextTree());
                                     root_2.addChild(root_3);
                                 }
@@ -616,7 +616,7 @@ export class BlockSetTransformer extends TreeRewriter {
             {
                 const _last = this.input.LT(1) as GrammarAST;
                 const _set9 = this.input.LT(1) as GrammarAST;
-                if (this.input.LA(1) === ANTLRv4Lexer.CLOSURE || (this.input.LA(1) >= ANTLRv4Lexer.OPTIONAL && this.input.LA(1) <= ANTLRv4Lexer.POSITIVE_CLOSURE)) {
+                if (this.input.LA(1) === ANTLRv4Parser.CLOSURE || (this.input.LA(1) >= ANTLRv4Parser.OPTIONAL && this.input.LA(1) <= ANTLRv4Parser.POSITIVE_CLOSURE)) {
                     this.input.consume();
                     this.state.errorRecovery = false;
                     this.state.failed = false;
@@ -693,7 +693,7 @@ export class BlockSetTransformer extends TreeRewriter {
                 const _save_last_1 = _last;
                 let _first_1 = null;
                 _last = this.input.LT(1) as GrammarAST;
-                BLOCK10 = this.match(this.input, ANTLRv4Lexer.BLOCK, null) as GrammarAST;
+                BLOCK10 = this.match(this.input, ANTLRv4Parser.BLOCK, null) as GrammarAST;
                 if (this.state.failed) {
                     return retval;
                 }
@@ -717,7 +717,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     const _save_last_2 = _last;
                     const _first_2 = null;
                     _last = this.input.LT(1) as GrammarAST;
-                    alt = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
+                    alt = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
                         return retval;
@@ -740,7 +740,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     // org/antlr/v4/parse/BlockSetTransformer.g:98:21: ( elementOptions )?
                     let alt4 = 2;
                     const LA4_0 = this.input.LA(1);
-                    if ((LA4_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
+                    if ((LA4_0 === ANTLRv4Parser.ELEMENT_OPTIONS)) {
                         alt4 = 1;
                     }
                     switch (alt4) {
@@ -808,7 +808,7 @@ export class BlockSetTransformer extends TreeRewriter {
                 while (true) {
                     let alt6 = 2;
                     const LA6_0 = this.input.LA(1);
-                    if ((LA6_0 === ANTLRv4Lexer.ALT)) {
+                    if ((LA6_0 === ANTLRv4Parser.ALT)) {
                         alt6 = 1;
                     }
 
@@ -821,7 +821,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                     const _save_last_2 = _last;
                                     const _first_2 = null;
                                     _last = this.input.LT(1) as GrammarAST;
-                                    ALT13 = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
+                                    ALT13 = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
                                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                     if (this.state.failed) {
                                         return retval;
@@ -846,7 +846,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                     // org/antlr/v4/parse/BlockSetTransformer.g:98:99: ( elementOptions )?
                                     let alt5 = 2;
                                     const LA5_0 = this.input.LA(1);
-                                    if ((LA5_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
+                                    if ((LA5_0 === ANTLRv4Parser.ELEMENT_OPTIONS)) {
                                         alt5 = 1;
                                     }
                                     switch (alt5) {
@@ -954,16 +954,16 @@ export class BlockSetTransformer extends TreeRewriter {
                         // org/antlr/v4/parse/BlockSetTransformer.g:99:6: ^( BLOCK[$BLOCK.token] ^( ALT[$BLOCK.token,\"ALT\"] ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) ) )
                         {
                             let root_1 = new GrammarAST();
-                            root_1 = this.adaptor.becomeRoot(new BlockAST(ANTLRv4Lexer.BLOCK,
+                            root_1 = this.adaptor.becomeRoot(new BlockAST(ANTLRv4Parser.BLOCK,
                                 BLOCK10.token), root_1) as GrammarAST;
                             // org/antlr/v4/parse/BlockSetTransformer.g:99:38: ^( ALT[$BLOCK.token,\"ALT\"] ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ ) )
                             {
                                 let root_2 = new GrammarAST();
-                                root_2 = this.adaptor.becomeRoot(new AltAST(ANTLRv4Lexer.ALT, BLOCK10.token, "ALT"), root_2) as GrammarAST;
+                                root_2 = this.adaptor.becomeRoot(new AltAST(ANTLRv4Parser.ALT, BLOCK10.token, "ALT"), root_2) as GrammarAST;
                                 // org/antlr/v4/parse/BlockSetTransformer.g:99:72: ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ )
                                 {
                                     let root_3 = new GrammarAST();
-                                    root_3 = this.adaptor.becomeRoot(this.adaptor.create(ANTLRv4Lexer.SET, BLOCK10.token!, "SET") as GrammarAST, root_3) as GrammarAST;
+                                    root_3 = this.adaptor.becomeRoot(this.adaptor.create(ANTLRv4Parser.SET, BLOCK10.token!, "SET") as GrammarAST, root_3) as GrammarAST;
                                     if (!(stream_setElement.hasNext())) {
                                         throw new Error("RewriteEarlyExitException");
                                     }
@@ -997,7 +997,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     const _save_last_1 = _last;
                     let _first_1 = null;
                     _last = this.input.LT(1) as GrammarAST;
-                    BLOCK16 = this.match(this.input, ANTLRv4Lexer.BLOCK, null) as GrammarAST;
+                    BLOCK16 = this.match(this.input, ANTLRv4Parser.BLOCK, null) as GrammarAST;
                     if (this.state.failed) {
                         return retval;
                     }
@@ -1021,7 +1021,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         const _save_last_2 = _last;
                         const _first_2 = null;
                         _last = this.input.LT(1) as GrammarAST;
-                        ALT17 = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
+                        ALT17 = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (this.state.failed) {
                             return retval;
@@ -1044,7 +1044,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         // org/antlr/v4/parse/BlockSetTransformer.g:101:17: ( elementOptions )?
                         let alt7 = 2;
                         const LA7_0 = this.input.LA(1);
-                        if ((LA7_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
+                        if ((LA7_0 === ANTLRv4Parser.ELEMENT_OPTIONS)) {
                             alt7 = 1;
                         }
                         switch (alt7) {
@@ -1105,7 +1105,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     while (true) {
                         let alt9 = 2;
                         const LA9_0 = this.input.LA(1);
-                        if ((LA9_0 === ANTLRv4Lexer.ALT)) {
+                        if ((LA9_0 === ANTLRv4Parser.ALT)) {
                             alt9 = 1;
                         }
 
@@ -1118,7 +1118,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                         const _save_last_2 = _last;
                                         const _first_2 = null;
                                         _last = this.input.LT(1) as GrammarAST;
-                                        ALT20 = this.match(this.input, ANTLRv4Lexer.ALT, null) as GrammarAST;
+                                        ALT20 = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
                                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                         if (this.state.failed) {
                                             return retval;
@@ -1145,7 +1145,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                         // org/antlr/v4/parse/BlockSetTransformer.g:101:62: ( elementOptions )?
                                         let alt8 = 2;
                                         const LA8_0 = this.input.LA(1);
-                                        if ((LA8_0 === ANTLRv4Lexer.ELEMENT_OPTIONS)) {
+                                        if ((LA8_0 === ANTLRv4Parser.ELEMENT_OPTIONS)) {
                                             alt8 = 1;
                                         }
                                         switch (alt8) {
@@ -1203,7 +1203,6 @@ export class BlockSetTransformer extends TreeRewriter {
                                     if (this.state.backtracking === 1) {
                                         retval.tree = _first_0 ?? undefined;
                                         if (retval.tree?.getParent()?.isNil()) {
-
                                             retval.tree = retval.tree.getParent() as GrammarAST;
                                         }
 
@@ -1254,7 +1253,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         // org/antlr/v4/parse/BlockSetTransformer.g:102:6: ^( SET[$BLOCK.token, \"SET\"] ( setElement )+ )
                         {
                             let root_1 = new GrammarAST();
-                            root_1 = this.adaptor.becomeRoot(this.adaptor.create(ANTLRv4Lexer.SET,
+                            root_1 = this.adaptor.becomeRoot(this.adaptor.create(ANTLRv4Parser.SET,
                                 BLOCK16.token!, "SET") as GrammarAST, root_1) as GrammarAST;
                             if (!(stream_setElement.hasNext())) {
                                 throw new Error("RewriteEarlyExitException");
@@ -1316,7 +1315,7 @@ export class BlockSetTransformer extends TreeRewriter {
                 // org/antlr/v4/parse/BlockSetTransformer.g:109:4: ( ^(a= STRING_LITERAL elementOptions ) {...}?|a= STRING_LITERAL {...}?|{...}? => ^( TOKEN_REF elementOptions ) |{...}? => TOKEN_REF |{...}? => ^( RANGE a= STRING_LITERAL b= STRING_LITERAL ) {...}?)
                 let alt11 = 5;
                 const LA11_0 = this.input.LA(1);
-                if ((LA11_0 === ANTLRv4Lexer.STRING_LITERAL)) {
+                if ((LA11_0 === ANTLRv4Parser.STRING_LITERAL)) {
                     const LA11_1 = this.input.LA(2);
                     if ((LA11_1 === Constants.DOWN)) {
                         alt11 = 1;
@@ -1343,7 +1342,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
 
                 } else {
-                    if ((LA11_0 === ANTLRv4Lexer.TOKEN_REF) && !inLexer) {
+                    if ((LA11_0 === ANTLRv4Parser.TOKEN_REF) && !inLexer) {
                         const LA11_2 = this.input.LA(2);
                         if ((LA11_2 === Constants.DOWN)) {
                             alt11 = 3;
@@ -1353,7 +1352,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
                         }
                     } else {
-                        if ((LA11_0 === ANTLRv4Lexer.RANGE) && inLexer) {
+                        if ((LA11_0 === ANTLRv4Parser.RANGE) && inLexer) {
                             alt11 = 5;
                         }
                     }
@@ -1369,7 +1368,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 const _save_last_1 = _last;
                                 let _first_1 = null;
                                 _last = this.input.LT(1) as GrammarAST;
-                                a = this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null) as GrammarAST;
+                                a = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
 
                                 if (this.state.failed) {
                                     return retval;
@@ -1430,7 +1429,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         // org/antlr/v4/parse/BlockSetTransformer.g:110:7: a= STRING_LITERAL {...}?
                         {
                             _last = this.input.LT(1) as GrammarAST;
-                            a = this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null) as GrammarAST;
+                            a = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
 
                             if (this.state.failed) {
                                 return retval;
@@ -1477,7 +1476,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 const _save_last_1 = _last;
                                 let _first_1 = null;
                                 _last = this.input.LT(1) as GrammarAST;
-                                TOKEN_REF24 = this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null) as GrammarAST;
+                                TOKEN_REF24 = this.match(this.input, ANTLRv4Parser.TOKEN_REF, null) as GrammarAST;
 
                                 if (this.state.failed) {
                                     return retval;
@@ -1538,7 +1537,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 throw new FailedPredicateException(this.input, "setElement", "!inLexer");
                             }
                             _last = this.input.LT(1) as GrammarAST;
-                            TOKEN_REF26 = this.match(this.input, ANTLRv4Lexer.TOKEN_REF, null) as GrammarAST;
+                            TOKEN_REF26 = this.match(this.input, ANTLRv4Parser.TOKEN_REF, null) as GrammarAST;
 
                             if (this.state.failed) {
                                 return retval;
@@ -1577,7 +1576,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 const _save_last_1 = _last;
                                 let _first_1 = null;
                                 _last = this.input.LT(1) as GrammarAST;
-                                RANGE27 = this.match(this.input, ANTLRv4Lexer.RANGE, null) as GrammarAST;
+                                RANGE27 = this.match(this.input, ANTLRv4Parser.RANGE, null) as GrammarAST;
 
                                 if (this.state.failed) {
                                     return retval;
@@ -1594,7 +1593,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 _last = this.input.LT(1) as GrammarAST;
-                                a = this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null) as GrammarAST;
+                                a = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
                                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                 if (this.state.failed) {
                                     return retval;
@@ -1605,7 +1604,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 _last = this.input.LT(1) as GrammarAST;
-                                b = this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null) as GrammarAST;
+                                b = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
                                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                 if (this.state.failed) {
                                     return retval;
@@ -1700,7 +1699,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     const _save_last_1 = _last;
                     let _first_1 = null;
                     _last = this.input.LT(1) as GrammarAST;
-                    ELEMENT_OPTIONS28 = this.match(this.input, ANTLRv4Lexer.ELEMENT_OPTIONS, null) as GrammarAST;
+                    ELEMENT_OPTIONS28 = this.match(this.input, ANTLRv4Parser.ELEMENT_OPTIONS, null) as GrammarAST;
 
                     if (this.state.failed) {
                         return retval;
@@ -1722,7 +1721,7 @@ export class BlockSetTransformer extends TreeRewriter {
                         while (true) {
                             let alt12 = 2;
                             const LA12_0 = this.input.LA(1);
-                            if ((LA12_0 === ANTLRv4Lexer.ASSIGN || LA12_0 === ANTLRv4Lexer.ID)) {
+                            if ((LA12_0 === ANTLRv4Parser.ASSIGN || LA12_0 === ANTLRv4Parser.ID)) {
                                 alt12 = 1;
                             }
 
@@ -1819,37 +1818,37 @@ export class BlockSetTransformer extends TreeRewriter {
             // org/antlr/v4/parse/BlockSetTransformer.g:124:2: ( ID | ^( ASSIGN id= ID v= ID ) | ^( ASSIGN ID v= STRING_LITERAL ) | ^( ASSIGN ID v= ACTION ) | ^( ASSIGN ID v= INT ) )
             let alt13 = 5;
             const LA13_0 = this.input.LA(1);
-            if ((LA13_0 === ANTLRv4Lexer.ID)) {
+            if ((LA13_0 === ANTLRv4Parser.ID)) {
                 alt13 = 1;
             } else {
-                if ((LA13_0 === ANTLRv4Lexer.ASSIGN)) {
+                if ((LA13_0 === ANTLRv4Parser.ASSIGN)) {
                     const LA13_2 = this.input.LA(2);
                     if ((LA13_2 === Constants.DOWN)) {
                         const LA13_3 = this.input.LA(3);
-                        if ((LA13_3 === ANTLRv4Lexer.ID)) {
+                        if ((LA13_3 === ANTLRv4Parser.ID)) {
                             switch (this.input.LA(4)) {
-                                case ANTLRv4Lexer.ID: {
+                                case ANTLRv4Parser.ID: {
                                     {
                                         alt13 = 2;
                                     }
                                     break;
                                 }
 
-                                case ANTLRv4Lexer.STRING_LITERAL: {
+                                case ANTLRv4Parser.STRING_LITERAL: {
                                     {
                                         alt13 = 3;
                                     }
                                     break;
                                 }
 
-                                case ANTLRv4Lexer.ACTION: {
+                                case ANTLRv4Parser.ACTION: {
                                     {
                                         alt13 = 4;
                                     }
                                     break;
                                 }
 
-                                case ANTLRv4Lexer.INT: {
+                                case ANTLRv4Parser.INT: {
                                     {
                                         alt13 = 5;
                                     }
@@ -1932,7 +1931,7 @@ export class BlockSetTransformer extends TreeRewriter {
                     // org/antlr/v4/parse/BlockSetTransformer.g:124:4: ID
                     {
                         _last = this.input.LT(1) as GrammarAST;
-                        ID30 = this.match(this.input, ANTLRv4Lexer.ID, null) as GrammarAST;
+                        ID30 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
 
                         if (this.state.failed) {
                             return retval;
@@ -1964,7 +1963,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             const _save_last_1 = _last;
                             let _first_1 = null;
                             _last = this.input.LT(1) as GrammarAST;
-                            ASSIGN31 = this.match(this.input, ANTLRv4Lexer.ASSIGN, null) as GrammarAST;
+                            ASSIGN31 = this.match(this.input, ANTLRv4Parser.ASSIGN, null) as GrammarAST;
 
                             if (this.state.failed) {
                                 return retval;
@@ -1981,7 +1980,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            id = this.match(this.input, ANTLRv4Lexer.ID, null) as GrammarAST;
+                            id = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -1992,7 +1991,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            v = this.match(this.input, ANTLRv4Lexer.ID, null) as GrammarAST;
+                            v = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -2037,7 +2036,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             const _save_last_1 = _last;
                             let _first_1 = null;
                             _last = this.input.LT(1) as GrammarAST;
-                            ASSIGN32 = this.match(this.input, ANTLRv4Lexer.ASSIGN, null) as GrammarAST;
+                            ASSIGN32 = this.match(this.input, ANTLRv4Parser.ASSIGN, null) as GrammarAST;
 
                             if (this.state.failed) {
                                 return retval;
@@ -2054,7 +2053,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            ID33 = this.match(this.input, ANTLRv4Lexer.ID, null) as GrammarAST;
+                            ID33 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -2065,7 +2064,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            v = this.match(this.input, ANTLRv4Lexer.STRING_LITERAL, null) as GrammarAST;
+                            v = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -2110,7 +2109,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             const _save_last_1 = _last;
                             let _first_1 = null;
                             _last = this.input.LT(1) as GrammarAST;
-                            ASSIGN34 = this.match(this.input, ANTLRv4Lexer.ASSIGN, null) as GrammarAST;
+                            ASSIGN34 = this.match(this.input, ANTLRv4Parser.ASSIGN, null) as GrammarAST;
 
                             if (this.state.failed) {
                                 return retval;
@@ -2127,7 +2126,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            ID35 = this.match(this.input, ANTLRv4Lexer.ID, null) as GrammarAST;
+                            ID35 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -2138,7 +2137,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            v = this.match(this.input, ANTLRv4Lexer.ACTION, null) as GrammarAST;
+                            v = this.match(this.input, ANTLRv4Parser.ACTION, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -2183,7 +2182,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             const _save_last_1 = _last;
                             let _first_1 = null;
                             _last = this.input.LT(1) as GrammarAST;
-                            ASSIGN36 = this.match(this.input, ANTLRv4Lexer.ASSIGN, null) as GrammarAST;
+                            ASSIGN36 = this.match(this.input, ANTLRv4Parser.ASSIGN, null) as GrammarAST;
 
                             if (this.state.failed) {
                                 return retval;
@@ -2200,7 +2199,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            ID37 = this.match(this.input, ANTLRv4Lexer.ID, null) as GrammarAST;
+                            ID37 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;
@@ -2211,7 +2210,7 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
-                            v = this.match(this.input, ANTLRv4Lexer.INT, null) as GrammarAST;
+                            v = this.match(this.input, ANTLRv4Parser.INT, null) as GrammarAST;
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return retval;

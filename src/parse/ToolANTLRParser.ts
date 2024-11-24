@@ -6,12 +6,11 @@
 
 // cspell: ignore RULEMODIFIERS
 
-import { NoViableAltException, type Parser, type RecognitionException, type Token, type TokenStream } from "antlr4ng";
+import { type TokenStream } from "antlr4ng";
 
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { Tool } from "../Tool.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
-import { ErrorType } from "../tool/ErrorType.js";
+import { ToolParseErrorListener } from "./ToolParseErrorListener.js";
 
 /**
  * Override error handling for use with ANTLR tool itself; leaves
@@ -23,25 +22,8 @@ export class ToolANTLRParser extends ANTLRv4Parser {
     public constructor(input: TokenStream, tool: Tool) {
         super(input);
         this.tool = tool;
-    }
 
-    public displayRecognitionError(tokenNames: string[], e: RecognitionException): void {
-        const msg = this.getParserErrorMessage(this, e);
-        ErrorManager.get().syntaxError(ErrorType.SYNTAX_ERROR, this.getSourceName(), e.offendingToken!, e, [msg]);
-    }
-
-    public getParserErrorMessage(parser: Parser, e: RecognitionException): string {
-        let msg: string;
-        if (e instanceof NoViableAltException) {
-            msg = e.message + " came as a complete surprise to me";
-        } else {
-            msg = e.message;
-        }
-
-        return msg;
-    }
-
-    public grammarError(type: ErrorType, token: Token, ...args: unknown[]): void {
-        ErrorManager.get().grammarError(type, this.getSourceName(), token, args);
+        this.removeErrorListeners();
+        this.addErrorListener(new ToolParseErrorListener());
     }
 }

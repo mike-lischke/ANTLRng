@@ -26,6 +26,7 @@ import {
 import { Constants } from "../Constants1.js";
 import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
 import type { Constructor } from "../misc/Utils.js";
+import { Grammar } from "../tool/Grammar.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { AltAST } from "../tool/ast/AltAST.js";
 import { BlockAST } from "../tool/ast/BlockAST.js";
@@ -34,14 +35,14 @@ import { GrammarRootAST } from "../tool/ast/GrammarRootAST.js";
 import { NotAST } from "../tool/ast/NotAST.js";
 import { OptionalBlockAST } from "../tool/ast/OptionalBlockAST.js";
 import { PlusBlockAST } from "../tool/ast/PlusBlockAST.js";
+import { PredAST } from "../tool/ast/PredAST.js";
+import { RangeAST } from "../tool/ast/RangeAST.js";
 import { RuleAST } from "../tool/ast/RuleAST.js";
 import { RuleRefAST } from "../tool/ast/RuleRefAST.js";
 import { SetAST } from "../tool/ast/SetAST.js";
 import { StarBlockAST } from "../tool/ast/StarBlockAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
 import { GrammarType } from "./GrammarType.js";
-import { Grammar } from "../tool/Grammar.js";
-import { RangeAST } from "../tool/ast/RangeAST.js";
 
 /**
  * Converts a grammar spec parse tree into a grammar AST.
@@ -735,8 +736,6 @@ export class ParseTreeToASTConverter {
 
         if (alternative.elementOptions()) {
             this.convertElementOptionsToAST(alternative.elementOptions()!, altAST);
-
-            return altAST;
         }
 
         if (alternative.element().length === 0) {
@@ -794,18 +793,25 @@ export class ParseTreeToASTConverter {
         } else if (element.ebnf()) {
             return this.convertEbnfToAST(element.ebnf()!, ast);
         } else if (element.actionBlock()) {
-            const actionAST = this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, element.actionBlock()!, ast);
+            if (element.QUESTION()) {
+                const predicate = this.createVirtualASTNode(PredAST, ANTLRv4Parser.SEMPRED, element.QUESTION()!,
+                    "SEMPRED");
+                ast.addChild(predicate);
 
-            if (element.predicateOptions()) {
-                this.convertPredicateOptionsToAST(element.predicateOptions()!, actionAST);
+                if (element.predicateOptions()) {
+                    this.convertPredicateOptionsToAST(element.predicateOptions()!, predicate);
+                }
+
+                const options = predicate.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+                if (options) {
+                    Grammar.setNodeOptions(predicate, options);
+                }
+
+                return predicate;
+            } else {
+                return this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, element.actionBlock()!, ast);
             }
 
-            const options = actionAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
-            if (options) {
-                Grammar.setNodeOptions(actionAST, options);
-            }
-
-            return actionAST;
         }
 
         return undefined;
