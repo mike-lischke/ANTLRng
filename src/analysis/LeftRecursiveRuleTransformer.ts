@@ -24,7 +24,6 @@ import { RuleCollector } from "../semantics/RuleCollector.js";
 import { ParseTreeToASTConverter } from "../support/ParseTreeToASTConverter.js";
 import { isTokenName } from "../support/helpers.js";
 import { DictType } from "../tool/DictType.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { GrammarTransformPipeline } from "../tool/GrammarTransformPipeline.js";
@@ -72,7 +71,7 @@ export class LeftRecursiveRuleTransformer {
                     if (fitsPattern) {
                         leftRecursiveRuleNames.push(r.name);
                     } else { // better given an error that non-conforming left-recursion exists
-                        ErrorManager.get().grammarError(ErrorType.NONCONFORMING_LR_RULE, this.g.fileName,
+                        this.g.tool.errorManager.grammarError(ErrorType.NONCONFORMING_LR_RULE, this.g.fileName,
                             (r.ast.getChild(0) as GrammarAST).token!, r.name);
                     }
                 }
@@ -160,7 +159,7 @@ export class LeftRecursiveRuleTransformer {
         r.recPrimaryAlts = new Array<LeftRecursiveRuleAltInfo>();
         r.recPrimaryAlts.push(...leftRecursiveRuleWalker.prefixAndOtherAlts);
         if (r.recPrimaryAlts.length === 0) {
-            ErrorManager.get().grammarError(ErrorType.NO_NON_LR_ALTS, this.g.fileName,
+            this.g.tool.errorManager.grammarError(ErrorType.NO_NON_LR_ALTS, this.g.fileName,
                 (r.ast.getChild(0) as GrammarAST).token!, r.name);
         }
 
@@ -224,7 +223,7 @@ export class LeftRecursiveRuleTransformer {
 
             return ruleAST;
         } catch (e) {
-            ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, e, ruleStart,
+            this.g.tool.errorManager.toolError(ErrorType.INTERNAL_ERROR, e, ruleStart,
                 "error parsing rule created during left-recursion detection: " + ruleText);
         }
 

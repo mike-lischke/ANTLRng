@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "antlr-debug",
+            "request": "launch",
+            "name": "Debug Current Grammar",
+            "input": "/Volumes/Extern/Work/projects/ANTLRng/tests/temp/input.txt",
+            "visualParseTree": true,
+            "startRule": "a",
+            "grammar": "${file}",
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch ANTLRng",

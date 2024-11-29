@@ -7,7 +7,6 @@
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
 import { CharSupport } from "../../misc/CharSupport.js";
-import { ErrorManager } from "../ErrorManager.js";
 import { ErrorType } from "../ErrorType.js";
 import { GrammarAST } from "./GrammarAST.js";
 
@@ -33,7 +32,7 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
             if (v && (v.startsWith("'") || v.startsWith("\""))) {
                 v = CharSupport.getStringFromGrammarStringLiteral(v);
                 if (v === null) {
-                    ErrorManager.get().grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, this.g.fileName,
+                    this.g.tool.errorManager.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, this.g.fileName,
                         value.token!, value.getText());
                     v = "";
                 }

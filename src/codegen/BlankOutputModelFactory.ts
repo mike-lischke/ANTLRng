@@ -29,116 +29,116 @@ import { SrcOp } from "./model/SrcOp.js";
 import type { CodeBlock } from "./model/decl/CodeBlock.js";
 
 export abstract class BlankOutputModelFactory implements OutputModelFactory {
-    public getGrammar(): Grammar | null {
-        return null;
+    public getGrammar(): Grammar | undefined {
+        return undefined;
     }
 
-    public getGenerator(): CodeGenerator | null {
-        return null;
+    public getGenerator(): CodeGenerator | undefined {
+        return undefined;
     }
 
     public setController(controller: OutputModelController): void { /**/ }
 
-    public getController(): OutputModelController | null {
-        return null;
+    public getController(): OutputModelController | undefined {
+        return undefined;
     }
 
-    public parserFile(fileName: string): ParserFile | null {
-        return null;
+    public parserFile(fileName: string): ParserFile | undefined {
+        return undefined;
     }
 
-    public parser(file: ParserFile): Parser | null {
-        return null;
+    public parser(file: ParserFile): Parser | undefined {
+        return undefined;
     }
 
-    public rule(r: Rule): RuleFunction | null {
-        return null;
+    public rule(r: Rule): RuleFunction | undefined {
+        return undefined;
     }
 
-    public rulePostamble(ruleFunction: RuleFunction, r: Rule): SrcOp[] | null {
-        return null;
+    public rulePostamble(ruleFunction: RuleFunction, r: Rule): SrcOp[] | undefined {
+        return undefined;
     }
 
-    public lexerFile(fileName: string): LexerFile | null {
-        return null;
+    public lexerFile(fileName: string): LexerFile | undefined {
+        return undefined;
     }
 
-    public lexer(file: LexerFile): Lexer | null {
-        return null;
+    public lexer(file: LexerFile): Lexer | undefined {
+        return undefined;
     }
 
     // ALTERNATIVES / ELEMENTS
 
-    public alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt | null {
-        return null;
+    public alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt | undefined {
+        return undefined;
     }
 
     public finishAlternative(blk: CodeBlockForAlt, ops: SrcOp[]): CodeBlockForAlt {
         return blk;
     }
 
-    public epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt | null {
-        return null;
+    public epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt | undefined {
+        return undefined;
     }
 
-    public ruleRef(id: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] | null {
-        return null;
+    public ruleRef(id: GrammarAST, label: GrammarAST, args: GrammarAST): SrcOp[] | undefined {
+        return undefined;
     }
 
-    public tokenRef(id: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | null {
-        return null;
+    public tokenRef(id: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | undefined {
+        return undefined;
     }
 
-    public stringRef(id: GrammarAST, label: GrammarAST | null): SrcOp[] | null {
+    public stringRef(id: GrammarAST, label: GrammarAST | null): SrcOp[] | undefined {
         return this.tokenRef(id, label, null);
     }
 
-    public set(setAST: GrammarAST, label: GrammarAST, invert: boolean): SrcOp[] | null {
-        return null;
+    public set(setAST: GrammarAST, label: GrammarAST, invert: boolean): SrcOp[] | undefined {
+        return undefined;
     }
 
-    public wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[] | null {
-        return null;
+    public wildcard(ast: GrammarAST, labelAST: GrammarAST): SrcOp[] | undefined {
+        return undefined;
     };
 
     // ACTIONS
 
-    public action(ast: ActionAST): SrcOp[] | null {
-        return null;
+    public action(ast: ActionAST): SrcOp[] | undefined {
+        return undefined;
     }
 
-    public sempred(ast: ActionAST): SrcOp[] | null {
-        return null;
+    public sempred(ast: ActionAST): SrcOp[] | undefined {
+        return undefined;
     };
 
     // BLOCKS
 
-    public getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice | null {
-        return null;
+    public getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST): Choice | undefined {
+        return undefined;
     }
 
-    public getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null {
-        return null;
+    public getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined {
+        return undefined;
     }
 
-    public getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | null {
-        return null;
+    public getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | undefined {
+        return undefined;
     }
 
-    public getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | null {
-        return null;
+    public getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | undefined {
+        return undefined;
     }
 
-    public getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null {
-        return null;
+    public getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined {
+        return undefined;
     }
 
-    public getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null {
-        return null;
+    public getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined {
+        return undefined;
     }
 
-    public getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[] | null {
-        return null;
+    public getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[] | undefined {
+        return undefined;
     }
 
     public needsImplicitLabel(id: GrammarAST, op: LabeledOp): boolean {
@@ -147,24 +147,24 @@ export abstract class BlankOutputModelFactory implements OutputModelFactory {
 
     // CONTEXT INFO
 
-    public getRoot(): OutputModelObject | null {
-        return null;
+    public getRoot(): OutputModelObject | undefined {
+        return undefined;
     }
 
     public getCurrentRuleFunction(): RuleFunction | undefined {
         return undefined;
     }
 
-    public getCurrentOuterMostAlt(): Alternative | null {
-        return null;
+    public getCurrentOuterMostAlt(): Alternative | undefined {
+        return undefined;
     }
 
-    public getCurrentBlock(): CodeBlock | null {
-        return null;
+    public getCurrentBlock(): CodeBlock | undefined {
+        return undefined;
     }
 
-    public getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt | null {
-        return null;
+    public getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt | undefined {
+        return undefined;
     }
 
     public getCodeBlockLevel(): number {

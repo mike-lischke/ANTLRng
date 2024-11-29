@@ -51,9 +51,6 @@ export class ErrorManager {
     /** All errors that have been generated */
     public errorTypes = new Set<ErrorType>();
 
-    /** Singleton. */
-    static #instance: ErrorManager = new ErrorManager();
-
     /** The group of templates that represent the current message format. */
     #format: STGroup;
 
@@ -66,18 +63,14 @@ export class ErrorManager {
      * Track separately so if someone adds a listener, it's the only one
      * instead of it and the default stderr listener.
      */
-    #defaultListener = new DefaultToolListener();
+    #defaultListener = new DefaultToolListener(this);
 
-    private constructor() { // TODO: make this class only a holder of static methods and fields?
+    public constructor() { // TODO: make this class only a holder of static methods and fields?
         this.errors = 0;
         this.warnings = 0;
 
         const formatName = grammarOptions.msgFormat ?? "antlr";
         this.loadFormat(formatName);
-    }
-
-    public static get(): ErrorManager {
-        return ErrorManager.#instance;
     }
 
     public static fatalInternalError(error: string, e: Error): void {
@@ -194,7 +187,7 @@ export class ErrorManager {
     }
 
     public grammarError(errorType: ErrorType, fileName: string, token: Token | null, ...args: unknown[]): void {
-        const msg = new GrammarSemanticsMessage(errorType, fileName, token, args);
+        const msg = new GrammarSemanticsMessage(errorType, fileName, token, ...args);
         this.emit(errorType, msg);
     }
 

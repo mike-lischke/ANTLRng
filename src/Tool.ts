@@ -20,7 +20,7 @@ import { LexerATNFactory } from "./automata/LexerATNFactory.js";
 import { ParserATNFactory } from "./automata/ParserATNFactory.js";
 import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
 import { CodeGenerator } from "./codegen/CodeGenerator.js";
-import { grammarOptions } from "./grammar-options.js";
+import { grammarOptions, parseToolParameters } from "./grammar-options.js";
 import { Graph } from "./misc/Graph.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";
@@ -47,11 +47,11 @@ export class Tool implements ITool {
 
     public static readonly ALL_GRAMMAR_EXTENSIONS = [Tool.GRAMMAR_EXTENSION, Tool.LEGACY_GRAMMAR_EXTENSION];
 
-    public inputDirectory: string;
-
     public readonly args: string[];
 
     public logMgr = new LogManager();
+
+    public readonly errorManager;
 
     // helper vars for option management
     protected haveOutputDir = false;
@@ -60,8 +60,11 @@ export class Tool implements ITool {
 
     private readonly importedGrammars = new Map<string, Grammar>();
 
-    public constructor(args?: string[]) {
-        this.args = args ?? [];
+    public constructor(args: string[] = []) {
+        this.args = args;
+        parseToolParameters(this.args);
+        this.grammarFiles = grammarOptions.args;
+        this.errorManager = new ErrorManager();
     }
 
     public static main(args: string[]): void {
@@ -74,7 +77,7 @@ export class Tool implements ITool {
                     const logName = antlr.logMgr.save();
                     console.log("wrote " + logName);
                 } catch (ioe) {
-                    ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, ioe);
+                    antlr.errorManager.toolError(ErrorType.INTERNAL_ERROR, ioe);
                 }
             }
         }
@@ -139,7 +142,7 @@ export class Tool implements ITool {
                 const dep = new BuildDependencyGenerator(this, g);
                 console.log(dep.getDependencies().render());
             } else {
-                if (ErrorManager.get().errors === 0) {
+                if (this.errorManager.errors === 0) {
                     this.process(g, true);
                 }
             }
@@ -185,13 +188,13 @@ export class Tool implements ITool {
             return;
         }
 
-        const prevErrors = ErrorManager.get().errors;
+        const prevErrors = this.errorManager.errors;
 
         // MAKE SURE GRAMMAR IS SEMANTICALLY CORRECT (FILL IN GRAMMAR OBJECT)
         const sem = new SemanticPipeline(g);
         sem.process();
 
-        if (ErrorManager.get().errors > prevErrors) {
+        if (this.errorManager.errors > prevErrors) {
             return;
         }
 
@@ -216,7 +219,7 @@ export class Tool implements ITool {
                 const fileName = this.getOutputFile(g, g.name + ".interp");
                 writeFileSync(fileName, interpFile);
             } catch (ioe) {
-                ErrorManager.get().toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
+                this.errorManager.toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
             }
         }
 
@@ -259,7 +262,7 @@ export class Tool implements ITool {
             const prev = ruleToAST.get(ruleName);
             if (prev) {
                 const prevChild = prev.getChild(0) as GrammarAST;
-                ErrorManager.get().grammarError(ErrorType.RULE_REDEFINITION, g.fileName, id.token!, ruleName,
+                this.errorManager.grammarError(ErrorType.RULE_REDEFINITION, g.fileName, id.token!, ruleName,
                     prevChild.token!.line);
                 redefinition = true;
                 continue;
@@ -267,7 +270,7 @@ export class Tool implements ITool {
             ruleToAST.set(ruleName, ruleAST);
         }
 
-        const chk = new UndefChecker(g.isLexer(), ruleToAST);
+        const chk = new UndefChecker(g.isLexer(), ruleToAST, this.errorManager);
         chk.visitGrammar(g.ast);
 
         return redefinition; //  || chk.errors;
@@ -351,13 +354,12 @@ export class Tool implements ITool {
 
     public parseGrammar(fileName: string): GrammarRootAST | undefined {
         try {
-            const fullPath = path.join(this.inputDirectory, fileName);
-            const content = readFileSync(fullPath, { encoding: grammarOptions.grammarEncoding as BufferEncoding });
+            const content = readFileSync(fileName, { encoding: grammarOptions.grammarEncoding as BufferEncoding });
             const input = CharStream.fromString(content.toString());
 
             return this.parse(fileName, input);
         } catch (ioe) {
-            ErrorManager.get().toolError(ErrorType.CANNOT_OPEN_FILE, ioe, fileName);
+            this.errorManager.toolError(ErrorType.CANNOT_OPEN_FILE, ioe, fileName);
             throw ioe;
         }
     }
@@ -398,7 +400,7 @@ export class Tool implements ITool {
             }
 
             if (!importedFile) {
-                ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR, g.fileName, nameNode.token!,
+                this.errorManager.grammarError(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR, g.fileName, nameNode.token!,
                     name);
 
                 return null;
@@ -425,7 +427,7 @@ export class Tool implements ITool {
     }
 
     public parse(fileName: string, input: CharStream): GrammarRootAST | undefined {
-        const lexer = new ToolANTLRLexer(input);
+        const lexer = new ToolANTLRLexer(input, this);
         const tokens = new CommonTokenStream(lexer);
         const p = new ToolANTLRParser(tokens, this);
         const grammarSpec = p.grammarSpec();
@@ -450,7 +452,7 @@ export class Tool implements ITool {
                     const dot = dotGenerator.getDOTFromState(g.atn!.ruleToStartState[r.index]!, g.isLexer());
                     this.writeDOTFile(g, r, dot);
                 } catch (ioe) {
-                    ErrorManager.get().toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
+                    this.errorManager.toolError(ErrorType.CANNOT_WRITE_FILE, ioe);
                     throw ioe;
                 }
             }
@@ -494,22 +496,21 @@ export class Tool implements ITool {
     }
 
     public getImportedGrammarFile(g: Grammar, fileName: string): string | undefined {
-        let importedFile = path.join(this.inputDirectory, fileName);
-        if (!existsSync(importedFile)) {
-            const parentDir = basename(importedFile); // Check the parent dir of input directory.
-            importedFile = path.join(parentDir, fileName);
-            if (!existsSync(importedFile)) { // try in lib dir
+        if (!existsSync(fileName)) {
+            const parentDir = basename(fileName); // Check the parent dir of input directory.
+            fileName = path.join(parentDir, fileName);
+            if (!existsSync(fileName)) { // try in lib dir
                 const libDirectory = grammarOptions.libDirectory;
                 if (libDirectory) {
-                    importedFile = path.join(libDirectory, fileName);
-                    if (!existsSync(importedFile)) {
+                    fileName = path.join(libDirectory, fileName);
+                    if (!existsSync(fileName)) {
                         return undefined;
                     }
                 }
             }
         }
 
-        return importedFile;
+        return fileName;
     }
 
     /**
@@ -533,7 +534,7 @@ export class Tool implements ITool {
     }
 
     public getNumErrors(): number {
-        return ErrorManager.get().errors;
+        return this.errorManager.errors;
     }
 
     public exit(e: number): void {

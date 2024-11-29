@@ -16,7 +16,8 @@ import { GrammarTreeVisitor } from "./tree-walkers/GrammarTreeVisitor.js";
 export class UndefChecker extends GrammarTreeVisitor {
     public badRef = false;
 
-    public constructor(private isLexer: boolean, private ruleToAST: Map<string, RuleAST>) {
+    public constructor(private isLexer: boolean, private ruleToAST: Map<string, RuleAST>,
+        private errorManager: ErrorManager) {
         super();
     }
 
@@ -38,11 +39,11 @@ export class UndefChecker extends GrammarTreeVisitor {
         if (Character.isUpperCase(this.currentRuleName!.codePointAt(0)!) &&
             Character.isLowerCase(ref.getText().codePointAt(0)!)) {
             this.badRef = true;
-            ErrorManager.get().grammarError(ErrorType.PARSER_RULE_REF_IN_LEXER_RULE,
+            this.errorManager.grammarError(ErrorType.PARSER_RULE_REF_IN_LEXER_RULE,
                 fileName, ref.token!, ref.getText(), this.currentRuleName);
         } else if (!ruleAST) {
             this.badRef = true;
-            ErrorManager.get().grammarError(ErrorType.UNDEFINED_RULE_REF, fileName, ref.token!, ref.getText());
+            this.errorManager.grammarError(ErrorType.UNDEFINED_RULE_REF, fileName, ref.token!, ref.getText());
         }
     }
 

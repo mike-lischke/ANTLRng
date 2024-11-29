@@ -4,12 +4,11 @@
  */
 
 import {
-    Parser, ParserRuleContext, TokenStream, ATN, ATNState, DecisionState, ParserATNSimulator, PredictionContextCache,
-    DFA, type Vocabulary,
+    ATN, ATNState, DecisionState, DFA, Parser, ParserATNSimulator, ParserRuleContext, PredictionContextCache,
+    TokenStream, type Vocabulary,
 } from "antlr4ng";
 
 import type { Grammar } from "../src/tool/Grammar.js";
-import { Tool } from "../src/Tool.js";
 
 class DummyParser extends Parser {
     public readonly decisionToDFA: DFA[]; // not shared for interp
@@ -22,10 +21,10 @@ class DummyParser extends Parser {
         super(input);
         this.g = g;
         this.#atn = atn;
-        this.decisionToDFA = new Array<DFA>(atn.getNumberOfDecisions());
-        for (let i = 0; i < this.decisionToDFA.length; i++) {
-            this.decisionToDFA[i] = new DFA(atn.getDecisionState(i), i);
-        }
+
+        this.decisionToDFA = atn.decisionToState.map((ds: DecisionState, index: number) => {
+            return new DFA(ds, index);
+        });
     }
 
     public override get grammarFileName(): string {
@@ -60,10 +59,8 @@ export class ParserInterpreterForTesting {
         if (!input) {
             this.g = g;
         } else {
-            const antlr = new Tool();
-            antlr.process(g, false);
-            this.parser = new DummyParser(g, g.atn, input);
-            this.atnSimulator = new ParserATNSimulator(this.parser, g.atn, this.parser.decisionToDFA,
+            this.parser = new DummyParser(g, g.atn!, input);
+            this.atnSimulator = new ParserATNSimulator(this.parser, g.atn!, this.parser.decisionToDFA,
                 this.parser.sharedContextCache);
         }
     }

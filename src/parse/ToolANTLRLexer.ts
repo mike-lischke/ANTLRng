@@ -4,20 +4,24 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { RecognitionException, Token } from "antlr4ng";
+import type { CharStream, RecognitionException, Token } from "antlr4ng";
 
 import { ANTLRv4Lexer } from "../generated/ANTLRv4Lexer.js";
 
-import { ErrorManager } from "../tool/ErrorManager.js";
+import type { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
 
 export class ToolANTLRLexer extends ANTLRv4Lexer {
+    public constructor(input: CharStream, private tool: Tool) {
+        super(input);
+    }
+
     public displayRecognitionError(tokenNames: string[], e: RecognitionException): void {
         const msg = e.message;
-        ErrorManager.get().syntaxError(ErrorType.SYNTAX_ERROR, this.sourceName, e.offendingToken!, e, msg);
+        this.tool.errorManager.syntaxError(ErrorType.SYNTAX_ERROR, this.sourceName, e.offendingToken!, e, msg);
     }
 
     public grammarError(errorType: ErrorType, token: Token, ...args: object[]): void {
-        ErrorManager.get().grammarError(errorType, this.sourceName, token, args);
+        this.tool.errorManager.grammarError(errorType, this.sourceName, token, args);
     }
 }

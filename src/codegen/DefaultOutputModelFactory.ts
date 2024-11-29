@@ -49,7 +49,7 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
         return this.controller;
     }
 
-    public override rulePostamble(ruleFunction: RuleFunction, r: Rule): SrcOp[] | null {
+    public override rulePostamble(ruleFunction: RuleFunction, r: Rule): SrcOp[] | undefined {
         if (r.namedActions.has("after") || r.namedActions.has("finally")) {
             // See OutputModelController.buildLeftRecursiveRuleFunction
             // and Parser.exitRule for other places which set stop.
@@ -68,16 +68,16 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
 
     // Convenience methods
 
-    public override getGrammar(): Grammar | null {
-        return this.g ?? null; 
+    public override getGrammar(): Grammar | undefined {
+        return this.g;
     }
 
     public override getGenerator(): CodeGenerator {
-        return this.gen; 
+        return this.gen;
     }
 
-    public override getRoot(): OutputModelObject | null {
-        return this.controller.getRoot(); 
+    public override getRoot(): OutputModelObject | undefined {
+        return this.controller.getRoot();
     }
 
     public override getCurrentRuleFunction(): RuleFunction | undefined {
@@ -85,11 +85,11 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
     }
 
     public override getCurrentOuterMostAlt(): Alternative {
-        return this.controller.getCurrentOuterMostAlt(); 
+        return this.controller.getCurrentOuterMostAlt();
     }
 
     public override getCurrentBlock(): CodeBlock {
-        return this.controller.getCurrentBlock(); 
+        return this.controller.getCurrentBlock();
     }
 
     public override getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt {
@@ -97,10 +97,10 @@ export abstract class DefaultOutputModelFactory extends BlankOutputModelFactory 
     }
 
     public override getCodeBlockLevel(): number {
-        return this.controller.codeBlockLevel; 
+        return this.controller.codeBlockLevel;
     }
 
     public override getTreeLevel(): number {
-        return this.controller.treeLevel; 
+        return this.controller.treeLevel;
     }
 }

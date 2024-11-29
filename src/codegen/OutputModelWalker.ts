@@ -9,7 +9,6 @@ import { ST, STGroup, type IST } from "stringtemplate4ts";
 
 import { isModelElement } from "../misc/ModelElement.js";
 import { Tool } from "../Tool.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { OutputModelObject } from "./model/OutputModelObject.js";
 
@@ -49,13 +48,13 @@ export class OutputModelWalker {
 
         const st = this.templates.getInstanceOf(templateName);
         if (st === null) {
-            ErrorManager.get().toolError(ErrorType.CODE_GEN_TEMPLATES_INCOMPLETE, templateName);
+            this.tool.errorManager.toolError(ErrorType.CODE_GEN_TEMPLATES_INCOMPLETE, templateName);
 
             return new ST("[" + templateName + " invalid]");
         }
 
         if (!st.impl?.formalArguments) {
-            ErrorManager.get().toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
+            this.tool.errorManager.toolError(ErrorType.CODE_TEMPLATE_ARG_ISSUE, templateName, "<none>");
 
             return st;
         }
@@ -76,7 +75,7 @@ export class OutputModelWalker {
 
             //console.log(`${omo.constructor.name}.${fieldName}`);
             if (usedFieldNames.has(fieldName)) {
-                ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.constructor.name +
+                this.tool.errorManager.toolError(ErrorType.INTERNAL_ERROR, "Model object " + omo.constructor.name +
                     " has multiple fields named '" + fieldName + "'");
                 continue;
             }
@@ -112,7 +111,7 @@ export class OutputModelWalker {
                         }
                         st.add(fieldName, m);
                     } else if (o !== undefined) {
-                        ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR,
+                        this.tool.errorManager.toolError(ErrorType.INTERNAL_ERROR,
                             "not recognized nested model element: " + fieldName);
                     }
                 }

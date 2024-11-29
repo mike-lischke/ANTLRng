@@ -7,14 +7,18 @@
 import {
     BaseErrorListener, type ATNSimulator, type RecognitionException, type Recognizer, type Token
 } from "antlr4ng";
-import { ErrorManager } from "../tool/ErrorManager.js";
+import type { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
 
 export class ToolParseErrorListener extends BaseErrorListener {
+    public constructor(private tool: Tool) {
+        super();
+    }
+
     public override syntaxError<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T>,
         offendingSymbol: S | null, line: number, charPositionInLine: number, msg: string,
         e: RecognitionException | null): void {
         const sourceName = recognizer.inputStream?.getSourceName() ?? "<unknown>";
-        ErrorManager.get().syntaxError(ErrorType.SYNTAX_ERROR, sourceName, offendingSymbol!, e!, [msg]);
+        this.tool.errorManager.syntaxError(ErrorType.SYNTAX_ERROR, sourceName, offendingSymbol!, e!, [msg]);
     }
 }

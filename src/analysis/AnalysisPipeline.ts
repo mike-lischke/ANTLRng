@@ -8,7 +8,6 @@
 
 import { IntervalSet, LL1Analyzer, Token } from "antlr4ng";
 import { Utils } from "../misc/Utils.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { GrammarAST } from "../tool/ast/GrammarAST.js";
@@ -67,7 +66,7 @@ export class AnalysisPipeline {
             const analyzer = new LL1Analyzer();
             const look = analyzer.look(this.g.atn!, this.g.atn!.ruleToStartState[rule.index]!, undefined);
             if (look.contains(Token.EPSILON)) {
-                ErrorManager.get().grammarError(ErrorType.EPSILON_TOKEN, this.g.fileName,
+                this.g.tool.errorManager.grammarError(ErrorType.EPSILON_TOKEN, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
             }
         }

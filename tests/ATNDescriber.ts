@@ -57,10 +57,9 @@ const serializationNamesTransition: readonly string[] = Object.freeze([
  */
 export class ATNDescriber {
     public atn: ATN;
-    private tokenNames: string[];
+    private tokenNames: Array<string | null>;
 
-    public constructor(atn: ATN, tokenNames: string[]) {
-        /* assert atn.grammarType != null; */
+    public constructor(atn: ATN, tokenNames: Array<string | null>) {
         this.atn = atn;
         this.tokenNames = tokenNames;
     }
@@ -72,7 +71,7 @@ export class ATNDescriber {
      *
      * @returns A human readable version of the ATN.
      */
-    public decode(data: Int32Array): string {
+    public decode(data: number[]): string {
         let result = "";
         let p = 0;
         const version = data[p++];
@@ -235,13 +234,13 @@ export class ATNDescriber {
         }
 
         if (t >= 0 && t < this.tokenNames.length) {
-            return this.tokenNames[t];
+            return this.tokenNames[t]!;
         }
 
         return t.toString();
     }
 
-    private appendSets(input: string, data: Int32Array, p: number, nsets: number): [number, string] {
+    private appendSets(input: string, data: number[], p: number, nsets: number): [number, string] {
         let result = "";
 
         for (let i = 0; i < nsets; i++) {

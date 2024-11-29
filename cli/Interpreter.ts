@@ -16,6 +16,7 @@ import { Grammar } from "../src/tool/Grammar.js";
 import type { GrammarParserInterpreter } from "../src/tool/GrammarParserInterpreter.js";
 import { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import { encodings, parseBoolean } from "./cli-options.js";
+import type { Tool } from "../src/Tool.js";
 
 /** CLI parameters for the interpreter tool. */
 export interface IInterpreterCliParameters {
@@ -62,6 +63,9 @@ export class Interpreter {
         }
     };
 
+    public constructor(private tool: Tool) {
+    }
+
     public static getValue(decisionInfo: DecisionInfo, ruleNamesByDecision: string[], decision: number,
         col: number): number | string {
         switch (col) { // laborious but more efficient than reflection
@@ -107,7 +111,7 @@ export class Interpreter {
 
         let g: Grammar;
         let lg = null;
-        const listener = new DefaultToolListener();
+        const listener = new DefaultToolListener(this.tool.errorManager);
         if (interpreterOptions.grammarFileName) {
             const grammarContent = await readFile(interpreterOptions.grammarFileName, "utf8");
             g = new Interpreter.IgnoreTokenVocabGrammar(interpreterOptions.grammarFileName, grammarContent, undefined,
@@ -206,5 +210,5 @@ export class Interpreter {
     }
 }
 
-const interpreter = new Interpreter();
-await interpreter.interp();
+// todo: const interpreter = new Interpreter();
+// todo: await interpreter.interp();

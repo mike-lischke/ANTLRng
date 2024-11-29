@@ -4,19 +4,21 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import type { Token } from "antlr4ng";
+
 import { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
 
 export class BlankActionSplitterListener implements ActionSplitterListener {
 
-    public qualifiedAttr(expr: string, x: string, y: string): void {
+    public qualifiedAttr(expr: string, x: Token, y: Token): void {
         // Do nothing
     }
 
-    public setAttr(expr: string, x: string, rhs: string): void {
+    public setAttr(expr: string, x: Token, rhs: Token): void {
         // Do nothing
     }
 
-    public attr(expr: string, x: string): void {
+    public attr(expr: string, x: Token): void {
         // Do nothing
     }
 
@@ -24,11 +26,11 @@ export class BlankActionSplitterListener implements ActionSplitterListener {
         // Do nothing
     }
 
-    public nonLocalAttr(expr: string, x: string, y: string): void {
+    public nonLocalAttr(expr: string, x: Token, y: Token): void {
         // Do nothing
     }
 
-    public setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
+    public setNonLocalAttr(expr: string, x: Token, y: Token, rhs: string): void {
         // Do nothing
     }
 

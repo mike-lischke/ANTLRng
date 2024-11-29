@@ -16,7 +16,6 @@ import type { CommonTree } from "../../tree/CommonTree.js";
 import { FrequencySet } from "../../misc/FrequencySet.js";
 import { ModelElement } from "../../misc/ModelElement.js";
 import { GrammarASTAdaptor } from "../../parse/GrammarASTAdaptor.js";
-import { ErrorManager } from "../../tool/ErrorManager.js";
 import { ErrorType } from "../../tool/ErrorType.js";
 import { Rule } from "../../tool/Rule.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
@@ -69,16 +68,16 @@ export class RuleFunction extends OutputModelObject {
     public altLabelCtxs?: Map<string, AltLabelStructDecl>;
 
     @ModelElement
-    public namedActions: Map<string, Action>;
+    public namedActions: Map<string, Action> | undefined;
 
     @ModelElement
-    public finallyAction: Action;
+    public finallyAction: Action | undefined;
 
     @ModelElement
-    public exceptions: ExceptionClause[];
+    public exceptions: ExceptionClause[] | undefined;
 
     @ModelElement
-    public postamble: SrcOp[];
+    public postamble: SrcOp[] | undefined;
 
     public constructor(factory: OutputModelFactory, r: Rule) {
         super(factory);
@@ -295,7 +294,7 @@ export class RuleFunction extends OutputModelObject {
             const visitor = new ElementFrequenciesVisitor(new CommonTreeNodeStream(new GrammarASTAdaptor(), ast));
             visitor.outerAlternative();
             if (visitor.frequencies.length !== 1) {
-                ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR);
+                this.factory!.getGrammar()!.tool.errorManager.toolError(ErrorType.INTERNAL_ERROR);
 
                 return [new FrequencySet<string>(), new FrequencySet<string>()];
             }
@@ -303,7 +302,7 @@ export class RuleFunction extends OutputModelObject {
             return [visitor.getMinFrequencies(), visitor.frequencies[0]];
         } catch (ex) {
             if (ex instanceof RecognitionException) {
-                ErrorManager.get().toolError(ErrorType.INTERNAL_ERROR, ex);
+                this.factory!.getGrammar()!.tool.errorManager.toolError(ErrorType.INTERNAL_ERROR, ex);
 
                 return [new FrequencySet<string>(), new FrequencySet<string>()];
             } else {

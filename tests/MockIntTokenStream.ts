@@ -8,6 +8,7 @@ import { TokenStream, TokenSource, Token, ParserRuleContext, IntStream, CommonTo
 export class MockIntTokenStream implements TokenStream {
 
     public types: number[];
+
     protected p = 0;
 
     public constructor(types: number[]) {
@@ -84,5 +85,13 @@ export class MockIntTokenStream implements TokenStream {
 
     public getTextFromRange(start: Token, stop: Token): string {
         throw new Error("can't give strings");
+    }
+
+    public setLine(line: number): void {
+        throw new Error("can't set line");
+    }
+
+    public setColumn(line: number): void {
+        throw new Error("can't set column");
     }
 }

@@ -7,7 +7,6 @@
 import type { IST } from "stringtemplate4ts";
 
 import { grammarOptions } from "../grammar-options.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { Grammar } from "../tool/Grammar.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 
@@ -24,53 +23,53 @@ export class CodeGenPipeline {
         // all templates are generated in memory to report the most complete
         // error information possible, but actually writing output files stops
         // after the first error is reported
-        const errorCount = ErrorManager.get().errors;
+        const errorCount = this.g.tool.errorManager.errors;
 
         if (this.g.isLexer()) {
             if (this.gen.getTarget().needsHeader()) {
                 const lexer = this.gen.generateLexer(true); // Header file if needed.
-                if (ErrorManager.get().errors === errorCount) {
+                if (this.g.tool.errorManager.errors === errorCount) {
                     this.writeRecognizer(lexer, this.gen, true);
                 }
             }
             const lexer = this.gen.generateLexer(false);
-            if (ErrorManager.get().errors === errorCount) {
+            if (this.g.tool.errorManager.errors === errorCount) {
                 this.writeRecognizer(lexer, this.gen, false);
             }
         } else {
             if (this.gen.getTarget().needsHeader()) {
                 const parser = this.gen.generateParser(true);
-                if (ErrorManager.get().errors === errorCount) {
+                if (this.g.tool.errorManager.errors === errorCount) {
                     this.writeRecognizer(parser, this.gen, true);
                 }
             }
 
             const parser = this.gen.generateParser(false);
-            if (ErrorManager.get().errors === errorCount) {
+            if (this.g.tool.errorManager.errors === errorCount) {
                 this.writeRecognizer(parser, this.gen, false);
             }
 
             if (grammarOptions.generateListener) {
                 if (this.gen.getTarget().needsHeader()) {
                     const listener = this.gen.generateListener(true);
-                    if (ErrorManager.get().errors === errorCount) {
+                    if (this.g.tool.errorManager.errors === errorCount) {
                         this.gen.writeListener(listener, true);
                     }
                 }
                 const listener = this.gen.generateListener(false);
-                if (ErrorManager.get().errors === errorCount) {
+                if (this.g.tool.errorManager.errors === errorCount) {
                     this.gen.writeListener(listener, false);
                 }
 
                 if (this.gen.getTarget().needsHeader()) {
                     const baseListener = this.gen.generateBaseListener(true);
-                    if (ErrorManager.get().errors === errorCount) {
+                    if (this.g.tool.errorManager.errors === errorCount) {
                         this.gen.writeBaseListener(baseListener, true);
                     }
                 }
                 if (this.gen.getTarget().wantsBaseListener()) {
                     const baseListener = this.gen.generateBaseListener(false);
-                    if (ErrorManager.get().errors === errorCount) {
+                    if (this.g.tool.errorManager.errors === errorCount) {
                         this.gen.writeBaseListener(baseListener, false);
                     }
                 }
@@ -79,24 +78,24 @@ export class CodeGenPipeline {
             if (grammarOptions.generateVisitor) {
                 if (this.gen.getTarget().needsHeader()) {
                     const visitor = this.gen.generateVisitor(true);
-                    if (ErrorManager.get().errors === errorCount) {
+                    if (this.g.tool.errorManager.errors === errorCount) {
                         this.gen.writeVisitor(visitor, true);
                     }
                 }
                 const visitor = this.gen.generateVisitor(false);
-                if (ErrorManager.get().errors === errorCount) {
+                if (this.g.tool.errorManager.errors === errorCount) {
                     this.gen.writeVisitor(visitor, false);
                 }
 
                 if (this.gen.getTarget().needsHeader()) {
                     const baseVisitor = this.gen.generateBaseVisitor(true);
-                    if (ErrorManager.get().errors === errorCount) {
+                    if (this.g.tool.errorManager.errors === errorCount) {
                         this.gen.writeBaseVisitor(baseVisitor, true);
                     }
                 }
                 if (this.gen.getTarget().wantsBaseVisitor()) {
                     const baseVisitor = this.gen.generateBaseVisitor(false);
-                    if (ErrorManager.get().errors === errorCount) {
+                    if (this.g.tool.errorManager.errors === errorCount) {
                         this.gen.writeBaseVisitor(baseVisitor, false);
                     }
                 }

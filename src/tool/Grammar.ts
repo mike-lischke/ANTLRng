@@ -12,8 +12,8 @@ import {
 } from "antlr4ng";
 
 import { ANTLRv4Parser } from "..//generated/ANTLRv4Parser.js";
-import { TreeWizard } from "../antlr3/tree/TreeWizard.js";
 import { TreeVisitor } from "../antlr3/tree/TreeVisitor.js";
+import { TreeWizard } from "../antlr3/tree/TreeWizard.js";
 
 import { GrammarTreeVisitor } from "../tree-walkers/GrammarTreeVisitor.js";
 
@@ -29,6 +29,7 @@ import { TokenVocabParser } from "../parse/TokenVocabParser.js";
 import { GrammarType } from "../support/GrammarType.js";
 import type { IGrammar, ITool } from "../types.js";
 
+import type { CommonTree } from "../tree/CommonTree.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ANTLRToolListener } from "./ANTLRToolListener.js";
 import type { ActionAST } from "./ast/ActionAST.js";
@@ -39,13 +40,11 @@ import type { PredAST } from "./ast/PredAST.js";
 import type { TerminalAST } from "./ast/TerminalAST.js";
 import type { AttributeDict } from "./AttributeDict.js";
 import type { AttributeResolver } from "./AttributeResolver.js";
-import { ErrorManager } from "./ErrorManager.js";
 import { ErrorType } from "./ErrorType.js";
 import type { GrammarParserInterpreter } from "./GrammarParserInterpreter.js";
 import type { IAttribute } from "./IAttribute.js";
 import type { LexerGrammar } from "./LexerGrammar.js";
 import type { Rule } from "./Rule.js";
-import type { CommonTree } from "../tree/CommonTree.js";
 
 export class Grammar implements IGrammar, AttributeResolver {
     /**
@@ -293,9 +292,9 @@ export class Grammar implements IGrammar, AttributeResolver {
                 warning: (msg: ANTLRMessage): void => { /* ignored */ },
             };
 
-            ErrorManager.get().addListener(hush); // we want to hush errors/warnings
+            this.tool.errorManager.addListener(hush); // we want to hush errors/warnings
             if (listener) {
-                ErrorManager.get().addListener(listener);
+                this.tool.errorManager.addListener(listener);
             }
             const input = CharStream.fromString(grammarText);
             input.name = fileName;
@@ -466,7 +465,7 @@ export class Grammar implements IGrammar, AttributeResolver {
             try {
                 g = this.tool.loadImportedGrammar(this, t)!;
             } catch {
-                ErrorManager.get().grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR, importedGrammarName,
+                this.tool.errorManager.grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR, importedGrammarName,
                     t.token!, importedGrammarName, this.name);
 
                 continue;
@@ -1049,14 +1048,12 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public defineTokenName(name: string, ttype?: number): number {
-        if (ttype === undefined) {
-            return this.defineTokenName(name, this.getNewTokenType());
-        }
-
         const prev = this.tokenNameToTypeMap.get(name);
         if (prev !== undefined) {
             return prev;
         }
+
+        ttype ??= this.getNewTokenType();
 
         this.tokenNameToTypeMap.set(name, ttype);
         this.setTokenForType(ttype, name);

@@ -340,14 +340,18 @@ lexerAtom
     | terminalDef
     | notSet
     | LEXER_CHAR_SET
-    | DOT elementOptions?
+    | wildcard
     ;
 
 atom
     : terminalDef
     | ruleref
     | notSet
-    | DOT elementOptions?
+    | wildcard
+    ;
+
+wildcard
+    : DOT elementOptions?
     ;
 
 // --------------------

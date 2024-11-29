@@ -4,15 +4,15 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { CharStream } from "antlr4ng";
+import { CharStream, type Token } from "antlr4ng";
 
 import { ActionSplitter } from "../generated/ActionSplitter.js";
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 
+import { ActionAST } from "../tool/ast/ActionAST.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LexerGrammar } from "../tool/LexerGrammar.js";
 import { Rule } from "../tool/Rule.js";
-import { ActionAST } from "../tool/ast/ActionAST.js";
 import { ActionSniffer } from "./ActionSniffer.js";
 import { BlankActionSplitterListener } from "./BlankActionSplitterListener.js";
 
@@ -37,15 +37,15 @@ export class UseDefAnalyzer {
         //input.setCharPositionInLine(actionAST.token.getCharPositionInLine());
         const dependent = [false]; // can't be simple bool with anon class
         const listener = new class extends BlankActionSplitterListener {
-            public override nonLocalAttr(expr: string, x: string, y: string): void {
+            public override nonLocalAttr(expr: string, x: Token, y: Token): void {
                 dependent[0] = true;
             }
 
-            public override qualifiedAttr(expr: string, x: string, y: string): void {
+            public override qualifiedAttr(expr: string, x: Token, y: Token): void {
                 dependent[0] = true;
             }
 
-            public override setAttr(expr: string, x: string, rhs: string): void {
+            public override setAttr(expr: string, x: Token, rhs: Token): void {
                 dependent[0] = true;
             }
 
@@ -53,11 +53,11 @@ export class UseDefAnalyzer {
                 dependent[0] = true;
             }
 
-            public override setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
+            public override setNonLocalAttr(expr: string, x: Token, y: Token, rhs: string): void {
                 dependent[0] = true;
             }
 
-            public override attr(expr: string, x: string): void {
+            public override attr(expr: string, x: Token): void {
                 dependent[0] = true;
             }
         }();

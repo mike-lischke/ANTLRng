@@ -16,7 +16,6 @@ import { Utils } from "../misc/Utils.js";
 import { Character } from "../support/Character.js";
 import { GrammarType } from "../support/GrammarType.js";
 import { isTokenName } from "../support/helpers.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
@@ -137,8 +136,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
     public override modeDef(m: GrammarAST, id: GrammarAST): void {
         if (!this.g.isLexer()) {
-            ErrorManager.get().grammarError(ErrorType.MODE_NOT_IN_LEXER, this.g.fileName, id.token!, id.token!.text,
-                this.g);
+            this.g.tool.errorManager.grammarError(ErrorType.MODE_NOT_IN_LEXER, this.g.fileName, id.token!,
+                id.token!.text, this.g);
         }
     }
 
@@ -214,7 +213,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                 // label X or x can't be rule x.
                 const r = this.ruleCollector.nameToRuleMap.get(Utils.decapitalize(altLabel));
                 if (r) {
-                    ErrorManager.get().grammarError(ErrorType.ALT_LABEL_CONFLICTS_WITH_RULE, this.g.fileName,
+                    this.g.tool.errorManager.grammarError(ErrorType.ALT_LABEL_CONFLICTS_WITH_RULE, this.g.fileName,
                         altAST.altLabel.token!, altLabel, r.name);
                 }
 
@@ -222,8 +221,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                 // in another rule. altLabelToRuleName has both X and x mapped.
                 const prevRuleForLabel = this.ruleCollector.altLabelToRuleName.get(altLabel);
                 if (prevRuleForLabel && prevRuleForLabel !== rule.getRuleName()) {
-                    ErrorManager.get().grammarError(ErrorType.ALT_LABEL_REDEF, this.g.fileName, altAST.altLabel.token!,
-                        altLabel, rule.getRuleName(), prevRuleForLabel);
+                    this.g.tool.errorManager.grammarError(ErrorType.ALT_LABEL_REDEF, this.g.fileName,
+                        altAST.altLabel.token!, altLabel, rule.getRuleName(), prevRuleForLabel);
                 }
             }
         }
@@ -232,7 +231,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         const numAltLabels = altLabels?.length ?? 0;
 
         if (numAltLabels > 0 && altCount !== numAltLabels) {
-            ErrorManager.get().grammarError(ErrorType.RULE_WITH_TOO_FEW_ALT_LABELS,
+            this.g.tool.errorManager.grammarError(ErrorType.RULE_WITH_TOO_FEW_ALT_LABELS,
                 this.g.fileName, idAST.token!, rule.getRuleName());
         }
     }
@@ -241,7 +240,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         if (this.inFragmentRule) {
             const fileName = action.token!.inputStream!.getSourceName();
             const ruleName = this.currentRuleName;
-            ErrorManager.get().grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName, action.token!, ruleName);
+            this.g.tool.errorManager.grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName, action.token!, ruleName);
         }
     }
 
@@ -259,7 +258,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
             default: {
                 const fileName = id.token!.inputStream!.getSourceName();
-                ErrorManager.get().grammarError(ErrorType.LABEL_BLOCK_NOT_A_SET, fileName, id.token!, id.getText());
+                this.g.tool.errorManager.grammarError(ErrorType.LABEL_BLOCK_NOT_A_SET, fileName, id.token!,
+                    id.getText());
                 break;
             }
 
@@ -283,7 +283,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                 token = (tree.getChild(0) as GrammarAST).token!;
             }
 
-            ErrorManager.get().grammarError(ErrorType.MODE_WITHOUT_RULES, this.g.fileName, token, name, this.g);
+            this.g.tool.errorManager.grammarError(ErrorType.MODE_WITHOUT_RULES, this.g.fileName, token, name, this.g);
         }
     }
 
@@ -298,7 +298,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                 ? ErrorType.CHANNELS_BLOCK_IN_COMBINED_GRAMMAR
                 : null;
         if (errorType !== null) {
-            ErrorManager.get().grammarError(errorType, this.g.fileName, tree.token!);
+            this.g.tool.errorManager.grammarError(errorType, this.g.fileName, tree.token!);
         }
     }
 
@@ -319,7 +319,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         // Don't warn about diff if this is implicit lexer.
         if (fullyQualifiedName.startsWith(nameToken.text!) &&
             fullyQualifiedName !== Constants.GRAMMAR_FROM_STRING_NAME) {
-            ErrorManager.get().grammarError(ErrorType.FILE_AND_GRAMMAR_NAME_DIFFER, fullyQualifiedName, nameToken,
+            this.g.tool.errorManager.grammarError(ErrorType.FILE_AND_GRAMMAR_NAME_DIFFER, fullyQualifiedName, nameToken,
                 nameToken.text, fullyQualifiedName);
         }
     }
@@ -328,7 +328,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         if (rulesNode.getChildCount() === 0) {
             const root = rulesNode.getParent() as GrammarAST;
             const idNode = root.getChild(0) as GrammarAST;
-            ErrorManager.get().grammarError(ErrorType.NO_RULES, this.g.fileName,
+            this.g.tool.errorManager.grammarError(ErrorType.NO_RULES, this.g.fileName,
                 null, idNode.getText(), this.g);
         }
     }
@@ -349,26 +349,26 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
         for (const t of secondOptionTokens) {
             const fileName = t.inputStream!.getSourceName();
-            ErrorManager.get().grammarError(ErrorType.REPEATED_PREQUEL, fileName, t);
+            this.g.tool.errorManager.grammarError(ErrorType.REPEATED_PREQUEL, fileName, t);
         }
     }
 
     protected checkInvalidRuleDef(ruleID: Token): void {
         const fileName = ruleID.inputStream?.getSourceName() ?? "<none>";
         if (this.g.isLexer() && Character.isLowerCase(ruleID.text!.codePointAt(0)!)) {
-            ErrorManager.get().grammarError(ErrorType.PARSER_RULES_NOT_ALLOWED, fileName, ruleID, ruleID.text);
+            this.g.tool.errorManager.grammarError(ErrorType.PARSER_RULES_NOT_ALLOWED, fileName, ruleID, ruleID.text);
         }
 
         if (this.g.isParser() &&
             isTokenName(ruleID.text!)) {
-            ErrorManager.get().grammarError(ErrorType.LEXER_RULES_NOT_ALLOWED, fileName, ruleID, ruleID.text);
+            this.g.tool.errorManager.grammarError(ErrorType.LEXER_RULES_NOT_ALLOWED, fileName, ruleID, ruleID.text);
         }
     }
 
     protected checkInvalidRuleRef(ruleID: Token): void {
         const fileName = ruleID.inputStream?.getSourceName();
         if (this.g.isLexer() && Character.isLowerCase(ruleID.text!.codePointAt(0)!)) {
-            ErrorManager.get().grammarError(ErrorType.PARSER_RULE_REF_IN_LEXER_RULE, fileName ?? "<none>", ruleID,
+            this.g.tool.errorManager.grammarError(ErrorType.PARSER_RULE_REF_IN_LEXER_RULE, fileName ?? "<none>", ruleID,
                 ruleID.text, this.currentRuleName);
         }
     }
@@ -376,7 +376,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     protected checkTokenDefinition(tokenID: Token): void {
         const fileName = tokenID.inputStream?.getSourceName();
         if (!isTokenName(tokenID.text!)) {
-            ErrorManager.get().grammarError(ErrorType.TOKEN_NAMES_MUST_START_UPPER, fileName ?? "<none>", tokenID,
+            this.g.tool.errorManager.grammarError(ErrorType.TOKEN_NAMES_MUST_START_UPPER, fileName ?? "<none>", tokenID,
                 tokenID.text);
         }
     }
@@ -395,7 +395,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         if (this.inFragmentRule) {
             const fileName = tree.token?.inputStream?.getSourceName();
             const ruleName = this.currentRuleName;
-            ErrorManager.get().grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName ?? "<none>", tree.token!,
+            this.g.tool.errorManager.grammarError(ErrorType.FRAGMENT_ACTION_IGNORED, fileName ?? "<none>", tree.token!,
                 ruleName);
         }
     }
@@ -415,7 +415,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         const fileName = tree.token?.inputStream?.getSourceName();
         if (!outerMostAlt || blk.getChildCount() > 1) {
             const e = ErrorType.LEXER_COMMAND_PLACEMENT_ISSUE;
-            ErrorManager.get().grammarError(e, fileName ?? "<none>", tree.token!, rule.getChild(0)!.getText());
+            this.g.tool.errorManager.grammarError(e, fileName ?? "<none>", tree.token!, rule.getChild(0)!.getText());
 
         }
     }
@@ -423,8 +423,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
     protected override enterTerminal(tree: GrammarAST): void {
         const text = tree.getText();
         if (text === "''") {
-            ErrorManager.get().grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, this.g.fileName, tree.token!,
-                "''");
+            this.g.tool.errorManager.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, this.g.fileName,
+                tree.token!, "''");
         }
     }
 
@@ -456,7 +456,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
         const optionName = optionID.text!;
         if (optionsToCheck !== null && !optionsToCheck.has(optionName)) {
-            ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION, this.g.fileName, optionID, optionName);
+            this.g.tool.errorManager.grammarError(ErrorType.ILLEGAL_OPTION, this.g.fileName, optionID, optionName);
         } else {
             this.checkCaseInsensitiveOption(optionID, valueAST, parentType);
         }
@@ -468,8 +468,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
             if (elem.getType() !== ANTLRv4Parser.ALT) {
                 const optionID = id.token!;
                 const fileName = optionID.inputStream?.getSourceName();
-                ErrorManager.get().grammarError(ErrorType.UNRECOGNIZED_ASSOC_OPTION, fileName ?? "<none>", optionID,
-                    this.currentRuleName);
+                this.g.tool.errorManager.grammarError(ErrorType.UNRECOGNIZED_ASSOC_OPTION, fileName ?? "<none>",
+                    optionID, this.currentRuleName);
             }
         }
 
@@ -489,7 +489,7 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
             const optionID = id.token!;
             const fileName = optionID.inputStream?.getSourceName();
             if (valueAST !== null && !Grammar.semPredOptions.has(optionID.text!)) {
-                ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION, fileName ?? "<none>", optionID,
+                this.g.tool.errorManager.grammarError(ErrorType.ILLEGAL_OPTION, fileName ?? "<none>", optionID,
                     optionID.text);
 
                 return false;
@@ -505,7 +505,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
         // Don't care about id<SimpleValue> options.
         if (valueAST !== null && !Grammar.ruleRefOptions.has(optionID.text!)) {
-            ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION, fileName ?? "<none>", optionID, optionID.text);
+            this.g.tool.errorManager.grammarError(ErrorType.ILLEGAL_OPTION, fileName ?? "<none>", optionID,
+                optionID.text);
 
             return false;
         }
@@ -520,7 +521,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
         // Don't care about ID<ASTNodeName> options.
         if (valueAST !== null && !Grammar.tokenOptions.has(optionID.text!)) {
-            ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION, fileName ?? "<none>", optionID, optionID.text);
+            this.g.tool.errorManager.grammarError(ErrorType.ILLEGAL_OPTION, fileName ?? "<none>", optionID,
+                optionID.text);
 
             return false;
         }
@@ -537,13 +539,15 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
 
         const validDelegators = BasicSemanticChecks.validImportTypes.get(delegate.type);
         if (validDelegators && !validDelegators.includes(this.g.type)) {
-            ErrorManager.get().grammarError(ErrorType.INVALID_IMPORT, this.g.fileName, importID, this.g, delegate);
+            this.g.tool.errorManager.grammarError(ErrorType.INVALID_IMPORT, this.g.fileName, importID, this.g,
+                delegate);
         }
 
         if (this.g.isCombined()
             && (delegate.name === this.g.name + Grammar.getGrammarTypeToFileNameSuffix(GrammarType.Lexer) ||
                 delegate.name === this.g.name + Grammar.getGrammarTypeToFileNameSuffix(GrammarType.Parser))) {
-            ErrorManager.get().grammarError(ErrorType.IMPORT_NAME_CLASH, this.g.fileName, importID, this.g, delegate);
+            this.g.tool.errorManager.grammarError(ErrorType.IMPORT_NAME_CLASH, this.g.fileName, importID, this.g,
+                delegate);
         }
     }
 
@@ -557,12 +561,12 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
                     this.grammarCaseInsensitive = currentValue;
                 } else {
                     if (this.grammarCaseInsensitive === currentValue) {
-                        ErrorManager.get().grammarError(ErrorType.REDUNDANT_CASE_INSENSITIVE_LEXER_RULE_OPTION,
+                        this.g.tool.errorManager.grammarError(ErrorType.REDUNDANT_CASE_INSENSITIVE_LEXER_RULE_OPTION,
                             this.g.fileName, optionID, currentValue);
                     }
                 }
             } else {
-                ErrorManager.get().grammarError(ErrorType.ILLEGAL_OPTION_VALUE, this.g.fileName, valueAST.token!,
+                this.g.tool.errorManager.grammarError(ErrorType.ILLEGAL_OPTION_VALUE, this.g.fileName, valueAST.token!,
                     optionName, valueText);
             }
         }

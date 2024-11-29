@@ -223,7 +223,7 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return c;
     }
 
-    public override getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null {
+    public override getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined {
         if (!grammarOptions.forceAtn) {
             let decision: number;
             if (ebnfRoot.getType() === ANTLRv4Parser.POSITIVE_CLOSURE) {
@@ -252,9 +252,9 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return new AltBlock(this, blkAST, alts);
     }
 
-    public override getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null {
+    public override getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined {
         const ebnf = ebnfRoot.getType();
-        let c = null;
+        let c;
         switch (ebnf) {
             case ANTLRv4Parser.OPTIONAL: {
                 if (alts.length === 1) {
@@ -293,9 +293,9 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return c;
     }
 
-    public override getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null {
+    public override getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined {
         const ebnf = ebnfRoot.getType();
-        let c = null;
+        let c;
         switch (ebnf) {
             case ANTLRv4Parser.OPTIONAL: {
                 c = new OptionalBlock(this, ebnfRoot, alts);

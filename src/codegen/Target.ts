@@ -18,7 +18,6 @@ import { antlrVersion } from "../grammar-options.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import { Utils } from "../misc/Utils.js";
 import { Character } from "../support/Character.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { Rule } from "../tool/Rule.js";
@@ -93,8 +92,8 @@ export abstract class Target {
             const theirVersion = RuntimeMetaData.getMajorMinorVersion(version);
             const ourVersion = RuntimeMetaData.getMajorMinorVersion(antlrVersion);
             if (theirVersion !== ourVersion) {
-                ErrorManager.get().toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version, antlrVersion,
-                    language);
+                this.gen.g!.tool.errorManager.toolError(ErrorType.INCOMPATIBLE_TOOL_AND_TEMPLATES, version,
+                    antlrVersion, language);
             }
             templates = this.loadTemplates();
             Target.languageTemplates.set(language, templates);
@@ -645,7 +644,7 @@ export abstract class Target {
             };
 
             private reportError(msg: STMessage): void {
-                ErrorManager.get().toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.toString());
+                this.$outer.gen.g!.tool.errorManager.toolError(ErrorType.STRING_TEMPLATE_WARNING, msg.toString());
             }
         }(this));
 
@@ -662,7 +661,7 @@ export abstract class Target {
             return new STGroupFile(groupFileName);
         } catch (e) {
             if (reportErrorIfFail) {
-                ErrorManager.get().toolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, e, this.getLanguage());
+                this.gen.g!.tool.errorManager.toolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, e, this.getLanguage());
             }
 
             return undefined;

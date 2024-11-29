@@ -15,7 +15,7 @@ import { ErrorType } from "./ErrorType.js";
  */
 export class GrammarSemanticsMessage extends ANTLRMessage {
     public constructor(errorType: ErrorType, fileName: string, offendingToken: Token | null, ...args: unknown[]) {
-        super(errorType, offendingToken, args);
+        super(errorType, offendingToken, ...args);
         this.fileName = fileName;
         if (offendingToken !== null) {
             this.line = offendingToken.line;

@@ -3,15 +3,16 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-// ts-expect-error, when setting node module resolution to Node16, tsc raises an error for the import assertion.
-//import packageJson from "../package.json" with { type: "json" };
 const packageJson = await import("../package.json", { assert: { type: "json" } });
 
-import { Option, program } from "commander";
+import { Command, Option } from "commander";
 
 export interface IToolParameters {
     // Used to store additional options that are not explicitly defined here.
     [keyof: string]: unknown;
+
+    /** The grammar files. */
+    args: string[];
 
     outputDirectory?: string,
     libDirectory?: string,
@@ -46,26 +47,41 @@ const parseKeyValuePair = (input: string): { key: string, value: string; } => {
     return { key, value };
 };
 
-program
-    .option("grammar1 grammar2 ...", "A list of grammar files.")
+const prepared = new Command()
     .option("-o, --output-directory <path>", "specify output directory where all output is generated")
     .option("-lib, --lib-directory <path>", "specify location of grammars, tokens files")
     .option<boolean>("-atn, --generate-atn-dot [boolean]",
         "Generate rule augmented transition network diagrams.", parseBoolean, false)
-    .option("-e, --encoding", "Specify grammar file encoding; e.g., ucs-2.", "utf-8")
-    .addOption(new Option("-mf, --message-format", "Specify output style for messages in antlr, gnu, vs2005.")
+    .option("-e, --encoding <string>", "Specify grammar file encoding; e.g., ucs-2.", "utf-8")
+    .addOption(new Option("-mf, --message-format [string]", "Specify output style for messages in antlr, gnu, vs2005.")
         .choices(["antlr", "gnu", "vs2005"]).default("antlr"))
     .option<boolean>("-lm, --long-messages [boolean]",
         "Show exception details when available for errors and warnings.", parseBoolean, false)
     .option<boolean>("-l, --listener [boolean]", "Generate parse tree listener.", parseBoolean, true)
     .option<boolean>("-v, --visitor [boolean]", "Generate parse tree visitor.", parseBoolean, false)
-    .option("-p, --package", "Specify a package/namespace for the generated code.")
-    .option<boolean>("-d, --dependencies", "Generate file dependencies.", parseBoolean, false)
+    .option("-p, --package <name>", "Specify a package/namespace for the generated code.")
+    .option<boolean>("-d, --dependencies [boolean]", "Generate file dependencies.", parseBoolean, false)
     .option("-D, --define <key=value>", "Set/override a grammar-level option.", parseKeyValuePair)
-    .option<boolean>("-w, --warnings-are-errors", "Treat warnings as errors.", parseBoolean, false)
-    .option<boolean>("-f, --force-atn", "Use the ATN simulator for all predictions.", parseBoolean, false)
-    .option<boolean>("--log", "Dump lots of logging info to antlr-timestamp.log.", parseBoolean, false)
-    .version(`ANTLRng ${packageJson.default.version}`)
-    .parse();
+    .option<boolean>("-w, --warnings-are-errors [boolean]", "Treat warnings as errors.", parseBoolean, false)
+    .option<boolean>("-f, --force-atn [boolean]", "Use the ATN simulator for all predictions.", parseBoolean, false)
+    .option<boolean>("--log [boolean]", "Dump lots of logging info to antlr-timestamp.log.", parseBoolean, false)
+    .option("<grammar...>", "A list of grammar files.")
+    .version(`ANTLRng ${packageJson.default.version}`);
 
-export const grammarOptions = program.opts<IToolParameters>();
+prepared.exitOverride((err) => {
+    console.error("Command parsing failed:", err.message);
+});
+
+/**
+ * Used to parse tool parameters given as string list. Usually, this is used for tests.
+ *
+ * @param args The list of arguments.
+ */
+export const parseToolParameters = (args: string[]): void => {
+    prepared.parse(args, { from: "user" });
+
+    grammarOptions = prepared.opts<IToolParameters>();
+    grammarOptions.args = prepared.args;
+};
+
+export let grammarOptions: IToolParameters;

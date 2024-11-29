@@ -4,14 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { CharStream } from "antlr4ng";
+import { CharStream, type Token } from "antlr4ng";
 
 import { ActionSplitter } from "../generated/ActionSplitter.js";
 
 import { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
 import { Alternative } from "../tool/Alternative.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LabelType } from "../tool/LabelType.js";
@@ -26,158 +25,162 @@ export class AttributeChecks implements ActionSplitterListener {
     public r: Rule | null; // null if action outside of rule
     public alt: Alternative | null; // null if action outside of alt; could be in rule
     public node: ActionAST;
-    public actionText?: string;
+    public actionToken?: Token;
 
-    public constructor(g: Grammar, r: Rule | null, alt: Alternative | null, node: ActionAST, actionText?: string) {
+    public constructor(g: Grammar, r: Rule | null, alt: Alternative | null, node: ActionAST, actionToken?: Token) {
         this.g = g;
         this.r = r;
         this.alt = alt;
         this.node = node;
-        this.actionText = actionText;
+        this.actionToken = actionToken;
     }
 
     public static checkAllAttributeExpressions(g: Grammar): void {
         for (const act of g.namedActions.values()) {
-            const checker = new AttributeChecks(g, null, null, act, act.token?.text);
+            const checker = new AttributeChecks(g, null, null, act, act.token);
             checker.examineAction();
         }
 
         for (const r of g.rules.values()) {
             for (const a of r.namedActions.values()) {
-                const checker = new AttributeChecks(g, r, null, a, a.token!.text);
+                const checker = new AttributeChecks(g, r, null, a, a.token);
                 checker.examineAction();
             }
 
             for (let i = 1; i <= r.numberOfAlts; i++) {
                 const alt = r.alt[i];
                 for (const a of alt.actions) {
-                    const checker = new AttributeChecks(g, r, alt, a, a.token!.text);
+                    const checker = new AttributeChecks(g, r, alt, a, a.token);
                     checker.examineAction();
                 }
             }
 
             for (const e of r.exceptions) {
                 const a = e.getChild(1) as ActionAST;
-                const checker = new AttributeChecks(g, r, null, a, a.token!.text);
+                const checker = new AttributeChecks(g, r, null, a, a.token);
                 checker.examineAction();
             }
 
             if (r.finallyAction) {
-                const checker = new AttributeChecks(g, r, null, r.finallyAction, r.finallyAction.token!.text);
+                const checker = new AttributeChecks(g, r, null, r.finallyAction, r.finallyAction.token);
                 checker.examineAction();
             }
         }
     }
 
     public examineAction(): void {
-        const input = CharStream.fromString(this.actionText ?? "");
-        // TODO: input.setLine(this.actionToken.getLine());
-        // TODO: input.setCharPositionInLine(this.actionToken.getCharPositionInLine());
+        const input = CharStream.fromString(this.actionToken!.text!);
         const splitter = new ActionSplitter(input);
 
         // forces eval, triggers listener methods
-        this.node.chunks = splitter.getActionTokens(this);
+        this.node.chunks = splitter.getActionTokens(this, this.actionToken);
     }
 
     // LISTENER METHODS
 
     // $x.y
 
-    public qualifiedAttr(expr: string, x: string, y: string): void {
+    public qualifiedAttr(expr: string, x: Token, y: Token): void {
         if (this.g.isLexer()) {
-            ErrorManager.get().grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, null, x + "." + y,
-                expr);
+            this.g.tool.errorManager.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, x,
+                x.text! + "." + y.text!, expr);
 
             return;
         }
 
-        if (this.node.resolver.resolveToAttribute(x, this.node) !== null) {
+        if (this.node.resolver.resolveToAttribute(x.text!, this.node) !== null) {
             // must be a member access to a predefined attribute like $ctx.foo
             this.attr(expr, x);
 
             return;
         }
 
-        if (this.node.resolver.resolveToAttribute(x, y, this.node) === null) {
-            const ruleRef = this.isolatedRuleRef(x);
+        if (this.node.resolver.resolveToAttribute(x.text!, y.text!, this.node) === null) {
+            const ruleRef = this.isolatedRuleRef(x.text!);
             if (ruleRef) {
-                if (ruleRef.args?.get(y) !== null) {
-                    ErrorManager.get().grammarError(ErrorType.INVALID_RULE_PARAMETER_REF, this.g.fileName, null, y,
-                        ruleRef.name, expr);
+                if (ruleRef.args?.get(y.text!) !== null) {
+                    this.g.tool.errorManager.grammarError(ErrorType.INVALID_RULE_PARAMETER_REF, this.g.fileName, y,
+                        y.text!, ruleRef.name, expr);
                 } else {
-                    ErrorManager.get().grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y,
+                    this.g.tool.errorManager.grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, y, y.text!,
                         ruleRef.name, expr);
                 }
-            } else if (!this.node.resolver.resolvesToAttributeDict(x, this.node)) {
-                ErrorManager.get().grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, null, x, expr);
+            } else if (!this.node.resolver.resolvesToAttributeDict(x.text!, this.node)) {
+                this.g.tool.errorManager.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, x, x.text!,
+                    expr);
             } else {
-                ErrorManager.get().grammarError(ErrorType.UNKNOWN_ATTRIBUTE_IN_SCOPE, this.g.fileName, null, y, expr);
+                this.g.tool.errorManager.grammarError(ErrorType.UNKNOWN_ATTRIBUTE_IN_SCOPE, this.g.fileName, y, y.text!,
+                    expr);
             }
         }
     }
 
-    public setAttr(expr: string, x: string, rhs: string): void {
+    public setAttr(expr: string, x: Token, rhs: Token): void {
         if (this.g.isLexer()) {
-            ErrorManager.get().grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION,
-                this.g.fileName, null, x, expr);
+            this.g.tool.errorManager.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, x, x.text!,
+                expr);
 
             return;
         }
-        if (this.node.resolver.resolveToAttribute(x, this.node) === null) {
+
+        if (this.node.resolver.resolveToAttribute(x.text!, this.node) === null) {
             let errorType = ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE;
-            if (this.node.resolver.resolvesToListLabel(x, this.node)) {
+            if (this.node.resolver.resolvesToListLabel(x.text!, this.node)) {
                 // $ids for ids+=ID etc...
                 errorType = ErrorType.ASSIGNMENT_TO_LIST_LABEL;
             }
 
-            ErrorManager.get().grammarError(errorType, this.g.fileName, null, x, expr);
+            this.g.tool.errorManager.grammarError(errorType, this.g.fileName, x, x.text, expr);
         }
         new AttributeChecks(this.g, this.r, this.alt, this.node, rhs).examineAction();
     }
 
-    public attr(expr: string, x: string): void {
+    public attr(expr: string, x: Token): void {
         if (this.g.isLexer()) {
-            ErrorManager.get().grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, null, x, expr);
+            this.g.tool.errorManager.grammarError(ErrorType.ATTRIBUTE_IN_LEXER_ACTION, this.g.fileName, x, x.text!,
+                expr);
 
             return;
         }
 
-        if (this.node.resolver.resolveToAttribute(x, this.node) === null) {
-            if (this.node.resolver.resolvesToToken(x, this.node)) {
+        if (this.node.resolver.resolveToAttribute(x.text!, this.node) === null) {
+            if (this.node.resolver.resolvesToToken(x.text!, this.node)) {
                 return; // $ID for token ref or label of token
             }
 
-            if (this.node.resolver.resolvesToListLabel(x, this.node)) {
+            if (this.node.resolver.resolvesToListLabel(x.text!, this.node)) {
                 return; // $ids for ids+=ID etc...
             }
 
-            if (this.isolatedRuleRef(x) !== null) {
-                ErrorManager.get().grammarError(ErrorType.ISOLATED_RULE_REF,
-                    this.g.fileName, null, x, expr);
+            if (this.isolatedRuleRef(x.text!) !== null) {
+                this.g.tool.errorManager.grammarError(ErrorType.ISOLATED_RULE_REF, this.g.fileName, x, x.text, expr);
 
                 return;
             }
-            ErrorManager.get().grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, null, x, expr);
-        }
-    }
-
-    public nonLocalAttr(expr: string, x: string, y: string): void {
-        const r = this.g.getRule(x);
-        if (r === null) {
-            ErrorManager.get().grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF,
-                this.g.fileName, null, x, y, expr);
-        } else if (r.resolveToAttribute(y, null) === null) {
-            ErrorManager.get().grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y, x, expr);
-        }
-    }
-
-    public setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
-        const r = this.g.getRule(x);
-        if (r === null) {
-            ErrorManager.get().grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF, this.g.fileName, null, x, y,
+            this.g.tool.errorManager.grammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE, this.g.fileName, x, x.text,
                 expr);
-        } else if (r.resolveToAttribute(y, null) === null) {
-            ErrorManager.get().grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, null, y, x, expr);
+        }
+    }
+
+    public nonLocalAttr(expr: string, x: Token, y: Token): void {
+        const r = this.g.getRule(x.text!);
+        if (r === null) {
+            this.g.tool.errorManager.grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF, this.g.fileName, x, x.text!,
+                y, expr);
+        } else if (r.resolveToAttribute(y.text!, null) === null) {
+            this.g.tool.errorManager.grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, y, y.text, x.text,
+                expr);
+        }
+    }
+
+    public setNonLocalAttr(expr: string, x: Token, y: Token, rhs: string): void {
+        const r = this.g.getRule(x.text!);
+        if (r === null) {
+            this.g.tool.errorManager.grammarError(ErrorType.UNDEFINED_RULE_IN_NONLOCAL_REF, this.g.fileName, x, x.text!,
+                y.text, expr);
+        } else if (r.resolveToAttribute(y.text!, null) === null) {
+            this.g.tool.errorManager.grammarError(ErrorType.UNKNOWN_RULE_ATTRIBUTE, this.g.fileName, y, y.text, x.text,
+                expr);
         }
     }
 

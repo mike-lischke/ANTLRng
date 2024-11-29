@@ -4,13 +4,15 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-export interface ActionSplitterListener {
-    qualifiedAttr(expr: string, x: string, y: string): void;
-    setAttr(expr: string, x: string, rhs: string): void;
-    attr(expr: string, x: string): void;
+import type { Token } from "antlr4ng";
 
-    setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void;
-    nonLocalAttr(expr: string, x: string, y: string): void;
+export interface ActionSplitterListener {
+    qualifiedAttr(expr: string, x: Token, y: Token): void;
+    setAttr(expr: string, x: Token, rhs: Token): void;
+    attr(expr: string, x: Token): void;
+
+    setNonLocalAttr(expr: string, x: Token, y: Token, rhs: string): void;
+    nonLocalAttr(expr: string, x: Token, y: Token): void;
 
     text(text: string): void;
 }

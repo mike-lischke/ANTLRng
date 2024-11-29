@@ -11,20 +11,19 @@ lexer grammar ActionSplitter;
 
 @header {/* eslint-disable */
 
-import { Character } from "../support/Character.js";
 import type { ActionSplitterListener } from "../parse/ActionSplitterListener.js";
 
 const attrValueExpr = /[^=][^;]*/;
 const id = /[a-zA-Z_][a-zA-Z0-9_]*/;
-const setNonLocalAttr = new RegExp(`\\$(?<x>${id.source})::(<y>${id.source})\\s?=(?<expr>${attrValueExpr.source});`);
+const setNonLocalAttr = new RegExp(`\\$(?<x>${id.source})::(?<y>${id.source})(\\s)?=(\\s)?(?<expr>${attrValueExpr.source});`);
 const nonLocalAttr = new RegExp(`\\$(?<x>${id.source})::(?<y>${id.source})`);
 const qualifiedAttr = new RegExp(`\\$(?<x>${id.source}).(?<y>${id.source})`);
-const setAttr = new RegExp(`\\$(?<x>${id.source})\\s?=(?<expr>${attrValueExpr.source});`);
-const attr = new RegExp(`\\$(?<x>${id.source})`);}
+const setAttr = new RegExp(`\\$(?<x>${id.source})(?<s1>\\s)?=(?<s2>\\s)?(?<expr>${attrValueExpr.source});`);
+const attr = new RegExp(`\\$(?<x>${id.source})`);
+}
 
-@members {
-/** Force filtering (and return tokens). Sends token values to the delegate. */
-public getActionTokens(delegate: ActionSplitterListener): Token[] {
+@members {/** Force filtering (and return tokens). Sends token values to the delegate. */
+public getActionTokens(delegate: ActionSplitterListener, refToken?: Token): Token[] {
     const tokens = this.getAllTokens();
     for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i];
@@ -49,7 +48,12 @@ public getActionTokens(delegate: ActionSplitterListener): Token[] {
                 }
 
                 const { x, y, expr } = match.groups!;
-                delegate.setNonLocalAttr(text, x, y, expr);
+
+                const [xToken, yToken] = this.createTokens(t, x.length + 2, refToken); // +2 for "::"
+                xToken.text = x;
+                yToken!.text = y;
+
+                delegate.setNonLocalAttr(text, xToken, yToken!, expr);
 
                 break;
             }
@@ -63,7 +67,12 @@ public getActionTokens(delegate: ActionSplitterListener): Token[] {
                 }
 
                 const { x, y } = match.groups!;
-                delegate.nonLocalAttr(text, x, y);
+
+                const [xToken, yToken] = this.createTokens(t, x.length + 2, refToken);
+                xToken.text = x;
+                yToken!.text = y;
+
+                delegate.nonLocalAttr(text, xToken, yToken!);
 
                 break;
             }
@@ -78,11 +87,15 @@ public getActionTokens(delegate: ActionSplitterListener): Token[] {
 
                 const { x, y } = match.groups!;
 
+                const [xToken, yToken] = this.createTokens(t, x.length + 1, refToken);
+                xToken.text = x;
+                yToken!.text = y;
+
                 // In the ANTLR3 version of the grammar, QUALIFIED_ATTR was not matched if followed by a '('.
                 // We have to simulate this behavior here.
                 if (i + 1 < tokens.length && tokens[i + 1].text?.startsWith("(")) {
                     // Pretend we matched ATTR instead of QUALIFIED_ATTR, with the first part of the qualified name.
-                    delegate.attr("$" + x, x);
+                    delegate.attr("$" + x, xToken);
 
                     // Pretend we matched TEXT instead of QUALIFIED_ATTR, with the rest of the qualified name.
                     text = "." + y + tokens[++i].text!;
@@ -91,7 +104,7 @@ public getActionTokens(delegate: ActionSplitterListener): Token[] {
                     break;
                 }
 
-                delegate.qualifiedAttr(text, x, y);
+                delegate.qualifiedAttr(text, xToken, yToken!);
 
                 break;
             }
@@ -104,8 +117,14 @@ public getActionTokens(delegate: ActionSplitterListener): Token[] {
                     throw new Error(`Mismatched input '${text}'`);
                 }
 
-                const { x, expr } = match.groups!;
-                delegate.setAttr(text, x, expr);
+                const { x, s1, s2, expr } = match.groups!;
+
+                // +2 for the second '$' and the '='.
+                const [xToken, yToken] = this.createTokens(t, x.length + s1.length + s2.length + 2, refToken);
+                xToken.text = x;
+                yToken!.text = expr;
+
+                delegate.setAttr(text, xToken, yToken!);
 
                 break;
             }
@@ -119,7 +138,10 @@ public getActionTokens(delegate: ActionSplitterListener): Token[] {
                 }
 
                 const { x } = match.groups!;
-                delegate.attr(text, x);
+                const [xToken] = this.createTokens(t, undefined, refToken);
+
+                xToken.text = x;
+                delegate.attr(text, xToken);
 
                 break;
             }
@@ -132,8 +154,32 @@ public getActionTokens(delegate: ActionSplitterListener): Token[] {
     return tokens;
 }
 
-private isIDStartChar(c: number): boolean {
-    return c == 0x5F /* "_" */ || Character.isLetter(c);
+private createTokens(sourceToken: Token, offset?: number, refToken?: Token): [Token, Token | undefined] {
+    let line = 1;
+    let column = 1; // 1 for the leading $
+    if (refToken) {
+        // If this token starts on the first line, take the ref token's column into account.
+        if (sourceToken.line === 1) {
+            column = refToken.column;
+        }
+        line = refToken.line;
+    }
+
+    column += sourceToken.column;
+    line += sourceToken.line - 1;
+
+    const xToken = antlr.CommonToken.fromToken(sourceToken);
+    xToken.line = line;
+    xToken.column = column;
+
+    let yToken: Token | undefined;
+    if (offset !== undefined) {
+        yToken = antlr.CommonToken.fromToken(sourceToken);
+        yToken.line = line;
+        yToken.column = column + offset;
+    }
+
+    return [xToken, yToken];
 }}
 
 // ignore comments right away

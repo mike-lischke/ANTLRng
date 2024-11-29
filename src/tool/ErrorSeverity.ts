@@ -5,10 +5,10 @@
  */
 
 export enum ErrorSeverity {
-    Info,
-    Warning,
-    WarningOneOff,
-    Error,
-    ErrorOneOff,
-    Fatal,
+    Info = "info",
+    Warning = "warning",
+    WarningOneOff = "warningOneOff",
+    Error = "error",
+    ErrorOneOff = "errorOneOff",
+    Fatal = "fatal",
 }

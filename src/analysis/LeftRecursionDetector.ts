@@ -8,7 +8,6 @@
 
 import { ATN, ATNState, HashSet, RuleStartState, RuleStopState, RuleTransition } from "antlr4ng";
 
-import { ErrorManager } from "../tool/ErrorManager.js";
 import type { Grammar } from "../tool/Grammar.js";
 import { LeftRecursionCyclesMessage } from "../tool/LeftRecursionCyclesMessage.js";
 import type { Rule } from "../tool/Rule.js";
@@ -138,6 +137,6 @@ export class LeftRecursionDetector {
 
     private leftRecursionCycles(fileName: string, cycles: Rule[][]): void {
         const msg = new LeftRecursionCyclesMessage(fileName, cycles);
-        ErrorManager.get().error(msg);
+        this.g.tool.errorManager.error(msg);
     }
 }

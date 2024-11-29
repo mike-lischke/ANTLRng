@@ -11,7 +11,6 @@ import { ATNState } from "antlr4ng";
 import { ATNPrinter } from "../src/automata/ATNPrinter.js";
 import { LexerATNFactory } from "../src/automata/LexerATNFactory.js";
 import { ANTLRv4Parser } from "../src/generated/ANTLRv4Parser.js";
-import { ErrorManager } from "../src/tool/ErrorManager.js";
 import { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import type { GrammarAST } from "../src/tool/ast/GrammarAST.js";
 import type { RuleAST } from "../src/tool/ast/RuleAST.js";
@@ -635,16 +634,16 @@ describe("TestATNConstruction", () => {
     });
 
     it("testParserRuleRefInLexerRule", (): void => {
-        const errorQueue = new ErrorQueue();
-
         const grammarString =
             "grammar U;\n" +
             "a : A;\n" +
             "A : a;\n"; // Error: parser rule referenced in lexer rule.
 
         const tool = new Tool();
-        ErrorManager.get().removeListeners();
-        ErrorManager.get().addListener(errorQueue);
+
+        const errorQueue = new ErrorQueue(tool.errorManager);
+        tool.errorManager.removeListeners();
+        tool.errorManager.addListener(errorQueue);
 
         const t = tool.parseGrammarFromString(grammarString);
 

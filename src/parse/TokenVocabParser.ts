@@ -13,7 +13,6 @@ import { Token } from "antlr4ng";
 
 import { Constants } from "../Constants1.js";
 import { grammarOptions } from "../grammar-options.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import type { IGrammar } from "../types.js";
 
@@ -52,7 +51,7 @@ export class TokenVocabParser {
                 try {
                     tokenType = Number.parseInt(tokenTypeS);
                 } catch {
-                    ErrorManager.get().toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
+                    this.g.tool.errorManager.toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
                         vocabName + Constants.VOCAB_FILE_EXTENSION, " bad token type: " + tokenTypeS,
                         lineNum);
                     tokenType = Token.INVALID_TYPE;
@@ -62,7 +61,7 @@ export class TokenVocabParser {
                 tokens.set(tokenID, tokenType);
                 maxTokenType = Math.max(maxTokenType, tokenType);
             } else if (tokenDef.length > 0) {
-                ErrorManager.get().toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
+                this.g.tool.errorManager.toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
                     vocabName + Constants.VOCAB_FILE_EXTENSION, " bad token def: " + tokenDef, lineNum);
             }
         }
@@ -111,15 +110,15 @@ export class TokenVocabParser {
             const inTree = this.g.ast.getOptionAST("tokenVocab");
             const inTreeValue = inTree?.token?.text;
             if (vocabName === inTreeValue) {
-                ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR, this.g.fileName,
-                    inTree?.token ?? null, inTreeValue);
+                this.g.tool.errorManager.grammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR,
+                    this.g.fileName, inTree?.token ?? null, inTreeValue);
             } else { // must be from -D option on cmd-line not token in tree
-                ErrorManager.get().toolError(ErrorType.CANNOT_FIND_TOKENS_FILE_GIVEN_ON_CMDLINE, vocabName,
+                this.g.tool.errorManager.toolError(ErrorType.CANNOT_FIND_TOKENS_FILE_GIVEN_ON_CMDLINE, vocabName,
                     this.g.name);
             }
         } catch (e) {
             const message = e instanceof Error ? e.message : String(e);
-            ErrorManager.get().toolError(ErrorType.ERROR_READING_TOKENS_FILE, e, vocabName, message);
+            this.g.tool.errorManager.toolError(ErrorType.ERROR_READING_TOKENS_FILE, e, vocabName, message);
         }
 
         return "";

@@ -41,7 +41,7 @@ export class ActionSniffer extends BlankActionSplitterListener {
         const splitter = new ActionSplitter(input);
 
         // forces eval, triggers listener methods
-        this.node.chunks = splitter.getActionTokens(this);
+        this.node.chunks = splitter.getActionTokens(this, this.actionToken);
     }
 
     public processNested(actionToken: string): void {
@@ -51,23 +51,23 @@ export class ActionSniffer extends BlankActionSplitterListener {
         const splitter = new ActionSplitter(input);
 
         // forces eval, triggers listener methods
-        splitter.getActionTokens(this);
+        splitter.getActionTokens(this, this.actionToken);
     }
 
-    public override attr(expr: string, x: string): void {
-        this.trackRef(x);
+    public override attr(expr: string, x: Token): void {
+        this.trackRef(x.text!);
     }
 
-    public override qualifiedAttr(expr: string, x: string, y: string): void {
-        this.trackRef(x);
+    public override qualifiedAttr(expr: string, x: Token, y: Token): void {
+        this.trackRef(x.text!);
     }
 
-    public override setAttr(expr: string, x: string, rhs: string): void {
-        this.trackRef(x);
-        this.processNested(rhs);
+    public override setAttr(expr: string, x: Token, rhs: Token): void {
+        this.trackRef(x.text!);
+        this.processNested(rhs.text!);
     }
 
-    public override setNonLocalAttr(expr: string, x: string, y: string, rhs: string): void {
+    public override setNonLocalAttr(expr: string, x: Token, y: Token, rhs: string): void {
         this.processNested(rhs);
     }
 

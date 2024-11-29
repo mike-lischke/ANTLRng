@@ -46,8 +46,12 @@ describe("TestActionTranslation", () => {
         const st = group.getInstanceOf(name)!;
         st.add(actionName, action);
         const grammar = st.render();
-        const errorQueue = new ErrorQueue();
-        const g = new Grammar(grammar, errorQueue);
+        const g = new Grammar(grammar);
+
+        // TODO: break this circular dependency.
+        const errorQueue = new ErrorQueue(g.tool.errorManager);
+        g.tool.errorManager.addListener(errorQueue);
+
         g.tool.process(g, false);
 
         if (!g.ast.hasErrors) {
@@ -233,13 +237,13 @@ describe("TestActionTranslation", () => {
 
         // ref to value returned from recursive call to rule
         let action = "$v = $e.v;";
-        let expected = "((EContext)_localctx).v =  ((EContext)_localctx).e.v;";
+        let expected = "((EContext)_localctx).v = ((EContext)_localctx).e.v;";
         testActions(recursiveTemplate, "inline", action, expected);
         testActions(leftRecursiveTemplate, "inline", action, expected);
 
         // ref to predefined attribute obtained from recursive call to rule
         action = "$v = $e.text.length();";
-        expected = "((EContext)_localctx).v =  (((EContext)_localctx).e!=null?_input.getText(((EContext)_localctx)." +
+        expected = "((EContext)_localctx).v = (((EContext)_localctx).e!=null?_input.getText(((EContext)_localctx)." +
             "e.start,((EContext)_localctx).e.stop):null).length();";
         testActions(recursiveTemplate, "inline", action, expected);
         testActions(leftRecursiveTemplate, "inline", action, expected);

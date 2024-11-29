@@ -11,16 +11,17 @@ import {
 
 import {
     ANTLRv4Parser,
-    type Action_Context, type AlternativeContext, type AltListContext, type AtomContext, type BlockContext,
-    type BlockSetContext, type ChannelsSpecContext, type CharacterRangeContext, type DelegateGrammarsContext,
-    type EbnfContext, type EbnfSuffixContext, type ElementContext, type ElementOptionContext,
-    type ElementOptionsContext, type GrammarSpecContext, type LabeledElementContext, type LexerAltContext,
-    type LexerAtomContext, type LexerBlockContext, type LexerCommandContext, type LexerCommandsContext,
-    type LexerElementContext, type LexerElementsContext, type LexerRuleBlockContext, type LexerRuleSpecContext,
-    type ModeSpecContext, type NotSetContext, type OptionsSpecContext, type ParserRuleSpecContext,
-    type PredicateOptionsContext, type PrequelConstructContext, type RuleActionContext, type RuleBlockContext,
-    type RulerefContext, type RulesContext, type RuleSpecContext,
-    type SetElementContext, type TerminalDefContext, type TokensSpecContext
+    type Action_Context, type ActionBlockContext, type AlternativeContext, type AltListContext, type AtomContext,
+    type BlockContext, type BlockSetContext, type ChannelsSpecContext, type CharacterRangeContext,
+    type DelegateGrammarsContext, type EbnfContext, type EbnfSuffixContext, type ElementContext,
+    type ElementOptionContext, type ElementOptionsContext, type GrammarSpecContext, type LabeledElementContext,
+    type LexerAltContext, type LexerAtomContext, type LexerBlockContext, type LexerCommandContext,
+    type LexerCommandsContext, type LexerElementContext, type LexerElementsContext, type LexerRuleBlockContext,
+    type LexerRuleSpecContext, type ModeSpecContext, type NotSetContext, type OptionsSpecContext,
+    type ParserRuleSpecContext, type PredicateOptionsContext, type PrequelConstructContext, type RuleActionContext,
+    type RuleBlockContext, type RulerefContext, type RulesContext, type RuleSpecContext, type SetElementContext,
+    type TerminalDefContext, type TokensSpecContext,
+    type WildcardContext
 } from "../generated/ANTLRv4Parser.js";
 
 import { Constants } from "../Constants1.js";
@@ -80,7 +81,10 @@ export class ParseTreeToASTConverter {
 
         this.convertPrequelConstructToAST(grammarSpec.prequelConstruct(), root);
         this.convertRulesToAST(grammarSpec.rules(), root);
-        this.convertModeSpecToAST(grammarSpec.modeSpec(), root);
+
+        grammarSpec.modeSpec().forEach((modeSpec) => {
+            this.convertModeSpecToAST(modeSpec, root);
+        });
 
         const options = root.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
         if (options) {
@@ -227,18 +231,14 @@ export class ParseTreeToASTConverter {
         });
     }
 
-    public static convertModeSpecToAST(modeSpecs: ModeSpecContext[], ast: GrammarAST): void {
-        if (modeSpecs.length > 0) {
-            const mode = this.createASTNode(ANTLRv4Parser.MODE, modeSpecs[0].parent!);
-            ast.addChild(mode);
-            modeSpecs.forEach((modeSpec) => {
-                const id = this.createASTNode(ANTLRv4Parser.ID, modeSpec.identifier());
-                mode.addChild(id);
-                modeSpec.lexerRuleSpec().forEach((lexerRule) => {
-                    this.convertLexerRuleSpecToAST(lexerRule, mode);
-                });
-            });
-        }
+    public static convertModeSpecToAST(modeSpec: ModeSpecContext, ast: GrammarAST): void {
+        const mode = this.createVirtualASTNode(GrammarAST, ANTLRv4Parser.MODE, modeSpec.MODE(), "MODE");
+        ast.addChild(mode);
+
+        mode.addChild(this.createASTNode(ANTLRv4Parser.ID, modeSpec.identifier()));
+        modeSpec.lexerRuleSpec().forEach((lexerRule) => {
+            this.convertLexerRuleSpecToAST(lexerRule, mode);
+        });
     }
 
     public static convertOptionsSpecToAST(optionsSpec: OptionsSpecContext, ast: GrammarAST): void {
@@ -276,7 +276,7 @@ export class ParseTreeToASTConverter {
 
     public static convertTokensSpec(tokensSpec: TokensSpecContext, ast: GrammarAST): void {
         if (tokensSpec.idList()) {
-            const tokens = this.createVirtualASTNode(GrammarAST, ANTLRv4Parser.TOKENS, tokensSpec, "tokens");
+            const tokens = this.createVirtualASTNode(GrammarAST, ANTLRv4Parser.TOKENS_SPEC, tokensSpec);
             ast.addChild(tokens);
 
             tokensSpec.idList()!.identifier().forEach((id) => {
@@ -314,8 +314,8 @@ export class ParseTreeToASTConverter {
             return this.convertRulerefToAST(atom.ruleref()!, ast);
         } else if (atom.notSet()) {
             return this.convertNotSetToAST(atom.notSet()!, ast);
-        } else if (atom.DOT()) {
-            return this.convertWildcardToAST(atom.DOT()!, atom.elementOptions(), ast);
+        } else if (atom.wildcard()) {
+            return this.convertWildcardToAST(atom.wildcard()!, ast);
         }
 
         return undefined;
@@ -374,10 +374,19 @@ export class ParseTreeToASTConverter {
         }
     }
 
-    public static convertActionBlockToAST(astType: number, actionBlock: ParserRuleContext,
+    public static convertActionBlockToAST(astType: number, actionBlock: ActionBlockContext,
         ast: GrammarAST): ActionAST {
-        const text = actionBlock.getText(); // Remove outer [].
-        const token = this.createToken(astType, actionBlock, text);
+        const text = actionBlock.getText();
+
+        let token;
+        if (actionBlock.ACTION_CONTENT().length > 0) {
+            const start = actionBlock.ACTION_CONTENT(0)!;
+            token = this.createToken(astType, start, text, start.symbol.column + 1);
+        } else {
+            token = this.createToken(astType, actionBlock, text);
+        }
+
+        token.type = ANTLRv4Parser.ACTION;
         const actionAST = new ActionAST(token);
         ast.addChild(actionAST);
 
@@ -676,8 +685,8 @@ export class ParseTreeToASTConverter {
             ast.addChild(set);
 
             return set;
-        } else if (lexerAtom.DOT()) {
-            return this.convertWildcardToAST(lexerAtom.DOT()!, lexerAtom.elementOptions(), ast);
+        } else if (lexerAtom.wildcard()) {
+            return this.convertWildcardToAST(lexerAtom.wildcard()!, ast);
         }
 
         return undefined;
@@ -695,13 +704,12 @@ export class ParseTreeToASTConverter {
         return range;
     }
 
-    public static convertWildcardToAST(dot: TerminalNode, elementOptions: ElementOptionsContext | null,
-        ast: GrammarAST): TerminalAST {
-        const dotAST = new TerminalAST(this.createToken(ANTLRv4Parser.DOT, dot));
+    public static convertWildcardToAST(wildcard: WildcardContext, ast: GrammarAST): TerminalAST {
+        const dotAST = this.createVirtualASTNode(TerminalAST, ANTLRv4Parser.WILDCARD, wildcard.DOT());
         ast.addChild(dotAST);
 
-        if (elementOptions) {
-            this.convertElementOptionsToAST(elementOptions, dotAST);
+        if (wildcard.elementOptions()) {
+            this.convertElementOptionsToAST(wildcard.elementOptions()!, dotAST);
         }
 
         const options = dotAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
@@ -863,25 +871,26 @@ export class ParseTreeToASTConverter {
         return blockAST;
     }
 
-    public static createToken(type: number, context: ParserRuleContext | TerminalNode, text?: string): CommonToken {
+    public static createToken(type: number, context: ParserRuleContext | TerminalNode, text?: string,
+        column?: number): CommonToken {
+        let token;
         if (context instanceof ParserRuleContext) {
-            const token = CommonToken.fromSource([context.start!.tokenSource, context.start!.inputStream], type,
+            token = CommonToken.fromSource([context.start!.tokenSource, context.start!.inputStream], type,
                 Constants.DEFAULT_TOKEN_CHANNEL, context.start!.start, context.start!.stop);
             token.tokenIndex = context.start!.tokenIndex;
-
-            if (text) {
-                token.text = text;
-            }
-
-            return token;
+            token.line = context.start!.line;
+            token.column = context.start!.column;
+        } else {
+            token = CommonToken.fromToken(context.symbol);
         }
 
-        const symbol = context.symbol;
+        if (text) {
+            token.text = text;
+        }
 
-        const token = CommonToken.fromSource([symbol.tokenSource, symbol.inputStream], type,
-            Constants.DEFAULT_TOKEN_CHANNEL, symbol.start, symbol.stop);
-        token.tokenIndex = symbol.tokenIndex;
-        token.text = text ?? symbol.text ?? "";
+        if (column) {
+            token.column = column;
+        }
 
         return token;
     }

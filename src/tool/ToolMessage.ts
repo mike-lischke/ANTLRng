@@ -29,9 +29,9 @@ export class ToolMessage extends ANTLRMessage {
             if (rest[0] instanceof Error) {
                 const [errorType, e, rest] = args as [ErrorType, Error, unknown[]];
 
-                super(errorType, e, InvalidToken, ...rest);
+                super(errorType, e, InvalidToken, rest);
             } else {
-                super(errorType, InvalidToken, ...rest);
+                super(errorType, InvalidToken, rest);
             }
         }
     }

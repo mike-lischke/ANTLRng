@@ -14,6 +14,10 @@ export class ErrorQueue implements ANTLRToolListener {
     public readonly warnings: ANTLRMessage[] = [];
     public readonly all: ANTLRMessage[] = [];
 
+    // TODO: reorganize the error manager to avoid cross-references.
+    public constructor(private errorManager: ErrorManager) {
+    }
+
     public info(msg: string): void {
         this.infos.push(msg);
     }
@@ -44,7 +48,7 @@ export class ErrorQueue implements ANTLRToolListener {
 
         let buf = "";
         for (const m of this.all) {
-            const st = ErrorManager.get().getMessageTemplate(m)!;
+            const st = this.errorManager.getMessageTemplate(m)!;
             buf += st.render() + "\n";
         }
 

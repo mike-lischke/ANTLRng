@@ -21,7 +21,6 @@ import { GrammarToken } from "../parse/GrammarToken.js";
 import { GrammarType } from "../support/GrammarType.js";
 import { isTokenName } from "../support/helpers.js";
 import type { CommonTree } from "../tree/CommonTree.js";
-import { ErrorManager } from "./ErrorManager.js";
 import { ErrorType } from "./ErrorType.js";
 import { Grammar } from "./Grammar.js";
 import { AltAST } from "./ast/AltAST.js";
@@ -234,7 +233,7 @@ export class GrammarTransformPipeline {
                     namedActions.set(scopeName!, mapping);
                 } else {
                     if (prevAction.g === at.g) {
-                        ErrorManager.get().grammarError(ErrorType.ACTION_REDEFINITION, at.g.fileName, name.token!,
+                        this.tool.errorManager.grammarError(ErrorType.ACTION_REDEFINITION, at.g.fileName, name.token!,
                             name.getText());
                     } else {
                         let s1 = prevAction.getText();
@@ -340,7 +339,7 @@ export class GrammarTransformPipeline {
                 }
 
                 if (hasNewOption) {
-                    ErrorManager.get().grammarError(ErrorType.OPTIONS_IN_DELEGATE, optionsRoot.g.fileName,
+                    this.tool.errorManager.grammarError(ErrorType.OPTIONS_IN_DELEGATE, optionsRoot.g.fileName,
                         optionsRoot.token!, imp.name);
                 }
             }

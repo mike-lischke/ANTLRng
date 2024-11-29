@@ -24,6 +24,6 @@ export class ToolANTLRParser extends ANTLRv4Parser {
         this.tool = tool;
 
         this.removeErrorListeners();
-        this.addErrorListener(new ToolParseErrorListener());
+        this.addErrorListener(new ToolParseErrorListener(tool));
     }
 }

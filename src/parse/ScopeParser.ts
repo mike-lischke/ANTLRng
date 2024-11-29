@@ -14,7 +14,6 @@ import { Constants } from "../Constants1.js";
 import { Character } from "../support/Character.js";
 import { ActionAST } from "../tool/ast/ActionAST.js";
 import { AttributeDict } from "../tool/AttributeDict.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { IAttribute } from "../tool/IAttribute.js";
@@ -161,7 +160,7 @@ export class ScopeParser {
         }
 
         if (start < 0) {
-            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
+            g.tool.errorManager.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
         }
 
         // walk forward looking for end of an ID
@@ -213,7 +212,7 @@ export class ScopeParser {
 
         if (start === -1) {
             start = 0;
-            ErrorManager.get().grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
+            g.tool.errorManager.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
         }
 
         // look for stop of name

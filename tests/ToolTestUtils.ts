@@ -4,261 +4,310 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
+import { mkdirSync, rmdirSync, writeFileSync } from "node:fs";
+import { expect } from "vitest";
 
-import { ANTLRInputStream, Lexer, Token, PredictionMode, LexerATNSimulator, ATNSerializer, ATNDeserializer, ATN, IntegerList } from "antlr4ng";
+import {
+    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, Token
+} from "antlr4ng";
 
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { LexerATNFactory } from "../src/automata/LexerATNFactory.js";
+import { ParserATNFactory } from "../src/automata/ParserATNFactory.js";
+import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
+import { DefaultToolListener } from "../src/tool/DefaultToolListener.js";
+import { Tool, type Grammar, type LexerGrammar } from "../src/tool/index.js";
+import { ErrorQueue } from "./support/ErrorQueue.js";
 
+export class ToolTestUtils {
+    /*public static execLexer(grammarFileName: string, grammarStr: string, lexerName: string,
+        input: string): ExecutedState;
+    public static execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string,
+        tempDir: string, saveTestDir: boolean): ExecutedState;
+    public static execLexer(...args: unknown[]): ExecutedState {
+        switch (args.length) {
+            case 4: {
+                const [grammarFileName, grammarStr, lexerName, input] = args as [string, string, string, string];
 
-export  class ToolTestUtils {
-	public static  execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string):  ExecutedState;
+                return ToolTestUtils.execLexer(grammarFileName, grammarStr, lexerName, input, null, false);
+            }
 
-	public static  execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string,
-									  tempDir: Path, saveTestDir: boolean):  ExecutedState;
-public static execLexer(...args: unknown[]):  ExecutedState {
-		switch (args.length) {
-			case 4: {
-				const [grammarFileName, grammarStr, lexerName, input] = args as [string, string, string, string];
+            case 6: {
+                const [grammarFileName, grammarStr, lexerName, input, tempDir, saveTestDir] =
+                    args as [string, string, string, string, Path, boolean];
 
+                return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, null, lexerName,
+                    null, input, false, tempDir, saveTestDir);
 
-		return ToolTestUtils.execLexer(grammarFileName, grammarStr, lexerName, input, null, false);
-	
+                break;
+            }
 
-				break;
-			}
+            default: {
+                throw new Error(`Invalid number of arguments`);
+            }
+        }
+    }*/
 
-			case 6: {
-				const [grammarFileName, grammarStr, lexerName, input, tempDir, saveTestDir] = args as [string, string, string, string, Path, boolean];
+    /*public static execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
+        startRuleName: string, input: string, showDiagnosticErrors: boolean): ExecutedState;
+    public static execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
+        startRuleName: string, input: string, showDiagnosticErrors: boolean, workingDir: string): ExecutedState;
+    public static execParser(...args: unknown[]): ExecutedState {
+        switch (args.length) {
+            case 7: {
+                const [grammarFileName, grammarStr, parserName, lexerName, startRuleName, input, showDiagnosticErrors]
+                    = args as [string, string, string, string, string, string, boolean];
 
+                return ToolTestUtils.execParser(grammarFileName, grammarStr, parserName, lexerName, startRuleName,
+                    input, showDiagnosticErrors, null);
 
-		return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, null, lexerName,
-				null, input, false, tempDir, saveTestDir);
-	
+                break;
+            }
 
-				break;
-			}
+            case 8: {
+                const [grammarFileName, grammarStr, parserName, lexerName, startRuleName, input, showDiagnosticErrors,
+                    workingDir] = args as [string, string, string, string, string, string, boolean, string];
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+                return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, parserName, lexerName,
+                    startRuleName, input, showDiagnosticErrors, workingDir, false);
 
+                break;
+            }
 
-	public static  execParser(grammarFileName: string, grammarStr: string,
-									   parserName: string, lexerName: string, startRuleName: string,
-									   input: string, showDiagnosticErrors: boolean
-	):  ExecutedState;
+            default: {
+                throw new Error(`Invalid number of arguments`);
+            }
+        }
+    }*/
 
-	public static  execParser(grammarFileName: string, grammarStr: string,
-									parserName: string, lexerName: string, startRuleName: string,
-									input: string, showDiagnosticErrors: boolean, workingDir: Path
-	):  ExecutedState;
-public static execParser(...args: unknown[]):  ExecutedState {
-		switch (args.length) {
-			case 7: {
-				const [grammarFileName, grammarStr, parserName, lexerName, startRuleName, input, showDiagnosticErrors] = args as [string, string, string, string, string, string, boolean];
+    /*public static createOptionsForJavaToolTests(grammarFileName: string, grammarStr: string, parserName: string,
+        lexerName: string, useListener: boolean, useVisitor: boolean, startRuleName: string, input: string,
+        profile: boolean, showDiagnosticErrors: boolean, endStage: Stage): RunOptions {
+        return new RunOptions(grammarFileName, grammarStr, parserName, lexerName, useListener, useVisitor,
+            startRuleName, input, profile, showDiagnosticErrors, false, false, endStage, "Java",
+            JavaRunner.runtimeTestParserName, PredictionMode.LL, true);
+    }*/
 
+    public static testErrors(pairs: string[], printTree: boolean): void {
+        for (let i = 0; i < pairs.length; i += 2) {
+            const grammarStr = pairs[i];
+            const expected = pairs[i + 1];
 
-		return ToolTestUtils.execParser(grammarFileName, grammarStr, parserName, lexerName, startRuleName,
-				input, showDiagnosticErrors, null);
-	
+            const lines = grammarStr.split("\n");
+            const fileName = ToolTestUtils.getFilenameFromFirstLineOfGrammar(lines[0]);
 
-				break;
-			}
+            const tempDirName = "AntlrTestErrors-" + Date.now();
+            const tempTestDir = join(tmpdir(), tempDirName);
 
-			case 8: {
-				const [grammarFileName, grammarStr, parserName, lexerName, startRuleName, input, showDiagnosticErrors, workingDir] = args as [string, string, string, string, string, string, boolean, Path];
+            const errors = this.antlrOnString(tempTestDir, null, fileName, grammarStr, false);
 
+            let actual = "";
+            errors.forEach((error) => {
+                actual += error + "\n";
+            });
 
-		return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, parserName, lexerName,
-				startRuleName, input, showDiagnosticErrors, workingDir, false);
-	
+            actual = actual.replace(tempTestDir + "/", "");
+            let msg = grammarStr;
+            msg = msg.replace("\n", "\\n");
+            msg = msg.replace("\r", "\\r");
+            msg = msg.replace("\t", "\\t");
 
-				break;
-			}
+            expect(actual).toBe(expected);
+        }
+    }
 
-			default: {
-				throw new java.lang.IllegalArgumentException(S`Invalid number of arguments`);
-			}
-		}
-	}
+    public static getFilenameFromFirstLineOfGrammar(line: string): string {
+        let fileName = "A" + Tool.GRAMMAR_EXTENSION;
+        const grIndex = line.lastIndexOf("grammar");
+        const semi = line.lastIndexOf(";");
+        if (grIndex >= 0 && semi >= 0) {
+            const space = line.indexOf(" ", grIndex);
+            fileName = line.substring(space + 1, semi) + Tool.GRAMMAR_EXTENSION;
+        }
+        if (fileName.length === Tool.GRAMMAR_EXTENSION.length) {
+            fileName = "A" + Tool.GRAMMAR_EXTENSION;
+        }
 
+        return fileName;
+    }
 
-	public static  createOptionsForJavaToolTests(
-			grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
-			useListener: boolean, useVisitor: boolean, startRuleName: string,
-			input: string, profile: boolean, showDiagnosticErrors: boolean,
-			endStage: Stage
-	):  RunOptions {
-		return new  RunOptions(grammarFileName, grammarStr, parserName, lexerName, useListener, useVisitor, startRuleName,
-				input, profile, showDiagnosticErrors, false, false, endStage, "Java",
-				JavaRunner.runtimeTestParserName, PredictionMode.LL, true);
-	}
+    public static realElements(elements: string[]): string[] {
+        return elements.slice(Token.MIN_USER_TOKEN_TYPE);
+    }
 
-	public static  testErrors(pairs: string[], printTree: boolean):  void {
-		for (let  i = 0; i < pairs.length; i += 2) {
-			let  grammarStr = pairs[i];
-			let  expect = pairs[i + 1];
+    /*public static load(fileName: string): string {
+        if (fileName === null) {
+            return null;
+        }
 
-			let  lines = grammarStr.split("\n");
-			let  fileName = ToolTestUtils.getFilenameFromFirstLineOfGrammar(lines[0]);
+        const fullFileName = ToolTestUtils.class.getPackage().getName().replace(".", "/") + "/" + fileName;
+        const size = 65000;
+        const fis = ToolTestUtils.class.getClassLoader().getResourceAsStream(fullFileName);
+        {
+            // This holds the final error to throw (if any).
+            let error: java.lang.Throwable | undefined;
 
-			let  tempDirName = "AntlrTestErrors-" + Thread.currentThread().getName() + "-" + System.currentTimeMillis();
-			let  tempTestDir = Paths.get(TempDirectory, tempDirName).toString();
+            const isr: InputStreamReader = new InputStreamReader(fis);
+            try {
+                try {
+                    const data = new Uint16Array(size);
+                    const n = isr.read(data);
 
-			try {
-				let  equeue = antlrOnString(tempTestDir, null, fileName, grammarStr, false);
+                    return new string(data, 0, n);
+                } finally {
+                    error = closeResources([isr]);
+                }
+            } catch (e) {
+                error = handleResourceError(e, error);
+            } finally {
+                throwResourceError(error);
+            }
+        }
 
-				let  actual = equeue.toString(true);
-				actual = actual.replace(tempTestDir + File.separator, "");
-				let  msg = grammarStr;
-				msg = msg.replace("\n", "\\n");
-				msg = msg.replace("\r", "\\r");
-				msg = msg.replace("\t", "\\t");
+    }*/
 
-				assertEquals(expect, actual, "error in: " + msg);
-			}
-			finally {
-				try {
-					java.nio.file.SecureDirectoryStream.deleteDirectory(new  File(tempTestDir));
-				} catch (ignored) {
-if (ignored instanceof IOException) {
-				} else {
-	throw ignored;
-	}
-}
-			}
-		}
-	}
+    public static createATN(g: Grammar, useSerializer: boolean): ATN {
+        ToolTestUtils.semanticProcess(g);
+        expect(g.tool.getNumErrors()).toBe(0);
 
-	public static  getFilenameFromFirstLineOfGrammar(line: string):  string {
-		let  fileName = "A" + Tool.GRAMMAR_EXTENSION;
-		let  grIndex = line.lastIndexOf("grammar");
-		let  semi = line.lastIndexOf(';');
-		if ( grIndex>=0 && semi>=0 ) {
-			let  space = line.indexOf(' ', grIndex);
-			fileName = line.substring(space+1, semi)+Tool.GRAMMAR_EXTENSION;
-		}
-		if ( fileName.length()===Tool.GRAMMAR_EXTENSION.length() ) {
- fileName = "A" + Tool.GRAMMAR_EXTENSION;
-}
+        const f = g.isLexer() ? new LexerATNFactory(g as LexerGrammar) : new ParserATNFactory(g);
 
-		return fileName;
-	}
+        g.atn = f.createATN();
+        expect(g.tool.getNumErrors()).toBe(0);
 
-	public static  realElements(elements: Array<string>):  Array<string> {
-		return elements.subList(Token.MIN_USER_TOKEN_TYPE, elements.size());
-	}
+        const atn = g.atn;
+        if (useSerializer) {
+            // sets some flags in ATN
+            const serialized = ATNSerializer.getSerialized(atn);
 
-	public static  load(fileName: string):  string {
-		if ( fileName===null ) {
-			return null;
-		}
+            return new ATNDeserializer().deserialize(serialized);
+        }
 
-		let  fullFileName = ToolTestUtils.class.getPackage().getName().replace('.', '/')+'/'+fileName;
-		let  size = 65000;
-		let  fis = ToolTestUtils.class.getClassLoader().getResourceAsStream(fullFileName);
-		 {
-// This holds the final error to throw (if any).
-let error: java.lang.Throwable | undefined;
+        return atn;
+    }
 
- const isr: InputStreamReader  = new  InputStreamReader(fis)
-try {
-	try  {
-			let  data = new  Uint16Array(size);
-			let  n = isr.read(data);
-			return new  string(data, 0, n);
-		}
-	finally {
-	error = closeResources([isr]);
-	}
-} catch(e) {
-	error = handleResourceError(e, error);
-} finally {
-	throwResourceError(error);
-}
-}
+    /** Write a grammar to tmpdir and run antlr */
+    public static antlrOnString(workdir: string, targetName: string | null, grammarFileName: string, grammarStr: string,
+        defaultListener: boolean, ...extraOptions: string[]): string[] {
+        mkdirSync(workdir);
+        try {
+            writeFileSync(join(workdir, grammarFileName), grammarStr);
 
-	}
+            return this.antlrOnFile(workdir, targetName, grammarFileName, defaultListener, ...extraOptions);
+        } finally {
+            rmdirSync(workdir, { recursive: true });
+        }
+    }
 
-	public static  createATN(g: Grammar, useSerializer: boolean):  ATN {
-		if ( g.atn===null ) {
-			ToolTestUtils.semanticProcess(g);
-			assertEquals(0, g.tool.getNumErrors());
+    /**     * Run ANTLR on stuff in workdir and error queue back     */
+    public static antlrOnFile(workdir: string, targetName: string | null, grammarFileName: string,
+        defaultListener: boolean, ...extraOptions: string[]): string[] {
+        const options: string[] = [...extraOptions];
 
-			let  f = g.isLexer() ? new  LexerATNFactory( g as LexerGrammar) : new  ParserATNFactory(g);
+        if (targetName !== null) {
+            options.push("-Dlanguage=" + targetName);
+        }
 
-			g.atn = f.createATN();
-			assertEquals(0, g.tool.getNumErrors());
-		}
+        if (!options.includes("-o")) {
+            options.push("-o");
+            options.push(workdir);
+        }
 
-		let  atn = g.atn;
-		if ( useSerializer ) {
-			// sets some flags in ATN
-			let  serialized = ATNSerializer.getSerialized(atn);
-			return new  ATNDeserializer().deserialize(serialized.toArray());
-		}
+        if (!options.includes("-lib")) {
+            options.push("-lib");
+            options.push(workdir);
+        }
 
-		return atn;
-	}
+        if (!options.includes("--encoding")) {
+            options.push("--encoding");
+            options.push("UTF-8");
+        }
 
-	public static  semanticProcess(g: Grammar):  void {
-		if ( g.ast!==null && !g.ast.hasErrors ) {
-//			System.out.println(g.ast.toStringTree());
-			let  antlr = new  Tool();
-			let  sem = new  SemanticPipeline(g);
-			sem.process();
-			if ( g.getImportedGrammars()!==null ) { // process imported grammars (if any)
-				for (let imp of g.getImportedGrammars()) {
-					antlr.processNonCombinedGrammar(imp, false);
-				}
-			}
-		}
-	}
+        options.push(join(workdir, grammarFileName));
 
-	public static  getTokenTypesViaATN(input: string, lexerATN: LexerATNSimulator):  IntegerList {
-		let  in = new  ANTLRInputStream(input);
-		let  tokenTypes = new  IntegerList();
-		let  ttype: number;
-		do {
-			ttype = lexerATN.match(in, Lexer.DEFAULT_MODE);
-			tokenTypes.add(ttype);
-		} while ( ttype!== Token.EOF );
-		return tokenTypes;
-	}
+        const antlr = new Tool(options);
 
-	private static  execRecognizer(grammarFileName: string, grammarStr: string,
-										 parserName: string, lexerName: string, startRuleName: string,
-										 input: string, showDiagnosticErrors: boolean,
-										 workingDir: Path, saveTestDir: boolean):  ExecutedState {
-		let  runOptions = ToolTestUtils.createOptionsForJavaToolTests(grammarFileName, grammarStr, parserName, lexerName,
-				false, true, startRuleName, input,
-				false, showDiagnosticErrors, Stage.Execute);
-		 {
-// This holds the final error to throw (if any).
-let error: java.lang.Throwable | undefined;
+        const queue = new ErrorQueue(antlr.errorManager);
+        antlr.errorManager.addListener(queue);
+        if (defaultListener) {
+            antlr.errorManager.addListener(new DefaultToolListener(antlr.errorManager));
+        }
 
- const runner: JavaRunner  = new  JavaRunner(workingDir, saveTestDir)
-try {
-	try  {
-			let  result = runner.run(runOptions);
-			if (!(result instanceof ExecutedState)) {
-				fail(result.getErrorMessage());
-			}
-			return   result as ExecutedState;
-		}
-	finally {
-	error = closeResources([runner]);
-	}
-} catch(e) {
-	error = handleResourceError(e, error);
-} finally {
-	throwResourceError(error);
-}
-}
+        antlr.processGrammarsOnCommandLine();
+        const errors: string[] = [];
 
-	}
+        if (!defaultListener && queue.errors.length > 0) {
+            for (const error of queue.errors) {
+                const msgST = antlr.errorManager.getMessageTemplate(error)!;
+                errors.push(msgST.render());
+            }
+        }
+
+        if (!defaultListener && queue.warnings.length > 0) {
+            for (const _warning of queue.warnings) {
+                // antlrToolErrors.append(warning); warnings are hushed
+            }
+        }
+
+        return errors;
+    }
+
+    public static semanticProcess(g: Grammar): void {
+        if (!g.ast.hasErrors) {
+            const antlr = new Tool();
+            const sem = new SemanticPipeline(g);
+            sem.process();
+            for (const imp of g.getImportedGrammars()) {
+                antlr.processNonCombinedGrammar(imp, false);
+            }
+        }
+    }
+
+    public static getTokenTypesViaATN(text: string, lexerATN: LexerATNSimulator): number[] {
+        const input = CharStream.fromString(text);
+        const tokenTypes: number[] = [];
+        let ttype: number;
+
+        do {
+            ttype = lexerATN.match(input, Lexer.DEFAULT_MODE);
+            tokenTypes.push(ttype);
+        } while (ttype !== Token.EOF);
+
+        return tokenTypes;
+    }
+
+    /*private static execRecognizer(grammarFileName: string, grammarStr: string,
+        parserName: string, lexerName: string, startRuleName: string,
+        input: string, showDiagnosticErrors: boolean,
+        workingDir: string, saveTestDir: boolean): ExecutedState {
+        let runOptions = ToolTestUtils.createOptionsForJavaToolTests(grammarFileName, grammarStr, parserName, lexerName,
+            false, true, startRuleName, input,
+            false, showDiagnosticErrors, Stage.Execute);
+        {
+            // This holds the final error to throw (if any).
+            let error: java.lang.Throwable | undefined;
+
+            const runner: JavaRunner = new JavaRunner(workingDir, saveTestDir);
+            try {
+                try {
+                    let result = runner.run(runOptions);
+                    if (!(result instanceof ExecutedState)) {
+                        fail(result.getErrorMessage());
+                    }
+                    return result as ExecutedState;
+                }
+                finally {
+                    error = closeResources([runner]);
+                }
+            } catch (e) {
+                error = handleResourceError(e, error);
+            } finally {
+                throwResourceError(error);
+            }
+        }
+
+    } */
 }

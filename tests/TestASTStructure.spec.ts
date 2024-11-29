@@ -79,8 +79,7 @@ describe("TestASTStructure", () => {
         const ast = ParseTreeToASTConverter.convertGrammarSpecToAST(context, tokenStream);
 
         const actual = ast.toStringTree();
-        // TODO: const expecting = "(PARSER_GRAMMAR P (tokens { A B) (@ header {foo}) (RULES (RULE a (BLOCK (ALT A)))))";
-        const expecting = "(PARSER_GRAMMAR P (tokens A B) (@ header {foo}) (RULES (RULE a (BLOCK (ALT A)))))";
+        const expecting = "(PARSER_GRAMMAR P (tokens { A B) (@ header {foo}) (RULES (RULE a (BLOCK (ALT A)))))";
         expect(actual).toBe(expecting);
     });
 
@@ -94,7 +93,7 @@ describe("TestASTStructure", () => {
         const ast = ParseTreeToASTConverter.convertGrammarSpecToAST(context, tokenStream);
 
         const actual = ast.toStringTree();
-        const expecting = "(PARSER_GRAMMAR P (@ header {foo}) (tokens A B) (RULES (RULE a (BLOCK (ALT A)))))";
+        const expecting = "(PARSER_GRAMMAR P (@ header {foo}) (tokens { A B) (RULES (RULE a (BLOCK (ALT A)))))";
         expect(actual).toBe(expecting);
     });
 

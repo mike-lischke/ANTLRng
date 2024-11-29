@@ -14,7 +14,7 @@ import { OutputModelObject } from "./OutputModelObject.js";
 export abstract class OutputFile extends OutputModelObject {
     public readonly fileName: string;
     public readonly grammarFileName: string;
-    public readonly tokenLabelType?: string;
+    public readonly TokenLabelType?: string;
     public readonly inputSymbolType?: string;
     public readonly ANTLRVersion = antlrVersion;
 
@@ -23,8 +23,8 @@ export abstract class OutputFile extends OutputModelObject {
         this.fileName = fileName;
         const g = factory.getGrammar()!;
         this.grammarFileName = g.fileName.replace("\\", "/");
-        this.tokenLabelType = g.getOptionString("TokenLabelType");
-        this.inputSymbolType = this.tokenLabelType;
+        this.TokenLabelType = g.getOptionString("TokenLabelType");
+        this.inputSymbolType = this.TokenLabelType;
     }
 
     public buildNamedActions(g: Grammar, filter?: (ast: ActionAST) => boolean): Map<string, Action> {

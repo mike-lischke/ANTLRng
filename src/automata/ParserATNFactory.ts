@@ -31,7 +31,6 @@ import { GrammarASTWithOptions } from "../tool/ast/GrammarASTWithOptions.js";
 import { PredAST } from "../tool/ast/PredAST.js";
 import { QuantifierAST } from "../tool/ast/QuantifierAST.js";
 import { TerminalAST } from "../tool/ast/TerminalAST.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { LeftRecursiveRule } from "../tool/LeftRecursiveRule.js";
 import { LexerGrammar } from "../tool/LexerGrammar.js";
@@ -111,7 +110,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
                 const analyzer = new LL1Analyzer();
                 if (analyzer.look(this.atn, startState, atnState2).contains(Token.EPSILON)) {
-                    ErrorManager.get().grammarError(ErrorType.EPSILON_OPTIONAL, this.g.fileName,
+                    this.g.tool.errorManager.grammarError(ErrorType.EPSILON_OPTIONAL, this.g.fileName,
                         (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
                     continue optionalCheck;
                 }
@@ -185,7 +184,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
     /** Not valid for non-lexers. */
     public range(a: GrammarAST, b: GrammarAST): IStatePair | null {
-        ErrorManager.get().grammarError(ErrorType.TOKEN_RANGE_IN_PARSER, this.g.fileName, a.token!, a.token?.text,
+        this.g.tool.errorManager.grammarError(ErrorType.TOKEN_RANGE_IN_PARSER, this.g.fileName, a.token!, a.token?.text,
             b.token?.text);
 
         // From a..b, yield ATN for just a.
@@ -225,7 +224,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     public _ruleRef(node: GrammarAST): IStatePair | null {
         const r = this.g.getRule(node.getText());
         if (r === null) {
-            ErrorManager.get().grammarError(ErrorType.INTERNAL_ERROR, this.g.fileName, node.token!,
+            this.g.tool.errorManager.grammarError(ErrorType.INTERNAL_ERROR, this.g.fileName, node.token!,
                 "Rule " + node.getText() + " undefined");
 
             return null;
@@ -505,7 +504,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         const blkAST = plusAST.getChild(0) as BlockAST;
         if ((plusAST as QuantifierAST).isGreedy()) {
             if (this.expectNonGreedy(blkAST)) {
-                ErrorManager.get().grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
+                this.g.tool.errorManager.grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
                     plusAST.token!, plusAST.token?.text);
             }
 
@@ -551,7 +550,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         const blkAST = starAST.getChild(0) as BlockAST;
         if ((starAST as QuantifierAST).isGreedy()) {
             if (this.expectNonGreedy(blkAST)) {
-                ErrorManager.get().grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
+                this.g.tool.errorManager.grammarError(ErrorType.EXPECTED_NON_GREEDY_WILDCARD_BLOCK, this.g.fileName,
                     starAST.token!, starAST.token?.text);
             }
 
@@ -677,12 +676,12 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
                 const errorType = rule instanceof LeftRecursiveRule
                     ? ErrorType.EPSILON_LR_FOLLOW
                     : ErrorType.EPSILON_CLOSURE;
-                ErrorManager.get().grammarError(errorType, this.g.fileName,
+                this.g.tool.errorManager.grammarError(errorType, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
             }
 
             if (lookahead.contains(Token.EOF)) {
-                ErrorManager.get().grammarError(ErrorType.EOF_CLOSURE, this.g.fileName,
+                this.g.tool.errorManager.grammarError(ErrorType.EOF_CLOSURE, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
             }
         }

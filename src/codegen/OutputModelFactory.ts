@@ -27,75 +27,75 @@ import type { BlockAST } from "../tool/ast/BlockAST.js";
 import type { GrammarAST } from "../tool/ast/GrammarAST.js";
 
 export interface OutputModelFactory {
-    getGrammar(): Grammar | null;
+    getGrammar(): Grammar | undefined;
 
-    getGenerator(): CodeGenerator | null;
+    getGenerator(): CodeGenerator | undefined;
 
     setController(controller: OutputModelController): void;
 
-    getController(): OutputModelController | null;
+    getController(): OutputModelController | undefined;
 
-    parserFile(fileName: string): ParserFile | null;
+    parserFile(fileName: string): ParserFile | undefined;
 
-    parser(file: ParserFile): Parser | null;
+    parser(file: ParserFile): Parser | undefined;
 
-    lexerFile(fileName: string): LexerFile | null;
+    lexerFile(fileName: string): LexerFile | undefined;
 
-    lexer(file: LexerFile): Lexer | null;
+    lexer(file: LexerFile): Lexer | undefined;
 
-    rule(r: Rule): RuleFunction | null;
+    rule(r: Rule): RuleFunction | undefined;
 
-    rulePostamble(func: RuleFunction, r: Rule): SrcOp[] | null;
+    rulePostamble(func: RuleFunction, r: Rule): SrcOp[] | undefined;
 
     // ELEMENT TRIGGERS
 
-    alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt | null;
+    alternative(alt: Alternative, outerMost: boolean): CodeBlockForAlt | undefined;
 
     finishAlternative(blk: CodeBlockForAlt, ops: SrcOp[]): CodeBlockForAlt;
 
-    epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt | null;
+    epsilon(alt: Alternative, outerMost: boolean): CodeBlockForAlt | undefined;
 
-    ruleRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | null;
+    ruleRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | undefined;
 
-    tokenRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | null;
+    tokenRef(ID: GrammarAST, label: GrammarAST | null, args: GrammarAST | null): SrcOp[] | undefined;
 
-    stringRef(ID: GrammarAST, label: GrammarAST | null): SrcOp[] | null;
+    stringRef(ID: GrammarAST, label: GrammarAST | null): SrcOp[] | undefined;
 
-    set(setAST: GrammarAST, label: GrammarAST | null, invert: boolean): SrcOp[] | null;
+    set(setAST: GrammarAST, label: GrammarAST | null, invert: boolean): SrcOp[] | undefined;
 
-    wildcard(ast: GrammarAST, labelAST: GrammarAST | null): SrcOp[] | null;
+    wildcard(ast: GrammarAST, labelAST: GrammarAST | null): SrcOp[] | undefined;
 
-    action(ast: ActionAST): SrcOp[] | null;
+    action(ast: ActionAST): SrcOp[] | undefined;
 
-    sempred(ast: ActionAST): SrcOp[] | null;
+    sempred(ast: ActionAST): SrcOp[] | undefined;
 
-    getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST | null): Choice | null;
+    getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], label: GrammarAST | null): Choice | undefined;
 
-    getEBNFBlock(ebnfRoot: GrammarAST | null, alts: CodeBlockForAlt[]): Choice | null;
+    getEBNFBlock(ebnfRoot: GrammarAST | null, alts: CodeBlockForAlt[]): Choice | undefined;
 
-    getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | null;
+    getLL1ChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | undefined;
 
-    getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | null;
+    getComplexChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[]): Choice | undefined;
 
-    getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null;
+    getLL1EBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined;
 
-    getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | null;
+    getComplexEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined;
 
-    getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[] | null;
+    getLL1Test(look: IntervalSet, blkAST: GrammarAST): SrcOp[] | undefined;
 
     needsImplicitLabel(ID: GrammarAST, op: LabeledOp): boolean;
 
     // CONTEXT INFO
 
-    getRoot(): OutputModelObject | null;
+    getRoot(): OutputModelObject | undefined;
 
     getCurrentRuleFunction(): RuleFunction | undefined;
 
-    getCurrentOuterMostAlt(): Alternative | null;
+    getCurrentOuterMostAlt(): Alternative | undefined;
 
-    getCurrentBlock(): CodeBlock | null;
+    getCurrentBlock(): CodeBlock | undefined;
 
-    getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt | null;
+    getCurrentOuterMostAlternativeBlock(): CodeBlockForOuterMostAlt | undefined;
 
     getCodeBlockLevel(): number;
 

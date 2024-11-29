@@ -10,6 +10,7 @@ import { Token } from "antlr4ng";
 import { writeFileSync } from "fs";
 import { AutoIndentWriter, ST, StringWriter, type IST, type STGroup } from "stringtemplate4ts";
 
+import { Constants } from "../Constants1.js";
 import { Tool } from "../Tool.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
@@ -18,8 +19,6 @@ import { OutputModelController } from "./OutputModelController.js";
 import { OutputModelWalker } from "./OutputModelWalker.js";
 import { ParserFactory } from "./ParserFactory.js";
 import { Target } from "./Target.js";
-import { Constants } from "../Constants1.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 
 // Possible targets:
 import { CppTarget } from "./target/CppTarget.js";
@@ -179,7 +178,7 @@ export class CodeGenerator {
             writeFileSync(fileName, w.toString(), "utf8");
         } catch (cause) {
             if (cause instanceof Error) {
-                ErrorManager.get().toolError(ErrorType.CANNOT_WRITE_FILE, cause, fileName);
+                this.g!.tool.errorManager.toolError(ErrorType.CANNOT_WRITE_FILE, cause, fileName);
             } else {
                 throw cause;
             }

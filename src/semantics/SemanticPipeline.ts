@@ -13,7 +13,6 @@ import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
 import { LeftRecursiveRuleTransformer } from "../analysis/LeftRecursiveRuleTransformer.js";
 import { LexerATNFactory } from "../automata/LexerATNFactory.js";
 import { isTokenName } from "../support/helpers.js";
-import { ErrorManager } from "../tool/ErrorManager.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import { Grammar } from "../tool/Grammar.js";
 import { LexerGrammar } from "../tool/LexerGrammar.js";
@@ -51,10 +50,7 @@ import { UseDefAnalyzer } from "./UseDefAnalyzer.js";
  *  tokens and rules from the imported grammars into a single collection.
  */
 export class SemanticPipeline {
-    public g: Grammar;
-
-    public constructor(g: Grammar) {
-        this.g = g;
+    public constructor(private g: Grammar) {
     }
 
     public process(): void {
@@ -63,21 +59,21 @@ export class SemanticPipeline {
         ruleCollector.process(this.g.ast);
 
         // DO BASIC / EASY SEMANTIC CHECKS
-        let prevErrors = ErrorManager.get().errors;
+        let prevErrors = this.g.tool.errorManager.errors;
         const basics = new BasicSemanticChecks(this.g, ruleCollector);
         basics.process();
-        if (ErrorManager.get().errors > prevErrors) {
+        if (this.g.tool.errorManager.errors > prevErrors) {
             return;
         }
 
         // TRANSFORM LEFT-RECURSIVE RULES
-        prevErrors = ErrorManager.get().errors;
+        prevErrors = this.g.tool.errorManager.errors;
         const transformer = new LeftRecursiveRuleTransformer(this.g.ast,
             Array.from(ruleCollector.nameToRuleMap.values()), this.g);
         transformer.translateLeftRecursiveRules();
 
         // don't continue if we got errors during left-recursion elimination
-        if (ErrorManager.get().errors > prevErrors) {
+        if (this.g.tool.errorManager.errors > prevErrors) {
             return;
         }
 
@@ -221,7 +217,7 @@ export class SemanticPipeline {
         // create token types for tokens { A, B, C } ALIASES
         for (const alias of tokensDefs) {
             if (g.getTokenType(alias.getText()) !== Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token!,
+                this.g.tool.errorManager.grammarError(ErrorType.TOKEN_NAME_REASSIGNMENT, g.fileName, alias.token!,
                     alias.getText());
             }
 
@@ -231,7 +227,7 @@ export class SemanticPipeline {
         // DEFINE TOKEN TYPES FOR TOKEN REFS LIKE ID, INT
         for (const idAST of tokenIDs) {
             if (g.getTokenType(idAST.getText()) === Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token!,
+                this.g.tool.errorManager.grammarError(ErrorType.IMPLICIT_TOKEN_DEFINITION, g.fileName, idAST.token!,
                     idAST.getText());
             }
 
@@ -245,7 +241,7 @@ export class SemanticPipeline {
             }
 
             if (g.getTokenType(termAST.getText()) === Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.IMPLICIT_STRING_DEFINITION, g.fileName, termAST.token!,
+                this.g.tool.errorManager.grammarError(ErrorType.IMPLICIT_STRING_DEFINITION, g.fileName, termAST.token!,
                     termAST.getText());
             }
         }
@@ -274,20 +270,20 @@ export class SemanticPipeline {
             // values in ANTLR grammar semantics.
 
             if (g.getTokenType(channelName) !== Token.INVALID_TYPE) {
-                ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_TOKEN, g.fileName, channel.token!,
-                    channelName);
+                this.g.tool.errorManager.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_TOKEN, g.fileName,
+                    channel.token!, channelName);
             }
 
             if (LexerATNFactory.COMMON_CONSTANTS.has(channelName)) {
-                ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName,
+                this.g.tool.errorManager.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName,
                     channel.token!, channelName);
             }
 
             if (outermost instanceof LexerGrammar) {
                 const lexerGrammar = outermost;
                 if (lexerGrammar.modes.has(channelName)) {
-                    ErrorManager.get().grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_MODE, g.fileName, channel.token!,
-                        channelName);
+                    this.g.tool.errorManager.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_MODE, g.fileName,
+                        channel.token!, channelName);
                 }
             }
 
