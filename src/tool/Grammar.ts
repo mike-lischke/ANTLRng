@@ -825,9 +825,10 @@ export class Grammar implements IGrammar, AttributeResolver {
      * @returns The token names of all tokens defined in the grammar.
      */
     public getTokenNames(): Array<string | null> {
+        const max = this.getMaxTokenType();
         const tokenNames: Array<string | null> = [];
-        for (let i = 0; i < tokenNames.length; i++) {
-            tokenNames[i] = this.getTokenName(i);
+        for (let i = 0; i <= max; ++i) {
+            tokenNames.push(this.getTokenName(i));
         }
 
         return tokenNames;

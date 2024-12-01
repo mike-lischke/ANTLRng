@@ -178,7 +178,7 @@ export class ATNDescriber {
             }
         }
 
-        return result.toString();
+        return result;
     }
 
     public getTokenName(t: number): string {
@@ -241,7 +241,7 @@ export class ATNDescriber {
     }
 
     private appendSets(input: string, data: number[], p: number, nsets: number): [number, string] {
-        let result = "";
+        let result = input;
 
         for (let i = 0; i < nsets; i++) {
             const nintervals = data[p++];

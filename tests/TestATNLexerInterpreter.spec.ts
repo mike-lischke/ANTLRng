@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { Token, Lexer, CharStream, ATN, ATNState, LexerATNSimulator, DFA } from "antlr4ng";
+import { ATN, CharStream, DFA, Lexer, LexerATNSimulator, Token } from "antlr4ng";
 import { LexerGrammar } from "../src/tool/index.js";
 import { ToolTestUtils } from "./ToolTestUtils.js";
 

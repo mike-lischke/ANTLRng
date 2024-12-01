@@ -10,7 +10,7 @@ import { mkdirSync, rmdirSync, writeFileSync } from "node:fs";
 import { expect } from "vitest";
 
 import {
-    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, PredictionMode, Token
+    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, Token
 } from "antlr4ng";
 
 import { tmpdir } from "node:os";

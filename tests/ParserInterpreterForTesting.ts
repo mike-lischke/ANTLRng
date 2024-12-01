@@ -17,8 +17,8 @@ class DummyParser extends Parser {
 
     readonly #atn: ATN;
 
-    public constructor(g: Grammar, atn: ATN, input: TokenStream) {
-        super(input);
+    public constructor(g: Grammar, atn: ATN, input: TokenStream | null) {
+        super(input!);
         this.g = g;
         this.#atn = atn;
 
@@ -55,8 +55,8 @@ export class ParserInterpreterForTesting {
     protected atnSimulator: ParserATNSimulator;
     protected input: TokenStream;
 
-    public constructor(g: Grammar, input?: TokenStream) {
-        if (!input) {
+    public constructor(g: Grammar, input?: TokenStream | null) {
+        if (input === undefined) {
             this.g = g;
         } else {
             this.parser = new DummyParser(g, g.atn!, input);
@@ -65,8 +65,7 @@ export class ParserInterpreterForTesting {
         }
     }
 
-    public adaptivePredict(input: TokenStream, decision: number,
-        outerContext: ParserRuleContext): number {
+    public adaptivePredict(input: TokenStream, decision: number, outerContext: ParserRuleContext | null): number {
         return this.atnSimulator.adaptivePredict(input, decision, outerContext);
     }
 

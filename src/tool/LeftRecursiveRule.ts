@@ -83,10 +83,9 @@ export class LeftRecursiveRule extends Rule {
      *  That maps predicted alt 1 to original alt 2 and predicted 2 to alt 4.
      */
     public getPrimaryAlts(): number[] {
-        const alts: number[] = [];
-        for (let i = 0; i < this.recPrimaryAlts.length; i++) { // recPrimaryAlts is a List not Map like recOpAlts
-            const altInfo = this.recPrimaryAlts[i];
-            alts[i + 1] = altInfo.altNum;
+        const alts: number[] = [0];
+        for (const altInfo of this.recPrimaryAlts) {
+            alts.push(altInfo.altNum);
         }
 
         return alts;
@@ -106,11 +105,9 @@ export class LeftRecursiveRule extends Rule {
      *  That maps predicted alt 1 to original alt 1 and predicted 2 to alt 3.
      */
     public getRecursiveOpAlts(): number[] {
-        const alts: number[] = [];
-        let alt = 1;
-        for (const altInfo of this.recOpAlts.values()) {
-            alts[alt] = altInfo.altNum;
-            alt++; // recOpAlts has alts possibly with gaps
+        const alts: number[] = [0];
+        for (const [_, altInfo] of this.recOpAlts) {
+            alts.push(altInfo.altNum);
         }
 
         return alts;
