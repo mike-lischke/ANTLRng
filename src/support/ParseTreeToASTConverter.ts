@@ -345,15 +345,27 @@ export class ParseTreeToASTConverter {
 
     public static convertEbnfSuffixToAST(ebnfSuffix: EbnfSuffixContext, ast: GrammarAST): GrammarAST | undefined {
         let blockAST;
-        if (ebnfSuffix.QUESTION().length > 0) {
-            blockAST = new OptionalBlockAST(ANTLRv4Lexer.OPTIONAL, this.createToken(ANTLRv4Lexer.OPTIONAL, ebnfSuffix),
-                ebnfSuffix.QUESTION().length === 1);
-        } else if (ebnfSuffix.STAR()) {
-            blockAST = new StarBlockAST(ANTLRv4Parser.CLOSURE, this.createToken(ANTLRv4Parser.STAR, ebnfSuffix),
-                ebnfSuffix.QUESTION().length === 0);
-        } else if (ebnfSuffix.PLUS()) {
-            blockAST = new PlusBlockAST(ANTLRv4Parser.POSITIVE_CLOSURE,
-                this.createToken(ANTLRv4Parser.PLUS, ebnfSuffix), ebnfSuffix.QUESTION().length === 0);
+        const first = ebnfSuffix.getChild(0) as TerminalNode;
+        switch (first.symbol.type) {
+            case ANTLRv4Parser.QUESTION: {
+                blockAST = new OptionalBlockAST(ANTLRv4Lexer.OPTIONAL, this.createToken(ANTLRv4Lexer.OPTIONAL,
+                    ebnfSuffix), ebnfSuffix.QUESTION().length === 1);
+                break;
+            }
+
+            case ANTLRv4Parser.STAR: {
+                blockAST = new StarBlockAST(ANTLRv4Lexer.CLOSURE, this.createToken(ANTLRv4Lexer.CLOSURE, ebnfSuffix),
+                    ebnfSuffix.QUESTION().length === 0);
+                break;
+            }
+
+            case ANTLRv4Parser.PLUS: {
+                blockAST = new PlusBlockAST(ANTLRv4Lexer.POSITIVE_CLOSURE,
+                    this.createToken(ANTLRv4Lexer.POSITIVE_CLOSURE, ebnfSuffix), ebnfSuffix.QUESTION().length === 0);
+                break;
+            }
+
+            default:
         }
 
         ast.addChild(blockAST);
@@ -882,6 +894,10 @@ export class ParseTreeToASTConverter {
             token.column = context.start!.column;
         } else {
             token = CommonToken.fromToken(context.symbol);
+            token.type = type;
+            token.tokenIndex = context.symbol.tokenIndex;
+            token.line = context.symbol.line;
+            token.column = context.symbol.column;
         }
 
         if (text) {

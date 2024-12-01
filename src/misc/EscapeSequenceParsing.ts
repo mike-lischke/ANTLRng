@@ -129,26 +129,22 @@ export abstract class EscapeSequenceParsing {
                     parseLength: offset - startOff,
                 };
             } else {
-                if (escaped < CharSupport.ANTLRLiteralEscapedCharValue.length) {
-                    let codePoint = CharSupport.ANTLRLiteralEscapedCharValue[escaped];
-                    if (codePoint === 0) {
-                        if (escaped !== 0x5D && escaped !== 0x2D) { // escape ']' and '-' only in char sets.
-                            return EscapeSequenceParsing.invalid(startOff, startOff + 1);
-                        } else {
-                            codePoint = escaped;
-                        }
+                let codePoint = CharSupport.ANTLRLiteralEscapedCharValue.get(s[offset - 1]);
+                if (codePoint === undefined) {
+                    if (escaped !== 0x5D && escaped !== 0x2D) { // escape ']' and '-' only in char sets.
+                        return EscapeSequenceParsing.invalid(startOff, startOff + 1);
+                    } else {
+                        codePoint = escaped;
                     }
-
-                    return {
-                        type: ResultType.CodePoint,
-                        codePoint,
-                        propertyIntervalSet: EscapeSequenceParsing.#emptySet,
-                        startOffset: startOff,
-                        parseLength: offset - startOff,
-                    };
-                } else {
-                    return EscapeSequenceParsing.invalid(startOff, s.length - 1);
                 }
+
+                return {
+                    type: ResultType.CodePoint,
+                    codePoint,
+                    propertyIntervalSet: EscapeSequenceParsing.#emptySet,
+                    startOffset: startOff,
+                    parseLength: offset - startOff,
+                };
             }
         }
     }

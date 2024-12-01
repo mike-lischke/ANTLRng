@@ -980,7 +980,7 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:401:5: ( ^(a= ASSIGN ID v= optionValue ) )
             // org/antlr/v4/parse/GrammarTreeVisitor.g:401:9: ^(a= ASSIGN ID v= optionValue )
             {
-                //const a = this.match(this.input!, ANTLRv4Parser.ASSIGN, null) as GrammarAST | null;
+                this.match(this.input, ANTLRv4Parser.ASSIGN, null) as GrammarAST | null;
                 this.match(this.input, Constants.DOWN, null);
                 ID4 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST | null;
                 v = this.optionValue();

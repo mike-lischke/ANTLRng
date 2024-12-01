@@ -10,7 +10,7 @@ import { mkdirSync, rmdirSync, writeFileSync } from "node:fs";
 import { expect } from "vitest";
 
 import {
-    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, Token
+    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, PredictionMode, Token
 } from "antlr4ng";
 
 import { tmpdir } from "node:os";
@@ -23,32 +23,11 @@ import { Tool, type Grammar, type LexerGrammar } from "../src/tool/index.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
 
 export class ToolTestUtils {
-    /*public static execLexer(grammarFileName: string, grammarStr: string, lexerName: string,
-        input: string): ExecutedState;
-    public static execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string,
-        tempDir: string, saveTestDir: boolean): ExecutedState;
-    public static execLexer(...args: unknown[]): ExecutedState {
-        switch (args.length) {
-            case 4: {
-                const [grammarFileName, grammarStr, lexerName, input] = args as [string, string, string, string];
+    /*public static execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string,
+        tempDir?: string, saveTestDir?: boolean): ExecutedState {
+        return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, null, lexerName,
+            null, input, false, tempDir, saveTestDir);
 
-                return ToolTestUtils.execLexer(grammarFileName, grammarStr, lexerName, input, null, false);
-            }
-
-            case 6: {
-                const [grammarFileName, grammarStr, lexerName, input, tempDir, saveTestDir] =
-                    args as [string, string, string, string, Path, boolean];
-
-                return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, null, lexerName,
-                    null, input, false, tempDir, saveTestDir);
-
-                break;
-            }
-
-            default: {
-                throw new Error(`Invalid number of arguments`);
-            }
-        }
     }*/
 
     /*public static execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
@@ -202,7 +181,7 @@ export class ToolTestUtils {
         }
     }
 
-    /**     * Run ANTLR on stuff in workdir and error queue back     */
+    /** Run ANTLR on stuff in workdir and error queue back. */
     public static antlrOnFile(workdir: string, targetName: string | null, grammarFileName: string,
         defaultListener: boolean, ...extraOptions: string[]): string[] {
         const options: string[] = [...extraOptions];
@@ -279,35 +258,19 @@ export class ToolTestUtils {
         return tokenTypes;
     }
 
-    /*private static execRecognizer(grammarFileName: string, grammarStr: string,
-        parserName: string, lexerName: string, startRuleName: string,
-        input: string, showDiagnosticErrors: boolean,
+    /*private static execRecognizer(grammarFileName: string, grammarStr: string, parserName: string | null,
+        lexerName: string | null, startRuleName: string, input: string, showDiagnosticErrors: boolean,
         workingDir: string, saveTestDir: boolean): ExecutedState {
-        let runOptions = ToolTestUtils.createOptionsForJavaToolTests(grammarFileName, grammarStr, parserName, lexerName,
-            false, true, startRuleName, input,
-            false, showDiagnosticErrors, Stage.Execute);
-        {
-            // This holds the final error to throw (if any).
-            let error: java.lang.Throwable | undefined;
 
-            const runner: JavaRunner = new JavaRunner(workingDir, saveTestDir);
-            try {
-                try {
-                    let result = runner.run(runOptions);
-                    if (!(result instanceof ExecutedState)) {
-                        fail(result.getErrorMessage());
-                    }
-                    return result as ExecutedState;
-                }
-                finally {
-                    error = closeResources([runner]);
-                }
-            } catch (e) {
-                error = handleResourceError(e, error);
-            } finally {
-                throwResourceError(error);
-            }
+        const runOptions = this.createRunOptions(grammarFileName, grammarStr, parserName, lexerName, false, true,
+            startRuleName, input, false, showDiagnosticErrors);
+
+        const runner: JavaRunner = new JavaRunner(workingDir, saveTestDir);
+        const result = runner.run(runOptions);
+        if (!(result instanceof ExecutedState)) {
+            fail(result.getErrorMessage());
         }
 
-    } */
+        return result as ExecutedState;
+    }*/
 }

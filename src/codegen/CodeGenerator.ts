@@ -90,9 +90,7 @@ export class CodeGenerator {
     }
 
     public generateLexer(header?: boolean): IST {
-        if (!header) {
-            return this.generateLexer(false);
-        }
+        header ??= false;
 
         return this.walk(this.createController().buildLexerOutputModel(header), header);
 
@@ -105,9 +103,7 @@ export class CodeGenerator {
     }
 
     public generateListener(header?: boolean): IST {
-        if (!header) {
-            return this.generateListener(false);
-        }
+        header ??= false;
 
         return this.walk(this.createController().buildListenerOutputModel(header), header);
 
@@ -122,17 +118,13 @@ export class CodeGenerator {
     }
 
     public generateVisitor(header?: boolean): IST {
-        if (!header) {
-            return this.generateVisitor(false);
-        }
+        header ??= false;
 
         return this.walk(this.createController().buildVisitorOutputModel(header), header);
     }
 
     public generateBaseVisitor(header?: boolean): IST {
-        if (!header) {
-            return this.generateBaseVisitor(false);
-        }
+        header ??= false;
 
         return this.walk(this.createController().buildBaseVisitorOutputModel(header), header);
     }

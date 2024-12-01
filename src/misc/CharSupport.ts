@@ -9,13 +9,26 @@ import { IntervalSet } from "antlr4ng";
 import { Character } from "../support/Character.js";
 
 export class CharSupport {
-    /**
-     * When converting ANTLR char and string literals, here is the
-     *  value set of escape chars.
-     */
-    public static readonly ANTLRLiteralEscapedCharValue: Record<string, number> = {};
+    /** When converting ANTLR char and string literals, here is the value set of escape chars. */
+    public static readonly ANTLRLiteralEscapedCharValue = new Map<string, number>([
+        ["n", "\n".codePointAt(0)!],
+        ["r", "\r".codePointAt(0)!],
+        ["t", "\t".codePointAt(0)!],
+        ["b", "\b".codePointAt(0)!],
+        ["f", "\f".codePointAt(0)!],
+        ["\\", "\\".codePointAt(0)!],
+    ]);
 
-    private static readonly validEscapeCharacters: string = `btn\\fr"'`;
+    /** Given a char, we need to be able to show as an ANTLR literal. */
+    public static readonly ANTLRLiteralCharValueEscape = new Map<number, string>([
+        ["\n".codePointAt(0)!, "\\n"],
+        ["\r".codePointAt(0)!, "\\r"],
+        ["\t".codePointAt(0)!, "\\t"],
+        ["\b".codePointAt(0)!, "\\b"],
+        ["\f".codePointAt(0)!, "\\f"],
+        ["\\".codePointAt(0)!, "\\\\"],
+    ]);
+
     /**
      * @param c The code point to convert to an ANTLR char literal.
      *
@@ -29,9 +42,9 @@ export class CharSupport {
         if (c < 0) {
             result = "<INVALID>";
         } else {
-            const char = String.fromCodePoint(c);
-            if (this.validEscapeCharacters.includes(char)) {
-                result = char;
+            const charValueEscape = this.ANTLRLiteralCharValueEscape.get(c);
+            if (charValueEscape) {
+                result = charValueEscape;
             } else {
                 if (Character.UnicodeBlock.of(c) === Character.UnicodeBlock.BASIC_LATIN &&
                     !Character.isISOControl(c)) {
@@ -41,7 +54,7 @@ export class CharSupport {
                         if (c === 0x27) { // escape single quote
                             result = "\\'";
                         } else {
-                            result = char;
+                            result = String.fromCodePoint(c);
                         }
                     }
                 } else {
@@ -145,23 +158,23 @@ export class CharSupport {
     public static getCharValueFromCharInGrammarLiteral(cstr: string): number {
         switch (cstr.length) {
             case 1: { // 'x'
+                // no escape char
                 return cstr.codePointAt(0)!;
             }
 
-            // no escape char
             case 2: {
                 if (!cstr.startsWith("\\")) {
                     return -1;
                 }
 
                 // '\x'  (antlr lexer will catch invalid char)
-                const escChar = cstr.codePointAt(0)!;
-                if (escChar === 0x27) { // '
-                    return escChar;
+                const escapedChar = cstr[1];
+                if (escapedChar === "'") {
+                    return escapedChar.codePointAt(0)!;
                 }
 
                 // escape quote only in string literals.
-                return this.validEscapeCharacters.includes(cstr[0]) ? escChar : -1;
+                return this.ANTLRLiteralEscapedCharValue.get(escapedChar) ?? -1;
             }
 
             case 6: {
@@ -202,7 +215,7 @@ export class CharSupport {
         const unicodeChars = cstr.substring(startOff, endOff);
         const result = parseInt(unicodeChars, 16);
 
-        return result;
+        return isNaN(result) ? -1 : result;
     }
 
     public static capitalize(s: string): string {
@@ -223,15 +236,5 @@ export class CharSupport {
             ? CharSupport.getANTLRCharLiteralForChar(codePointStart) + ".." +
             CharSupport.getANTLRCharLiteralForChar(codePointEnd)
             : CharSupport.getANTLRCharLiteralForChar(codePointStart);
-    }
-
-    static {
-        CharSupport.ANTLRLiteralEscapedCharValue.n = 0x0A; // '\n'
-        CharSupport.ANTLRLiteralEscapedCharValue.r = 0x0D; // '\r'
-        CharSupport.ANTLRLiteralEscapedCharValue.t = 0x09; // '\t'
-        CharSupport.ANTLRLiteralEscapedCharValue.b = 0x08; // '\b'
-        CharSupport.ANTLRLiteralEscapedCharValue.f = 0x0C; // '\f'
-        CharSupport.ANTLRLiteralEscapedCharValue["\\"] = 0x5C; // '\\'
-        CharSupport.ANTLRLiteralEscapedCharValue[0x5C] = 0x5C;
     }
 };

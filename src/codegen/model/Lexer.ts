@@ -16,7 +16,7 @@ export class Lexer extends Recognizer {
     public readonly escapedChannels = new Map<string, number>();
     public readonly file: LexerFile;
     public readonly modes: string[];
-    public readonly escapedModeNames: string[];
+    public readonly escapedModeNames: string[] = [];
 
     public actionFuncs = new Map<Rule, RuleActionFunction>();
 

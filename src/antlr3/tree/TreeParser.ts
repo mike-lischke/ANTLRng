@@ -213,8 +213,6 @@ export class TreeParser extends BaseRecognizer {
      *  from tree parser errors inline...
      */
     protected override recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet): CommonTree | null {
-        //throw new InputMismatchException(ttype, input as TreeNodeStream);
-
         throw new Error("recoverFromMismatchedToken");
     }
 

@@ -1,13 +1,8 @@
 lexer grammar TestLexer;
 
-A:
-    'a'
+CMT:
+    '/*' (CMT | .)*? '*/'
 ;
 
-B:
-    'b'
-;
-
-C:
-    'c'
+WS: (' ' | '\n')+
 ;
