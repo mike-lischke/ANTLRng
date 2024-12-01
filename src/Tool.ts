@@ -354,8 +354,10 @@ export class Tool implements ITool {
 
     public parseGrammar(fileName: string): GrammarRootAST | undefined {
         try {
-            const content = readFileSync(fileName, { encoding: grammarOptions.grammarEncoding as BufferEncoding });
-            const input = CharStream.fromString(content.toString());
+            const encoding = grammarOptions.grammarEncoding ?? "utf-8";
+            const content = readFileSync(fileName, { encoding: encoding as BufferEncoding });
+            const input = CharStream.fromString(content);
+            input.name = basename(fileName);
 
             return this.parse(fileName, input);
         } catch (ioe) {

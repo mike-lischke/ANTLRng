@@ -51,7 +51,7 @@ export class GrammarTreeVisitor extends TreeParser {
         "LOCALS", "LPAREN", "LT", "MODE", "NESTED_ACTION", "NLCHARS", "NOT", "NameChar",
         "NameStartChar", "OPTIONS", "OR", "PARSER", "PLUS", "PLUS_ASSIGN", "POUND",
         "QUESTION", "RANGE", "RARROW", "RBRACE", "RETURNS", "RPAREN", "RULE_REF",
-        "SEMI", "SEMPRED", "SRC", "STAR", "STRING_LITERAL", "THROWS", "TOKENS_SPEC",
+        "SEMI", "SEMPRED", "SRC", "STAR", "STRING_LITERAL", "THROWS", "TOKENS",
         "TOKEN_REF", "UNICODE_ESC", "UNICODE_EXTENDED_ESC", "UnicodeBOM", "WS",
         "WSCHARS", "WSNLCHARS", "ALT", "BLOCK", "CLOSURE", "COMBINED", "ELEMENT_OPTIONS",
         "EPSILON", "LEXER_ACTION_CALL", "LEXER_ALT_ACTION", "OPTIONAL", "POSITIVE_CLOSURE",
@@ -705,7 +705,7 @@ export class GrammarTreeVisitor extends TreeParser {
             // org/antlr/v4/parse/GrammarTreeVisitor.g:364:2: ( ( prequelConstruct )+ |)
             let alt3 = 2;
             const LA3_0 = this.input.LA(1);
-            if ((LA3_0 === ANTLRv4Parser.AT || LA3_0 === ANTLRv4Parser.CHANNELS || LA3_0 === ANTLRv4Parser.IMPORT || LA3_0 === ANTLRv4Parser.OPTIONS || LA3_0 === ANTLRv4Parser.TOKENS_SPEC)) {
+            if ((LA3_0 === ANTLRv4Parser.AT || LA3_0 === ANTLRv4Parser.CHANNELS || LA3_0 === ANTLRv4Parser.IMPORT || LA3_0 === ANTLRv4Parser.OPTIONS || LA3_0 === ANTLRv4Parser.TOKENS)) {
                 alt3 = 1;
             } else {
                 if ((LA3_0 === ANTLRv4Parser.RULES)) {
@@ -728,7 +728,7 @@ export class GrammarTreeVisitor extends TreeParser {
                         while (true) {
                             let alt2 = 2;
                             const LA2_0 = this.input.LA(1);
-                            if ((LA2_0 === ANTLRv4Parser.AT || LA2_0 === ANTLRv4Parser.CHANNELS || LA2_0 === ANTLRv4Parser.IMPORT || LA2_0 === ANTLRv4Parser.OPTIONS || LA2_0 === ANTLRv4Parser.TOKENS_SPEC)) {
+                            if ((LA2_0 === ANTLRv4Parser.AT || LA2_0 === ANTLRv4Parser.CHANNELS || LA2_0 === ANTLRv4Parser.IMPORT || LA2_0 === ANTLRv4Parser.OPTIONS || LA2_0 === ANTLRv4Parser.TOKENS)) {
                                 alt2 = 1;
                             }
 
@@ -809,7 +809,7 @@ export class GrammarTreeVisitor extends TreeParser {
                     break;
                 }
 
-                case ANTLRv4Parser.TOKENS_SPEC: {
+                case ANTLRv4Parser.TOKENS: {
                     {
                         alt4 = 3;
                     }
@@ -1189,7 +1189,7 @@ export class GrammarTreeVisitor extends TreeParser {
     }
 
     // $ANTLR start "tokensSpec"
-    // org/antlr/v4/parse/GrammarTreeVisitor.g:443:1: tokensSpec : ^( TOKENS_SPEC ( tokenSpec )+ ) ;
+    // org/antlr/v4/parse/GrammarTreeVisitor.g:443:1: tokensSpec : ^( TOKENS ( tokenSpec )+ ) ;
     public tokensSpec(): GrammarTreeVisitor.tokensSpec_return {
         const retval = new GrammarTreeVisitor.tokensSpec_return();
         retval.start = this.input.LT(1);
@@ -1197,10 +1197,10 @@ export class GrammarTreeVisitor extends TreeParser {
         this.enterTokensSpec((retval.start as GrammarAST));
 
         try {
-            // org/antlr/v4/parse/GrammarTreeVisitor.g:450:2: ( ^( TOKENS_SPEC ( tokenSpec )+ ) )
-            // org/antlr/v4/parse/GrammarTreeVisitor.g:450:6: ^( TOKENS_SPEC ( tokenSpec )+ )
+            // org/antlr/v4/parse/GrammarTreeVisitor.g:450:2: ( ^( TOKENS ( tokenSpec )+ ) )
+            // org/antlr/v4/parse/GrammarTreeVisitor.g:450:6: ^( TOKENS ( tokenSpec )+ )
             {
-                this.match(this.input, ANTLRv4Parser.TOKENS_SPEC, null);
+                this.match(this.input, ANTLRv4Parser.TOKENS, null);
                 this.match(this.input, Constants.DOWN, null);
                 // org/antlr/v4/parse/GrammarTreeVisitor.g:450:20: ( tokenSpec )+
                 let cnt8 = 0;

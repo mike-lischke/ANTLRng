@@ -70,7 +70,7 @@ export class ToolTestUtils {
             JavaRunner.runtimeTestParserName, PredictionMode.LL, true);
     }*/
 
-    public static testErrors(pairs: string[], printTree: boolean): void {
+    public static testErrors(pairs: string[], includeWarnings: boolean): void {
         for (let i = 0; i < pairs.length; i += 2) {
             const grammarStr = pairs[i];
             const expected = pairs[i + 1];
@@ -81,7 +81,7 @@ export class ToolTestUtils {
             const tempDirName = "AntlrTestErrors-" + Date.now();
             const tempTestDir = join(tmpdir(), tempDirName);
 
-            const errors = this.antlrOnString(tempTestDir, null, fileName, grammarStr, false);
+            const errors = this.antlrOnString(includeWarnings, tempTestDir, null, fileName, grammarStr, false);
 
             let actual = "";
             errors.forEach((error) => {
@@ -169,21 +169,22 @@ export class ToolTestUtils {
     }
 
     /** Write a grammar to tmpdir and run antlr */
-    public static antlrOnString(workdir: string, targetName: string | null, grammarFileName: string, grammarStr: string,
-        defaultListener: boolean, ...extraOptions: string[]): string[] {
+    public static antlrOnString(includeWarnings: boolean, workdir: string, targetName: string | null,
+        grammarFileName: string, grammarStr: string, defaultListener: boolean, ...extraOptions: string[]): string[] {
         mkdirSync(workdir);
         try {
             writeFileSync(join(workdir, grammarFileName), grammarStr);
 
-            return this.antlrOnFile(workdir, targetName, grammarFileName, defaultListener, ...extraOptions);
+            return this.antlrOnFile(includeWarnings, workdir, targetName, grammarFileName, defaultListener,
+                ...extraOptions);
         } finally {
             rmdirSync(workdir, { recursive: true });
         }
     }
 
     /** Run ANTLR on stuff in workdir and error queue back. */
-    public static antlrOnFile(workdir: string, targetName: string | null, grammarFileName: string,
-        defaultListener: boolean, ...extraOptions: string[]): string[] {
+    public static antlrOnFile(includeWarnings: boolean, workdir: string, targetName: string | null,
+        grammarFileName: string, defaultListener: boolean, ...extraOptions: string[]): string[] {
         const options: string[] = [...extraOptions];
 
         if (targetName !== null) {
@@ -218,16 +219,17 @@ export class ToolTestUtils {
         antlr.processGrammarsOnCommandLine();
         const errors: string[] = [];
 
-        if (!defaultListener && queue.errors.length > 0) {
-            for (const error of queue.errors) {
-                const msgST = antlr.errorManager.getMessageTemplate(error)!;
+        if (!defaultListener && includeWarnings) {
+            for (const entry of queue.all) {
+                const msgST = antlr.errorManager.getMessageTemplate(entry)!;
                 errors.push(msgST.render());
             }
-        }
-
-        if (!defaultListener && queue.warnings.length > 0) {
-            for (const _warning of queue.warnings) {
-                // antlrToolErrors.append(warning); warnings are hushed
+        } else {
+            if (!defaultListener && queue.errors.length > 0) {
+                for (const error of queue.errors) {
+                    const msgST = antlr.errorManager.getMessageTemplate(error)!;
+                    errors.push(msgST.render());
+                }
             }
         }
 

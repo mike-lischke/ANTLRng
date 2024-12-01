@@ -6,7 +6,7 @@
 // cspell: ignore RULEMODIFIERS, ruleref
 
 import {
-    CommonToken, ParserRuleContext, type CharStream, type TerminalNode, type TokenSource, type TokenStream
+    CommonToken, ParserRuleContext, type TerminalNode, type TokenStream
 } from "antlr4ng";
 
 import {
@@ -276,7 +276,7 @@ export class ParseTreeToASTConverter {
 
     public static convertTokensSpec(tokensSpec: TokensSpecContext, ast: GrammarAST): void {
         if (tokensSpec.idList()) {
-            const tokens = this.createVirtualASTNode(GrammarAST, ANTLRv4Parser.TOKENS_SPEC, tokensSpec);
+            const tokens = this.createVirtualASTNode(GrammarAST, ANTLRv4Parser.TOKENS, tokensSpec);
             ast.addChild(tokens);
 
             tokensSpec.idList()!.identifier().forEach((id) => {
@@ -929,9 +929,7 @@ export class ParseTreeToASTConverter {
         ref: ParserRuleContext | TerminalNode, text?: string): T {
 
         const sourceToken = ref instanceof ParserRuleContext ? ref.start! : ref.symbol;
-        const source: [TokenSource | null, CharStream | null] = [sourceToken.tokenSource, sourceToken.inputStream];
-        const token = CommonToken.fromSource(source, astType, Constants.DEFAULT_TOKEN_CHANNEL, sourceToken.start,
-            sourceToken.stop);
+        const token = this.createToken(astType, ref, text);
 
         if (text) {
             token.text = text;

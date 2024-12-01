@@ -317,7 +317,8 @@ export class BasicSemanticChecks extends GrammarTreeVisitor {
         }
 
         // Don't warn about diff if this is implicit lexer.
-        if (fullyQualifiedName.startsWith(nameToken.text!) &&
+        const fileName = fullyQualifiedName.substring(0, fullyQualifiedName.lastIndexOf("."));
+        if (fileName !== nameToken.text! &&
             fullyQualifiedName !== Constants.GRAMMAR_FROM_STRING_NAME) {
             this.g.tool.errorManager.grammarError(ErrorType.FILE_AND_GRAMMAR_NAME_DIFFER, fullyQualifiedName, nameToken,
                 nameToken.text, fullyQualifiedName);
