@@ -179,38 +179,38 @@ describe("TestCommonTokenStream", () => {
 
         const tokens = new CommonTokenStream(lexer);
         tokens.fill();
-        expect(tokens.getHiddenTokensToLeft(0)).toBeUndefined();
-        expect(tokens.getHiddenTokensToRight(0));
+        expect(tokens.getHiddenTokensToLeft(0, -1)).toBeUndefined();
+        expect(tokens.getHiddenTokensToRight(0, -1));
 
-        expect(tokens.getHiddenTokensToLeft(1)!.join(", ")).toBe("[@0,0:0=' ',<1>,channel=1,0:-1]");
-        expect(tokens.getHiddenTokensToRight(1)!.join(", ")).toBe("[@2,0:0=' ',<1>,channel=1,0:-1]");
+        expect(tokens.getHiddenTokensToLeft(1, -1)!.join(", ")).toBe("[@0,0:0=' ',<1>,channel=1,0:-1]");
+        expect(tokens.getHiddenTokensToRight(1, -1)!.join(", ")).toBe("[@2,0:0=' ',<1>,channel=1,0:-1]");
 
-        expect(tokens.getHiddenTokensToLeft(2)).toBeUndefined();
-        expect(tokens.getHiddenTokensToRight(2)).toBeUndefined();
+        expect(tokens.getHiddenTokensToLeft(2, -1)).toBeUndefined();
+        expect(tokens.getHiddenTokensToRight(2, -1)).toBeUndefined();
 
-        expect(tokens.getHiddenTokensToLeft(3)!.join(", ")).toBe("[@2,0:0=' ',<1>,channel=1,0:-1]");
-        expect(tokens.getHiddenTokensToRight(3)).toBeUndefined();
+        expect(tokens.getHiddenTokensToLeft(3, -1)!.join(", ")).toBe("[@2,0:0=' ',<1>,channel=1,0:-1]");
+        expect(tokens.getHiddenTokensToRight(3, -1)).toBeUndefined();
 
-        expect(tokens.getHiddenTokensToLeft(4)).toBeUndefined();
-        expect(tokens.getHiddenTokensToRight(4)!.join(", ")).toBe(
+        expect(tokens.getHiddenTokensToLeft(4, -1)).toBeUndefined();
+        expect(tokens.getHiddenTokensToRight(4, -1)!.join(", ")).toBe(
             "[@5,0:0=' ',<1>,channel=1,0:-1], [@6,0:0=' ',<1>,channel=1,0:-1]");
 
-        expect(tokens.getHiddenTokensToLeft(5)).toBeUndefined();
-        expect(tokens.getHiddenTokensToRight(5)!.join(", ")).toBe("[@6,0:0=' ',<1>,channel=1,0:-1]");
+        expect(tokens.getHiddenTokensToLeft(5, -1)).toBeUndefined();
+        expect(tokens.getHiddenTokensToRight(5, -1)!.join(", ")).toBe("[@6,0:0=' ',<1>,channel=1,0:-1]");
 
-        expect(tokens.getHiddenTokensToLeft(6)!.join(", ")).toBe("[@5,0:0=' ',<1>,channel=1,0:-1]");
-        expect(tokens.getHiddenTokensToRight(6)).toBeUndefined();
+        expect(tokens.getHiddenTokensToLeft(6, -1)!.join(", ")).toBe("[@5,0:0=' ',<1>,channel=1,0:-1]");
+        expect(tokens.getHiddenTokensToRight(6, -1)).toBeUndefined();
 
-        expect(tokens.getHiddenTokensToLeft(7)!.join(", ")).toBe(
+        expect(tokens.getHiddenTokensToLeft(7, -1)!.join(", ")).toBe(
             "[@5,0:0=' ',<1>,channel=1,0:-1], [@6,0:0=' ',<1>,channel=1,0:-1]");
-        expect(tokens.getHiddenTokensToRight(7)!.join(", ")).toBe(
+        expect(tokens.getHiddenTokensToRight(7, -1)!.join(", ")).toBe(
             "[@8,0:0=' ',<1>,channel=1,0:-1], [@9,0:0='\\n',<1>,channel=1,0:-1]",);
 
-        expect(tokens.getHiddenTokensToLeft(8)).toBeUndefined();
-        expect(tokens.getHiddenTokensToRight(8)!.join(", ")).toBe("[@9,0:0='\\n',<1>,channel=1,0:-1]");
+        expect(tokens.getHiddenTokensToLeft(8, -1)).toBeUndefined();
+        expect(tokens.getHiddenTokensToRight(8, -1)!.join(", ")).toBe("[@9,0:0='\\n',<1>,channel=1,0:-1]");
 
-        expect(tokens.getHiddenTokensToLeft(9)!.join(", ")).toBe("[@8,0:0=' ',<1>,channel=1,0:-1]");
-        expect(tokens.getHiddenTokensToRight(9)).toBeUndefined();
+        expect(tokens.getHiddenTokensToLeft(9, -1)!.join(", ")).toBe("[@8,0:0=' ',<1>,channel=1,0:-1]");
+        expect(tokens.getHiddenTokensToRight(9, -1)).toBeUndefined();
     });
 
     it("testSingleEOF", (): void => {

@@ -14,6 +14,8 @@ export interface IToolParameters {
     /** The grammar files. */
     args: string[];
 
+    define?: Record<string, string>,
+
     outputDirectory?: string,
     libDirectory?: string,
     generateATNDot?: boolean,
@@ -41,10 +43,13 @@ const parseBoolean = (value: string | null): boolean => {
     return lower === "true" || lower === "1" || lower === "on" || lower === "yes";
 };
 
-const parseKeyValuePair = (input: string): { key: string, value: string; } => {
-    const [key, value] = input.split("=");
+const defines: Record<string, string> = {};
 
-    return { key, value };
+const parseKeyValuePair = (input: string): Record<string, string> => {
+    const [key, value] = input.split("=");
+    defines[key] = value;
+
+    return defines;
 };
 
 const prepared = new Command()
@@ -61,7 +66,7 @@ const prepared = new Command()
     .option<boolean>("-v, --visitor [boolean]", "Generate parse tree visitor.", parseBoolean, false)
     .option("-p, --package <name>", "Specify a package/namespace for the generated code.")
     .option<boolean>("-d, --dependencies [boolean]", "Generate file dependencies.", parseBoolean, false)
-    .option("-D, --define <key=value>", "Set/override a grammar-level option.", parseKeyValuePair)
+    .option("-D, --define <key=value...>", "Set/override a grammar-level option.", parseKeyValuePair)
     .option<boolean>("-w, --warnings-are-errors [boolean]", "Treat warnings as errors.", parseBoolean, false)
     .option<boolean>("-f, --force-atn [boolean]", "Use the ATN simulator for all predictions.", parseBoolean, false)
     .option<boolean>("--log [boolean]", "Dump lots of logging info to antlr-timestamp.log.", parseBoolean, false)

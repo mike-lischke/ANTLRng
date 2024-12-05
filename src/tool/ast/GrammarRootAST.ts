@@ -93,8 +93,15 @@ export class GrammarRootAST extends GrammarASTWithOptions implements IGrammarRoo
     }
 
     public override getOptionString(key: string): string | undefined {
+        // Standard options.
         if (typeof grammarOptions[key] === "string") {
             return grammarOptions[key];
+        }
+
+        // Defines.
+        const define = grammarOptions.define?.[key];
+        if (define !== undefined) {
+            return define;
         }
 
         return super.getOptionString(key);

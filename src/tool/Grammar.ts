@@ -669,7 +669,7 @@ export class Grammar implements IGrammar, AttributeResolver {
             qualifiedName += this.name;
         }
 
-        if (this.isCombined() || (this.isLexer())) {
+        if (this.isCombined() /*|| (this.isLexer())*/) {
             suffix = Grammar.getGrammarTypeToFileNameSuffix(this.type);
         }
 

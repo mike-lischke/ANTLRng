@@ -20,8 +20,7 @@ import {
     type LexerRuleSpecContext, type ModeSpecContext, type NotSetContext, type OptionsSpecContext,
     type ParserRuleSpecContext, type PredicateOptionsContext, type PrequelConstructContext, type RuleActionContext,
     type RuleBlockContext, type RulerefContext, type RulesContext, type RuleSpecContext, type SetElementContext,
-    type TerminalDefContext, type TokensSpecContext,
-    type WildcardContext
+    type TerminalDefContext, type TokensSpecContext, type WildcardContext
 } from "../generated/ANTLRv4Parser.js";
 
 import { Constants } from "../Constants1.js";

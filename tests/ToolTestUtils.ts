@@ -6,21 +6,48 @@
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
-import { mkdirSync, rmdirSync, writeFileSync } from "node:fs";
 import { expect } from "vitest";
 
+import { mkdirSync, readFileSync, rmdirSync, writeFileSync } from "node:fs";
+
+import { ST } from "stringtemplate4ts";
 import {
-    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, Token
+    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, PredictionMode, Token
 } from "antlr4ng";
 
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { LexerATNFactory } from "../src/automata/LexerATNFactory.js";
 import { ParserATNFactory } from "../src/automata/ParserATNFactory.js";
 import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { DefaultToolListener } from "../src/tool/DefaultToolListener.js";
 import { Tool, type Grammar, type LexerGrammar } from "../src/tool/index.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
+import { exec, execSync } from "node:child_process";
+
+export interface IRunOptions {
+    grammarFileName: string;
+    grammarStr: string;
+    parserName: string | null;
+    lexerName: string | null;
+    grammarName: string;
+    useListener: boolean;
+    useVisitor: boolean;
+    startRuleName: string;
+    input: string;
+    profile: boolean;
+    showDiagnosticErrors: boolean;
+    traceATN: boolean;
+    showDFA: boolean;
+    superClass?: string;
+    predictionMode: PredictionMode;
+    buildParseTree: boolean;
+}
+
+interface IGeneratedFile {
+    name: string;
+    isParser: boolean;
+}
 
 export class ToolTestUtils {
     /*public static execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string,
@@ -30,45 +57,49 @@ export class ToolTestUtils {
 
     }*/
 
-    /*public static execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
-        startRuleName: string, input: string, showDiagnosticErrors: boolean): ExecutedState;
-    public static execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
-        startRuleName: string, input: string, showDiagnosticErrors: boolean, workingDir: string): ExecutedState;
-    public static execParser(...args: unknown[]): ExecutedState {
-        switch (args.length) {
-            case 7: {
-                const [grammarFileName, grammarStr, parserName, lexerName, startRuleName, input, showDiagnosticErrors]
-                    = args as [string, string, string, string, string, string, boolean];
+    public static async execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
+        startRuleName: string, input: string, showDiagnosticErrors: boolean, workingDir?: string): Promise<string[]> {
+        const runOptions = this.createOptionsForToolTests(grammarFileName, grammarStr, parserName, lexerName,
+            false, false, startRuleName, input, false, showDiagnosticErrors);
 
-                return ToolTestUtils.execParser(grammarFileName, grammarStr, parserName, lexerName, startRuleName,
-                    input, showDiagnosticErrors, null);
+        return await ToolTestUtils.execRecognizer(runOptions, workingDir);
+    }
 
-                break;
-            }
-
-            case 8: {
-                const [grammarFileName, grammarStr, parserName, lexerName, startRuleName, input, showDiagnosticErrors,
-                    workingDir] = args as [string, string, string, string, string, string, boolean, string];
-
-                return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, parserName, lexerName,
-                    startRuleName, input, showDiagnosticErrors, workingDir, false);
-
-                break;
-            }
-
-            default: {
-                throw new Error(`Invalid number of arguments`);
+    public static createOptionsForToolTests(grammarFileName: string, grammarStr: string, parserName: string | null,
+        lexerName: string | null, useListener: boolean, useVisitor: boolean, startRuleName: string, input: string,
+        profile: boolean, showDiagnosticErrors: boolean): IRunOptions {
+        const isCombinedGrammar = lexerName != null && parserName != null;
+        let grammarName;
+        if (isCombinedGrammar) {
+            grammarName = lexerName.endsWith("Lexer")
+                ? lexerName.substring(0, lexerName.length - "Lexer".length)
+                : lexerName;
+        } else {
+            if (parserName != null) {
+                grammarName = parserName;
+            } else {
+                grammarName = lexerName!;
             }
         }
-    }*/
 
-    /*public static createOptionsForJavaToolTests(grammarFileName: string, grammarStr: string, parserName: string,
-        lexerName: string, useListener: boolean, useVisitor: boolean, startRuleName: string, input: string,
-        profile: boolean, showDiagnosticErrors: boolean, endStage: Stage): RunOptions {
-        return new RunOptions(grammarFileName, grammarStr, parserName, lexerName, useListener, useVisitor,
-            startRuleName, input, profile, showDiagnosticErrors, false, false, endStage, "Java",
-            JavaRunner.runtimeTestParserName, PredictionMode.LL, true);
-    }*/
+        return {
+            grammarFileName,
+            grammarStr,
+            parserName,
+            lexerName,
+            grammarName,
+            useListener,
+            useVisitor,
+            startRuleName,
+            input,
+            profile,
+            showDiagnosticErrors,
+            traceATN: false,
+            showDFA: false,
+            predictionMode: PredictionMode.LL,
+            buildParseTree: true
+        };
+    }
 
     public static testErrors(pairs: string[], includeWarnings: boolean): void {
         for (let i = 0; i < pairs.length; i += 2) {
@@ -260,19 +291,107 @@ export class ToolTestUtils {
         return tokenTypes;
     }
 
-    /*private static execRecognizer(grammarFileName: string, grammarStr: string, parserName: string | null,
-        lexerName: string | null, startRuleName: string, input: string, showDiagnosticErrors: boolean,
-        workingDir: string, saveTestDir: boolean): ExecutedState {
+    private static async execRecognizer(runOptions: IRunOptions, workingDir?: string): Promise<string[]> {
+        const tempDirName = "AntlrExecuteRecognizer-" + Date.now();
+        const tempTestDir = workingDir ?? join(tmpdir(), tempDirName);
 
-        const runOptions = this.createRunOptions(grammarFileName, grammarStr, parserName, lexerName, false, true,
-            startRuleName, input, false, showDiagnosticErrors);
+        let errors: string[] = [];
+        mkdirSync(tempTestDir);
+        const result = execSync("npm install antlr4ng", { cwd: tempTestDir });
 
-        const runner: JavaRunner = new JavaRunner(workingDir, saveTestDir);
-        const result = runner.run(runOptions);
-        if (!(result instanceof ExecutedState)) {
-            fail(result.getErrorMessage());
+        try {
+            expect(result.toString()).toContain("added 2 packages");
+
+            writeFileSync(join(tempTestDir, runOptions.grammarFileName), runOptions.grammarStr);
+
+            errors = this.antlrOnFile(true, tempTestDir, "TypeScript", runOptions.grammarFileName, false);
+
+            //const generatedFiles = this.getGeneratedFiles(runOptions);
+
+            this.writeRecognizerFile(tempTestDir, runOptions);
+
+            writeFileSync(join(tempTestDir, "input"), runOptions.input);
+
+            const testName = join(tempTestDir, "Test.js");
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const { main } = await import(testName);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            main(runOptions.input);
+        } finally {
+            rmdirSync(tempTestDir, { recursive: true });
         }
 
-        return result as ExecutedState;
-    }*/
+        return errors;
+    }
+
+    private static getGeneratedFiles(runOptions: IRunOptions): IGeneratedFile[] {
+        const files: IGeneratedFile[] = [];
+        const extensionWithDot = ".java";
+
+        const isCombinedGrammarOrGo = runOptions.lexerName != null && runOptions.parserName != null;
+        if (runOptions.lexerName != null) {
+            files.push({
+                name: runOptions.grammarName + (isCombinedGrammarOrGo ? "Lexer" : "") + extensionWithDot,
+                isParser: false
+            });
+        }
+
+        if (runOptions.parserName != null) {
+            files.push({
+                name: runOptions.grammarName + (isCombinedGrammarOrGo ? "Parser" : "") + extensionWithDot,
+                isParser: true
+            });
+
+            if (runOptions.useListener) {
+                files.push({
+                    name: runOptions.grammarName + "Listener" + extensionWithDot,
+                    isParser: true
+                });
+
+                const baseListenerSuffix = "BaseListener";
+                files.push({
+                    name: runOptions.grammarName + baseListenerSuffix + extensionWithDot,
+                    isParser: true
+                });
+            }
+
+            if (runOptions.useVisitor) {
+                files.push({
+                    name: runOptions.grammarName + "Visitor" + extensionWithDot,
+                    isParser: true
+                });
+
+                files.push({
+                    name: runOptions.grammarName + "BaseVisitor" + extensionWithDot,
+                    isParser: true
+                });
+            }
+        }
+
+        return files;
+    }
+
+    private static writeRecognizerFile(workDir: string, runOptions: IRunOptions): void {
+        const sourceURL = join(dirname(import.meta.url), "helpers/Test.ts.stg").substring("file:".length);
+        const text = readFileSync(sourceURL, "utf8");
+        const outputFileST = new ST(text);
+        outputFileST.add("grammarName", runOptions.grammarName);
+        outputFileST.add("lexerName", runOptions.lexerName);
+        outputFileST.add("parserName", runOptions.parserName);
+        outputFileST.add("parserStartRuleName", runOptions.startRuleName);
+        outputFileST.add("showDiagnosticErrors", runOptions.showDiagnosticErrors);
+        outputFileST.add("traceATN", runOptions.traceATN);
+        outputFileST.add("profile", runOptions.profile);
+        outputFileST.add("showDFA", runOptions.showDFA);
+        outputFileST.add("useListener", runOptions.useListener);
+        outputFileST.add("useVisitor", runOptions.useVisitor);
+
+        const mode = runOptions.predictionMode === PredictionMode.LL ? "LL" :
+            runOptions.predictionMode === PredictionMode.SLL ? "SLL" : "LL_EXACT_AMBIG_DETECTION";
+        outputFileST.add("predictionMode", mode);
+        outputFileST.add("buildParseTree", runOptions.buildParseTree);
+
+        writeFileSync(join(workDir, "Test.ts"), outputFileST.render());
+    }
 }
