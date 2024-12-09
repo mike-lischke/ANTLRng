@@ -50,7 +50,7 @@ describe("TestBasicSemanticErrors", () => {
     ];
 
     it("testU", (): void => {
-        ToolTestUtils.testErrors(grammarU, true);
+        ToolTestUtils.testErrors(grammarU);
     });
 
     /**
@@ -68,7 +68,7 @@ describe("TestBasicSemanticErrors", () => {
             "error(" + ErrorType.LABEL_BLOCK_NOT_A_SET.code + "): T.g4:2:5: label op assigned to a block which " +
             "is not a set\n";
 
-        ToolTestUtils.testErrors([grammar, expected], false);
+        ToolTestUtils.testErrors([grammar, expected]);
     });
 
     it("testArgumentRetvalLocalConflicts", (): void => {
@@ -106,7 +106,7 @@ describe("TestBasicSemanticErrors", () => {
         grammarST.add("retvals", "int expr");
         grammarST.add("locals", "int expr");
         grammarST.add("body", "expr=expr");
-        ToolTestUtils.testErrors([grammarST.render(), expected], false);
+        ToolTestUtils.testErrors([grammarST.render(), expected]);
     });
 
 });

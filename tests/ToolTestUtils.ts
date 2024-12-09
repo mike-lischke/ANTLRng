@@ -10,11 +10,12 @@ import { expect } from "vitest";
 
 import { mkdirSync, readFileSync, rmdirSync, writeFileSync } from "node:fs";
 
-import { ST } from "stringtemplate4ts";
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, PredictionMode, Token
 } from "antlr4ng";
+import { ST } from "stringtemplate4ts";
 
+import { execSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { LexerATNFactory } from "../src/automata/LexerATNFactory.js";
@@ -23,7 +24,6 @@ import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { DefaultToolListener } from "../src/tool/DefaultToolListener.js";
 import { Tool, type Grammar, type LexerGrammar } from "../src/tool/index.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
-import { exec, execSync } from "node:child_process";
 
 export interface IRunOptions {
     grammarFileName: string;
@@ -58,7 +58,7 @@ export class ToolTestUtils {
     }*/
 
     public static async execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
-        startRuleName: string, input: string, showDiagnosticErrors: boolean, workingDir?: string): Promise<string[]> {
+        startRuleName: string, input: string, showDiagnosticErrors: boolean, workingDir: string): Promise<ErrorQueue> {
         const runOptions = this.createOptionsForToolTests(grammarFileName, grammarStr, parserName, lexerName,
             false, false, startRuleName, input, false, showDiagnosticErrors);
 
@@ -101,7 +101,7 @@ export class ToolTestUtils {
         };
     }
 
-    public static testErrors(pairs: string[], includeWarnings: boolean): void {
+    public static testErrors(pairs: string[], ignoreWarnings = false): void {
         for (let i = 0; i < pairs.length; i += 2) {
             const grammarStr = pairs[i];
             const expected = pairs[i + 1];
@@ -112,18 +112,24 @@ export class ToolTestUtils {
             const tempDirName = "AntlrTestErrors-" + Date.now();
             const tempTestDir = join(tmpdir(), tempDirName);
 
-            const errors = this.antlrOnString(includeWarnings, tempTestDir, null, fileName, grammarStr, false);
+            const queue = this.antlrOnString(tempTestDir, "TypeScript", fileName, grammarStr, false);
 
             let actual = "";
-            errors.forEach((error) => {
-                actual += error + "\n";
-            });
+            if (ignoreWarnings) {
+                const errors = [];
+                for (const error of queue.errors) {
+                    const msgST = queue.errorManager.getMessageTemplate(error)!;
+                    errors.push(msgST.render());
+                }
+
+                if (errors.length > 0) {
+                    actual = errors.join("\n") + "\n";
+                }
+            } else {
+                actual = queue.toString(true);
+            }
 
             actual = actual.replace(tempTestDir + "/", "");
-            let msg = grammarStr;
-            msg = msg.replace("\n", "\\n");
-            msg = msg.replace("\r", "\\r");
-            msg = msg.replace("\t", "\\t");
 
             expect(actual).toBe(expected);
         }
@@ -144,7 +150,7 @@ export class ToolTestUtils {
         return fileName;
     }
 
-    public static realElements(elements: string[]): string[] {
+    public static realElements(elements: Array<string | null>): Array<string | null> {
         return elements.slice(Token.MIN_USER_TOKEN_TYPE);
     }
 
@@ -200,22 +206,21 @@ export class ToolTestUtils {
     }
 
     /** Write a grammar to tmpdir and run antlr */
-    public static antlrOnString(includeWarnings: boolean, workdir: string, targetName: string | null,
-        grammarFileName: string, grammarStr: string, defaultListener: boolean, ...extraOptions: string[]): string[] {
+    public static antlrOnString(workdir: string, targetName: string | null,
+        grammarFileName: string, grammarStr: string, defaultListener: boolean, ...extraOptions: string[]): ErrorQueue {
         mkdirSync(workdir);
         try {
             writeFileSync(join(workdir, grammarFileName), grammarStr);
 
-            return this.antlrOnFile(includeWarnings, workdir, targetName, grammarFileName, defaultListener,
-                ...extraOptions);
+            return this.antlrOnFile(workdir, targetName, grammarFileName, defaultListener, ...extraOptions);
         } finally {
             rmdirSync(workdir, { recursive: true });
         }
     }
 
     /** Run ANTLR on stuff in workdir and error queue back. */
-    public static antlrOnFile(includeWarnings: boolean, workdir: string, targetName: string | null,
-        grammarFileName: string, defaultListener: boolean, ...extraOptions: string[]): string[] {
+    public static antlrOnFile(workdir: string, targetName: string | null, grammarFileName: string,
+        defaultListener: boolean, ...extraOptions: string[]): ErrorQueue {
         const options: string[] = [...extraOptions];
 
         if (targetName !== null) {
@@ -234,7 +239,7 @@ export class ToolTestUtils {
 
         if (!options.includes("--encoding")) {
             options.push("--encoding");
-            options.push("UTF-8");
+            options.push("utf-8");
         }
 
         options.push(join(workdir, grammarFileName));
@@ -248,23 +253,8 @@ export class ToolTestUtils {
         }
 
         antlr.processGrammarsOnCommandLine();
-        const errors: string[] = [];
 
-        if (!defaultListener && includeWarnings) {
-            for (const entry of queue.all) {
-                const msgST = antlr.errorManager.getMessageTemplate(entry)!;
-                errors.push(msgST.render());
-            }
-        } else {
-            if (!defaultListener && queue.errors.length > 0) {
-                for (const error of queue.errors) {
-                    const msgST = antlr.errorManager.getMessageTemplate(error)!;
-                    errors.push(msgST.render());
-                }
-            }
-        }
-
-        return errors;
+        return queue;
     }
 
     public static semanticProcess(g: Grammar): void {
@@ -291,38 +281,29 @@ export class ToolTestUtils {
         return tokenTypes;
     }
 
-    private static async execRecognizer(runOptions: IRunOptions, workingDir?: string): Promise<string[]> {
-        const tempDirName = "AntlrExecuteRecognizer-" + Date.now();
-        const tempTestDir = workingDir ?? join(tmpdir(), tempDirName);
+    private static async execRecognizer(runOptions: IRunOptions, workingDir: string): Promise<ErrorQueue> {
+        const result = execSync("npm install antlr4ng", { cwd: workingDir });
 
-        let errors: string[] = [];
-        mkdirSync(tempTestDir);
-        const result = execSync("npm install antlr4ng", { cwd: tempTestDir });
+        expect(result.toString()).toContain("added 2 packages");
 
-        try {
-            expect(result.toString()).toContain("added 2 packages");
+        writeFileSync(join(workingDir, runOptions.grammarFileName), runOptions.grammarStr);
 
-            writeFileSync(join(tempTestDir, runOptions.grammarFileName), runOptions.grammarStr);
+        const queue = this.antlrOnFile(workingDir, "TypeScript", runOptions.grammarFileName, false);
 
-            errors = this.antlrOnFile(true, tempTestDir, "TypeScript", runOptions.grammarFileName, false);
+        //const generatedFiles = this.getGeneratedFiles(runOptions);
 
-            //const generatedFiles = this.getGeneratedFiles(runOptions);
+        this.writeRecognizerFile(workingDir, runOptions);
 
-            this.writeRecognizerFile(tempTestDir, runOptions);
+        writeFileSync(join(workingDir, "input"), runOptions.input);
 
-            writeFileSync(join(tempTestDir, "input"), runOptions.input);
+        const testName = join(workingDir, "Test.js");
 
-            const testName = join(tempTestDir, "Test.js");
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const { main } = await import(testName);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        main(runOptions.input);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const { main } = await import(testName);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            main(runOptions.input);
-        } finally {
-            rmdirSync(tempTestDir, { recursive: true });
-        }
-
-        return errors;
+        return queue;
     }
 
     private static getGeneratedFiles(runOptions: IRunOptions): IGeneratedFile[] {

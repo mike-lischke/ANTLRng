@@ -18,7 +18,7 @@ import type { Constructor } from "../misc/Utils.js";
  * state submachine. Used to build ATNs.
  */
 export interface IStatePair {
-    left: ATNState;
+    left: ATNState | null;
     right: ATNState | null;
 }
 
@@ -79,7 +79,7 @@ export interface IATNFactory {
      */
     action(action: ActionAST | string): IStatePair;
 
-    alt(els: IStatePair[]): IStatePair;
+    alt(els: Array<IStatePair | null>): IStatePair;
 
     /**
      * From A|B|..|Z alternative block build

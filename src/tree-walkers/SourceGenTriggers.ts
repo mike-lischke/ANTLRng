@@ -53,7 +53,7 @@ export class SourceGenTriggers extends TreeParser {
 
     public static alt_return = class alt_return extends TreeRuleReturnScope {
         public altCodeBlock: CodeBlockForAlt;
-        public ops: SrcOp[];
+        public ops?: SrcOp[];
     };
 
     public controller?: OutputModelController;
@@ -263,7 +263,7 @@ export class SourceGenTriggers extends TreeParser {
                 a = this.alt(outerMost);
 
                 retval.altCodeBlock = a.altCodeBlock;
-                retval.ops = a.ops;
+                retval.ops = a.ops ?? [];
             }
 
             this.controller!.finishAlternative(retval.altCodeBlock, retval.ops, outerMost);
@@ -358,7 +358,11 @@ export class SourceGenTriggers extends TreeParser {
                                         element2 = this.element();
 
                                         if (element2 !== null) {
-                                            elems.push(...element2);
+                                            element2.forEach((element: SrcOp | null) => {
+                                                if (element) {
+                                                    elems.push(element);
+                                                }
+                                            });
                                         }
 
                                     }

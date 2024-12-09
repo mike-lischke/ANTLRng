@@ -15,7 +15,7 @@
     ],
     "license": "MIT",
     "dependencies": {
-        "antlr4ng": "3.0.10",
+        "antlr4ng": "3.0.11",
         "commander": "12.1.0",
         "fast-printf": "1.6.9",
         "stringtemplate4ts": "1.0.4",

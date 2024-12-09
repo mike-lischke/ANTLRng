@@ -734,7 +734,7 @@ public override  get():  T {
 	/**
 	 * The encoding to use when reading source files.
 	 */
-	private static readonly  ENCODING = "UTF-8";
+	private static readonly  ENCODING = "utf-8";
 	/**
 	 * The maximum number of files to parse in a single iteration.
 	 */

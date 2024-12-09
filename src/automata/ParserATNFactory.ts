@@ -108,8 +108,8 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
                     continue;
                 }
 
-                const analyzer = new LL1Analyzer();
-                if (analyzer.look(this.atn, startState, atnState2).contains(Token.EPSILON)) {
+                const analyzer = new LL1Analyzer(this.atn);
+                if (analyzer.look(startState, atnState2).contains(Token.EPSILON)) {
                     this.g.tool.errorManager.grammarError(ErrorType.EPSILON_OPTIONAL, this.g.fileName,
                         (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
                     continue optionalCheck;
@@ -137,7 +137,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
     public rule(ruleAST: GrammarAST, name: string, blk: IStatePair): IStatePair {
         const r = this.g.getRule(name)!;
         const start = this.atn.ruleToStartState[r.index]!;
-        this.epsilon(start, blk.left);
+        this.epsilon(start, blk.left!);
         const stop = this.atn.ruleToStopState[r.index]!;
         this.epsilon(blk.right, stop);
         const h = { left: start, right: stop };
@@ -349,7 +349,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         if (ebnfRoot === null) {
             if (alts.length === 1) {
                 const h = alts[0];
-                blkAST.atnState = h.left;
+                blkAST.atnState = h.left!;
 
                 return h;
             }
@@ -404,20 +404,20 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         return this.elemList(els);
     }
 
-    public elemList(els: IStatePair[]): IStatePair {
+    public elemList(els: Array<IStatePair | null>): IStatePair {
         const n = els.length;
         for (let i = 0; i < n - 1; i++) {	// hook up elements (visit all but last)
-            const el = els[i];
+            const el = els[i]!;
 
             // if el is of form o-x->o for x in {rule, action, pred, token, ...}
             // and not last in alt
             let tr = null;
-            if (el.left.transitions.length === 1) {
-                tr = el.left.transitions[0];
+            if (el.left!.transitions.length === 1) {
+                tr = el.left!.transitions[0];
             }
 
             const isRuleTrans = tr instanceof RuleTransition;
-            if ((el.left.constructor as typeof ATNState).stateType === ATNState.BASIC
+            if ((el.left!.constructor as typeof ATNState).stateType === ATNState.BASIC
                 && el.right && (el.right.constructor as typeof ATNState).stateType === ATNState.BASIC
                 && tr !== null
                 && (isRuleTrans && (tr as RuleTransition).followState === el.right || tr.target === el.right)) {
@@ -429,21 +429,28 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
                 if (handle !== null) {
                     if (isRuleTrans) {
-                        (tr as RuleTransition).followState = handle.left;
+                        (tr as RuleTransition).followState = handle.left!;
                     } else {
-                        tr.target = handle.left;
+                        tr.target = handle.left!;
                     }
                 }
                 this.atn.removeState(el.right); // we skipped over this state
             } else { // need epsilon if previous block's right end node is complicated
-                this.epsilon(el.right, els[i + 1].left);
+                this.epsilon(el.right, els[i + 1]!.left!);
             }
         }
 
         const first = els[0];
         const last = els[n - 1];
-        const left = first.left;
-        const right = last.right;
+        let left: ATNState | null = null;
+        if (first !== null) {
+            left = first.left;
+        }
+
+        let right: ATNState | null = null;
+        if (last !== null) {
+            right = last.right;
+        }
 
         return { left, right };
     }
@@ -469,7 +476,7 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         blkStart.nonGreedy = !greedy;
         this.epsilon(blkStart, blk.right!, !greedy);
 
-        optAST.atnState = blk.left;
+        optAST.atnState = blk.left!;
 
         return blk;
     }
@@ -668,10 +675,10 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
 
     protected checkEpsilonClosure(): void {
         for (const [rule, atnState1, atnState2] of this.preventEpsilonClosureBlocks) {
-            const analyzer = new LL1Analyzer();
+            const analyzer = new LL1Analyzer(this.atn);
             const blkStart = atnState1;
             const blkStop = atnState2;
-            const lookahead = analyzer.look(this.atn, blkStart, blkStop);
+            const lookahead = analyzer.look(blkStart, blkStop);
             if (lookahead.contains(Token.EPSILON)) {
                 const errorType = rule instanceof LeftRecursiveRule
                     ? ErrorType.EPSILON_LR_FOLLOW
@@ -719,12 +726,12 @@ export class ParserATNFactory implements IParserATNFactory, IATNFactory {
         start.endState = end;
         for (const alt of alts) {
             // hook alts up to decision block
-            this.epsilon(start, alt.left);
+            this.epsilon(start, alt.left!);
             this.epsilon(alt.right, end);
             // no back link in ATN so must walk entire alt to see if we can
             // strip out the epsilon to 'end' state
             const opt = new TailEpsilonRemover(this.atn);
-            opt.visit(alt.left);
+            opt.visit(alt.left!);
         }
 
         blkAST.atnState = start;

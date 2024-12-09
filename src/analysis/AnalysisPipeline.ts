@@ -63,8 +63,8 @@ export class AnalysisPipeline {
                 continue;
             }
 
-            const analyzer = new LL1Analyzer();
-            const look = analyzer.look(this.g.atn!, this.g.atn!.ruleToStartState[rule.index]!, undefined);
+            const analyzer = new LL1Analyzer(this.g.atn!);
+            const look = analyzer.look(this.g.atn!.ruleToStartState[rule.index]!, undefined);
             if (look.contains(Token.EPSILON)) {
                 this.g.tool.errorManager.grammarError(ErrorType.EPSILON_TOKEN, this.g.fileName,
                     (rule.ast.getChild(0) as GrammarAST).token!, rule.name);
@@ -84,7 +84,7 @@ export class AnalysisPipeline {
             if (s.nonGreedy) { // nongreedy decisions can't be LL(1)
                 look = new Array<IntervalSet>(s.transitions.length + 1);
             } else {
-                const anal = new LL1Analyzer();
+                const anal = new LL1Analyzer(this.g.atn!);
                 look = anal.getDecisionLookahead(s) as IntervalSet[];
                 this.g.tool.logInfo({ component: "LL1", msg: "look=" + look });
             }

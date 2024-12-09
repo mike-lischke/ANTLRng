@@ -10,7 +10,7 @@ import { ST } from "stringtemplate4ts";
 import { ErrorType } from "./ErrorType.js";
 
 export class ANTLRMessage {
-    private static readonly EMPTY_ARGS = new Array<unknown>();
+    private static readonly EMPTY_ARGS = [];
 
     // used for location template
     public fileName: string;
@@ -95,7 +95,7 @@ export class ANTLRMessage {
 
     public toString(): string {
         return "Message{" +
-            "errorType=" + String(this.getErrorType()) +
+            "errorType=" + this.getErrorType().name +
             ", args=" + String(this.getArgs()) +
             ", e=" + String(this.getCause()) +
             ", fileName='" + this.fileName + "'" +

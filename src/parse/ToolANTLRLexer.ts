@@ -16,6 +16,7 @@ export class ToolANTLRLexer extends ANTLRv4Lexer {
         super(input);
     }
 
+    // XXX: Convert error methods to override inherited error methods.
     public displayRecognitionError(tokenNames: string[], e: RecognitionException): void {
         const msg = e.message;
         this.tool.errorManager.syntaxError(ErrorType.SYNTAX_ERROR, this.sourceName, e.offendingToken!, e, msg);

@@ -196,7 +196,7 @@ describe("TestAttributeChecks", () => {
         const st = new ST(g, template);
         st.add(location, action);
         const grammar = st.render();
-        ToolTestUtils.testErrors([grammar, expected], false);
+        ToolTestUtils.testErrors([grammar, expected], true);
     };
 
     it.each(membersChecks)("testMembersActions: %s", (action, expected) => {
@@ -242,6 +242,6 @@ describe("TestAttributeChecks", () => {
             "a : x=ID {Token t = $x; t = $ID;} ;\n";
         const expected =
             "";
-        ToolTestUtils.testErrors([grammar, expected], false);
+        ToolTestUtils.testErrors([grammar, expected]);
     });
 });

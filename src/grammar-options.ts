@@ -19,7 +19,7 @@ export interface IToolParameters {
     outputDirectory?: string,
     libDirectory?: string,
     generateATNDot?: boolean,
-    grammarEncoding?: string,
+    encoding?: string,
     msgFormat?: string,
     longMessages?: boolean;
     generateListener?: boolean,

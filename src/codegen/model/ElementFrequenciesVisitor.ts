@@ -129,7 +129,7 @@ export class ElementFrequenciesVisitor extends GrammarTreeVisitor {
     }
 
     public override stringRef(ref: TerminalAST): void {
-        const tokenName = ref.g.getTokenName(Number.parseInt(ref.getText()));
+        const tokenName = ref.g.getTokenName(ref.getText());
 
         if (tokenName !== null && !tokenName.startsWith("T__")) {
             this.frequencies[0].add(tokenName);

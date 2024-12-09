@@ -86,8 +86,8 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return new CodeBlockForAlt(this);
     }
 
-    public override finishAlternative(blk: CodeBlockForAlt, ops: SrcOp[]): CodeBlockForAlt {
-        blk.ops = ops;
+    public override finishAlternative(blk: CodeBlockForAlt, ops: SrcOp[] | undefined): CodeBlockForAlt {
+        blk.ops = ops ?? [];
 
         return blk;
     }
@@ -147,7 +147,7 @@ export class ParserFactory extends DefaultOutputModelFactory {
         return new TokenListDecl(this, this.gen.getTarget().getListLabel(label));
     }
 
-    public override set(setAST: GrammarAST, labelAST: GrammarAST, invert: boolean): SrcOp[] {
+    public override set(setAST: GrammarAST, labelAST: GrammarAST | null, invert: boolean): SrcOp[] {
         let matchOp: MatchSet;
         if (invert) {
             matchOp = new MatchNotSet(this, setAST);
@@ -155,16 +155,18 @@ export class ParserFactory extends DefaultOutputModelFactory {
             matchOp = new MatchSet(this, setAST);
         }
 
-        const label = labelAST.getText();
-        const rf = this.getCurrentRuleFunction()!;
-        if (labelAST.parent?.getType() === ANTLRv4Parser.PLUS_ASSIGN) {
-            this.defineImplicitLabel(setAST, matchOp);
-            const l = this.getTokenListLabelDecl(label);
-            rf.addContextDecl(setAST.getAltLabel()!, l);
-        } else {
-            const d = this.getTokenLabelDecl(label);
-            matchOp.labels.push(d);
-            rf.addContextDecl(setAST.getAltLabel()!, d);
+        if (labelAST !== null) {
+            const label = labelAST.getText();
+            const rf = this.getCurrentRuleFunction()!;
+            if (labelAST.parent?.getType() === ANTLRv4Parser.PLUS_ASSIGN) {
+                this.defineImplicitLabel(setAST, matchOp);
+                const l = this.getTokenListLabelDecl(label);
+                rf.addContextDecl(setAST.getAltLabel()!, l);
+            } else {
+                const d = this.getTokenLabelDecl(label);
+                matchOp.labels.push(d);
+                rf.addContextDecl(setAST.getAltLabel()!, d);
+            }
         }
 
         if (this.controller.needsImplicitLabel(setAST, matchOp)) {

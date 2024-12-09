@@ -140,7 +140,7 @@ export class GrammarTransformPipeline {
         const rootRuleNames = new Set<string>();
 
         // make list of rules we have in root grammar
-        const rootRules = rootRulesRoot.getNodesWithType(ANTLRv4Parser.RULES);
+        const rootRules = rootRulesRoot.getNodesWithType(ANTLRv4Parser.RULE);
         for (const r of rootRules) {
             rootRuleNames.add(r.getChild(0)!.getText());
         }
@@ -287,7 +287,7 @@ export class GrammarTransformPipeline {
                 }
 
                 let addedRules = 0;
-                const modeRules = m.getAllChildrenWithType(ANTLRv4Parser.RULES);
+                const modeRules = m.getAllChildrenWithType(ANTLRv4Parser.RULE);
                 for (const r of modeRules) {
                     rootGrammar.tool.logInfo({ component: "grammar", msg: `imported rule: ${r.toStringTree()}` });
                     const ruleName = r.getChild(0)!.getText();
@@ -308,7 +308,7 @@ export class GrammarTransformPipeline {
 
             // COPY RULES
             // Rules copied in the mode copy phase are not copied again.
-            const rules = imp.ast.getNodesWithType(ANTLRv4Parser.RULES);
+            const rules = imp.ast.getNodesWithType(ANTLRv4Parser.RULE);
             for (const r of rules) {
                 rootGrammar.tool.logInfo({ component: "grammar", msg: `imported rule: ${r.toStringTree()}` });
                 const name = r.getChild(0)!.getText();

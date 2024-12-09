@@ -30,7 +30,7 @@ import { TokenTypeDecl } from "./TokenTypeDecl.js";
  */
 export class StructDecl extends Decl {
     public derivedFromName: string; // rule name or label name
-    public provideCopyFrom: boolean;
+    public provideCopyFrom = false;
 
     // Track these separately; Go target needs to generate getters/setters
     // Do not make them templates; we only need the Decl object not the ST

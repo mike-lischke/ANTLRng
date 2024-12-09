@@ -43,14 +43,14 @@ export class LeftRecursionDetector {
      *  filling the cycles in listOfRecursiveCycles and also, as a
      *  side-effect, set leftRecursiveRules.
      */
-    public check(enclosingRule: Rule, s: ATNState, visitedStates: HashSet<ATNState>): boolean;
+    public check(enclosingRule: Rule, s: ATNState, visitedStates: Set<ATNState>): boolean;
     public check(...args: unknown[]): undefined | boolean {
         if (args.length === 0) {
             for (const start of this.atn.ruleToStartState) {
                 this.rulesVisitedPerRuleCheck.clear();
                 this.rulesVisitedPerRuleCheck.add(start!);
 
-                this.check(this.g.getRule(start!.ruleIndex)!, start!, new HashSet<ATNState>());
+                this.check(this.g.getRule(start!.ruleIndex)!, start!, new Set<ATNState>());
             }
 
             if (this.listOfRecursiveCycles.length > 0) {
@@ -60,13 +60,13 @@ export class LeftRecursionDetector {
             return;
         }
 
-        const [enclosingRule, s, visitedStates] = args as [Rule, ATNState, HashSet<ATNState>];
+        const [enclosingRule, s, visitedStates] = args as [Rule, ATNState, Set<ATNState>];
 
         if (s instanceof RuleStopState) {
             return true;
         }
 
-        if (visitedStates.contains(s)) {
+        if (visitedStates.has(s)) {
             return false;
         }
 
@@ -86,7 +86,7 @@ export class LeftRecursionDetector {
                     this.rulesVisitedPerRuleCheck.add(t.target as RuleStartState);
 
                     // send new visitedStates set per rule invocation
-                    const nullable = this.check(r, t.target, new HashSet<ATNState>());
+                    const nullable = this.check(r, t.target, new Set<ATNState>());
 
                     // we're back from visiting that rule
                     this.rulesVisitedPerRuleCheck.remove(t.target as RuleStartState);

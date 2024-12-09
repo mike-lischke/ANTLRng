@@ -338,7 +338,7 @@ export class RuleFunction extends OutputModelObject {
         const tokenText = token.getText();
         const tokenName = token.getType() !== ANTLRv4Lexer.STRING_LITERAL
             ? tokenText
-            : token.g.getTokenName(Number.parseInt(tokenText));
+            : token.g.getTokenName(tokenText);
 
         // Do not include tokens with auto generated names
         return tokenName === null || tokenName.startsWith("T__") ? null : tokenName;

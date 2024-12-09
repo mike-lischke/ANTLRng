@@ -231,7 +231,7 @@ export class LexerATNFactory extends ParserATNFactory {
 
     public override lexerAltCommands(alt: IStatePair, commands: IStatePair): IStatePair {
         const h = { left: alt.left, right: commands.right };
-        this.epsilon(alt.right, commands.left);
+        this.epsilon(alt.right, commands.left!);
 
         return h;
     }

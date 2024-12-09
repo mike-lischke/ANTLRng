@@ -16,7 +16,7 @@ import { grammarOptions } from "../grammar-options.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import type { IGrammar } from "../types.js";
 
-const linePattern = /([^\n]+?)[ \\t]*?=[ \\t]*?([0-9]+);/;
+const linePattern = /(?<tokenID>[^\n]+?)[ \\t]*?=[ \\t]*?(?<tokenTypeS>[0-9]+)/;
 
 export class TokenVocabParser {
     protected readonly g: IGrammar;
@@ -44,9 +44,9 @@ export class TokenVocabParser {
             }
 
             const match = linePattern.exec(tokenDef);
-            if (match?.groups) {
-                const tokenID = match.groups[1];
-                const tokenTypeS = match.groups[2];
+            if (match) {
+                const { tokenID, tokenTypeS } = match.groups!;
+
                 let tokenType: number;
                 try {
                     tokenType = Number.parseInt(tokenTypeS);
@@ -83,7 +83,7 @@ export class TokenVocabParser {
         }
 
         try {
-            let name = join(grammarOptions.libDirectory ?? ".", vocabName, Constants.VOCAB_FILE_EXTENSION);
+            let name = join(grammarOptions.libDirectory ?? ".", vocabName + Constants.VOCAB_FILE_EXTENSION);
             if (existsSync(name)) {
                 return readFileSync(name, "utf8");
             }
@@ -91,7 +91,7 @@ export class TokenVocabParser {
             // We did not find the vocab file in the lib directory, so we need to look for it in the output directory
             // which is where .tokens files are generated (in the base, not relative to the input location.)
             if (grammarOptions.outputDirectory) {
-                name = join(grammarOptions.outputDirectory, vocabName, Constants.VOCAB_FILE_EXTENSION);
+                name = join(grammarOptions.outputDirectory, vocabName + Constants.VOCAB_FILE_EXTENSION);
                 if (existsSync(name)) {
                     return readFileSync(name, "utf8");
                 }
@@ -100,7 +100,7 @@ export class TokenVocabParser {
             // Still not found? Use the grammar's subfolder then.
             name = dirname(this.g.fileName);
             if (name) {
-                name = join(name, vocabName, Constants.VOCAB_FILE_EXTENSION);
+                name = join(name, vocabName + Constants.VOCAB_FILE_EXTENSION);
                 if (existsSync(name)) {
                     return readFileSync(name, "utf8");
                 }

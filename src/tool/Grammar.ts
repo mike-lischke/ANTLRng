@@ -6,6 +6,8 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
+import { basename } from "node:path";
+
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, DFA, Interval, IntervalSet, LexerInterpreter, ParserInterpreter,
     SemanticContext, Token, TokenStream, Vocabulary
@@ -241,8 +243,9 @@ export class Grammar implements IGrammar, AttributeResolver {
     protected maxChannelType = Token.MIN_USER_CHANNEL_VALUE - 1;
 
     public constructor(tool: ITool, ast: GrammarRootAST);
-    public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
+    /** For testing */
     public constructor(grammarText: string, listener?: ANTLRToolListener);
+    public constructor(grammarText: string, tokenVocabSource: LexerGrammar);
     /** For testing; builds trees, does sem anal */
     public constructor(fileName: string, grammarText: string, listener?: ANTLRToolListener);
     /** For testing; builds trees, does sem anal */
@@ -258,21 +261,24 @@ export class Grammar implements IGrammar, AttributeResolver {
             this.initTokenSymbolTables();
         } else {
             // This branch for all testing scenarios. Must at least give the grammar text.
-            this.name = "Test";
             let fileName = Constants.GRAMMAR_FROM_STRING_NAME;
             let grammarText = args[0] as string;
             let listener: ANTLRToolListener | undefined;
             let tokenVocabSource: LexerGrammar | undefined;
+
             if (args.length > 1) {
+                // Possible candidates for the second argument are either a listener, a token vocab source or
+                // a grammar text.
                 if (args[1] instanceof Grammar && args[1].grammarType === "lexerGrammar") {
                     tokenVocabSource = args[1] as LexerGrammar;
+                } else if (typeof args[1] === "string") {
+                    fileName = args[0] as string;
+                    grammarText = args[1];
                 } else {
                     listener = args[1] as ANTLRToolListener;
                 }
 
                 if (args.length > 2) {
-                    fileName = args[0] as string;
-                    grammarText = args[1] as string;
                     listener = args[2] as ANTLRToolListener;
 
                     if (args.length > 3) {
@@ -297,7 +303,7 @@ export class Grammar implements IGrammar, AttributeResolver {
                 this.tool.errorManager.addListener(listener);
             }
             const input = CharStream.fromString(grammarText);
-            input.name = fileName;
+            input.name = basename(fileName);
 
             const root = this.tool.parse(fileName, input);
             if (!root) {
@@ -305,8 +311,6 @@ export class Grammar implements IGrammar, AttributeResolver {
             }
 
             this.ast = root;
-            // TODO: this.ast.inputStream = input;
-
             this.tokenStream = root.tokenStream;
             this.originalTokenStream = this.tokenStream;
 
@@ -444,7 +448,6 @@ export class Grammar implements IGrammar, AttributeResolver {
         }
 
         visited.add(this.name);
-        this.importedGrammars = new Array<Grammar>();
         for (const c of i.getChildren()) {
             let t = c as GrammarAST;
             let importedGrammarName = null;
@@ -461,9 +464,13 @@ export class Grammar implements IGrammar, AttributeResolver {
                 continue;
             }
 
-            let g: Grammar;
+            let g: Grammar | null;
             try {
-                g = this.tool.loadImportedGrammar(this, t)!;
+                g = this.tool.loadImportedGrammar(this, t);
+                if (!g) {
+                    continue;
+                }
+
             } catch {
                 this.tool.errorManager.grammarError(ErrorType.ERROR_READING_IMPORTED_GRAMMAR, importedGrammarName,
                     t.token!, importedGrammarName, this.name);
@@ -717,7 +724,7 @@ export class Grammar implements IGrammar, AttributeResolver {
      *
      * @returns The name of the token with the specified type.
      */
-    public getTokenName(literalOrTokenType: number): string | null {
+    public getTokenName(literalOrTokenType: number | string): string | null {
         if (typeof literalOrTokenType === "string") {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             let grammar: Grammar | null = this;

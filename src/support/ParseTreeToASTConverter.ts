@@ -591,10 +591,20 @@ export class ParseTreeToASTConverter {
     public static convertLexerCommandToAST(lexerCommand: LexerCommandContext, ast: GrammarAST): void {
         if (lexerCommand.lexerCommandExpr()) {
             const callAST = this.createASTNode(ANTLRv4Lexer.LEXER_ACTION_CALL, lexerCommand);
+            ast.addChild(callAST);
             callAST.addChild(this.createASTNode(ANTLRv4Parser.ID, lexerCommand.lexerCommandName()));
-            callAST.addChild(this.createASTNode(ANTLRv4Parser.STRING_LITERAL, lexerCommand.lexerCommandExpr()!));
+            if (lexerCommand.lexerCommandExpr()?.identifier()) {
+                callAST.addChild(this.createASTNode(ANTLRv4Parser.ID,
+                    lexerCommand.lexerCommandExpr()!.identifier()!));
+            } else {
+                callAST.addChild(this.createASTNode(ANTLRv4Parser.INT, lexerCommand.lexerCommandExpr()!.INT()!));
+            }
         } else {
-            ast.addChild(this.createASTNode(ANTLRv4Parser.ID, lexerCommand.lexerCommandName()));
+            if (lexerCommand.lexerCommandName().identifier()) {
+                ast.addChild(this.createASTNode(ANTLRv4Parser.ID, lexerCommand.lexerCommandName().identifier()!));
+            } else {
+                ast.addChild(this.createASTNode(ANTLRv4Parser.ID, lexerCommand.lexerCommandName().MODE()!));
+            }
         }
     }
 

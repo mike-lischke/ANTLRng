@@ -15,7 +15,7 @@ export class ErrorQueue implements ANTLRToolListener {
     public readonly all: ANTLRMessage[] = [];
 
     // TODO: reorganize the error manager to avoid cross-references.
-    public constructor(private errorManager: ErrorManager) {
+    public constructor(public errorManager: ErrorManager) {
     }
 
     public info(msg: string): void {

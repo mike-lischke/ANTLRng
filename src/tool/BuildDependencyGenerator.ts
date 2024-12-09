@@ -237,7 +237,7 @@ export class BuildDependencyGenerator {
         }
 
         const url = new URL("../../templates/depend.stg", import.meta.url);
-        this.templates = new STGroupFile(url.pathname, "UTF-8");
+        this.templates = new STGroupFile(url.pathname, "utf-8");
     }
 
     public getGenerator(): CodeGenerator {

@@ -4,6 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { ModelElement } from "../../misc/ModelElement.js";
 import { LexerGrammar } from "../../tool/LexerGrammar.js";
 import { Rule } from "../../tool/Rule.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
@@ -18,6 +19,7 @@ export class Lexer extends Recognizer {
     public readonly modes: string[];
     public readonly escapedModeNames: string[] = [];
 
+    @ModelElement
     public actionFuncs = new Map<Rule, RuleActionFunction>();
 
     public constructor(factory: OutputModelFactory, file: LexerFile) {

@@ -13,31 +13,43 @@ import { Character } from "../support/Character.js";
  */
 export class UnicodeEscapes {
     public static escapeCodePoint(codePoint: number, language: string): string {
+        let introducer = "\\u";
+        let text = "";
+
         switch (language) {
             case "CSharp":
             case "Python3":
             case "Cpp":
             case "Go":
             case "PHP": {
-                const format = Character.isSupplementaryCodePoint(codePoint) ? "\\U%08X" : "\\u%04X";
+                if (Character.isSupplementaryCodePoint(codePoint)) {
+                    introducer = "\\U";
+                    text = printf("%08x", codePoint);
+                } else {
+                    text = printf("%04x", codePoint);
+                }
 
-                return printf(format, codePoint);
+                break;
             }
 
             case "Swift": {
-                return printf("\\u{%04X}", codePoint);
+                text = printf("{%04x}", codePoint);
+
+                break;
             }
 
             default: {
                 if (Character.isSupplementaryCodePoint(codePoint)) {
                     // char is not an 'integral' type, so we have to explicitly convert
                     // to int before passing to the %X formatter or else it throws.
-                    return printf("\\u%04X", Number(Character.highSurrogate(codePoint))) +
-                        printf("\\u%04X", Number(Character.lowSurrogate(codePoint)));
+                    return introducer + printf("%04x", Number(Character.highSurrogate(codePoint))).toUpperCase() +
+                        introducer + printf("%04x", Number(Character.lowSurrogate(codePoint))).toUpperCase();
+                } else {
+                    text = printf("%04x", codePoint);
                 }
-
-                return printf("\\u%04X", codePoint);
             }
         }
+
+        return introducer + text.toUpperCase();
     }
 }

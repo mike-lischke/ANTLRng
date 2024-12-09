@@ -8,7 +8,7 @@
 
 import { ATNSerializer, CharStream, CommonTokenStream } from "antlr4ng";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import path, { basename } from "path";
+import path, { basename, dirname } from "path";
 
 import { ANTLRv4Parser } from "./generated/ANTLRv4Parser.js";
 
@@ -273,7 +273,7 @@ export class Tool implements ITool {
         const chk = new UndefChecker(g.isLexer(), ruleToAST, this.errorManager);
         chk.visitGrammar(g.ast);
 
-        return redefinition; //  || chk.errors;
+        return redefinition || chk.badRef;
     }
 
     public sortGrammarByTokenVocab(fileNames: string[]): GrammarRootAST[] {
@@ -376,7 +376,6 @@ export class Tool implements ITool {
         const grammarAST = this.parseGrammar(fileName)!;
         const g = this.createGrammar(grammarAST);
         g.fileName = fileName;
-        this.process(g, false);
 
         return g;
     }
@@ -408,9 +407,10 @@ export class Tool implements ITool {
                 return null;
             }
 
-            const grammarEncoding = grammarOptions.grammarEncoding as BufferEncoding;
+            const grammarEncoding = grammarOptions.encoding as BufferEncoding;
             const content = readFileSync(importedFile, { encoding: grammarEncoding });
-            const input = CharStream.fromString(content.toString());
+            const input = CharStream.fromString(content);
+            input.name = basename(importedFile);
             const result = this.parse(g.fileName, input);
             if (!result) {
                 return null;
@@ -498,21 +498,24 @@ export class Tool implements ITool {
     }
 
     public getImportedGrammarFile(g: Grammar, fileName: string): string | undefined {
-        if (!existsSync(fileName)) {
-            const parentDir = basename(fileName); // Check the parent dir of input directory.
-            fileName = path.join(parentDir, fileName);
-            if (!existsSync(fileName)) { // try in lib dir
+        let candidate = fileName;
+        if (!existsSync(candidate)) {
+            const parentDir = dirname(g.fileName); // Check the parent dir of input directory.
+            candidate = path.join(parentDir, fileName);
+            if (!existsSync(candidate)) { // try in lib dir
                 const libDirectory = grammarOptions.libDirectory;
                 if (libDirectory) {
-                    fileName = path.join(libDirectory, fileName);
-                    if (!existsSync(fileName)) {
+                    candidate = path.join(libDirectory, fileName);
+                    if (!existsSync(candidate)) {
                         return undefined;
                     }
+
+                    return candidate;
                 }
             }
         }
 
-        return fileName;
+        return candidate;
     }
 
     /**

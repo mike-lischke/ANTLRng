@@ -41,7 +41,7 @@ class TreeShapeListener implements ParseTreeListener {
 export const main = (text: string): void => {
     const input = CharStream.fromString(text);
     input.name = "input";
-    const lexer = new TLexer(input);
+    const lexer = new <lexerName>(input);
     const stream = new CommonTokenStream(lexer);
 <if(parserName)>
     const parser = new <parserName>(stream);
