@@ -112,26 +112,31 @@ export class ToolTestUtils {
             const tempDirName = "AntlrTestErrors-" + Date.now();
             const tempTestDir = join(tmpdir(), tempDirName);
 
-            const queue = this.antlrOnString(tempTestDir, "TypeScript", fileName, grammarStr, false);
+            mkdirSync(tempTestDir);
+            try {
+                const queue = this.antlrOnString(tempTestDir, "TypeScript", fileName, grammarStr, false);
 
-            let actual = "";
-            if (ignoreWarnings) {
-                const errors = [];
-                for (const error of queue.errors) {
-                    const msgST = queue.errorManager.getMessageTemplate(error)!;
-                    errors.push(msgST.render());
+                let actual = "";
+                if (ignoreWarnings) {
+                    const errors = [];
+                    for (const error of queue.errors) {
+                        const msgST = queue.errorManager.getMessageTemplate(error)!;
+                        errors.push(msgST.render());
+                    }
+
+                    if (errors.length > 0) {
+                        actual = errors.join("\n") + "\n";
+                    }
+                } else {
+                    actual = queue.toString(true);
                 }
 
-                if (errors.length > 0) {
-                    actual = errors.join("\n") + "\n";
-                }
-            } else {
-                actual = queue.toString(true);
+                actual = actual.replace(tempTestDir + "/", "");
+
+                expect(actual).toBe(expected);
+            } finally {
+                rmdirSync(tempTestDir, { recursive: true });
             }
-
-            actual = actual.replace(tempTestDir + "/", "");
-
-            expect(actual).toBe(expected);
         }
     }
 
@@ -208,14 +213,10 @@ export class ToolTestUtils {
     /** Write a grammar to tmpdir and run antlr */
     public static antlrOnString(workdir: string, targetName: string | null,
         grammarFileName: string, grammarStr: string, defaultListener: boolean, ...extraOptions: string[]): ErrorQueue {
-        mkdirSync(workdir);
-        try {
-            writeFileSync(join(workdir, grammarFileName), grammarStr);
 
-            return this.antlrOnFile(workdir, targetName, grammarFileName, defaultListener, ...extraOptions);
-        } finally {
-            rmdirSync(workdir, { recursive: true });
-        }
+        writeFileSync(join(workdir, grammarFileName), grammarStr);
+
+        return this.antlrOnFile(workdir, targetName, grammarFileName, defaultListener, ...extraOptions);
     }
 
     /** Run ANTLR on stuff in workdir and error queue back. */
