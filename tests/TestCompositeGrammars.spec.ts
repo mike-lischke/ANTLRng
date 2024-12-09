@@ -3,10 +3,9 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { tmpdir } from "os";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { mkdirSync, readFileSync, rmdirSync, writeFileSync } from "fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmdirSync, writeFileSync } from "fs";
 import { basename, dirname, join } from "node:path";
 import { ErrorType } from "../src/tool/ErrorType.js";
 import { GrammarSemanticsMessage } from "../src/tool/GrammarSemanticsMessage.js";
@@ -14,6 +13,7 @@ import { Grammar } from "../src/tool/index.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
 import { convertMapToString } from "./support/test-helpers.js";
 import { ToolTestUtils } from "./ToolTestUtils.js";
+import { tmpdir } from "node:os";
 
 describe("TestCompositeGrammars", () => {
     let tempDirPath: string;
@@ -51,8 +51,7 @@ describe("TestCompositeGrammars", () => {
     };
 
     beforeEach(() => {
-        tempDirPath = join(tmpdir(), "AntlrComposite" + Date.now().toString());
-        mkdirSync(tempDirPath, { recursive: true });
+        tempDirPath = mkdtempSync(join(tmpdir(), "AntlrComposite"));
     });
 
     afterEach(() => {

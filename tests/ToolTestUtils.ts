@@ -8,7 +8,7 @@
 
 import { expect } from "vitest";
 
-import { mkdirSync, readFileSync, rmdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmdirSync, writeFileSync } from "node:fs";
 
 import {
     ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, PredictionMode, Token
@@ -109,12 +109,9 @@ export class ToolTestUtils {
             const lines = grammarStr.split("\n");
             const fileName = ToolTestUtils.getFilenameFromFirstLineOfGrammar(lines[0]);
 
-            const tempDirName = "AntlrTestErrors-" + Date.now();
-            const tempTestDir = join(tmpdir(), tempDirName);
-
-            mkdirSync(tempTestDir);
+            const tempTestDir = mkdtempSync(join(tmpdir(), "AntlrTestErrors-"));
             try {
-                const queue = this.antlrOnString(tempTestDir, "TypeScript", fileName, grammarStr, false);
+                const queue = this.antlrOnString(tempTestDir, null, fileName, grammarStr, false);
 
                 let actual = "";
                 if (ignoreWarnings) {

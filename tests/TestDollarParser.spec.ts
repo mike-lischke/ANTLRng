@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { mkdirSync, rmdirSync } from "node:fs";
+import { mkdtempSync, rmdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -15,8 +15,7 @@ describe("TestDollarParser", () => {
     let tempDirPath: string;
 
     beforeEach(() => {
-        tempDirPath = join(tmpdir(), "AntlrComposite" + Date.now().toString());
-        mkdirSync(tempDirPath, { recursive: true });
+        tempDirPath = mkdtempSync(join(tmpdir(), "AntlrDollarParser"));
     });
 
     afterEach(() => {
