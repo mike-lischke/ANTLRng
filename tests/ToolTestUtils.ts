@@ -33,7 +33,7 @@ export interface IRunOptions {
     grammarName: string;
     useListener: boolean;
     useVisitor: boolean;
-    startRuleName: string;
+    startRuleName: string | null;
     input: string;
     profile: boolean;
     showDiagnosticErrors: boolean;
@@ -50,12 +50,13 @@ interface IGeneratedFile {
 }
 
 export class ToolTestUtils {
-    /*public static execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string,
-        tempDir?: string, saveTestDir?: boolean): ExecutedState {
-        return ToolTestUtils.execRecognizer(grammarFileName, grammarStr, null, lexerName,
-            null, input, false, tempDir, saveTestDir);
+    public static async execLexer(grammarFileName: string, grammarStr: string, lexerName: string, input: string,
+        workingDir: string): Promise<ErrorQueue> {
+        const runOptions = this.createOptionsForToolTests(grammarFileName, grammarStr, null, lexerName, false, false,
+            null, input, false, false);
 
-    }*/
+        return await ToolTestUtils.execRecognizer(runOptions, workingDir);
+    }
 
     public static async execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
         startRuleName: string, input: string, showDiagnosticErrors: boolean, workingDir: string): Promise<ErrorQueue> {
@@ -66,8 +67,8 @@ export class ToolTestUtils {
     }
 
     public static createOptionsForToolTests(grammarFileName: string, grammarStr: string, parserName: string | null,
-        lexerName: string | null, useListener: boolean, useVisitor: boolean, startRuleName: string, input: string,
-        profile: boolean, showDiagnosticErrors: boolean): IRunOptions {
+        lexerName: string | null, useListener: boolean, useVisitor: boolean, startRuleName: string | null,
+        input: string, profile: boolean, showDiagnosticErrors: boolean): IRunOptions {
         const isCombinedGrammar = lexerName != null && parserName != null;
         let grammarName;
         if (isCombinedGrammar) {
@@ -277,6 +278,29 @@ export class ToolTestUtils {
         } while (ttype !== Token.EOF);
 
         return tokenTypes;
+    }
+
+    /**
+     * Runs the given callback in a context where console.log is captured and returns the output.
+     *
+     * @param func The callback to execute.
+     *
+     * @returns The output of console.log, while running the callback.
+     */
+    public static async captureConsoleLog(func: () => Promise<void>): Promise<string> {
+        const log = console.log;
+        let logOutput = "";
+        console.log = (message: string): void => {
+            logOutput += message + "\n";
+        };
+
+        try {
+            await func();
+        } finally {
+            console.log = log;
+        }
+
+        return logOutput;
     }
 
     private static async execRecognizer(runOptions: IRunOptions, workingDir: string): Promise<ErrorQueue> {

@@ -42,7 +42,7 @@ describe("TestGrammarParserInterpreter", () => {
         return t as InterpreterRuleContext;
     };
 
-    it.only("testAlts", () => {
+    it("testAlts", () => {
         const g = new Grammar(
             "parser grammar T;\n" +
             "s : ID\n" +

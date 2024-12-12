@@ -11,9 +11,10 @@ import {
 
 import {
     ANTLRv4Parser,
+    ElementContext,
     type Action_Context, type ActionBlockContext, type AlternativeContext, type AltListContext, type AtomContext,
     type BlockContext, type BlockSetContext, type ChannelsSpecContext, type CharacterRangeContext,
-    type DelegateGrammarsContext, type EbnfContext, type EbnfSuffixContext, type ElementContext,
+    type DelegateGrammarsContext, type EbnfContext, type EbnfSuffixContext,
     type ElementOptionContext, type ElementOptionsContext, type GrammarSpecContext, type LabeledElementContext,
     type LexerAltContext, type LexerAtomContext, type LexerBlockContext, type LexerCommandContext,
     type LexerCommandsContext, type LexerElementContext, type LexerElementsContext, type LexerRuleBlockContext,
@@ -385,6 +386,48 @@ export class ParseTreeToASTConverter {
         }
     }
 
+    public static convertActionElementToAST(actionElement: ElementContext | LexerElementContext,
+        ast: GrammarAST): GrammarAST | undefined {
+        const actionBlock = actionElement.actionBlock();
+        if (!actionBlock) {
+            return undefined;
+        }
+
+        const isPredicate = actionElement.QUESTION() !== null;
+        const predicateOptions = actionElement instanceof ElementContext ? actionElement.predicateOptions() : null;
+
+        if (isPredicate) {
+            const predicate = this.createVirtualASTNode(PredAST, ANTLRv4Parser.SEMPRED, actionBlock,
+                actionBlock.getText());
+            ast.addChild(predicate);
+
+            if (predicateOptions) {
+                this.convertPredicateOptionsToAST(predicateOptions, predicate);
+                this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, actionBlock, predicate);
+
+                const options = predicate.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+                if (options) {
+                    Grammar.setNodeOptions(predicate, options);
+                }
+            }
+
+            return predicate;
+        }
+
+        const actionAST = this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, actionBlock, ast);
+
+        if (predicateOptions) {
+            this.convertPredicateOptionsToAST(predicateOptions, actionAST);
+        }
+
+        const options = actionAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        if (options) {
+            Grammar.setNodeOptions(actionAST, options);
+        }
+
+        return actionAST;
+    }
+
     public static convertActionBlockToAST(astType: number, actionBlock: ActionBlockContext,
         ast: GrammarAST): ActionAST {
         const text = actionBlock.getText();
@@ -543,7 +586,7 @@ export class ParseTreeToASTConverter {
                 return this.convertLexerBlockToAST(lexerElement.lexerBlock()!, ast);
             }
         } else if (lexerElement.actionBlock()) {
-            return this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, lexerElement.actionBlock()!, ast);
+            return this.convertActionElementToAST(lexerElement, ast);
         }
 
         return undefined;
@@ -825,25 +868,7 @@ export class ParseTreeToASTConverter {
         } else if (element.ebnf()) {
             return this.convertEbnfToAST(element.ebnf()!, ast);
         } else if (element.actionBlock()) {
-            if (element.QUESTION()) {
-                const predicate = this.createVirtualASTNode(PredAST, ANTLRv4Parser.SEMPRED, element.QUESTION()!,
-                    "SEMPRED");
-                ast.addChild(predicate);
-
-                if (element.predicateOptions()) {
-                    this.convertPredicateOptionsToAST(element.predicateOptions()!, predicate);
-                }
-
-                const options = predicate.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
-                if (options) {
-                    Grammar.setNodeOptions(predicate, options);
-                }
-
-                return predicate;
-            } else {
-                return this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, element.actionBlock()!, ast);
-            }
-
+            return this.convertActionElementToAST(element, ast);
         }
 
         return undefined;
