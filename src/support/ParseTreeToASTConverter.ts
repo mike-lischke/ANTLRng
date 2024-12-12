@@ -813,6 +813,9 @@ export class ParseTreeToASTConverter {
                     const altAST = this.createVirtualASTNode(AltAST, ANTLRv4Lexer.ALT, element.atom()!, "ALT");
                     blockAST.addChild(altAST);
                     this.convertAtomToAST(element.atom()!, altAST);
+
+                    ebnfAST.startIndex = element.start!.tokenIndex;
+                    ebnfAST.stopIndex = element.stop!.tokenIndex;
                 }
 
                 return ebnfAST;

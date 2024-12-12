@@ -380,8 +380,16 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
             // Are there args on a rule?
             if (tok.type === ANTLRv4Parser.RULE_REF && i <= tokenStopIndex
-                && this.tokenStream.get(i).type === ANTLRv4Parser.ARG_ACTION) {
-                result += "[" + this.tokenStream.get(i).text + "]";
+                && this.tokenStream.get(i).type === ANTLRv4Parser.BEGIN_ARGUMENT) {
+                while (true) {
+                    result += this.tokenStream.get(i).text;
+
+                    if (this.tokenStream.get(i).type === ANTLRv4Parser.END_ARGUMENT) {
+                        break;
+                    }
+
+                    i++;
+                }
                 i++;
             }
 

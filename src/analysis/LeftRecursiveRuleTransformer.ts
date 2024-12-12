@@ -8,7 +8,7 @@
 
 // cspell:ignore ruleref
 
-import { CharStream, CommonTokenStream, RecognitionException } from "antlr4ng";
+import { CharStream, CommonTokenStream } from "antlr4ng";
 
 import { Constants } from "../Constants1.js";
 import { Tool } from "../Tool.js";
@@ -108,12 +108,8 @@ export class LeftRecursiveRuleTransformer {
         let isLeftRec: boolean;
         try {
             isLeftRec = leftRecursiveRuleWalker.rec_rule();
-        } catch (re) {
-            if (re instanceof RecognitionException) {
-                isLeftRec = false; // didn't match; oh well
-            } else {
-                throw re;
-            }
+        } catch {
+            isLeftRec = false; // didn't match; oh well
         }
 
         if (!isLeftRec) {

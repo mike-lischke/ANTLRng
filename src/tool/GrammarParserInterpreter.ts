@@ -298,7 +298,7 @@ export class GrammarParserInterpreter extends ParserInterpreter implements IGram
                 parser = new ctor(g, originalParser.atn, originalParser.tokenStream);
             } catch (e) {
                 if (e instanceof Error) {
-                    throw new Error("can't create parser to match incoming " + originalParser.constructor.name, e);
+                    throw new Error("can't create parser to match incoming " + originalParser.constructor.name);
                 } else {
                     throw e;
                 }

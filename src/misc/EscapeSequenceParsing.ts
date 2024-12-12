@@ -18,7 +18,7 @@ export enum ResultType {
     Property
 };
 
-export interface EscapeParsingResult {
+export interface IEscapeParsingResult {
     type: ResultType;
     codePoint: number;
     propertyIntervalSet: IntervalSet;
@@ -45,7 +45,7 @@ export abstract class EscapeSequenceParsing {
      *
      * @returns a type of INVALID if no valid escape sequence was found, a Result otherwise.
      */
-    public static parseEscape(s: string, startOff: number): EscapeParsingResult {
+    public static parseEscape(s: string, startOff: number): IEscapeParsingResult {
         let offset = startOff;
         if (offset + 2 > s.length || s.codePointAt(offset) !== 0x5C) { // backslash
             return EscapeSequenceParsing.invalid(startOff, s.length - 1);
@@ -149,7 +149,7 @@ export abstract class EscapeSequenceParsing {
         }
     }
 
-    private static invalid(start: number, stop: number): EscapeParsingResult { // start..stop is inclusive
+    private static invalid(start: number, stop: number): IEscapeParsingResult { // start..stop is inclusive
         return {
             type: ResultType.Invalid,
             codePoint: 0,

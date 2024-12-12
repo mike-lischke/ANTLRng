@@ -8,7 +8,9 @@
 import { Tool } from "../Tool.js";
 import { Grammar } from "./Grammar.js";
 import { LexerGrammar } from "./LexerGrammar.js";
+import { GrammarParserInterpreter } from "./GrammarParserInterpreter.js";
 
 export { Tool };
 export { Grammar };
 export { LexerGrammar };
+export { GrammarParserInterpreter };

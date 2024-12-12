@@ -89,10 +89,17 @@ export class Grammar implements IGrammar, AttributeResolver {
     public static readonly lexerBlockOptions = new Set<string>();
 
     /** Legal options for rule refs like id&lt;key=value&gt; */
-    public static readonly ruleRefOptions = new Set<string>();
+    public static readonly ruleRefOptions = new Set<string>([
+        Constants.PRECEDENCE_OPTION_NAME,
+        Constants.TOKENINDEX_OPTION_NAME,
+    ]);
 
     /** Legal options for terminal refs like ID&lt;assoc=right&gt; */
-    public static readonly tokenOptions = new Set<string>();
+    public static readonly tokenOptions = new Set<string>([
+        "assoc",
+        Constants.TOKENINDEX_OPTION_NAME,
+
+    ]);
 
     public static readonly actionOptions = new Set<string>();
 
@@ -1015,6 +1022,7 @@ export class Grammar implements IGrammar, AttributeResolver {
         if (vocab) {
             const vParser = new TokenVocabParser(this);
             const tokens = vParser.load();
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             this.tool.logInfo({ component: "grammar", msg: `tokens=${String(tokens)}` });
 
             for (const t of tokens.keys()) {
