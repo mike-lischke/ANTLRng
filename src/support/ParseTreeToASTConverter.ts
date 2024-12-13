@@ -403,9 +403,8 @@ export class ParseTreeToASTConverter {
 
             if (predicateOptions) {
                 this.convertPredicateOptionsToAST(predicateOptions, predicate);
-                this.convertActionBlockToAST(ANTLRv4Lexer.ACTION, actionBlock, predicate);
 
-                const options = predicate.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+                const options = predicate.getFirstChildWithType(ANTLRv4Parser.ELEMENT_OPTIONS) as GrammarAST | null;
                 if (options) {
                     Grammar.setNodeOptions(predicate, options);
                 }
@@ -469,7 +468,7 @@ export class ParseTreeToASTConverter {
             if (option.elementOption()) {
                 this.convertElementOptionToAST(option.elementOption()!, predicateOptions);
             } else if (option.ASSIGN()) {
-                const assign = this.createASTNode(ANTLRv4Parser.ASSIGN, option);
+                const assign = this.createASTNode(ANTLRv4Parser.ASSIGN, option.ASSIGN()!);
                 predicateOptions.addChild(assign);
                 const id = this.createASTNode(ANTLRv4Parser.ID, option.identifier()!);
                 assign.addChild(id);

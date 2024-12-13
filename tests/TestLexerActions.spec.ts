@@ -29,7 +29,7 @@ describe("TestLexerActions", () => {
             "I : '0'..'9'+ {console.log(\"I\");} ;\n" +
             "WS : (' '|'\\n') -> skip ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "34 34", tempDirPath);
         });
 
@@ -40,7 +40,7 @@ describe("TestLexerActions", () => {
             "[@1,3:4='34',<1>,1:3]\n" +
             "[@2,5:4='<EOF>',<-1>,1:5]\n";
 
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testActionEvalsAtCorrectIndex", async () => {
@@ -49,7 +49,7 @@ describe("TestLexerActions", () => {
             "I : [0-9] {console.log(\"2nd char: \"+String.fromCodePoint(this.inputStream.LA(1)));} [0-9]+ ;\n" +
             "WS : (' '|'\\n') -> skip ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "123 45", tempDirPath);
         });
 
@@ -59,7 +59,7 @@ describe("TestLexerActions", () => {
             "[@0,0:2='123',<1>,1:0]\n" +
             "[@1,4:5='45',<1>,1:4]\n" +
             "[@2,6:5='<EOF>',<-1>,1:6]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     /**
@@ -97,7 +97,7 @@ NAME: ('a'..'z' | 'A'..'Z')+ ('\\n')?;
 
 fragment WS: [ \\r\\t\\n]+ ;
 `;
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "hello Steve\n", tempDirPath);
         });
 
@@ -108,7 +108,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "\n" +
             "[@0,0:11='hello Steve\\n',<1>,1:0]\n" +
             "[@1,12:11='<EOF>',<-1>,2:0]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("test2ActionsIn1Rule", async () => {
@@ -117,7 +117,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "I : [0-9] {console.log(\"x\");} [0-9]+ {console.log(\"y\");} ;\n" +
             "WS : (' '|'\\n') -> skip ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "123 45", tempDirPath);
         });
 
@@ -129,7 +129,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:2='123',<1>,1:0]\n" +
             "[@1,4:5='45',<1>,1:4]\n" +
             "[@2,6:5='<EOF>',<-1>,1:6]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testAltActionsIn1Rule", async () => {
@@ -142,7 +142,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "    ;\n" +
             "WS : (' '|'\\n') -> skip ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "123 ab", tempDirPath);
         });
 
@@ -152,7 +152,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:2='123',<1>,1:0]\n" +
             "[@1,4:5='ab',<1>,1:4]\n" +
             "[@2,6:5='<EOF>',<-1>,1:6]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testActionPlusCommand", async () => {
@@ -161,7 +161,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "I : '0'..'9'+ {console.log(\"I\");} -> skip ;\n" +
             "WS : (' '|'\\n') -> skip ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "34 34", tempDirPath);
         });
 
@@ -169,7 +169,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "I\n" +
             "I\n" +
             "[@0,5:4='<EOF>',<-1>,1:5]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     // ----- COMMANDS --------------------------------------------------------
@@ -180,7 +180,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "I : '0'..'9'+ {console.log(\"I\");} ;\n" +
             "WS : (' '|'\\n') -> skip ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "34 34", tempDirPath);
         });
 
@@ -190,7 +190,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:1='34',<1>,1:0]\n" +
             "[@1,3:4='34',<1>,1:3]\n" +
             "[@2,5:4='<EOF>',<-1>,1:5]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testMoreCommand", async () => {
@@ -199,7 +199,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "I : '0'..'9'+ {console.log(\"I\");} ;\n" +
             "WS : '#' -> more ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "34#10", tempDirPath);
         });
 
@@ -209,7 +209,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:1='34',<1>,1:0]\n" +
             "[@1,2:4='#10',<1>,1:2]\n" +
             "[@2,5:4='<EOF>',<-1>,1:5]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testTypeCommand", async () => {
@@ -218,7 +218,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "I : '0'..'9'+ {console.log(\"I\");} ;\n" +
             "HASH : '#' -> type(HASH) ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "34#", tempDirPath);
         });
 
@@ -227,7 +227,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:1='34',<1>,1:0]\n" +
             "[@1,2:2='#',<2>,1:2]\n" +
             "[@2,3:2='<EOF>',<-1>,1:3]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testCombinedCommand", async () => {
@@ -236,7 +236,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "I : '0'..'9'+ {console.log(\"I\");} ;\n" +
             "HASH : '#' -> type(100), skip, more  ;";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "34#11", tempDirPath);
         });
 
@@ -246,7 +246,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:1='34',<1>,1:0]\n" +
             "[@1,2:4='#11',<1>,1:2]\n" +
             "[@2,5:4='<EOF>',<-1>,1:5]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testLexerMode", async () => {
@@ -258,7 +258,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "STRING : '\"' -> popMode;\n" +
             "ANY : . -> more;\n";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "\"abc\" \"ab\"", tempDirPath);
         });
 
@@ -266,7 +266,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:4='\"abc\"',<2>,1:0]\n" +
             "[@1,6:9='\"ab\"',<2>,1:6]\n" +
             "[@2,10:9='<EOF>',<-1>,1:10]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testLexerPushPopModeAction", async () => {
@@ -278,7 +278,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "STRING : '\"' -> popMode ;\n" + // token type 2
             "ANY : . -> more ;\n";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "\"abc\" \"ab\"", tempDirPath);
         });
 
@@ -286,7 +286,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:4='\"abc\"',<2>,1:0]\n" +
             "[@1,6:9='\"ab\"',<2>,1:6]\n" +
             "[@2,10:9='<EOF>',<-1>,1:10]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     it("testLexerModeAction", async () => {
@@ -298,7 +298,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "STRING : '\"' -> mode(DEFAULT_MODE) ;\n" + // ttype 2 since '"' ambiguity
             "ANY : . -> more ;\n";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("L.g4", grammar, "L", "\"abc\" \"ab\"", tempDirPath);
         });
 
@@ -306,7 +306,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@0,0:4='\"abc\"',<2>,1:0]\n" +
             "[@1,6:9='\"ab\"',<2>,1:6]\n" +
             "[@2,10:9='<EOF>',<-1>,1:10]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
     // ----- PREDICATES --------------------------------------------------------
@@ -336,7 +336,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "Another line.\n" +
             "More line.\n";
 
-        const output = await ToolTestUtils.captureConsoleLog(async () => {
+        const output = await ToolTestUtils.captureTerminalOutput(async () => {
             await ToolTestUtils.execLexer("TestLexer.g4", grammar, "TestLexer", input, tempDirPath);
         });
 
@@ -348,7 +348,7 @@ fragment WS: [ \\r\\t\\n]+ ;
             "[@4,32:45='Another line.\\n',<1>,3:0]\n" +
             "[@5,46:56='More line.\\n',<1>,4:0]\n" +
             "[@6,57:56='<EOF>',<-1>,5:0]\n";
-        expect(output).toBe(expecting);
+        expect(output.output).toBe(expecting);
     });
 
 });

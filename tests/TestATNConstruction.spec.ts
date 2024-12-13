@@ -676,6 +676,7 @@ describe("TestATNConstruction", () => {
             "\t ID : 'a'..'z'+ ;\n" +
             "\t WS : (' '|'\\n') -> skip ;";
         const g = new Grammar(grammarString);
+        g.tool.process(g, false);
 
         const expecting =
             "RuleStart_e_2->s7\n" +
@@ -689,10 +690,10 @@ describe("TestATNConstruction", () => {
             "StarBlockStart_25->s16\n" +
             "StarBlockStart_25->s22\n" +
             "s28->RuleStop_e_3\n" +
-            "s10-pred_1:0->s11\n" +
-            "s13-pred_1:1->s14\n" +
-            "s16-pred_1:2->s17\n" +
-            "s22-pred_1:3->s23\n" +
+            "s10-5 >= _p->s11\n" +
+            "s13-4 >= _p->s14\n" +
+            "s16-3 >= _p->s17\n" +
+            "s22-2 >= _p->s23\n" +
             "RuleStop_e_3->s5\n" +
             "RuleStop_e_3->BlockEnd_26\n" +
             "RuleStop_e_3->s19\n" +

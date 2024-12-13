@@ -11,7 +11,8 @@ import { expect } from "vitest";
 import { mkdtempSync, readFileSync, rmdirSync, writeFileSync } from "node:fs";
 
 import {
-    ATN, ATNDeserializer, ATNSerializer, CharStream, Lexer, LexerATNSimulator, PredictionMode, Token
+    ATN, ATNDeserializer, ATNSerializer, CharStream, escapeWhitespace, Lexer, LexerATNSimulator, ParseTree,
+    PredictionMode, Token
 } from "antlr4ng";
 import { ST } from "stringtemplate4ts";
 
@@ -23,6 +24,7 @@ import { ParserATNFactory } from "../src/automata/ParserATNFactory.js";
 import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { DefaultToolListener } from "../src/tool/DefaultToolListener.js";
 import { Tool, type Grammar, type LexerGrammar } from "../src/tool/index.js";
+import type { InterpreterTreeTextProvider } from "./InterpreterTreeTextProvider.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
 
 export interface IRunOptions {
@@ -42,6 +44,11 @@ export interface IRunOptions {
     superClass?: string;
     predictionMode: PredictionMode;
     buildParseTree: boolean;
+}
+
+export interface ICapturedOutput {
+    output: string;
+    error: string;
 }
 
 interface IGeneratedFile {
@@ -281,32 +288,83 @@ export class ToolTestUtils {
     }
 
     /**
-     * Runs the given callback in a context where console.log is captured and returns the output.
+     * Runs the given callback in a context where console.log and process.stdout.write is captured
+     * and returns the output.
      *
      * @param func The callback to execute.
      *
      * @returns The output of console.log, while running the callback.
      */
-    public static async captureConsoleLog(func: () => Promise<void>): Promise<string> {
+    public static async captureTerminalOutput(func: () => Promise<void>): Promise<ICapturedOutput> {
         const log = console.log;
-        let logOutput = "";
+        const error = console.error;
+        const write = void process.stdout.write;
+
+        const result: ICapturedOutput = {
+            output: "",
+            error: ""
+        };
+
         console.log = (message: string): void => {
-            logOutput += message + "\n";
+            result.output += message + "\n";
+        };
+
+        console.error = (message: string): void => {
+            result.error += message + "\n";
+        };
+
+        process.stdout.write = (chunk): boolean => {
+            result.output += chunk.toString();
+
+            return true;
         };
 
         try {
             await func();
         } finally {
             console.log = log;
+            console.error = error;
+
+            // @ts-expect-error, need to restore the original function.
+            process.stdout.write = write;
         }
 
-        return logOutput;
+        return result;
+    }
+
+    /**
+     * Print out a whole tree in LISP form. Arg nodeTextProvider is used on the
+     * node payloads to get the text for the nodes.
+     */
+    public static toStringTree(t: ParseTree | null, nodeTextProvider: InterpreterTreeTextProvider): string {
+        if (t === null) {
+            return "null";
+        }
+        let s = escapeWhitespace(nodeTextProvider.getText(t), false);
+        if (t.getChildCount() === 0) {
+            return s;
+        }
+
+        const buf: string[] = [];
+        buf.push("(");
+        s = escapeWhitespace(nodeTextProvider.getText(t), false);
+        buf.push(s);
+        buf.push(" ");
+        for (let i = 0; i < t.getChildCount(); i++) {
+            if (i > 0) {
+                buf.push(" ");
+            }
+            buf.push(this.toStringTree(t.getChild(i), nodeTextProvider));
+        }
+        buf.push(")");
+
+        return buf.join("");
     }
 
     private static async execRecognizer(runOptions: IRunOptions, workingDir: string): Promise<ErrorQueue> {
         const result = execSync("npm install antlr4ng", { cwd: workingDir });
 
-        expect(result.toString()).toContain("added 2 packages");
+        expect(result.toString()).toMatch(/\s*(added 2 packages|up to date)/);
 
         writeFileSync(join(workingDir, runOptions.grammarFileName), runOptions.grammarStr);
 

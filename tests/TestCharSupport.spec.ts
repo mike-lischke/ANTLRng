@@ -63,9 +63,7 @@ describe("TestCharSupport", () => {
         expect(CharSupport.getIntervalSetEscapedString(new IntervalSet())).toBe("");
         expect(CharSupport.getIntervalSetEscapedString(IntervalSet.of(0, 0))).toBe("'\\u0000'");
 
-        const set = IntervalSet.of(3, 1);
-        set.or([IntervalSet.of(2, 2)]);
-        expect(CharSupport.getIntervalSetEscapedString(set)).toBe("'\\u0001'..'\\u0003'");
+        expect(CharSupport.getIntervalSetEscapedString(new IntervalSet([3, 1, 2]))).toBe("'\\u0001'..'\\u0003'");
     });
 
     it("testGetRangeEscapedString", (): void => {

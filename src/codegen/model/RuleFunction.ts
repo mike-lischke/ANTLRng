@@ -6,7 +6,7 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
-import { ATNState, IntervalSet, RecognitionException } from "antlr4ng";
+import { ATNState, IntervalSet, OrderedHashSet, RecognitionException } from "antlr4ng";
 
 import { CommonTreeNodeStream } from "../../antlr3/tree/CommonTreeNodeStream.js";
 import { ANTLRv4Lexer } from "../../generated/ANTLRv4Lexer.js";
@@ -56,7 +56,7 @@ export class RuleFunction extends OutputModelObject {
     public code: SrcOp[];
 
     @ModelElement
-    public locals = new Set<Decl>(); // TODO: move into ctx?
+    public locals = new OrderedHashSet<Decl>(); // TODO: move into ctx?
 
     @ModelElement
     public args?: AttributeDecl[];

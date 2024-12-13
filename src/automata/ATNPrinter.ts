@@ -80,7 +80,7 @@ export class ATNPrinter {
                                     const label = this.g.getTokenDisplayName(t.labelValue);
                                     buffer += "-" + label + "->" + this.getStateString(t.target) + "\n";
                                 } else {
-                                    buffer += "-" + String(t) + "->" + this.getStateString(t.target) + "\n";
+                                    buffer += `-${t}->${this.getStateString(t.target)}\n`;
                                 }
                             }
                         }

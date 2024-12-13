@@ -42,7 +42,7 @@ export class SemPred extends Action {
         const failNode = ast.getOptionAST("fail");
         const gen = factory.getGenerator()!;
         this.predicate = ast.getText()!;
-        if (this.predicate.startsWith("{") && this.predicate.endsWith("}?")) {
+        if (this.predicate.startsWith("{") && this.predicate.endsWith("}")) {
             this.predicate = this.predicate.substring(1, this.predicate.length - 2);
         }
 

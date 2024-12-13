@@ -72,6 +72,7 @@ export class AttributeDict {
     }
 
     public toString(): string {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         return this.getName() + ":" + String(this.attributes);
     }
 }
