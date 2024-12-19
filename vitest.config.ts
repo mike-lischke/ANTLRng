@@ -9,5 +9,8 @@ export default defineConfig({
         pool: "threads",
         reporters: ["basic"],
         slowTestThreshold: 2000,
+        sequence: {
+            concurrent: false,
+        }
     },
 });
