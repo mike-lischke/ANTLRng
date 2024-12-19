@@ -7,5 +7,7 @@ export default defineConfig({
         isolate: false,
         environment: "node",
         pool: "threads",
+        reporters: ["basic"],
+        slowTestThreshold: 2000,
     },
 });

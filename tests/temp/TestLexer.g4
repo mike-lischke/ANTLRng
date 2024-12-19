@@ -1,8 +1,8 @@
 lexer grammar TestLexer;
 
-CMT:
-    '/*' (CMT | .)*? '*/'
+I:
+    '0' ..'9'+ {console.log("I");}
 ;
 
-WS: (' ' | '\n')+
+WS: (' ' | '\n') -> skip
 ;

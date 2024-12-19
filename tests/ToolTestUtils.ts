@@ -8,24 +8,31 @@
 
 import { expect } from "vitest";
 
-import { mkdtempSync, readFileSync, rmdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+
+import { existsSync, mkdtempSync, readFileSync, rmdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
 
 import {
-    ATN, ATNDeserializer, ATNSerializer, CharStream, escapeWhitespace, Lexer, LexerATNSimulator, ParseTree,
-    PredictionMode, Token
+    ATN, ATNDeserializer, ATNSerializer, CharStream, CommonTokenStream, escapeWhitespace, Lexer, LexerATNSimulator,
+    ParseTree, PredictionMode, Token, type Parser
 } from "antlr4ng";
 import { ST } from "stringtemplate4ts";
 
-import { execSync } from "node:child_process";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
 import { LexerATNFactory } from "../src/automata/LexerATNFactory.js";
 import { ParserATNFactory } from "../src/automata/ParserATNFactory.js";
+import type { Constructor } from "../src/misc/Utils.js";
 import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { DefaultToolListener } from "../src/tool/DefaultToolListener.js";
 import { Tool, type Grammar, type LexerGrammar } from "../src/tool/index.js";
 import type { InterpreterTreeTextProvider } from "./InterpreterTreeTextProvider.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
+
+export type MethodKeys<T extends Parser> = {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    [K in keyof T]: T[K] extends Function ? K : never
+}[keyof T];
 
 export interface IRunOptions {
     grammarFileName: string;
@@ -66,9 +73,10 @@ export class ToolTestUtils {
     }
 
     public static async execParser(grammarFileName: string, grammarStr: string, parserName: string, lexerName: string,
-        startRuleName: string, input: string, showDiagnosticErrors: boolean, workingDir: string): Promise<ErrorQueue> {
+        startRuleName: string, input: string, profile: boolean, showDiagnosticErrors: boolean,
+        workingDir: string): Promise<ErrorQueue> {
         const runOptions = this.createOptionsForToolTests(grammarFileName, grammarStr, parserName, lexerName,
-            false, false, startRuleName, input, false, showDiagnosticErrors);
+            false, false, startRuleName, input, profile, showDiagnosticErrors);
 
         return await ToolTestUtils.execRecognizer(runOptions, workingDir);
     }
@@ -145,6 +153,27 @@ export class ToolTestUtils {
         }
     }
 
+    public static async setupRecognizers(runOptions: IRunOptions, workDir: string): Promise<[Lexer, Parser]> {
+        await this.setupRuntime(workDir);
+
+        // Assuming a combined grammar here. Write the grammar file and run the code generation.
+        writeFileSync(join(workDir, runOptions.grammarFileName), runOptions.grammarStr);
+        const queue = this.antlrOnFile(workDir, "TypeScript", runOptions.grammarFileName, false);
+        expect(queue.errors.length).toBe(0);
+
+        const lexerConstructor = await this.importClass<Lexer>(join(workDir, runOptions.lexerName + ".js"),
+            runOptions.lexerName!);
+        const parserConstructor = await this.importClass<Parser>(join(workDir, runOptions.parserName + ".js"),
+            runOptions.parserName!);
+
+        const lexer = new lexerConstructor(CharStream.fromString(runOptions.input));
+        const tokens = new CommonTokenStream(lexer);
+        const parser = new parserConstructor(tokens);
+        parser.removeErrorListeners();
+
+        return [lexer, parser];
+    }
+
     public static getFilenameFromFirstLineOfGrammar(line: string): string {
         let fileName = "A" + Tool.GRAMMAR_EXTENSION;
         const grIndex = line.lastIndexOf("grammar");
@@ -163,37 +192,6 @@ export class ToolTestUtils {
     public static realElements(elements: Array<string | null>): Array<string | null> {
         return elements.slice(Token.MIN_USER_TOKEN_TYPE);
     }
-
-    /*public static load(fileName: string): string {
-        if (fileName === null) {
-            return null;
-        }
-
-        const fullFileName = ToolTestUtils.class.getPackage().getName().replace(".", "/") + "/" + fileName;
-        const size = 65000;
-        const fis = ToolTestUtils.class.getClassLoader().getResourceAsStream(fullFileName);
-        {
-            // This holds the final error to throw (if any).
-            let error: java.lang.Throwable | undefined;
-
-            const isr: InputStreamReader = new InputStreamReader(fis);
-            try {
-                try {
-                    const data = new Uint16Array(size);
-                    const n = isr.read(data);
-
-                    return new string(data, 0, n);
-                } finally {
-                    error = closeResources([isr]);
-                }
-            } catch (e) {
-                error = handleResourceError(e, error);
-            } finally {
-                throwResourceError(error);
-            }
-        }
-
-    }*/
 
     public static createATN(g: Grammar, useSerializer: boolean): ATN {
         ToolTestUtils.semanticProcess(g);
@@ -361,22 +359,29 @@ export class ToolTestUtils {
         return buf.join("");
     }
 
-    private static async execRecognizer(runOptions: IRunOptions, workingDir: string): Promise<ErrorQueue> {
-        const result = execSync("npm install antlr4ng", { cwd: workingDir });
+    public static callParserMethod<T extends Parser, K extends MethodKeys<T>>(obj: T, methodName: string): unknown {
+        const method = obj[methodName as K];
+        if (typeof method === "function") {
+            return method.call(obj);
+        } else {
+            throw new Error(`Method ${String(methodName)} is not a function`);
+        }
+    };
 
-        expect(result.toString()).toMatch(/\s*(added 2 packages|up to date)/);
+    private static async execRecognizer(runOptions: IRunOptions, workDir: string): Promise<ErrorQueue> {
+        await this.setupRuntime(workDir);
 
-        writeFileSync(join(workingDir, runOptions.grammarFileName), runOptions.grammarStr);
+        writeFileSync(join(workDir, runOptions.grammarFileName), runOptions.grammarStr);
 
-        const queue = this.antlrOnFile(workingDir, "TypeScript", runOptions.grammarFileName, false);
+        const queue = this.antlrOnFile(workDir, "TypeScript", runOptions.grammarFileName, false);
 
         //const generatedFiles = this.getGeneratedFiles(runOptions);
 
-        this.writeRecognizerFile(workingDir, runOptions);
+        this.writeTestFile(workDir, runOptions);
 
-        writeFileSync(join(workingDir, "input"), runOptions.input);
+        writeFileSync(join(workDir, "input"), runOptions.input);
 
-        const testName = join(workingDir, "Test.js");
+        const testName = join(workDir, "Test.js");
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { main } = await import(testName);
@@ -433,7 +438,8 @@ export class ToolTestUtils {
         return files;
     }
 
-    private static writeRecognizerFile(workDir: string, runOptions: IRunOptions): void {
+    /** Generates the TypeScript test file to run the generated parser + lexer files. */
+    private static writeTestFile(workDir: string, runOptions: IRunOptions): void {
         const sourceURL = join(dirname(import.meta.url), "helpers/Test.ts.stg").substring("file:".length);
         const text = readFileSync(sourceURL, "utf8");
         const outputFileST = new ST(text);
@@ -454,5 +460,23 @@ export class ToolTestUtils {
         outputFileST.add("buildParseTree", runOptions.buildParseTree);
 
         writeFileSync(join(workDir, "Test.ts"), outputFileST.render());
+    }
+
+    private static async importClass<T>(fileName: string, className: string): Promise<Constructor<T>> {
+        const module = await import(fileName) as Record<string, Constructor<T>>;
+
+        return module[className];
+    }
+
+    private static async setupRuntime(workDir: string): Promise<void> {
+        // Symbolic link to antlr4ts in the node_modules directory.
+        const antlr4ngTarget = join(workDir, "node_modules/antlr4ng");
+
+        if (!existsSync(antlr4ngTarget)) {
+            const antlr4tsSource = join(dirname(import.meta.url), "../node_modules/antlr4ng").substring("file:".length);
+            await mkdir(join(workDir, "node_modules"), { recursive: true });
+            symlinkSync(antlr4tsSource, antlr4ngTarget, "dir");
+        }
+
     }
 }

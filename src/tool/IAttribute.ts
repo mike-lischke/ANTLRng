@@ -19,7 +19,7 @@ export interface IAttribute {
     type?: string;
 
     /** The name of the attribute "foo" */
-    name?: string;
+    name: string;
 
     /** A {@link Token} giving the position of the name of this attribute in the grammar. */
     token?: Token;
@@ -29,5 +29,19 @@ export interface IAttribute {
 
     /** Who contains us? */
     dict?: AttributeDict;
+}
+
+export namespace IAttribute {
+    export const toString = (attribute: IAttribute): string => {
+        if (attribute.initValue !== undefined) {
+            return attribute.name + ":" + attribute.type + "=" + attribute.initValue;
+        }
+
+        if (attribute.type !== undefined) {
+            return attribute.name + ":" + attribute.type;
+        }
+
+        return attribute.name;
+    };
 
 }

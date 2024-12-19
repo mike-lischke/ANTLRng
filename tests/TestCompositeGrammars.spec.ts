@@ -679,7 +679,7 @@ describe("TestCompositeGrammars", () => {
             };
 
             const queue = await ToolTestUtils.execParser("NewJava.g4", master, "NewJavaParser", "NewJavaLexer",
-                "compilationUnit", "package Foo;", false, tempDirPath);
+                "compilationUnit", "package Foo;", false, false, tempDirPath);
 
             expect(output).toBe("");
             expect(queue.errors).toHaveLength(0);
@@ -715,7 +715,7 @@ describe("TestCompositeGrammars", () => {
                 output += str;
             };
 
-            const queue = await ToolTestUtils.execParser("T.g4", master, "TParser", "TLexer", "s", "a=b", false,
+            const queue = await ToolTestUtils.execParser("T.g4", master, "TParser", "TLexer", "s", "a=b", false, false,
                 tempDirPath);
             expect(output).toBe("");
             expect(queue.errors).toHaveLength(0);
@@ -738,7 +738,8 @@ describe("TestCompositeGrammars", () => {
             "r : 'R2';";
 
         writeFileSync(join(tempDirPath, "G1.g4"), g1);
-        const queue = await ToolTestUtils.execParser("G2.g4", g2, "G2Parser", "G2Lexer", "r", "R2", false, tempDirPath);
+        const queue = await ToolTestUtils.execParser("G2.g4", g2, "G2Parser", "G2Lexer", "r", "R2", false, false,
+            tempDirPath);
         expect(queue.errors).toHaveLength(0);
     });
 });

@@ -134,7 +134,7 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 
     public override binaryAlt(originalAltTree: AltAST, alt: number): void {
         let altTree = originalAltTree.dupTree() as AltAST;
-        const altLabel = altTree.altLabel!.getText();
+        const altLabel = altTree.altLabel?.getText();
 
         let label: string | undefined;
         let isListLabel = false;
@@ -379,18 +379,23 @@ export class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
             i++; // move to the next token
 
             // Are there args on a rule?
-            if (tok.type === ANTLRv4Parser.RULE_REF && i <= tokenStopIndex
-                && this.tokenStream.get(i).type === ANTLRv4Parser.BEGIN_ARGUMENT) {
-                while (true) {
-                    result += this.tokenStream.get(i).text;
+            if (tok.type === ANTLRv4Parser.RULE_REF) {
+                while (i <= tokenStopIndex && this.tokenStream.get(i).channel !== Constants.DEFAULT_TOKEN_CHANNEL) {
+                    ++i;
+                }
 
-                    if (this.tokenStream.get(i).type === ANTLRv4Parser.END_ARGUMENT) {
-                        break;
+                if (this.tokenStream.get(i).type === ANTLRv4Parser.BEGIN_ARGUMENT) {
+                    while (true) {
+                        result += this.tokenStream.get(i).text;
+
+                        if (this.tokenStream.get(i).type === ANTLRv4Parser.END_ARGUMENT) {
+                            break;
+                        }
+
+                        i++;
                     }
-
                     i++;
                 }
-                i++;
             }
 
             // now that we have the actual element, we can add the options.

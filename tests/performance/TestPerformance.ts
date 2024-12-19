@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
- * Use of this file is governed by the BSD 3-clause license that
- * can be found in the LICENSE.txt file in the project root.
+ * Copyright (c) Mike Lischke. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
 
 /* eslint-disable jsdoc/require-returns, jsdoc/require-param */
 
 
-import { ANTLRFileStream, ANTLRInputStream, BailErrorStrategy, BaseErrorListener, CharStream, CommonTokenStream, DefaultErrorStrategy, DiagnosticErrorListener, Lexer, Parser, ParserInterpreter, ParserRuleContext, RecognitionException, Recognizer, Token, TokenStream, ATN, ATNConfig, ATNConfigSet, LexerATNSimulator, ParserATNSimulator, PredictionContextCache, PredictionMode, DFA, DFAState, Interval, MurmurHash, ParseCancellationException, ErrorNode, ParseTree, ParseTreeListener, ParseTreeWalker, TerminalNode, HashSet } from "antlr4ng";
+import {
+    BailErrorStrategy, BaseErrorListener, CharStream, CommonTokenStream, DefaultErrorStrategy, DiagnosticErrorListener, Lexer, Parser, ParserInterpreter, ParserRuleContext, RecognitionException, Recognizer, Token, TokenStream, ATN, ATNConfig, ATNConfigSet, LexerATNSimulator, ParserATNSimulator, PredictionContextCache, PredictionMode, DFA, DFAState, Interval, MurmurHash, ParseCancellationException, ErrorNode, ParseTree, ParseTreeListener, ParseTreeWalker, TerminalNode, HashSet } from "antlr4ng";
 
 
 
-export  class TestPerformance {
+describe("TestPerformance", () => {
 
 	public static FileParseResult =  class FileParseResult {
 		public readonly  sourceName:  string;
@@ -2151,4 +2151,4 @@ namespace FilenameFilters {
 	export type CloneableANTLRFileStream = InstanceType<typeof TestPerformance.CloneableANTLRFileStream>;
 	export type StrongReference<<T>> = InstanceType<typeof TestPerformance.StrongReference<T>>;
 	export type MurmurHashChecksum = InstanceType<typeof TestPerformance.MurmurHashChecksum>;
-}
+});

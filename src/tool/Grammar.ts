@@ -1022,7 +1022,6 @@ export class Grammar implements IGrammar, AttributeResolver {
         if (vocab) {
             const vParser = new TokenVocabParser(this);
             const tokens = vParser.load();
-            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             this.tool.logInfo({ component: "grammar", msg: `tokens=${String(tokens)}` });
 
             for (const t of tokens.keys()) {

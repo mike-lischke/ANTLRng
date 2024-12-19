@@ -641,7 +641,9 @@ export class LexerATNFactory extends ParserATNFactory {
                                     setText = setText.substring(0, setText.length - 3);
                                 }
 
-                                const charsString = a === b ? String(a) : String(a) + "-" + String(b);
+                                const charsString = a === b
+                                    ? String.fromCodePoint(a)
+                                    : String.fromCodePoint(a) + "-" + String.fromCodePoint(b);
                                 this.g.tool.errorManager.grammarError(ErrorType.CHARACTERS_COLLISION_IN_SET,
                                     this.g.fileName, ast.token!, charsString, setText);
                                 charactersCollision = true;

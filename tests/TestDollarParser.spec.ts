@@ -35,7 +35,7 @@ describe("TestDollarParser", () => {
                 "  ;\n" +
                 "ID : 'a'..'z'+ ;\n";
 
-            const errors = await ToolTestUtils.execParser("T.g4", grammar, "TParser", "TLexer", "a", "x", true,
+            const errors = await ToolTestUtils.execParser("T.g4", grammar, "TParser", "TLexer", "a", "x", false, true,
                 tempDirPath);
             expect(output.includes("input")).toBe(true);
             expect(errors.all).toHaveLength(0);

@@ -80,17 +80,16 @@ export class LeftRecursiveRuleTransformer {
 
         // update all refs to recursive rules to have [0] argument
         for (const r of this.ast.getNodesWithType(ANTLRv4Parser.RULE_REF)) {
-            if (r.getParent()!.getType() !== ANTLRv4Parser.RULE_REF) {
+            if (r.getParent()!.getType() !== ANTLRv4Parser.RULE) { // must be rule def
                 continue;
             }
 
-            // must be rule def
             const rule = r as GrammarASTWithOptions;
             if (rule.getOptionString(Constants.PRECEDENCE_OPTION_NAME)) {
+                // already has arg; must be in rewritten rule
                 continue;
             }
 
-            // already has arg; must be in rewritten rule
             if (leftRecursiveRuleNames.includes(rule.getText())) {
                 // found ref to recursive rule not already rewritten with arg
                 rule.setOption(Constants.PRECEDENCE_OPTION_NAME,
@@ -203,6 +202,7 @@ export class LeftRecursiveRuleTransformer {
 
     public parseArtificialRule(g: Grammar, ruleText: string): RuleAST | undefined {
         const stream = CharStream.fromString(ruleText);
+        stream.name = g.fileName;
         const lexer = new ANTLRv4Lexer(stream);
         const tokens = new CommonTokenStream(lexer);
         const p = new ToolANTLRParser(tokens, this.tool);

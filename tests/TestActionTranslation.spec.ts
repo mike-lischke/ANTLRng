@@ -72,8 +72,6 @@ describe("TestActionTranslation", () => {
             const outputFileST = gen.generateParser(false);
             const output = outputFileST.render(72);
 
-            //writeFileSync("/Users/mike/Downloads/output.txt", output);
-
             const b = "#" + actionName + "#";
             const start = output.indexOf(b);
             const e = "#end-" + actionName + "#";

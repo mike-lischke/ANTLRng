@@ -38,7 +38,9 @@ class TreeShapeListener implements ParseTreeListener {
 }
 <endif>
 
-export const main = (text: string): void => {
+export const main = (text: string): ParseTree | undefined => {
+    let tree: ParseTree | undefined;
+
     const input = CharStream.fromString(text);
     input.name = "input";
     const lexer = new <lexerName>(input);
@@ -52,11 +54,18 @@ export const main = (text: string): void => {
         println : function(s: string) { console.log(s); },
         print : function(s: string) { process.stdout.write(s); }
     };
+<if(profile)>
+    parser.setProfile(true);
+<endif>
     parser.interpreter.predictionMode = PredictionMode.<predictionMode>;
 <if(!buildParseTree)>
     parser.buildParseTrees = false;
 <endif>
-    const tree = parser.<parserStartRuleName>();
+    tree = parser.<parserStartRuleName>();
+<if(profile)>
+    const decisionInfo = parser.getParseInfo()!.getDecisionInfo();
+    console.log(`[${decisionInfo.join(', ')}]`);
+<endif>
     ParseTreeWalker.DEFAULT.walk(new TreeShapeListener(), tree);
 <else>
     stream.fill();
@@ -67,4 +76,6 @@ export const main = (text: string): void => {
     process.stdout.write(lexer.interpreter.decisionToDFA[Lexer.DEFAULT_MODE].toLexerString());
 <endif>
 <endif>
+
+    return tree;
 }

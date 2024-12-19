@@ -240,6 +240,7 @@ export default tslint.config(
             "@typescript-eslint/prefer-for-of": "error",
             "@typescript-eslint/prefer-function-type": "error",
             "@typescript-eslint/no-deprecated": "off",
+            "@typescript-eslint/no-base-to-string": "off",
             "jsdoc/check-alignment": "error",
             "jsdoc/check-indentation": "off",
             "jsdoc/require-param-type": "off",

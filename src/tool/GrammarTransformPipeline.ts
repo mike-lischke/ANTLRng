@@ -59,7 +59,7 @@ export class GrammarTransformPipeline {
     }
 
     public static augmentTokensWithOriginalPosition(g: Grammar, tree: GrammarAST): void {
-        const optionsSubTrees = tree.getNodesWithType(ANTLRv4Parser.OPTIONS);
+        const optionsSubTrees = tree.getNodesWithType(ANTLRv4Parser.ELEMENT_OPTIONS);
         for (const t of optionsSubTrees) {
             const elWithOpt = t.parent;
             if (elWithOpt instanceof GrammarASTWithOptions) {

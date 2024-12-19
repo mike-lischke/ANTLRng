@@ -40,13 +40,14 @@ export class RangeBorderCharactersData {
             let notImpliedCharacters = "";
             for (let i = from; i < to; i++) {
                 if (!Character.isAlphabetic(i)) {
-                    notImpliedCharacters += i;
+                    notImpliedCharacters += String.fromCodePoint(i);
                 }
             }
 
             if (notImpliedCharacters.length > 0) {
                 grammar.tool.errorManager.grammarError(ErrorType.RANGE_PROBABLY_CONTAINS_NOT_IMPLIED_CHARACTERS,
-                    grammar.fileName, tree.token!, from, to, notImpliedCharacters.toString());
+                    grammar.fileName, tree.token!, String.fromCodePoint(from), String.fromCodePoint(to),
+                    notImpliedCharacters.toString());
             }
         }
 

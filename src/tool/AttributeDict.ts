@@ -35,7 +35,7 @@ export class AttributeDict {
     public add(a: IAttribute): IAttribute {
         a.dict = this;
 
-        this.attributes.set(a.name!, a);
+        this.attributes.set(a.name, a);
 
         return a;
     }
@@ -72,7 +72,6 @@ export class AttributeDict {
     }
 
     public toString(): string {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         return this.getName() + ":" + String(this.attributes);
     }
 }

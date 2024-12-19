@@ -819,8 +819,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
 
             // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:35: ( element )*
             while (true) {
-                const alt11 = this.input.LA(1);
-                if (alt11 === ANTLRv4Lexer.ASSIGN || alt11 === ANTLRv4Lexer.PLUS_ASSIGN) {
+                if (this.predictElement()) {
                     this.element();
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (this.state.failed) {
@@ -852,6 +851,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
                         // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:124:52: epsilonElement
                         {
                             this.epsilonElement();
+
                             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                             if (this.state.failed) {
                                 return;
@@ -932,8 +932,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
             let cnt14 = 0;
             loop14:
             while (true) {
-                const alt14 = this.input.LA(1);
-                if (alt14 === ANTLRv4Lexer.ASSIGN || alt14 === ANTLRv4Lexer.PLUS_ASSIGN) {
+                if (this.predictElement()) {
                     // org/antlr/v4/parse/LeftRecursiveRuleWalker.g:130:4: element
                     this.element();
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -3635,6 +3634,7 @@ export class LeftRecursiveRuleWalker extends TreeParser {
 
         return success;
     }
+
     public synpred3_LeftRecursiveRuleWalker(): boolean {
         this.state.backtracking++;
         const start = this.input.mark();
@@ -3650,7 +3650,63 @@ export class LeftRecursiveRuleWalker extends TreeParser {
         this.state.failed = false;
 
         return success;
-    };;
+    };
+
+    /**
+     * A manual implementation of the ANTLR3 DFA prediction for the element rule.
+     *
+     * @returns `true` if the element rule is a viable candidate for the current input, otherwise `false`.
+     */
+    private predictElement(): boolean {
+        const alt11 = this.input.LA(1);
+        switch (alt11) {
+            case ANTLRv4Lexer.STRING_LITERAL:
+            case ANTLRv4Lexer.TOKEN_REF:
+            case ANTLRv4Lexer.DOT:
+            case ANTLRv4Lexer.NOT:
+            case ANTLRv4Lexer.RANGE:
+            case ANTLRv4Lexer.SET:
+            case ANTLRv4Lexer.BLOCK:
+            case ANTLRv4Lexer.CLOSURE:
+            case ANTLRv4Lexer.OPTIONAL:
+            case ANTLRv4Lexer.POSITIVE_CLOSURE:
+            case ANTLRv4Lexer.ACTION:
+            case ANTLRv4Lexer.SEMPRED:
+            case ANTLRv4Lexer.WILDCARD:
+            case ANTLRv4Lexer.EPSILON: {
+                return true;
+            }
+
+            case ANTLRv4Lexer.RULE_REF: {
+                const la = this.input.LA(2);
+                if (la === ANTLRv4Lexer.ARG_ACTION || la === ANTLRv4Lexer.ELEMENT_OPTIONS) {
+                    return true;
+                }
+
+                if (la === Constants.UP && this.input.LT(1)!.getText() === this.ruleName) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            case ANTLRv4Lexer.ASSIGN:
+            case ANTLRv4Lexer.PLUS_ASSIGN: {
+                // LA(2) is DOWN, LA(3) is ID.
+                if (this.input.LA(4) === ANTLRv4Lexer.RULE_REF) {
+                    if (this.input.LT(4)!.getText() === this.ruleName) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            default: {
+                return false;
+            }
+        }
+    }
 }
 
 export namespace LeftRecursiveRuleWalker {

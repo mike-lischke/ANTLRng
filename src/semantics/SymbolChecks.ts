@@ -290,7 +290,7 @@ export class SymbolChecks {
         }
 
         for (const attribute of attributes.attributes.values()) {
-            if (ruleNames.has(attribute.name!)) {
+            if (ruleNames.has(attribute.name)) {
                 this.g.tool.errorManager.grammarError(errorType, this.g.fileName,
                     attribute.token ?? (r.ast.getChild(0) as GrammarAST).token!, attribute.name, r.name);
             }

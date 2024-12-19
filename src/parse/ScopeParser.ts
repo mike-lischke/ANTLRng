@@ -39,11 +39,11 @@ export class ScopeParser {
      * ```
      * convert to an attribute scope.
      */
-    public static parseTypedArgList(action: ActionAST, s: string, g: Grammar): AttributeDict {
+    public static parseTypedArgList(action: ActionAST | null, s: string, g: Grammar): AttributeDict {
         return this.parse(action, s, ",", g);
     }
 
-    private static parse(action: ActionAST, s: string, separator: string, g: Grammar): AttributeDict {
+    private static parse(action: ActionAST | null, s: string, separator: string, g: Grammar): AttributeDict {
         const dict = new AttributeDict();
         const decls = this.splitDecls(s, separator);
         for (const decl of decls) {
@@ -62,12 +62,13 @@ export class ScopeParser {
      * but if the separator is ',' you cannot use ',' in the init value
      * unless you escape use "\," escape.
      */
-    private static parseAttributeDef(action: ActionAST, decl: [string | null, number], g: Grammar): IAttribute | null {
+    private static parseAttributeDef(action: ActionAST | null, decl: [string | null, number],
+        g: Grammar): IAttribute | null {
         if (decl[0] === null) {
             return null;
         }
 
-        const attr: IAttribute = {};
+        const attr: IAttribute = { name: "" };
         let rightEdgeOfDeclarator = decl[0].length - 1;
         const equalsIndex = decl[0].indexOf("=");
         if (equalsIndex > 0) {
@@ -91,52 +92,54 @@ export class ScopeParser {
         const [idStart, idStop] = p;
         attr.decl = decl[0];
 
-        const actionText = action.getText();
-        const lines = new Array<number>(actionText.length);
-        const charPositionInLines = new Array<number>(actionText.length);
-        for (let i = 0, line = 0, col = 0; i < actionText.length; i++, col++) {
-            lines[i] = line;
-            charPositionInLines[i] = col;
-            if (actionText[i] === "\n") {
-                line++;
-                col = -1;
-            }
-        }
-
-        const charIndexes = new Array<number>(actionText.length);
-        for (let i = 0, j = 0; i < actionText.length; i++, j++) {
-            charIndexes[j] = i;
-            // skip comments
-            if (i < actionText.length - 1 && actionText[i] === "/" && actionText[i + 1] === "/") {
-                while (i < actionText.length && actionText[i] !== "\n") {
-                    i++;
+        if (action !== null) {
+            const actionText = action.getText();
+            const lines = new Array<number>(actionText.length);
+            const charPositionInLines = new Array<number>(actionText.length);
+            for (let i = 0, line = 0, col = 0; i < actionText.length; i++, col++) {
+                lines[i] = line;
+                charPositionInLines[i] = col;
+                if (actionText[i] === "\n") {
+                    line++;
+                    col = -1;
                 }
             }
+
+            const charIndexes = new Array<number>(actionText.length);
+            for (let i = 0, j = 0; i < actionText.length; i++, j++) {
+                charIndexes[j] = i;
+                // skip comments
+                if (i < actionText.length - 1 && actionText[i] === "/" && actionText[i + 1] === "/") {
+                    while (i < actionText.length && actionText[i] !== "\n") {
+                        i++;
+                    }
+                }
+            }
+
+            const declOffset = charIndexes[decl[1]];
+            const declLine = lines[declOffset + idStart];
+
+            const line = action.token!.line + declLine;
+            let charPositionInLine = charPositionInLines[declOffset + idStart];
+            if (declLine === 0) {
+                /* offset for the start position of the ARG_ACTION token, plus 1
+                 * since the ARG_ACTION text had the leading '[' stripped before
+                 * reaching the scope parser.
+                 */
+                charPositionInLine += action.token!.column + 1;
+            }
+
+            const offset = (action.token as CommonToken).start;
+            attr.token = CommonToken.fromSource([null, action.token!.inputStream], ANTLRv4Parser.ID,
+                Constants.DEFAULT_TOKEN_CHANNEL, offset + declOffset + idStart + 1, offset + declOffset + idStop);
+            attr.token.line = line;
+            attr.token.column = charPositionInLine;
         }
-
-        const declOffset = charIndexes[decl[1]];
-        const declLine = lines[declOffset + idStart];
-
-        const line = action.token!.line + declLine;
-        let charPositionInLine = charPositionInLines[declOffset + idStart];
-        if (declLine === 0) {
-            /* offset for the start position of the ARG_ACTION token, plus 1
-             * since the ARG_ACTION text had the leading '[' stripped before
-             * reaching the scope parser.
-             */
-            charPositionInLine += action.token!.column + 1;
-        }
-
-        const offset = (action.token as CommonToken).start;
-        attr.token = CommonToken.fromSource([null, action.token!.inputStream], ANTLRv4Parser.ID,
-            Constants.DEFAULT_TOKEN_CHANNEL, offset + declOffset + idStart + 1, offset + declOffset + idStop);
-        attr.token.line = line;
-        attr.token.column = charPositionInLine;
 
         return attr;
     }
 
-    private static parsePrefixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
+    private static parsePrefixDecl(attr: IAttribute, decl: string, a: ActionAST | null, g: Grammar): [number, number] {
         // walk backwards looking for start of an ID
         let inID = false;
         let start = -1;
@@ -160,7 +163,8 @@ export class ScopeParser {
         }
 
         if (start < 0) {
-            g.tool.errorManager.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
+            g.tool.errorManager.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a?.token ?? null,
+                decl);
         }
 
         // walk forward looking for end of an ID
@@ -195,7 +199,7 @@ export class ScopeParser {
         return [start, stop];
     }
 
-    private static parsePostfixDecl(attr: IAttribute, decl: string, a: ActionAST, g: Grammar): [number, number] {
+    private static parsePostfixDecl(attr: IAttribute, decl: string, a: ActionAST | null, g: Grammar): [number, number] {
         let start = -1;
         let stop = -1;
         const colon = decl.indexOf(":");
@@ -212,7 +216,8 @@ export class ScopeParser {
 
         if (start === -1) {
             start = 0;
-            g.tool.errorManager.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a.token!, decl);
+            g.tool.errorManager.grammarError(ErrorType.CANNOT_FIND_ATTRIBUTE_NAME_IN_DECL, g.fileName, a?.token ?? null,
+                decl);
         }
 
         // look for stop of name
@@ -349,7 +354,7 @@ export class ScopeParser {
 
             }
         }
-        if (targetChar === -1 && p <= n) {
+        if (targetChar === -1) {
             const arg = actionText.substring(last, p).trim();
             let index = last;
             while (index < p && Character.isWhitespace(actionText.codePointAt(index)!)) {

@@ -3,32 +3,19 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-/* eslint-disable max-len */
-
 import { describe, expect, it } from "vitest";
 
-import { CharStream, CommonTokenStream, type Parser, type ParseTree } from "antlr4ng";
+import { CharStream, CommonTokenStream, type ParseTree } from "antlr4ng";
 
 import { ANTLRv4Lexer } from "../src/generated/ANTLRv4Lexer.js";
 import {
-    ANTLRv4Parser, type AtomContext, type DelegateGrammarsContext, type EbnfContext, type ElementContext, type GrammarSpecContext, type LabeledElementContext, type LexerElementContext, type RulerefContext, type RuleSpecContext
+    ANTLRv4Parser, type AtomContext, type DelegateGrammarsContext, type EbnfContext, type ElementContext,
+    type GrammarSpecContext, type LabeledElementContext, type LexerElementContext, type RulerefContext,
+    type RuleSpecContext
 } from "../src/generated/ANTLRv4Parser.js";
 import { ParseTreeToASTConverter } from "../src/support/ParseTreeToASTConverter.js";
 import { GrammarAST } from "../src/tool/ast/GrammarAST.js";
-
-type MethodKeys<T extends Parser> = {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    [K in keyof T]: T[K] extends Function ? K : never
-}[keyof T];
-
-const callMethod = <T extends Parser, K extends MethodKeys<T>>(obj: T, methodName: K): unknown => {
-    const method = obj[methodName];
-    if (typeof method === "function") {
-        return method.call(obj);
-    } else {
-        throw new Error(`Method ${String(methodName)} is not a function`);
-    }
-};
+import { ToolTestUtils } from "./ToolTestUtils.js";
 
 describe("TestASTStructure", () => {
     const execParser = (ruleName: string, input: string, scriptLine: number): ParseTree => {
@@ -41,10 +28,9 @@ describe("TestASTStructure", () => {
         /*tokens.fill();
         const t = tokens.getTokens();*/
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        const parser = new ANTLRv4Parser(tokens) as (ANTLRv4Parser & Record<string, Function>);
+        const parser = new ANTLRv4Parser(tokens);
 
-        const result = callMethod(parser, ruleName) as ParseTree;
+        const result = ToolTestUtils.callParserMethod(parser, ruleName) as ParseTree;
 
         if (parser.numberOfSyntaxErrors > 0) {
             throw new Error("The grammar file contains syntax errors.");
@@ -144,7 +130,8 @@ describe("TestASTStructure", () => {
     });
 
     it("rule3", () => {
-        const context = execParser("ruleSpec", "\n    a[int i] returns [int y]\n    @init {blah}\n      : ID ;\n    ", 60) as RuleSpecContext;
+        const context = execParser("ruleSpec", "\n    a[int i] returns [int y]\n    @init {blah}\n      : ID ;" +
+            "\n    ", 60) as RuleSpecContext;
 
         const dummy = new GrammarAST();
         const ast = ParseTreeToASTConverter.convertRuleSpecToAST(context, dummy);
@@ -155,18 +142,21 @@ describe("TestASTStructure", () => {
     });
 
     it("rule4", () => {
-        const context = execParser("ruleSpec", "\n    a[int i] returns [int y]\n    @init {blah}\n    options {backtrack=true;}\n      : ID;\n    ", 75) as RuleSpecContext;
+        const context = execParser("ruleSpec", "\n    a[int i] returns [int y]\n    @init {blah}\n    options " +
+            "{backtrack=true;}\n      : ID;\n    ", 75) as RuleSpecContext;
 
         const dummy = new GrammarAST();
         const ast = ParseTreeToASTConverter.convertRuleSpecToAST(context, dummy);
 
         const actual = ast!.toStringTree();
-        const expecting = "(RULE a int i (returns int y) (@ init {blah}) (OPTIONS (= backtrack true)) (BLOCK (ALT ID)))";
+        const expecting = "(RULE a int i (returns int y) (@ init {blah}) (OPTIONS (= backtrack true)) (BLOCK " +
+            "(ALT ID)))";
         expect(actual).toBe(expecting);
     });
 
     it("rule5", () => {
-        const context = execParser("ruleSpec", "\n    a : ID ;\n      catch[A b] {foo}\n      finally {bar}\n    ", 88) as RuleSpecContext;
+        const context = execParser("ruleSpec", "\n    a : ID ;\n      catch[A b] {foo}\n      finally {bar}" +
+            "\n    ", 88) as RuleSpecContext;
 
         const dummy = new GrammarAST();
         const ast = ParseTreeToASTConverter.convertRuleSpecToAST(context, dummy);
@@ -177,7 +167,8 @@ describe("TestASTStructure", () => {
     });
 
     it("rule6", () => {
-        const context = execParser("ruleSpec", "\n    a : ID ;\n      catch[A a] {foo}\n      catch[B b] {fu}\n      finally {bar}\n    ", 97) as RuleSpecContext;
+        const context = execParser("ruleSpec", "\n    a : ID ;\n      catch[A a] {foo}\n      catch[B b] {fu}" +
+            "\n      finally {bar}\n    ", 97) as RuleSpecContext;
 
         const dummy = new GrammarAST();
         const ast = ParseTreeToASTConverter.convertRuleSpecToAST(context, dummy);
@@ -188,7 +179,8 @@ describe("TestASTStructure", () => {
     });
 
     it("rule7", () => {
-        const context = execParser("ruleSpec", "\n\ta[int i]\n\tlocals [int a, float b]\n\t\t:\tA\n\t\t;\n\t", 107) as RuleSpecContext;
+        const context = execParser("ruleSpec", "\n\ta[int i]\n\tlocals [int a, float b]\n\t\t:\tA\n\t\t;\n\t",
+            107) as RuleSpecContext;
 
         const dummy = new GrammarAST();
         const ast = ParseTreeToASTConverter.convertRuleSpecToAST(context, dummy);
@@ -199,7 +191,8 @@ describe("TestASTStructure", () => {
     });
 
     it("rule8", () => {
-        const context = execParser("ruleSpec", "\n\ta[int i] throws a.b.c\n\t\t:\tA\n\t\t;\n\t", 115) as RuleSpecContext;
+        const context = execParser("ruleSpec", "\n\ta[int i] throws a.b.c\n\t\t:\tA\n\t\t;\n\t",
+            115) as RuleSpecContext;
 
         const dummy = new GrammarAST();
         const ast = ParseTreeToASTConverter.convertRuleSpecToAST(context, dummy);

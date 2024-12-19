@@ -56,8 +56,8 @@ describe("TestCodeGeneration", () => {
 
         protected override writePOJO(out: STWriter, scope: InstanceScope, o: object, options: string[]): number {
             const name = o.constructor.name;
-            out.write("<pojo:" + name + ">" + String(o) + "</pojo:" + name + ">");
-            this.evals.push("<pojo:" + name + ">" + String(o) + "</pojo:" + name + ">");
+            out.write("<pojo:" + name + ">" + JSON.stringify(o) + "</pojo:" + name + ">");
+            this.evals.push("<pojo:" + name + ">" + JSON.stringify(o) + "</pojo:" + name + ">");
 
             return super.writePOJO(out, scope, o, options);
         };

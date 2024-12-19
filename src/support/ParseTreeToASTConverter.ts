@@ -10,8 +10,7 @@ import {
 } from "antlr4ng";
 
 import {
-    ANTLRv4Parser,
-    ElementContext,
+    ANTLRv4Parser, ElementContext,
     type Action_Context, type ActionBlockContext, type AlternativeContext, type AltListContext, type AtomContext,
     type BlockContext, type BlockSetContext, type ChannelsSpecContext, type CharacterRangeContext,
     type DelegateGrammarsContext, type EbnfContext, type EbnfSuffixContext,
@@ -100,7 +99,7 @@ export class ParseTreeToASTConverter {
             const ruleAST = this.createVirtualASTNode(RuleAST, ANTLRv4Lexer.RULE, rule, "RULE");
             ast.addChild(ruleAST);
 
-            ruleAST.addChild(this.createASTNode(ANTLRv4Parser.RULE_REF, parserRule.RULE_REF()));
+            ruleAST.addChild(this.createVirtualASTNode(RuleRefAST, ANTLRv4Parser.RULE_REF, parserRule.RULE_REF()));
             if (parserRule.argActionBlock()) {
                 this.convertArgActionBlockToAST(ANTLRv4Lexer.ARG_ACTION, parserRule.argActionBlock()!, ruleAST);
             }
@@ -199,7 +198,7 @@ export class ParseTreeToASTConverter {
             this.convertElementOptionsToAST(ruleref.elementOptions()!, ruleRefAST);
         }
 
-        const options = ruleRefAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        const options = ruleRefAST.getFirstChildWithType(ANTLRv4Parser.ELEMENT_OPTIONS) as GrammarAST | null;
         if (options) {
             Grammar.setNodeOptions(ruleRefAST, options);
         }
@@ -398,7 +397,7 @@ export class ParseTreeToASTConverter {
 
         if (isPredicate) {
             const predicate = this.createVirtualASTNode(PredAST, ANTLRv4Parser.SEMPRED, actionBlock,
-                actionBlock.getText());
+                actionBlock.getText() + "?");
             ast.addChild(predicate);
 
             if (predicateOptions) {
@@ -419,7 +418,7 @@ export class ParseTreeToASTConverter {
             this.convertPredicateOptionsToAST(predicateOptions, actionAST);
         }
 
-        const options = actionAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        const options = actionAST.getFirstChildWithType(ANTLRv4Parser.ELEMENT_OPTIONS) as GrammarAST | null;
         if (options) {
             Grammar.setNodeOptions(actionAST, options);
         }
@@ -461,7 +460,8 @@ export class ParseTreeToASTConverter {
         // they were introduced to support more than what element options do (namely actions and numbers on the RHS).
         // The general syntax of both is the same (`<lhs = rhs>`). To allow easy use in the tree walkers we convert
         // them to element options here.
-        const predicateOptions = this.createASTNode(ANTLRv4Lexer.ELEMENT_OPTIONS, options);
+        const predicateOptions = this.createVirtualASTNode(GrammarAST, ANTLRv4Lexer.ELEMENT_OPTIONS, options,
+            "ELEMENT_OPTIONS");
         ast.addChild(predicateOptions);
 
         options.predicateOption().forEach((option) => {
@@ -667,7 +667,7 @@ export class ParseTreeToASTConverter {
                 this.convertElementOptionsToAST(terminalDef.elementOptions()!, terminalAST);
             }
 
-            const options = terminalAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+            const options = terminalAST.getFirstChildWithType(ANTLRv4Parser.ELEMENT_OPTIONS) as GrammarAST | null;
             if (options) {
                 Grammar.setNodeOptions(terminalAST, options);
             }
@@ -775,7 +775,7 @@ export class ParseTreeToASTConverter {
             this.convertElementOptionsToAST(wildcard.elementOptions()!, dotAST);
         }
 
-        const options = dotAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        const options = dotAST.getFirstChildWithType(ANTLRv4Parser.ELEMENT_OPTIONS) as GrammarAST | null;
         if (options) {
             Grammar.setNodeOptions(dotAST, options);
         }
@@ -818,7 +818,7 @@ export class ParseTreeToASTConverter {
             });
         }
 
-        const options = altAST.getFirstChildWithType(ANTLRv4Parser.OPTIONS) as GrammarAST | null;
+        const options = altAST.getFirstChildWithType(ANTLRv4Parser.ELEMENT_OPTIONS) as GrammarAST | null;
         if (options) {
             Grammar.setNodeOptions(altAST, options);
         }

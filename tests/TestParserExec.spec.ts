@@ -70,8 +70,8 @@ describe("TestParserExec", () => {
 
         let hasErrors = false;
         const output = await ToolTestUtils.captureTerminalOutput(async () => {
-            const queue = await ToolTestUtils.execParser("T.g4", grammar, "TParser", "TLexer", "s", "abc 34", true,
-                tempDirPath);
+            const queue = await ToolTestUtils.execParser("T.g4", grammar, "TParser", "TLexer", "s", "abc 34", false,
+                true, tempDirPath);
             hasErrors = queue.errors.length > 0;
         });
 
@@ -81,7 +81,7 @@ describe("TestParserExec", () => {
             "s1-INT->s2\n" +
             "s2-EOF->:s3=>1\n"; // Must point at accept state
 
-        expect(output).toEqual(expecting);
+        expect(output.output).toEqual(expecting);
         expect(hasErrors).toBe(false);
     });
 
@@ -98,13 +98,12 @@ describe("TestParserExec", () => {
         let generationErrors = "";
         const output = await ToolTestUtils.captureTerminalOutput(async () => {
             const queue = await ToolTestUtils.execParser("Psl.g4", grammar,
-                "PslParser", "PslLexer", "floating_constant", " . 234", false, tempDirPath);
+                "PslParser", "PslLexer", "floating_constant", " . 234", false, false, tempDirPath);
 
             for (const error of queue.errors) {
                 const msgST = queue.errorManager.getMessageTemplate(error)!;
                 generationErrors += msgST.render();
             }
-
         });
 
         expect(generationErrors).toBe("");
@@ -140,13 +139,18 @@ describe("TestParserExec", () => {
             "    | '«' '/' ID '»'\n" +
             "    ;";
 
-        let queue = await ToolTestUtils.execLexer("ModeTagsLexer.g4", lexerGrammar, "ModeTagsLexer", "", tempDirPath);
-        expect(queue.errors.length).toBe(0);
+        let generationErrors = "";
+        await ToolTestUtils.captureTerminalOutput(async () => {
+            let queue = await ToolTestUtils.execLexer("ModeTagsLexer.g4", lexerGrammar, "ModeTagsLexer", "",
+                tempDirPath);
+            expect(queue.errors.length).toBe(0);
 
-        queue = await ToolTestUtils.execParser("ModeTagsParser.g4", parserGrammar, "ModeTagsParser",
-            "ModeTagsLexer", "file", "", false, tempDirPath);
+            queue = await ToolTestUtils.execParser("ModeTagsParser.g4", parserGrammar, "ModeTagsParser",
+                "ModeTagsLexer", "file", "", false, false, tempDirPath);
+            generationErrors = queue.toString(true);
+        });
 
-        expect(queue.errors.length).toBe(0);
+        expect(generationErrors.length).toBe(0);
     });
 
     /**
@@ -173,7 +177,7 @@ describe("TestParserExec", () => {
         let generationErrors = "";
         const output = await ToolTestUtils.captureTerminalOutput(async () => {
             const queue = await ToolTestUtils.execParser("Data.g4", grammar, "DataParser", "DataLexer", "file", input,
-                false, tempDirPath);
+                false, false, tempDirPath);
             generationErrors = queue.toString(true);
         });
 
@@ -199,7 +203,7 @@ describe("TestParserExec", () => {
         let generationErrors = "";
         const output = await ToolTestUtils.captureTerminalOutput(async () => {
             const queue = await ToolTestUtils.execParser("CaseInsensitiveGrammar.g4", grammar,
-                "CaseInsensitiveGrammarParser", "CaseInsensitiveGrammarLexer", "e", input, false, tempDirPath);
+                "CaseInsensitiveGrammarParser", "CaseInsensitiveGrammarLexer", "e", input, false, false, tempDirPath);
             generationErrors = queue.toString(true);
         });
 
