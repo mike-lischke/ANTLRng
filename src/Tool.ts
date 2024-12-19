@@ -20,7 +20,7 @@ import { LexerATNFactory } from "./automata/LexerATNFactory.js";
 import { ParserATNFactory } from "./automata/ParserATNFactory.js";
 import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
 import { CodeGenerator } from "./codegen/CodeGenerator.js";
-import { grammarOptions, parseToolParameters } from "./grammar-options.js";
+import { parseToolParameters, type IToolParameters } from "./grammar-options.js";
 import { Graph } from "./misc/Graph.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";
@@ -53,6 +53,8 @@ export class Tool implements ITool {
 
     public readonly errorManager;
 
+    public readonly toolParameters: IToolParameters;
+
     // helper vars for option management
     protected haveOutputDir = false;
 
@@ -62,9 +64,10 @@ export class Tool implements ITool {
 
     public constructor(args: string[] = []) {
         this.args = args;
-        parseToolParameters(this.args);
-        this.grammarFiles = grammarOptions.args;
-        this.errorManager = new ErrorManager();
+        this.toolParameters = parseToolParameters(this.args);
+        this.grammarFiles = this.toolParameters.args;
+        this.errorManager = new ErrorManager(this.toolParameters.msgFormat, this.toolParameters.longMessages,
+            this.toolParameters.warningsAreErrors);
     }
 
     public static main(args: string[]): void {
@@ -72,7 +75,7 @@ export class Tool implements ITool {
         try {
             antlr.processGrammarsOnCommandLine();
         } finally {
-            if (grammarOptions.log) {
+            if (antlr.toolParameters.log) {
                 try {
                     const logName = antlr.logMgr.save();
                     console.log("wrote " + logName);
@@ -138,7 +141,7 @@ export class Tool implements ITool {
         for (const t of sortedGrammars) {
             const g = this.createGrammar(t);
             g.fileName = t.fileName;
-            if (grammarOptions.generateDependencies) {
+            if (this.toolParameters.generateDependencies) {
                 const dep = new BuildDependencyGenerator(this, g);
                 console.log(dep.getDependencies().render());
             } else {
@@ -166,6 +169,7 @@ export class Tool implements ITool {
         if (g.ast.grammarType === GrammarType.Combined) {
             lexerAST = transform.extractImplicitLexer(g); // alters g.ast
             if (lexerAST) {
+                lexerAST.toolParameters = this.toolParameters;
                 const lexerGrammar = ClassFactory.createLexerGrammar(this, lexerAST);
                 lexerGrammar.fileName = g.fileName;
                 lexerGrammar.originalGrammar = g;
@@ -209,7 +213,7 @@ export class Tool implements ITool {
         }
 
         g.atn = factory.createATN();
-        if (grammarOptions.generateATNDot) {
+        if (this.toolParameters.generateATNDot) {
             this.generateATNs(g);
         }
 
@@ -233,8 +237,9 @@ export class Tool implements ITool {
 
         // GENERATE CODE
         if (genCode) {
-            const gen = new CodeGenPipeline(g, codeGenerator);
-            gen.process();
+            const gen = new CodeGenPipeline(g, codeGenerator, this.toolParameters.generateListener,
+                this.toolParameters.generateVisitor);
+            gen.process(this.toolParameters);
         }
     }
 
@@ -354,7 +359,7 @@ export class Tool implements ITool {
 
     public parseGrammar(fileName: string): GrammarRootAST | undefined {
         try {
-            const encoding = grammarOptions.grammarEncoding ?? "utf-8";
+            const encoding = this.toolParameters.grammarEncoding ?? "utf-8";
             const content = readFileSync(fileName, { encoding: encoding as BufferEncoding });
             const input = CharStream.fromString(content);
             input.name = basename(fileName);
@@ -407,7 +412,7 @@ export class Tool implements ITool {
                 return null;
             }
 
-            const grammarEncoding = grammarOptions.encoding as BufferEncoding;
+            const grammarEncoding = this.toolParameters.encoding as BufferEncoding;
             const content = readFileSync(importedFile, { encoding: grammarEncoding });
             const input = CharStream.fromString(content);
             input.name = basename(importedFile);
@@ -438,7 +443,10 @@ export class Tool implements ITool {
             return undefined;
         }
 
-        return ParseTreeToASTConverter.convertGrammarSpecToAST(grammarSpec, tokens);
+        const result = ParseTreeToASTConverter.convertGrammarSpecToAST(grammarSpec, tokens);
+        result.toolParameters = this.toolParameters;
+
+        return result;
     }
 
     public generateATNs(g: Grammar): void {
@@ -480,7 +488,7 @@ export class Tool implements ITool {
      *  If outputDirectory==null then write a String.
      */
     public getOutputFile(g: Grammar, fileName: string): string {
-        const outputDirectory = grammarOptions.outputDirectory;
+        const outputDirectory = this.toolParameters.outputDirectory;
         if (!outputDirectory) {
             return "";
         }
@@ -503,7 +511,7 @@ export class Tool implements ITool {
             const parentDir = dirname(g.fileName); // Check the parent dir of input directory.
             candidate = path.join(parentDir, fileName);
             if (!existsSync(candidate)) { // try in lib dir
-                const libDirectory = grammarOptions.libDirectory;
+                const libDirectory = this.toolParameters.libDirectory;
                 if (libDirectory) {
                     candidate = path.join(libDirectory, fileName);
                     if (!existsSync(candidate)) {
@@ -528,7 +536,7 @@ export class Tool implements ITool {
      */
     public getOutputDirectory(fileNameWithPath: string): string {
         if (this.haveOutputDir) {
-            return grammarOptions.outputDirectory ?? "";
+            return this.toolParameters.outputDirectory ?? "";
         } else {
             return path.dirname(fileNameWithPath);
         }

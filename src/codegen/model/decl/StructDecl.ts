@@ -6,7 +6,6 @@
 
 import { HashSet, OrderedHashSet } from "antlr4ng";
 
-import { grammarOptions } from "../../../grammar-options.js";
 import { ModelElement } from "../../../misc/ModelElement.js";
 import type { IAttribute } from "../../../tool/IAttribute.js";
 import { Rule } from "../../../tool/Rule.js";
@@ -64,7 +63,8 @@ export class StructDecl extends Decl {
     @ModelElement
     public signatures = new HashSet<Decl>();
 
-    public constructor(factory: OutputModelFactory, r: Rule, name?: string) {
+    public constructor(factory: OutputModelFactory, r: Rule, name?: string, protected generateListener?: boolean,
+        protected generateVisitor?: boolean) {
         super(factory, name ?? factory.getGenerator()!.getTarget().getRuleFunctionContextStructName(r));
         this.addDispatchMethods(r);
         this.derivedFromName = r.name;
@@ -75,12 +75,12 @@ export class StructDecl extends Decl {
         this.dispatchMethods = new Array<DispatchMethod>();
         if (!r.hasAltSpecificContexts()) {
             // no enter/exit for this ruleContext if rule has labels
-            if (grammarOptions.generateListener) {
+            if (this.generateListener) {
                 this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, true));
                 this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, false));
             }
 
-            if (grammarOptions.generateVisitor) {
+            if (this.generateVisitor) {
                 this.dispatchMethods.push(new VisitorDispatchMethod(this.factory!));
             }
         }

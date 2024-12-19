@@ -4,7 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { grammarOptions } from "../../grammar-options.js";
 import { ModelElement } from "../../misc/ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";
@@ -30,16 +29,17 @@ export class ParserFile extends OutputFile {
     @ModelElement
     public contextSuperClass: ActionChunk;
 
-    public constructor(factory: OutputModelFactory, fileName: string) {
+    public constructor(factory: OutputModelFactory, fileName: string, packageName?: string, generateListener?: boolean,
+        generateVisitor?: boolean) {
         super(factory, fileName);
         const g = factory.getGrammar()!;
         this.namedActions = this.buildNamedActions(factory.getGrammar()!);
-        this.genPackage = grammarOptions.package;
+        this.genPackage = packageName;
         this.exportMacro = factory.getGrammar()!.getOptionString("exportMacro");
 
         // need the below members in the ST for Python, C++
-        this.genListener = grammarOptions.generateListener ?? true;
-        this.genVisitor = grammarOptions.generateVisitor ?? false;
+        this.genListener = generateListener ?? true;
+        this.genVisitor = generateVisitor ?? false;
         this.grammarName = g.name;
 
         if (g.getOptionString("contextSuperClass")) {

@@ -4,10 +4,10 @@
  */
 
 import { mkdtempSync, rmdirSync } from "node:fs";
-import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
     InputMismatchException, NoViableAltException, ParseTreeMatch, ParseTreePatternMatcher,
@@ -18,18 +18,8 @@ import { ToolTestUtils } from "./ToolTestUtils.js";
 import { convertArrayToString } from "./support/test-helpers.js";
 
 describe("TestParseTreeMatcher", () => {
-    let tempDirPath: string;
-
-    beforeEach(() => {
-        tempDirPath = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
-    });
-
-    afterEach(() => {
-        rmdirSync(tempDirPath, { recursive: true });
-    });
-
     const checkPatternMatch = async (grammar: string, startRule: string, input: string, pattern: string,
-        grammarName: string, invertMatch?: boolean): Promise<ParseTreeMatch> => {
+        grammarName: string, tempDir: string, invertMatch?: boolean): Promise<ParseTreeMatch> => {
         invertMatch ??= false;
 
         const grammarFileName = grammarName + ".g4";
@@ -38,7 +28,7 @@ describe("TestParseTreeMatcher", () => {
         const runOptions = ToolTestUtils.createOptionsForToolTests(grammarFileName, grammar, parserName, lexerName,
             false, false, startRule, input, false, false);
 
-        const [_, parser] = await ToolTestUtils.setupRecognizers(runOptions, tempDirPath);
+        const [_, parser] = await ToolTestUtils.setupRecognizers(runOptions, tempDir);
         const parseTree = ToolTestUtils.callParserMethod(parser, startRule) as ParseTree;
         const p = parser.compileParseTreePattern(pattern, parser.getRuleIndex(startRule));
 
@@ -50,10 +40,10 @@ describe("TestParseTreeMatcher", () => {
     };
 
     const getPatternMatcher = async (grammarFileName: string, grammar: string, parserName: string, lexerName: string,
-        startRule: string): Promise<ParseTreePatternMatcher> => {
+        startRule: string, tempDir: string): Promise<ParseTreePatternMatcher> => {
         const runOptions = ToolTestUtils.createOptionsForToolTests(grammarFileName, grammar, parserName, lexerName,
             false, false, startRule, "", false, false);
-        const [lexer, parser] = await ToolTestUtils.setupRecognizers(runOptions, tempDirPath);
+        const [lexer, parser] = await ToolTestUtils.setupRecognizers(runOptions, tempDir);
 
         return new ParseTreePatternMatcher(lexer, parser);
     };
@@ -100,269 +90,344 @@ describe("TestParseTreeMatcher", () => {
     });
 
     it("testTokenizingPattern", async () => {
-        const grammar =
-            "grammar X1;\n" +
-            "s : ID '=' expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
-        const m = await getPatternMatcher("X1.g4", grammar, "X1Parser", "X1Lexer", "s");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X1;\n" +
+                "s : ID '=' expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
+            const m = await getPatternMatcher("X1.g4", grammar, "X1Parser", "X1Lexer", "s", tempDir);
 
-        const tokens = m.tokenize("<ID> = <expr> ;");
-        expect(convertArrayToString(tokens))
-            .toBe("[ID:3, [@-1,1:1='=',<1>,1:1], expr:7, [@-1,1:1=';',<2>,1:1]]");
+            const tokens = m.tokenize("<ID> = <expr> ;");
+            expect(convertArrayToString(tokens))
+                .toBe("[ID:3, [@-1,1:1='=',<1>,1:1], expr:7, [@-1,1:1=';',<2>,1:1]]");
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testCompilingPattern", async () => {
-        const grammar =
-            "grammar X2;\n" +
-            "s : ID '=' expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
-        const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X2;\n" +
+                "s : ID '=' expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
+            const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s", tempDir);
 
-        const t = m.compile("<ID> = <expr> ;", m.getParser()!.getRuleIndex("s"));
-        expect(t.getPatternTree().toStringTree(m.getParser()!)).toBe("(s <ID> = (expr <expr>) ;)");
+            const t = m.compile("<ID> = <expr> ;", m.getParser()!.getRuleIndex("s"));
+            expect(t.getPatternTree().toStringTree(m.getParser()!)).toBe("(s <ID> = (expr <expr>) ;)");
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testCompilingPatternConsumesAllTokens", async () => {
-        const grammar =
-            "grammar X2;\n" +
-            "s : ID '=' expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
-        const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s");
-        expect(() => {
-            m.compile("<ID> = <expr> ; extra", m.getParser()!.getRuleIndex("s"));
-        }).toThrow(StartRuleDoesNotConsumeFullPatternError);
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X2;\n" +
+                "s : ID '=' expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
+            const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s", tempDir);
+            expect(() => {
+                m.compile("<ID> = <expr> ; extra", m.getParser()!.getRuleIndex("s"));
+            }).toThrow(StartRuleDoesNotConsumeFullPatternError);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testPatternMatchesStartRule", async () => {
-        const grammar =
-            "grammar X2;\n" +
-            "s : ID '=' expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
-        const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s");
-        expect(() => {
-            m.compile("<ID> ;", m.getParser()!.getRuleIndex("s"));
-        }).toThrow(InputMismatchException);
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X2;\n" +
+                "s : ID '=' expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
+            const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s", tempDir);
+            expect(() => {
+                m.compile("<ID> ;", m.getParser()!.getRuleIndex("s"));
+            }).toThrow(InputMismatchException);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testPatternMatchesStartRule2", async () => {
-        const grammar =
-            "grammar X2;\n" +
-            "s : ID '=' expr ';' | expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
-        const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s");
-        expect(() => {
-            m.compile("<ID> <ID> ;", m.getParser()!.getRuleIndex("s"));
-        }).toThrow(NoViableAltException);
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X2;\n" +
+                "s : ID '=' expr ';' | expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
+            const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s", tempDir);
+            expect(() => {
+                m.compile("<ID> <ID> ;", m.getParser()!.getRuleIndex("s"));
+            }).toThrow(NoViableAltException);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testHiddenTokensNotSeenByTreePatternParser", async () => {
-        const grammar =
-            "grammar X2;\n" +
-            "s : ID '=' expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> channel(HIDDEN) ;\n";
-        const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X2;\n" +
+                "s : ID '=' expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> channel(HIDDEN) ;\n";
+            const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s", tempDir);
 
-        const t = m.compile("<ID> = <expr> ;", m.getParser()!.getRuleIndex("s"));
-        expect(t.getPatternTree().toStringTree(m.getParser()!)).toBe("(s <ID> = (expr <expr>) ;)");
+            const t = m.compile("<ID> = <expr> ;", m.getParser()!.getRuleIndex("s"));
+            expect(t.getPatternTree().toStringTree(m.getParser()!)).toBe("(s <ID> = (expr <expr>) ;)");
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testCompilingMultipleTokens", async () => {
-        const grammar =
-            "grammar X2;\n" +
-            "s : ID '=' ID ';' ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
-        const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X2;\n" +
+                "s : ID '=' ID ';' ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
+            const m = await getPatternMatcher("X2.g4", grammar, "X2Parser", "X2Lexer", "s", tempDir);
 
-        const t = m.compile("<ID> = <ID> ;", m.getParser()!.getRuleIndex("s"));
-        const results = t.getPatternTree().toStringTree(m.getParser()!);
-        const expected = "(s <ID> = <ID> ;)";
-        expect(results).toBe(expected);
+            const t = m.compile("<ID> = <ID> ;", m.getParser()!.getRuleIndex("s"));
+            const results = t.getPatternTree().toStringTree(m.getParser()!);
+            const expected = "(s <ID> = <ID> ;)";
+            expect(results).toBe(expected);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testIDNodeMatches", async () => {
-        const grammar =
-            "grammar X3;\n" +
-            "s : ID ';' ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X3;\n" +
+                "s : ID ';' ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        const input = "x ;";
-        const pattern = "<ID>;";
-        await checkPatternMatch(grammar, "s", input, pattern, "X3");
+            const input = "x ;";
+            const pattern = "<ID>;";
+            await checkPatternMatch(grammar, "s", input, pattern, "X3", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testIDNodeWithLabelMatches", async () => {
-        const grammar =
-            "grammar X8;\n" +
-            "s : ID ';' ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X8;\n" +
+                "s : ID ';' ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        const input = "x ;";
-        const pattern = "<id:ID>;";
-        const m = await checkPatternMatch(grammar, "s", input, pattern, "X8");
-        expect(m.getLabels().toString()).toBe("{ID=[x], id=[x]}");
-        expect(m.get("id")).not.toBeNull();
-        expect(m.get("ID")).not.toBeNull();
-        expect(m.get("id")?.getText()).toBe("x");
-        expect(m.get("ID")?.getText()).toBe("x");
-        expect(convertArrayToString(m.getAll("id"))).toBe("[x]");
-        expect(convertArrayToString(m.getAll("ID"))).toBe("[x]");
+            const input = "x ;";
+            const pattern = "<id:ID>;";
+            const m = await checkPatternMatch(grammar, "s", input, pattern, "X8", tempDir);
+            expect(m.getLabels().toString()).toBe("{ID=[x], id=[x]}");
+            expect(m.get("id")).not.toBeNull();
+            expect(m.get("ID")).not.toBeNull();
+            expect(m.get("id")?.getText()).toBe("x");
+            expect(m.get("ID")?.getText()).toBe("x");
+            expect(convertArrayToString(m.getAll("id"))).toBe("[x]");
+            expect(convertArrayToString(m.getAll("ID"))).toBe("[x]");
 
-        expect(m.get("undefined")).toBeNull();
-        expect(convertArrayToString(m.getAll("undefined"))).toBe("[]");
+            expect(m.get("undefined")).toBeNull();
+            expect(convertArrayToString(m.getAll("undefined"))).toBe("[]");
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testLabelGetsLastIDNode", async () => {
-        const grammar =
-            "grammar X9;\n" +
-            "s : ID ID ';' ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X9;\n" +
+                "s : ID ID ';' ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        const input = "x y;";
-        const pattern = "<id:ID> <id:ID>;";
-        const m = await checkPatternMatch(grammar, "s", input, pattern, "X9");
-        expect(m.getLabels().toString()).toBe("{ID=[x, y], id=[x, y]}");
-        expect(m.get("id")).not.toBeNull();
-        expect(m.get("ID")).not.toBeNull();
-        expect(m.get("id")?.getText()).toBe("y");
-        expect(m.get("ID")?.getText()).toBe("y");
-        expect(convertArrayToString(m.getAll("id"))).toBe("[x, y]");
-        expect(convertArrayToString(m.getAll("ID"))).toBe("[x, y]");
+            const input = "x y;";
+            const pattern = "<id:ID> <id:ID>;";
+            const m = await checkPatternMatch(grammar, "s", input, pattern, "X9", tempDir);
+            expect(m.getLabels().toString()).toBe("{ID=[x, y], id=[x, y]}");
+            expect(m.get("id")).not.toBeNull();
+            expect(m.get("ID")).not.toBeNull();
+            expect(m.get("id")?.getText()).toBe("y");
+            expect(m.get("ID")?.getText()).toBe("y");
+            expect(convertArrayToString(m.getAll("id"))).toBe("[x, y]");
+            expect(convertArrayToString(m.getAll("ID"))).toBe("[x, y]");
 
-        expect(m.get("undefined")).toBeNull();
-        expect("[]", m.getAll("undefined").toString());
+            expect(m.get("undefined")).toBeNull();
+            expect("[]", m.getAll("undefined").toString());
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testIDNodeWithMultipleLabelMatches", async () => {
-        const grammar =
-            "grammar X7;\n" +
-            "s : ID ID ID ';' ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X7;\n" +
+                "s : ID ID ID ';' ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        const input = "x y z;";
-        const pattern = "<a:ID> <b:ID> <a:ID>;";
-        const m = await checkPatternMatch(grammar, "s", input, pattern, "X7");
-        expect(m.getLabels().toString()).toBe("{ID=[x, y, z], a=[x, z], b=[y]}");
-        expect(m.get("a")).not.toBeNull();
-        expect(m.get("b")).not.toBeNull();
-        expect(m.get("ID")).not.toBeNull();
-        expect(m.get("a")?.getText()).toBe("z");
-        expect(m.get("b")?.getText()).toBe("y");
-        expect(m.get("ID")?.getText()).toBe("z");
-        expect(convertArrayToString(m.getAll("a"))).toBe("[x, z]");
-        expect(convertArrayToString(m.getAll("b"))).toBe("[y]");
-        expect(convertArrayToString(m.getAll("ID"))).toBe("[x, y, z]"); // ordered
+            const input = "x y z;";
+            const pattern = "<a:ID> <b:ID> <a:ID>;";
+            const m = await checkPatternMatch(grammar, "s", input, pattern, "X7", tempDir);
+            expect(m.getLabels().toString()).toBe("{ID=[x, y, z], a=[x, z], b=[y]}");
+            expect(m.get("a")).not.toBeNull();
+            expect(m.get("b")).not.toBeNull();
+            expect(m.get("ID")).not.toBeNull();
+            expect(m.get("a")?.getText()).toBe("z");
+            expect(m.get("b")?.getText()).toBe("y");
+            expect(m.get("ID")?.getText()).toBe("z");
+            expect(convertArrayToString(m.getAll("a"))).toBe("[x, z]");
+            expect(convertArrayToString(m.getAll("b"))).toBe("[y]");
+            expect(convertArrayToString(m.getAll("ID"))).toBe("[x, y, z]"); // ordered
 
-        expect(m.getTree().getText()).toBe("xyz;"); // whitespace stripped by lexer
+            expect(m.getTree().getText()).toBe("xyz;"); // whitespace stripped by lexer
 
-        expect(m.get("undefined")).toBeNull();
-        expect(convertArrayToString(m.getAll("undefined"))).toBe("[]");
+            expect(m.get("undefined")).toBeNull();
+            expect(convertArrayToString(m.getAll("undefined"))).toBe("[]");
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testTokenAndRuleMatch", async () => {
-        const grammar =
-            "grammar X4;\n" +
-            "s : ID '=' expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X4;\n" +
+                "s : ID '=' expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        const input = "x = 99;";
-        const pattern = "<ID> = <expr> ;";
-        await checkPatternMatch(grammar, "s", input, pattern, "X4");
+            const input = "x = 99;";
+            const pattern = "<ID> = <expr> ;";
+            await checkPatternMatch(grammar, "s", input, pattern, "X4", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testTokenTextMatch", async () => {
-        const grammar =
-            "grammar X4;\n" +
-            "s : ID '=' expr ';' ;\n" +
-            "expr : ID | INT ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X4;\n" +
+                "s : ID '=' expr ';' ;\n" +
+                "expr : ID | INT ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        let input = "x = 0;";
-        let pattern = "<ID> = 1;";
-        let invertMatch = true; // 0!=1
-        await checkPatternMatch(grammar, "s", input, pattern, "X4", invertMatch);
+            let input = "x = 0;";
+            let pattern = "<ID> = 1;";
+            let invertMatch = true; // 0!=1
+            await checkPatternMatch(grammar, "s", input, pattern, "X4", tempDir, invertMatch);
 
-        input = "x = 0;";
-        pattern = "<ID> = 0;";
-        invertMatch = false;
-        await checkPatternMatch(grammar, "s", input, pattern, "X4", invertMatch);
+            input = "x = 0;";
+            pattern = "<ID> = 0;";
+            invertMatch = false;
+            await checkPatternMatch(grammar, "s", input, pattern, "X4", tempDir, invertMatch);
 
-        input = "x = 0;";
-        pattern = "x = 0;";
-        invertMatch = false;
-        await checkPatternMatch(grammar, "s", input, pattern, "X4", invertMatch);
+            input = "x = 0;";
+            pattern = "x = 0;";
+            invertMatch = false;
+            await checkPatternMatch(grammar, "s", input, pattern, "X4", tempDir, invertMatch);
 
-        input = "x = 0;";
-        pattern = "y = 0;";
-        invertMatch = true;
-        await checkPatternMatch(grammar, "s", input, pattern, "X4", invertMatch);
+            input = "x = 0;";
+            pattern = "y = 0;";
+            invertMatch = true;
+            await checkPatternMatch(grammar, "s", input, pattern, "X4", tempDir, invertMatch);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testAssign", async () => {
-        const grammar =
-            "grammar X5;\n" +
-            "s   : expr ';'\n" +
-            //"    | 'return' expr ';'\n" +
-            "    ;\n" +
-            "expr: expr '.' ID\n" +
-            "    | expr '*' expr\n" +
-            "    | expr '=' expr\n" +
-            "    | ID\n" +
-            "    | INT\n" +
-            "    ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X5;\n" +
+                "s   : expr ';'\n" +
+                //"    | 'return' expr ';'\n" +
+                "    ;\n" +
+                "expr: expr '.' ID\n" +
+                "    | expr '*' expr\n" +
+                "    | expr '=' expr\n" +
+                "    | ID\n" +
+                "    | INT\n" +
+                "    ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        const input = "x = 99;";
-        const pattern = "<ID> = <expr>;";
-        await checkPatternMatch(grammar, "s", input, pattern, "X5");
+            const input = "x = 99;";
+            const pattern = "<ID> = <expr>;";
+            await checkPatternMatch(grammar, "s", input, pattern, "X5", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testLRecursiveExpr", async () => {
-        const grammar =
-            "grammar X6;\n" +
-            "s   : expr ';'\n" +
-            "    ;\n" +
-            "expr: expr '.' ID\n" +
-            "    | expr '*' expr\n" +
-            "    | expr '=' expr\n" +
-            "    | ID\n" +
-            "    | INT\n" +
-            "    ;\n" +
-            "ID : [a-z]+ ;\n" +
-            "INT : [0-9]+ ;\n" +
-            "WS : [ \\r\\n\\t]+ -> skip ;\n";
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
+        try {
+            const grammar =
+                "grammar X6;\n" +
+                "s   : expr ';'\n" +
+                "    ;\n" +
+                "expr: expr '.' ID\n" +
+                "    | expr '*' expr\n" +
+                "    | expr '=' expr\n" +
+                "    | ID\n" +
+                "    | INT\n" +
+                "    ;\n" +
+                "ID : [a-z]+ ;\n" +
+                "INT : [0-9]+ ;\n" +
+                "WS : [ \\r\\n\\t]+ -> skip ;\n";
 
-        const input = "3*4*5";
-        const pattern = "<expr> * <expr> * <expr>";
-        await checkPatternMatch(grammar, "expr", input, pattern, "X6");
+            const input = "3*4*5";
+            const pattern = "<expr> * <expr> * <expr>";
+            await checkPatternMatch(grammar, "expr", input, pattern, "X6", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 });

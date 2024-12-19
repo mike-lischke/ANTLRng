@@ -4,7 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { grammarOptions } from "../../../grammar-options.js";
 import { MurmurHash } from "../../../support/MurmurHash.js";
 import { Rule } from "../../../tool/Rule.js";
 import { OutputModelFactory } from "../../OutputModelFactory.js";
@@ -17,10 +16,11 @@ import { StructDecl } from "./StructDecl.js";
 export class AltLabelStructDecl extends StructDecl {
     public altNum: number;
     public parentRule: string;
-    public constructor(factory: OutputModelFactory, r: Rule,
-        altNum: number, label: string) {
+    public constructor(factory: OutputModelFactory, r: Rule, altNum: number, label: string,
+        generateListener?: boolean, generateVisitor?: boolean) {
         // override name set in super to the label ctx
-        super(factory, r, factory.getGenerator()!.getTarget().getAltLabelContextStructName(label));
+        super(factory, r, factory.getGenerator()!.getTarget().getAltLabelContextStructName(label), generateListener,
+            generateVisitor);
         this.altNum = altNum;
         this.parentRule = r.name;
         this.derivedFromName = label;
@@ -28,12 +28,12 @@ export class AltLabelStructDecl extends StructDecl {
 
     public override addDispatchMethods(r: Rule): void {
         this.dispatchMethods = new Array<DispatchMethod>();
-        if (grammarOptions.generateListener) {
+        if (this.generateListener) {
             this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, true));
             this.dispatchMethods.push(new ListenerDispatchMethod(this.factory!, false));
         }
 
-        if (grammarOptions.generateVisitor) {
+        if (this.generateVisitor) {
             this.dispatchMethods.push(new VisitorDispatchMethod(this.factory!));
         }
     }

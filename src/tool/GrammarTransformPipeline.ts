@@ -34,11 +34,9 @@ import { TerminalAST } from "./ast/TerminalAST.js";
 /** Handle left-recursion and block-set transforms */
 export class GrammarTransformPipeline {
     public g: Grammar;
-    public tool: Tool;
 
-    public constructor(g: Grammar, tool: Tool) {
+    public constructor(g: Grammar, private tool: Tool) {
         this.g = g;
-        this.tool = tool;
     }
 
     /** Utility visitor that sets grammar ptr in each node */

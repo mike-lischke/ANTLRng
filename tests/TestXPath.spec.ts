@@ -10,7 +10,7 @@ import { join } from "node:path";
 
 import { ParserRuleContext, ParseTree, TerminalNode, XPath, type Parser } from "antlr4ng";
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { ToolTestUtils } from "./ToolTestUtils.js";
 
@@ -48,41 +48,34 @@ export namespace TestXPath {
 }
 
 describe("TestXPath", () => {
-    let tempDirPath: string;
-
-    beforeEach(() => {
-        tempDirPath = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
-    });
-
-    afterEach(() => {
-        rmdirSync(tempDirPath, { recursive: true });
-    });
-
     const sampleProgram =
         "def f(x,y) { x = 3+4; y; ; }\n" +
         "def g(x) { return 1+2*x; }\n";
 
     const testError = async (grammarFileName: string, grammar: string, input: string, xpath: string, expected: string,
-        startRuleName: string, parserName: string, lexerName: string): Promise<void> => {
+        startRuleName: string, parserName: string, lexerName: string, tempDir: string): Promise<void> => {
 
         await expect(async () => {
-            await compileAndExtract(grammarFileName, grammar, input, xpath, startRuleName, parserName, lexerName);
+            await compileAndExtract(grammarFileName, grammar, input, xpath, startRuleName, parserName, lexerName,
+                tempDir);
         }).rejects.toThrow(expected);
     };
 
     const parse = async (grammarFileName: string, grammar: string, input: string, startRuleName: string,
-        parserName: string, lexerName: string): Promise<[Parser, ParseTree]> => {
+        parserName: string, lexerName: string, tempDir: string): Promise<[Parser, ParseTree]> => {
         const runOptions = ToolTestUtils.createOptionsForToolTests(grammarFileName, grammar, parserName, lexerName,
             false, false, startRuleName, input, false, false);
 
-        const [_, parser] = await ToolTestUtils.setupRecognizers(runOptions, tempDirPath);
+        const [_, parser] = await ToolTestUtils.setupRecognizers(runOptions, tempDir);
 
         return [parser, ToolTestUtils.callParserMethod(parser, startRuleName) as ParseTree];
     };
 
     const compileAndExtract = async (grammarFileName: string, grammar: string, input: string, xpath: string,
-        startRuleName: string, parserName: string, lexerName: string): Promise<[string[], Set<ParseTree>]> => {
-        const [parser, parseTree] = await parse(grammarFileName, grammar, input, startRuleName, parserName, lexerName);
+        startRuleName: string, parserName: string, lexerName: string,
+        tempDir: string): Promise<[string[], Set<ParseTree>]> => {
+        const [parser, parseTree] = await parse(grammarFileName, grammar, input, startRuleName, parserName, lexerName,
+            tempDir);
         const found = XPath.findAll(parseTree, xpath, parser);
 
         return [parser.ruleNames, found];
@@ -136,26 +129,31 @@ describe("TestXPath", () => {
             "[y, x]",
         ];
 
-        const [parser, parseTree] = await parse("Expr.g4", TestXPath.grammar, sampleProgram, "prog", "ExprParser",
-            "ExprLexer");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
+        try {
+            const [parser, parseTree] = await parse("Expr.g4", TestXPath.grammar, sampleProgram, "prog", "ExprParser",
+                "ExprLexer", tempDir);
 
-        for (let i = 0; i < xpath.length; i++) {
-            const found = XPath.findAll(parseTree, xpath[i], parser);
+            for (let i = 0; i < xpath.length; i++) {
+                const found = XPath.findAll(parseTree, xpath[i], parser);
 
-            const ruleNames: string[] = [];
-            for (const t of found) {
-                if (t instanceof ParserRuleContext) {
-                    const r = t;
-                    ruleNames.push(parser.ruleNames[r.ruleIndex]);
-                } else {
-                    const token = t as TerminalNode;
-                    ruleNames.push(token.getText());
+                const ruleNames: string[] = [];
+                for (const t of found) {
+                    if (t instanceof ParserRuleContext) {
+                        const r = t;
+                        ruleNames.push(parser.ruleNames[r.ruleIndex]);
+                    } else {
+                        const token = t as TerminalNode;
+                        ruleNames.push(token.getText());
+                    }
                 }
+
+                const result = `[${ruleNames.join(", ")}]`;
+
+                expect(result, "path " + xpath[i] + " failed").to.equal(expected[i]);
             }
-
-            const result = `[${ruleNames.join(", ")}]`;
-
-            expect(result, "path " + xpath[i] + " failed").to.equal(expected[i]);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
         }
     });
 
@@ -163,42 +161,78 @@ describe("TestXPath", () => {
         const path = "&";
         const expected = "Invalid tokens or characters at index 0 in path '&'";
 
-        await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser", "ExprLexer");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
+        try {
+            await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser",
+                "ExprLexer", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testWeirdChar2", async () => {
         const path = "//w&e/";
         const expected = "Invalid tokens or characters at index 3 in path '//w&e/'";
 
-        await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser", "ExprLexer");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
+        try {
+            await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser",
+                "ExprLexer", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testBadSyntax", async () => {
         const path = "///";
         const expected = "/ at index 2 isn't a valid rule name";
 
-        await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser", "ExprLexer");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
+        try {
+            await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser",
+                "ExprLexer", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testMissingWordAtEnd", async () => {
         const path = "//";
         const expected = "Missing path element at end of path";
 
-        await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser", "ExprLexer");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
+        try {
+            await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser",
+                "ExprLexer", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testBadTokenName", async () => {
         const path = "//Ick";
         const expected = "Ick at index 2 isn't a valid token name";
 
-        await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser", "ExprLexer");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
+        try {
+            await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser",
+                "ExprLexer", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
     it("testBadRuleName", async () => {
         const path = "/prog/ick";
         const expected = "ick at index 6 isn't a valid rule name";
 
-        await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser", "ExprLexer");
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrXPathTest"));
+        try {
+            await testError("Expr.g4", TestXPath.grammar, sampleProgram, path, expected, "prog", "ExprParser",
+                "ExprLexer", tempDir);
+        } finally {
+            rmdirSync(tempDir, { recursive: true });
+        }
     });
 
 });

@@ -14,7 +14,7 @@ export class AttributeDecl extends Decl {
     public initValue?: string;
 
     public constructor(factory: OutputModelFactory, a: IAttribute) {
-        super(factory, a.name!, a.decl);
+        super(factory, a.name, a.decl);
         this.type = a.type!;
         this.initValue = a.initValue;
     }

@@ -49,10 +49,9 @@ import { Decl } from "./model/decl/Decl.js";
 import { RuleContextDecl } from "./model/decl/RuleContextDecl.js";
 import { TokenDecl } from "./model/decl/TokenDecl.js";
 import { TokenListDecl } from "./model/decl/TokenListDecl.js";
-import { grammarOptions } from "../grammar-options.js";
 
 export class ParserFactory extends DefaultOutputModelFactory {
-    public constructor(gen: CodeGenerator) {
+    public constructor(gen: CodeGenerator, private forceAtn?: boolean) {
         super(gen);
     }
 
@@ -203,7 +202,7 @@ export class ParserFactory extends DefaultOutputModelFactory {
     public override getChoiceBlock(blkAST: BlockAST, alts: CodeBlockForAlt[], labelAST: GrammarAST | null): Choice {
         const decision = (blkAST.atnState as DecisionState).decision;
         let c: Choice;
-        if (!grammarOptions.forceAtn && AnalysisPipeline.disjoint(this.g!.decisionLOOK[decision])) {
+        if (!this.forceAtn && AnalysisPipeline.disjoint(this.g!.decisionLOOK[decision])) {
             c = this.getLL1ChoiceBlock(blkAST, alts);
         } else {
             c = this.getComplexChoiceBlock(blkAST, alts);
@@ -226,7 +225,7 @@ export class ParserFactory extends DefaultOutputModelFactory {
     }
 
     public override getEBNFBlock(ebnfRoot: GrammarAST, alts: CodeBlockForAlt[]): Choice | undefined {
-        if (!grammarOptions.forceAtn) {
+        if (!this.forceAtn) {
             let decision: number;
             if (ebnfRoot.getType() === ANTLRv4Parser.POSITIVE_CLOSURE) {
                 decision = (ebnfRoot.atnState as PlusLoopbackState).decision;

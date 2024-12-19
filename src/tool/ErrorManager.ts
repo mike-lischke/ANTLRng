@@ -11,7 +11,6 @@ import { ErrorBuffer, IST, STGroup, STGroupString } from "stringtemplate4ts";
 
 import { basename } from "path";
 
-import { grammarOptions } from "../grammar-options.js";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import type { ANTLRToolListener } from "./ANTLRToolListener.js";
 import { DefaultToolListener } from "./DefaultToolListener.js";
@@ -65,12 +64,12 @@ export class ErrorManager {
      */
     #defaultListener = new DefaultToolListener(this);
 
-    public constructor() { // TODO: make this class only a holder of static methods and fields?
+    // TODO: make this class only a holder of static methods and fields?
+    public constructor(msgFormat?: string, private longMessages?: boolean, private warningsAreErrors?: boolean) {
         this.errors = 0;
         this.warnings = 0;
 
-        const formatName = grammarOptions.msgFormat ?? "antlr";
-        this.loadFormat(formatName);
+        this.loadFormat(msgFormat ?? "antlr");
     }
 
     public static fatalInternalError(error: string, e: Error): void {
@@ -109,7 +108,7 @@ export class ErrorManager {
     }
 
     public getMessageTemplate(msg: ANTLRMessage): IST | null {
-        const longMessages = grammarOptions.longMessages;
+        const longMessages = this.longMessages;
         const messageST = msg.getMessageTemplate(longMessages ?? false);
         const locationST = this.getLocationFormat();
         const reportST = this.getReportFormat(msg.getErrorType().severity);
@@ -246,7 +245,7 @@ export class ErrorManager {
             }
         }
 
-        if (grammarOptions.warningsAreErrors) {
+        if (this.warningsAreErrors) {
             this.emit(ErrorType.WARNING_TREATED_AS_ERROR, new ANTLRMessage(ErrorType.WARNING_TREATED_AS_ERROR));
         }
     }

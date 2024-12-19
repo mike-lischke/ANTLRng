@@ -81,12 +81,14 @@ prepared.exitOverride((err) => {
  * Used to parse tool parameters given as string list. Usually, this is used for tests.
  *
  * @param args The list of arguments.
+ *
+ * @returns The parsed tool parameters.
  */
-export const parseToolParameters = (args: string[]): void => {
+export const parseToolParameters = (args: string[]): IToolParameters => {
     prepared.parse(args, { from: "user" });
 
-    grammarOptions = prepared.opts<IToolParameters>();
-    grammarOptions.args = prepared.args;
-};
+    const result = prepared.opts<IToolParameters>();
+    result.args = prepared.args;
 
-export let grammarOptions: IToolParameters;
+    return result;
+};

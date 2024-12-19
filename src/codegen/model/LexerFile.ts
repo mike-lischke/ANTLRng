@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { grammarOptions } from "../../grammar-options.js";
+import type { IToolParameters } from "../../grammar-options.js";
 import { ModelElement } from "../../misc/ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";
@@ -23,12 +23,12 @@ export class LexerFile extends OutputFile {
     @ModelElement
     public namedActions: Map<string, Action>;
 
-    public constructor(factory: OutputModelFactory, fileName: string) {
+    public constructor(factory: OutputModelFactory, fileName: string, toolParameters: IToolParameters) {
         super(factory, fileName);
         this.namedActions = this.buildNamedActions(factory.getGrammar()!);
-        this.genPackage = grammarOptions.package;
+        this.genPackage = toolParameters.package;
         this.exportMacro = factory.getGrammar()!.getOptionString("exportMacro");
-        this.genListener = grammarOptions.generateListener ?? true;
-        this.genVisitor = grammarOptions.generateVisitor ?? false;
+        this.genListener = toolParameters.generateListener ?? true;
+        this.genVisitor = toolParameters.generateVisitor ?? false;
     }
 }

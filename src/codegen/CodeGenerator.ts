@@ -21,6 +21,7 @@ import { ParserFactory } from "./ParserFactory.js";
 import { Target } from "./Target.js";
 
 // Possible targets:
+import type { IToolParameters } from "../grammar-options.js";
 import { CppTarget } from "./target/CppTarget.js";
 import { CSharpTarget } from "./target/CSharpTarget.js";
 import { GoTarget } from "./target/GoTarget.js";
@@ -89,10 +90,11 @@ export class CodeGenerator {
         return this.target.getTemplates();
     }
 
-    public generateLexer(header?: boolean): IST {
+    public generateLexer(toolParameters: IToolParameters, header?: boolean): IST {
         header ??= false;
 
-        return this.walk(this.createController().buildLexerOutputModel(header), header);
+        return this.walk(this.createController(toolParameters.forceAtn)
+            .buildLexerOutputModel(header, toolParameters), header);
 
     }
 
@@ -260,8 +262,8 @@ export class CodeGenerator {
 
     // CREATE TEMPLATES BY WALKING MODEL
 
-    private createController(): OutputModelController {
-        const factory = new ParserFactory(this);
+    private createController(forceAtn?: boolean): OutputModelController {
+        const factory = new ParserFactory(this, forceAtn);
         const controller = new OutputModelController(factory);
         factory.setController(controller);
 

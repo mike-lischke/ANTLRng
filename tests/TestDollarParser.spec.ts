@@ -7,22 +7,14 @@ import { mkdtempSync, rmdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { ToolTestUtils } from "./ToolTestUtils.js";
 
 describe("TestDollarParser", () => {
-    let tempDirPath: string;
-
-    beforeEach(() => {
-        tempDirPath = mkdtempSync(join(tmpdir(), "AntlrDollarParser"));
-    });
-
-    afterEach(() => {
-        rmdirSync(tempDirPath, { recursive: true });
-    });
-
     it("testSimpleCall", async () => {
+        const tempDir = mkdtempSync(join(tmpdir(), "AntlrDollarParser"));
+
         const orgLog = console.log;
         let output = "";
         console.log = (str) => {
@@ -36,11 +28,12 @@ describe("TestDollarParser", () => {
                 "ID : 'a'..'z'+ ;\n";
 
             const errors = await ToolTestUtils.execParser("T.g4", grammar, "TParser", "TLexer", "a", "x", false, true,
-                tempDirPath);
+                tempDir);
             expect(output.includes("input")).toBe(true);
             expect(errors.all).toHaveLength(0);
         } finally {
             console.log = orgLog;
+            rmdirSync(tempDir, { recursive: true });
         }
     });
 });

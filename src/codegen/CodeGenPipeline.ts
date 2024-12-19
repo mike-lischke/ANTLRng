@@ -6,7 +6,7 @@
 
 import type { IST } from "stringtemplate4ts";
 
-import { grammarOptions } from "../grammar-options.js";
+import type { IToolParameters } from "../grammar-options.js";
 import { Grammar } from "../tool/Grammar.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 
@@ -14,12 +14,13 @@ export class CodeGenPipeline {
     protected readonly g: Grammar;
     protected readonly gen: CodeGenerator;
 
-    public constructor(g: Grammar, gen: CodeGenerator) {
+    public constructor(g: Grammar, gen: CodeGenerator, private generateListener?: boolean,
+        private generateVisitor?: boolean) {
         this.g = g;
         this.gen = gen;
     }
 
-    public process(): void {
+    public process(toolParameters: IToolParameters): void {
         // all templates are generated in memory to report the most complete
         // error information possible, but actually writing output files stops
         // after the first error is reported
@@ -27,12 +28,12 @@ export class CodeGenPipeline {
 
         if (this.g.isLexer()) {
             if (this.gen.getTarget().needsHeader()) {
-                const lexer = this.gen.generateLexer(true); // Header file if needed.
+                const lexer = this.gen.generateLexer(toolParameters, true); // Header file if needed.
                 if (this.g.tool.errorManager.errors === errorCount) {
                     this.writeRecognizer(lexer, this.gen, true);
                 }
             }
-            const lexer = this.gen.generateLexer(false);
+            const lexer = this.gen.generateLexer(toolParameters, false);
             if (this.g.tool.errorManager.errors === errorCount) {
                 this.writeRecognizer(lexer, this.gen, false);
             }
@@ -49,7 +50,7 @@ export class CodeGenPipeline {
                 this.writeRecognizer(parser, this.gen, false);
             }
 
-            if (grammarOptions.generateListener) {
+            if (this.generateListener) {
                 if (this.gen.getTarget().needsHeader()) {
                     const listener = this.gen.generateListener(true);
                     if (this.g.tool.errorManager.errors === errorCount) {
@@ -75,7 +76,7 @@ export class CodeGenPipeline {
                 }
             }
 
-            if (grammarOptions.generateVisitor) {
+            if (this.generateVisitor) {
                 if (this.gen.getTarget().needsHeader()) {
                     const visitor = this.gen.generateVisitor(true);
                     if (this.g.tool.errorManager.errors === errorCount) {

@@ -12,7 +12,6 @@ import { dirname, join } from "path";
 import { Token } from "antlr4ng";
 
 import { Constants } from "../Constants1.js";
-import { grammarOptions } from "../grammar-options.js";
 import { ErrorType } from "../tool/ErrorType.js";
 import type { IGrammar } from "../types.js";
 
@@ -21,7 +20,7 @@ const linePattern = /(?<tokenID>[^\n]+?)[ \\t]*?=[ \\t]*?(?<tokenTypeS>[0-9]+)/;
 export class TokenVocabParser {
     protected readonly g: IGrammar;
 
-    public constructor(g: IGrammar) {
+    public constructor(g: IGrammar, private outputDirectory: string, private libDirectory?: string) {
         this.g = g;
     }
 
@@ -83,15 +82,15 @@ export class TokenVocabParser {
         }
 
         try {
-            let name = join(grammarOptions.libDirectory ?? ".", vocabName + Constants.VOCAB_FILE_EXTENSION);
+            let name = join(this.libDirectory ?? ".", vocabName + Constants.VOCAB_FILE_EXTENSION);
             if (existsSync(name)) {
                 return readFileSync(name, "utf8");
             }
 
             // We did not find the vocab file in the lib directory, so we need to look for it in the output directory
             // which is where .tokens files are generated (in the base, not relative to the input location.)
-            if (grammarOptions.outputDirectory) {
-                name = join(grammarOptions.outputDirectory, vocabName + Constants.VOCAB_FILE_EXTENSION);
+            if (this.outputDirectory) {
+                name = join(this.outputDirectory, vocabName + Constants.VOCAB_FILE_EXTENSION);
                 if (existsSync(name)) {
                     return readFileSync(name, "utf8");
                 }

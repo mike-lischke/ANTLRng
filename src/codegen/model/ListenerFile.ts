@@ -4,7 +4,6 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { grammarOptions } from "../../grammar-options.js";
 import { ModelElement } from "../../misc/ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";
@@ -37,7 +36,7 @@ export class ListenerFile extends OutputFile {
     @ModelElement
     public namedActions: Map<string, Action>;
 
-    public constructor(factory: OutputModelFactory, fileName: string) {
+    public constructor(factory: OutputModelFactory, fileName: string, packageName?: string) {
         super(factory, fileName);
         const g = factory.getGrammar()!;
         this.parserName = g.getRecognizerName();
@@ -64,7 +63,7 @@ export class ListenerFile extends OutputFile {
             this.header = new Action(factory, ast);
         }
 
-        this.genPackage = grammarOptions.package;
+        this.genPackage = packageName;
         this.accessLevel = g.getOptionString("accessLevel");
         this.exportMacro = g.getOptionString("exportMacro");
     }

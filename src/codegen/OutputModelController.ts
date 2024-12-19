@@ -49,6 +49,7 @@ import { SrcOp } from "./model/SrcOp.js";
 import { StarBlock } from "./model/StarBlock.js";
 import { VisitorFile } from "./model/VisitorFile.js";
 import { CodeBlock } from "./model/decl/CodeBlock.js";
+import type { IToolParameters } from "../grammar-options.js";
 
 /**
  * This receives events from SourceGenTriggers.g and asks factory to do work.
@@ -105,9 +106,9 @@ export class OutputModelController {
         return file;
     }
 
-    public buildLexerOutputModel(header: boolean): OutputModelObject {
+    public buildLexerOutputModel(header: boolean, toolParameters: IToolParameters): OutputModelObject {
         const gen = this.delegate.getGenerator()!;
-        const file = this.lexerFile(gen.getRecognizerFileName(header));
+        const file = this.lexerFile(gen.getRecognizerFileName(header), toolParameters);
         this.setRoot(file);
         file.lexer = this.lexer(file);
 
@@ -161,8 +162,8 @@ export class OutputModelController {
         return p;
     }
 
-    public lexerFile(fileName: string): LexerFile {
-        return new LexerFile(this.delegate, fileName);
+    public lexerFile(fileName: string, toolParameters: IToolParameters): LexerFile {
+        return new LexerFile(this.delegate, fileName, toolParameters);
     }
 
     public lexer(file: LexerFile): Lexer {

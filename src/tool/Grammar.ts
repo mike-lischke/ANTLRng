@@ -1020,7 +1020,7 @@ export class Grammar implements IGrammar, AttributeResolver {
     public importTokensFromTokensFile(): void {
         const vocab = this.getOptionString("tokenVocab");
         if (vocab) {
-            const vParser = new TokenVocabParser(this);
+            const vParser = new TokenVocabParser(this, this.tool.toolParameters.outputDirectory ?? "./");
             const tokens = vParser.load();
             this.tool.logInfo({ component: "grammar", msg: `tokens=${String(tokens)}` });
 
@@ -1268,7 +1268,7 @@ export class Grammar implements IGrammar, AttributeResolver {
             throw new Error("Unsupported language: " + language);
         }
 
-        return language!;
+        return language ?? "Java";
     }
 
     public getOptionString(key: string): string | undefined {

@@ -9,7 +9,7 @@ import { IntervalSet, type Token } from "antlr4ng";
 import { ANTLRv4Parser } from "../src/generated/ANTLRv4Parser.js";
 import { Grammar } from "../src/tool/index.js";
 
-describe.skip("TestTokenPositionOptions", () => {
+describe("TestTokenPositionOptions", () => {
     it("testLeftRecursionRewrite", () => {
         const g = new Grammar(
             "grammar T;\n" +
@@ -22,6 +22,7 @@ describe.skip("TestTokenPositionOptions", () => {
             "  ;\n" +
             "ID : [a-z]+ ;\n"
         );
+        g.tool.toolParameters.define = { "language": "Java" };
         g.tool.process(g, false);
 
         const expectedTree = "(COMBINED_GRAMMAR T (RULES (RULE s (BLOCK (ALT e ';'))) (RULE e (BLOCK (ALT (BLOCK " +
@@ -70,6 +71,7 @@ describe.skip("TestTokenPositionOptions", () => {
             "  ;\n" +
             "ID : [a-z]+ ;\n"
         );
+        g.tool.toolParameters.define = { "language": "Java" };
         g.tool.process(g, false);
 
         const expectedTree = "(COMBINED_GRAMMAR T (RULES (RULE s (BLOCK (ALT e ';'))) (RULE e (BLOCK (ALT (BLOCK " +
@@ -117,6 +119,7 @@ describe.skip("TestTokenPositionOptions", () => {
             "  ;\n" +
             "ID : [a-z]+ ;\n"
         );
+        g.tool.toolParameters.define = { "language": "Java" };
         g.tool.process(g, false);
 
         const expectedTree = "(COMBINED_GRAMMAR T (RULES (RULE s (BLOCK (ALT e ';'))) (RULE e (BLOCK (ALT (BLOCK " +

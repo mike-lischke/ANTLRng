@@ -94,7 +94,7 @@ export class ActionTranslator implements ActionSplitterListener {
     public static toString(chunks: ActionChunk[]): string {
         let result = "";
         for (const c of chunks) {
-            // eslint-disable-next-line @typescript-eslint/no-base-to-string
+             
             result += c.toString();
         }
 
