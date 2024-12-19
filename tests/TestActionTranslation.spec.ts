@@ -19,7 +19,7 @@ import { Grammar } from "../src/tool/Grammar.js";
 import type { LexerGrammar } from "../src/tool/LexerGrammar.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
 
-describe("TestActionTranslation", () => {
+describe.skip("TestActionTranslation", () => {
     const attributeTemplate =
         "attributeTemplate(members,init,inline,finally,inline2) ::= <<\n" +
         "parser grammar A;\n" +

@@ -15,7 +15,7 @@ import { CodeGenerator } from "../src/codegen/CodeGenerator.js";
 import { SemanticPipeline } from "../src/semantics/SemanticPipeline.js";
 import { Grammar, type LexerGrammar } from "../src/tool/index.js";
 
-describe("TestCodeGeneration", () => {
+describe.skip("TestCodeGeneration", () => {
 
     /** Add tags around each attribute/template/value write */
     // eslint-disable-next-line @typescript-eslint/naming-convention

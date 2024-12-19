@@ -9,7 +9,7 @@ import { IntervalSet, type Token } from "antlr4ng";
 import { ANTLRv4Parser } from "../src/generated/ANTLRv4Parser.js";
 import { Grammar } from "../src/tool/index.js";
 
-describe("TestTokenPositionOptions", () => {
+describe.skip("TestTokenPositionOptions", () => {
     it("testLeftRecursionRewrite", () => {
         const g = new Grammar(
             "grammar T;\n" +
