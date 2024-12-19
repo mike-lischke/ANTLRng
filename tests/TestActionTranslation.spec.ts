@@ -47,6 +47,7 @@ describe("TestActionTranslation", () => {
         st.add(actionName, action);
         const grammar = st.render();
         const g = new Grammar(grammar);
+        g.tool.toolParameters.define = { "language": "Java" };
 
         // TODO: break this circular dependency.
         const errorQueue = new ErrorQueue(g.tool.errorManager);
