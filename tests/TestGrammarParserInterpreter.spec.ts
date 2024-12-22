@@ -34,7 +34,6 @@ describe("TestGrammarParserInterpreter", () => {
         const tokens = new CommonTokenStream(lexEngine);
         const parser = g.createGrammarParserInterpreter(tokens);
         const t = parser.parse(g.rules.get(startRule)!.index);
-        //const nodeTextProvider = new InterpreterTreeTextProvider(g.getRuleNames());
         const treeStr = Trees.toStringTree(t, g.getRuleNames());
 
         expect(treeStr).toBe(expectedParseTree);

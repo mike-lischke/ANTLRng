@@ -31,7 +31,7 @@ export class Utils {
         const lines = s.split("\n");
         lines.sort();
 
-        return lines.join("\n");
+        return lines.join("\n") + "\n";
     }
 
     public static capitalize(s: string): string {
