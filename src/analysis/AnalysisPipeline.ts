@@ -21,7 +21,11 @@ export class AnalysisPipeline {
     }
 
     /** Return whether lookahead sets are disjoint; no lookahead ⇒ not disjoint */
-    public static disjoint(altLook: Array<IntervalSet | undefined>): boolean {
+    public static disjoint(altLook?: Array<IntervalSet | undefined>): boolean {
+        if (!altLook) {
+            return false;
+        }
+
         let collision = false;
         const combined = new IntervalSet();
         for (const look of altLook) {

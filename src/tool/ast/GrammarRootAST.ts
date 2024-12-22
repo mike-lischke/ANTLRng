@@ -15,7 +15,7 @@ import type { IToolParameters } from "../../grammar-options.js";
 /** This is the root node for a grammar (for the top level grammarSpec rule). */
 export class GrammarRootAST extends GrammarASTWithOptions implements IGrammarRootAST {
     public grammarType: GrammarType;
-    public hasErrors = false;
+    public hasErrors = false; // TODO: This is not set anywhere.
 
     /** Track stream used to create this tree */
     public readonly tokenStream: TokenStream;

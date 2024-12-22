@@ -29,9 +29,9 @@ interface IDataFileContent {
 const packageName = "@unicode/unicode-16.0.0";
 const sourceURL = join(dirname(import.meta.url), `../node_modules/${packageName}`).substring("file:".length);
 
-const propertyAliases = new Map<string, string>();
+const propertyAliases = new Map<string, string[]>();
 const shortToLongPropertyNameMap = new Map<string, string>();
-const shortToLongPropertyValueMap = new Map<string, string>();
+const shortToLongPropertyValueMap = new Map<string, string[]>();
 
 const numberToHex = (value: number): string => {
     return value.toString(16).toUpperCase();
@@ -109,7 +109,11 @@ const loadPropertyAliases = async (): Promise<void> => {
         }
 
         let addBinaryPropertyEntry = false;
-        for (const line of section) {
+        for (let line of section) {
+            const commentStart = line.indexOf("#");
+            if (commentStart >= 0) {
+                line = line.substring(0, commentStart);
+            }
             const parts = line.split(";");
 
             // Each data line is of the form: property abbreviation; value abbreviation; value full; ...
@@ -117,35 +121,43 @@ const loadPropertyAliases = async (): Promise<void> => {
                 continue;
             }
 
-            // Ignore binary properties, which can only be switched on or off (indicated by true/false and their
-            // aliases). But add a lookup entry for them.
-            if (parts[1].trim().toLowerCase() === "n" || parts[1].trim().toLowerCase() === "y") {
-                addBinaryPropertyEntry = true;
-                continue;
+            if (parts[0].trim() !== "gc") {
+                // Ignore binary properties, which can only be switched on or off (indicated by true/false and their
+                // aliases). But add a lookup entry for them.
+                if (parts[1].trim().toLowerCase() === "n" || parts[1].trim().toLowerCase() === "y") {
+                    addBinaryPropertyEntry = true;
+                    continue;
+                }
             }
 
             // Canonical_Combining_Class is a special cases. It has an additional field in the second position,
             // which we ignore here.
-            if (longName === "Canonical_Combining_Class" && parts.length > 3) {
-                parts.splice(2, 1);
+            if (longName === "canonical_combining_class" && parts.length > 3) {
+                parts.splice(1, 1);
             }
 
             const abbr = parts[1].trim().toLowerCase();
             const full = parts[2].trim().toLowerCase();
 
-            // Don't override short property value names if they exist already.
-            // Scripts and blocks share a couple of them. Keep the one from the block section.
-            if (!shortToLongPropertyValueMap.has(full) && abbr !== full) {
-                shortToLongPropertyValueMap.set(abbr, full);
+            if (abbr !== full) {
+                let list = shortToLongPropertyValueMap.get(abbr) ?? [];
+                list.push(`"${longName}=${full}"`);
+                shortToLongPropertyValueMap.set(abbr, list);
+
+                list = propertyAliases.get(abbr) ?? [];
+                list.push(`"${longName}=${full}"`);
+                propertyAliases.set(abbr, list);
             }
 
-            if (!propertyAliases.has(full)) {
-                propertyAliases.set(full, `${longName}=${full}`);
-            }
+            const list = propertyAliases.get(full) ?? [];
+            list.push(`"${longName}=${full}"`);
+            propertyAliases.set(full, list);
         }
 
         if (addBinaryPropertyEntry) {
-            propertyAliases.set(longName, `binary_property=${longName}`);
+            const list = propertyAliases.get(longName) ?? [];
+            list.push(`"binary_property=${longName}"`);
+            propertyAliases.set(longName, list);
         }
     }
 };
@@ -258,10 +270,10 @@ await generateMap("Script_Extensions");
 await generateMap("Word_Break");
 
 // Finally add the aliases.
-writer.write(`export const propertyAliases = new Map<string, string>([ \n`);
+writer.write(`export const propertyAliases = new Map<string, string[]>([ \n`);
 await loadPropertyAliases();
 propertyAliases.forEach((value, key) => {
-    writer.write(`    ["${key}", "${value}"], \n`);
+    writer.write(`    ["${key}", [${value.join(", ")}]], \n`);
 });
 writer.write(`]); \n`);
 
@@ -271,9 +283,9 @@ shortToLongPropertyNameMap.forEach((value, key) => {
 });
 writer.write(`]); \n`);
 
-writer.write(`export const shortToLongPropertyValueMap = new Map<string, string>([ \n`);
+writer.write(`export const shortToLongPropertyValueMap = new Map<string, string[]>([ \n`);
 shortToLongPropertyValueMap.forEach((value, key) => {
-    writer.write(`    ["${key}", "${value}"], \n`);
+    writer.write(`    ["${key}", [${value.join(", ")}]], \n`);
 });
 writer.write(`]); \n`);
 

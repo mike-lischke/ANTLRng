@@ -47,4 +47,9 @@ export class UndefChecker extends GrammarTreeVisitor {
         }
     }
 
+    public override emitErrorMessage(msg: string): void {
+        // XXX: we should not arrive here. If the syntax is correct, we should not have any unhandled tree error.
+        console.log(msg);
+    }
+
 }

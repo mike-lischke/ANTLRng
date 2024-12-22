@@ -7,6 +7,9 @@
 import { IntervalSet } from "antlr4ng";
 
 import { Character } from "../support/Character.js";
+import { ErrorType } from "../tool/ErrorType.js";
+import type { Grammar } from "../tool/Grammar.js";
+import type { IPosition } from "./helpers.js";
 
 export class CharSupport {
     /** When converting ANTLR char and string literals, here is the value set of escape chars. */
@@ -28,6 +31,8 @@ export class CharSupport {
         ["\f".codePointAt(0)!, "\\f"],
         ["\\".codePointAt(0)!, "\\\\"],
     ]);
+
+    private static readonly hexRegex = /^[0-9A-Fa-f]+$/;
 
     /**
      * @param c The code point to convert to an ANTLR char literal.
@@ -88,12 +93,42 @@ export class CharSupport {
         return CharSupport.getCharValueFromCharInGrammarLiteral(literal.substring(1, literal.length - 1));
     }
 
-    public static getStringFromGrammarStringLiteral(literal: string): string | null {
+    /**
+     * Scans the given literal for escape sequences and returns the string.
+     *
+     * @param literal The string literal to examine.
+     * @param grammar The grammar with details for error reporting.
+     * @param position The position of the literal in the input string (needed for error reporting).
+     *
+     * @returns the string value of the literal or null if the literal is invalid.
+     */
+    public static getStringFromGrammarStringLiteral(literal: string, grammar?: Grammar,
+        position?: IPosition): string | null {
+
+        let reported = false;
+
+        const reportError = (invalid: string, offset: number) => {
+            reported = true;
+            if (grammar && position) {
+                grammar.tool.errorManager.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
+                    grammar.fileName, { line: position.line, column: position.column + offset },
+                    invalid);
+            }
+        };
+
         let buffer = "";
         let i = 1; // skip first quote
         const n = literal.length - 1; // skip last quote
-        while (i < n) { // scan all but last quote
+
+        let isInvalid = false;
+
+        while (i < n) {
+            reported = false;
+
             let end = i + 1;
+
+            // Note: we can use charAt instead of codePointAt, because all characters in a valid escape sequence are
+            //       ASCII (either hex numbers or certain letters).
             if (literal.charAt(i) === "\\") {
                 end = i + 2;
                 if (i + 1 < n && literal.charAt(i + 1) === "u") {
@@ -101,8 +136,11 @@ export class CharSupport {
                         end = i + 3;
                         while (true) {
                             if (end + 1 > n) {
-                                return null;
+                                reportError(literal.substring(i, end), i);
+                                isInvalid = true;
+                                break;
                             }
+
                             // invalid escape sequence.
                             const charAt = literal.charAt(end++);
                             if (charAt === "}") {
@@ -111,19 +149,24 @@ export class CharSupport {
 
                             if (!Character.isDigit(charAt.codePointAt(0)!) && !(charAt >= "a" && charAt <= "f")
                                 && !(charAt >= "A" && charAt <= "F")) {
-                                return null; // invalid escape sequence.
+                                reportError(literal.substring(i, end - 1), i);
+                                isInvalid = true;
+                                break;
                             }
                         }
                     } else {
                         for (end = i + 2; end < i + 6; end++) {
                             if (end > n) {
-                                return null;
-                            }
-                            // invalid escape sequence.
-                            const charAt = literal.charAt(end);
-                            if (!Character.isDigit(charAt.codePointAt(0)!) && !(charAt >= "a" && charAt <= "f")
-                                && !(charAt >= "A" && charAt <= "F")) {
-                                return null; // invalid escape sequence.
+                                isInvalid = true;
+                                break;
+                            } else {
+                                const charAt = literal.charAt(end);
+                                if (!Character.isDigit(charAt.codePointAt(0)!) && !(charAt >= "a" && charAt <= "f")
+                                    && !(charAt >= "A" && charAt <= "F")) {
+                                    const actualEnd = end >= n ? n : end + 1;
+                                    reportError(literal.substring(i, actualEnd), i);
+                                    isInvalid = true;
+                                }
                             }
                         }
                     }
@@ -131,18 +174,29 @@ export class CharSupport {
             }
 
             if (end > n) {
-                return null; // invalid escape sequence.
-            }
-
-            const esc = literal.substring(i, end);
-            const c = CharSupport.getCharValueFromCharInGrammarLiteral(esc);
-            if (c === -1) {
-                return null; // invalid escape sequence.
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                if (!reported) {
+                    reportError(literal.substring(i, end), i);
+                }
+                isInvalid = true;
             } else {
-                buffer += String.fromCodePoint(c);
+                const esc = literal.substring(i, end);
+                const c = CharSupport.getCharValueFromCharInGrammarLiteral(esc);
+                if (c === -1) {
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                    if (!reported) {
+                        reportError(literal.substring(i, end), i);
+                    }
+                    isInvalid = true;
+                } else {
+                    buffer += String.fromCodePoint(c);
+                }
             }
-
             i = end;
+        }
+
+        if (isInvalid) {
+            return null;
         }
 
         return buffer;
@@ -212,10 +266,13 @@ export class CharSupport {
             return -1;
         }
 
-        const unicodeChars = cstr.substring(startOff, endOff);
-        const result = parseInt(unicodeChars, 16);
+        const hexString = cstr.substring(startOff, endOff);
 
-        return isNaN(result) ? -1 : result;
+        if (!CharSupport.hexRegex.test(hexString)) {
+            return -1;
+        }
+
+        return parseInt(hexString, 16);
     }
 
     public static capitalize(s: string): string {

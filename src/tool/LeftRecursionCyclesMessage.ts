@@ -12,8 +12,10 @@ import { type Rule } from "./Rule.js";
 
 export class LeftRecursionCyclesMessage extends ANTLRMessage {
     public constructor(fileName: string, cycles: Rule[][]) {
-        super(ErrorType.LEFT_RECURSION_CYCLES, LeftRecursionCyclesMessage.getStartTokenOfFirstRule(cycles), cycles);
-        this.fileName = fileName;
+        const token = LeftRecursionCyclesMessage.getStartTokenOfFirstRule(cycles);
+        const line = token?.line ?? -1;
+        const column = token?.column ?? -1;
+        super(ErrorType.LEFT_RECURSION_CYCLES, fileName, line, column, cycles);
     }
 
     protected static getStartTokenOfFirstRule(cycles: Rule[][]): Token | undefined {

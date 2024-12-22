@@ -1248,9 +1248,6 @@ export class Grammar implements IGrammar, AttributeResolver {
     }
 
     public getTypeString(): string | null {
-        // XXX: Odd original code here. It uses the grammar type to look up a token name, wth?
-        // return ANTLRv4Parser.symbolicNames[this.type]!.toLowerCase();
-
         if (this.isLexer()) {
             return "lexer";
         }
@@ -1265,7 +1262,7 @@ export class Grammar implements IGrammar, AttributeResolver {
     public getLanguage(): SupportedLanguage | undefined {
         const language = this.getOptionString("language") as SupportedLanguage | undefined;
         if (language && !targetLanguages.includes(language)) {
-            throw new Error("Unsupported language: " + language);
+            this.tool.errorManager.toolError(ErrorType.CANNOT_CREATE_TARGET_GENERATOR, language);
         }
 
         return language ?? "Java";

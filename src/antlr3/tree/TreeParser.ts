@@ -18,6 +18,7 @@ import { BaseRecognizer } from "../BaseRecognizer.js";
 import type { IRecognizerSharedState } from "../IRecognizerSharedState.js";
 import type { TreeAdaptor } from "./TreeAdaptor.js";
 import type { TreeNodeStream } from "./TreeNodeStream.js";
+import { MismatchedTreeNodeException } from "../MismatchTreeNodeException.js";
 
 /**
  * A parser for a stream of tree nodes.  "tree grammars" result in a subclass
@@ -213,7 +214,7 @@ export class TreeParser extends BaseRecognizer {
      *  from tree parser errors inline...
      */
     protected override recoverFromMismatchedToken(input: IntStream, ttype: number, follow: BitSet): CommonTree | null {
-        throw new Error("recoverFromMismatchedToken");
+        throw new MismatchedTreeNodeException(ttype, this.#input!);
     }
 
     protected override getCurrentInputSymbol(input: IntStream): CommonTree | null {

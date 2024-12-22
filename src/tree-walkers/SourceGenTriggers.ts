@@ -132,48 +132,49 @@ export class SourceGenTriggers extends TreeParser {
                 }
                 switch (alt2) {
                     case 1: {
-                        // ./SourceGenTriggers.g:62:21: ^( OPTIONS ( . )+ )
+                        // ./SourceGenTriggers.g:62:21: ^( OPTIONS ( . )* )
                         {
                             this.match(this.input, ANTLRv4Lexer.OPTIONS, null);
-                            this.match(this.input, Constants.DOWN, null);
-                            // ./SourceGenTriggers.g:62:31: ( . )+
-                            let cnt1 = 0;
-                            loop1:
-                            while (true) {
-                                let alt1 = 2;
-                                const LA1_0 = this.input.LA(1);
-                                if (((LA1_0 >= ANTLRv4Lexer.ACTION && LA1_0 <= ANTLRv4Lexer.WILDCARD))) {
-                                    alt1 = 1;
-                                } else {
-                                    if ((LA1_0 === Constants.UP)) {
-                                        alt1 = 2;
-                                    }
-                                }
-
-                                switch (alt1) {
-                                    case 1: {
-                                        // ./SourceGenTriggers.g:62:31: .
-                                        {
-                                            this.matchAny(this.input);
+                            if (this.input.LA(1) === Constants.DOWN) {
+                                this.match(this.input, Constants.DOWN, null);
+                                // ./SourceGenTriggers.g:62:31: ( . )+
+                                let cnt1 = 0;
+                                loop1:
+                                while (true) {
+                                    let alt1 = 2;
+                                    const LA1_0 = this.input.LA(1);
+                                    if (((LA1_0 >= ANTLRv4Lexer.ACTION && LA1_0 <= ANTLRv4Lexer.WILDCARD))) {
+                                        alt1 = 1;
+                                    } else {
+                                        if ((LA1_0 === Constants.UP)) {
+                                            alt1 = 2;
                                         }
-                                        break;
                                     }
 
-                                    default: {
-                                        if (cnt1 >= 1) {
-                                            break loop1;
+                                    switch (alt1) {
+                                        case 1: {
+                                            // ./SourceGenTriggers.g:62:31: .
+                                            {
+                                                this.matchAny(this.input);
+                                            }
+                                            break;
                                         }
 
-                                        const eee = new EarlyExitException(1, this.input);
-                                        throw eee;
-                                    }
+                                        default: {
+                                            if (cnt1 >= 1) {
+                                                break loop1;
+                                            }
 
+                                            const eee = new EarlyExitException(1, this.input);
+                                            throw eee;
+                                        }
+
+                                    }
+                                    cnt1++;
                                 }
-                                cnt1++;
+
+                                this.match(this.input, Constants.UP, null);
                             }
-
-                            this.match(this.input, Constants.UP, null);
-
                         }
                         break;
                     }

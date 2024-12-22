@@ -34,7 +34,7 @@ describe("TestCompositeGrammars", () => {
     const checkGrammarSemanticsWarning = (errorQueue: ErrorQueue, expectedMessage: GrammarSemanticsMessage): void => {
         let foundMsg;
         for (const m of errorQueue.warnings) {
-            if (m.getErrorType() === expectedMessage.getErrorType()) {
+            if (m.errorType === expectedMessage.errorType) {
                 foundMsg = m;
             }
         }
@@ -42,7 +42,7 @@ describe("TestCompositeGrammars", () => {
         expect(foundMsg).toBeDefined();
         expect(foundMsg).instanceOf(GrammarSemanticsMessage);
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        expect(foundMsg!.getArgs().join(", ")).toBe(expectedMessage.getArgs().join(", "));
+        expect(foundMsg!.args.join(", ")).toBe(expectedMessage.args.join(", "));
         if (errorQueue.size() !== 1) {
             console.error(errorQueue);
         }
@@ -282,10 +282,10 @@ describe("TestCompositeGrammars", () => {
             expect(queue.all).toHaveLength(1);
 
             const msg = queue.all[0];
-            expect(msg.getErrorType()).toBe(ErrorType.MODE_NOT_IN_LEXER);
-            expect(msg.getArgs()[0]).toBe("X");
+            expect(msg.errorType).toBe(ErrorType.MODE_NOT_IN_LEXER);
+            expect(msg.args[0]).toBe("X");
             expect(msg.line).toBe(3);
-            expect(msg.charPosition).toBe(5);
+            expect(msg.column).toBe(5);
             expect(basename(msg.fileName)).toBe("M.g4");
         } finally {
             rmdirSync(tempDir, { recursive: true });
@@ -364,10 +364,10 @@ describe("TestCompositeGrammars", () => {
             const queue = ToolTestUtils.antlrOnFile(tempDir, "Java", "M.g4", false, "-lib", tempDir);
             const msg = queue.errors[0];
 
-            expect(msg.getErrorType()).toBe(ErrorType.UNDEFINED_RULE_REF);
-            expect(msg.getArgs()[0]).toBe("c");
+            expect(msg.errorType).toBe(ErrorType.UNDEFINED_RULE_REF);
+            expect(msg.args[0]).toBe("c");
             expect(msg.line).toBe(2);
-            expect(msg.charPosition).toBe(10);
+            expect(msg.column).toBe(10);
             expect(basename(msg.fileName)).toBe("S.g4");
         } finally {
             rmdirSync(tempDir, { recursive: true });
@@ -394,7 +394,7 @@ describe("TestCompositeGrammars", () => {
             writeFileSync(join(tempDir, "M.g4"), master);
 
             const queue = ToolTestUtils.antlrOnFile(tempDir, "Java", "M.g4", false, "-o", outdir);
-            expect(queue.all[0].getErrorType()).toBe(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR);
+            expect(queue.all[0].errorType).toBe(ErrorType.CANNOT_FIND_IMPORTED_GRAMMAR);
         } finally {
             rmdirSync(tempDir, { recursive: true });
         }
@@ -490,7 +490,7 @@ describe("TestCompositeGrammars", () => {
 
             const expectedArg = "S";
             const expectedMsgID = ErrorType.OPTIONS_IN_DELEGATE;
-            const expectedMessage = new GrammarSemanticsMessage(expectedMsgID, g.fileName, null, expectedArg);
+            const expectedMessage = new GrammarSemanticsMessage(expectedMsgID, g.fileName, -1, -1, expectedArg);
             checkGrammarSemanticsWarning(queue, expectedMessage);
 
             expect(queue.errors).toHaveLength(0);
@@ -520,7 +520,7 @@ describe("TestCompositeGrammars", () => {
             g.tool.errorManager.addListener(errors);
             g.tool.process(g, false);
 
-            expect(errors.errors[0].getErrorType()).toBe(ErrorType.SYNTAX_ERROR);
+            expect(errors.errors[0].errorType).toBe(ErrorType.SYNTAX_ERROR);
         } finally {
             rmdirSync(tempDir, { recursive: true });
         }

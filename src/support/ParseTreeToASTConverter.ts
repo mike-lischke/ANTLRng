@@ -430,13 +430,14 @@ export class ParseTreeToASTConverter {
         ast: GrammarAST): ActionAST {
         const text = actionBlock.getText();
 
-        let token;
+        /*let token;
         if (actionBlock.ACTION_CONTENT().length > 0) {
             const start = actionBlock.ACTION_CONTENT(0)!;
             token = this.createToken(astType, start, text, start.symbol.column + 1);
         } else {
             token = this.createToken(astType, actionBlock, text);
-        }
+        }*/
+        const token = this.createToken(astType, actionBlock, text);
 
         token.type = ANTLRv4Parser.ACTION;
         const actionAST = new ActionAST(token);
@@ -545,7 +546,7 @@ export class ParseTreeToASTConverter {
         const altAST = this.createVirtualASTNode(AltAST, ANTLRv4Lexer.ALT, lexerElements, "ALT");
         ast.addChild(altAST);
 
-        if (lexerElements.lexerElement.length === 0) {
+        if (lexerElements.lexerElement().length === 0) {
             // Empty alt.
             altAST.addChild(this.createASTNode(ANTLRv4Lexer.EPSILON, lexerElements));
         } else {

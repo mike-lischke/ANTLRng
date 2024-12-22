@@ -111,20 +111,21 @@ export abstract class EscapeSequenceParsing {
                 }
 
                 const propertyName = s.substring(openBraceOffset + 1, closeBraceOffset);
-                let propertyIntervalSet = getPropertyCodePoints(propertyName);
-                if (!propertyIntervalSet || propertyIntervalSet.length === 0) {
+                const lookupResult = getPropertyCodePoints(propertyName);
+                if (lookupResult.status !== "ok" || lookupResult.codePoints === undefined) {
                     return EscapeSequenceParsing.invalid(startOff, closeBraceOffset);
                 }
 
                 offset = closeBraceOffset + 1;
+                let codePoints = lookupResult.codePoints;
                 if (escaped === 0x50) { // 'P'
-                    propertyIntervalSet = propertyIntervalSet.complementWithVocabulary(EscapeSequenceParsing.#fullSet);
+                    codePoints = codePoints.complementWithVocabulary(EscapeSequenceParsing.#fullSet);
                 }
 
                 return {
                     type: ResultType.Property,
                     codePoint: -1,
-                    propertyIntervalSet,
+                    propertyIntervalSet: codePoints,
                     startOffset: startOff,
                     parseLength: offset - startOff,
                 };
@@ -150,6 +151,7 @@ export abstract class EscapeSequenceParsing {
     }
 
     private static invalid(start: number, stop: number): IEscapeParsingResult { // start..stop is inclusive
+        // TODO: include the list of possible candidates in the error message, if more than one exists.
         return {
             type: ResultType.Invalid,
             codePoint: 0,

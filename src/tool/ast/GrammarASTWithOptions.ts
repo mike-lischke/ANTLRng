@@ -7,7 +7,6 @@
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
 import { CharSupport } from "../../misc/CharSupport.js";
-import { ErrorType } from "../ErrorType.js";
 import { GrammarAST } from "./GrammarAST.js";
 
 export abstract class GrammarASTWithOptions extends GrammarAST {
@@ -25,15 +24,13 @@ export abstract class GrammarASTWithOptions extends GrammarAST {
             return value;
         }
 
-        if ("resolver" in value) { // ActionAST, cannot use instanceof here because of circular dependency.
+        if (value.astType === "ActionAST") {
             return value.getText();
         } else {
             let v: string | null = value.getText();
             if (v && (v.startsWith("'") || v.startsWith("\""))) {
-                v = CharSupport.getStringFromGrammarStringLiteral(v);
+                v = CharSupport.getStringFromGrammarStringLiteral(v, this.g, { line: 1, column: 0 });
                 if (v === null) {
-                    this.g.tool.errorManager.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, this.g.fileName,
-                        value.token!, value.getText());
                     v = "";
                 }
             }

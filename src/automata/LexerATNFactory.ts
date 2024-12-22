@@ -313,7 +313,7 @@ export class LexerATNFactory extends ParserATNFactory {
     /**
      * For a lexer, a string is a sequence of char to match.  That is,
      *  "fog" is treated as 'f' 'o' 'g' not as a single transition in
-     *  the DFA.  Machine== o-'f'-&gt;o-'o'-&gt;o-'g'-&gt;o and has n+1 states
+     *  the DFA.  Machine== o-'f'->o-'o'->o-'g'->o and has n+1 states
      *  for n characters.
      *  if "caseInsensitive" option is enabled, "fog" will be treated as
      *  o-('f'|'F') -> o-('o'|'O') -> o-('g'|'G')
@@ -322,9 +322,8 @@ export class LexerATNFactory extends ParserATNFactory {
         const chars = stringLiteralAST.getText();
         const left = this.newState(BasicState);
         let right: ATNState | null;
-        const s = CharSupport.getStringFromGrammarStringLiteral(chars);
+        const s = CharSupport.getStringFromGrammarStringLiteral(chars, this.g, stringLiteralAST.token);
         if (s === null) {
-            // the lexer will already have given an error
             return { left, right: left };
         }
 
@@ -692,15 +691,27 @@ export class LexerATNFactory extends ParserATNFactory {
 
         switch (command) {
             case "skip": {
-                return LexerSkipAction.instance;
+                if (arg === null) {
+                    return LexerSkipAction.instance;
+                }
+
+                break;
             }
 
             case "more": {
-                return LexerMoreAction.instance;
+                if (arg === null) {
+                    return LexerMoreAction.instance;
+                }
+
+                break;
             }
 
             case "popMode": {
-                return LexerPopModeAction.instance;
+                if (arg === null) {
+                    return LexerPopModeAction.instance;
+                }
+
+                break;
             }
 
             default: {

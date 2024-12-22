@@ -6,7 +6,7 @@
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
-import type { RecognitionException, Token } from "antlr4ng";
+import type { RecognitionException } from "antlr4ng";
 import { ErrorBuffer, IST, STGroup, STGroupString } from "stringtemplate4ts";
 
 import { basename } from "path";
@@ -14,7 +14,7 @@ import { basename } from "path";
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import type { ANTLRToolListener } from "./ANTLRToolListener.js";
 import { DefaultToolListener } from "./DefaultToolListener.js";
-import { ErrorSeverity } from "./ErrorSeverity.js";
+import { ErrorSeverity, severityMap } from "./ErrorSeverity.js";
 import { ErrorType } from "./ErrorType.js";
 import { GrammarSemanticsMessage } from "./GrammarSemanticsMessage.js";
 import { GrammarSyntaxMessage } from "./GrammarSyntaxMessage.js";
@@ -111,7 +111,7 @@ export class ErrorManager {
         const longMessages = this.longMessages;
         const messageST = msg.getMessageTemplate(longMessages ?? false);
         const locationST = this.getLocationFormat();
-        const reportST = this.getReportFormat(msg.getErrorType().severity);
+        const reportST = this.getReportFormat(msg.errorType.severity);
         const messageFormatST = this.getMessageFormat();
 
         let locationValid = false;
@@ -120,8 +120,8 @@ export class ErrorManager {
             locationValid = true;
         }
 
-        if (msg.charPosition !== -1) {
-            locationST.add("column", msg.charPosition);
+        if (msg.column !== -1) {
+            locationST.add("column", msg.column);
             locationValid = true;
         }
 
@@ -140,7 +140,7 @@ export class ErrorManager {
             locationValid = true;
         }
 
-        messageFormatST.add("id", msg.getErrorType().code);
+        messageFormatST.add("id", msg.errorType.code);
         messageFormatST.add("text", messageST);
 
         if (locationValid) {
@@ -185,8 +185,10 @@ export class ErrorManager {
         this.emit(errorType, msg);
     }
 
-    public grammarError(errorType: ErrorType, fileName: string, token: Token | null, ...args: unknown[]): void {
-        const msg = new GrammarSemanticsMessage(errorType, fileName, token, ...args);
+    public grammarError(errorType: ErrorType, fileName: string, position: { line: number, column: number; } | null,
+        ...args: unknown[]): void {
+        const msg = new GrammarSemanticsMessage(errorType, fileName, position?.line ?? -1, position?.column ?? -1,
+            ...args);
         this.emit(errorType, msg);
     }
 
@@ -205,9 +207,9 @@ export class ErrorManager {
         this.#listeners = [];
     }
 
-    public syntaxError(errorType: ErrorType, fileName: string, token: Token, antlrException: RecognitionException,
-        ...args: unknown[]): void {
-        const msg = new GrammarSyntaxMessage(errorType, fileName, token, antlrException, args);
+    public syntaxError(errorType: ErrorType, fileName: string, line: number, column: number,
+        antlrException: RecognitionException | null, ...args: unknown[]): void {
+        const msg = new GrammarSyntaxMessage(errorType, fileName, line, column, antlrException, ...args);
         this.emit(errorType, msg);
     }
 
@@ -246,7 +248,8 @@ export class ErrorManager {
         }
 
         if (this.warningsAreErrors) {
-            this.emit(ErrorType.WARNING_TREATED_AS_ERROR, new ANTLRMessage(ErrorType.WARNING_TREATED_AS_ERROR));
+            this.emit(ErrorType.WARNING_TREATED_AS_ERROR, new ANTLRMessage(ErrorType.WARNING_TREATED_AS_ERROR,
+                msg.fileName, msg.line, msg.column));
         }
     }
 
@@ -296,7 +299,7 @@ export class ErrorManager {
 
     private getReportFormat(severity: ErrorSeverity): IST | null {
         const st = this.#format.getInstanceOf("report");
-        st?.add("type", severity.toString());
+        st?.add("type", severityMap.get(severity));
 
         return st;
     }

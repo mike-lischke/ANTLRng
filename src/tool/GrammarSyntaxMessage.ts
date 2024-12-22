@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { RecognitionException, Token } from "antlr4ng";
+import type { RecognitionException } from "antlr4ng";
 
 import { ANTLRMessage } from "./ANTLRMessage.js";
 import { ErrorType } from "./ErrorType.js";
@@ -16,15 +16,8 @@ import { ErrorType } from "./ErrorType.js";
 export class GrammarSyntaxMessage extends ANTLRMessage {
     public constructor(type: ErrorType,
         fileName: string,
-        offendingToken: Token,
-        antlrException: RecognitionException, ...args: unknown[]) {
-        super(type, antlrException, offendingToken, args);
-        this.fileName = fileName;
-        this.line = offendingToken.line;
-        this.charPosition = offendingToken.column;
-    }
-
-    public override getCause(): RecognitionException {
-        return super.getCause() as RecognitionException;
+        line: number, column: number,
+        antlrException: RecognitionException | null, ...args: unknown[]) {
+        super(type, fileName, antlrException, line, column, ...args);
     }
 }

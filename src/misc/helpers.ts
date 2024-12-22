@@ -12,6 +12,9 @@ import { CharSupport } from "./CharSupport.js";
 /** A generic constructor type. */
 export type Constructor<T = unknown> = new (...args: unknown[]) => T;
 
+/** A line/column pair. */
+export interface IPosition { line: number, column: number; }
+
 /**
  * Given a token type, get a meaningful name for it such as the ID
  * or string literal.  If this is a lexer and the ttype is in the
