@@ -21,22 +21,23 @@
         "noFallthroughCasesInSwitch": false,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
     },
     "include": [
-        "tool/*.ts",
-        "tool/**/*.ts",
         "src/**/*.ts",
-        "build/*.ts",
-        "cli/*.ts",
-        "vitest.config.ts"
+        "cli/**/*.ts",
     ],
     "exclude": [
         "node_modules",
         "dist",
-        "tests"
+        "tests",
+        "vitest.config.ts"
     ],
     "ts-node": {
-        "esm": true
+        "esm": true,
+        "compilerOptions": {
+            "sourceMap": true,
+            "module": "ESNext"
+        },
     },
 }

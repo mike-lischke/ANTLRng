@@ -6,11 +6,12 @@
 
 import { type Token, type TokenStream } from "antlr4ng";
 
+import type { IToolParameters } from "../../grammar-options.js";
+import { Utils } from "../../misc/Utils.js";
 import type { GrammarType } from "../../support/GrammarType.js";
 import type { IGrammarRootAST } from "../../types.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";
-import type { IToolParameters } from "../../grammar-options.js";
 
 /** This is the root node for a grammar (for the top level grammarSpec rule). */
 export class GrammarRootAST extends GrammarASTWithOptions implements IGrammarRootAST {
@@ -95,15 +96,20 @@ export class GrammarRootAST extends GrammarASTWithOptions implements IGrammarRoo
     }
 
     public override getOptionString(key: string): string | undefined {
-        // Standard options.
-        if (typeof this.toolParameters?.[key] === "string") {
-            return this.toolParameters[key];
-        }
+        // Tool options.
+        if (this.toolParameters) {
+            if (Utils.hasKey(this.toolParameters, key)) {
+                const value = this.toolParameters[key];
+                if (typeof value === "string") {
+                    return value;
+                }
+            }
 
-        // Defines.
-        const define = this.toolParameters?.define?.[key];
-        if (define !== undefined) {
-            return define;
+            // Defines.
+            const define = this.toolParameters.define?.[key];
+            if (define !== undefined) {
+                return define;
+            }
         }
 
         return super.getOptionString(key);

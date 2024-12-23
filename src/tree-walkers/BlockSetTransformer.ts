@@ -162,8 +162,8 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.DOWN, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) { // This is set in this.match().
+
+                            if (this.state.failed as boolean) { // This is set in this.match().
                                 return retval;
                             }
 
@@ -192,8 +192,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                     {
                                         _last = this.input.LT(1) as GrammarAST;
                                         id = this.match(this.input, ANTLRv4Parser.TOKEN_REF, null) as GrammarAST;
-                                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                        if (this.state.failed) {
+
+                                        if (this.state.failed as boolean) {
                                             return retval;
                                         }
 
@@ -219,8 +219,7 @@ export class BlockSetTransformer extends TreeRewriter {
                                     {
                                         _last = this.input.LT(1) as GrammarAST;
                                         id = this.match(this.input, ANTLRv4Parser.RULE_REF, null) as GrammarAST;
-                                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                        if (this.state.failed) {
+                                        if (this.state.failed as boolean) {
                                             return retval;
                                         }
 
@@ -270,8 +269,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                             _last = this.input.LT(1) as GrammarAST;
                                             wildcard2 = this.input.LT(1) as GrammarAST;
                                             this.matchAny(this.input);
-                                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                            if (this.state.failed) {
+
+                                            if (this.state.failed as boolean) {
                                                 return retval;
                                             }
 
@@ -315,8 +314,8 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.UP, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -521,15 +520,15 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
 
                     this.match(this.input, Constants.DOWN, null);
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
                     _last = this.input.LT(1) as GrammarAST;
                     blockSet8 = this.blockSet();
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -538,8 +537,8 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
 
                     this.match(this.input, Constants.UP, null);
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -707,8 +706,8 @@ export class BlockSetTransformer extends TreeRewriter {
                 }
 
                 this.match(this.input, Constants.DOWN, null);
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                if (this.state.failed) {
+
+                if (this.state.failed as boolean) {
                     return retval;
                 }
 
@@ -718,8 +717,8 @@ export class BlockSetTransformer extends TreeRewriter {
                     const _first_2 = null;
                     _last = this.input.LT(1) as GrammarAST;
                     alt = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -732,8 +731,8 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
 
                     this.match(this.input, Constants.DOWN, null);
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -749,8 +748,8 @@ export class BlockSetTransformer extends TreeRewriter {
                             {
                                 _last = this.input.LT(1) as GrammarAST;
                                 elementOptions11 = this.elementOptions();
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -784,8 +783,8 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
                     _last = this.input.LT(1) as GrammarAST;
                     setElement12 = this.setElement(inLexer);
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -794,8 +793,8 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
 
                     this.match(this.input, Constants.UP, null);
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -822,8 +821,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                     const _first_2 = null;
                                     _last = this.input.LT(1) as GrammarAST;
                                     ALT13 = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
-                                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                    if (this.state.failed) {
+
+                                    if (this.state.failed as boolean) {
                                         return retval;
                                     }
 
@@ -838,8 +837,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                     }
 
                                     this.match(this.input, Constants.DOWN, null);
-                                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                    if (this.state.failed) {
+
+                                    if (this.state.failed as boolean) {
                                         return retval;
                                     }
 
@@ -855,8 +854,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                             {
                                                 _last = this.input.LT(1) as GrammarAST;
                                                 elementOptions14 = this.elementOptions();
-                                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                                if (this.state.failed) {
+
+                                                if (this.state.failed as boolean) {
                                                     return retval;
                                                 }
 
@@ -883,8 +882,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                     _last = this.input.LT(1) as GrammarAST;
                                     setElement15 = this.setElement(inLexer);
-                                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                    if (this.state.failed) {
+
+                                    if (this.state.failed as boolean) {
                                         return retval;
                                     }
 
@@ -893,8 +892,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                     }
 
                                     this.match(this.input, Constants.UP, null);
-                                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                    if (this.state.failed) {
+
+                                    if (this.state.failed as boolean) {
                                         return retval;
                                     }
 
@@ -933,8 +932,8 @@ export class BlockSetTransformer extends TreeRewriter {
                 }
 
                 this.match(this.input, Constants.UP, null);
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                if (this.state.failed) {
+
+                if (this.state.failed as boolean) {
                     return retval;
                 }
 
@@ -1011,8 +1010,8 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
 
                     this.match(this.input, Constants.DOWN, null);
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -1022,8 +1021,8 @@ export class BlockSetTransformer extends TreeRewriter {
                         const _first_2 = null;
                         _last = this.input.LT(1) as GrammarAST;
                         ALT17 = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
-                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                        if (this.state.failed) {
+
+                        if (this.state.failed as boolean) {
                             return retval;
                         }
 
@@ -1036,8 +1035,8 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
                         this.match(this.input, Constants.DOWN, null);
-                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                        if (this.state.failed) {
+
+                        if (this.state.failed as boolean) {
                             return retval;
                         }
 
@@ -1053,8 +1052,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                 {
                                     _last = this.input.LT(1) as GrammarAST;
                                     elementOptions18 = this.elementOptions();
-                                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                    if (this.state.failed) {
+
+                                    if (this.state.failed as boolean) {
                                         return retval;
                                     }
 
@@ -1081,8 +1080,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                         _last = this.input.LT(1) as GrammarAST;
                         setElement19 = this.setElement(inLexer);
-                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                        if (this.state.failed) {
+
+                        if (this.state.failed as boolean) {
                             return retval;
                         }
 
@@ -1091,8 +1090,8 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
                         this.match(this.input, Constants.UP, null);
-                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                        if (this.state.failed) {
+
+                        if (this.state.failed as boolean) {
                             return retval;
                         }
 
@@ -1119,8 +1118,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                         const _first_2 = null;
                                         _last = this.input.LT(1) as GrammarAST;
                                         ALT20 = this.match(this.input, ANTLRv4Parser.ALT, null) as GrammarAST;
-                                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                        if (this.state.failed) {
+
+                                        if (this.state.failed as boolean) {
                                             return retval;
                                         }
 
@@ -1137,8 +1136,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                         }
 
                                         this.match(this.input, Constants.DOWN, null);
-                                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                        if (this.state.failed) {
+
+                                        if (this.state.failed as boolean) {
                                             return retval;
                                         }
 
@@ -1154,8 +1153,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                                 {
                                                     _last = this.input.LT(1) as GrammarAST;
                                                     elementOptions21 = this.elementOptions();
-                                                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                                    if (this.state.failed) {
+
+                                                    if (this.state.failed as boolean) {
                                                         return retval;
                                                     }
 
@@ -1182,8 +1181,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                         _last = this.input.LT(1) as GrammarAST;
                                         setElement22 = this.setElement(inLexer);
-                                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                        if (this.state.failed) {
+
+                                        if (this.state.failed as boolean) {
                                             return retval;
                                         }
 
@@ -1192,8 +1191,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                         }
 
                                         this.match(this.input, Constants.UP, null);
-                                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                        if (this.state.failed) {
+
+                                        if (this.state.failed as boolean) {
                                             return retval;
                                         }
 
@@ -1231,8 +1230,8 @@ export class BlockSetTransformer extends TreeRewriter {
                     }
 
                     this.match(this.input, Constants.UP, null);
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (this.state.failed) {
+
+                    if (this.state.failed as boolean) {
                         return retval;
                     }
 
@@ -1379,15 +1378,15 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 this.match(this.input, Constants.DOWN, null);
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
                                 _last = this.input.LT(1) as GrammarAST;
                                 elementOptions23 = this.elementOptions();
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -1396,8 +1395,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 this.match(this.input, Constants.UP, null);
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -1487,15 +1486,15 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 this.match(this.input, Constants.DOWN, null);
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
                                 _last = this.input.LT(1) as GrammarAST;
                                 elementOptions25 = this.elementOptions();
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -1504,8 +1503,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 this.match(this.input, Constants.UP, null);
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -1587,15 +1586,15 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 this.match(this.input, Constants.DOWN, null);
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
                                 _last = this.input.LT(1) as GrammarAST;
                                 a = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -1605,8 +1604,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                                 _last = this.input.LT(1) as GrammarAST;
                                 b = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -1619,8 +1618,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                 }
 
                                 this.match(this.input, Constants.UP, null);
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                if (this.state.failed) {
+
+                                if (this.state.failed as boolean) {
                                     return retval;
                                 }
 
@@ -1711,8 +1710,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                     if (this.input.LA(1) === Constants.DOWN) {
                         this.match(this.input, Constants.DOWN, null);
-                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                        if (this.state.failed) {
+
+                        if (this.state.failed as boolean) {
                             return retval;
                         }
 
@@ -1731,8 +1730,8 @@ export class BlockSetTransformer extends TreeRewriter {
                                     {
                                         _last = this.input.LT(1) as GrammarAST;
                                         elementOption29 = this.elementOption();
-                                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                                        if (this.state.failed) {
+
+                                        if (this.state.failed as boolean) {
                                             return retval;
                                         }
 
@@ -1764,8 +1763,8 @@ export class BlockSetTransformer extends TreeRewriter {
                         }
 
                         this.match(this.input, Constants.UP, null);
-                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                        if (this.state.failed) {
+
+                        if (this.state.failed as boolean) {
                             return retval;
                         }
 
@@ -1974,15 +1973,15 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.DOWN, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
                             id = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -1992,8 +1991,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             _last = this.input.LT(1) as GrammarAST;
                             v = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2006,8 +2005,8 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.UP, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2047,15 +2046,15 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.DOWN, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
                             ID33 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2065,8 +2064,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             _last = this.input.LT(1) as GrammarAST;
                             v = this.match(this.input, ANTLRv4Parser.STRING_LITERAL, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2079,8 +2078,8 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.UP, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2120,15 +2119,15 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.DOWN, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
                             ID35 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2138,8 +2137,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             _last = this.input.LT(1) as GrammarAST;
                             v = this.match(this.input, ANTLRv4Parser.ACTION, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2152,8 +2151,8 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.UP, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2193,15 +2192,15 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.DOWN, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
                             _last = this.input.LT(1) as GrammarAST;
                             ID37 = this.match(this.input, ANTLRv4Parser.ID, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2211,8 +2210,8 @@ export class BlockSetTransformer extends TreeRewriter {
 
                             _last = this.input.LT(1) as GrammarAST;
                             v = this.match(this.input, ANTLRv4Parser.INT, null) as GrammarAST;
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 
@@ -2225,8 +2224,8 @@ export class BlockSetTransformer extends TreeRewriter {
                             }
 
                             this.match(this.input, Constants.UP, null);
-                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                            if (this.state.failed) {
+
+                            if (this.state.failed as boolean) {
                                 return retval;
                             }
 

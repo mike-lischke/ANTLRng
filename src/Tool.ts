@@ -47,13 +47,11 @@ export class Tool implements ITool {
 
     public static readonly ALL_GRAMMAR_EXTENSIONS = [Tool.GRAMMAR_EXTENSION, Tool.LEGACY_GRAMMAR_EXTENSION];
 
-    public readonly args: string[];
-
     public logMgr = new LogManager();
 
     public readonly errorManager;
 
-    public readonly toolParameters: IToolParameters;
+    public readonly toolParameters: IToolParameters = { args: [], encoding: "utf-8" };
 
     // helper vars for option management
     protected haveOutputDir = false;
@@ -62,9 +60,11 @@ export class Tool implements ITool {
 
     private readonly importedGrammars = new Map<string, Grammar>();
 
-    public constructor(args: string[] = []) {
-        this.args = args;
-        this.toolParameters = parseToolParameters(this.args);
+    public constructor(args?: string[]) {
+        if (args) {
+            this.toolParameters = parseToolParameters(args);
+        }
+
         this.grammarFiles = this.toolParameters.args;
         this.errorManager = new ErrorManager(this.toolParameters.msgFormat, this.toolParameters.longMessages,
             this.toolParameters.warningsAreErrors);
@@ -359,7 +359,7 @@ export class Tool implements ITool {
 
     public parseGrammar(fileName: string): GrammarRootAST | undefined {
         try {
-            const encoding = this.toolParameters.grammarEncoding ?? "utf-8";
+            const encoding = this.toolParameters.encoding ?? "utf-8";
             const content = readFileSync(fileName, { encoding: encoding as BufferEncoding });
             const input = CharStream.fromString(content);
             input.name = basename(fileName);

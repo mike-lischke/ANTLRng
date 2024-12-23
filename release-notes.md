@@ -2,6 +2,10 @@
 
 # ANTLRng Release Notes
 
+## 0.3.0
+
+All tool tests have been ported to TypeScript and are now running fine. The tool is now fully functional and can be used to generate parsers and lexers in TypeScript. However, the tests don't cover all features yet (listeners, visitors etc.), so there might still be some issues.
+
 ## 0.2.0
 
 - Big reorganization of the project. Everything of the TS runtime has been moved to an own project.

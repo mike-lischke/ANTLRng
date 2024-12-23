@@ -4,15 +4,15 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { ST } from "stringtemplate4ts";
+import type { IST } from "stringtemplate4ts";
 
 import { StructDecl } from "../decl/StructDecl.js";
 import { ActionChunk } from "./ActionChunk.js";
 
 export class ActionTemplate extends ActionChunk {
-    public st: ST;
+    public st: IST;
 
-    public constructor(ctx: StructDecl, st: ST) {
+    public constructor(ctx: StructDecl, st: IST) {
         super(ctx);
         this.st = st;
     }

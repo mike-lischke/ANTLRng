@@ -30,9 +30,9 @@ export default tslint.config(
             parser: tslint.parser,
             parserOptions: {
                 projectService: {
-                    defaultProject: "tsconfig.json",
-                    allowDefaultProject: ["*.mjs"],
-                    project: "tsconfig.json",
+                    //defaultProject: "tsconfig.json",
+                    allowDefaultProject: ["*.mjs", "./build/*.ts"],
+                    project: "eslint.tsconfig.json",
                 },
                 tsconfigRootDir: import.meta.dirname,
                 sourceType: "module",
@@ -241,6 +241,7 @@ export default tslint.config(
             "@typescript-eslint/prefer-function-type": "error",
             "@typescript-eslint/no-deprecated": "off",
             "@typescript-eslint/no-base-to-string": "off",
+            "@typescript-eslint/prefer-regexp-exec": "off",
             "jsdoc/check-alignment": "error",
             "jsdoc/check-indentation": "off",
             "jsdoc/require-param-type": "off",

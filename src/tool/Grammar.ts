@@ -789,7 +789,7 @@ export class Grammar implements IGrammar, AttributeResolver {
             return this.typeToStringLiteralList[ttype];
         }
 
-        if (ttype >= 0 && ttype < this.typeToTokenList.length && this.typeToTokenList[ttype]) {
+        if (ttype >= 0 && ttype < this.typeToTokenList.length && this.typeToTokenList[ttype] != null) {
             return this.typeToTokenList[ttype];
         }
 

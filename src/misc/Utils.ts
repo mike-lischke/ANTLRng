@@ -96,6 +96,11 @@ export class Utils {
             }
         }
     }
+
+    /** Type guard for accessing a member in an object without an index signature. */
+    public static hasKey = <T extends object>(obj: T, key: PropertyKey): key is keyof T => {
+        return key in obj;
+    };
 }
 
 export namespace Utils {

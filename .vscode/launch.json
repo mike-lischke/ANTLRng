@@ -16,14 +16,18 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch ANTLRng",
+            "name": "Launch antlr-ng",
             "args": [],
             "runtimeArgs": [
                 "--experimental-specifier-resolution=node",
                 "--no-warnings",
                 "--loader",
                 "ts-node/esm",
-                "src/runner.ts",
+                "cli/runner.ts",
+                "-Dlanguage=TypeScript",
+                "--exact-output-dir",
+                "-o temp",
+                "tests/grammars/Java.g4"
             ],
             "sourceMaps": true,
             "stopOnEntry": false,

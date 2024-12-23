@@ -3,14 +3,11 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-const packageJson = await import("../package.json", { assert: { type: "json" } });
+//const packageJson = await import("../package.json", { assert: { type: "json" } });
 
 import { Command, Option } from "commander";
 
 export interface IToolParameters {
-    // Used to store additional options that are not explicitly defined here.
-    [keyof: string]: unknown;
-
     /** The grammar files. */
     args: string[];
 
@@ -29,9 +26,10 @@ export interface IToolParameters {
     warningsAreErrors?: boolean,
     forceAtn?: boolean,
     log?: boolean,
+    exactOutputDir?: boolean,
 }
 
-export const antlrVersion = packageJson.default.version;
+export const antlrVersion = "0.4.0"; //packageJson.default.version;
 
 /**
  * Used to parse tool parameters given as string list. Usually, this is used for tests.
@@ -78,17 +76,16 @@ export const parseToolParameters = (args: string[]): IToolParameters => {
         .option("-D, --define <key=value...>", "Set/override a grammar-level option.", parseKeyValuePair)
         .option<boolean>("-w, --warnings-are-errors [boolean]", "Treat warnings as errors.", parseBoolean, false)
         .option<boolean>("-f, --force-atn [boolean]", "Use the ATN simulator for all predictions.", parseBoolean, false)
-        .option<boolean>("--log [boolean]", "Dump lots of logging info to antlr-timestamp.log.", parseBoolean, false)
-        .option("<grammar...>", "A list of grammar files.")
-        .version(`ANTLRng ${packageJson.default.version}`);
-
-    prepared.exitOverride((err) => {
-        console.error("Command parsing failed:", err.message);
-    });
+        .option<boolean>("--log [boolean]", "Dump lots of logging info to antlrng-timestamp.log.", parseBoolean, false)
+        .option<boolean>("--exact-output-dir [boolean]", "All output goes into -o dir regardless of paths/package",
+            parseBoolean, false)
+        .argument("<grammar...>", "A list of grammar files.")
+        .version(`ANTLRng ${antlrVersion}`);
 
     prepared.parse(args, { from: "user" });
 
     const result = prepared.opts<IToolParameters>();
+
     result.args = prepared.args;
 
     return result;

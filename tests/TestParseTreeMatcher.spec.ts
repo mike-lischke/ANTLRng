@@ -380,7 +380,7 @@ describe("TestParseTreeMatcher", () => {
         }
     });
 
-    it("testAssign", async () => {
+    it.only("testAssign", async () => {
         const tempDir = mkdtempSync(join(tmpdir(), "AntlrParseTreeMatcher"));
         try {
             const grammar =

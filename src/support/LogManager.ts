@@ -1,42 +1,46 @@
-import { writeFileSync } from "fs";
-import { join } from "path";
-
 /*
  * Copyright (c) The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
+import { writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
+
+interface ILogEntry {
+    component?: string;
+    msg: string;
+    fileName?: string;
+    lineNumber?: number;
+}
+
 export class LogManager {
-    private static Record = class Record {
-        protected timestamp: Date;
-        protected location: string;
-
-        #details: { component?: string, msg: string; };
-
-        public constructor(details: { component?: string, msg: string; }) {
-            this.#details = details;
-            this.timestamp = new Date();
-
-            const stack = new Error().stack?.split("\n") ?? [];
-            this.location = stack.length > 1 ? stack[1] : "<no location>";
-        }
-
-        public toString(): string {
-            return `${this.timestamp.toISOString()} ${this.#details.component ?? ""} <filename goes here>:` +
-                `<line number goes here> ${this.location} ${this.#details.msg}`;
-        }
-    };
-
-    private records: Array<InstanceType<typeof LogManager.Record>> = [];
+    private records: ILogEntry[] = [];
 
     public log(info: { component?: string, msg: string; }): void {
-        this.records.push(new LogManager.Record(info));
+        // Extract the file name and line number from the stack trace.
+        const stack = new Error().stack?.split("\n");
+        let fileName: string | undefined;
+        let lineNumber: number | undefined;
+        if (stack) {
+            try {
+                const stackLine = stack[3];
+                const match = stackLine.match(/\(([^)]+)\)/);
+                if (match) {
+                    const parts = match[1].split(":");
+                    fileName = basename(parts[0]);
+                    lineNumber = parseInt(parts[1], 10);
+                }
+            } catch {
+                // Ignore errors.
+            }
+        }
+        this.records.push({ ...info, fileName, lineNumber });
     }
 
     public save(filename?: string): string {
         if (!filename) {
-            filename = join(".", `antlr-${Date.now()}.log`);
+            filename = join(".", `antlrng-${new Date().toDateString()}.log`);
         }
 
         writeFileSync(filename, this.toString());
@@ -45,6 +49,10 @@ export class LogManager {
     }
 
     public toString(): string {
-        return this.records.join("\n");
+        const entries = this.records.map((entry) => {
+            return `${entry.component ?? ""} ${entry.fileName ?? ""}:` + `${entry.lineNumber ?? -1} ${entry.msg}`;
+        });
+
+        return entries.join("\n");
     }
 }

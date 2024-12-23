@@ -21,6 +21,5 @@ export class TreeRuleReturnScope {
 export interface ITreeRuleReturnScope<T extends CommonTree> {
     /** First node or root node of tree matched for this rule. */
     start?: CommonTree;
-    //stop?: CommonTree;
     tree?: T;
 }
