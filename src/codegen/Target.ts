@@ -14,7 +14,7 @@ import {
 } from "stringtemplate4ts";
 
 import { ANTLRv4Parser } from "../generated/ANTLRv4Parser.js";
-import { antlrVersion } from "../grammar-options.js";
+import { antlrVersion } from "../tool-parameters.js";
 import { CharSupport } from "../misc/CharSupport.js";
 import { Utils } from "../misc/Utils.js";
 import { Character } from "../support/Character.js";

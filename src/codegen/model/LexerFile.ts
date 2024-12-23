@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import type { IToolParameters } from "../../grammar-options.js";
+import type { IToolParameters } from "../../tool-parameters.js";
 import { ModelElement } from "../../misc/ModelElement.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";
 import { Action } from "./Action.js";

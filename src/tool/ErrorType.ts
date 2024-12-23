@@ -6,7 +6,7 @@
 
 // cspell: ignore Dname
 
-import { antlrVersion } from "../grammar-options.js";
+import { antlrVersion } from "../tool-parameters.js";
 import { ErrorSeverity } from "./ErrorSeverity.js";
 
 export class ErrorType {

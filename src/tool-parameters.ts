@@ -69,10 +69,10 @@ export const parseToolParameters = (args: string[]): IToolParameters => {
             .choices(["antlr", "gnu", "vs2005"]).default("antlr"))
         .option<boolean>("-lm, --long-messages [boolean]",
             "Show exception details when available for errors and warnings.", parseBoolean, false)
-        .option<boolean>("-l, --listener [boolean]", "Generate parse tree listener.", parseBoolean, true)
-        .option<boolean>("-v, --visitor [boolean]", "Generate parse tree visitor.", parseBoolean, false)
+        .option<boolean>("-l, --generate-listener [boolean]", "Generate parse tree listener.", parseBoolean, true)
+        .option<boolean>("-v, --generate-visitor [boolean]", "Generate parse tree visitor.", parseBoolean, false)
         .option("-p, --package <name>", "Specify a package/namespace for the generated code.")
-        .option<boolean>("-d, --dependencies [boolean]", "Generate file dependencies.", parseBoolean, false)
+        .option<boolean>("-d, --generate-dependencies [boolean]", "Generate file dependencies.", parseBoolean, false)
         .option("-D, --define <key=value...>", "Set/override a grammar-level option.", parseKeyValuePair)
         .option<boolean>("-w, --warnings-are-errors [boolean]", "Treat warnings as errors.", parseBoolean, false)
         .option<boolean>("-f, --force-atn [boolean]", "Use the ATN simulator for all predictions.", parseBoolean, false)

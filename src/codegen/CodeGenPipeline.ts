@@ -6,7 +6,7 @@
 
 import type { IST } from "stringtemplate4ts";
 
-import type { IToolParameters } from "../grammar-options.js";
+import type { IToolParameters } from "../tool-parameters.js";
 import { Grammar } from "../tool/Grammar.js";
 import { CodeGenerator } from "./CodeGenerator.js";
 

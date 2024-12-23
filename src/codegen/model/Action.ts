@@ -56,32 +56,7 @@ export class Action extends RuleElement {
             }
         }
 
-        /*const factory = args.shift() as OutputModelFactory;
-        const next = args.length > 0 ? args.shift() as ActionAST | StructDecl | undefined : undefined;
-        const action = args.length > 0 ? args.shift() as string | IST : undefined;
-
-        if (!next) {
-            super(factory);
-        } else if (next instanceof ActionAST) {
-            super(factory, next);
-            const rf = factory.getCurrentRuleFunction() ?? null;
-            this.chunks = ActionTranslator.translateAction(factory, rf, next.token!, next);
-        } else {
-            super(factory);
-
-            if (typeof action === "string") {
-                const ast = new ActionAST(CommonToken.fromType(ANTLRv4Parser.AT, action));
-                const rf = factory.getCurrentRuleFunction();
-                if (rf) { // we can translate
-                    ast.resolver = rf.rule;
-                    this.chunks = ActionTranslator.translateActionChunk(factory, rf, action, ast);
-                } else {
-                    this.chunks.push(new ActionText(next, action));
-                }
-            } else {
-                this.chunks.push(new ActionTemplate(next, action!));
-            }
-        }*/
+        return this;
     }
 
 }

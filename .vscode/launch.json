@@ -17,14 +17,11 @@
             "type": "node",
             "request": "launch",
             "name": "Launch antlr-ng",
-            "args": [],
+            "runtimeExecutable": "npx",
             "runtimeArgs": [
-                "--experimental-specifier-resolution=node",
-                "--no-warnings",
-                "--loader",
-                "ts-node/esm",
+                "tsx",
                 "cli/runner.ts",
-                "-Dlanguage=TypeScript",
+                "-Dlanguage=CSharp",
                 "--exact-output-dir",
                 "-o temp",
                 "tests/grammars/Java.g4"

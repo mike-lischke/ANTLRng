@@ -6,9 +6,9 @@
 
 import { type Token, type TokenStream } from "antlr4ng";
 
-import type { IToolParameters } from "../../grammar-options.js";
 import { Utils } from "../../misc/Utils.js";
 import type { GrammarType } from "../../support/GrammarType.js";
+import type { IToolParameters } from "../../tool-parameters.js";
 import type { IGrammarRootAST } from "../../types.js";
 import { GrammarASTVisitor } from "./GrammarASTVisitor.js";
 import { GrammarASTWithOptions } from "./GrammarASTWithOptions.js";

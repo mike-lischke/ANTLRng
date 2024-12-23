@@ -21,7 +21,7 @@ import { ParserFactory } from "./ParserFactory.js";
 import { Target } from "./Target.js";
 
 // Possible targets:
-import type { IToolParameters } from "../grammar-options.js";
+import type { IToolParameters } from "../tool-parameters.js";
 import { CppTarget } from "./target/CppTarget.js";
 import { CSharpTarget } from "./target/CSharpTarget.js";
 import { GoTarget } from "./target/GoTarget.js";
@@ -112,9 +112,7 @@ export class CodeGenerator {
     }
 
     public generateBaseListener(header?: boolean): IST {
-        if (!header) {
-            return this.generateBaseListener(false);
-        }
+        header ??= false;
 
         return this.walk(this.createController().buildBaseListenerOutputModel(header), header);
     }

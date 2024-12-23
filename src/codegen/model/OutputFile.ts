@@ -4,7 +4,7 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-import { antlrVersion } from "../../grammar-options.js";
+import { antlrVersion } from "../../tool-parameters.js";
 import { Grammar } from "../../tool/Grammar.js";
 import { ActionAST } from "../../tool/ast/ActionAST.js";
 import { OutputModelFactory } from "../OutputModelFactory.js";

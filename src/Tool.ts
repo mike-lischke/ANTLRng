@@ -20,7 +20,7 @@ import { LexerATNFactory } from "./automata/LexerATNFactory.js";
 import { ParserATNFactory } from "./automata/ParserATNFactory.js";
 import { CodeGenPipeline } from "./codegen/CodeGenPipeline.js";
 import { CodeGenerator } from "./codegen/CodeGenerator.js";
-import { parseToolParameters, type IToolParameters } from "./grammar-options.js";
+import { parseToolParameters, type IToolParameters } from "./tool-parameters.js";
 import { Graph } from "./misc/Graph.js";
 import { ToolANTLRLexer } from "./parse/ToolANTLRLexer.js";
 import { ToolANTLRParser } from "./parse/ToolANTLRParser.js";

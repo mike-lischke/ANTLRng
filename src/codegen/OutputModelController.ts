@@ -49,7 +49,7 @@ import { SrcOp } from "./model/SrcOp.js";
 import { StarBlock } from "./model/StarBlock.js";
 import { VisitorFile } from "./model/VisitorFile.js";
 import { CodeBlock } from "./model/decl/CodeBlock.js";
-import type { IToolParameters } from "../grammar-options.js";
+import type { IToolParameters } from "../tool-parameters.js";
 
 /**
  * This receives events from SourceGenTriggers.g and asks factory to do work.
