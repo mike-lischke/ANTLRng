@@ -31,15 +31,14 @@ export type char = number;
 
 export abstract class Target {
     protected static readonly defaultCharValueEscape = new Map<char, string>([
-        [0x08, "\\b"],
-        [0x09, "\\t"],
-        [0x0A, "\\n"],
-        [0x0C, "\\f"],
-        [0x0D, "\\r"],
-        [0x1B, "\\e"],
-        [0x22, "\\\""],
-        [0x27, "\\'"],
-        [0x5C, "\\\\"]
+        ["\t".codePointAt(0)!, "\\t"],
+        ["\b".codePointAt(0)!, "\\b"],
+        ["\n".codePointAt(0)!, "\\n"],
+        ["\r".codePointAt(0)!, "\\r"],
+        ["\f".codePointAt(0)!, "\\f"],
+        ["'".codePointAt(0)!, "\\'"],
+        ['"'.codePointAt(0)!, '\\"'],
+        ["\\".codePointAt(0)!, "\\\\"],
     ]);
 
     private static readonly languageTemplates = new Map<string, STGroup>();
@@ -311,7 +310,7 @@ export abstract class Target {
 
             default: {
                 if (v <= 127) {
-                    return String(v); // ascii chars can be as-is, no encoding
+                    return String.fromCodePoint(v); // ascii chars can be as-is, no encoding
                 }
 
                 // else we use hex encoding to ensure pure ascii chars generated

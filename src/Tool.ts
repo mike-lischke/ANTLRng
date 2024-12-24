@@ -40,6 +40,7 @@ import { GrammarAST } from "./tool/ast/GrammarAST.js";
 import { GrammarRootAST } from "./tool/ast/GrammarRootAST.js";
 import type { RuleAST } from "./tool/ast/RuleAST.js";
 import type { IGrammar, ITool } from "./types.js";
+import { convertArrayToString } from "./support/helpers.js";
 
 export class Tool implements ITool {
     public static readonly GRAMMAR_EXTENSION = ".g4";
@@ -93,21 +94,27 @@ export class Tool implements ITool {
 
         content += "token literal names:\n";
         let names = g.getTokenLiteralNames();
-        content += names.join("\n") + "\n\n";
+        content += names.reduce((previousValue, currentValue) => {
+            return previousValue + (currentValue ?? "null") + "\n";
+        }, "") + "\n";
 
         content += "token symbolic names:\n";
         names = g.getTokenSymbolicNames();
-        content += names.join("\n") + "\n\n";
+        content += names.reduce((previousValue, currentValue) => {
+            return previousValue + (currentValue ?? "null") + "\n";
+        }, "") + "\n";
 
         content += "rule names:\n";
         names = g.getRuleNames();
-        content += names.join("\n") + "\n\n";
+        content += names.reduce((previousValue, currentValue) => {
+            return previousValue + (currentValue ?? "null") + "\n";
+        }, "") + "\n";
 
         if (g.isLexer()) {
             content += "channel names:\n";
             content += "DEFAULT_TOKEN_CHANNEL\n";
             content += "HIDDEN\n";
-            content += g.channelValueToNameList.join("\n") + "\n\n";
+            content += g.channelValueToNameList.join("\n") + "\n";
             content += "mode names:\n";
             content += [...(g as LexerGrammar).modes.keys()].join("\n") + "\n";
         }
@@ -115,7 +122,7 @@ export class Tool implements ITool {
 
         const serializedATN = ATNSerializer.getSerialized(g.atn!);
         content += "atn:\n";
-        content += serializedATN.toString();
+        content += convertArrayToString(serializedATN);
 
         return content.toString();
     }

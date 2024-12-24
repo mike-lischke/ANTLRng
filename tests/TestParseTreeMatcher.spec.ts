@@ -15,7 +15,7 @@ import {
 } from "antlr4ng";
 
 import { ToolTestUtils } from "./ToolTestUtils.js";
-import { convertArrayToString } from "./support/test-helpers.js";
+import { convertArrayToString } from "../src/support/helpers.js";
 
 describe("TestParseTreeMatcher", () => {
     const checkPatternMatch = async (grammar: string, startRule: string, input: string, pattern: string,

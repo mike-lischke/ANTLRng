@@ -33,7 +33,7 @@ export class AnalysisPipeline {
                 return false; // lookahead must've computation failed
             }
 
-            if (look.and(combined).length >= 0) {
+            if (look.and(combined).length !== 0) {
                 collision = true;
                 break;
             }

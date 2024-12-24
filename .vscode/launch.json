@@ -21,7 +21,7 @@
             "runtimeArgs": [
                 "tsx",
                 "cli/runner.ts",
-                "-Dlanguage=CSharp",
+                "-Dlanguage=Java",
                 "--exact-output-dir",
                 "-o temp",
                 "tests/grammars/Java.g4"

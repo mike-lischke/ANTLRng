@@ -15,7 +15,7 @@ import type { GrammarAST } from "../src/tool/ast/GrammarAST.js";
 import type { RuleAST } from "../src/tool/ast/RuleAST.js";
 import { Grammar, Tool } from "../src/tool/index.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
-import { convertMapToString } from "./support/test-helpers.js";
+import { convertMapToString } from "../src/support/helpers.js";
 
 describe("TestATNConstruction", () => {
     const checkRuleATN = (g: Grammar, ruleName: string, expecting: string): void => {

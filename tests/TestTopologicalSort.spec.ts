@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { Graph } from "../src/misc/Graph.js";
-import { convertArrayToString } from "./support/test-helpers.js";
+import { convertArrayToString } from "../src/support/helpers.js";
 
 /** Test topology sort in GraphNode. */
 describe("TestTopologicalSort", () => {

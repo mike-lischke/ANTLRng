@@ -34,12 +34,15 @@ export class StructDecl extends Decl {
     // Track these separately; Go target needs to generate getters/setters
     // Do not make them templates; we only need the Decl object not the ST
     // built from it. Avoids adding args to StructDecl template
-    public tokenDecls = new OrderedHashSet<Decl>();
-    public tokenTypeDecls = new OrderedHashSet<Decl>();
-    public tokenListDecls = new OrderedHashSet<Decl>();
-    public ruleContextDecls = new OrderedHashSet<Decl>();
-    public ruleContextListDecls = new OrderedHashSet<Decl>();
-    public attributeDecls = new HashSet<Decl>();
+    public readonly tokenDecls = new OrderedHashSet<Decl>();
+    public readonly tokenTypeDecls = new OrderedHashSet<Decl>();
+    public readonly tokenListDecls = new OrderedHashSet<Decl>();
+    public readonly ruleContextDecls = new OrderedHashSet<Decl>();
+    public readonly ruleContextListDecls = new OrderedHashSet<Decl>();
+    public readonly attributeDecls = new HashSet<Decl>();
+
+    protected readonly generateListener: boolean;
+    protected readonly generateVisitor: boolean;
 
     @ModelElement
     public dispatchMethods: DispatchMethod[] = [];
@@ -63,12 +66,15 @@ export class StructDecl extends Decl {
     @ModelElement
     public signatures = new HashSet<Decl>();
 
-    public constructor(factory: OutputModelFactory, r: Rule, name?: string, protected generateListener?: boolean,
-        protected generateVisitor?: boolean) {
+    public constructor(factory: OutputModelFactory, r: Rule, name?: string,) {
         super(factory, name ?? factory.getGenerator()!.getTarget().getRuleFunctionContextStructName(r));
-        this.addDispatchMethods(r);
         this.derivedFromName = r.name;
         this.provideCopyFrom = r.hasAltSpecificContexts();
+
+        this.generateListener = factory.getGrammar()!.tool.toolParameters.generateListener ?? true;
+        this.generateVisitor = factory.getGrammar()!.tool.toolParameters.generateVisitor ?? false;
+
+        this.addDispatchMethods(r);
     }
 
     public addDispatchMethods(r: Rule): void {

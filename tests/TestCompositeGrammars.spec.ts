@@ -12,7 +12,7 @@ import { ErrorType } from "../src/tool/ErrorType.js";
 import { GrammarSemanticsMessage } from "../src/tool/GrammarSemanticsMessage.js";
 import { Grammar } from "../src/tool/index.js";
 import { ErrorQueue } from "./support/ErrorQueue.js";
-import { convertMapToString } from "./support/test-helpers.js";
+import { convertMapToString } from "../src/support/helpers.js";
 import { ToolTestUtils } from "./ToolTestUtils.js";
 
 describe("TestCompositeGrammars", () => {

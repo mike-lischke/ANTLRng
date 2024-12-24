@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import { ErrorType } from "../src/tool/ErrorType.js";
 import { LexerGrammar } from "../src/tool/index.js";
 import { ToolTestUtils } from "./ToolTestUtils.js";
-import { convertArrayToString, convertMapToString } from "./support/test-helpers.js";
+import { convertArrayToString, convertMapToString } from "../src/support/helpers.js";
 
 describe("TestSymbolIssues", () => {
     const testDataA = [

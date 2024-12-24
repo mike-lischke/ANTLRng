@@ -7,7 +7,7 @@ import { Token } from "antlr4ng";
 
 import { describe, expect, it } from "vitest";
 import { Grammar, LexerGrammar } from "../src/tool/index.js";
-import { convertArrayToString, convertMapToString } from "./support/test-helpers.js";
+import { convertArrayToString, convertMapToString } from "../src/support/helpers.js";
 
 describe("TestTokenTypeAssignment", () => {
     const checkSymbols = (g: Grammar, rules: string[], allValidTokens: string[]): void => {

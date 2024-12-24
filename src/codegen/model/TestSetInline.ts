@@ -11,26 +11,26 @@ import { OutputModelFactory } from "../OutputModelFactory.js";
 import { SrcOp } from "./SrcOp.js";
 import { TokenInfo } from "./TokenInfo.js";
 
-export class Bitset {
-    public readonly shift: number;
+class Bitset {
+    public readonly shift: bigint;
     private readonly tokens: TokenInfo[] = [];
-    private calculated = 0n;
+    private bits = 0n;
 
     public constructor(shift: number) {
-        this.shift = shift;
+        this.shift = BigInt(shift);
     }
 
     public addToken(type: number, name: string): void {
         this.tokens.push(new TokenInfo(type, name));
-        this.calculated |= 1n << BigInt(type - this.shift);
+        this.bits |= 1n << (BigInt(type) - this.shift);
     }
 
     public getTokens(): TokenInfo[] {
         return this.tokens;
     }
 
-    public getCalculated(): bigint {
-        return this.calculated;
+    public get calculated(): string {
+        return BigInt.asIntN(64, this.bits).toString();
     }
 };
 
@@ -53,11 +53,14 @@ export class TestSetInline extends SrcOp {
         useZeroOffset: boolean): Bitset[] {
         const bitsetList: Bitset[] = [];
         const target = factory.getGenerator()!.getTarget();
+
+        const wSize = BigInt(wordSize);
         let current: Bitset | undefined;
         for (const ttype of set.toArray()) {
-            if (!current || ttype > (current.shift + wordSize - 1)) {
+            const type = BigInt(ttype);
+            if (!current || type > (current.shift + wSize - 1n)) {
                 let shift: number;
-                if (useZeroOffset && ttype >= 0 && ttype < wordSize - 1) {
+                if (useZeroOffset && type >= 0n && type < wSize - 1n) {
                     shift = 0;
                 } else {
                     shift = ttype;
